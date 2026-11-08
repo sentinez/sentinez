@@ -92,3 +92,28 @@ func (hdl *AnalyticHandler) GetEventHistogram(ctx context.Context,
 
 	return hdl.service.GetEventHistogram(ctx, req)
 }
+
+// GetUniqueVisitorHistogram implements pb.AnalyticServiceServer.
+func (hdl *AnalyticHandler) GetUniqueVisitorHistogram(ctx context.Context,
+	req *pb.GetUniqueVisitorHistogramRequest,
+) (*pb.GetUniqueVisitorHistogramResponse, error) {
+	err := headers.Allow(ctx,
+		pb.GetAnalyticServiceGetUniqueVisitorHistogram())
+	if err != nil {
+		return nil, err
+	}
+
+	return hdl.service.GetUniqueVisitorHistogram(ctx, req)
+}
+
+// ListVisitors implements pb.AnalyticServiceServer.
+func (hdl *AnalyticHandler) ListVisitors(ctx context.Context,
+	req *pb.ListVisitorsRequest,
+) (*pb.ListVisitorsResponse, error) {
+	err := headers.Allow(ctx, pb.GetAnalyticServiceListVisitors())
+	if err != nil {
+		return nil, err
+	}
+
+	return hdl.service.ListVisitors(ctx, req)
+}

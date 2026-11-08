@@ -216,6 +216,7 @@
     "name": "Tên",
     "status": "Trạng thái",
     "uniqueVisitor": "Khách truy cập duy nhất",
+    "noVisitorData": "Chưa có dữ liệu",
     "plan": "Gói",
     "copyResourceId": "Sao chép ID tài nguyên",
     "loadFailed": "Không tải được danh sách tài nguyên",
@@ -271,9 +272,14 @@
     "hideJson": "Ẩn JSON",
     "noSettings": "Chưa áp dụng cấu hình nào.",
     "hiddenJson": "Đang ẩn. Nhấn \"Hiện JSON\" để xem cấu hình thô.",
-    "total24h": "Tổng (24h)",
+    "total24h": "Khách duy nhất (24h)",
     "peakHour": "Giờ cao điểm",
-    "visitors": "Khách truy cập duy nhất"
+    "visitors": "Khách truy cập duy nhất",
+    "topVisitors": "Khách truy cập nhiều nhất",
+    "topVisitorsDescription": "{count} IP có nhiều request nhất trong 24 giờ qua",
+    "clientIp": "IP",
+    "requests": "Số request",
+    "lastSeen": "Lần cuối"
   },
   "Delivery": {
     "cdnTitle": "Quy tắc CDN",

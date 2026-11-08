@@ -391,7 +391,7 @@ Repositories ([apps/collector/v1/repos](../staging/src/github.com/sentinez/contr
 
 #### Histograms
 
-[repos/histogram](../staging/src/github.com/sentinez/controlplane/apps/collector/v1/repos/histogram/)
+[pkg/szstorage/dbx/timescale/histogram](../staging/src/github.com/sentinez/pkg/szstorage/dbx/timescale/histogram/)
 keeps, for each event table, three continuous aggregates counting its rows
 per bucket, resource and key, for charts:
 

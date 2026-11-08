@@ -77,15 +77,21 @@ export function eventKindToJSON(object: EventKind): string {
   }
 }
 
-/** HistogramResolution the time range of the buckets of a histogram. */
+/**
+ * HistogramResolution the time range of the buckets of a histogram, and
+ * their number.
+ */
 export enum HistogramResolution {
   /**
    * HISTOGRAM_RESOLUTION_UNSPECIFIED - Picked by the range: seconds for a short zoom within their
    * retention, else minutes.
    */
   HISTOGRAM_RESOLUTION_UNSPECIFIED = 0,
+  /** HISTOGRAM_RESOLUTION_SECOND - The last 60 seconds. */
   HISTOGRAM_RESOLUTION_SECOND = 1,
+  /** HISTOGRAM_RESOLUTION_MINUTE - The last 60 minutes. */
   HISTOGRAM_RESOLUTION_MINUTE = 2,
+  /** HISTOGRAM_RESOLUTION_HOUR - The last 24 hours. */
   HISTOGRAM_RESOLUTION_HOUR = 3,
   UNRECOGNIZED = -1,
 }
@@ -211,7 +217,11 @@ export interface GetEventHistogramRequest {
   kind: EventKind;
   resolution: HistogramResolution;
   resourceIds: string[];
-  /** Bound the start of the buckets, from inclusive, to exclusive. */
+  /**
+   * The buckets end before to (exclusive), else with the current one,
+   * their number that of the resolution; from and to pick the
+   * resolution when unspecified.
+   */
   from?: Date | undefined;
   to?: Date | undefined;
 }
@@ -229,8 +239,59 @@ export interface HistogramPoint {
 }
 
 export interface GetEventHistogramResponse {
-  /** Oldest first. */
+  /**
+   * Oldest first, then per resource and key: one per bucket, a total of
+   * 0 when it has no event; a resource without any has key 0.
+   */
   points: HistogramPoint[];
+}
+
+export interface GetUniqueVisitorHistogramRequest {
+  resolution: HistogramResolution;
+  resourceIds: string[];
+  /**
+   * The buckets end before to (exclusive), else with the current one,
+   * their number that of the resolution; from and to pick the
+   * resolution when unspecified.
+   */
+  from?: Date | undefined;
+  to?: Date | undefined;
+}
+
+export interface GetUniqueVisitorHistogramResponse {
+  /**
+   * Oldest first, then per resource: one per bucket, the key 0, the total
+   * the number of distinct client ips of the bucket, 0 without.
+   */
+  points: HistogramPoint[];
+}
+
+export interface ListVisitorsRequest {
+  resolution: HistogramResolution;
+  resourceIds: string[];
+  /**
+   * The buckets end before to (exclusive), else with the current one,
+   * their number that of the resolution; from and to pick the
+   * resolution when unspecified.
+   */
+  from?: Date | undefined;
+  to?: Date | undefined;
+}
+
+/**
+ * VisitorPoint the requests of a client ip to a resource in the bucket
+ * starting at time.
+ */
+export interface VisitorPoint {
+  time?: Date | undefined;
+  resourceId: string;
+  clientIp: string;
+  total: number;
+}
+
+export interface ListVisitorsResponse {
+  /** Oldest bucket first, then the client ip of the most requests. */
+  visitors: VisitorPoint[];
 }
 
 function createBaseListHttpIngressEventsRequest(): ListHttpIngressEventsRequest {
@@ -1508,6 +1569,521 @@ export const GetEventHistogramResponse: MessageFns<GetEventHistogramResponse> = 
   fromPartial<I extends Exact<DeepPartial<GetEventHistogramResponse>, I>>(object: I): GetEventHistogramResponse {
     const message = createBaseGetEventHistogramResponse();
     message.points = object.points?.map((e) => HistogramPoint.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseGetUniqueVisitorHistogramRequest(): GetUniqueVisitorHistogramRequest {
+  return { resolution: 0, resourceIds: [], from: undefined, to: undefined };
+}
+
+export const GetUniqueVisitorHistogramRequest: MessageFns<GetUniqueVisitorHistogramRequest> = {
+  encode(message: GetUniqueVisitorHistogramRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.resolution !== 0) {
+      writer.uint32(8).int32(message.resolution);
+    }
+    for (const v of message.resourceIds) {
+      writer.uint32(18).string(v!);
+    }
+    if (message.from !== undefined) {
+      Timestamp.encode(toTimestamp(message.from), writer.uint32(26).fork()).join();
+    }
+    if (message.to !== undefined) {
+      Timestamp.encode(toTimestamp(message.to), writer.uint32(34).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetUniqueVisitorHistogramRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetUniqueVisitorHistogramRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.resolution = reader.int32() as any;
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.resourceIds.push(reader.string());
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.from = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.to = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): GetUniqueVisitorHistogramRequest {
+    return {
+      resolution: isSet(object.resolution) ? histogramResolutionFromJSON(object.resolution) : 0,
+      resourceIds: globalThis.Array.isArray(object?.resourceIds)
+        ? object.resourceIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.resource_ids)
+        ? object.resource_ids.map((e: any) => globalThis.String(e))
+        : [],
+      from: isSet(object.from) ? fromJsonTimestamp(object.from) : undefined,
+      to: isSet(object.to) ? fromJsonTimestamp(object.to) : undefined,
+    };
+  },
+
+  toJSON(message: GetUniqueVisitorHistogramRequest): unknown {
+    const obj: any = {};
+    if (message.resolution !== 0) {
+      obj.resolution = histogramResolutionToJSON(message.resolution);
+    }
+    if (message.resourceIds?.length) {
+      obj.resourceIds = message.resourceIds;
+    }
+    if (message.from !== undefined) {
+      obj.from = message.from.toISOString();
+    }
+    if (message.to !== undefined) {
+      obj.to = message.to.toISOString();
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetUniqueVisitorHistogramRequest>, I>>(
+    base?: I,
+  ): GetUniqueVisitorHistogramRequest {
+    return GetUniqueVisitorHistogramRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetUniqueVisitorHistogramRequest>, I>>(
+    object: I,
+  ): GetUniqueVisitorHistogramRequest {
+    const message = createBaseGetUniqueVisitorHistogramRequest();
+    message.resolution = object.resolution ?? 0;
+    message.resourceIds = object.resourceIds?.map((e) => e) || [];
+    message.from = object.from ?? undefined;
+    message.to = object.to ?? undefined;
+    return message;
+  },
+};
+
+function createBaseGetUniqueVisitorHistogramResponse(): GetUniqueVisitorHistogramResponse {
+  return { points: [] };
+}
+
+export const GetUniqueVisitorHistogramResponse: MessageFns<GetUniqueVisitorHistogramResponse> = {
+  encode(message: GetUniqueVisitorHistogramResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.points) {
+      HistogramPoint.encode(v!, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetUniqueVisitorHistogramResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetUniqueVisitorHistogramResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.points.push(HistogramPoint.decode(reader, reader.uint32()));
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): GetUniqueVisitorHistogramResponse {
+    return {
+      points: globalThis.Array.isArray(object?.points) ? object.points.map((e: any) => HistogramPoint.fromJSON(e)) : [],
+    };
+  },
+
+  toJSON(message: GetUniqueVisitorHistogramResponse): unknown {
+    const obj: any = {};
+    if (message.points?.length) {
+      obj.points = message.points.map((e) => HistogramPoint.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetUniqueVisitorHistogramResponse>, I>>(
+    base?: I,
+  ): GetUniqueVisitorHistogramResponse {
+    return GetUniqueVisitorHistogramResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetUniqueVisitorHistogramResponse>, I>>(
+    object: I,
+  ): GetUniqueVisitorHistogramResponse {
+    const message = createBaseGetUniqueVisitorHistogramResponse();
+    message.points = object.points?.map((e) => HistogramPoint.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseListVisitorsRequest(): ListVisitorsRequest {
+  return { resolution: 0, resourceIds: [], from: undefined, to: undefined };
+}
+
+export const ListVisitorsRequest: MessageFns<ListVisitorsRequest> = {
+  encode(message: ListVisitorsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.resolution !== 0) {
+      writer.uint32(8).int32(message.resolution);
+    }
+    for (const v of message.resourceIds) {
+      writer.uint32(18).string(v!);
+    }
+    if (message.from !== undefined) {
+      Timestamp.encode(toTimestamp(message.from), writer.uint32(26).fork()).join();
+    }
+    if (message.to !== undefined) {
+      Timestamp.encode(toTimestamp(message.to), writer.uint32(34).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListVisitorsRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseListVisitorsRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.resolution = reader.int32() as any;
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.resourceIds.push(reader.string());
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.from = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.to = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): ListVisitorsRequest {
+    return {
+      resolution: isSet(object.resolution) ? histogramResolutionFromJSON(object.resolution) : 0,
+      resourceIds: globalThis.Array.isArray(object?.resourceIds)
+        ? object.resourceIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.resource_ids)
+        ? object.resource_ids.map((e: any) => globalThis.String(e))
+        : [],
+      from: isSet(object.from) ? fromJsonTimestamp(object.from) : undefined,
+      to: isSet(object.to) ? fromJsonTimestamp(object.to) : undefined,
+    };
+  },
+
+  toJSON(message: ListVisitorsRequest): unknown {
+    const obj: any = {};
+    if (message.resolution !== 0) {
+      obj.resolution = histogramResolutionToJSON(message.resolution);
+    }
+    if (message.resourceIds?.length) {
+      obj.resourceIds = message.resourceIds;
+    }
+    if (message.from !== undefined) {
+      obj.from = message.from.toISOString();
+    }
+    if (message.to !== undefined) {
+      obj.to = message.to.toISOString();
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ListVisitorsRequest>, I>>(base?: I): ListVisitorsRequest {
+    return ListVisitorsRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ListVisitorsRequest>, I>>(object: I): ListVisitorsRequest {
+    const message = createBaseListVisitorsRequest();
+    message.resolution = object.resolution ?? 0;
+    message.resourceIds = object.resourceIds?.map((e) => e) || [];
+    message.from = object.from ?? undefined;
+    message.to = object.to ?? undefined;
+    return message;
+  },
+};
+
+function createBaseVisitorPoint(): VisitorPoint {
+  return { time: undefined, resourceId: "", clientIp: "", total: 0 };
+}
+
+export const VisitorPoint: MessageFns<VisitorPoint> = {
+  encode(message: VisitorPoint, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.time !== undefined) {
+      Timestamp.encode(toTimestamp(message.time), writer.uint32(10).fork()).join();
+    }
+    if (message.resourceId !== "") {
+      writer.uint32(18).string(message.resourceId);
+    }
+    if (message.clientIp !== "") {
+      writer.uint32(26).string(message.clientIp);
+    }
+    if (message.total !== 0) {
+      writer.uint32(32).int64(message.total);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): VisitorPoint {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseVisitorPoint();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.time = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.resourceId = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.clientIp = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 32) {
+              break;
+            }
+
+            message.total = longToNumber(reader.int64());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): VisitorPoint {
+    return {
+      time: isSet(object.time) ? fromJsonTimestamp(object.time) : undefined,
+      resourceId: isSet(object.resourceId)
+        ? globalThis.String(object.resourceId)
+        : isSet(object.resource_id)
+        ? globalThis.String(object.resource_id)
+        : "",
+      clientIp: isSet(object.clientIp)
+        ? globalThis.String(object.clientIp)
+        : isSet(object.client_ip)
+        ? globalThis.String(object.client_ip)
+        : "",
+      total: isSet(object.total) ? globalThis.Number(object.total) : 0,
+    };
+  },
+
+  toJSON(message: VisitorPoint): unknown {
+    const obj: any = {};
+    if (message.time !== undefined) {
+      obj.time = message.time.toISOString();
+    }
+    if (message.resourceId !== "") {
+      obj.resourceId = message.resourceId;
+    }
+    if (message.clientIp !== "") {
+      obj.clientIp = message.clientIp;
+    }
+    if (message.total !== 0) {
+      obj.total = Math.round(message.total);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<VisitorPoint>, I>>(base?: I): VisitorPoint {
+    return VisitorPoint.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<VisitorPoint>, I>>(object: I): VisitorPoint {
+    const message = createBaseVisitorPoint();
+    message.time = object.time ?? undefined;
+    message.resourceId = object.resourceId ?? "";
+    message.clientIp = object.clientIp ?? "";
+    message.total = object.total ?? 0;
+    return message;
+  },
+};
+
+function createBaseListVisitorsResponse(): ListVisitorsResponse {
+  return { visitors: [] };
+}
+
+export const ListVisitorsResponse: MessageFns<ListVisitorsResponse> = {
+  encode(message: ListVisitorsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.visitors) {
+      VisitorPoint.encode(v!, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListVisitorsResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseListVisitorsResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.visitors.push(VisitorPoint.decode(reader, reader.uint32()));
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): ListVisitorsResponse {
+    return {
+      visitors: globalThis.Array.isArray(object?.visitors)
+        ? object.visitors.map((e: any) => VisitorPoint.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: ListVisitorsResponse): unknown {
+    const obj: any = {};
+    if (message.visitors?.length) {
+      obj.visitors = message.visitors.map((e) => VisitorPoint.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ListVisitorsResponse>, I>>(base?: I): ListVisitorsResponse {
+    return ListVisitorsResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ListVisitorsResponse>, I>>(object: I): ListVisitorsResponse {
+    const message = createBaseListVisitorsResponse();
+    message.visitors = object.visitors?.map((e) => VisitorPoint.fromPartial(e)) || [];
     return message;
   },
 };

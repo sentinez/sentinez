@@ -39,13 +39,17 @@ enum EventKind {
   EVENT_KIND_CORE_RULE = 5;
 }
 
-// HistogramResolution the time range of the buckets of a histogram.
+// HistogramResolution the time range of the buckets of a histogram, and
+// their number.
 enum HistogramResolution {
   // Picked by the range: seconds for a short zoom within their
   // retention, else minutes.
   HISTOGRAM_RESOLUTION_UNSPECIFIED = 0;
+  // The last 60 seconds.
   HISTOGRAM_RESOLUTION_SECOND = 1;
+  // The last 60 minutes.
   HISTOGRAM_RESOLUTION_MINUTE = 2;
+  // The last 24 hours.
   HISTOGRAM_RESOLUTION_HOUR = 3;
 }
 
@@ -123,7 +127,9 @@ message GetEventHistogramRequest {
   EventKind kind = 1;
   HistogramResolution resolution = 2;
   repeated string resource_ids = 3;
-  // Bound the start of the buckets, from inclusive, to exclusive.
+  // The buckets end before to (exclusive), else with the current one,
+  // their number that of the resolution; from and to pick the
+  // resolution when unspecified.
   google.protobuf.Timestamp from = 4;
   google.protobuf.Timestamp to = 5;
 }
@@ -139,6 +145,47 @@ message HistogramPoint {
 }
 
 message GetEventHistogramResponse {
-  // Oldest first.
+  // Oldest first, then per resource and key: one per bucket, a total of
+  // 0 when it has no event; a resource without any has key 0.
   repeated HistogramPoint points = 1;
+}
+
+message GetUniqueVisitorHistogramRequest {
+  HistogramResolution resolution = 1;
+  repeated string resource_ids = 2;
+  // The buckets end before to (exclusive), else with the current one,
+  // their number that of the resolution; from and to pick the
+  // resolution when unspecified.
+  google.protobuf.Timestamp from = 3;
+  google.protobuf.Timestamp to = 4;
+}
+
+message GetUniqueVisitorHistogramResponse {
+  // Oldest first, then per resource: one per bucket, the key 0, the total
+  // the number of distinct client ips of the bucket, 0 without.
+  repeated HistogramPoint points = 1;
+}
+
+message ListVisitorsRequest {
+  HistogramResolution resolution = 1;
+  repeated string resource_ids = 2;
+  // The buckets end before to (exclusive), else with the current one,
+  // their number that of the resolution; from and to pick the
+  // resolution when unspecified.
+  google.protobuf.Timestamp from = 3;
+  google.protobuf.Timestamp to = 4;
+}
+
+// VisitorPoint the requests of a client ip to a resource in the bucket
+// starting at time.
+message VisitorPoint {
+  google.protobuf.Timestamp time = 1;
+  string resource_id = 2;
+  string client_ip = 3;
+  int64 total = 4;
+}
+
+message ListVisitorsResponse {
+  // Oldest bucket first, then the client ip of the most requests.
+  repeated VisitorPoint visitors = 1;
 }

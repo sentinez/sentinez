@@ -216,6 +216,7 @@
     "name": "Name",
     "status": "Status",
     "uniqueVisitor": "Unique Visitor",
+    "noVisitorData": "No data",
     "plan": "Plan",
     "copyResourceId": "Copy resource ID",
     "loadFailed": "Failed to load resources",
@@ -271,9 +272,14 @@
     "hideJson": "Hide JSON",
     "noSettings": "No settings applied.",
     "hiddenJson": "Hidden. Click \"Show JSON\" to view the raw setting.",
-    "total24h": "Total (24h)",
+    "total24h": "Unique visitors (24h)",
     "peakHour": "Peak hour",
-    "visitors": "Unique visitors"
+    "visitors": "Unique visitors",
+    "topVisitors": "Top visitors",
+    "topVisitorsDescription": "The {count} client IPs with the most requests over the last 24 hours",
+    "clientIp": "Client IP",
+    "requests": "Requests",
+    "lastSeen": "Last seen"
   },
   "Delivery": {
     "cdnTitle": "CDN Rule",

@@ -33,14 +33,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AnalyticService_Status_FullMethodName                = "/sentinez.apps.analytic.v1.AnalyticService/Status"
-	AnalyticService_ListActivities_FullMethodName        = "/sentinez.apps.analytic.v1.AnalyticService/ListActivities"
-	AnalyticService_ListHttpIngressEvents_FullMethodName = "/sentinez.apps.analytic.v1.AnalyticService/ListHttpIngressEvents"
-	AnalyticService_ListHttpEgressEvents_FullMethodName  = "/sentinez.apps.analytic.v1.AnalyticService/ListHttpEgressEvents"
-	AnalyticService_ListSecRuleEvents_FullMethodName     = "/sentinez.apps.analytic.v1.AnalyticService/ListSecRuleEvents"
-	AnalyticService_ListRateLimitEvents_FullMethodName   = "/sentinez.apps.analytic.v1.AnalyticService/ListRateLimitEvents"
-	AnalyticService_ListCoreRuleEvents_FullMethodName    = "/sentinez.apps.analytic.v1.AnalyticService/ListCoreRuleEvents"
-	AnalyticService_GetEventHistogram_FullMethodName     = "/sentinez.apps.analytic.v1.AnalyticService/GetEventHistogram"
+	AnalyticService_Status_FullMethodName                    = "/sentinez.apps.analytic.v1.AnalyticService/Status"
+	AnalyticService_ListActivities_FullMethodName            = "/sentinez.apps.analytic.v1.AnalyticService/ListActivities"
+	AnalyticService_ListHttpIngressEvents_FullMethodName     = "/sentinez.apps.analytic.v1.AnalyticService/ListHttpIngressEvents"
+	AnalyticService_ListHttpEgressEvents_FullMethodName      = "/sentinez.apps.analytic.v1.AnalyticService/ListHttpEgressEvents"
+	AnalyticService_ListSecRuleEvents_FullMethodName         = "/sentinez.apps.analytic.v1.AnalyticService/ListSecRuleEvents"
+	AnalyticService_ListRateLimitEvents_FullMethodName       = "/sentinez.apps.analytic.v1.AnalyticService/ListRateLimitEvents"
+	AnalyticService_ListCoreRuleEvents_FullMethodName        = "/sentinez.apps.analytic.v1.AnalyticService/ListCoreRuleEvents"
+	AnalyticService_GetEventHistogram_FullMethodName         = "/sentinez.apps.analytic.v1.AnalyticService/GetEventHistogram"
+	AnalyticService_GetUniqueVisitorHistogram_FullMethodName = "/sentinez.apps.analytic.v1.AnalyticService/GetUniqueVisitorHistogram"
+	AnalyticService_ListVisitors_FullMethodName              = "/sentinez.apps.analytic.v1.AnalyticService/ListVisitors"
 )
 
 // AnalyticServiceClient is the client API for AnalyticService service.
@@ -60,6 +62,12 @@ type AnalyticServiceClient interface {
 	// GetEventHistogram counts the events of a kind per time bucket,
 	// resource and key.
 	GetEventHistogram(ctx context.Context, in *GetEventHistogramRequest, opts ...grpc.CallOption) (*GetEventHistogramResponse, error)
+	// GetUniqueVisitorHistogram counts the distinct client ips of the
+	// requests received by the edge per time bucket and resource.
+	GetUniqueVisitorHistogram(ctx context.Context, in *GetUniqueVisitorHistogramRequest, opts ...grpc.CallOption) (*GetUniqueVisitorHistogramResponse, error)
+	// ListVisitors counts the requests received by the edge per time
+	// bucket, resource and client ip.
+	ListVisitors(ctx context.Context, in *ListVisitorsRequest, opts ...grpc.CallOption) (*ListVisitorsResponse, error)
 }
 
 type analyticServiceClient struct {
@@ -150,6 +158,26 @@ func (c *analyticServiceClient) GetEventHistogram(ctx context.Context, in *GetEv
 	return out, nil
 }
 
+func (c *analyticServiceClient) GetUniqueVisitorHistogram(ctx context.Context, in *GetUniqueVisitorHistogramRequest, opts ...grpc.CallOption) (*GetUniqueVisitorHistogramResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUniqueVisitorHistogramResponse)
+	err := c.cc.Invoke(ctx, AnalyticService_GetUniqueVisitorHistogram_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *analyticServiceClient) ListVisitors(ctx context.Context, in *ListVisitorsRequest, opts ...grpc.CallOption) (*ListVisitorsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListVisitorsResponse)
+	err := c.cc.Invoke(ctx, AnalyticService_ListVisitors_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AnalyticServiceServer is the server API for AnalyticService service.
 // All implementations should embed UnimplementedAnalyticServiceServer
 // for forward compatibility.
@@ -167,6 +195,12 @@ type AnalyticServiceServer interface {
 	// GetEventHistogram counts the events of a kind per time bucket,
 	// resource and key.
 	GetEventHistogram(context.Context, *GetEventHistogramRequest) (*GetEventHistogramResponse, error)
+	// GetUniqueVisitorHistogram counts the distinct client ips of the
+	// requests received by the edge per time bucket and resource.
+	GetUniqueVisitorHistogram(context.Context, *GetUniqueVisitorHistogramRequest) (*GetUniqueVisitorHistogramResponse, error)
+	// ListVisitors counts the requests received by the edge per time
+	// bucket, resource and client ip.
+	ListVisitors(context.Context, *ListVisitorsRequest) (*ListVisitorsResponse, error)
 }
 
 // UnimplementedAnalyticServiceServer should be embedded to have
@@ -199,6 +233,12 @@ func (UnimplementedAnalyticServiceServer) ListCoreRuleEvents(context.Context, *L
 }
 func (UnimplementedAnalyticServiceServer) GetEventHistogram(context.Context, *GetEventHistogramRequest) (*GetEventHistogramResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetEventHistogram not implemented")
+}
+func (UnimplementedAnalyticServiceServer) GetUniqueVisitorHistogram(context.Context, *GetUniqueVisitorHistogramRequest) (*GetUniqueVisitorHistogramResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetUniqueVisitorHistogram not implemented")
+}
+func (UnimplementedAnalyticServiceServer) ListVisitors(context.Context, *ListVisitorsRequest) (*ListVisitorsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListVisitors not implemented")
 }
 func (UnimplementedAnalyticServiceServer) testEmbeddedByValue() {}
 
@@ -364,6 +404,42 @@ func _AnalyticService_GetEventHistogram_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AnalyticService_GetUniqueVisitorHistogram_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUniqueVisitorHistogramRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AnalyticServiceServer).GetUniqueVisitorHistogram(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AnalyticService_GetUniqueVisitorHistogram_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AnalyticServiceServer).GetUniqueVisitorHistogram(ctx, req.(*GetUniqueVisitorHistogramRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AnalyticService_ListVisitors_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListVisitorsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AnalyticServiceServer).ListVisitors(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AnalyticService_ListVisitors_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AnalyticServiceServer).ListVisitors(ctx, req.(*ListVisitorsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AnalyticService_ServiceDesc is the grpc.ServiceDesc for AnalyticService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -402,6 +478,14 @@ var AnalyticService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetEventHistogram",
 			Handler:    _AnalyticService_GetEventHistogram_Handler,
+		},
+		{
+			MethodName: "GetUniqueVisitorHistogram",
+			Handler:    _AnalyticService_GetUniqueVisitorHistogram_Handler,
+		},
+		{
+			MethodName: "ListVisitors",
+			Handler:    _AnalyticService_ListVisitors_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

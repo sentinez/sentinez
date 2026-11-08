@@ -21,7 +21,7 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventfilter"
-	"github.com/sentinez/controlplane/apps/collector/v1/repos/histogram"
+	"github.com/sentinez/pkg/szstorage/dbx/timescale/histogram"
 	"github.com/sentinez/controlplane/pkg/schema"
 	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
@@ -38,9 +38,15 @@ var _columns = schema.AnalyticHttpIngressEvent().ColumnNames()
 var _hypertable = schema.EventHypertable(
 	schema.AnalyticHttpIngressEvent(), httppb.IngressEvent_Timestamp)
 
-var _histogram = histogram.Spec{
+var _histogramStatus = histogram.Spec{
 	Source: _hypertable,
 	Key:    httppb.IngressEvent_Status,
+}
+
+// _visitors the requests per client ip: the visitors of a resource.
+var _visitors = histogram.ValueSpec{
+	Source: _hypertable,
+	Column: httppb.IngressEvent_ClientIp,
 }
 
 var _filterColumns = eventfilter.Columns{
@@ -64,11 +70,25 @@ type IHttpIngressEvent interface {
 	// status (histogram.Point.Key).
 	Histogram(ctx context.Context,
 		filter *histogram.Filter) ([]*histogram.Point, error)
+	VisitorReader
+}
+
+// VisitorReader reads the visitors of the requests: their client ips.
+type VisitorReader interface {
+	// UniqueVisitors counts the distinct client ips per bucket and
+	// resource.
+	UniqueVisitors(ctx context.Context,
+		filter *histogram.Filter) ([]*histogram.Point, error)
+	// Visitors counts the requests per bucket, resource and client ip
+	// (histogram.Point.Value), the most frequent ip first.
+	Visitors(ctx context.Context,
+		filter *histogram.Filter) ([]*histogram.Point, error)
 }
 
 type HttpIngressEvent struct {
-	storage   dbx.Database[httppb.IngressEvent]
-	histogram *histogram.Histogram
+	storage         dbx.Database[httppb.IngressEvent]
+	histogramStatus *histogram.Histogram
+	visitors        *histogram.Values
 }
 
 // New returns the repo of the sztable.AnalyticHttpIngressEvent
@@ -80,18 +100,28 @@ func New(ctx context.Context,
 		return nil, err
 	}
 
-	hist, err := histogram.New(ctx, appConf, _histogram)
+	histStatus, err := histogram.New(ctx, appConf, _histogramStatus)
 	if err != nil {
 		return nil, err
 	}
 
-	return &HttpIngressEvent{storage: storage, histogram: hist}, nil
+	visitors, err := histogram.NewValues(ctx, appConf, _visitors)
+	if err != nil {
+		return nil, err
+	}
+
+	return &HttpIngressEvent{
+		storage:         storage,
+		histogramStatus: histStatus,
+		visitors:        visitors,
+	}, nil
 }
 
 func (r *HttpIngressEvent) WithTX(tx *postgres.TxSession) IHttpIngressEvent {
 	return &HttpIngressEvent{
-		storage:   postgres.WithTx(tx, r.storage),
-		histogram: r.histogram,
+		storage:         postgres.WithTx(tx, r.storage),
+		histogramStatus: r.histogramStatus,
+		visitors:        r.visitors,
 	}
 }
 
@@ -130,7 +160,17 @@ func (r *HttpIngressEvent) List(ctx context.Context,
 
 func (r *HttpIngressEvent) Histogram(ctx context.Context,
 	filter *histogram.Filter) ([]*histogram.Point, error) {
-	return r.histogram.Points(ctx, filter)
+	return r.histogramStatus.Points(ctx, filter)
+}
+
+func (r *HttpIngressEvent) UniqueVisitors(ctx context.Context,
+	filter *histogram.Filter) ([]*histogram.Point, error) {
+	return r.visitors.Distinct(ctx, filter)
+}
+
+func (r *HttpIngressEvent) Visitors(ctx context.Context,
+	filter *histogram.Filter) ([]*histogram.Point, error) {
+	return r.visitors.Points(ctx, filter)
 }
 
 func (r *HttpIngressEvent) selectQuery() sq.SelectBuilder {

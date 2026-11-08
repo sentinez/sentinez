@@ -35,7 +35,7 @@ import {
   TableHeader,
   TableRow,
 } from '@sentinez/ui/components/table';
-import { UniqueVisitorChart } from './chart';
+import { UniqueVisitorChart, bucketOf, type VisitorBucket } from './chart';
 import BadgeStatus from '@/components/badge-status';
 import { RefreshButton } from '@/components/refresh-button';
 import { usePagedList } from '@/hooks/use-paged-list';
@@ -46,15 +46,19 @@ import type { Pages } from '@/lib/api/pages';
 import type { Resource } from '@sentinez/proto/sentinez/apps/tenant/v1/model';
 import { statusToJSON } from '@sentinez/proto/sentinez/types/v1/known';
 import { listResources } from '@/lib/api/tenant';
+import { getUniqueVisitorHistogram } from '@/lib/api/analytic';
+import { HistogramResolution } from '@sentinez/proto/sentinez/apps/analytic/v1/event';
+import axios from 'axios';
 
 // "STATUS_ACTIVE" -> "active"
 const enumLabel = (v: string, prefix: string) => v.replace(prefix, '').toLowerCase();
 
-function rowOf(r: Resource): Payment {
+function rowOf(r: Resource, visitors: VisitorBucket[] = []): Payment {
   return {
     id: r.id,
     status: enumLabel(statusToJSON(r.status), 'STATUS_') as Payment['status'],
     name: r.resourceDomain,
+    visitors,
   };
 }
 
@@ -62,7 +66,38 @@ export type Payment = {
   id: string;
   status: 'active' | 'disable' | 'success' | 'failed';
   name: string;
+  visitors: VisitorBucket[];
 };
+
+// The unique visitors of the last 24 hours of each resource, one bucket
+// per hour (0 without visitors, filled by the API); empty when the
+// analytic API fails so the list still renders
+async function visitorsOf(
+  resources: Resource[],
+  signal: AbortSignal,
+): Promise<Map<string, VisitorBucket[]>> {
+  const visitors = new Map<string, VisitorBucket[]>();
+  if (resources.length === 0) return visitors;
+
+  try {
+    const { points } = await getUniqueVisitorHistogram(
+      {
+        resolution: HistogramResolution.HISTOGRAM_RESOLUTION_HOUR,
+        resourceIds: resources.map((r) => r.id),
+      },
+      { signal },
+    );
+    for (const p of points) {
+      const buckets = visitors.get(p.resourceId) ?? [];
+      buckets.push(bucketOf(p));
+      visitors.set(p.resourceId, buckets);
+    }
+  } catch (err) {
+    if (axios.isCancel(err) || signal.aborted) throw err;
+    console.warn('[domain] unique visitors failed:', err);
+  }
+  return visitors;
+}
 
 type DomainTranslator = ReturnType<typeof useTranslations<'Domain'>>;
 
@@ -96,9 +131,9 @@ export const getColumns = (t: DomainTranslator): ColumnDef<Payment>[] => [
     accessorKey: 'unique visitor',
     meta: { label: t('uniqueVisitor') },
     header: () => <div className="w-full">{t('uniqueVisitor')}</div>,
-    cell: () => (
+    cell: ({ row }) => (
       <div className="w-full max-h-16 overflow-hidden flex items-center">
-        <UniqueVisitorChart />
+        <UniqueVisitorChart data={row.original.visitors} />
       </div>
     ),
   },
@@ -137,7 +172,9 @@ export function ResourceTable() {
     async (page: Pages, signal: AbortSignal) => {
       const list = await listResources({ page, tenantIds: [tenantId] }, { signal });
       if (!list) throw new Error('list resources failed');
-      return { items: list.resources, total: list.total };
+      const visitors = await visitorsOf(list.resources, signal);
+      const items = list.resources.map((r) => rowOf(r, visitors.get(r.id)));
+      return { items, total: list.total };
     },
     [tenantId],
   );
@@ -148,10 +185,8 @@ export function ResourceTable() {
     // Wait for the selected tenant: it is unknown while rendering on the server
     tenantId !== '',
   );
-  const data = React.useMemo(() => items.map(rowOf), [items]);
-
   const table = useReactTable({
-    data,
+    data: items,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,

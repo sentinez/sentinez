@@ -70,6 +70,20 @@ service AnalyticService {
     option (google.api.http) = {get: "/analytic/events/histogram"};
     option (sentinez.types.v1.x_method) = {ignore: true};
   }
+
+  // GetUniqueVisitorHistogram counts the distinct client ips of the
+  // requests received by the edge per time bucket and resource.
+  rpc GetUniqueVisitorHistogram(GetUniqueVisitorHistogramRequest) returns (GetUniqueVisitorHistogramResponse) {
+    option (google.api.http) = {get: "/analytic/visitors/histogram"};
+    option (sentinez.types.v1.x_method) = {ignore: true};
+  }
+
+  // ListVisitors counts the requests received by the edge per time
+  // bucket, resource and client ip.
+  rpc ListVisitors(ListVisitorsRequest) returns (ListVisitorsResponse) {
+    option (google.api.http) = {get: "/analytic/visitors"};
+    option (sentinez.types.v1.x_method) = {ignore: true};
+  }
 }
 
 message StatusRequest {}

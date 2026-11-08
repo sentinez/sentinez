@@ -19,7 +19,7 @@ import (
 	"time"
 
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventfilter"
-	"github.com/sentinez/controlplane/apps/collector/v1/repos/histogram"
+	"github.com/sentinez/pkg/szstorage/dbx/timescale/histogram"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -83,23 +83,77 @@ func (srv *AnalyticService) ListCoreRuleEvents(ctx context.Context,
 // GetEventHistogram implements pb.AnalyticServiceServer.
 func (srv *AnalyticService) GetEventHistogram(ctx context.Context,
 	req *pb.GetEventHistogramRequest) (*pb.GetEventHistogramResponse, error) {
-	filter := &histogram.Filter{
+	points, err := srv.events.Histogram(ctx, req.GetKind(),
+		histogramFilter(req))
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.GetEventHistogramResponse{Points: histogramPoints(points)},
+		nil
+}
+
+// GetUniqueVisitorHistogram implements pb.AnalyticServiceServer.
+func (srv *AnalyticService) GetUniqueVisitorHistogram(ctx context.Context,
+	req *pb.GetUniqueVisitorHistogramRequest,
+) (*pb.GetUniqueVisitorHistogramResponse, error) {
+	points, err := srv.events.HttpIngress.UniqueVisitors(ctx,
+		histogramFilter(req))
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.GetUniqueVisitorHistogramResponse{
+		Points: histogramPoints(points),
+	}, nil
+}
+
+// ListVisitors implements pb.AnalyticServiceServer.
+func (srv *AnalyticService) ListVisitors(ctx context.Context,
+	req *pb.ListVisitorsRequest) (*pb.ListVisitorsResponse, error) {
+	points, err := srv.events.HttpIngress.Visitors(ctx, histogramFilter(req))
+	if err != nil {
+		return nil, err
+	}
+
+	resp := &pb.ListVisitorsResponse{
+		Visitors: make([]*pb.VisitorPoint, 0, len(points)),
+	}
+	for _, point := range points {
+		resp.Visitors = append(resp.Visitors, &pb.VisitorPoint{
+			Time:       timestamppb.New(point.Time),
+			ResourceId: point.ResourceId,
+			ClientIp:   point.Value,
+			Total:      point.Total,
+		})
+	}
+
+	return resp, nil
+}
+
+// histogramRequest the filters every histogram has.
+type histogramRequest interface {
+	GetResolution() pb.HistogramResolution
+	GetResourceIds() []string
+	GetFrom() *timestamppb.Timestamp
+	GetTo() *timestamppb.Timestamp
+}
+
+// histogramFilter the filter of the histogram of req.
+func histogramFilter(req histogramRequest) *histogram.Filter {
+	return &histogram.Filter{
 		Resolution:  histogram.Resolution(req.GetResolution()),
 		ResourceIds: req.GetResourceIds(),
 		From:        asTime(req.GetFrom()),
 		To:          asTime(req.GetTo()),
 	}
+}
 
-	points, err := srv.events.Histogram(ctx, req.GetKind(), filter)
-	if err != nil {
-		return nil, err
-	}
-
-	resp := &pb.GetEventHistogramResponse{
-		Points: make([]*pb.HistogramPoint, 0, len(points)),
-	}
+// histogramPoints the proto of points.
+func histogramPoints(points []*histogram.Point) []*pb.HistogramPoint {
+	resp := make([]*pb.HistogramPoint, 0, len(points))
 	for _, point := range points {
-		resp.Points = append(resp.Points, &pb.HistogramPoint{
+		resp = append(resp, &pb.HistogramPoint{
 			Time:       timestamppb.New(point.Time),
 			ResourceId: point.ResourceId,
 			Key:        point.Key,
@@ -107,7 +161,7 @@ func (srv *AnalyticService) GetEventHistogram(ctx context.Context,
 		})
 	}
 
-	return resp, nil
+	return resp
 }
 
 // The size of a page of events, by default and at most.

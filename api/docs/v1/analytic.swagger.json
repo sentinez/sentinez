@@ -509,6 +509,134 @@
           "AnalyticService"
         ]
       }
+    },
+    "/analytic/visitors": {
+      "get": {
+        "summary": "ListVisitors counts the requests received by the edge per time\nbucket, resource and client ip.",
+        "operationId": "AnalyticService_ListVisitors",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListVisitorsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "resolution",
+            "description": " - HISTOGRAM_RESOLUTION_UNSPECIFIED: Picked by the range: seconds for a short zoom within their\nretention, else minutes.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "HISTOGRAM_RESOLUTION_UNSPECIFIED",
+              "HISTOGRAM_RESOLUTION_SECOND",
+              "HISTOGRAM_RESOLUTION_MINUTE",
+              "HISTOGRAM_RESOLUTION_HOUR"
+            ],
+            "default": "HISTOGRAM_RESOLUTION_UNSPECIFIED"
+          },
+          {
+            "name": "resourceIds",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "from",
+            "description": "Bound the start of the buckets, from inclusive, to exclusive.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "tags": [
+          "AnalyticService"
+        ]
+      }
+    },
+    "/analytic/visitors/histogram": {
+      "get": {
+        "summary": "GetUniqueVisitorHistogram counts the distinct client ips of the\nrequests received by the edge per time bucket and resource.",
+        "operationId": "AnalyticService_GetUniqueVisitorHistogram",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetUniqueVisitorHistogramResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "resolution",
+            "description": " - HISTOGRAM_RESOLUTION_UNSPECIFIED: Picked by the range: seconds for a short zoom within their\nretention, else minutes.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "HISTOGRAM_RESOLUTION_UNSPECIFIED",
+              "HISTOGRAM_RESOLUTION_SECOND",
+              "HISTOGRAM_RESOLUTION_MINUTE",
+              "HISTOGRAM_RESOLUTION_HOUR"
+            ],
+            "default": "HISTOGRAM_RESOLUTION_UNSPECIFIED"
+          },
+          {
+            "name": "resourceIds",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "from",
+            "description": "Bound the start of the buckets, from inclusive, to exclusive.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "tags": [
+          "AnalyticService"
+        ]
+      }
     }
   },
   "definitions": {
@@ -747,6 +875,19 @@
         }
       }
     },
+    "v1GetUniqueVisitorHistogramResponse": {
+      "type": "object",
+      "properties": {
+        "points": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1HistogramPoint"
+          },
+          "description": "Oldest first; the key is 0, the total the number of distinct\nclient ips of the bucket."
+        }
+      }
+    },
     "v1HistogramPoint": {
       "type": "object",
       "properties": {
@@ -922,6 +1063,19 @@
         }
       }
     },
+    "v1ListVisitorsResponse": {
+      "type": "object",
+      "properties": {
+        "visitors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1VisitorPoint"
+          },
+          "description": "Oldest bucket first, then the client ip of the most requests."
+        }
+      }
+    },
     "v1Owner": {
       "type": "object",
       "properties": {
@@ -1045,6 +1199,26 @@
           "type": "string"
         }
       }
+    },
+    "v1VisitorPoint": {
+      "type": "object",
+      "properties": {
+        "time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "resourceId": {
+          "type": "string"
+        },
+        "clientIp": {
+          "type": "string"
+        },
+        "total": {
+          "type": "string",
+          "format": "int64"
+        }
+      },
+      "description": "VisitorPoint the requests of a client ip to a resource in the bucket\nstarting at time."
     }
   }
 }

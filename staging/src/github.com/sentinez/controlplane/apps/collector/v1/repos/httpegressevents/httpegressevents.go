@@ -22,7 +22,7 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventfilter"
-	"github.com/sentinez/controlplane/apps/collector/v1/repos/histogram"
+	"github.com/sentinez/pkg/szstorage/dbx/timescale/histogram"
 	"github.com/sentinez/controlplane/pkg/schema"
 	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"

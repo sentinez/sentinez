@@ -3,6 +3,14 @@ import {
   ListActivitiesRequest,
   ListActivitiesResponse,
 } from '@sentinez/proto/sentinez/apps/analytic/v1/analytic';
+import {
+  GetUniqueVisitorHistogramRequest,
+  GetUniqueVisitorHistogramResponse,
+  type HistogramPoint,
+  ListVisitorsRequest,
+  ListVisitorsResponse,
+  type VisitorPoint,
+} from '@sentinez/proto/sentinez/apps/analytic/v1/event';
 import axios from 'axios';
 
 import { API_BASE_PATH } from '@/lib/api/base';
@@ -83,5 +91,83 @@ export async function listActivities(
       signal: options?.signal,
     });
     return ListActivitiesResponse.fromJSON(resp.data ?? {});
+  });
+}
+
+const HOUR_MILLIS = 60 * 60 * 1000;
+
+// The 24 sample hourly buckets, as the API returns them: those ending with
+// the hour of `to`, else the current one
+function sampleHours(to?: Date): Date[] {
+  const end = Math.floor((to ?? new Date()).getTime() / HOUR_MILLIS) + 1;
+  return Array.from({ length: 24 }, (_, i) => new Date((end - 24 + i) * HOUR_MILLIS));
+}
+
+// The unique visitor histogram of the sample visitors, so both agree: the
+// distinct ips per bucket and resource
+function sampleVisitorPoints(req: GetUniqueVisitorHistogramRequest): HistogramPoint[] {
+  const counts = new Map<string, HistogramPoint>();
+  for (const v of sampleVisitors(req)) {
+    const key = `${v.time?.getTime()}|${v.resourceId}`;
+    const point = counts.get(key) ?? { time: v.time, resourceId: v.resourceId, key: 0, total: 0 };
+    point.total++;
+    counts.set(key, point);
+  }
+  return [...counts.values()];
+}
+
+// GET /analytic/visitors/histogram
+export async function getUniqueVisitorHistogram(
+  req: Partial<GetUniqueVisitorHistogramRequest> = {},
+  options?: ApiOptions,
+): Promise<GetUniqueVisitorHistogramResponse> {
+  const full = GetUniqueVisitorHistogramRequest.fromPartial(req);
+  return withFallback<GetUniqueVisitorHistogramResponse>('getUniqueVisitorHistogram', () => ({
+    points: sampleVisitorPoints(full),
+  }))(async () => {
+    const resp = await axios.get(`${API_BASE_PATH}/analytic/visitors/histogram`, {
+      params: toQuery(GetUniqueVisitorHistogramRequest.toJSON(full)),
+      // repeat `resourceIds` keys (collectionFormat: multi)
+      paramsSerializer: { indexes: null },
+      signal: options?.signal,
+    });
+    return GetUniqueVisitorHistogramResponse.fromJSON(resp.data ?? {});
+  });
+}
+
+// Sample client ips: the first ones visit every hour, the others now and then
+const SAMPLE_IPS = ['203.0.113.7', '198.51.100.23', '192.0.2.41', '203.0.113.88', '198.51.100.5'];
+
+// Hourly sample visitors of each resource (sampleHours): the most requests
+// first in each bucket
+function sampleVisitors(req: ListVisitorsRequest): VisitorPoint[] {
+  return sampleHours(req.to).flatMap((time, i) =>
+    req.resourceIds.flatMap((resourceId) =>
+      SAMPLE_IPS.slice(0, 2 + (i % 4)).map((clientIp, n) => ({
+        time,
+        resourceId,
+        clientIp,
+        total: Math.round(60 / (n + 1) + 20 * Math.sin((i + n) / 3)) + 25,
+      })),
+    ),
+  );
+}
+
+// GET /analytic/visitors
+export async function listVisitors(
+  req: Partial<ListVisitorsRequest> = {},
+  options?: ApiOptions,
+): Promise<ListVisitorsResponse> {
+  const full = ListVisitorsRequest.fromPartial(req);
+  return withFallback<ListVisitorsResponse>('listVisitors', () => ({
+    visitors: sampleVisitors(full),
+  }))(async () => {
+    const resp = await axios.get(`${API_BASE_PATH}/analytic/visitors`, {
+      params: toQuery(ListVisitorsRequest.toJSON(full)),
+      // repeat `resourceIds` keys (collectionFormat: multi)
+      paramsSerializer: { indexes: null },
+      signal: options?.signal,
+    });
+    return ListVisitorsResponse.fromJSON(resp.data ?? {});
   });
 }

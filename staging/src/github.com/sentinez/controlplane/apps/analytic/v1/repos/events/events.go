@@ -22,7 +22,7 @@ import (
 
 	coreruleeventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/coreruleevents"
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventfilter"
-	"github.com/sentinez/controlplane/apps/collector/v1/repos/histogram"
+	"github.com/sentinez/pkg/szstorage/dbx/timescale/histogram"
 	httpegresseventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/httpegressevents"
 	httpingressrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/httpingress"
 	secruleeventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/secruleevents"
@@ -44,9 +44,16 @@ type Reader[T any] interface {
 		filter *histogram.Filter) ([]*histogram.Point, error)
 }
 
+// IngressReader the Reader of the requests received by the edge, and of
+// their visitors: the client ips.
+type IngressReader interface {
+	Reader[httppb.IngressEvent]
+	httpingressrepo.VisitorReader
+}
+
 // Events the readers of every event table.
 type Events struct {
-	HttpIngress Reader[httppb.IngressEvent]
+	HttpIngress IngressReader
 	HttpEgress  Reader[httppb.EgressEvent]
 	SecRule     Reader[secrulepb.SecRuleEvent]
 	RateLimit   Reader[secrulepb.SecRuleEvent]
