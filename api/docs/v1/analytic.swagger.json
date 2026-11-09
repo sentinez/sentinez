@@ -209,15 +209,23 @@
           },
           {
             "name": "resolution",
-            "description": " - HISTOGRAM_RESOLUTION_UNSPECIFIED: Picked by the range: seconds for a short zoom within their\nretention, else minutes.\n - HISTOGRAM_RESOLUTION_SECOND: The last 60 seconds.\n - HISTOGRAM_RESOLUTION_MINUTE: The last 60 minutes.\n - HISTOGRAM_RESOLUTION_HOUR: The last 24 hours.",
+            "description": " - HISTOGRAM_RESOLUTION_UNSPECIFIED: Picked by from and to: the shortest range holding them but one bucket\n(buckets of seconds only within the 7 days they are kept), else 30\ndays; 1 hour without from.",
             "in": "query",
             "required": false,
             "type": "string",
             "enum": [
               "HISTOGRAM_RESOLUTION_UNSPECIFIED",
-              "HISTOGRAM_RESOLUTION_SECOND",
-              "HISTOGRAM_RESOLUTION_MINUTE",
-              "HISTOGRAM_RESOLUTION_HOUR"
+              "HISTOGRAM_RESOLUTION_5_MINUTES",
+              "HISTOGRAM_RESOLUTION_15_MINUTES",
+              "HISTOGRAM_RESOLUTION_30_MINUTES",
+              "HISTOGRAM_RESOLUTION_1_HOUR",
+              "HISTOGRAM_RESOLUTION_3_HOURS",
+              "HISTOGRAM_RESOLUTION_6_HOURS",
+              "HISTOGRAM_RESOLUTION_12_HOURS",
+              "HISTOGRAM_RESOLUTION_24_HOURS",
+              "HISTOGRAM_RESOLUTION_2_DAYS",
+              "HISTOGRAM_RESOLUTION_7_DAYS",
+              "HISTOGRAM_RESOLUTION_30_DAYS"
             ],
             "default": "HISTOGRAM_RESOLUTION_UNSPECIFIED"
           },
@@ -760,15 +768,23 @@
         "parameters": [
           {
             "name": "resolution",
-            "description": " - HISTOGRAM_RESOLUTION_UNSPECIFIED: Picked by the range: seconds for a short zoom within their\nretention, else minutes.\n - HISTOGRAM_RESOLUTION_SECOND: The last 60 seconds.\n - HISTOGRAM_RESOLUTION_MINUTE: The last 60 minutes.\n - HISTOGRAM_RESOLUTION_HOUR: The last 24 hours.",
+            "description": " - HISTOGRAM_RESOLUTION_UNSPECIFIED: Picked by from and to: the shortest range holding them but one bucket\n(buckets of seconds only within the 7 days they are kept), else 30\ndays; 1 hour without from.",
             "in": "query",
             "required": false,
             "type": "string",
             "enum": [
               "HISTOGRAM_RESOLUTION_UNSPECIFIED",
-              "HISTOGRAM_RESOLUTION_SECOND",
-              "HISTOGRAM_RESOLUTION_MINUTE",
-              "HISTOGRAM_RESOLUTION_HOUR"
+              "HISTOGRAM_RESOLUTION_5_MINUTES",
+              "HISTOGRAM_RESOLUTION_15_MINUTES",
+              "HISTOGRAM_RESOLUTION_30_MINUTES",
+              "HISTOGRAM_RESOLUTION_1_HOUR",
+              "HISTOGRAM_RESOLUTION_3_HOURS",
+              "HISTOGRAM_RESOLUTION_6_HOURS",
+              "HISTOGRAM_RESOLUTION_12_HOURS",
+              "HISTOGRAM_RESOLUTION_24_HOURS",
+              "HISTOGRAM_RESOLUTION_2_DAYS",
+              "HISTOGRAM_RESOLUTION_7_DAYS",
+              "HISTOGRAM_RESOLUTION_30_DAYS"
             ],
             "default": "HISTOGRAM_RESOLUTION_UNSPECIFIED"
           },
@@ -824,15 +840,23 @@
         "parameters": [
           {
             "name": "resolution",
-            "description": " - HISTOGRAM_RESOLUTION_UNSPECIFIED: Picked by the range: seconds for a short zoom within their\nretention, else minutes.\n - HISTOGRAM_RESOLUTION_SECOND: The last 60 seconds.\n - HISTOGRAM_RESOLUTION_MINUTE: The last 60 minutes.\n - HISTOGRAM_RESOLUTION_HOUR: The last 24 hours.",
+            "description": " - HISTOGRAM_RESOLUTION_UNSPECIFIED: Picked by from and to: the shortest range holding them but one bucket\n(buckets of seconds only within the 7 days they are kept), else 30\ndays; 1 hour without from.",
             "in": "query",
             "required": false,
             "type": "string",
             "enum": [
               "HISTOGRAM_RESOLUTION_UNSPECIFIED",
-              "HISTOGRAM_RESOLUTION_SECOND",
-              "HISTOGRAM_RESOLUTION_MINUTE",
-              "HISTOGRAM_RESOLUTION_HOUR"
+              "HISTOGRAM_RESOLUTION_5_MINUTES",
+              "HISTOGRAM_RESOLUTION_15_MINUTES",
+              "HISTOGRAM_RESOLUTION_30_MINUTES",
+              "HISTOGRAM_RESOLUTION_1_HOUR",
+              "HISTOGRAM_RESOLUTION_3_HOURS",
+              "HISTOGRAM_RESOLUTION_6_HOURS",
+              "HISTOGRAM_RESOLUTION_12_HOURS",
+              "HISTOGRAM_RESOLUTION_24_HOURS",
+              "HISTOGRAM_RESOLUTION_2_DAYS",
+              "HISTOGRAM_RESOLUTION_7_DAYS",
+              "HISTOGRAM_RESOLUTION_30_DAYS"
             ],
             "default": "HISTOGRAM_RESOLUTION_UNSPECIFIED"
           },
@@ -1137,6 +1161,10 @@
             "$ref": "#/definitions/v1HistogramPoint"
           },
           "description": "Oldest first, then per resource and key: one per bucket, a total of\n0 when it has no event; a resource without any has key 0."
+        },
+        "interval": {
+          "$ref": "#/definitions/v1HistogramInterval",
+          "description": "The width of one bucket, that of the resolution asked or picked by\nfrom and to."
         }
       }
     },
@@ -1168,8 +1196,30 @@
             "$ref": "#/definitions/v1HistogramPoint"
           },
           "description": "Oldest first, then per resource: one per bucket, the key 0, the total\nthe number of distinct client ips of the bucket, 0 without."
+        },
+        "interval": {
+          "$ref": "#/definitions/v1HistogramInterval",
+          "description": "The width of one bucket, that of the resolution asked or picked by\nfrom and to."
         }
       }
+    },
+    "v1HistogramInterval": {
+      "type": "string",
+      "enum": [
+        "HISTOGRAM_INTERVAL_UNSPECIFIED",
+        "HISTOGRAM_INTERVAL_10_SECONDS",
+        "HISTOGRAM_INTERVAL_30_SECONDS",
+        "HISTOGRAM_INTERVAL_1_MINUTE",
+        "HISTOGRAM_INTERVAL_5_MINUTES",
+        "HISTOGRAM_INTERVAL_10_MINUTES",
+        "HISTOGRAM_INTERVAL_15_MINUTES",
+        "HISTOGRAM_INTERVAL_30_MINUTES",
+        "HISTOGRAM_INTERVAL_1_HOUR",
+        "HISTOGRAM_INTERVAL_3_HOURS",
+        "HISTOGRAM_INTERVAL_12_HOURS"
+      ],
+      "default": "HISTOGRAM_INTERVAL_UNSPECIFIED",
+      "description": "HistogramInterval the width of one bucket of a histogram, the one of its\nHistogramResolution.\n\n - HISTOGRAM_INTERVAL_10_SECONDS: Kept 7 days."
     },
     "v1HistogramPoint": {
       "type": "object",
@@ -1197,12 +1247,20 @@
       "type": "string",
       "enum": [
         "HISTOGRAM_RESOLUTION_UNSPECIFIED",
-        "HISTOGRAM_RESOLUTION_SECOND",
-        "HISTOGRAM_RESOLUTION_MINUTE",
-        "HISTOGRAM_RESOLUTION_HOUR"
+        "HISTOGRAM_RESOLUTION_5_MINUTES",
+        "HISTOGRAM_RESOLUTION_15_MINUTES",
+        "HISTOGRAM_RESOLUTION_30_MINUTES",
+        "HISTOGRAM_RESOLUTION_1_HOUR",
+        "HISTOGRAM_RESOLUTION_3_HOURS",
+        "HISTOGRAM_RESOLUTION_6_HOURS",
+        "HISTOGRAM_RESOLUTION_12_HOURS",
+        "HISTOGRAM_RESOLUTION_24_HOURS",
+        "HISTOGRAM_RESOLUTION_2_DAYS",
+        "HISTOGRAM_RESOLUTION_7_DAYS",
+        "HISTOGRAM_RESOLUTION_30_DAYS"
       ],
       "default": "HISTOGRAM_RESOLUTION_UNSPECIFIED",
-      "description": "HistogramResolution the time range of the buckets of a histogram, and\ntheir number.\n\n - HISTOGRAM_RESOLUTION_UNSPECIFIED: Picked by the range: seconds for a short zoom within their\nretention, else minutes.\n - HISTOGRAM_RESOLUTION_SECOND: The last 60 seconds.\n - HISTOGRAM_RESOLUTION_MINUTE: The last 60 minutes.\n - HISTOGRAM_RESOLUTION_HOUR: The last 24 hours."
+      "description": "HistogramResolution the time range a histogram charts, ending with the\ncurrent bucket or before to: as many buckets of its interval as fill it\n(5 minutes of 10 seconds, ..., 30 days of 12 hours).\n\n - HISTOGRAM_RESOLUTION_UNSPECIFIED: Picked by from and to: the shortest range holding them but one bucket\n(buckets of seconds only within the 7 days they are kept), else 30\ndays; 1 hour without from."
     },
     "v1IngressEvent": {
       "type": "object",
@@ -1356,6 +1414,10 @@
             "$ref": "#/definitions/v1VisitorPoint"
           },
           "description": "Oldest bucket first, then the client ip of the most requests."
+        },
+        "interval": {
+          "$ref": "#/definitions/v1HistogramInterval",
+          "description": "The width of one bucket, that of the resolution asked or picked by\nfrom and to."
         }
       }
     },

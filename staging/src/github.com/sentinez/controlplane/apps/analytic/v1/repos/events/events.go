@@ -23,7 +23,7 @@ import (
 	coreruleeventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/coreruleevents"
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventfilter"
 	httpegresseventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/httpegressevents"
-	httpingressrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/httpingress"
+	httpingresseventrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/httpingressevent"
 	secruleeventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/secruleevents"
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/topvalues"
 	"github.com/sentinez/pkg/szerror"
@@ -57,7 +57,7 @@ type kindReader interface {
 // their visitors: the client ips.
 type IngressReader interface {
 	Reader[httppb.IngressEvent]
-	httpingressrepo.VisitorReader
+	httpingresseventrepo.VisitorReader
 }
 
 // Events the readers of every event table.
@@ -77,7 +77,7 @@ func New(ctx context.Context, appConf *settingpb.Config) (*Events, error) {
 		err    error
 	)
 
-	events.HttpIngress, err = httpingressrepo.New(ctx, appConf)
+	events.HttpIngress, err = httpingresseventrepo.New(ctx, appConf)
 	if err != nil {
 		return nil, fmt.Errorf("http ingress: %w", err)
 	}

@@ -104,65 +104,6 @@ func (EventKind) EnumDescriptor() ([]byte, []int) {
 	return file_sentinez_apps_analytic_v1_event_proto_rawDescGZIP(), []int{0}
 }
 
-// HistogramResolution the time range of the buckets of a histogram, and
-// their number.
-type HistogramResolution int32
-
-const (
-	// Picked by the range: seconds for a short zoom within their
-	// retention, else minutes.
-	HistogramResolution_HISTOGRAM_RESOLUTION_UNSPECIFIED HistogramResolution = 0
-	// The last 60 seconds.
-	HistogramResolution_HISTOGRAM_RESOLUTION_SECOND HistogramResolution = 1
-	// The last 60 minutes.
-	HistogramResolution_HISTOGRAM_RESOLUTION_MINUTE HistogramResolution = 2
-	// The last 24 hours.
-	HistogramResolution_HISTOGRAM_RESOLUTION_HOUR HistogramResolution = 3
-)
-
-// Enum value maps for HistogramResolution.
-var (
-	HistogramResolution_name = map[int32]string{
-		0: "HISTOGRAM_RESOLUTION_UNSPECIFIED",
-		1: "HISTOGRAM_RESOLUTION_SECOND",
-		2: "HISTOGRAM_RESOLUTION_MINUTE",
-		3: "HISTOGRAM_RESOLUTION_HOUR",
-	}
-	HistogramResolution_value = map[string]int32{
-		"HISTOGRAM_RESOLUTION_UNSPECIFIED": 0,
-		"HISTOGRAM_RESOLUTION_SECOND":      1,
-		"HISTOGRAM_RESOLUTION_MINUTE":      2,
-		"HISTOGRAM_RESOLUTION_HOUR":        3,
-	}
-)
-
-func (x HistogramResolution) Enum() *HistogramResolution {
-	p := new(HistogramResolution)
-	*p = x
-	return p
-}
-
-func (x HistogramResolution) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (HistogramResolution) Descriptor() protoreflect.EnumDescriptor {
-	return file_sentinez_apps_analytic_v1_event_proto_enumTypes[1].Descriptor()
-}
-
-func (HistogramResolution) Type() protoreflect.EnumType {
-	return &file_sentinez_apps_analytic_v1_event_proto_enumTypes[1]
-}
-
-func (x HistogramResolution) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use HistogramResolution.Descriptor instead.
-func (HistogramResolution) EnumDescriptor() ([]byte, []int) {
-	return file_sentinez_apps_analytic_v1_event_proto_rawDescGZIP(), []int{1}
-}
-
 // ListHttpIngressEventsRequest selects the events of a list, the latest first.
 type ListHttpIngressEventsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -841,7 +782,7 @@ func (x *ListCoreRuleEventsResponse) GetEvents() []*v13.CoreRuleEvent {
 type GetEventHistogramRequest struct {
 	state       protoimpl.MessageState `protogen:"open.v1"`
 	Kind        EventKind              `protobuf:"varint,1,opt,name=kind,proto3,enum=sentinez.apps.analytic.v1.EventKind" json:"kind,omitempty"`
-	Resolution  HistogramResolution    `protobuf:"varint,2,opt,name=resolution,proto3,enum=sentinez.apps.analytic.v1.HistogramResolution" json:"resolution,omitempty"`
+	Resolution  v1.HistogramResolution `protobuf:"varint,2,opt,name=resolution,proto3,enum=sentinez.types.v1.HistogramResolution" json:"resolution,omitempty"`
 	ResourceIds []string               `protobuf:"bytes,3,rep,name=resource_ids,json=resourceIds,proto3" json:"resource_ids,omitempty"`
 	// The buckets end before to (exclusive), else with the current one,
 	// their number that of the resolution; from and to pick the
@@ -896,11 +837,11 @@ func (x *GetEventHistogramRequest) GetKind() EventKind {
 	return EventKind_EVENT_KIND_UNSPECIFIED
 }
 
-func (x *GetEventHistogramRequest) GetResolution() HistogramResolution {
+func (x *GetEventHistogramRequest) GetResolution() v1.HistogramResolution {
 	if x != nil {
 		return x.Resolution
 	}
-	return HistogramResolution_HISTOGRAM_RESOLUTION_UNSPECIFIED
+	return v1.HistogramResolution(0)
 }
 
 func (x *GetEventHistogramRequest) GetResourceIds() []string {
@@ -1013,7 +954,10 @@ type GetEventHistogramResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Oldest first, then per resource and key: one per bucket, a total of
 	// 0 when it has no event; a resource without any has key 0.
-	Points        []*HistogramPoint `protobuf:"bytes,1,rep,name=points,proto3" json:"points,omitempty"`
+	Points []*HistogramPoint `protobuf:"bytes,1,rep,name=points,proto3" json:"points,omitempty"`
+	// The width of one bucket, that of the resolution asked or picked by
+	// from and to.
+	Interval      v1.HistogramInterval `protobuf:"varint,2,opt,name=interval,proto3,enum=sentinez.types.v1.HistogramInterval" json:"interval,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1055,9 +999,16 @@ func (x *GetEventHistogramResponse) GetPoints() []*HistogramPoint {
 	return nil
 }
 
+func (x *GetEventHistogramResponse) GetInterval() v1.HistogramInterval {
+	if x != nil {
+		return x.Interval
+	}
+	return v1.HistogramInterval(0)
+}
+
 type GetUniqueVisitorHistogramRequest struct {
 	state       protoimpl.MessageState `protogen:"open.v1"`
-	Resolution  HistogramResolution    `protobuf:"varint,1,opt,name=resolution,proto3,enum=sentinez.apps.analytic.v1.HistogramResolution" json:"resolution,omitempty"`
+	Resolution  v1.HistogramResolution `protobuf:"varint,1,opt,name=resolution,proto3,enum=sentinez.types.v1.HistogramResolution" json:"resolution,omitempty"`
 	ResourceIds []string               `protobuf:"bytes,2,rep,name=resource_ids,json=resourceIds,proto3" json:"resource_ids,omitempty"`
 	// The buckets end before to (exclusive), else with the current one,
 	// their number that of the resolution; from and to pick the
@@ -1098,11 +1049,11 @@ func (*GetUniqueVisitorHistogramRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_analytic_v1_event_proto_rawDescGZIP(), []int{13}
 }
 
-func (x *GetUniqueVisitorHistogramRequest) GetResolution() HistogramResolution {
+func (x *GetUniqueVisitorHistogramRequest) GetResolution() v1.HistogramResolution {
 	if x != nil {
 		return x.Resolution
 	}
-	return HistogramResolution_HISTOGRAM_RESOLUTION_UNSPECIFIED
+	return v1.HistogramResolution(0)
 }
 
 func (x *GetUniqueVisitorHistogramRequest) GetResourceIds() []string {
@@ -1130,7 +1081,10 @@ type GetUniqueVisitorHistogramResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Oldest first, then per resource: one per bucket, the key 0, the total
 	// the number of distinct client ips of the bucket, 0 without.
-	Points        []*HistogramPoint `protobuf:"bytes,1,rep,name=points,proto3" json:"points,omitempty"`
+	Points []*HistogramPoint `protobuf:"bytes,1,rep,name=points,proto3" json:"points,omitempty"`
+	// The width of one bucket, that of the resolution asked or picked by
+	// from and to.
+	Interval      v1.HistogramInterval `protobuf:"varint,2,opt,name=interval,proto3,enum=sentinez.types.v1.HistogramInterval" json:"interval,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1172,9 +1126,16 @@ func (x *GetUniqueVisitorHistogramResponse) GetPoints() []*HistogramPoint {
 	return nil
 }
 
+func (x *GetUniqueVisitorHistogramResponse) GetInterval() v1.HistogramInterval {
+	if x != nil {
+		return x.Interval
+	}
+	return v1.HistogramInterval(0)
+}
+
 type ListVisitorsRequest struct {
 	state       protoimpl.MessageState `protogen:"open.v1"`
-	Resolution  HistogramResolution    `protobuf:"varint,1,opt,name=resolution,proto3,enum=sentinez.apps.analytic.v1.HistogramResolution" json:"resolution,omitempty"`
+	Resolution  v1.HistogramResolution `protobuf:"varint,1,opt,name=resolution,proto3,enum=sentinez.types.v1.HistogramResolution" json:"resolution,omitempty"`
 	ResourceIds []string               `protobuf:"bytes,2,rep,name=resource_ids,json=resourceIds,proto3" json:"resource_ids,omitempty"`
 	// The buckets end before to (exclusive), else with the current one,
 	// their number that of the resolution; from and to pick the
@@ -1215,11 +1176,11 @@ func (*ListVisitorsRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_analytic_v1_event_proto_rawDescGZIP(), []int{15}
 }
 
-func (x *ListVisitorsRequest) GetResolution() HistogramResolution {
+func (x *ListVisitorsRequest) GetResolution() v1.HistogramResolution {
 	if x != nil {
 		return x.Resolution
 	}
-	return HistogramResolution_HISTOGRAM_RESOLUTION_UNSPECIFIED
+	return v1.HistogramResolution(0)
 }
 
 func (x *ListVisitorsRequest) GetResourceIds() []string {
@@ -1316,7 +1277,10 @@ func (x *VisitorPoint) GetTotal() int64 {
 type ListVisitorsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Oldest bucket first, then the client ip of the most requests.
-	Visitors      []*VisitorPoint `protobuf:"bytes,1,rep,name=visitors,proto3" json:"visitors,omitempty"`
+	Visitors []*VisitorPoint `protobuf:"bytes,1,rep,name=visitors,proto3" json:"visitors,omitempty"`
+	// The width of one bucket, that of the resolution asked or picked by
+	// from and to.
+	Interval      v1.HistogramInterval `protobuf:"varint,2,opt,name=interval,proto3,enum=sentinez.types.v1.HistogramInterval" json:"interval,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1356,6 +1320,13 @@ func (x *ListVisitorsResponse) GetVisitors() []*VisitorPoint {
 		return x.Visitors
 	}
 	return nil
+}
+
+func (x *ListVisitorsResponse) GetInterval() v1.HistogramInterval {
+	if x != nil {
+		return x.Interval
+	}
+	return v1.HistogramInterval(0)
 }
 
 type GetEventTopValuesRequest struct {
@@ -1645,7 +1616,7 @@ var File_sentinez_apps_analytic_v1_event_proto protoreflect.FileDescriptor
 
 const file_sentinez_apps_analytic_v1_event_proto_rawDesc = "" +
 	"\n" +
-	"%sentinez/apps/analytic/v1/event.proto\x12\x19sentinez.apps.analytic.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a)sentinez/types/coreruleset/v1/event.proto\x1a&sentinez/types/net/http/v1/event.proto\x1a%sentinez/types/secrule/v1/event.proto\x1a\x1dsentinez/types/v1/model.proto\"\x86\x02\n" +
+	"%sentinez/apps/analytic/v1/event.proto\x12\x19sentinez.apps.analytic.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a)sentinez/types/coreruleset/v1/event.proto\x1a&sentinez/types/net/http/v1/event.proto\x1a%sentinez/types/secrule/v1/event.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\"\x86\x02\n" +
 	"\x1cListHttpIngressEventsRequest\x12,\n" +
 	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12!\n" +
 	"\fresource_ids\x18\x02 \x03(\tR\vresourceIds\x12.\n" +
@@ -1695,11 +1666,11 @@ const file_sentinez_apps_analytic_v1_event_proto_rawDesc = "" +
 	"\x1bListRateLimitEventsResponse\x12?\n" +
 	"\x06events\x18\x01 \x03(\v2'.sentinez.types.secrule.v1.SecRuleEventR\x06events\"b\n" +
 	"\x1aListCoreRuleEventsResponse\x12D\n" +
-	"\x06events\x18\x01 \x03(\v2,.sentinez.types.coreruleset.v1.CoreRuleEventR\x06events\"\xde\x02\n" +
+	"\x06events\x18\x01 \x03(\v2,.sentinez.types.coreruleset.v1.CoreRuleEventR\x06events\"\xd6\x02\n" +
 	"\x18GetEventHistogramRequest\x128\n" +
-	"\x04kind\x18\x01 \x01(\x0e2$.sentinez.apps.analytic.v1.EventKindR\x04kind\x12N\n" +
+	"\x04kind\x18\x01 \x01(\x0e2$.sentinez.apps.analytic.v1.EventKindR\x04kind\x12F\n" +
 	"\n" +
-	"resolution\x18\x02 \x01(\x0e2..sentinez.apps.analytic.v1.HistogramResolutionR\n" +
+	"resolution\x18\x02 \x01(\x0e2&.sentinez.types.v1.HistogramResolutionR\n" +
 	"resolution\x12!\n" +
 	"\fresource_ids\x18\x03 \x03(\tR\vresourceIds\x12.\n" +
 	"\x04from\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
@@ -1712,21 +1683,23 @@ const file_sentinez_apps_analytic_v1_event_proto_rawDesc = "" +
 	"\vresource_id\x18\x02 \x01(\tR\n" +
 	"resourceId\x12\x10\n" +
 	"\x03key\x18\x03 \x01(\x05R\x03key\x12\x14\n" +
-	"\x05total\x18\x04 \x01(\x03R\x05total\"^\n" +
+	"\x05total\x18\x04 \x01(\x03R\x05total\"\xa0\x01\n" +
 	"\x19GetEventHistogramResponse\x12A\n" +
-	"\x06points\x18\x01 \x03(\v2).sentinez.apps.analytic.v1.HistogramPointR\x06points\"\xf1\x01\n" +
-	" GetUniqueVisitorHistogramRequest\x12N\n" +
+	"\x06points\x18\x01 \x03(\v2).sentinez.apps.analytic.v1.HistogramPointR\x06points\x12@\n" +
+	"\binterval\x18\x02 \x01(\x0e2$.sentinez.types.v1.HistogramIntervalR\binterval\"\xe9\x01\n" +
+	" GetUniqueVisitorHistogramRequest\x12F\n" +
 	"\n" +
-	"resolution\x18\x01 \x01(\x0e2..sentinez.apps.analytic.v1.HistogramResolutionR\n" +
+	"resolution\x18\x01 \x01(\x0e2&.sentinez.types.v1.HistogramResolutionR\n" +
 	"resolution\x12!\n" +
 	"\fresource_ids\x18\x02 \x03(\tR\vresourceIds\x12.\n" +
 	"\x04from\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
-	"\x02to\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\"f\n" +
+	"\x02to\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\"\xa8\x01\n" +
 	"!GetUniqueVisitorHistogramResponse\x12A\n" +
-	"\x06points\x18\x01 \x03(\v2).sentinez.apps.analytic.v1.HistogramPointR\x06points\"\xe4\x01\n" +
-	"\x13ListVisitorsRequest\x12N\n" +
+	"\x06points\x18\x01 \x03(\v2).sentinez.apps.analytic.v1.HistogramPointR\x06points\x12@\n" +
+	"\binterval\x18\x02 \x01(\x0e2$.sentinez.types.v1.HistogramIntervalR\binterval\"\xdc\x01\n" +
+	"\x13ListVisitorsRequest\x12F\n" +
 	"\n" +
-	"resolution\x18\x01 \x01(\x0e2..sentinez.apps.analytic.v1.HistogramResolutionR\n" +
+	"resolution\x18\x01 \x01(\x0e2&.sentinez.types.v1.HistogramResolutionR\n" +
 	"resolution\x12!\n" +
 	"\fresource_ids\x18\x02 \x03(\tR\vresourceIds\x12.\n" +
 	"\x04from\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
@@ -1736,9 +1709,10 @@ const file_sentinez_apps_analytic_v1_event_proto_rawDesc = "" +
 	"\vresource_id\x18\x02 \x01(\tR\n" +
 	"resourceId\x12\x1b\n" +
 	"\tclient_ip\x18\x03 \x01(\tR\bclientIp\x12\x14\n" +
-	"\x05total\x18\x04 \x01(\x03R\x05total\"[\n" +
+	"\x05total\x18\x04 \x01(\x03R\x05total\"\x9d\x01\n" +
 	"\x14ListVisitorsResponse\x12C\n" +
-	"\bvisitors\x18\x01 \x03(\v2'.sentinez.apps.analytic.v1.VisitorPointR\bvisitors\"\x9b\x02\n" +
+	"\bvisitors\x18\x01 \x03(\v2'.sentinez.apps.analytic.v1.VisitorPointR\bvisitors\x12@\n" +
+	"\binterval\x18\x02 \x01(\x0e2$.sentinez.types.v1.HistogramIntervalR\binterval\"\x9b\x02\n" +
 	"\x18GetEventTopValuesRequest\x128\n" +
 	"\x04kind\x18\x01 \x01(\x0e2$.sentinez.apps.analytic.v1.EventKindR\x04kind\x12!\n" +
 	"\fresource_ids\x18\x02 \x03(\tR\vresourceIds\x12.\n" +
@@ -1764,12 +1738,7 @@ const file_sentinez_apps_analytic_v1_event_proto_rawDesc = "" +
 	"\x16EVENT_KIND_HTTP_EGRESS\x10\x02\x12\x17\n" +
 	"\x13EVENT_KIND_SEC_RULE\x10\x03\x12\x19\n" +
 	"\x15EVENT_KIND_RATE_LIMIT\x10\x04\x12\x18\n" +
-	"\x14EVENT_KIND_CORE_RULE\x10\x05*\x9c\x01\n" +
-	"\x13HistogramResolution\x12$\n" +
-	" HISTOGRAM_RESOLUTION_UNSPECIFIED\x10\x00\x12\x1f\n" +
-	"\x1bHISTOGRAM_RESOLUTION_SECOND\x10\x01\x12\x1f\n" +
-	"\x1bHISTOGRAM_RESOLUTION_MINUTE\x10\x02\x12\x1d\n" +
-	"\x19HISTOGRAM_RESOLUTION_HOUR\x10\x03BMZKgithub.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1;analyticpbb\x06proto3"
+	"\x14EVENT_KIND_CORE_RULE\x10\x05BMZKgithub.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1;analyticpbb\x06proto3"
 
 var (
 	file_sentinez_apps_analytic_v1_event_proto_rawDescOnce sync.Once
@@ -1783,86 +1752,90 @@ func file_sentinez_apps_analytic_v1_event_proto_rawDescGZIP() []byte {
 	return file_sentinez_apps_analytic_v1_event_proto_rawDescData
 }
 
-var file_sentinez_apps_analytic_v1_event_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_sentinez_apps_analytic_v1_event_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_sentinez_apps_analytic_v1_event_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
 var file_sentinez_apps_analytic_v1_event_proto_goTypes = []any{
 	(EventKind)(0),                            // 0: sentinez.apps.analytic.v1.EventKind
-	(HistogramResolution)(0),                  // 1: sentinez.apps.analytic.v1.HistogramResolution
-	(*ListHttpIngressEventsRequest)(nil),      // 2: sentinez.apps.analytic.v1.ListHttpIngressEventsRequest
-	(*ListHttpEgressEventsRequest)(nil),       // 3: sentinez.apps.analytic.v1.ListHttpEgressEventsRequest
-	(*ListSecRuleEventsRequest)(nil),          // 4: sentinez.apps.analytic.v1.ListSecRuleEventsRequest
-	(*ListRateLimitEventsRequest)(nil),        // 5: sentinez.apps.analytic.v1.ListRateLimitEventsRequest
-	(*ListCoreRuleEventsRequest)(nil),         // 6: sentinez.apps.analytic.v1.ListCoreRuleEventsRequest
-	(*ListHttpIngressEventsResponse)(nil),     // 7: sentinez.apps.analytic.v1.ListHttpIngressEventsResponse
-	(*ListHttpEgressEventsResponse)(nil),      // 8: sentinez.apps.analytic.v1.ListHttpEgressEventsResponse
-	(*ListSecRuleEventsResponse)(nil),         // 9: sentinez.apps.analytic.v1.ListSecRuleEventsResponse
-	(*ListRateLimitEventsResponse)(nil),       // 10: sentinez.apps.analytic.v1.ListRateLimitEventsResponse
-	(*ListCoreRuleEventsResponse)(nil),        // 11: sentinez.apps.analytic.v1.ListCoreRuleEventsResponse
-	(*GetEventHistogramRequest)(nil),          // 12: sentinez.apps.analytic.v1.GetEventHistogramRequest
-	(*HistogramPoint)(nil),                    // 13: sentinez.apps.analytic.v1.HistogramPoint
-	(*GetEventHistogramResponse)(nil),         // 14: sentinez.apps.analytic.v1.GetEventHistogramResponse
-	(*GetUniqueVisitorHistogramRequest)(nil),  // 15: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramRequest
-	(*GetUniqueVisitorHistogramResponse)(nil), // 16: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramResponse
-	(*ListVisitorsRequest)(nil),               // 17: sentinez.apps.analytic.v1.ListVisitorsRequest
-	(*VisitorPoint)(nil),                      // 18: sentinez.apps.analytic.v1.VisitorPoint
-	(*ListVisitorsResponse)(nil),              // 19: sentinez.apps.analytic.v1.ListVisitorsResponse
-	(*GetEventTopValuesRequest)(nil),          // 20: sentinez.apps.analytic.v1.GetEventTopValuesRequest
-	(*FieldValue)(nil),                        // 21: sentinez.apps.analytic.v1.FieldValue
-	(*FieldTopValues)(nil),                    // 22: sentinez.apps.analytic.v1.FieldTopValues
-	(*GetEventTopValuesResponse)(nil),         // 23: sentinez.apps.analytic.v1.GetEventTopValuesResponse
-	(*v1.Pages)(nil),                          // 24: sentinez.types.v1.Pages
-	(*timestamppb.Timestamp)(nil),             // 25: google.protobuf.Timestamp
-	(*v11.IngressEvent)(nil),                  // 26: sentinez.types.net.http.v1.IngressEvent
-	(*v11.EgressEvent)(nil),                   // 27: sentinez.types.net.http.v1.EgressEvent
-	(*v12.SecRuleEvent)(nil),                  // 28: sentinez.types.secrule.v1.SecRuleEvent
-	(*v13.CoreRuleEvent)(nil),                 // 29: sentinez.types.coreruleset.v1.CoreRuleEvent
+	(*ListHttpIngressEventsRequest)(nil),      // 1: sentinez.apps.analytic.v1.ListHttpIngressEventsRequest
+	(*ListHttpEgressEventsRequest)(nil),       // 2: sentinez.apps.analytic.v1.ListHttpEgressEventsRequest
+	(*ListSecRuleEventsRequest)(nil),          // 3: sentinez.apps.analytic.v1.ListSecRuleEventsRequest
+	(*ListRateLimitEventsRequest)(nil),        // 4: sentinez.apps.analytic.v1.ListRateLimitEventsRequest
+	(*ListCoreRuleEventsRequest)(nil),         // 5: sentinez.apps.analytic.v1.ListCoreRuleEventsRequest
+	(*ListHttpIngressEventsResponse)(nil),     // 6: sentinez.apps.analytic.v1.ListHttpIngressEventsResponse
+	(*ListHttpEgressEventsResponse)(nil),      // 7: sentinez.apps.analytic.v1.ListHttpEgressEventsResponse
+	(*ListSecRuleEventsResponse)(nil),         // 8: sentinez.apps.analytic.v1.ListSecRuleEventsResponse
+	(*ListRateLimitEventsResponse)(nil),       // 9: sentinez.apps.analytic.v1.ListRateLimitEventsResponse
+	(*ListCoreRuleEventsResponse)(nil),        // 10: sentinez.apps.analytic.v1.ListCoreRuleEventsResponse
+	(*GetEventHistogramRequest)(nil),          // 11: sentinez.apps.analytic.v1.GetEventHistogramRequest
+	(*HistogramPoint)(nil),                    // 12: sentinez.apps.analytic.v1.HistogramPoint
+	(*GetEventHistogramResponse)(nil),         // 13: sentinez.apps.analytic.v1.GetEventHistogramResponse
+	(*GetUniqueVisitorHistogramRequest)(nil),  // 14: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramRequest
+	(*GetUniqueVisitorHistogramResponse)(nil), // 15: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramResponse
+	(*ListVisitorsRequest)(nil),               // 16: sentinez.apps.analytic.v1.ListVisitorsRequest
+	(*VisitorPoint)(nil),                      // 17: sentinez.apps.analytic.v1.VisitorPoint
+	(*ListVisitorsResponse)(nil),              // 18: sentinez.apps.analytic.v1.ListVisitorsResponse
+	(*GetEventTopValuesRequest)(nil),          // 19: sentinez.apps.analytic.v1.GetEventTopValuesRequest
+	(*FieldValue)(nil),                        // 20: sentinez.apps.analytic.v1.FieldValue
+	(*FieldTopValues)(nil),                    // 21: sentinez.apps.analytic.v1.FieldTopValues
+	(*GetEventTopValuesResponse)(nil),         // 22: sentinez.apps.analytic.v1.GetEventTopValuesResponse
+	(*v1.Pages)(nil),                          // 23: sentinez.types.v1.Pages
+	(*timestamppb.Timestamp)(nil),             // 24: google.protobuf.Timestamp
+	(*v11.IngressEvent)(nil),                  // 25: sentinez.types.net.http.v1.IngressEvent
+	(*v11.EgressEvent)(nil),                   // 26: sentinez.types.net.http.v1.EgressEvent
+	(*v12.SecRuleEvent)(nil),                  // 27: sentinez.types.secrule.v1.SecRuleEvent
+	(*v13.CoreRuleEvent)(nil),                 // 28: sentinez.types.coreruleset.v1.CoreRuleEvent
+	(v1.HistogramResolution)(0),               // 29: sentinez.types.v1.HistogramResolution
+	(v1.HistogramInterval)(0),                 // 30: sentinez.types.v1.HistogramInterval
 }
 var file_sentinez_apps_analytic_v1_event_proto_depIdxs = []int32{
-	24, // 0: sentinez.apps.analytic.v1.ListHttpIngressEventsRequest.page:type_name -> sentinez.types.v1.Pages
-	25, // 1: sentinez.apps.analytic.v1.ListHttpIngressEventsRequest.from:type_name -> google.protobuf.Timestamp
-	25, // 2: sentinez.apps.analytic.v1.ListHttpIngressEventsRequest.to:type_name -> google.protobuf.Timestamp
-	24, // 3: sentinez.apps.analytic.v1.ListHttpEgressEventsRequest.page:type_name -> sentinez.types.v1.Pages
-	25, // 4: sentinez.apps.analytic.v1.ListHttpEgressEventsRequest.from:type_name -> google.protobuf.Timestamp
-	25, // 5: sentinez.apps.analytic.v1.ListHttpEgressEventsRequest.to:type_name -> google.protobuf.Timestamp
-	24, // 6: sentinez.apps.analytic.v1.ListSecRuleEventsRequest.page:type_name -> sentinez.types.v1.Pages
-	25, // 7: sentinez.apps.analytic.v1.ListSecRuleEventsRequest.from:type_name -> google.protobuf.Timestamp
-	25, // 8: sentinez.apps.analytic.v1.ListSecRuleEventsRequest.to:type_name -> google.protobuf.Timestamp
-	24, // 9: sentinez.apps.analytic.v1.ListRateLimitEventsRequest.page:type_name -> sentinez.types.v1.Pages
-	25, // 10: sentinez.apps.analytic.v1.ListRateLimitEventsRequest.from:type_name -> google.protobuf.Timestamp
-	25, // 11: sentinez.apps.analytic.v1.ListRateLimitEventsRequest.to:type_name -> google.protobuf.Timestamp
-	24, // 12: sentinez.apps.analytic.v1.ListCoreRuleEventsRequest.page:type_name -> sentinez.types.v1.Pages
-	25, // 13: sentinez.apps.analytic.v1.ListCoreRuleEventsRequest.from:type_name -> google.protobuf.Timestamp
-	25, // 14: sentinez.apps.analytic.v1.ListCoreRuleEventsRequest.to:type_name -> google.protobuf.Timestamp
-	26, // 15: sentinez.apps.analytic.v1.ListHttpIngressEventsResponse.events:type_name -> sentinez.types.net.http.v1.IngressEvent
-	27, // 16: sentinez.apps.analytic.v1.ListHttpEgressEventsResponse.events:type_name -> sentinez.types.net.http.v1.EgressEvent
-	28, // 17: sentinez.apps.analytic.v1.ListSecRuleEventsResponse.events:type_name -> sentinez.types.secrule.v1.SecRuleEvent
-	28, // 18: sentinez.apps.analytic.v1.ListRateLimitEventsResponse.events:type_name -> sentinez.types.secrule.v1.SecRuleEvent
-	29, // 19: sentinez.apps.analytic.v1.ListCoreRuleEventsResponse.events:type_name -> sentinez.types.coreruleset.v1.CoreRuleEvent
+	23, // 0: sentinez.apps.analytic.v1.ListHttpIngressEventsRequest.page:type_name -> sentinez.types.v1.Pages
+	24, // 1: sentinez.apps.analytic.v1.ListHttpIngressEventsRequest.from:type_name -> google.protobuf.Timestamp
+	24, // 2: sentinez.apps.analytic.v1.ListHttpIngressEventsRequest.to:type_name -> google.protobuf.Timestamp
+	23, // 3: sentinez.apps.analytic.v1.ListHttpEgressEventsRequest.page:type_name -> sentinez.types.v1.Pages
+	24, // 4: sentinez.apps.analytic.v1.ListHttpEgressEventsRequest.from:type_name -> google.protobuf.Timestamp
+	24, // 5: sentinez.apps.analytic.v1.ListHttpEgressEventsRequest.to:type_name -> google.protobuf.Timestamp
+	23, // 6: sentinez.apps.analytic.v1.ListSecRuleEventsRequest.page:type_name -> sentinez.types.v1.Pages
+	24, // 7: sentinez.apps.analytic.v1.ListSecRuleEventsRequest.from:type_name -> google.protobuf.Timestamp
+	24, // 8: sentinez.apps.analytic.v1.ListSecRuleEventsRequest.to:type_name -> google.protobuf.Timestamp
+	23, // 9: sentinez.apps.analytic.v1.ListRateLimitEventsRequest.page:type_name -> sentinez.types.v1.Pages
+	24, // 10: sentinez.apps.analytic.v1.ListRateLimitEventsRequest.from:type_name -> google.protobuf.Timestamp
+	24, // 11: sentinez.apps.analytic.v1.ListRateLimitEventsRequest.to:type_name -> google.protobuf.Timestamp
+	23, // 12: sentinez.apps.analytic.v1.ListCoreRuleEventsRequest.page:type_name -> sentinez.types.v1.Pages
+	24, // 13: sentinez.apps.analytic.v1.ListCoreRuleEventsRequest.from:type_name -> google.protobuf.Timestamp
+	24, // 14: sentinez.apps.analytic.v1.ListCoreRuleEventsRequest.to:type_name -> google.protobuf.Timestamp
+	25, // 15: sentinez.apps.analytic.v1.ListHttpIngressEventsResponse.events:type_name -> sentinez.types.net.http.v1.IngressEvent
+	26, // 16: sentinez.apps.analytic.v1.ListHttpEgressEventsResponse.events:type_name -> sentinez.types.net.http.v1.EgressEvent
+	27, // 17: sentinez.apps.analytic.v1.ListSecRuleEventsResponse.events:type_name -> sentinez.types.secrule.v1.SecRuleEvent
+	27, // 18: sentinez.apps.analytic.v1.ListRateLimitEventsResponse.events:type_name -> sentinez.types.secrule.v1.SecRuleEvent
+	28, // 19: sentinez.apps.analytic.v1.ListCoreRuleEventsResponse.events:type_name -> sentinez.types.coreruleset.v1.CoreRuleEvent
 	0,  // 20: sentinez.apps.analytic.v1.GetEventHistogramRequest.kind:type_name -> sentinez.apps.analytic.v1.EventKind
-	1,  // 21: sentinez.apps.analytic.v1.GetEventHistogramRequest.resolution:type_name -> sentinez.apps.analytic.v1.HistogramResolution
-	25, // 22: sentinez.apps.analytic.v1.GetEventHistogramRequest.from:type_name -> google.protobuf.Timestamp
-	25, // 23: sentinez.apps.analytic.v1.GetEventHistogramRequest.to:type_name -> google.protobuf.Timestamp
-	25, // 24: sentinez.apps.analytic.v1.HistogramPoint.time:type_name -> google.protobuf.Timestamp
-	13, // 25: sentinez.apps.analytic.v1.GetEventHistogramResponse.points:type_name -> sentinez.apps.analytic.v1.HistogramPoint
-	1,  // 26: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramRequest.resolution:type_name -> sentinez.apps.analytic.v1.HistogramResolution
-	25, // 27: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramRequest.from:type_name -> google.protobuf.Timestamp
-	25, // 28: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramRequest.to:type_name -> google.protobuf.Timestamp
-	13, // 29: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramResponse.points:type_name -> sentinez.apps.analytic.v1.HistogramPoint
-	1,  // 30: sentinez.apps.analytic.v1.ListVisitorsRequest.resolution:type_name -> sentinez.apps.analytic.v1.HistogramResolution
-	25, // 31: sentinez.apps.analytic.v1.ListVisitorsRequest.from:type_name -> google.protobuf.Timestamp
-	25, // 32: sentinez.apps.analytic.v1.ListVisitorsRequest.to:type_name -> google.protobuf.Timestamp
-	25, // 33: sentinez.apps.analytic.v1.VisitorPoint.time:type_name -> google.protobuf.Timestamp
-	18, // 34: sentinez.apps.analytic.v1.ListVisitorsResponse.visitors:type_name -> sentinez.apps.analytic.v1.VisitorPoint
-	0,  // 35: sentinez.apps.analytic.v1.GetEventTopValuesRequest.kind:type_name -> sentinez.apps.analytic.v1.EventKind
-	25, // 36: sentinez.apps.analytic.v1.GetEventTopValuesRequest.from:type_name -> google.protobuf.Timestamp
-	25, // 37: sentinez.apps.analytic.v1.GetEventTopValuesRequest.to:type_name -> google.protobuf.Timestamp
-	21, // 38: sentinez.apps.analytic.v1.FieldTopValues.values:type_name -> sentinez.apps.analytic.v1.FieldValue
-	22, // 39: sentinez.apps.analytic.v1.GetEventTopValuesResponse.fields:type_name -> sentinez.apps.analytic.v1.FieldTopValues
-	40, // [40:40] is the sub-list for method output_type
-	40, // [40:40] is the sub-list for method input_type
-	40, // [40:40] is the sub-list for extension type_name
-	40, // [40:40] is the sub-list for extension extendee
-	0,  // [0:40] is the sub-list for field type_name
+	29, // 21: sentinez.apps.analytic.v1.GetEventHistogramRequest.resolution:type_name -> sentinez.types.v1.HistogramResolution
+	24, // 22: sentinez.apps.analytic.v1.GetEventHistogramRequest.from:type_name -> google.protobuf.Timestamp
+	24, // 23: sentinez.apps.analytic.v1.GetEventHistogramRequest.to:type_name -> google.protobuf.Timestamp
+	24, // 24: sentinez.apps.analytic.v1.HistogramPoint.time:type_name -> google.protobuf.Timestamp
+	12, // 25: sentinez.apps.analytic.v1.GetEventHistogramResponse.points:type_name -> sentinez.apps.analytic.v1.HistogramPoint
+	30, // 26: sentinez.apps.analytic.v1.GetEventHistogramResponse.interval:type_name -> sentinez.types.v1.HistogramInterval
+	29, // 27: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramRequest.resolution:type_name -> sentinez.types.v1.HistogramResolution
+	24, // 28: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramRequest.from:type_name -> google.protobuf.Timestamp
+	24, // 29: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramRequest.to:type_name -> google.protobuf.Timestamp
+	12, // 30: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramResponse.points:type_name -> sentinez.apps.analytic.v1.HistogramPoint
+	30, // 31: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramResponse.interval:type_name -> sentinez.types.v1.HistogramInterval
+	29, // 32: sentinez.apps.analytic.v1.ListVisitorsRequest.resolution:type_name -> sentinez.types.v1.HistogramResolution
+	24, // 33: sentinez.apps.analytic.v1.ListVisitorsRequest.from:type_name -> google.protobuf.Timestamp
+	24, // 34: sentinez.apps.analytic.v1.ListVisitorsRequest.to:type_name -> google.protobuf.Timestamp
+	24, // 35: sentinez.apps.analytic.v1.VisitorPoint.time:type_name -> google.protobuf.Timestamp
+	17, // 36: sentinez.apps.analytic.v1.ListVisitorsResponse.visitors:type_name -> sentinez.apps.analytic.v1.VisitorPoint
+	30, // 37: sentinez.apps.analytic.v1.ListVisitorsResponse.interval:type_name -> sentinez.types.v1.HistogramInterval
+	0,  // 38: sentinez.apps.analytic.v1.GetEventTopValuesRequest.kind:type_name -> sentinez.apps.analytic.v1.EventKind
+	24, // 39: sentinez.apps.analytic.v1.GetEventTopValuesRequest.from:type_name -> google.protobuf.Timestamp
+	24, // 40: sentinez.apps.analytic.v1.GetEventTopValuesRequest.to:type_name -> google.protobuf.Timestamp
+	20, // 41: sentinez.apps.analytic.v1.FieldTopValues.values:type_name -> sentinez.apps.analytic.v1.FieldValue
+	21, // 42: sentinez.apps.analytic.v1.GetEventTopValuesResponse.fields:type_name -> sentinez.apps.analytic.v1.FieldTopValues
+	43, // [43:43] is the sub-list for method output_type
+	43, // [43:43] is the sub-list for method input_type
+	43, // [43:43] is the sub-list for extension type_name
+	43, // [43:43] is the sub-list for extension extendee
+	0,  // [0:43] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_apps_analytic_v1_event_proto_init() }
@@ -1875,7 +1848,7 @@ func file_sentinez_apps_analytic_v1_event_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_apps_analytic_v1_event_proto_rawDesc), len(file_sentinez_apps_analytic_v1_event_proto_rawDesc)),
-			NumEnums:      2,
+			NumEnums:      1,
 			NumMessages:   22,
 			NumExtensions: 0,
 			NumServices:   0,

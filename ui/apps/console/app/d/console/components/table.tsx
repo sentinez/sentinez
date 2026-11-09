@@ -46,8 +46,7 @@ import type { Pages } from '@/lib/api/pages';
 import type { Resource } from '@sentinez/proto/sentinez/apps/tenant/v1/model';
 import { statusToJSON } from '@sentinez/proto/sentinez/types/v1/known';
 import { listResources } from '@/lib/api/tenant';
-import { getUniqueVisitorHistogram } from '@/lib/api/analytic';
-import { HistogramResolution } from '@sentinez/proto/sentinez/apps/analytic/v1/event';
+import { VISITORS_RESOLUTION, getUniqueVisitorHistogram } from '@/lib/api/analytic';
 import axios from 'axios';
 
 // "STATUS_ACTIVE" -> "active"
@@ -70,8 +69,8 @@ export type Payment = {
 };
 
 // The unique visitors of the last 24 hours of each resource, one bucket
-// per hour (0 without visitors, filled by the API); empty when the
-// analytic API fails so the list still renders
+// per interval of the resolution (0 without visitors, filled by the API);
+// empty when the analytic API fails so the list still renders
 async function visitorsOf(
   resources: Resource[],
   signal: AbortSignal,
@@ -82,7 +81,7 @@ async function visitorsOf(
   try {
     const { points } = await getUniqueVisitorHistogram(
       {
-        resolution: HistogramResolution.HISTOGRAM_RESOLUTION_HOUR,
+        resolution: VISITORS_RESOLUTION,
         resourceIds: resources.map((r) => r.id),
       },
       { signal },

@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventfilter"
+	"github.com/sentinez/controlplane/pkg/schema"
 	"github.com/sentinez/pkg/szerror"
 	"github.com/sentinez/pkg/szstorage/dbx/timescale/histogram"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
@@ -91,14 +92,20 @@ func (srv *AnalyticService) GetEventHistogram(ctx context.Context,
 		return nil, err
 	}
 
-	points, err := srv.events.Histogram(ctx, req.GetKind(),
-		histogramFilter(req), events)
+	filter, interval, err := histogramFilter(req, time.Now())
+	if err != nil {
+		return nil, err
+	}
+
+	points, err := srv.events.Histogram(ctx, req.GetKind(), filter, events)
 	if err != nil {
 		return nil, fieldError(err)
 	}
 
-	return &pb.GetEventHistogramResponse{Points: histogramPoints(points)},
-		nil
+	return &pb.GetEventHistogramResponse{
+		Points:   histogramPoints(points),
+		Interval: interval,
+	}, nil
 }
 
 // histogramEvents the events the histogram of req counts: its requests
@@ -125,27 +132,38 @@ func histogramEvents(
 func (srv *AnalyticService) GetUniqueVisitorHistogram(ctx context.Context,
 	req *pb.GetUniqueVisitorHistogramRequest,
 ) (*pb.GetUniqueVisitorHistogramResponse, error) {
-	points, err := srv.events.HttpIngress.UniqueVisitors(ctx,
-		histogramFilter(req))
+	filter, interval, err := histogramFilter(req, time.Now())
+	if err != nil {
+		return nil, err
+	}
+
+	points, err := srv.events.HttpIngress.UniqueVisitors(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
 
 	return &pb.GetUniqueVisitorHistogramResponse{
-		Points: histogramPoints(points),
+		Points:   histogramPoints(points),
+		Interval: interval,
 	}, nil
 }
 
 // ListVisitors implements pb.AnalyticServiceServer.
 func (srv *AnalyticService) ListVisitors(ctx context.Context,
 	req *pb.ListVisitorsRequest) (*pb.ListVisitorsResponse, error) {
-	points, err := srv.events.HttpIngress.Visitors(ctx, histogramFilter(req))
+	filter, interval, err := histogramFilter(req, time.Now())
+	if err != nil {
+		return nil, err
+	}
+
+	points, err := srv.events.HttpIngress.Visitors(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
 
 	resp := &pb.ListVisitorsResponse{
 		Visitors: make([]*pb.VisitorPoint, 0, len(points)),
+		Interval: interval,
 	}
 	for _, point := range points {
 		resp.Visitors = append(resp.Visitors, &pb.VisitorPoint{
@@ -161,20 +179,47 @@ func (srv *AnalyticService) ListVisitors(ctx context.Context,
 
 // histogramRequest the filters every histogram has.
 type histogramRequest interface {
-	GetResolution() pb.HistogramResolution
+	GetResolution() typepb.HistogramResolution
 	GetResourceIds() []string
 	GetFrom() *timestamppb.Timestamp
 	GetTo() *timestamppb.Timestamp
 }
 
-// histogramFilter the filter of the histogram of req.
-func histogramFilter(req histogramRequest) *histogram.Filter {
-	return &histogram.Filter{
-		Resolution:  histogram.Resolution(req.GetResolution()),
+// histogramFilter the filter of the histogram of req, its resolution
+// resolved at now, and the interval of its buckets; from or to older than
+// the events are kept is an invalid argument.
+func histogramFilter(req histogramRequest, now time.Time) (
+	*histogram.Filter, typepb.HistogramInterval, error) {
+	filter := &histogram.Filter{
+		Resolution:  req.GetResolution(),
 		ResourceIds: req.GetResourceIds(),
 		From:        asTime(req.GetFrom()),
 		To:          asTime(req.GetTo()),
 	}
+
+	err := keptSince(now, filter.From, filter.To)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return filter, filter.Resolve(now), nil
+}
+
+// keptSince whether the events at the times, unset ones skipped, are still
+// kept at now (schema.EventRetention): an invalid argument when one is
+// older, their histogram long gone.
+func keptSince(now time.Time, times ...time.Time) error {
+	oldest := now.Add(-schema.EventRetention)
+	for _, t := range times {
+		if !t.IsZero() && t.Before(oldest) {
+			return szerror.StatusInvalidArgumentF(
+				"%s is before %s: the events are kept %s",
+				t.Format(time.RFC3339), oldest.Format(time.RFC3339),
+				schema.EventRetention)
+		}
+	}
+
+	return nil
 }
 
 // histogramPoints the proto of points.

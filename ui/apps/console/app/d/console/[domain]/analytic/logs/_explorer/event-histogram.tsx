@@ -12,11 +12,9 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from '@sentinez/ui/components/chart';
-import type {
-  HistogramPoint,
-  HistogramResolution,
-} from '@sentinez/proto/sentinez/apps/analytic/v1/event';
-import { DATE_TIME_ZONE, TICK_FORMATS } from './time-range';
+import type { HistogramPoint } from '@sentinez/proto/sentinez/apps/analytic/v1/event';
+import type { HistogramResolution } from '@sentinez/proto/sentinez/types/v1/known';
+import { DATE_TIME_ZONE, tickFormatOf } from './time-range';
 import type { SeriesDef } from './types';
 
 // Bucket the events of the bucket starting at time (millis), per series
@@ -94,7 +92,8 @@ export function EventHistogram({
       ) satisfies ChartConfig,
     [series],
   );
-  const tickOf = (time: number) => format.dateTime(new Date(time), TICK_FORMATS[resolution]);
+  const tickFormat = tickFormatOf(bucketMillis, resolution);
+  const tickOf = (time: number) => format.dateTime(new Date(time), tickFormat);
   const labelOf = (_: unknown, payload: readonly { payload?: Bucket }[]) => {
     const time = payload?.[0]?.payload?.time;
     return time ? format.dateTime(new Date(time), DATE_TIME_ZONE) : '';
@@ -152,7 +151,7 @@ export function EventHistogram({
             fill={`var(--color-${s.id})`}
             radius={i === shown.length - 1 ? [2, 2, 0, 0] : 0}
             className="cursor-pointer"
-            isAnimationActive={true}
+            isAnimationActive={false}
           >
             {data.map((d) => (
               <Cell

@@ -23,8 +23,10 @@ import (
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
 
+// _envRe the table names of an env: lowercase words, those after the
+// first may hold digits, e.g. the suffix of a view, _30m.
 var _envRe = regexp.MustCompile(
-	`^(dev|sandbox|prod)_sentinez_[a-z]+(_[a-z]+)*$`)
+	`^(dev|sandbox|prod)_sentinez_[a-z]+(_[a-z0-9]+)*$`)
 
 func NewTable(appConf *settingpb.Config, tableName string) string {
 	tableName = fmt.Sprintf("%s.%s.%s",

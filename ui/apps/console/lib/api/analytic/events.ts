@@ -6,7 +6,6 @@ import {
   GetEventTopValuesResponse,
   type FieldTopValues,
   type HistogramPoint,
-  HistogramResolution,
   ListCoreRuleEventsRequest,
   ListCoreRuleEventsResponse,
   ListHttpEgressEventsRequest,
@@ -18,6 +17,7 @@ import {
   ListSecRuleEventsRequest,
   ListSecRuleEventsResponse,
 } from '@sentinez/proto/sentinez/apps/analytic/v1/event';
+import { HistogramResolution } from '@sentinez/proto/sentinez/types/v1/known';
 import type { CoreRuleEvent } from '@sentinez/proto/sentinez/types/coreruleset/v1/event';
 import type { EgressEvent, IngressEvent } from '@sentinez/proto/sentinez/types/net/http/v1/event';
 import { ActionType, RuleBehavior, RuleService } from '@sentinez/proto/sentinez/types/rule/v1/rule';
@@ -30,7 +30,7 @@ import {
   getJSON,
   RESOLUTION_BUCKETS,
   SAMPLE_IPS,
-  maxPagesOf,
+  intervalOf,
   resolutionOfSpan,
   sampleBuckets,
 } from './common';
@@ -375,37 +375,12 @@ export async function getEventHistogram(
     '/analytic/events/histogram',
     full,
     { req: GetEventHistogramRequest, resp: GetEventHistogramResponse },
-    () => ({ points: sampleHistogram(full) }),
+    () => ({
+      points: sampleHistogram(full),
+      interval: intervalOf(full.resolution),
+    }),
     options,
   );
-}
-
-/**
- * The points of the histogram of a range: `from` to `to` in as many pages
- * of buckets as the API returns for the resolution (at most maxPagesOf),
- * the latest ending with the bucket of `to`. A single page without `to`
- * (the buckets ending now) or `from`.
- */
-export async function getEventHistogramPages(
-  req: Partial<GetEventHistogramRequest>,
-  options?: ApiOptions,
-): Promise<HistogramPoint[]> {
-  const resolution = req.resolution ?? HistogramResolution.HISTOGRAM_RESOLUTION_UNSPECIFIED;
-  const { millis, count } = RESOLUTION_BUCKETS[resolution];
-  const { from, to } = req;
-  const wanted = from && to ? Math.ceil((to.getTime() - from.getTime()) / (millis * count)) : 1;
-  const pages = Math.min(Math.max(wanted, 1), maxPagesOf(resolution));
-  // The API ends the buckets with the start of the one after `to`
-  const end = to && Math.ceil(to.getTime() / millis) * millis;
-  const resps = await Promise.all(
-    Array.from({ length: pages }, (_, i) =>
-      getEventHistogram(
-        { ...req, to: end === undefined ? undefined : new Date(end - i * millis * count) },
-        options,
-      ),
-    ),
-  );
-  return resps.flatMap((r) => r.points);
 }
 
 // GET /analytic/events/top-values

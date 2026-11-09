@@ -9,6 +9,7 @@ import { Calendar } from '@sentinez/ui/components/calendar';
 import { Input } from '@sentinez/ui/components/input';
 import { Label } from '@sentinez/ui/components/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@sentinez/ui/components/popover';
+import { EVENT_RETENTION_MILLIS } from '@/lib/api/analytic';
 import {
   DATE_TIME_ZONE,
   QUICK_RANGES,
@@ -56,7 +57,14 @@ export function TimeRangePicker({ value, onChange }: Props) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<Draft>(() => draftOf(value));
 
-  const from = draft.days.from && atTime(draft.days.from, draft.fromTime);
+  // The events are kept 30 days: the first day can be picked, its start
+  // clamped to the oldest time kept
+  const now = new Date();
+  const oldest = new Date(now.getTime() - EVENT_RETENTION_MILLIS);
+  const firstDay = new Date(oldest);
+  firstDay.setHours(0, 0, 0, 0);
+  const picked = draft.days.from && atTime(draft.days.from, draft.fromTime);
+  const from = picked && (picked < oldest ? oldest : picked);
   const to = draft.days.to && atTime(draft.days.to, draft.toTime);
   const invalid = !from || !to || from >= to;
 
@@ -121,7 +129,7 @@ export function TimeRangePicker({ value, onChange }: Props) {
               mode="range"
               selected={draft.days}
               onSelect={(days) => setDraft((d) => ({ ...d, days: days ?? { from: undefined } }))}
-              disabled={{ after: new Date() }}
+              disabled={[{ after: now }, { before: firstDay }]}
               defaultMonth={draft.days.to}
               className="p-0"
             />

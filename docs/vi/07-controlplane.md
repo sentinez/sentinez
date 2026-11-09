@@ -322,7 +322,7 @@ bảng event analytic.
 | `sentinez.event.http.secrule` | `secrulepb.SecRuleEvent` | `analytic.secrules.events` | `secruleeventsrepo.NewSecRules` |
 | `sentinez.event.http.ratelimit` | `secrulepb.SecRuleEvent` | `analytic.ratelimiters.events` | `secruleeventsrepo.NewRateLimits` |
 | `sentinez.event.http.rulesets` | `corerulesetpb.CoreRuleEvent` | `analytic.corerulesets.events` | `coreruleeventsrepo.New` |
-| `sentinez.event.http.ingress` | `httppb.IngressEvent` (mỗi request một event, từ handler `logging`) | `analytic.httpingress.events` | `httpingressrepo.New` |
+| `sentinez.event.http.ingress` | `httppb.IngressEvent` (mỗi request một event, từ handler `logging`) | `analytic.httpingress.events` | `httpingresseventrepo.New` |
 | `sentinez.event.http.egress` | `httppb.EgressEvent` (mỗi request được proxy tới upstream origin một event, từ handler `logging`) | `analytic.httpegress.events` | `httpegresseventsrepo.New` |
 
 Luồng xử lý một batch:
@@ -394,19 +394,35 @@ Repository ([apps/collector/v1/repos](../../staging/src/github.com/sentinez/cont
 #### Histogram
 
 [pkg/szstorage/dbx/timescale/histogram](../../staging/src/github.com/sentinez/pkg/szstorage/dbx/timescale/histogram/)
-giữ, cho mỗi bảng event, ba continuous aggregate đếm số dòng theo bucket,
-resource và key, để vẽ chart:
+giữ, cho mỗi bảng event, một continuous aggregate cho mỗi
+`HistogramInterval`, đếm số dòng theo bucket, resource và key; mỗi
+`HistogramResolution` (khoảng thời gian một chart phủ) đọc view của
+interval của nó, các resolution cùng interval dùng chung view:
 
-| View | Bucket | Làm mới | Khoảng dùng | Giữ |
-|---|---|---|---|---|
-| `<table>_secondly` | 1 giây | mỗi 10 giây, 3 phút gần nhất tới 1 giây trước | zoom tới 15 phút | 7 ngày |
-| `<table>_minutely` | 1 phút | mỗi phút, 2 giờ gần nhất tới 1 phút trước | tới một ngày | 30 ngày |
-| `<table>_hourly` | 1 giờ | mỗi 30 phút, 3 ngày gần nhất tới 1 giờ trước | tới 30 ngày | 30 ngày |
+| Resolution | Interval (hậu tố view) | Số bucket |
+|---|---|---|
+| 5 phút | 10 giây (`_10s`) | 30 |
+| 15 phút | 30 giây (`_30s`) | 30 |
+| 30 phút | 1 phút (`_1m`) | 30 |
+| 1 giờ | 1 phút (`_1m`) | 60 |
+| 3 giờ | 5 phút (`_5m`) | 36 |
+| 6 giờ | 10 phút (`_10m`) | 36 |
+| 12 giờ | 15 phút (`_15m`) | 48 |
+| 24 giờ | 30 phút (`_30m`) | 48 |
+| 2 ngày | 1 giờ (`_1h`) | 48 |
+| 7 ngày | 3 giờ (`_3h`) | 56 |
+| 30 ngày | 12 giờ (`_12h`) | 60 |
 
-Ví dụ `dev_sentinez_analytic_httpingress_events_minutely`. View chạy real
-time, nên các bucket mới nhất gồm cả những dòng chưa được làm mới; view
-phút và giờ được giữ trong `schema.EventRetention`, view giây giữ 7 ngày
-(`_secondRetention`). Các cột là `bucket` (unix mili giây),
+Ví dụ `dev_sentinez_analytic_httpingress_events_1m`. View được làm mới
+theo độ rộng bucket (10 giây tới 30 phút), tới một phút trước (hoặc một
+bucket, nếu ngắn hơn), trên 2 giờ gần nhất (`_lateEvents`; 3 ngày với
+bucket giờ): các event collector ghi muộn, dưới watermark (ví dụ backlog
+Kafka sau khi khởi động lại), được đếm trong khoảng đó. Không dài hơn vì
+TimescaleDB invalidate cả khoảng thời gian của một transaction: một batch
+lẫn một event cũ sẽ khiến mỗi lần refresh tính lại toàn bộ khoảng đó. View
+giây giữ 7 ngày (`_secondRetention`), các view khác giữ
+`schema.EventRetention`. View chạy real time, nên các bucket mới nhất gồm
+cả những dòng chưa được làm mới. Các cột là `bucket` (unix mili giây),
 `resource_id`, `tenant_id`, key và `total`.
 
 Key chia nhỏ số đếm thêm: `status` http với event ingress và egress,
@@ -415,11 +431,15 @@ Key chia nhỏ số đếm thêm: `status` http với event ingress và egress,
 
 `Histogram.Points(ctx, *Filter{Resolution, ResourceIds, TenantId, From, To})`
 cộng `total` qua các tenant và trả về `[]*Point{Time, ResourceId, Key,
-Total}`, cũ nhất trước. `Resolution` là `histogram.Second`, `Minute` hoặc
-`Hour`, đánh số giống `HistogramResolution` của proto. Khi để 0, khoảng thời
-gian sẽ quyết định: `Second` nếu `From`..`To` (`To` mặc định là hiện tại)
-không quá 15 phút (`_secondSpan`) và `From` còn trong 7 ngày của view giây,
-ngược lại là `Minute`. `From` tính cả mốc, `To` không tính, theo đầu bucket.
+Total}`, cũ nhất trước: các bucket của resolution, kết thúc ở bucket hiện
+tại hoặc ở bucket chứa `To` (không tính). `Resolution` là
+`typepb.HistogramResolution` của proto; khi để trống, khoảng thời gian sẽ
+quyết định: resolution ngắn nhất có span chứa `From`..`To` (`To` mặc định
+là hiện tại) với dung sai một bucket, bỏ qua view giây khi `From` cũ hơn 7
+ngày, ngược lại là 30 ngày; 1 giờ khi không có `From`. `Filter.Resolve` trả
+resolution được chọn và `HistogramInterval` của bucket, được các RPC
+histogram của analytic trả về trong `interval`. Các RPC này từ chối `from`
+hoặc `to` cũ hơn `schema.EventRetention` (`INVALID_ARGUMENT`).
 
 Các view không thu hẹp được theo request hay field, nên
 `Histogram.PointsWhere(ctx, *Filter, Where)` đếm trực tiếp các dòng của bảng

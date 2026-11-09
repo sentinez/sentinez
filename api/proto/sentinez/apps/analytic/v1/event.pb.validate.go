@@ -16,6 +16,8 @@ import (
 	"unicode/utf8"
 
 	"google.golang.org/protobuf/types/known/anypb"
+
+	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
 
 // ensure the imports are used
@@ -31,6 +33,18 @@ var (
 	_ = (*url.URL)(nil)
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
+
+	_ = typepb.HistogramResolution(0)
+
+	_ = typepb.HistogramInterval(0)
+
+	_ = typepb.HistogramResolution(0)
+
+	_ = typepb.HistogramInterval(0)
+
+	_ = typepb.HistogramResolution(0)
+
+	_ = typepb.HistogramInterval(0)
 )
 
 // Validate checks the field values on ListHttpIngressEventsRequest with the
@@ -1128,6 +1142,8 @@ func (m *GetEventHistogramResponse) Validate() error {
 
 	}
 
+	// no validation rules for Interval
+
 	return nil
 }
 
@@ -1299,6 +1315,8 @@ func (m *GetUniqueVisitorHistogramResponse) Validate() error {
 		}
 
 	}
+
+	// no validation rules for Interval
 
 	return nil
 }
@@ -1552,6 +1570,8 @@ func (m *ListVisitorsResponse) Validate() error {
 		}
 
 	}
+
+	// no validation rules for Interval
 
 	return nil
 }

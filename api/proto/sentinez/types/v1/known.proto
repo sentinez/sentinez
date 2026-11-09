@@ -83,3 +83,47 @@ enum Errors {
   ERRORS_INVALID_DATA = 5;
   ERRORS_UNIMPLEMENTED = 6;
 }
+
+// HistogramResolution the time range a histogram charts, ending with the
+// current bucket or before to: as many buckets of its interval as fill it
+// (5 minutes of 10 seconds, ..., 30 days of 12 hours).
+enum HistogramResolution {
+  // Picked by from and to: the shortest range holding them but one bucket
+  // (buckets of seconds only within the 7 days they are kept), else 30
+  // days; 1 hour without from.
+  HISTOGRAM_RESOLUTION_UNSPECIFIED = 0;
+
+  HISTOGRAM_RESOLUTION_5_MINUTES = 1;
+  HISTOGRAM_RESOLUTION_15_MINUTES = 2;
+  HISTOGRAM_RESOLUTION_30_MINUTES = 3;
+
+  HISTOGRAM_RESOLUTION_1_HOUR = 11;
+  HISTOGRAM_RESOLUTION_3_HOURS = 12;
+  HISTOGRAM_RESOLUTION_6_HOURS = 13;
+  HISTOGRAM_RESOLUTION_12_HOURS = 14;
+  HISTOGRAM_RESOLUTION_24_HOURS = 15;
+
+  HISTOGRAM_RESOLUTION_2_DAYS = 21;
+  HISTOGRAM_RESOLUTION_7_DAYS = 22;
+  HISTOGRAM_RESOLUTION_30_DAYS = 23;
+}
+
+// HistogramInterval the width of one bucket of a histogram, the one of its
+// HistogramResolution.
+enum HistogramInterval {
+  HISTOGRAM_INTERVAL_UNSPECIFIED = 0;
+
+  // Kept 7 days.
+  HISTOGRAM_INTERVAL_10_SECONDS = 1;
+  HISTOGRAM_INTERVAL_30_SECONDS = 2;
+
+  HISTOGRAM_INTERVAL_1_MINUTE = 11;
+  HISTOGRAM_INTERVAL_5_MINUTES = 12;
+  HISTOGRAM_INTERVAL_10_MINUTES = 13;
+  HISTOGRAM_INTERVAL_15_MINUTES = 14;
+  HISTOGRAM_INTERVAL_30_MINUTES = 15;
+
+  HISTOGRAM_INTERVAL_1_HOUR = 21;
+  HISTOGRAM_INTERVAL_3_HOURS = 22;
+  HISTOGRAM_INTERVAL_12_HOURS = 23;
+}

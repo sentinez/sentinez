@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // Package histogram counts the events of an event hypertable per time
-// bucket, resource and key, in a continuous aggregate per Resolution:
+// bucket, resource and key, in a continuous aggregate per interval:
 // the series of the charts of the events.
 package histogram
 
@@ -22,6 +22,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"maps"
 	"slices"
 	"time"
 
@@ -43,74 +44,133 @@ var errTimeColumn = errors.New("histogram: source without time column")
 // _sumTotal the events of the rows of a group of a view.
 const _sumTotal = "sum(" + _totalColumn + ")::BIGINT"
 
-// _secondRetention how long the Second buckets are kept: they are many,
-// and only the latest ones are charted.
+// _secondRetention how long the buckets of seconds are kept: they are
+// many, and only the latest ones are charted.
 const _secondRetention = 7 * 24 * time.Hour
 
-// _secondSpan the longest range charted per Second when the Resolution
-// is not set: a zoom into the minutes (Filter.resolution).
-const _secondSpan = 15 * time.Minute
+// _lateEvents how late the events of Kafka are still counted by the views
+// of seconds and minutes, e.g. the backlog of a collector restart.
+const _lateEvents = 2 * time.Hour
 
-// Resolution the time range of the buckets of a histogram; numbered as
-// analyticpb.HistogramResolution, so the api converts it as is.
-type Resolution int
-
+// The Resolutions and intervals, named by their span: _res<span> and
+// _int<span>, s m h d the unit.
 const (
-	// Second 60 buckets of a second.
-	Second Resolution = iota + 1
-	// Minute 60 buckets of a minute.
-	Minute
-	// Hour 24 buckets of an hour.
-	Hour
+	_res5m  = typepb.HistogramResolution_HISTOGRAM_RESOLUTION_5_MINUTES
+	_res15m = typepb.HistogramResolution_HISTOGRAM_RESOLUTION_15_MINUTES
+	_res30m = typepb.HistogramResolution_HISTOGRAM_RESOLUTION_30_MINUTES
+	_res1h  = typepb.HistogramResolution_HISTOGRAM_RESOLUTION_1_HOUR
+	_res3h  = typepb.HistogramResolution_HISTOGRAM_RESOLUTION_3_HOURS
+	_res6h  = typepb.HistogramResolution_HISTOGRAM_RESOLUTION_6_HOURS
+	_res12h = typepb.HistogramResolution_HISTOGRAM_RESOLUTION_12_HOURS
+	_res24h = typepb.HistogramResolution_HISTOGRAM_RESOLUTION_24_HOURS
+	_res2d  = typepb.HistogramResolution_HISTOGRAM_RESOLUTION_2_DAYS
+	_res7d  = typepb.HistogramResolution_HISTOGRAM_RESOLUTION_7_DAYS
+	_res30d = typepb.HistogramResolution_HISTOGRAM_RESOLUTION_30_DAYS
+
+	_int10s = typepb.HistogramInterval_HISTOGRAM_INTERVAL_10_SECONDS
+	_int30s = typepb.HistogramInterval_HISTOGRAM_INTERVAL_30_SECONDS
+	_int1m  = typepb.HistogramInterval_HISTOGRAM_INTERVAL_1_MINUTE
+	_int5m  = typepb.HistogramInterval_HISTOGRAM_INTERVAL_5_MINUTES
+	_int10m = typepb.HistogramInterval_HISTOGRAM_INTERVAL_10_MINUTES
+	_int15m = typepb.HistogramInterval_HISTOGRAM_INTERVAL_15_MINUTES
+	_int30m = typepb.HistogramInterval_HISTOGRAM_INTERVAL_30_MINUTES
+	_int1h  = typepb.HistogramInterval_HISTOGRAM_INTERVAL_1_HOUR
+	_int3h  = typepb.HistogramInterval_HISTOGRAM_INTERVAL_3_HOURS
+	_int12h = typepb.HistogramInterval_HISTOGRAM_INTERVAL_12_HOURS
 )
 
-// resolutionSpec the view of a Resolution: its name suffix, bucket,
-// number of buckets per query, refresh policy and retention, that of the
-// source when zero. The late events of kafka are counted within
-// StartOffset; the latest buckets, not materialized yet, are aggregated
-// on query (RealTime).
-type resolutionSpec struct {
+// viewSpec the continuous aggregate of the buckets of a HistogramInterval:
+// its name suffix, bucket, how late its events are still counted and how
+// often, and its retention, that of the source when zero.
+type viewSpec struct {
 	suffix    string
 	bucket    time.Duration
-	count     int
-	refresh   timescale.RefreshPolicy
+	late      time.Duration
+	schedule  time.Duration
 	retention time.Duration
 }
 
-// _resolutions the view of each Resolution.
-var _resolutions = map[Resolution]resolutionSpec{
-	Second: {
-		suffix: "secondly",
-		bucket: time.Second,
-		count:  60,
-		refresh: timescale.RefreshPolicy{
-			StartOffset: 3 * time.Minute,
-			EndOffset:   time.Second,
-			Schedule:    10 * time.Second,
-		},
-		retention: _secondRetention,
-	},
-	Minute: {
-		suffix: "minutely",
-		bucket: time.Minute,
-		count:  60,
-		refresh: timescale.RefreshPolicy{
-			StartOffset: 2 * time.Hour,
-			EndOffset:   time.Minute,
-			Schedule:    time.Minute,
-		},
-	},
-	Hour: {
-		suffix: "hourly",
-		bucket: time.Hour,
-		count:  24,
-		refresh: timescale.RefreshPolicy{
-			StartOffset: 3 * 24 * time.Hour,
-			EndOffset:   time.Hour,
-			Schedule:    30 * time.Minute,
-		},
-	},
+// resolutionSpec the range a Resolution charts and the interval of its
+// buckets: as many of them as fill it.
+type resolutionSpec struct {
+	span     time.Duration
+	interval typepb.HistogramInterval
 }
+
+// newViewSpec the view of buckets of bucket, refreshed as often as they
+// fill, 10 seconds to 30 minutes; the latest ones, not materialized yet,
+// are aggregated on query (RealTime). The events of a Kafka backlog are
+// counted up to _lateEvents late, 3 days for the buckets of hours; not
+// more: TimescaleDB invalidates the whole time range of a transaction, so
+// a batch holding one old event would make every refresh recompute it all.
+// Only the seconds are kept shorter, they are many.
+func newViewSpec(suffix string, bucket time.Duration) viewSpec {
+	spec := viewSpec{
+		suffix:   suffix,
+		bucket:   bucket,
+		late:     _lateEvents,
+		schedule: min(max(bucket, 10*time.Second), 30*time.Minute),
+	}
+
+	switch {
+	case bucket < time.Minute:
+		spec.retention = _secondRetention
+	case bucket >= time.Hour:
+		spec.late = 3 * 24 * time.Hour
+	}
+
+	return spec
+}
+
+// refresh the refresh policy of s: the buckets completed up to a minute
+// ago (or a bucket, when shorter) are materialized, so the queries
+// aggregate few raw events.
+func (s viewSpec) refresh() timescale.RefreshPolicy {
+	return timescale.RefreshPolicy{
+		StartOffset: s.late,
+		EndOffset:   min(s.bucket, time.Minute),
+		Schedule:    s.schedule,
+	}
+}
+
+// _views the view of each HistogramInterval, named by its bucket: the
+// Resolutions of one interval share it.
+var _views = map[typepb.HistogramInterval]viewSpec{
+	_int10s: newViewSpec("10s", 10*time.Second),
+	_int30s: newViewSpec("30s", 30*time.Second),
+	_int1m:  newViewSpec("1m", time.Minute),
+	_int5m:  newViewSpec("5m", 5*time.Minute),
+	_int10m: newViewSpec("10m", 10*time.Minute),
+	_int15m: newViewSpec("15m", 15*time.Minute),
+	_int30m: newViewSpec("30m", 30*time.Minute),
+	_int1h:  newViewSpec("1h", time.Hour),
+	_int3h:  newViewSpec("3h", 3*time.Hour),
+	_int12h: newViewSpec("12h", 12*time.Hour),
+}
+
+// _resolutions the range and default interval of each Resolution.
+var _resolutions = map[typepb.HistogramResolution]resolutionSpec{
+	_res5m:  {span: 5 * time.Minute, interval: _int10s},
+	_res15m: {span: 15 * time.Minute, interval: _int30s},
+	_res30m: {span: 30 * time.Minute, interval: _int1m},
+	_res1h:  {span: time.Hour, interval: _int1m},
+	_res3h:  {span: 3 * time.Hour, interval: _int5m},
+	_res6h:  {span: 6 * time.Hour, interval: _int10m},
+	_res12h: {span: 12 * time.Hour, interval: _int15m},
+	_res24h: {span: 24 * time.Hour, interval: _int30m},
+	_res2d:  {span: 2 * 24 * time.Hour, interval: _int1h},
+	_res7d:  {span: 7 * 24 * time.Hour, interval: _int3h},
+	_res30d: {span: 30 * 24 * time.Hour, interval: _int12h},
+}
+
+// _defaultResolution the Resolution of a filter without range.
+const _defaultResolution = _res1h
+
+// _ascending the Resolutions, the shortest span first.
+var _ascending = slices.SortedFunc(maps.Keys(_resolutions),
+	func(a, b typepb.HistogramResolution) int {
+		return cmp.Compare(_resolutions[a].span, _resolutions[b].span)
+	})
 
 // Spec describes the histograms of an event hypertable.
 type Spec struct {
@@ -136,7 +196,7 @@ type Point struct {
 // does not filter.
 type Filter struct {
 	// Resolution picked by the range when zero (Filter.resolution).
-	Resolution  Resolution
+	Resolution  typepb.HistogramResolution
 	ResourceIds []string
 	TenantId    string
 	// From and To the range picking the Resolution when zero. The buckets
@@ -159,14 +219,14 @@ type Histogram struct {
 // b, on the columns of the source hypertable.
 type Where func(b sq.SelectBuilder) (sq.SelectBuilder, error)
 
-// views the continuous aggregates of a histogram, one per Resolution.
-type views map[Resolution]*timescale.View[Point]
+// views the continuous aggregates of a histogram, one per interval.
+type views map[typepb.HistogramInterval]*timescale.View[Point]
 
 // viewDef the views of a histogram, but their resolution: the events
 // counted per bucket, resource, tenant then groupBy.
 type viewDef struct {
 	source timescale.Hypertable
-	// name inserted in the view names, <source>.<name>.minutely: the
+	// name inserted in the view names, <source>.<name>.1m: the
 	// views of one source with another groupBy need one.
 	name    string
 	groupBy []string
@@ -187,7 +247,7 @@ type series struct {
 }
 
 // New returns the Histogram of spec, its views, named after the source
-// table and their resolution (<source>.minutely), synced on the way; its
+// table and their interval (<source>.1m), synced on the way; its
 // source hypertable must exist.
 func New(ctx context.Context, conf *settingpb.Config,
 	spec Spec) (*Histogram, error) {
@@ -271,17 +331,18 @@ func (s Spec) def() viewDef {
 	return def
 }
 
-// newViews creates, or syncs, the views of def, one per Resolution.
+// newViews creates, or syncs, the views of def, one per interval.
 func newViews(ctx context.Context, conf *settingpb.Config,
 	def viewDef) (views, error) {
 
-	v := make(views, len(_resolutions))
-	for res := range _resolutions {
-		view, err := timescale.NewView[Point](ctx, conf, def.schema(res))
+	v := make(views, len(_views))
+	for interval := range _views {
+		view, err := timescale.NewView[Point](ctx, conf,
+			def.schema(interval))
 		if err != nil {
 			return nil, err
 		}
-		v[res] = view
+		v[interval] = view
 	}
 
 	return v, nil
@@ -291,23 +352,24 @@ func newViews(ctx context.Context, conf *settingpb.Config,
 func (v views) of(filter *Filter,
 	now time.Time) (*timescale.View[Point], window, error) {
 
-	res, w, err := planOf(filter, now)
+	interval, w, err := planOf(filter, now)
 	if err != nil {
 		return nil, window{}, err
 	}
 
-	view, ok := v[res]
+	view, ok := v[interval]
 	if !ok {
 		return nil, window{}, fmt.Errorf(
-			"histogram: unknown resolution %d", res)
+			"histogram: no view of interval %d", interval)
 	}
 
 	return view, w, nil
 }
 
-// planOf the Resolution and window of filter, nil included, at now; an
-// unknown Resolution is an error.
-func planOf(filter *Filter, now time.Time) (Resolution, window, error) {
+// planOf the interval and window of the Resolution of filter, nil
+// included, at now; an unknown Resolution is an error.
+func planOf(filter *Filter,
+	now time.Time) (typepb.HistogramInterval, window, error) {
 	res := filter.resolution(now)
 	spec, ok := _resolutions[res]
 	if !ok {
@@ -315,20 +377,28 @@ func planOf(filter *Filter, now time.Time) (Resolution, window, error) {
 			"histogram: unknown resolution %d", res)
 	}
 
-	return res, filter.window(spec, now), nil
+	return spec.interval, filter.window(spec, now), nil
 }
 
-// resolution the Resolution of f, nil included: the one set, else Second
-// for a bounded range of up to _secondSpan that the seconds still keep,
-// else Minute.
-func (f *Filter) resolution(now time.Time) Resolution {
+// Resolve sets f.Resolution to the one the Points of f use at now, and
+// returns the interval of its buckets; an unknown Resolution has none.
+func (f *Filter) Resolve(now time.Time) typepb.HistogramInterval {
+	f.Resolution = f.resolution(now)
+
+	return _resolutions[f.Resolution].interval
+}
+
+// resolution the Resolution of f, nil included: the one set, else the
+// shortest that fits the range From to To (resolutionSpec.fits), else the
+// longest; _defaultResolution without a range.
+func (f *Filter) resolution(now time.Time) typepb.HistogramResolution {
 	switch {
 	case f == nil:
-		return Minute
+		return _defaultResolution
 	case f.Resolution != 0:
 		return f.Resolution
 	case f.From.IsZero():
-		return Minute
+		return _defaultResolution
 	}
 
 	to := f.To
@@ -337,28 +407,47 @@ func (f *Filter) resolution(now time.Time) Resolution {
 	}
 
 	span := to.Sub(f.From)
-	if span <= 0 || span > _secondSpan ||
-		now.Sub(f.From) > _secondRetention {
-		return Minute
+	if span <= 0 {
+		return _defaultResolution
 	}
 
-	return Second
+	age := now.Sub(f.From)
+	for _, res := range _ascending {
+		if _resolutions[res].fits(span, age) {
+			return res
+		}
+	}
+
+	return _ascending[len(_ascending)-1]
+}
+
+// fits whether s charts a range of span starting age ago: its view still
+// keeps that start, and its span holds the range but one bucket, so a
+// range a little longer, e.g. from the midnight 7 days ago, keeps its
+// Resolution instead of the next, much longer one.
+func (s resolutionSpec) fits(span, age time.Duration) bool {
+	view := _views[s.interval]
+	if view.retention != 0 && age > view.retention {
+		return false
+	}
+
+	return s.span+view.bucket >= span
 }
 
 // window the last buckets of spec f reads, nil included: those starting
 // before To when set, else up to the current one, that of now.
 func (f *Filter) window(spec resolutionSpec, now time.Time) window {
+	bucket := _views[spec.interval].bucket
 	// the end of the current bucket, else To: the buckets start before it
-	end := now.Truncate(spec.bucket).Add(spec.bucket)
+	end := now.Truncate(bucket).Add(bucket)
 	if f != nil && !f.To.IsZero() {
-		end = ceil(f.To, spec.bucket)
+		end = ceil(f.To, bucket)
 	}
-	span := time.Duration(spec.count) * spec.bucket
 
 	return window{
-		from:   end.Add(-span).UTC(),
-		bucket: spec.bucket,
-		count:  spec.count,
+		from:   end.Add(-spec.span).UTC(),
+		bucket: bucket,
+		count:  int(spec.span / bucket),
 	}
 }
 
@@ -440,10 +529,12 @@ func ceil(t time.Time, d time.Duration) time.Time {
 	return truncated
 }
 
-// schema the view of d at res: the events counted per bucket, resource,
-// tenant then groupBy, kept for the retention of the resolution.
-func (d viewDef) schema(res Resolution) timescale.ViewSchema {
-	spec := _resolutions[res]
+// schema the view of d at interval: the events counted per bucket,
+// resource, tenant then groupBy, kept for the retention of the view, else
+// that of the source, so the buckets live as long as the events they count.
+func (d viewDef) schema(interval typepb.HistogramInterval,
+) timescale.ViewSchema {
+	spec := _views[interval]
 	groupBy := append([]string{typepb.Owner_ResourceId,
 		typepb.Owner_TenantId}, d.groupBy...)
 
@@ -459,10 +550,8 @@ func (d viewDef) schema(res Resolution) timescale.ViewSchema {
 		GroupBy:    groupBy,
 		Aggregates: []timescale.Aggregate{{Expr: "count(*)", As: _totalColumn}},
 		RealTime:   true,
-		Refresh:    spec.refresh,
-		// the retention of the resolution, else that of the source, so
-		// the buckets live as long as the events they count
-		Retention: cmp.Or(spec.retention, d.source.Retention),
+		Refresh:    spec.refresh(),
+		Retention:  cmp.Or(spec.retention, d.source.Retention),
 	}
 }
 

@@ -20,6 +20,7 @@ import "google/protobuf/timestamp.proto";
 import "sentinez/types/coreruleset/v1/event.proto";
 import "sentinez/types/net/http/v1/event.proto";
 import "sentinez/types/secrule/v1/event.proto";
+import "sentinez/types/v1/known.proto";
 import "sentinez/types/v1/model.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1;analyticpb";
@@ -37,20 +38,6 @@ enum EventKind {
   EVENT_KIND_RATE_LIMIT = 4;
   // Matched core ruleset rules; keyed by the behavior.
   EVENT_KIND_CORE_RULE = 5;
-}
-
-// HistogramResolution the time range of the buckets of a histogram, and
-// their number.
-enum HistogramResolution {
-  // Picked by the range: seconds for a short zoom within their
-  // retention, else minutes.
-  HISTOGRAM_RESOLUTION_UNSPECIFIED = 0;
-  // The last 60 seconds.
-  HISTOGRAM_RESOLUTION_SECOND = 1;
-  // The last 60 minutes.
-  HISTOGRAM_RESOLUTION_MINUTE = 2;
-  // The last 24 hours.
-  HISTOGRAM_RESOLUTION_HOUR = 3;
 }
 
 // ListHttpIngressEventsRequest selects the events of a list, the latest first.
@@ -155,7 +142,7 @@ message ListCoreRuleEventsResponse {
 
 message GetEventHistogramRequest {
   EventKind kind = 1;
-  HistogramResolution resolution = 2;
+  sentinez.types.v1.HistogramResolution resolution = 2;
   repeated string resource_ids = 3;
   // The buckets end before to (exclusive), else with the current one,
   // their number that of the resolution; from and to pick the
@@ -185,10 +172,13 @@ message GetEventHistogramResponse {
   // Oldest first, then per resource and key: one per bucket, a total of
   // 0 when it has no event; a resource without any has key 0.
   repeated HistogramPoint points = 1;
+  // The width of one bucket, that of the resolution asked or picked by
+  // from and to.
+  sentinez.types.v1.HistogramInterval interval = 2;
 }
 
 message GetUniqueVisitorHistogramRequest {
-  HistogramResolution resolution = 1;
+  sentinez.types.v1.HistogramResolution resolution = 1;
   repeated string resource_ids = 2;
   // The buckets end before to (exclusive), else with the current one,
   // their number that of the resolution; from and to pick the
@@ -201,10 +191,13 @@ message GetUniqueVisitorHistogramResponse {
   // Oldest first, then per resource: one per bucket, the key 0, the total
   // the number of distinct client ips of the bucket, 0 without.
   repeated HistogramPoint points = 1;
+  // The width of one bucket, that of the resolution asked or picked by
+  // from and to.
+  sentinez.types.v1.HistogramInterval interval = 2;
 }
 
 message ListVisitorsRequest {
-  HistogramResolution resolution = 1;
+  sentinez.types.v1.HistogramResolution resolution = 1;
   repeated string resource_ids = 2;
   // The buckets end before to (exclusive), else with the current one,
   // their number that of the resolution; from and to pick the
@@ -225,6 +218,9 @@ message VisitorPoint {
 message ListVisitorsResponse {
   // Oldest bucket first, then the client ip of the most requests.
   repeated VisitorPoint visitors = 1;
+  // The width of one bucket, that of the resolution asked or picked by
+  // from and to.
+  sentinez.types.v1.HistogramInterval interval = 2;
 }
 
 message GetEventTopValuesRequest {

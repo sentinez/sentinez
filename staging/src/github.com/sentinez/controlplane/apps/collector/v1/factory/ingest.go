@@ -24,7 +24,7 @@ import (
 	"github.com/sentinez/controlplane/apps/collector/v1/ingest"
 	coreruleeventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/coreruleevents"
 	httpegresseventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/httpegressevents"
-	httpingressrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/httpingress"
+	httpingresseventrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/httpingressevent"
 	secruleeventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/secruleevents"
 	"github.com/sentinez/pkg/szkafka"
 	"github.com/sentinez/pkg/szlog"
@@ -82,7 +82,7 @@ func newSinks(ctx context.Context,
 	if err != nil {
 		return nil, err
 	}
-	ingress, err := httpingressrepo.New(ctx, conf)
+	ingress, err := httpingresseventrepo.New(ctx, conf)
 	if err != nil {
 		return nil, err
 	}

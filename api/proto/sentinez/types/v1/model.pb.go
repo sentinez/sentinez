@@ -221,7 +221,7 @@ var File_sentinez_types_v1_model_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_v1_model_proto_rawDesc = "" +
 	"\n" +
-	"\x1dsentinez/types/v1/model.proto\x12\x11sentinez.types.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1fsentinez/types/v1/options.proto\x1a\x1bbuf/validate/validate.proto\"G\n" +
+	"\x1dsentinez/types/v1/model.proto\x12\x11sentinez.types.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1fsentinez/types/v1/options.proto\"G\n" +
 	"\x05Pages\x12\x14\n" +
 	"\x05index\x18\x01 \x01(\x05R\x05index\x12\x12\n" +
 	"\x04size\x18\x02 \x01(\x05R\x04size\x12\x14\n" +

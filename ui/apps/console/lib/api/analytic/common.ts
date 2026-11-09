@@ -1,4 +1,4 @@
-import { HistogramResolution } from '@sentinez/proto/sentinez/apps/analytic/v1/event';
+import { HistogramInterval, HistogramResolution } from '@sentinez/proto/sentinez/types/v1/known';
 import axios from 'axios';
 
 import { API_BASE_PATH } from '@/lib/api/base';
@@ -54,67 +54,166 @@ export async function getJSON<Req, Resp>(
 const SECOND_MILLIS = 1000;
 const MINUTE_MILLIS = 60 * SECOND_MILLIS;
 export const HOUR_MILLIS = 60 * MINUTE_MILLIS;
+const DAY_MILLIS = 24 * HOUR_MILLIS;
 
-// The width and number of the buckets of each resolution, as the API
-// returns them (unspecified: minutes)
-export const RESOLUTION_BUCKETS: Record<
-  HistogramResolution,
-  { millis: number; count: number; unit: 'second' | 'minute' | 'hour' }
-> = {
-  [HistogramResolution.HISTOGRAM_RESOLUTION_UNSPECIFIED]: {
-    millis: MINUTE_MILLIS,
-    count: 60,
-    unit: 'minute',
-  },
-  [HistogramResolution.HISTOGRAM_RESOLUTION_SECOND]: {
-    millis: SECOND_MILLIS,
-    count: 60,
-    unit: 'second',
-  },
-  [HistogramResolution.HISTOGRAM_RESOLUTION_MINUTE]: {
-    millis: MINUTE_MILLIS,
-    count: 60,
-    unit: 'minute',
-  },
-  [HistogramResolution.HISTOGRAM_RESOLUTION_HOUR]: {
-    millis: HOUR_MILLIS,
-    count: 24,
-    unit: 'hour',
-  },
-  [HistogramResolution.UNRECOGNIZED]: { millis: MINUTE_MILLIS, count: 60, unit: 'minute' },
+// BucketUnit the unit a duration is told in
+type BucketUnit = 'second' | 'minute' | 'hour' | 'day';
+
+// The width of the buckets of each interval (histogram _bucket)
+const INTERVAL_MILLIS: Record<HistogramInterval, number> = {
+  [HistogramInterval.HISTOGRAM_INTERVAL_UNSPECIFIED]: MINUTE_MILLIS,
+  [HistogramInterval.HISTOGRAM_INTERVAL_10_SECONDS]: 10 * SECOND_MILLIS,
+  [HistogramInterval.HISTOGRAM_INTERVAL_30_SECONDS]: 30 * SECOND_MILLIS,
+  [HistogramInterval.HISTOGRAM_INTERVAL_1_MINUTE]: MINUTE_MILLIS,
+  [HistogramInterval.HISTOGRAM_INTERVAL_5_MINUTES]: 5 * MINUTE_MILLIS,
+  [HistogramInterval.HISTOGRAM_INTERVAL_10_MINUTES]: 10 * MINUTE_MILLIS,
+  [HistogramInterval.HISTOGRAM_INTERVAL_15_MINUTES]: 15 * MINUTE_MILLIS,
+  [HistogramInterval.HISTOGRAM_INTERVAL_30_MINUTES]: 30 * MINUTE_MILLIS,
+  [HistogramInterval.HISTOGRAM_INTERVAL_1_HOUR]: HOUR_MILLIS,
+  [HistogramInterval.HISTOGRAM_INTERVAL_3_HOURS]: 3 * HOUR_MILLIS,
+  [HistogramInterval.HISTOGRAM_INTERVAL_12_HOURS]: 12 * HOUR_MILLIS,
+  [HistogramInterval.UNRECOGNIZED]: MINUTE_MILLIS,
 };
 
-// The resolutions of a histogram, the finest first
-export const RESOLUTIONS = [
-  HistogramResolution.HISTOGRAM_RESOLUTION_SECOND,
-  HistogramResolution.HISTOGRAM_RESOLUTION_MINUTE,
-  HistogramResolution.HISTOGRAM_RESOLUTION_HOUR,
+const UNIT_MILLIS: [BucketUnit, number][] = [
+  ['day', DAY_MILLIS],
+  ['hour', HOUR_MILLIS],
+  ['minute', MINUTE_MILLIS],
+  ['second', SECOND_MILLIS],
 ];
 
-// The most buckets a histogram shows, fetched in pages of the buckets the
-// API returns for its resolution
-const MAX_BUCKETS = 360;
+// A duration (millis) in the largest unit it is a whole number of, e.g.
+// 30 days, 12 hours
+export function durationOf(millis: number): { count: number; unit: BucketUnit } {
+  const [unit, size] = UNIT_MILLIS.find(([, size]) => millis % size === 0) ?? ['second', 1000];
+  return { count: millis / size, unit };
+}
 
-// The pages of buckets a histogram of a resolution fetches at most
-export const maxPagesOf = (resolution: HistogramResolution) =>
-  Math.max(1, Math.floor(MAX_BUCKETS / RESOLUTION_BUCKETS[resolution].count));
+// The range each resolution charts and the interval of its buckets, as
+// the API has them (histogram _span, _resolutions); unspecified: the API
+// picks one hour without a range
+const RESOLUTION_SPECS: Record<HistogramResolution, { span: number; interval: HistogramInterval }> =
+  {
+    [HistogramResolution.HISTOGRAM_RESOLUTION_UNSPECIFIED]: {
+      span: HOUR_MILLIS,
+      interval: HistogramInterval.HISTOGRAM_INTERVAL_1_MINUTE,
+    },
+    [HistogramResolution.HISTOGRAM_RESOLUTION_5_MINUTES]: {
+      span: 5 * MINUTE_MILLIS,
+      interval: HistogramInterval.HISTOGRAM_INTERVAL_10_SECONDS,
+    },
+    [HistogramResolution.HISTOGRAM_RESOLUTION_15_MINUTES]: {
+      span: 15 * MINUTE_MILLIS,
+      interval: HistogramInterval.HISTOGRAM_INTERVAL_30_SECONDS,
+    },
+    [HistogramResolution.HISTOGRAM_RESOLUTION_30_MINUTES]: {
+      span: 30 * MINUTE_MILLIS,
+      interval: HistogramInterval.HISTOGRAM_INTERVAL_1_MINUTE,
+    },
+    [HistogramResolution.HISTOGRAM_RESOLUTION_1_HOUR]: {
+      span: HOUR_MILLIS,
+      interval: HistogramInterval.HISTOGRAM_INTERVAL_1_MINUTE,
+    },
+    [HistogramResolution.HISTOGRAM_RESOLUTION_3_HOURS]: {
+      span: 3 * HOUR_MILLIS,
+      interval: HistogramInterval.HISTOGRAM_INTERVAL_5_MINUTES,
+    },
+    [HistogramResolution.HISTOGRAM_RESOLUTION_6_HOURS]: {
+      span: 6 * HOUR_MILLIS,
+      interval: HistogramInterval.HISTOGRAM_INTERVAL_10_MINUTES,
+    },
+    [HistogramResolution.HISTOGRAM_RESOLUTION_12_HOURS]: {
+      span: 12 * HOUR_MILLIS,
+      interval: HistogramInterval.HISTOGRAM_INTERVAL_15_MINUTES,
+    },
+    [HistogramResolution.HISTOGRAM_RESOLUTION_24_HOURS]: {
+      span: DAY_MILLIS,
+      interval: HistogramInterval.HISTOGRAM_INTERVAL_30_MINUTES,
+    },
+    [HistogramResolution.HISTOGRAM_RESOLUTION_2_DAYS]: {
+      span: 2 * DAY_MILLIS,
+      interval: HistogramInterval.HISTOGRAM_INTERVAL_1_HOUR,
+    },
+    [HistogramResolution.HISTOGRAM_RESOLUTION_7_DAYS]: {
+      span: 7 * DAY_MILLIS,
+      interval: HistogramInterval.HISTOGRAM_INTERVAL_3_HOURS,
+    },
+    [HistogramResolution.HISTOGRAM_RESOLUTION_30_DAYS]: {
+      span: 30 * DAY_MILLIS,
+      interval: HistogramInterval.HISTOGRAM_INTERVAL_12_HOURS,
+    },
+    [HistogramResolution.UNRECOGNIZED]: {
+      span: HOUR_MILLIS,
+      interval: HistogramInterval.HISTOGRAM_INTERVAL_1_MINUTE,
+    },
+  };
+
+// The width and number of the buckets of each resolution, as the API
+// returns them: its span over the width of its interval
+export const RESOLUTION_BUCKETS = Object.fromEntries(
+  Object.entries(RESOLUTION_SPECS).map(([resolution, { span, interval }]) => {
+    const millis = INTERVAL_MILLIS[interval];
+    return [resolution, { millis, count: span / millis }];
+  }),
+) as Record<HistogramResolution, { millis: number; count: number }>;
 
 // The time the buckets of a resolution cover
-export const spanOf = (resolution: HistogramResolution) =>
-  RESOLUTION_BUCKETS[resolution].millis * RESOLUTION_BUCKETS[resolution].count;
+export const spanOf = (resolution: HistogramResolution) => RESOLUTION_SPECS[resolution].span;
 
-// The finest resolution whose buckets cover span (millis), the hours beyond
-export function resolutionOfSpan(span: number): HistogramResolution {
-  return (
-    RESOLUTIONS.find((r) => span <= spanOf(r)) ?? HistogramResolution.HISTOGRAM_RESOLUTION_HOUR
-  );
+// The interval of the buckets of a resolution
+export const intervalOf = (resolution: HistogramResolution) =>
+  RESOLUTION_SPECS[resolution].interval;
+
+// The resolution of the visitors of a resource: the last 24 hours
+export const VISITORS_RESOLUTION = HistogramResolution.HISTOGRAM_RESOLUTION_24_HOURS;
+
+// The resolutions of a histogram, the shortest first (histogram
+// _ascending): those of RESOLUTION_SPECS, but unspecified and unrecognized
+export const RESOLUTIONS = (Object.keys(RESOLUTION_SPECS).map(Number) as HistogramResolution[])
+  .filter((r) => r > HistogramResolution.HISTOGRAM_RESOLUTION_UNSPECIFIED)
+  .sort((a, b) => spanOf(a) - spanOf(b));
+
+// The longest resolution, that of a range longer than every one
+const LONGEST_RESOLUTION = RESOLUTIONS[RESOLUTIONS.length - 1]!;
+
+// How long the events, and their histograms, are kept: the API refuses a
+// range starting before (schema.EventRetention)
+export const EVENT_RETENTION_MILLIS = 30 * DAY_MILLIS;
+
+// The buckets of seconds are kept a week (histogram _secondRetention)
+const SECOND_RETENTION_MILLIS = 7 * DAY_MILLIS;
+
+/**
+ * Whether a resolution charts a range of span (millis) starting age ago,
+ * as the API decides it (histogram resolutionSpec.fits): its buckets are
+ * still kept then, and its span holds the range but one bucket.
+ */
+export function fits(resolution: HistogramResolution, span: number, age = 0): boolean {
+  const { millis } = RESOLUTION_BUCKETS[resolution];
+  if (millis < MINUTE_MILLIS && age > SECOND_RETENTION_MILLIS) return false;
+  return spanOf(resolution) + millis >= span;
+}
+
+// The shortest resolution fitting a range of span (millis) starting age
+// ago, the longest beyond them all
+export function resolutionOfSpan(span: number, age = 0): HistogramResolution {
+  return RESOLUTIONS.find((r) => fits(r, span, age)) ?? LONGEST_RESOLUTION;
+}
+
+// The width of the buckets of a histogram: the interval the API answered
+// with, else the one of its resolution
+export function bucketMillisOf(
+  resolution: HistogramResolution,
+  interval?: HistogramInterval,
+): number {
+  return interval ? INTERVAL_MILLIS[interval] : RESOLUTION_BUCKETS[resolution].millis;
 }
 
 // The sample buckets of a resolution: those ending with the one of `to`,
 // else the current one
 export function sampleBuckets(resolution: HistogramResolution, to?: Date): Date[] {
   const { millis, count } = RESOLUTION_BUCKETS[resolution];
-  const end = Math.floor((to ?? new Date()).getTime() / millis) + 1;
+  const end = Math.ceil((to ?? new Date(Date.now() + 1)).getTime() / millis);
   return Array.from({ length: count }, (_, i) => new Date((end - count + i) * millis));
 }
 

@@ -361,6 +361,201 @@ export function errorsToJSON(object: Errors): string {
   }
 }
 
+/**
+ * HistogramResolution the time range a histogram charts, ending with the
+ * current bucket or before to: as many buckets of its interval as fill it
+ * (5 minutes of 10 seconds, ..., 30 days of 12 hours).
+ */
+export enum HistogramResolution {
+  /**
+   * HISTOGRAM_RESOLUTION_UNSPECIFIED - Picked by from and to: the shortest range holding them but one bucket
+   * (buckets of seconds only within the 7 days they are kept), else 30
+   * days; 1 hour without from.
+   */
+  HISTOGRAM_RESOLUTION_UNSPECIFIED = 0,
+  HISTOGRAM_RESOLUTION_5_MINUTES = 1,
+  HISTOGRAM_RESOLUTION_15_MINUTES = 2,
+  HISTOGRAM_RESOLUTION_30_MINUTES = 3,
+  HISTOGRAM_RESOLUTION_1_HOUR = 11,
+  HISTOGRAM_RESOLUTION_3_HOURS = 12,
+  HISTOGRAM_RESOLUTION_6_HOURS = 13,
+  HISTOGRAM_RESOLUTION_12_HOURS = 14,
+  HISTOGRAM_RESOLUTION_24_HOURS = 15,
+  HISTOGRAM_RESOLUTION_2_DAYS = 21,
+  HISTOGRAM_RESOLUTION_7_DAYS = 22,
+  HISTOGRAM_RESOLUTION_30_DAYS = 23,
+  UNRECOGNIZED = -1,
+}
+
+export function histogramResolutionFromJSON(object: any): HistogramResolution {
+  switch (object) {
+    case 0:
+    case "HISTOGRAM_RESOLUTION_UNSPECIFIED":
+      return HistogramResolution.HISTOGRAM_RESOLUTION_UNSPECIFIED;
+    case 1:
+    case "HISTOGRAM_RESOLUTION_5_MINUTES":
+      return HistogramResolution.HISTOGRAM_RESOLUTION_5_MINUTES;
+    case 2:
+    case "HISTOGRAM_RESOLUTION_15_MINUTES":
+      return HistogramResolution.HISTOGRAM_RESOLUTION_15_MINUTES;
+    case 3:
+    case "HISTOGRAM_RESOLUTION_30_MINUTES":
+      return HistogramResolution.HISTOGRAM_RESOLUTION_30_MINUTES;
+    case 11:
+    case "HISTOGRAM_RESOLUTION_1_HOUR":
+      return HistogramResolution.HISTOGRAM_RESOLUTION_1_HOUR;
+    case 12:
+    case "HISTOGRAM_RESOLUTION_3_HOURS":
+      return HistogramResolution.HISTOGRAM_RESOLUTION_3_HOURS;
+    case 13:
+    case "HISTOGRAM_RESOLUTION_6_HOURS":
+      return HistogramResolution.HISTOGRAM_RESOLUTION_6_HOURS;
+    case 14:
+    case "HISTOGRAM_RESOLUTION_12_HOURS":
+      return HistogramResolution.HISTOGRAM_RESOLUTION_12_HOURS;
+    case 15:
+    case "HISTOGRAM_RESOLUTION_24_HOURS":
+      return HistogramResolution.HISTOGRAM_RESOLUTION_24_HOURS;
+    case 21:
+    case "HISTOGRAM_RESOLUTION_2_DAYS":
+      return HistogramResolution.HISTOGRAM_RESOLUTION_2_DAYS;
+    case 22:
+    case "HISTOGRAM_RESOLUTION_7_DAYS":
+      return HistogramResolution.HISTOGRAM_RESOLUTION_7_DAYS;
+    case 23:
+    case "HISTOGRAM_RESOLUTION_30_DAYS":
+      return HistogramResolution.HISTOGRAM_RESOLUTION_30_DAYS;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return HistogramResolution.UNRECOGNIZED;
+  }
+}
+
+export function histogramResolutionToJSON(object: HistogramResolution): string {
+  switch (object) {
+    case HistogramResolution.HISTOGRAM_RESOLUTION_UNSPECIFIED:
+      return "HISTOGRAM_RESOLUTION_UNSPECIFIED";
+    case HistogramResolution.HISTOGRAM_RESOLUTION_5_MINUTES:
+      return "HISTOGRAM_RESOLUTION_5_MINUTES";
+    case HistogramResolution.HISTOGRAM_RESOLUTION_15_MINUTES:
+      return "HISTOGRAM_RESOLUTION_15_MINUTES";
+    case HistogramResolution.HISTOGRAM_RESOLUTION_30_MINUTES:
+      return "HISTOGRAM_RESOLUTION_30_MINUTES";
+    case HistogramResolution.HISTOGRAM_RESOLUTION_1_HOUR:
+      return "HISTOGRAM_RESOLUTION_1_HOUR";
+    case HistogramResolution.HISTOGRAM_RESOLUTION_3_HOURS:
+      return "HISTOGRAM_RESOLUTION_3_HOURS";
+    case HistogramResolution.HISTOGRAM_RESOLUTION_6_HOURS:
+      return "HISTOGRAM_RESOLUTION_6_HOURS";
+    case HistogramResolution.HISTOGRAM_RESOLUTION_12_HOURS:
+      return "HISTOGRAM_RESOLUTION_12_HOURS";
+    case HistogramResolution.HISTOGRAM_RESOLUTION_24_HOURS:
+      return "HISTOGRAM_RESOLUTION_24_HOURS";
+    case HistogramResolution.HISTOGRAM_RESOLUTION_2_DAYS:
+      return "HISTOGRAM_RESOLUTION_2_DAYS";
+    case HistogramResolution.HISTOGRAM_RESOLUTION_7_DAYS:
+      return "HISTOGRAM_RESOLUTION_7_DAYS";
+    case HistogramResolution.HISTOGRAM_RESOLUTION_30_DAYS:
+      return "HISTOGRAM_RESOLUTION_30_DAYS";
+    case HistogramResolution.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
+/**
+ * HistogramInterval the width of one bucket of a histogram, the one of its
+ * HistogramResolution.
+ */
+export enum HistogramInterval {
+  HISTOGRAM_INTERVAL_UNSPECIFIED = 0,
+  /** HISTOGRAM_INTERVAL_10_SECONDS - Kept 7 days. */
+  HISTOGRAM_INTERVAL_10_SECONDS = 1,
+  HISTOGRAM_INTERVAL_30_SECONDS = 2,
+  HISTOGRAM_INTERVAL_1_MINUTE = 11,
+  HISTOGRAM_INTERVAL_5_MINUTES = 12,
+  HISTOGRAM_INTERVAL_10_MINUTES = 13,
+  HISTOGRAM_INTERVAL_15_MINUTES = 14,
+  HISTOGRAM_INTERVAL_30_MINUTES = 15,
+  HISTOGRAM_INTERVAL_1_HOUR = 21,
+  HISTOGRAM_INTERVAL_3_HOURS = 22,
+  HISTOGRAM_INTERVAL_12_HOURS = 23,
+  UNRECOGNIZED = -1,
+}
+
+export function histogramIntervalFromJSON(object: any): HistogramInterval {
+  switch (object) {
+    case 0:
+    case "HISTOGRAM_INTERVAL_UNSPECIFIED":
+      return HistogramInterval.HISTOGRAM_INTERVAL_UNSPECIFIED;
+    case 1:
+    case "HISTOGRAM_INTERVAL_10_SECONDS":
+      return HistogramInterval.HISTOGRAM_INTERVAL_10_SECONDS;
+    case 2:
+    case "HISTOGRAM_INTERVAL_30_SECONDS":
+      return HistogramInterval.HISTOGRAM_INTERVAL_30_SECONDS;
+    case 11:
+    case "HISTOGRAM_INTERVAL_1_MINUTE":
+      return HistogramInterval.HISTOGRAM_INTERVAL_1_MINUTE;
+    case 12:
+    case "HISTOGRAM_INTERVAL_5_MINUTES":
+      return HistogramInterval.HISTOGRAM_INTERVAL_5_MINUTES;
+    case 13:
+    case "HISTOGRAM_INTERVAL_10_MINUTES":
+      return HistogramInterval.HISTOGRAM_INTERVAL_10_MINUTES;
+    case 14:
+    case "HISTOGRAM_INTERVAL_15_MINUTES":
+      return HistogramInterval.HISTOGRAM_INTERVAL_15_MINUTES;
+    case 15:
+    case "HISTOGRAM_INTERVAL_30_MINUTES":
+      return HistogramInterval.HISTOGRAM_INTERVAL_30_MINUTES;
+    case 21:
+    case "HISTOGRAM_INTERVAL_1_HOUR":
+      return HistogramInterval.HISTOGRAM_INTERVAL_1_HOUR;
+    case 22:
+    case "HISTOGRAM_INTERVAL_3_HOURS":
+      return HistogramInterval.HISTOGRAM_INTERVAL_3_HOURS;
+    case 23:
+    case "HISTOGRAM_INTERVAL_12_HOURS":
+      return HistogramInterval.HISTOGRAM_INTERVAL_12_HOURS;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return HistogramInterval.UNRECOGNIZED;
+  }
+}
+
+export function histogramIntervalToJSON(object: HistogramInterval): string {
+  switch (object) {
+    case HistogramInterval.HISTOGRAM_INTERVAL_UNSPECIFIED:
+      return "HISTOGRAM_INTERVAL_UNSPECIFIED";
+    case HistogramInterval.HISTOGRAM_INTERVAL_10_SECONDS:
+      return "HISTOGRAM_INTERVAL_10_SECONDS";
+    case HistogramInterval.HISTOGRAM_INTERVAL_30_SECONDS:
+      return "HISTOGRAM_INTERVAL_30_SECONDS";
+    case HistogramInterval.HISTOGRAM_INTERVAL_1_MINUTE:
+      return "HISTOGRAM_INTERVAL_1_MINUTE";
+    case HistogramInterval.HISTOGRAM_INTERVAL_5_MINUTES:
+      return "HISTOGRAM_INTERVAL_5_MINUTES";
+    case HistogramInterval.HISTOGRAM_INTERVAL_10_MINUTES:
+      return "HISTOGRAM_INTERVAL_10_MINUTES";
+    case HistogramInterval.HISTOGRAM_INTERVAL_15_MINUTES:
+      return "HISTOGRAM_INTERVAL_15_MINUTES";
+    case HistogramInterval.HISTOGRAM_INTERVAL_30_MINUTES:
+      return "HISTOGRAM_INTERVAL_30_MINUTES";
+    case HistogramInterval.HISTOGRAM_INTERVAL_1_HOUR:
+      return "HISTOGRAM_INTERVAL_1_HOUR";
+    case HistogramInterval.HISTOGRAM_INTERVAL_3_HOURS:
+      return "HISTOGRAM_INTERVAL_3_HOURS";
+    case HistogramInterval.HISTOGRAM_INTERVAL_12_HOURS:
+      return "HISTOGRAM_INTERVAL_12_HOURS";
+    case HistogramInterval.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 export interface Empty {
 }
 
