@@ -72,8 +72,9 @@ type ISecRuleEvent interface {
 	List(ctx context.Context,
 		filter *eventfilter.Filter) ([]*secrulepb.SecRuleEvent, error)
 	// Histogram counts the events per bucket and resource.
-	Histogram(ctx context.Context,
-		filter *histogram.Filter) ([]*histogram.Point, error)
+	// The events of events only when set (see eventfilter.Points).
+	Histogram(ctx context.Context, filter *histogram.Filter,
+		events *eventfilter.Filter) ([]*histogram.Point, error)
 	topvalues.TopValuer
 }
 
@@ -145,8 +146,10 @@ func (r *SecRuleEvents) List(ctx context.Context,
 }
 
 func (r *SecRuleEvents) Histogram(ctx context.Context,
-	filter *histogram.Filter) ([]*histogram.Point, error) {
-	return r.histogram.Points(ctx, filter)
+	filter *histogram.Filter,
+	events *eventfilter.Filter) ([]*histogram.Point, error) {
+	return eventfilter.Points(ctx, r.histogram, filter, events,
+		_filterColumns)
 }
 
 // newSecRuleEvents returns the repo of the hypertable of sch, and of its

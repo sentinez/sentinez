@@ -162,6 +162,13 @@ message GetEventHistogramRequest {
   // resolution when unspecified.
   google.protobuf.Timestamp from = 4;
   google.protobuf.Timestamp to = 5;
+  // Requests of the events, by request id, any of them (see
+  // ListHttpIngressEventsRequest.request_ids); all when empty.
+  repeated string request_ids = 6;
+  // Field filters, all of them, each "field:value" (see
+  // GetEventTopValuesRequest.filters). With requests or filters the
+  // events are counted from their table, slower than unfiltered.
+  repeated string filters = 7;
 }
 
 // HistogramPoint the events of a resource and key in the bucket starting

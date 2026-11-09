@@ -80,6 +80,43 @@ func pointsQueryTests() []queryTest {
 	}
 }
 
+func TestSourceQuery(t *testing.T) {
+	for _, tt := range sourceQueryTests() {
+		t.Run(tt.name, func(t *testing.T) {
+			sql, args, err := sourceQuery("t", "ts", tt.giveKey, tt.give,
+				_window).ToSql()
+
+			require.NoError(t, err)
+			assert.Equal(t, tt.wantSql, sql)
+			assert.Equal(t, tt.wantArgs, args)
+		})
+	}
+}
+
+// sourceQueryTests the cases of TestSourceQuery, of a table "t" timed by
+// "ts".
+func sourceQueryTests() []queryTest {
+	return []queryTest{
+		{
+			name: "no filter, no key",
+			wantSql: "SELECT (ts / 1000) * 1000, resource_id, 0, " +
+				"count(*) FROM t WHERE ts >= ? AND ts < ? " +
+				"GROUP BY 1, 2, 3 ORDER BY 1, 2",
+			wantArgs: []any{int64(1000), int64(3000)},
+		},
+		{
+			name:    "filter and key",
+			giveKey: "status",
+			give:    &Filter{ResourceIds: []string{"r1"}},
+			wantSql: "SELECT (ts / 1000) * 1000, resource_id, status, " +
+				"count(*) FROM t WHERE ts >= ? AND ts < ? " +
+				"AND resource_id IN (?) " +
+				"GROUP BY 1, 2, 3 ORDER BY 1, 2",
+			wantArgs: []any{int64(1000), int64(3000), "r1"},
+		},
+	}
+}
+
 // viewSchemaTest a case of TestViewSchema.
 type viewSchemaTest struct {
 	give       Resolution

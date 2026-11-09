@@ -317,8 +317,12 @@ function sampleHistogram(req: GetEventHistogramRequest): HistogramPoint[] {
       points.set(`${time.getTime()}|${resourceId}|0`, { time, resourceId, key: 0, total: 0 });
     }
   }
-  const requests = sampleIngressWindow(req.resolution, ids, req.to);
-  for (const r of sampleRecordsOf(req.kind, requests)) {
+  // The events of the requests and filters only, as the API counts them
+  const requests = sampleIngressWindow(req.resolution, ids, req.to).filter(
+    ofRequests(req.requestIds, (e) => e.id),
+  );
+  const records = sampleRecordsOf(req.kind, requests).filter((r) => matchesFilters(r, req.filters));
+  for (const r of records) {
     const start = Math.floor(r.time / millis) * millis;
     const id = `${start}|${r.resourceId}|${r.key}`;
     const point = points.get(id) ?? {

@@ -18,10 +18,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventfilter"
 	"github.com/sentinez/pkg/szstorage/dbx/timescale/histogram"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -119,4 +121,47 @@ func TestHistogramPoints(t *testing.T) {
 	assert.Equal(t, "r1", got[0].GetResourceId())
 	assert.Equal(t, int32(200), got[0].GetKey())
 	assert.Equal(t, int64(3), got[0].GetTotal())
+}
+
+func TestHistogramEvents(t *testing.T) {
+	tests := []struct {
+		name string
+		give *pb.GetEventHistogramRequest
+		want *eventfilter.Filter
+	}{
+		{
+			name: "none counts every event",
+			give: &pb.GetEventHistogramRequest{},
+		},
+		{
+			name: "requests and filters",
+			give: &pb.GetEventHistogramRequest{
+				RequestIds: []string{"req_1"},
+				Filters:    []string{"status:404"},
+			},
+			want: &eventfilter.Filter{
+				RequestIds: []string{"req_1"},
+				Matches: []eventfilter.Match{
+					{Field: "status", Value: "404"},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := histogramEvents(tt.give)
+
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestHistogramEventsRejectsFilter(t *testing.T) {
+	_, err := histogramEvents(&pb.GetEventHistogramRequest{
+		Filters: []string{"status"},
+	})
+
+	require.Error(t, err)
 }

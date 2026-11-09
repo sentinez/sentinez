@@ -77,8 +77,9 @@ type ICoreRuleEvent interface {
 		filter *eventfilter.Filter) ([]*crspb.CoreRuleEvent, error)
 	// Histogram counts the events per bucket, resource and behavior
 	// (histogram.Point.Key).
-	Histogram(ctx context.Context,
-		filter *histogram.Filter) ([]*histogram.Point, error)
+	// The events of events only when set (see eventfilter.Points).
+	Histogram(ctx context.Context, filter *histogram.Filter,
+		events *eventfilter.Filter) ([]*histogram.Point, error)
 	topvalues.TopValuer
 }
 
@@ -161,8 +162,10 @@ func (r *CoreRuleEvents) List(ctx context.Context,
 }
 
 func (r *CoreRuleEvents) Histogram(ctx context.Context,
-	filter *histogram.Filter) ([]*histogram.Point, error) {
-	return r.histogram.Points(ctx, filter)
+	filter *histogram.Filter,
+	events *eventfilter.Filter) ([]*histogram.Point, error) {
+	return eventfilter.Points(ctx, r.histogram, filter, events,
+		_filterColumns)
 }
 
 func (r *CoreRuleEvents) TopValues(ctx context.Context,

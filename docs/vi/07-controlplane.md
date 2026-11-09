@@ -377,8 +377,9 @@ Repository ([apps/collector/v1/repos](../../staging/src/github.com/sentinez/cont
 
 - `Create(ctx, events...)` insert các event (bắt buộc đã có id) trong một
   câu lệnh; `Get`, `Delete`, `WithTX`.
-- `Histogram(ctx, *histogram.Filter)`: số lượng theo bucket thời gian, xem
-  [Histogram](#histogram).
+- `Histogram(ctx, *histogram.Filter, *eventfilter.Filter)`: số lượng theo
+  bucket thời gian, xem [Histogram](#histogram); filter thứ hai chỉ thu hẹp
+  theo request và field, có thể là nil.
 - `List(ctx, *eventfilter.Filter)`: lọc theo `ResourceIds` và theo
   `matched_time` (`From` tính cả mốc, `To` không tính; event ingress dùng
   `timestamp`), phân trang bằng `Page`, sắp theo `matched_time DESC`.
@@ -420,6 +421,16 @@ Analytic đọc các bảng của collector qua
 [apps/analytic/v1/repos/events](../../staging/src/github.com/sentinez/controlplane/apps/analytic/v1/repos/events/):
 `eventsrepo.Events` giữ một `Reader[T]` chỉ đọc (`List`, `Histogram`) cho
 mỗi bảng, dựng từ các repo của collector, nên analytic không ghi được
+Các view không thu hẹp được theo request hay field, nên
+`Histogram.PointsWhere(ctx, *Filter, Where)` đếm trực tiếp các dòng của bảng
+nguồn (`SELECT (time / bucket) * bucket, resource_id, key, count(*) ...
+GROUP BY`), `Where` thêm các điều kiện. Cửa sổ, độ phân giải và các bucket
+rỗng giống `Points`, nhưng cột thời gian của bảng nguồn phải là unix mili
+giây. `eventfilter.Points` chọn giữa hai cách: dùng view khi không có
+`eventfilter.Filter`, ngược lại là `PointsWhere` với `RequestIds` và
+`Matches` của filter, trên các cột của bảng, giống cách các list áp dụng.
+Quét bảng gốc chậm hơn view khi khoảng thời gian dài.
+
 event. Khi dựng, nó sync bảng và view như collector.
 
 | RPC | REST | Đọc |
@@ -436,7 +447,12 @@ event. Khi dựng, nó sync bảng và view như collector.
 - `GetEventHistogram` nhận `kind` (`EventKind`), `resolution`
   (`HistogramResolution`, `UNSPECIFIED` thì chọn theo khoảng thời gian, xem
   [Histogram](#histogram)), `resource_ids`, `from` và `to`, trả về
-  `HistogramPoint{time, resource_id, key, total}`, cũ nhất trước.
+  `HistogramPoint{time, resource_id, key, total}`, cũ nhất trước. Nó trả
+  các bucket kết thúc ở bucket của `to` (60 giây, 60 phút hoặc 24 giờ), nên
+  khoảng dài hơn phải hỏi theo trang, mỗi trang kết thúc nơi trang sau bắt
+  đầu. Với `request_ids` hoặc `filters` (mỗi cái là `field:value`, giống
+  list và top values) nó đếm các event khớp từ bảng, không từ view; field
+  không tồn tại là invalid argument.
 - Mọi RPC cần token (`headers.Allow`, `ignore: true`). Việc đọc chưa lọc
   theo tenant: không truyền `resource_ids` thì trả event của mọi tenant.
 

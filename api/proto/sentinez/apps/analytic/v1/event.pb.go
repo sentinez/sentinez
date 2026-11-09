@@ -846,8 +846,15 @@ type GetEventHistogramRequest struct {
 	// The buckets end before to (exclusive), else with the current one,
 	// their number that of the resolution; from and to pick the
 	// resolution when unspecified.
-	From          *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=from,proto3" json:"from,omitempty"`
-	To            *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=to,proto3" json:"to,omitempty"`
+	From *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=from,proto3" json:"from,omitempty"`
+	To   *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=to,proto3" json:"to,omitempty"`
+	// Requests of the events, by request id, any of them (see
+	// ListHttpIngressEventsRequest.request_ids); all when empty.
+	RequestIds []string `protobuf:"bytes,6,rep,name=request_ids,json=requestIds,proto3" json:"request_ids,omitempty"`
+	// Field filters, all of them, each "field:value" (see
+	// GetEventTopValuesRequest.filters). With requests or filters the
+	// events are counted from their table, slower than unfiltered.
+	Filters       []string `protobuf:"bytes,7,rep,name=filters,proto3" json:"filters,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -913,6 +920,20 @@ func (x *GetEventHistogramRequest) GetFrom() *timestamppb.Timestamp {
 func (x *GetEventHistogramRequest) GetTo() *timestamppb.Timestamp {
 	if x != nil {
 		return x.To
+	}
+	return nil
+}
+
+func (x *GetEventHistogramRequest) GetRequestIds() []string {
+	if x != nil {
+		return x.RequestIds
+	}
+	return nil
+}
+
+func (x *GetEventHistogramRequest) GetFilters() []string {
+	if x != nil {
+		return x.Filters
 	}
 	return nil
 }
@@ -1674,7 +1695,7 @@ const file_sentinez_apps_analytic_v1_event_proto_rawDesc = "" +
 	"\x1bListRateLimitEventsResponse\x12?\n" +
 	"\x06events\x18\x01 \x03(\v2'.sentinez.types.secrule.v1.SecRuleEventR\x06events\"b\n" +
 	"\x1aListCoreRuleEventsResponse\x12D\n" +
-	"\x06events\x18\x01 \x03(\v2,.sentinez.types.coreruleset.v1.CoreRuleEventR\x06events\"\xa3\x02\n" +
+	"\x06events\x18\x01 \x03(\v2,.sentinez.types.coreruleset.v1.CoreRuleEventR\x06events\"\xde\x02\n" +
 	"\x18GetEventHistogramRequest\x128\n" +
 	"\x04kind\x18\x01 \x01(\x0e2$.sentinez.apps.analytic.v1.EventKindR\x04kind\x12N\n" +
 	"\n" +
@@ -1682,7 +1703,10 @@ const file_sentinez_apps_analytic_v1_event_proto_rawDesc = "" +
 	"resolution\x12!\n" +
 	"\fresource_ids\x18\x03 \x03(\tR\vresourceIds\x12.\n" +
 	"\x04from\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
-	"\x02to\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\"\x89\x01\n" +
+	"\x02to\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\x12\x1f\n" +
+	"\vrequest_ids\x18\x06 \x03(\tR\n" +
+	"requestIds\x12\x18\n" +
+	"\afilters\x18\a \x03(\tR\afilters\"\x89\x01\n" +
 	"\x0eHistogramPoint\x12.\n" +
 	"\x04time\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x04time\x12\x1f\n" +
 	"\vresource_id\x18\x02 \x01(\tR\n" +

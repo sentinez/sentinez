@@ -283,7 +283,20 @@ export interface GetEventHistogramRequest {
    * resolution when unspecified.
    */
   from?: Date | undefined;
-  to?: Date | undefined;
+  to?:
+    | Date
+    | undefined;
+  /**
+   * Requests of the events, by request id, any of them (see
+   * ListHttpIngressEventsRequest.request_ids); all when empty.
+   */
+  requestIds: string[];
+  /**
+   * Field filters, all of them, each "field:value" (see
+   * GetEventTopValuesRequest.filters). With requests or filters the
+   * events are counted from their table, slower than unfiltered.
+   */
+  filters: string[];
 }
 
 /**
@@ -1549,7 +1562,7 @@ export const ListCoreRuleEventsResponse: MessageFns<ListCoreRuleEventsResponse> 
 };
 
 function createBaseGetEventHistogramRequest(): GetEventHistogramRequest {
-  return { kind: 0, resolution: 0, resourceIds: [], from: undefined, to: undefined };
+  return { kind: 0, resolution: 0, resourceIds: [], from: undefined, to: undefined, requestIds: [], filters: [] };
 }
 
 export const GetEventHistogramRequest: MessageFns<GetEventHistogramRequest> = {
@@ -1568,6 +1581,12 @@ export const GetEventHistogramRequest: MessageFns<GetEventHistogramRequest> = {
     }
     if (message.to !== undefined) {
       Timestamp.encode(toTimestamp(message.to), writer.uint32(42).fork()).join();
+    }
+    for (const v of message.requestIds) {
+      writer.uint32(50).string(v!);
+    }
+    for (const v of message.filters) {
+      writer.uint32(58).string(v!);
     }
     return writer;
   },
@@ -1625,6 +1644,22 @@ export const GetEventHistogramRequest: MessageFns<GetEventHistogramRequest> = {
             message.to = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
             continue;
           }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.requestIds.push(reader.string());
+            continue;
+          }
+          case 7: {
+            if (tag !== 58) {
+              break;
+            }
+
+            message.filters.push(reader.string());
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -1648,6 +1683,12 @@ export const GetEventHistogramRequest: MessageFns<GetEventHistogramRequest> = {
         : [],
       from: isSet(object.from) ? fromJsonTimestamp(object.from) : undefined,
       to: isSet(object.to) ? fromJsonTimestamp(object.to) : undefined,
+      requestIds: globalThis.Array.isArray(object?.requestIds)
+        ? object.requestIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.request_ids)
+        ? object.request_ids.map((e: any) => globalThis.String(e))
+        : [],
+      filters: globalThis.Array.isArray(object?.filters) ? object.filters.map((e: any) => globalThis.String(e)) : [],
     };
   },
 
@@ -1668,6 +1709,12 @@ export const GetEventHistogramRequest: MessageFns<GetEventHistogramRequest> = {
     if (message.to !== undefined) {
       obj.to = message.to.toISOString();
     }
+    if (message.requestIds?.length) {
+      obj.requestIds = message.requestIds;
+    }
+    if (message.filters?.length) {
+      obj.filters = message.filters;
+    }
     return obj;
   },
 
@@ -1681,6 +1728,8 @@ export const GetEventHistogramRequest: MessageFns<GetEventHistogramRequest> = {
     message.resourceIds = object.resourceIds?.map((e) => e) || [];
     message.from = object.from ?? undefined;
     message.to = object.to ?? undefined;
+    message.requestIds = object.requestIds?.map((e) => e) || [];
+    message.filters = object.filters?.map((e) => e) || [];
     return message;
   },
 };

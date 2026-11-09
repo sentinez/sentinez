@@ -86,14 +86,39 @@ func (srv *AnalyticService) ListCoreRuleEvents(ctx context.Context,
 // GetEventHistogram implements pb.AnalyticServiceServer.
 func (srv *AnalyticService) GetEventHistogram(ctx context.Context,
 	req *pb.GetEventHistogramRequest) (*pb.GetEventHistogramResponse, error) {
-	points, err := srv.events.Histogram(ctx, req.GetKind(),
-		histogramFilter(req))
+	events, err := histogramEvents(req)
 	if err != nil {
 		return nil, err
 	}
 
+	points, err := srv.events.Histogram(ctx, req.GetKind(),
+		histogramFilter(req), events)
+	if err != nil {
+		return nil, fieldError(err)
+	}
+
 	return &pb.GetEventHistogramResponse{Points: histogramPoints(points)},
 		nil
+}
+
+// histogramEvents the events the histogram of req counts: its requests
+// and field filters, nil without any (the views count them all); a filter
+// that is not "field:value" is an invalid argument.
+func histogramEvents(
+	req *pb.GetEventHistogramRequest) (*eventfilter.Filter, error) {
+	if len(req.GetRequestIds()) == 0 && len(req.GetFilters()) == 0 {
+		return nil, nil
+	}
+
+	matches, err := matchesOf(req.GetFilters())
+	if err != nil {
+		return nil, err
+	}
+
+	return &eventfilter.Filter{
+		RequestIds: req.GetRequestIds(),
+		Matches:    matches,
+	}, nil
 }
 
 // GetUniqueVisitorHistogram implements pb.AnalyticServiceServer.

@@ -84,8 +84,9 @@ type IHttpIngressEvent interface {
 		filter *eventfilter.Filter) ([]*httppb.IngressEvent, error)
 	// Histogram counts the requests per bucket, resource and http
 	// status (histogram.Point.Key).
-	Histogram(ctx context.Context,
-		filter *histogram.Filter) ([]*histogram.Point, error)
+	// The events of events only when set (see eventfilter.Points).
+	Histogram(ctx context.Context, filter *histogram.Filter,
+		events *eventfilter.Filter) ([]*histogram.Point, error)
 	VisitorReader
 	topvalues.TopValuer
 }
@@ -189,8 +190,10 @@ func (r *HttpIngressEvent) List(ctx context.Context,
 }
 
 func (r *HttpIngressEvent) Histogram(ctx context.Context,
-	filter *histogram.Filter) ([]*histogram.Point, error) {
-	return r.histogramStatus.Points(ctx, filter)
+	filter *histogram.Filter,
+	events *eventfilter.Filter) ([]*histogram.Point, error) {
+	return eventfilter.Points(ctx, r.histogramStatus, filter, events,
+		_filterColumns)
 }
 
 func (r *HttpIngressEvent) UniqueVisitors(ctx context.Context,

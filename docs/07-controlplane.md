@@ -382,8 +382,9 @@ Repositories ([apps/collector/v1/repos](../staging/src/github.com/sentinez/contr
 
 - `Create(ctx, events...)` inserts the events, which must have ids, in one
   statement; `Get`, `Delete`, `WithTX`.
-- `Histogram(ctx, *histogram.Filter)`: the counts per time bucket, see
-  [Histograms](#histograms).
+- `Histogram(ctx, *histogram.Filter, *eventfilter.Filter)`: the counts per
+  time bucket, see [Histograms](#histograms); the second filter only
+  narrows them to some requests and fields, and may be nil.
 - `List(ctx, *eventfilter.Filter)`: filters on `ResourceIds` and on
   `matched_time` (`From` inclusive, `To` exclusive; `timestamp` for the
   ingress events), pages with `Page`, and orders by `matched_time DESC`.
@@ -427,6 +428,16 @@ The analytic reads the collector tables through
 `eventsrepo.Events` holds one read-only `Reader[T]` (`List`, `Histogram`)
 per table, built from the collector repos, so the analytic cannot write
 events. Building it syncs the tables and views, as the collector does.
+The views cannot be narrowed to a request or a field, so
+`Histogram.PointsWhere(ctx, *Filter, Where)` counts the rows of the source
+table instead (`SELECT (time / bucket) * bucket, resource_id, key,
+count(*) ... GROUP BY`), `Where` adding the conditions. The window, the
+resolution and the empty buckets are those of `Points`, but the source time
+column must hold unix milliseconds. `eventfilter.Points` picks between the
+two: the views without an `eventfilter.Filter`, else `PointsWhere` with the
+`RequestIds` and `Matches` of the filter, on the columns of the table, as
+the lists apply them. The raw scan is slower than the views on a long range.
+
 
 | RPC | REST | Reads |
 |---|---|---|
@@ -442,7 +453,12 @@ events. Building it syncs the tables and views, as the collector does.
 - `GetEventHistogram` takes `kind` (`EventKind`), `resolution`
   (`HistogramResolution`, `UNSPECIFIED` picks it by the range, see
   [Histograms](#histograms)), `resource_ids`, `from` and `to`, and returns
-  `HistogramPoint{time, resource_id, key, total}`, oldest first.
+  `HistogramPoint{time, resource_id, key, total}`, oldest first. It
+  returns the buckets ending with the one of `to` (60 seconds, 60 minutes
+  or 24 hours), so a longer range is asked in pages, each ending where the
+  next starts. With `request_ids` or `filters` (each `field:value`, as the
+  lists and the top values take them) it counts the matching events from
+  the table, not the views; an unknown field is an invalid argument.
 - Every RPC requires a token (`headers.Allow`, `ignore: true`). The reads
   are not scoped by tenant: with no `resource_ids` they return the events
   of every tenant.

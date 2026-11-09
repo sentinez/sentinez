@@ -20,12 +20,14 @@ package histogram
 import (
 	"cmp"
 	"context"
+	"errors"
 	"fmt"
 	"slices"
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/pkg/szstorage/dbx"
+	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	"github.com/sentinez/pkg/szstorage/dbx/timescale"
 	"github.com/sentinez/pkg/sztable"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -33,6 +35,10 @@ import (
 )
 
 const _totalColumn = "total"
+
+// errTimeColumn the source of a Histogram counted by PointsWhere has no
+// time column.
+var errTimeColumn = errors.New("histogram: source without time column")
 
 // _sumTotal the events of the rows of a group of a view.
 const _sumTotal = "sum(" + _totalColumn + ")::BIGINT"
@@ -140,11 +146,18 @@ type Filter struct {
 	To   time.Time
 }
 
-// Histogram the continuous aggregates of a Spec.
+// Histogram the continuous aggregates of a Spec, and its source.
 type Histogram struct {
 	views views
 	key   string
+	// source the events PointsWhere counts, by timeColumn, unix millis.
+	source     dbx.Database[Point]
+	timeColumn string
 }
+
+// Where narrows the events PointsWhere counts: the conditions it adds to
+// b, on the columns of the source hypertable.
+type Where func(b sq.SelectBuilder) (sq.SelectBuilder, error)
 
 // views the continuous aggregates of a histogram, one per Resolution.
 type views map[Resolution]*timescale.View[Point]
@@ -184,7 +197,18 @@ func New(ctx context.Context, conf *settingpb.Config,
 		return nil, err
 	}
 
-	return &Histogram{views: views, key: spec.Key}, nil
+	source, err := postgres.Open[Point](ctx, conf,
+		spec.Source.Schema.Table, postgres.NoSync)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Histogram{
+		views:      views,
+		key:        spec.Key,
+		source:     source,
+		timeColumn: spec.Source.TimeColumn,
+	}, nil
 }
 
 // Points the points of filter, nil included, oldest first: one per
@@ -200,6 +224,36 @@ func (h *Histogram) Points(ctx context.Context,
 
 	points, err := view.CollectRows(ctx,
 		pointsQuery(view.Table(), h.key, filter, w), scanKey)
+	if err != nil {
+		return nil, err
+	}
+
+	return w.fill(points, filter.resourceIds()), nil
+}
+
+// PointsWhere the points of filter, nil included, as Points, but of the
+// events of the source hypertable where narrows: they are counted on the
+// fly, not read from a view. The time column of the source must hold unix
+// milliseconds.
+func (h *Histogram) PointsWhere(ctx context.Context, filter *Filter,
+	where Where) ([]*Point, error) {
+
+	if h.timeColumn == "" {
+		return nil, errTimeColumn
+	}
+
+	_, w, err := planOf(filter, time.Now())
+	if err != nil {
+		return nil, err
+	}
+
+	b, err := where(sourceQuery(h.source.Table(), h.timeColumn, h.key,
+		filter, w))
+	if err != nil {
+		return nil, err
+	}
+
+	points, err := h.source.CollectRows(ctx, b, scanKey)
 	if err != nil {
 		return nil, err
 	}
@@ -237,14 +291,31 @@ func newViews(ctx context.Context, conf *settingpb.Config,
 func (v views) of(filter *Filter,
 	now time.Time) (*timescale.View[Point], window, error) {
 
-	res := filter.resolution(now)
+	res, w, err := planOf(filter, now)
+	if err != nil {
+		return nil, window{}, err
+	}
+
 	view, ok := v[res]
 	if !ok {
 		return nil, window{}, fmt.Errorf(
 			"histogram: unknown resolution %d", res)
 	}
 
-	return view, filter.window(_resolutions[res], now), nil
+	return view, w, nil
+}
+
+// planOf the Resolution and window of filter, nil included, at now; an
+// unknown Resolution is an error.
+func planOf(filter *Filter, now time.Time) (Resolution, window, error) {
+	res := filter.resolution(now)
+	spec, ok := _resolutions[res]
+	if !ok {
+		return 0, window{}, fmt.Errorf(
+			"histogram: unknown resolution %d", res)
+	}
+
+	return res, filter.window(spec, now), nil
 }
 
 // resolution the Resolution of f, nil included: the one set, else Second
@@ -422,6 +493,26 @@ func bucketQuery(view, column, total string, filter *Filter,
 		Where(sq.Lt{timescale.BucketColumn: w.to().UnixMilli()}).
 		GroupBy(groupBy...).
 		OrderBy(timescale.BucketColumn, typepb.Owner_ResourceId)
+
+	return filter.apply(b)
+}
+
+// sourceQuery counts the events of table per bucket of its timeColumn
+// (unix millis), resource and key, of the filter and w, oldest first; the
+// key is 0 when empty.
+func sourceQuery(table, timeColumn, key string, filter *Filter,
+	w window) sq.SelectBuilder {
+
+	millis := w.bucket.Milliseconds()
+	bucket := fmt.Sprintf("(%[1]s / %[2]d) * %[2]d", timeColumn, millis)
+
+	b := sq.Select(bucket, typepb.Owner_ResourceId, cmp.Or(key, "0"),
+		"count(*)").
+		From(table).
+		Where(sq.GtOrEq{timeColumn: w.from.UnixMilli()}).
+		Where(sq.Lt{timeColumn: w.to().UnixMilli()}).
+		GroupBy("1", "2", "3").
+		OrderBy("1", "2")
 
 	return filter.apply(b)
 }

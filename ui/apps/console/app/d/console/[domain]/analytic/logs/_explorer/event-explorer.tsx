@@ -108,6 +108,9 @@ export function EventExplorer<T>({ config }: { config: EventConfig<T> }) {
   const resolution = resolutionOf(range, now);
   const bucketMillis = RESOLUTION_BUCKETS[resolution].millis;
   const bounds = useMemo(() => windowOf(range, now), [range, now]);
+  // The request ids of the filter are asked to the API, the other terms
+  // filter the page; the histogram counts those of the API filters
+  const requestIds = useMemo(() => requestIdsOf(query), [query]);
   // An absolute range ends its buckets with it: the API ends them before
   // to, in pages back to its start
   const histogram = useApi(
@@ -120,6 +123,8 @@ export function EventExplorer<T>({ config }: { config: EventConfig<T> }) {
             resourceIds: [resourceId],
             to: dateOf(bounds.to),
             from: dateOf(bounds.from),
+            requestIds,
+            filters: filterParams,
           },
           key: reloadKey,
         }
@@ -164,9 +169,6 @@ export function EventExplorer<T>({ config }: { config: EventConfig<T> }) {
       : null,
   );
 
-  // The request ids of the filter are asked to the API, the other terms
-  // filter the page
-  const requestIds = useMemo(() => requestIdsOf(query), [query]);
   const fetchList = useMemo(() => keyed(list), [list]);
   const page = useApi(
     fetchList,
