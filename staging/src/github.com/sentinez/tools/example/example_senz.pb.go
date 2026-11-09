@@ -4,33 +4,30 @@
 package example
 
 import (
-	"fmt"
-
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"google.golang.org/protobuf/proto"
+	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	protojson "google.golang.org/protobuf/encoding/protojson"
+	proto "google.golang.org/protobuf/proto"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
+	structpb "google.golang.org/protobuf/types/known/structpb"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+	time "time"
 )
 
-var (
-	_ typepb.Empty
-	_ fmt.Stringer
-	_ proto.Message
-)
-
-var metadata_example = &typepb.XMeta{
+var metadata_example = &v1.XMeta{
 	ServiceName: "SENTINEZ // EDGE",
-	ServiceZone: typepb.Zone_ZONE_DEMILITARIZED,
+	ServiceZone: v1.Zone_ZONE_DEMILITARIZED,
 	ServiceKey:  "sentinez.dmz.edge.v1",
 }
 
-func GetMetaExample() *typepb.XMeta {
-	return proto.Clone(metadata_example).(*typepb.XMeta)
+func GetMetaExample() *v1.XMeta {
+	return proto.Clone(metadata_example).(*v1.XMeta)
 }
 
 func GetMetaExampleServiceName() string {
 	return metadata_example.GetServiceName()
 }
 
-func GetMetaExampleServiceZone() typepb.Zone {
+func GetMetaExampleServiceZone() v1.Zone {
 	return metadata_example.GetServiceZone()
 }
 
@@ -43,25 +40,238 @@ const (
 	Hello_F2 = "f_2"
 )
 
-func GetExampleServiceCreate() *typepb.XMethod {
-	return &typepb.XMethod{
-		ControlPlanes: []typepb.ControlPlane{
-			typepb.ControlPlane_CONTROL_PLANE_PORTAL,
+const (
+	Scanned_OwnerCreatedAt  = "owner_created_at"
+	Scanned_OwnerUpdatedAt  = "owner_updated_at"
+	Scanned_OwnerResourceId = "owner_resource_id"
+	Scanned_OwnerTenantId   = "owner_tenant_id"
+	Scanned_Id              = "id"
+	Scanned_Status          = "status"
+	Scanned_Tags            = "tags"
+	Scanned_AuditActor      = "audit_actor"
+	Scanned_AuditAt         = "audit_at"
+	Scanned_AuditParent     = "audit_parent"
+	Scanned_Ttl             = "ttl"
+	Scanned_Attrs           = "attrs"
+	Scanned_Priority        = "priority"
+	Scanned_Note            = "note"
+	Scanned_Snapshot        = "snapshot"
+	Scanned_AuditJson       = "audit_json"
+	Scanned_Preview         = "preview"
+	Scanned_Level           = "level"
+)
+
+// ScannedColumns returns the columns of Scanned, in the order ScanOneScanned scans them.
+func ScannedColumns() []string {
+	return []string{
+		Scanned_OwnerCreatedAt,
+		Scanned_OwnerUpdatedAt,
+		Scanned_OwnerResourceId,
+		Scanned_OwnerTenantId,
+		Scanned_Id,
+		Scanned_Status,
+		Scanned_Tags,
+		Scanned_AuditActor,
+		Scanned_AuditAt,
+		Scanned_AuditParent,
+		Scanned_Ttl,
+		Scanned_Attrs,
+		Scanned_Priority,
+		Scanned_Note,
+		Scanned_Snapshot,
+		Scanned_AuditJson,
+		Scanned_Level,
+	}
+}
+
+// ScannedValues returns the values of m, in the order of ScannedColumns.
+func ScannedValues(m *Scanned) ([]any, error) {
+	var colOwnerCreatedAt any
+	if v := m.GetOwner().GetCreatedAt(); v != nil {
+		colOwnerCreatedAt = v.AsTime()
+	}
+	var colOwnerUpdatedAt any
+	if v := m.GetOwner().GetUpdatedAt(); v != nil {
+		colOwnerUpdatedAt = v.AsTime()
+	}
+	var colAuditAt any
+	if v := m.GetAudit().GetAt(); v != nil {
+		colAuditAt = v.AsTime()
+	}
+	var colAuditParent []byte
+	if v := m.GetAudit().GetParent(); v != nil {
+		b, err := proto.Marshal(v)
+		if err != nil {
+			return nil, err
+		}
+		colAuditParent = b
+	}
+	var colTtl any
+	if v := m.GetTtl(); v != nil {
+		colTtl = v.AsDuration()
+	}
+	var colAttrs []byte
+	if v := m.GetAttrs(); v != nil {
+		b, err := proto.Marshal(v)
+		if err != nil {
+			return nil, err
+		}
+		colAttrs = b
+	}
+	var colSnapshot []byte
+	if v := m.GetSnapshot(); v != nil {
+		b, err := proto.Marshal(v)
+		if err != nil {
+			return nil, err
+		}
+		colSnapshot = b
+	}
+	var colAuditJson []byte
+	if v := m.GetAuditJson(); v != nil {
+		b, err := protojson.Marshal(v)
+		if err != nil {
+			return nil, err
+		}
+		colAuditJson = b
+	}
+	return []any{
+		colOwnerCreatedAt,
+		colOwnerUpdatedAt,
+		m.GetOwner().GetResourceId(),
+		m.GetOwner().GetTenantId(),
+		m.GetId(),
+		m.GetStatus(),
+		m.GetTags(),
+		m.GetAudit().GetActor(),
+		colAuditAt,
+		colAuditParent,
+		colTtl,
+		colAttrs,
+		m.Priority,
+		m.GetNote(),
+		colSnapshot,
+		colAuditJson,
+		m.GetLevel(),
+	}, nil
+}
+
+// ScanOneScanned scans row, holding the columns of ScannedColumns, into a Scanned.
+func ScanOneScanned[R interface{ Scan(dest ...any) error }](row R) (*Scanned, error) {
+	m := &Scanned{Owner: &v1.Owner{}, Audit: &Scanned_Audit{}}
+	var (
+		colOwnerCreatedAt  time.Time
+		colOwnerUpdatedAt  time.Time
+		colOwnerResourceId *string
+		colOwnerTenantId   *string
+		colAuditAt         time.Time
+		colAuditParent     []byte
+		colTtl             time.Duration
+		colAttrs           []byte
+		colNote            *string
+		colSnapshot        []byte
+		colAuditJson       []byte
+		colLevel           *v1.Status
+	)
+	if err := row.Scan(
+		&colOwnerCreatedAt,
+		&colOwnerUpdatedAt,
+		&colOwnerResourceId,
+		&colOwnerTenantId,
+		&m.Id,
+		&m.Status,
+		&m.Tags,
+		&m.Audit.Actor,
+		&colAuditAt,
+		&colAuditParent,
+		&colTtl,
+		&colAttrs,
+		&m.Priority,
+		&colNote,
+		&colSnapshot,
+		&colAuditJson,
+		&colLevel,
+	); err != nil {
+		return nil, err
+	}
+	m.Owner.CreatedAt = timestamppb.New(colOwnerCreatedAt)
+	m.Owner.UpdatedAt = timestamppb.New(colOwnerUpdatedAt)
+	if colOwnerResourceId != nil {
+		m.Owner.ResourceId = *colOwnerResourceId
+	}
+	if colOwnerTenantId != nil {
+		m.Owner.TenantId = *colOwnerTenantId
+	}
+	m.Audit.At = timestamppb.New(colAuditAt)
+	if len(colAuditParent) != 0 {
+		m.Audit.Parent = &Scanned{}
+		if err := proto.Unmarshal(colAuditParent, m.Audit.Parent); err != nil {
+			return nil, err
+		}
+	}
+	m.Ttl = durationpb.New(colTtl)
+	if len(colAttrs) != 0 {
+		m.Attrs = &structpb.Struct{}
+		if err := proto.Unmarshal(colAttrs, m.Attrs); err != nil {
+			return nil, err
+		}
+	}
+	if colNote != nil {
+		m.Note = *colNote
+	}
+	if len(colSnapshot) != 0 {
+		m.Snapshot = &Scanned_Audit{}
+		if err := proto.Unmarshal(colSnapshot, m.Snapshot); err != nil {
+			return nil, err
+		}
+	}
+	if len(colAuditJson) != 0 {
+		m.AuditJson = &Scanned_Audit{}
+		if err := (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(colAuditJson, m.AuditJson); err != nil {
+			return nil, err
+		}
+	}
+	if colLevel != nil {
+		m.Level = *colLevel
+	}
+	return m, nil
+}
+
+// ScanScanned scans each row of rows with ScanOneScanned.
+func ScanScanned[R interface {
+	Next() bool
+	Scan(dest ...any) error
+	Err() error
+}](rows R) ([]*Scanned, error) {
+	var ms []*Scanned
+	for rows.Next() {
+		m, err := ScanOneScanned(rows)
+		if err != nil {
+			return nil, err
+		}
+		ms = append(ms, m)
+	}
+	return ms, rows.Err()
+}
+
+func GetExampleServiceCreate() *v1.XMethod {
+	return &v1.XMethod{
+		ControlPlanes: []v1.ControlPlane{
+			v1.ControlPlane_CONTROL_PLANE_PORTAL,
 		},
 	}
 }
 
-func GetExampleServiceDelete() *typepb.XMethod {
-	return &typepb.XMethod{
-		ControlPlanes: []typepb.ControlPlane{
-			typepb.ControlPlane_CONTROL_PLANE_PORTAL,
-			typepb.ControlPlane_CONTROL_PLANE_ADMIN,
+func GetExampleServiceDelete() *v1.XMethod {
+	return &v1.XMethod{
+		ControlPlanes: []v1.ControlPlane{
+			v1.ControlPlane_CONTROL_PLANE_PORTAL,
+			v1.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
 	}
 }
 
-func GetExampleServiceIgnored() *typepb.XMethod {
-	return &typepb.XMethod{
+func GetExampleServiceIgnored() *v1.XMethod {
+	return &v1.XMethod{
 		Ignore: true,
 	}
 }

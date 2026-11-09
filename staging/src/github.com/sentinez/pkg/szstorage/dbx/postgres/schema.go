@@ -30,7 +30,7 @@ func syncSchema(ctx context.Context, client Client,
 	tableName string, schema dbx.Schema) error {
 
 	stmts := make([]string, 0, 1+len(schema.Columns)+len(schema.Indexes))
-	stmts = append(stmts, stmt.CreateTable(tableName))
+	stmts = append(stmts, stmt.CreateTable(tableName, schema))
 
 	for _, column := range schema.Columns {
 		stmts = append(stmts, stmt.AddColumn(tableName, column))

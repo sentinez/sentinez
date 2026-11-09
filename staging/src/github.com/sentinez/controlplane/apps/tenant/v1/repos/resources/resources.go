@@ -16,7 +16,6 @@ package resourcerepo
 
 import (
 	"context"
-	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/controlplane/pkg/schema"
@@ -29,7 +28,6 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func New(ctx context.Context, appConf *settingpb.Config) (*Resources, error) {
@@ -68,7 +66,7 @@ func (rsc *Resources) List(ctx context.Context,
 
 	q := rsc.listQ(req)
 
-	resources, err := rsc.storage.CollectRows(ctx, q, scan)
+	resources, err := rsc.storage.CollectRows(ctx, q, tenantpb.ScanResource)
 	if err != nil {
 		return nil, err
 	}
@@ -183,7 +181,7 @@ func (rsc *Resources) Get(
 	ctx context.Context, id string) (*tenantpb.Resource, error) {
 	q := rsc.selectQ(nil).Where(sq.Eq{tenantpb.Resource_Id: id})
 
-	return rsc.storage.CollectOneRow(ctx, q, scanOne)
+	return rsc.storage.CollectOneRow(ctx, q, tenantpb.ScanOneResource)
 }
 
 func (rsc *Resources) Delete(ctx context.Context, id string) error {
@@ -215,57 +213,5 @@ func (rsc *Resources) listQ(req *tenantpb.ListResourceRequest) sq.SelectBuilder 
 
 func (rsc *Resources) selectQ(page *typepb.Pages) sq.SelectBuilder {
 	return postgres.SelectBuilder(rsc.storage, page,
-		postgres.SelectCoalesce(tenantpb.Resource_Id),
-		postgres.SelectCoalesce(tenantpb.Resource_TenantId),
-		tenantpb.Resource_Status,
-		tenantpb.Resource_Server,
-		typepb.Metadata_CreatedAt,
-		typepb.Metadata_UpdatedAt,
-	)
-}
-
-func scan(rows dbx.Rows) ([]*tenantpb.Resource, error) {
-	var resources []*tenantpb.Resource
-	for rows.Next() {
-		resource, err := scanOne(rows)
-		if err != nil {
-			return nil, err
-		}
-
-		resources = append(resources, resource)
-	}
-
-	return resources, rows.Err()
-}
-
-func scanOne(row dbx.Row) (*tenantpb.Resource, error) {
-	var (
-		rsc                  tenantpb.Resource
-		createdAt, updatedAt time.Time
-		st                   []byte
-	)
-
-	err := row.Scan(
-		&rsc.Id,
-		&rsc.TenantId,
-		&rsc.Status,
-		&st,
-		&createdAt,
-		&updatedAt,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	rsc.Metadata = &typepb.Metadata{
-		CreatedAt: timestamppb.New(createdAt),
-		UpdatedAt: timestamppb.New(updatedAt),
-	}
-
-	rsc.Server = &edgepb.Server{}
-	if err = protox.Unmarshal(st, rsc.Server); err != nil {
-		return nil, err
-	}
-
-	return &rsc, nil
+		tenantpb.ResourceColumns()...)
 }

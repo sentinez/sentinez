@@ -3,6 +3,14 @@
 
 package tenantpb
 
+import (
+	v11 "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
+	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	proto "google.golang.org/protobuf/proto"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+	time "time"
+)
+
 const (
 	Resource_MetadataCreatedAt = "metadata_created_at"
 	Resource_MetadataUpdatedAt = "metadata_updated_at"
@@ -22,9 +30,250 @@ const (
 )
 
 const (
-	Member_Metadata = "metadata"
-	Member_Id       = "id"
-	Member_UserId   = "user_id"
-	Member_TenantId = "tenant_id"
-	Member_Roles    = "roles"
+	Member_MetadataCreatedAt = "metadata_created_at"
+	Member_MetadataUpdatedAt = "metadata_updated_at"
+	Member_Id                = "id"
+	Member_UserId            = "user_id"
+	Member_TenantId          = "tenant_id"
+	Member_Roles             = "roles"
 )
+
+// ResourceColumns returns the columns of Resource, in the order ScanOneResource scans them.
+func ResourceColumns() []string {
+	return []string{
+		Resource_MetadataCreatedAt,
+		Resource_MetadataUpdatedAt,
+		Resource_Id,
+		Resource_TenantId,
+		Resource_Server,
+		Resource_Status,
+	}
+}
+
+// ResourceValues returns the values of m, in the order of ResourceColumns.
+func ResourceValues(m *Resource) ([]any, error) {
+	var colMetadataCreatedAt any
+	if v := m.GetMetadata().GetCreatedAt(); v != nil {
+		colMetadataCreatedAt = v.AsTime()
+	}
+	var colMetadataUpdatedAt any
+	if v := m.GetMetadata().GetUpdatedAt(); v != nil {
+		colMetadataUpdatedAt = v.AsTime()
+	}
+	var colServer []byte
+	if v := m.GetServer(); v != nil {
+		b, err := proto.Marshal(v)
+		if err != nil {
+			return nil, err
+		}
+		colServer = b
+	}
+	return []any{
+		colMetadataCreatedAt,
+		colMetadataUpdatedAt,
+		m.GetId(),
+		m.GetTenantId(),
+		colServer,
+		m.GetStatus(),
+	}, nil
+}
+
+// ScanOneResource scans row, holding the columns of ResourceColumns, into a Resource.
+func ScanOneResource[R interface{ Scan(dest ...any) error }](row R) (*Resource, error) {
+	m := &Resource{Metadata: &v1.Metadata{}}
+	var (
+		colMetadataCreatedAt time.Time
+		colMetadataUpdatedAt time.Time
+		colTenantId          *string
+		colServer            []byte
+	)
+	if err := row.Scan(
+		&colMetadataCreatedAt,
+		&colMetadataUpdatedAt,
+		&m.Id,
+		&colTenantId,
+		&colServer,
+		&m.Status,
+	); err != nil {
+		return nil, err
+	}
+	m.Metadata.CreatedAt = timestamppb.New(colMetadataCreatedAt)
+	m.Metadata.UpdatedAt = timestamppb.New(colMetadataUpdatedAt)
+	if colTenantId != nil {
+		m.TenantId = *colTenantId
+	}
+	if len(colServer) != 0 {
+		m.Server = &v11.Server{}
+		if err := proto.Unmarshal(colServer, m.Server); err != nil {
+			return nil, err
+		}
+	}
+	return m, nil
+}
+
+// ScanResource scans each row of rows with ScanOneResource.
+func ScanResource[R interface {
+	Next() bool
+	Scan(dest ...any) error
+	Err() error
+}](rows R) ([]*Resource, error) {
+	var ms []*Resource
+	for rows.Next() {
+		m, err := ScanOneResource(rows)
+		if err != nil {
+			return nil, err
+		}
+		ms = append(ms, m)
+	}
+	return ms, rows.Err()
+}
+
+// TenantColumns returns the columns of Tenant, in the order ScanOneTenant scans them.
+func TenantColumns() []string {
+	return []string{
+		Tenant_MetadataCreatedAt,
+		Tenant_MetadataUpdatedAt,
+		Tenant_Id,
+		Tenant_Name,
+		Tenant_Description,
+		Tenant_Plan,
+	}
+}
+
+// TenantValues returns the values of m, in the order of TenantColumns.
+func TenantValues(m *Tenant) ([]any, error) {
+	var colMetadataCreatedAt any
+	if v := m.GetMetadata().GetCreatedAt(); v != nil {
+		colMetadataCreatedAt = v.AsTime()
+	}
+	var colMetadataUpdatedAt any
+	if v := m.GetMetadata().GetUpdatedAt(); v != nil {
+		colMetadataUpdatedAt = v.AsTime()
+	}
+	return []any{
+		colMetadataCreatedAt,
+		colMetadataUpdatedAt,
+		m.GetId(),
+		m.GetName(),
+		m.GetDescription(),
+		m.GetPlan(),
+	}, nil
+}
+
+// ScanOneTenant scans row, holding the columns of TenantColumns, into a Tenant.
+func ScanOneTenant[R interface{ Scan(dest ...any) error }](row R) (*Tenant, error) {
+	m := &Tenant{Metadata: &v1.Metadata{}}
+	var (
+		colMetadataCreatedAt time.Time
+		colMetadataUpdatedAt time.Time
+		colName              *string
+		colDescription       *string
+	)
+	if err := row.Scan(
+		&colMetadataCreatedAt,
+		&colMetadataUpdatedAt,
+		&m.Id,
+		&colName,
+		&colDescription,
+		&m.Plan,
+	); err != nil {
+		return nil, err
+	}
+	m.Metadata.CreatedAt = timestamppb.New(colMetadataCreatedAt)
+	m.Metadata.UpdatedAt = timestamppb.New(colMetadataUpdatedAt)
+	if colName != nil {
+		m.Name = *colName
+	}
+	if colDescription != nil {
+		m.Description = *colDescription
+	}
+	return m, nil
+}
+
+// ScanTenant scans each row of rows with ScanOneTenant.
+func ScanTenant[R interface {
+	Next() bool
+	Scan(dest ...any) error
+	Err() error
+}](rows R) ([]*Tenant, error) {
+	var ms []*Tenant
+	for rows.Next() {
+		m, err := ScanOneTenant(rows)
+		if err != nil {
+			return nil, err
+		}
+		ms = append(ms, m)
+	}
+	return ms, rows.Err()
+}
+
+// MemberColumns returns the columns of Member, in the order ScanOneMember scans them.
+func MemberColumns() []string {
+	return []string{
+		Member_MetadataCreatedAt,
+		Member_MetadataUpdatedAt,
+		Member_Id,
+		Member_UserId,
+		Member_TenantId,
+		Member_Roles,
+	}
+}
+
+// MemberValues returns the values of m, in the order of MemberColumns.
+func MemberValues(m *Member) ([]any, error) {
+	var colMetadataCreatedAt any
+	if v := m.GetMetadata().GetCreatedAt(); v != nil {
+		colMetadataCreatedAt = v.AsTime()
+	}
+	var colMetadataUpdatedAt any
+	if v := m.GetMetadata().GetUpdatedAt(); v != nil {
+		colMetadataUpdatedAt = v.AsTime()
+	}
+	return []any{
+		colMetadataCreatedAt,
+		colMetadataUpdatedAt,
+		m.GetId(),
+		m.GetUserId(),
+		m.GetTenantId(),
+		m.GetRoles(),
+	}, nil
+}
+
+// ScanOneMember scans row, holding the columns of MemberColumns, into a Member.
+func ScanOneMember[R interface{ Scan(dest ...any) error }](row R) (*Member, error) {
+	m := &Member{Metadata: &v1.Metadata{}}
+	var (
+		colMetadataCreatedAt time.Time
+		colMetadataUpdatedAt time.Time
+	)
+	if err := row.Scan(
+		&colMetadataCreatedAt,
+		&colMetadataUpdatedAt,
+		&m.Id,
+		&m.UserId,
+		&m.TenantId,
+		&m.Roles,
+	); err != nil {
+		return nil, err
+	}
+	m.Metadata.CreatedAt = timestamppb.New(colMetadataCreatedAt)
+	m.Metadata.UpdatedAt = timestamppb.New(colMetadataUpdatedAt)
+	return m, nil
+}
+
+// ScanMember scans each row of rows with ScanOneMember.
+func ScanMember[R interface {
+	Next() bool
+	Scan(dest ...any) error
+	Err() error
+}](rows R) ([]*Member, error) {
+	var ms []*Member
+	for rows.Next() {
+		m, err := ScanOneMember(rows)
+		if err != nil {
+			return nil, err
+		}
+		ms = append(ms, m)
+	}
+	return ms, rows.Err()
+}

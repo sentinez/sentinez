@@ -21,3 +21,90 @@ const (
 	CoreRuleEvent_RequestId      = "request_id"
 	CoreRuleEvent_Behavior       = "behavior"
 )
+
+// CoreRuleEventColumns returns the columns of CoreRuleEvent, in the order ScanOneCoreRuleEvent scans them.
+func CoreRuleEventColumns() []string {
+	return []string{
+		CoreRuleEvent_Id,
+		CoreRuleEvent_MatchedRuleIds,
+		CoreRuleEvent_Severities,
+		CoreRuleEvent_Messages,
+		CoreRuleEvent_TotalScore,
+		CoreRuleEvent_MatchedTime,
+		CoreRuleEvent_ResourceId,
+		CoreRuleEvent_TenantId,
+		CoreRuleEvent_Service,
+		CoreRuleEvent_RequestIp,
+		CoreRuleEvent_RequestDomain,
+		CoreRuleEvent_RequestScheme,
+		CoreRuleEvent_RequestPath,
+		CoreRuleEvent_RequestQuery,
+		CoreRuleEvent_RequestId,
+		CoreRuleEvent_Behavior,
+	}
+}
+
+// CoreRuleEventValues returns the values of m, in the order of CoreRuleEventColumns.
+func CoreRuleEventValues(m *CoreRuleEvent) ([]any, error) {
+	return []any{
+		m.GetId(),
+		m.GetMatchedRuleIds(),
+		m.GetSeverities(),
+		m.GetMessages(),
+		m.GetTotalScore(),
+		m.GetMatchedTime(),
+		m.GetResourceId(),
+		m.GetTenantId(),
+		m.GetService(),
+		m.GetRequestIp(),
+		m.GetRequestDomain(),
+		m.GetRequestScheme(),
+		m.GetRequestPath(),
+		m.GetRequestQuery(),
+		m.GetRequestId(),
+		m.GetBehavior(),
+	}, nil
+}
+
+// ScanOneCoreRuleEvent scans row, holding the columns of CoreRuleEventColumns, into a CoreRuleEvent.
+func ScanOneCoreRuleEvent[R interface{ Scan(dest ...any) error }](row R) (*CoreRuleEvent, error) {
+	m := &CoreRuleEvent{}
+	if err := row.Scan(
+		&m.Id,
+		&m.MatchedRuleIds,
+		&m.Severities,
+		&m.Messages,
+		&m.TotalScore,
+		&m.MatchedTime,
+		&m.ResourceId,
+		&m.TenantId,
+		&m.Service,
+		&m.RequestIp,
+		&m.RequestDomain,
+		&m.RequestScheme,
+		&m.RequestPath,
+		&m.RequestQuery,
+		&m.RequestId,
+		&m.Behavior,
+	); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// ScanCoreRuleEvent scans each row of rows with ScanOneCoreRuleEvent.
+func ScanCoreRuleEvent[R interface {
+	Next() bool
+	Scan(dest ...any) error
+	Err() error
+}](rows R) ([]*CoreRuleEvent, error) {
+	var ms []*CoreRuleEvent
+	for rows.Next() {
+		m, err := ScanOneCoreRuleEvent(rows)
+		if err != nil {
+			return nil, err
+		}
+		ms = append(ms, m)
+	}
+	return ms, rows.Err()
+}

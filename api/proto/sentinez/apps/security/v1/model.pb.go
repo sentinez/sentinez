@@ -430,47 +430,47 @@ var File_sentinez_apps_security_v1_model_proto protoreflect.FileDescriptor
 
 const file_sentinez_apps_security_v1_model_proto_rawDesc = "" +
 	"\n" +
-	"%sentinez/apps/security/v1/model.proto\x12\x19sentinez.apps.security.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\x1a!sentinez/types/rule/v1/rule.proto\x1a+sentinez/types/coreruleset/v1/setting.proto\"\xae\x03\n" +
+	"%sentinez/apps/security/v1/model.proto\x12\x19sentinez.apps.security.v1\x1a\x1bbuf/validate/validate.proto\x1a+sentinez/types/coreruleset/v1/setting.proto\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"\xc8\x03\n" +
 	"\aSecRule\x126\n" +
 	"\x05owner\x18\x01 \x01(\v2\x18.sentinez.types.v1.OwnerB\x06\xca\xf0\x19\x02\b\x01R\x05owner\x12 \n" +
 	"\x02id\x18\x02 \x01(\tB\x10\xbaH\r\xc8\x01\x01r\b:\x06srule_R\x02id\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12 \n" +
-	"\vdescription\x18\x04 \x01(\tR\vdescription\x126\n" +
-	"\x04expr\x18\x05 \x01(\v2\".sentinez.types.rule.v1.ExpressionR\x04expr\x12\x16\n" +
-	"\x06action\x18\x06 \x01(\tR\x06action\x12I\n" +
-	"\faction_value\x18\a \x01(\v2&.sentinez.apps.security.v1.ActionValueR\vactionValue\x121\n" +
+	"\vdescription\x18\x04 \x01(\tR\vdescription\x12>\n" +
+	"\x04expr\x18\x05 \x01(\v2\".sentinez.types.rule.v1.ExpressionB\x06\xca\xf0\x19\x02\x18\x03R\x04expr\x12\x16\n" +
+	"\x06action\x18\x06 \x01(\tR\x06action\x12Q\n" +
+	"\faction_value\x18\a \x01(\v2&.sentinez.apps.security.v1.ActionValueB\x06\xca\xf0\x19\x02\x10\x01R\vactionValue\x121\n" +
 	"\x06status\x18\b \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12\x1a\n" +
-	"\bpriority\x18\t \x01(\x05R\bpriority\x12!\n" +
+	"\bpriority\x18\t \x01(\x05R\bpriority\x12)\n" +
 	"\fexpr_preview\x18\n" +
-	" \x01(\tR\vexprPreview:\x06\xca\xf3\x18\x02\b\x01\"\xf7\x04\n" +
+	" \x01(\tB\x06\xca\xf0\x19\x02\x10\x01R\vexprPreview:\b\xca\xf3\x18\x04\b\x01\x18\x01\"\x91\x05\n" +
 	"\tRateLimit\x126\n" +
 	"\x05owner\x18\x01 \x01(\v2\x18.sentinez.types.v1.OwnerB\x06\xca\xf0\x19\x02\b\x01R\x05owner\x12\x1f\n" +
 	"\x02id\x18\x02 \x01(\tB\x0f\xbaH\f\xc8\x01\x01r\a:\x05rlim_R\x02id\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12 \n" +
-	"\vdescription\x18\x04 \x01(\tR\vdescription\x126\n" +
-	"\x04expr\x18\x05 \x01(\v2\".sentinez.types.rule.v1.ExpressionR\x04expr\x12\x16\n" +
-	"\x06action\x18\x06 \x01(\tR\x06action\x12I\n" +
-	"\faction_value\x18\a \x01(\v2&.sentinez.apps.security.v1.ActionValueR\vactionValue\x121\n" +
+	"\vdescription\x18\x04 \x01(\tR\vdescription\x12>\n" +
+	"\x04expr\x18\x05 \x01(\v2\".sentinez.types.rule.v1.ExpressionB\x06\xca\xf0\x19\x02\x18\x03R\x04expr\x12\x16\n" +
+	"\x06action\x18\x06 \x01(\tR\x06action\x12Q\n" +
+	"\faction_value\x18\a \x01(\v2&.sentinez.apps.security.v1.ActionValueB\x06\xca\xf0\x19\x02\x10\x01R\vactionValue\x121\n" +
 	"\x06status\x18\b \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12\x1a\n" +
 	"\bpriority\x18\t \x01(\x05R\bpriority\x12T\n" +
 	"\vtime_window\x18\n" +
 	" \x01(\tB3\xbaH0r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\n" +
 	"timeWindow\x12!\n" +
 	"\fmax_requests\x18\v \x01(\x03R\vmaxRequests\x12M\n" +
-	"\atimeout\x18\f \x01(\tB3\xbaH0r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\atimeout\x12!\n" +
-	"\fexpr_preview\x18\r \x01(\tR\vexprPreview:\x06\xca\xf3\x18\x02\b\x01\"\xba\x01\n" +
+	"\atimeout\x18\f \x01(\tB3\xbaH0r.2,^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$R\atimeout\x12)\n" +
+	"\fexpr_preview\x18\r \x01(\tB\x06\xca\xf0\x19\x02\x10\x01R\vexprPreview:\b\xca\xf3\x18\x04\b\x01\x18\x01\"\xba\x01\n" +
 	"\vActionValue\x12\x1b\n" +
 	"\tstr_value\x18\x01 \x01(\tR\bstrValue\x12Q\n" +
 	"\tmap_value\x18\x02 \x03(\v24.sentinez.apps.security.v1.ActionValue.MapValueEntryR\bmapValue\x1a;\n" +
 	"\rMapValueEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe9\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf3\x01\n" +
 	"\vCoreRuleset\x126\n" +
 	"\x05owner\x18\x01 \x01(\v2\x18.sentinez.types.v1.OwnerB\x06\xca\xf0\x19\x02\b\x01R\x05owner\x12\x1e\n" +
 	"\x02id\x18\x02 \x01(\tB\x0e\xbaH\v\xc8\x01\x01r\x06:\x04crs_R\x02id\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12 \n" +
-	"\vdescription\x18\x04 \x01(\tR\vdescription\x12D\n" +
-	"\acontent\x18\x05 \x01(\v2*.sentinez.types.coreruleset.v1.CoreRulesetR\acontent:\x06\xca\xf3\x18\x02\b\x01BMZKgithub.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1;securitypbb\x06proto3"
+	"\vdescription\x18\x04 \x01(\tR\vdescription\x12L\n" +
+	"\acontent\x18\x05 \x01(\v2*.sentinez.types.coreruleset.v1.CoreRulesetB\x06\xca\xf0\x19\x02\x18\x02R\acontent:\b\xca\xf3\x18\x04\b\x01\x18\x01BMZKgithub.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1;securitypbb\x06proto3"
 
 var (
 	file_sentinez_apps_security_v1_model_proto_rawDescOnce sync.Once

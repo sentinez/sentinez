@@ -3,8 +3,12 @@ syntax = "proto3";
 package example;
 
 import "google/protobuf/descriptor.proto";
+import "google/protobuf/duration.proto";
 import "google/protobuf/empty.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
 import "sentinez/types/v1/known.proto";
+import "sentinez/types/v1/model.proto";
 import "sentinez/types/v1/options.proto";
 
 option go_package = "github.com/sentinez/sentinez/staging/src/github.com/sentinez/tools/example";
@@ -18,6 +22,31 @@ message Hello {
   option (sentinez.types.v1.x_message).database_model = true;
   string f_1 = 1;
   string f_2 = 2;
+}
+
+// Scanned is a database model whose nested messages are all flattened.
+message Scanned {
+  option (sentinez.types.v1.x_message).scanner = true;
+
+  message Audit {
+    string actor = 1;
+    google.protobuf.Timestamp at = 2;
+    Scanned parent = 3;
+  }
+
+  sentinez.types.v1.Owner owner = 1;
+  string id = 2;
+  sentinez.types.v1.Status status = 3;
+  repeated string tags = 4;
+  Audit audit = 5;
+  google.protobuf.Duration ttl = 6;
+  google.protobuf.Struct attrs = 7;
+  optional int32 priority = 8;
+  string note = 9 [(sentinez.types.v1.x_field).nullable = true];
+  Audit snapshot = 10 [(sentinez.types.v1.x_field).codec = COLUMN_CODEC_PROTO];
+  Audit audit_json = 11 [(sentinez.types.v1.x_field).codec = COLUMN_CODEC_PROTOJSON];
+  string preview = 12 [(sentinez.types.v1.x_field).ignore = true];
+  sentinez.types.v1.Status level = 13 [(sentinez.types.v1.x_field).nullable = true];
 }
 
 service ExampleService {

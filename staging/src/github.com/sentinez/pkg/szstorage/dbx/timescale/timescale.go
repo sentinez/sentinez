@@ -28,7 +28,6 @@ import (
 	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
 
 const _defaultChunkInterval = 7 * 24 * time.Hour
@@ -67,7 +66,7 @@ func New[T any](ctx context.Context, conf *settingpb.Config,
 		return nil, err
 	}
 
-	return postgres.Open[T](ctx, conf, ht.Schema.Table,
+	return postgres.Open[T](ctx, conf, ht.Schema,
 		func(ctx context.Context, client postgres.Client,
 			tableName string) error {
 			return syncHypertable(ctx, client, tableName, ht)
@@ -95,7 +94,7 @@ func (ht Hypertable) normalize() (Hypertable, error) {
 
 func (ht Hypertable) timeColumn() string {
 	if ht.TimeColumn == "" {
-		return typepb.Metadata_CreatedAt
+		return ht.Schema.CreatedAtColumn()
 	}
 
 	return ht.TimeColumn
@@ -103,8 +102,8 @@ func (ht Hypertable) timeColumn() string {
 
 // timeKind the kind of the time column of ht, which must be set.
 func (ht Hypertable) timeKind() (timeKind, error) {
-	columnType := dbx.Timestamp // created_at
-	if ht.TimeColumn != typepb.Metadata_CreatedAt {
+	columnType := dbx.Timestamp // the creation time column
+	if ht.TimeColumn != ht.Schema.CreatedAtColumn() {
 		column, ok := ht.column(ht.TimeColumn)
 		if !ok {
 			return 0, fmt.Errorf("time column %s: not in schema %s",

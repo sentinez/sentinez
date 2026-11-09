@@ -16,7 +16,6 @@ package ratelimit
 
 import (
 	"context"
-	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/controlplane/pkg/schema"
@@ -28,7 +27,6 @@ import (
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // nolint
@@ -94,7 +92,7 @@ func (r *RateLimit) List(ctx context.Context,
 	}
 	szlog.Debug("[security.ratelimits] query: ", query, " args: ", args)
 
-	models, err := r.storage.CollectRows(ctx, builder, scan)
+	models, err := r.storage.CollectRows(ctx, builder, securitypb.ScanRateLimit)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -159,7 +157,7 @@ func (r *RateLimit) Get(
 ) (*securitypb.RateLimit, error) {
 	builder := r.selectQuery(nil).
 		Where(sq.Eq{securitypb.RateLimit_Id: id})
-	return r.storage.Select(ctx, builder, scanOne)
+	return r.storage.Select(ctx, builder, securitypb.ScanOneRateLimit)
 }
 
 func (r *RateLimit) Update(
@@ -185,68 +183,5 @@ func (r *RateLimit) Update(
 
 func (r *RateLimit) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 	return postgres.SelectBuilder(r.storage, page,
-		securitypb.RateLimit_Id,
-		securitypb.RateLimit_Name,
-		securitypb.RateLimit_Description,
-		securitypb.RateLimit_Expr,
-		securitypb.RateLimit_Status,
-		securitypb.RateLimit_Priority,
-		securitypb.RateLimit_Action,
-		securitypb.RateLimit_TimeWindow,
-		securitypb.RateLimit_MaxRequests,
-		securitypb.RateLimit_Timeout,
-		postgres.SelectCoalesce(securitypb.RateLimit_OwnerResourceId),
-		postgres.SelectCoalesce(securitypb.RateLimit_OwnerTenantId),
-		typepb.Metadata_CreatedAt,
-		typepb.Metadata_UpdatedAt,
-	)
-}
-
-func scan(rows dbx.Rows) ([]*securitypb.RateLimit, error) {
-	var models []*securitypb.RateLimit
-	for rows.Next() {
-		model, err := scanOne(rows)
-		if err != nil {
-			return nil, err
-		}
-		models = append(models, model)
-	}
-	return models, rows.Err()
-}
-
-func scanOne(row dbx.Row) (*securitypb.RateLimit, error) {
-	var (
-		createdAt, updatedAt time.Time
-		resourceId, tenantId string
-		model                securitypb.RateLimit
-	)
-
-	err := row.Scan(
-		&model.Id,
-		&model.Name,
-		&model.Description,
-		&model.Expr,
-		&model.Status,
-		&model.Priority,
-		&model.Action,
-		&model.TimeWindow,
-		&model.MaxRequests,
-		&model.Timeout,
-		&resourceId,
-		&tenantId,
-		&createdAt,
-		&updatedAt,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	model.Owner = &typepb.Owner{
-		ResourceId: resourceId,
-		TenantId:   tenantId,
-		CreatedAt:  timestamppb.New(createdAt),
-		UpdatedAt:  timestamppb.New(updatedAt),
-	}
-
-	return &model, nil
+		securitypb.RateLimitColumns()...)
 }

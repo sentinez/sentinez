@@ -22,12 +22,12 @@ import (
 )
 
 const (
-	// the id column, then its constraint, then the timestamps.
+	// the id column, then its constraint, then the timestamp columns.
 	_createSchemaStmt = `
 		CREATE TABLE IF NOT EXISTS %s (
 			id TEXT %s,
-			created_at TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
-			updated_at TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'UTC')
+			%s TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
+			%s TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'UTC')
 		)
 	`
 
@@ -43,15 +43,20 @@ const (
 	`
 )
 
-// CreateTable creates tableName, id its primary key.
-func CreateTable(tableName string) string {
-	return fmt.Sprintf(_createSchemaStmt, tableName, "PRIMARY KEY")
+// CreateTable creates tableName of schema, id its primary key.
+func CreateTable(tableName string, schema dbx.Schema) string {
+	return createTable(tableName, "PRIMARY KEY", schema)
 }
 
 // CreateKeylessTable creates tableName like CreateTable, without primary
 // key: a hypertable, whose unique keys must hold its time column.
-func CreateKeylessTable(tableName string) string {
-	return fmt.Sprintf(_createSchemaStmt, tableName, "NOT NULL")
+func CreateKeylessTable(tableName string, schema dbx.Schema) string {
+	return createTable(tableName, "NOT NULL", schema)
+}
+
+func createTable(tableName, idConstraint string, schema dbx.Schema) string {
+	return fmt.Sprintf(_createSchemaStmt, tableName, idConstraint,
+		schema.CreatedAtColumn(), schema.UpdatedAtColumn())
 }
 
 func AddColumn(tableName string, column dbx.Column) string {

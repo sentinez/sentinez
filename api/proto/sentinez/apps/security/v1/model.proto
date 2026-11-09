@@ -26,7 +26,10 @@ import "sentinez/types/v1/options.proto";
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1;securitypb";
 
 message SecRule {
-  option (sentinez.types.v1.x_message).database_model = true;
+  option (sentinez.types.v1.x_message) = {
+    database_model: true
+    scanner: true
+  };
 
   sentinez.types.v1.Owner owner = 1 [(sentinez.types.v1.x_field).flatten = true];
 
@@ -37,16 +40,19 @@ message SecRule {
 
   string name = 3;
   string description = 4;
-  sentinez.types.rule.v1.Expression expr = 5;
+  sentinez.types.rule.v1.Expression expr = 5 [(sentinez.types.v1.x_field).codec = COLUMN_CODEC_DRIVER];
   string action = 6;
-  ActionValue action_value = 7;
+  ActionValue action_value = 7 [(sentinez.types.v1.x_field).ignore = true];
   sentinez.types.v1.Status status = 8;
   int32 priority = 9;
-  string expr_preview = 10;
+  string expr_preview = 10 [(sentinez.types.v1.x_field).ignore = true];
 }
 
 message RateLimit {
-  option (sentinez.types.v1.x_message).database_model = true;
+  option (sentinez.types.v1.x_message) = {
+    database_model: true
+    scanner: true
+  };
 
   sentinez.types.v1.Owner owner = 1 [(sentinez.types.v1.x_field).flatten = true];
 
@@ -57,9 +63,9 @@ message RateLimit {
 
   string name = 3;
   string description = 4;
-  sentinez.types.rule.v1.Expression expr = 5;
+  sentinez.types.rule.v1.Expression expr = 5 [(sentinez.types.v1.x_field).codec = COLUMN_CODEC_DRIVER];
   string action = 6;
-  ActionValue action_value = 7;
+  ActionValue action_value = 7 [(sentinez.types.v1.x_field).ignore = true];
   sentinez.types.v1.Status status = 8;
   int32 priority = 9;
 
@@ -76,7 +82,7 @@ message RateLimit {
     string: {pattern: "^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$"}
   }];
 
-  string expr_preview = 13;
+  string expr_preview = 13 [(sentinez.types.v1.x_field).ignore = true];
 }
 
 message ActionValue {
@@ -85,7 +91,10 @@ message ActionValue {
 }
 
 message CoreRuleset {
-  option (sentinez.types.v1.x_message).database_model = true;
+  option (sentinez.types.v1.x_message) = {
+    database_model: true
+    scanner: true
+  };
 
   sentinez.types.v1.Owner owner = 1 [(sentinez.types.v1.x_field).flatten = true];
 
@@ -97,5 +106,5 @@ message CoreRuleset {
   string name = 3;
   string description = 4;
 
-  sentinez.types.coreruleset.v1.CoreRuleset content = 5;
+  sentinez.types.coreruleset.v1.CoreRuleset content = 5 [(sentinez.types.v1.x_field).codec = COLUMN_CODEC_PROTOJSON];
 }

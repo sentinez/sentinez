@@ -114,6 +114,8 @@ func (m *XMessage) Validate() error {
 
 	// no validation rules for ExportField
 
+	// no validation rules for Scanner
+
 	return nil
 }
 
@@ -179,6 +181,12 @@ func (m *XField) Validate() error {
 	}
 
 	// no validation rules for Flatten
+
+	// no validation rules for Ignore
+
+	// no validation rules for Codec
+
+	// no validation rules for Nullable
 
 	return nil
 }

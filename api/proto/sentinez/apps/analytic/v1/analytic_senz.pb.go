@@ -4,32 +4,25 @@
 package analyticpb
 
 import (
-	"fmt"
-
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"google.golang.org/protobuf/proto"
+	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	proto "google.golang.org/protobuf/proto"
 )
 
-var (
-	_ fmt.Stringer
-	_ proto.Message
-)
-
-var metadata_analytic = &typepb.XMeta{
+var metadata_analytic = &v1.XMeta{
 	ServiceName: "SENTINEZ // ANALYTICS",
-	ServiceZone: typepb.Zone_ZONE_INTERNAL,
+	ServiceZone: v1.Zone_ZONE_INTERNAL,
 	ServiceKey:  "sentinez.apps.analytic.v1",
 }
 
-func GetMetaAnalytic() *typepb.XMeta {
-	return proto.Clone(metadata_analytic).(*typepb.XMeta)
+func GetMetaAnalytic() *v1.XMeta {
+	return proto.Clone(metadata_analytic).(*v1.XMeta)
 }
 
 func GetMetaAnalyticServiceName() string {
 	return metadata_analytic.GetServiceName()
 }
 
-func GetMetaAnalyticServiceZone() typepb.Zone {
+func GetMetaAnalyticServiceZone() v1.Zone {
 	return metadata_analytic.GetServiceZone()
 }
 
@@ -37,62 +30,62 @@ func GetMetaAnalyticServiceKey() string {
 	return metadata_analytic.GetServiceKey()
 }
 
-func GetAnalyticServiceListActivities() *typepb.XMethod {
-	return &typepb.XMethod{
+func GetAnalyticServiceListActivities() *v1.XMethod {
+	return &v1.XMethod{
 		Ignore: true,
 	}
 }
 
-func GetAnalyticServiceListHttpIngressEvents() *typepb.XMethod {
-	return &typepb.XMethod{
+func GetAnalyticServiceListHttpIngressEvents() *v1.XMethod {
+	return &v1.XMethod{
 		Ignore: true,
 	}
 }
 
-func GetAnalyticServiceListHttpEgressEvents() *typepb.XMethod {
-	return &typepb.XMethod{
+func GetAnalyticServiceListHttpEgressEvents() *v1.XMethod {
+	return &v1.XMethod{
 		Ignore: true,
 	}
 }
 
-func GetAnalyticServiceListSecRuleEvents() *typepb.XMethod {
-	return &typepb.XMethod{
+func GetAnalyticServiceListSecRuleEvents() *v1.XMethod {
+	return &v1.XMethod{
 		Ignore: true,
 	}
 }
 
-func GetAnalyticServiceListRateLimitEvents() *typepb.XMethod {
-	return &typepb.XMethod{
+func GetAnalyticServiceListRateLimitEvents() *v1.XMethod {
+	return &v1.XMethod{
 		Ignore: true,
 	}
 }
 
-func GetAnalyticServiceListCoreRuleEvents() *typepb.XMethod {
-	return &typepb.XMethod{
+func GetAnalyticServiceListCoreRuleEvents() *v1.XMethod {
+	return &v1.XMethod{
 		Ignore: true,
 	}
 }
 
-func GetAnalyticServiceGetEventHistogram() *typepb.XMethod {
-	return &typepb.XMethod{
+func GetAnalyticServiceGetEventHistogram() *v1.XMethod {
+	return &v1.XMethod{
 		Ignore: true,
 	}
 }
 
-func GetAnalyticServiceGetUniqueVisitorHistogram() *typepb.XMethod {
-	return &typepb.XMethod{
+func GetAnalyticServiceGetUniqueVisitorHistogram() *v1.XMethod {
+	return &v1.XMethod{
 		Ignore: true,
 	}
 }
 
-func GetAnalyticServiceGetEventTopValues() *typepb.XMethod {
-	return &typepb.XMethod{
+func GetAnalyticServiceGetEventTopValues() *v1.XMethod {
+	return &v1.XMethod{
 		Ignore: true,
 	}
 }
 
-func GetAnalyticServiceListVisitors() *typepb.XMethod {
-	return &typepb.XMethod{
+func GetAnalyticServiceListVisitors() *v1.XMethod {
+	return &v1.XMethod{
 		Ignore: true,
 	}
 }

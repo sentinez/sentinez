@@ -33,9 +33,6 @@ import (
 
 var _ IHttpIngressEvent = (*HttpIngressEvent)(nil)
 
-// _columns the columns of the table, in the order of values and scanOne.
-var _columns = schema.AnalyticHttpIngressEvent().ColumnNames()
-
 var _hypertable = schema.EventHypertable(
 	schema.AnalyticHttpIngressEvent(), httppb.IngressEvent_Timestamp)
 
@@ -158,20 +155,20 @@ func (r *HttpIngressEvent) Create(ctx context.Context,
 		return nil
 	}
 
-	query := sq.Insert(r.storage.Table()).Columns(_columns...).
-		Suffix(_hypertable.OnConflictDoNothing())
-	for _, event := range events {
-		query = query.Values(values(event)...)
+	query, err := postgres.InsertRowsBuilder(r.storage,
+		httppb.IngressEventColumns(), events, httppb.IngressEventValues)
+	if err != nil {
+		return err
 	}
 
-	_, err := r.storage.Exec(ctx, query)
+	_, err = r.storage.Exec(ctx, query.Suffix(_hypertable.OnConflictDoNothing()))
 	return err
 }
 
 func (r *HttpIngressEvent) Get(ctx context.Context,
 	id string) (*httppb.IngressEvent, error) {
 	builder := r.selectQuery().Where(sq.Eq{httppb.IngressEvent_Id: id})
-	return r.storage.Select(ctx, builder, scanOne)
+	return r.storage.Select(ctx, builder, httppb.ScanOneIngressEvent)
 }
 
 func (r *HttpIngressEvent) Delete(ctx context.Context, id string) error {
@@ -186,7 +183,7 @@ func (r *HttpIngressEvent) List(ctx context.Context,
 		return nil, err
 	}
 
-	return r.storage.CollectRows(ctx, builder, scan)
+	return r.storage.CollectRows(ctx, builder, httppb.ScanIngressEvent)
 }
 
 func (r *HttpIngressEvent) Histogram(ctx context.Context,
@@ -213,74 +210,5 @@ func (r *HttpIngressEvent) TopValues(ctx context.Context,
 }
 
 func (r *HttpIngressEvent) selectQuery() sq.SelectBuilder {
-	return sq.Select(_columns...).From(r.storage.Table())
-}
-
-// values the values of event, in the order of _columns.
-func values(event *httppb.IngressEvent) []any {
-	return []any{
-		event.GetId(),
-		event.GetMethod(),
-		event.GetScheme(),
-		event.GetHost(),
-		event.GetPath(),
-		event.GetQueries(),
-		event.GetHeaders(),
-		event.GetProtocol(),
-		event.GetRemoteAddress(),
-		event.GetStatus(),
-		event.GetUserAgent(),
-		event.GetAsn(),
-		event.GetCountry(),
-		event.GetContentType(),
-		event.GetTimestamp(),
-		event.GetFingerprint(),
-		event.GetClientIp(),
-		event.GetResourceId(),
-		event.GetTenantId(),
-	}
-}
-
-func scan(rows dbx.Rows) ([]*httppb.IngressEvent, error) {
-	var events []*httppb.IngressEvent
-	for rows.Next() {
-		event, err := scanOne(rows)
-		if err != nil {
-			return nil, err
-		}
-		events = append(events, event)
-	}
-
-	return events, rows.Err()
-}
-
-func scanOne(row dbx.Row) (*httppb.IngressEvent, error) {
-	var event httppb.IngressEvent
-
-	err := row.Scan(
-		&event.Id,
-		&event.Method,
-		&event.Scheme,
-		&event.Host,
-		&event.Path,
-		&event.Queries,
-		&event.Headers,
-		&event.Protocol,
-		&event.RemoteAddress,
-		&event.Status,
-		&event.UserAgent,
-		&event.Asn,
-		&event.Country,
-		&event.ContentType,
-		&event.Timestamp,
-		&event.Fingerprint,
-		&event.ClientIp,
-		&event.ResourceId,
-		&event.TenantId,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	return &event, nil
+	return sq.Select(httppb.IngressEventColumns()...).From(r.storage.Table())
 }

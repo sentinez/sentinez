@@ -3,6 +3,12 @@
 
 package analyticpb
 
+import (
+	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+	time "time"
+)
+
 const (
 	Activity_OwnerCreatedAt  = "owner_created_at"
 	Activity_OwnerUpdatedAt  = "owner_updated_at"
@@ -11,3 +17,82 @@ const (
 	Activity_Id              = "id"
 	Activity_UniqueVisitor   = "unique_visitor"
 )
+
+// ActivityColumns returns the columns of Activity, in the order ScanOneActivity scans them.
+func ActivityColumns() []string {
+	return []string{
+		Activity_OwnerCreatedAt,
+		Activity_OwnerUpdatedAt,
+		Activity_OwnerResourceId,
+		Activity_OwnerTenantId,
+		Activity_Id,
+		Activity_UniqueVisitor,
+	}
+}
+
+// ActivityValues returns the values of m, in the order of ActivityColumns.
+func ActivityValues(m *Activity) ([]any, error) {
+	var colOwnerCreatedAt any
+	if v := m.GetOwner().GetCreatedAt(); v != nil {
+		colOwnerCreatedAt = v.AsTime()
+	}
+	var colOwnerUpdatedAt any
+	if v := m.GetOwner().GetUpdatedAt(); v != nil {
+		colOwnerUpdatedAt = v.AsTime()
+	}
+	return []any{
+		colOwnerCreatedAt,
+		colOwnerUpdatedAt,
+		m.GetOwner().GetResourceId(),
+		m.GetOwner().GetTenantId(),
+		m.GetId(),
+		m.GetUniqueVisitor(),
+	}, nil
+}
+
+// ScanOneActivity scans row, holding the columns of ActivityColumns, into a Activity.
+func ScanOneActivity[R interface{ Scan(dest ...any) error }](row R) (*Activity, error) {
+	m := &Activity{Owner: &v1.Owner{}}
+	var (
+		colOwnerCreatedAt  time.Time
+		colOwnerUpdatedAt  time.Time
+		colOwnerResourceId *string
+		colOwnerTenantId   *string
+	)
+	if err := row.Scan(
+		&colOwnerCreatedAt,
+		&colOwnerUpdatedAt,
+		&colOwnerResourceId,
+		&colOwnerTenantId,
+		&m.Id,
+		&m.UniqueVisitor,
+	); err != nil {
+		return nil, err
+	}
+	m.Owner.CreatedAt = timestamppb.New(colOwnerCreatedAt)
+	m.Owner.UpdatedAt = timestamppb.New(colOwnerUpdatedAt)
+	if colOwnerResourceId != nil {
+		m.Owner.ResourceId = *colOwnerResourceId
+	}
+	if colOwnerTenantId != nil {
+		m.Owner.TenantId = *colOwnerTenantId
+	}
+	return m, nil
+}
+
+// ScanActivity scans each row of rows with ScanOneActivity.
+func ScanActivity[R interface {
+	Next() bool
+	Scan(dest ...any) error
+	Err() error
+}](rows R) ([]*Activity, error) {
+	var ms []*Activity
+	for rows.Next() {
+		m, err := ScanOneActivity(rows)
+		if err != nil {
+			return nil, err
+		}
+		ms = append(ms, m)
+	}
+	return ms, rows.Err()
+}

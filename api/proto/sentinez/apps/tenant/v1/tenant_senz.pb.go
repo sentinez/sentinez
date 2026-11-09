@@ -4,32 +4,25 @@
 package tenantpb
 
 import (
-	"fmt"
-
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"google.golang.org/protobuf/proto"
+	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	proto "google.golang.org/protobuf/proto"
 )
 
-var (
-	_ fmt.Stringer
-	_ proto.Message
-)
-
-var metadata_tenant = &typepb.XMeta{
+var metadata_tenant = &v1.XMeta{
 	ServiceName: "SENTINEZ // TENANT",
-	ServiceZone: typepb.Zone_ZONE_INTERNAL,
+	ServiceZone: v1.Zone_ZONE_INTERNAL,
 	ServiceKey:  "sentinez.apps.tenant.v1",
 }
 
-func GetMetaTenant() *typepb.XMeta {
-	return proto.Clone(metadata_tenant).(*typepb.XMeta)
+func GetMetaTenant() *v1.XMeta {
+	return proto.Clone(metadata_tenant).(*v1.XMeta)
 }
 
 func GetMetaTenantServiceName() string {
 	return metadata_tenant.GetServiceName()
 }
 
-func GetMetaTenantServiceZone() typepb.Zone {
+func GetMetaTenantServiceZone() v1.Zone {
 	return metadata_tenant.GetServiceZone()
 }
 
@@ -37,152 +30,152 @@ func GetMetaTenantServiceKey() string {
 	return metadata_tenant.GetServiceKey()
 }
 
-func GetTenantServiceStatus() *typepb.XMethod {
-	return &typepb.XMethod{
+func GetTenantServiceStatus() *v1.XMethod {
+	return &v1.XMethod{
 		Ignore: true,
 	}
 }
 
-func GetTenantServiceListResource() *typepb.XMethod {
-	return &typepb.XMethod{
-		ControlPlanes: []typepb.ControlPlane{
-			typepb.ControlPlane_CONTROL_PLANE_PORTAL,
-			typepb.ControlPlane_CONTROL_PLANE_ADMIN,
+func GetTenantServiceListResource() *v1.XMethod {
+	return &v1.XMethod{
+		ControlPlanes: []v1.ControlPlane{
+			v1.ControlPlane_CONTROL_PLANE_PORTAL,
+			v1.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
 	}
 }
 
-func GetTenantServiceCreateResource() *typepb.XMethod {
-	return &typepb.XMethod{
-		ControlPlanes: []typepb.ControlPlane{
-			typepb.ControlPlane_CONTROL_PLANE_PORTAL,
-			typepb.ControlPlane_CONTROL_PLANE_ADMIN,
+func GetTenantServiceCreateResource() *v1.XMethod {
+	return &v1.XMethod{
+		ControlPlanes: []v1.ControlPlane{
+			v1.ControlPlane_CONTROL_PLANE_PORTAL,
+			v1.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
 	}
 }
 
-func GetTenantServiceUpdateResource() *typepb.XMethod {
-	return &typepb.XMethod{
-		ControlPlanes: []typepb.ControlPlane{
-			typepb.ControlPlane_CONTROL_PLANE_PORTAL,
-			typepb.ControlPlane_CONTROL_PLANE_ADMIN,
+func GetTenantServiceUpdateResource() *v1.XMethod {
+	return &v1.XMethod{
+		ControlPlanes: []v1.ControlPlane{
+			v1.ControlPlane_CONTROL_PLANE_PORTAL,
+			v1.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
 	}
 }
 
-func GetTenantServiceDeleteResource() *typepb.XMethod {
-	return &typepb.XMethod{
-		ControlPlanes: []typepb.ControlPlane{
-			typepb.ControlPlane_CONTROL_PLANE_PORTAL,
-			typepb.ControlPlane_CONTROL_PLANE_ADMIN,
+func GetTenantServiceDeleteResource() *v1.XMethod {
+	return &v1.XMethod{
+		ControlPlanes: []v1.ControlPlane{
+			v1.ControlPlane_CONTROL_PLANE_PORTAL,
+			v1.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
 	}
 }
 
-func GetTenantServiceGetResource() *typepb.XMethod {
-	return &typepb.XMethod{
-		ControlPlanes: []typepb.ControlPlane{
-			typepb.ControlPlane_CONTROL_PLANE_PORTAL,
-			typepb.ControlPlane_CONTROL_PLANE_ADMIN,
+func GetTenantServiceGetResource() *v1.XMethod {
+	return &v1.XMethod{
+		ControlPlanes: []v1.ControlPlane{
+			v1.ControlPlane_CONTROL_PLANE_PORTAL,
+			v1.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
 	}
 }
 
-func GetTenantServiceGetResourceByDomain() *typepb.XMethod {
-	return &typepb.XMethod{
-		ControlPlanes: []typepb.ControlPlane{
-			typepb.ControlPlane_CONTROL_PLANE_PORTAL,
-			typepb.ControlPlane_CONTROL_PLANE_ADMIN,
+func GetTenantServiceGetResourceByDomain() *v1.XMethod {
+	return &v1.XMethod{
+		ControlPlanes: []v1.ControlPlane{
+			v1.ControlPlane_CONTROL_PLANE_PORTAL,
+			v1.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
 	}
 }
 
-func GetTenantServiceListMember() *typepb.XMethod {
-	return &typepb.XMethod{
-		ControlPlanes: []typepb.ControlPlane{
-			typepb.ControlPlane_CONTROL_PLANE_PORTAL,
-			typepb.ControlPlane_CONTROL_PLANE_ADMIN,
+func GetTenantServiceListMember() *v1.XMethod {
+	return &v1.XMethod{
+		ControlPlanes: []v1.ControlPlane{
+			v1.ControlPlane_CONTROL_PLANE_PORTAL,
+			v1.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
 	}
 }
 
-func GetTenantServiceCreateMember() *typepb.XMethod {
-	return &typepb.XMethod{
-		ControlPlanes: []typepb.ControlPlane{
-			typepb.ControlPlane_CONTROL_PLANE_PORTAL,
-			typepb.ControlPlane_CONTROL_PLANE_ADMIN,
+func GetTenantServiceCreateMember() *v1.XMethod {
+	return &v1.XMethod{
+		ControlPlanes: []v1.ControlPlane{
+			v1.ControlPlane_CONTROL_PLANE_PORTAL,
+			v1.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
 	}
 }
 
-func GetTenantServiceUpdateMember() *typepb.XMethod {
-	return &typepb.XMethod{
-		ControlPlanes: []typepb.ControlPlane{
-			typepb.ControlPlane_CONTROL_PLANE_PORTAL,
-			typepb.ControlPlane_CONTROL_PLANE_ADMIN,
+func GetTenantServiceUpdateMember() *v1.XMethod {
+	return &v1.XMethod{
+		ControlPlanes: []v1.ControlPlane{
+			v1.ControlPlane_CONTROL_PLANE_PORTAL,
+			v1.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
 	}
 }
 
-func GetTenantServiceDeleteMember() *typepb.XMethod {
-	return &typepb.XMethod{
-		ControlPlanes: []typepb.ControlPlane{
-			typepb.ControlPlane_CONTROL_PLANE_PORTAL,
-			typepb.ControlPlane_CONTROL_PLANE_ADMIN,
+func GetTenantServiceDeleteMember() *v1.XMethod {
+	return &v1.XMethod{
+		ControlPlanes: []v1.ControlPlane{
+			v1.ControlPlane_CONTROL_PLANE_PORTAL,
+			v1.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
 	}
 }
 
-func GetTenantServiceGetMember() *typepb.XMethod {
-	return &typepb.XMethod{
-		ControlPlanes: []typepb.ControlPlane{
-			typepb.ControlPlane_CONTROL_PLANE_PORTAL,
-			typepb.ControlPlane_CONTROL_PLANE_ADMIN,
+func GetTenantServiceGetMember() *v1.XMethod {
+	return &v1.XMethod{
+		ControlPlanes: []v1.ControlPlane{
+			v1.ControlPlane_CONTROL_PLANE_PORTAL,
+			v1.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
 	}
 }
 
-func GetTenantServiceListTenant() *typepb.XMethod {
-	return &typepb.XMethod{
-		ControlPlanes: []typepb.ControlPlane{
-			typepb.ControlPlane_CONTROL_PLANE_PORTAL,
-			typepb.ControlPlane_CONTROL_PLANE_ADMIN,
+func GetTenantServiceListTenant() *v1.XMethod {
+	return &v1.XMethod{
+		ControlPlanes: []v1.ControlPlane{
+			v1.ControlPlane_CONTROL_PLANE_PORTAL,
+			v1.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
 	}
 }
 
-func GetTenantServiceCreateTenant() *typepb.XMethod {
-	return &typepb.XMethod{
-		ControlPlanes: []typepb.ControlPlane{
-			typepb.ControlPlane_CONTROL_PLANE_PORTAL,
-			typepb.ControlPlane_CONTROL_PLANE_ADMIN,
+func GetTenantServiceCreateTenant() *v1.XMethod {
+	return &v1.XMethod{
+		ControlPlanes: []v1.ControlPlane{
+			v1.ControlPlane_CONTROL_PLANE_PORTAL,
+			v1.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
 	}
 }
 
-func GetTenantServiceUpdateTenant() *typepb.XMethod {
-	return &typepb.XMethod{
-		ControlPlanes: []typepb.ControlPlane{
-			typepb.ControlPlane_CONTROL_PLANE_PORTAL,
-			typepb.ControlPlane_CONTROL_PLANE_ADMIN,
+func GetTenantServiceUpdateTenant() *v1.XMethod {
+	return &v1.XMethod{
+		ControlPlanes: []v1.ControlPlane{
+			v1.ControlPlane_CONTROL_PLANE_PORTAL,
+			v1.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
 	}
 }
 
-func GetTenantServiceDeleteTenant() *typepb.XMethod {
-	return &typepb.XMethod{
-		ControlPlanes: []typepb.ControlPlane{
-			typepb.ControlPlane_CONTROL_PLANE_PORTAL,
-			typepb.ControlPlane_CONTROL_PLANE_ADMIN,
+func GetTenantServiceDeleteTenant() *v1.XMethod {
+	return &v1.XMethod{
+		ControlPlanes: []v1.ControlPlane{
+			v1.ControlPlane_CONTROL_PLANE_PORTAL,
+			v1.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
 	}
 }
 
-func GetTenantServiceGetTenant() *typepb.XMethod {
-	return &typepb.XMethod{
-		ControlPlanes: []typepb.ControlPlane{
-			typepb.ControlPlane_CONTROL_PLANE_PORTAL,
-			typepb.ControlPlane_CONTROL_PLANE_ADMIN,
+func GetTenantServiceGetTenant() *v1.XMethod {
+	return &v1.XMethod{
+		ControlPlanes: []v1.ControlPlane{
+			v1.ControlPlane_CONTROL_PLANE_PORTAL,
+			v1.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
 	}
 }

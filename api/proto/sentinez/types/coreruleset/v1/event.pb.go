@@ -206,7 +206,7 @@ var File_sentinez_types_coreruleset_v1_event_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_coreruleset_v1_event_proto_rawDesc = "" +
 	"\n" +
-	")sentinez/types/coreruleset/v1/event.proto\x12\x1dsentinez.types.coreruleset.v1\x1a\x1bbuf/validate/validate.proto\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1fsentinez/types/v1/options.proto\"\xd2\x05\n" +
+	")sentinez/types/coreruleset/v1/event.proto\x12\x1dsentinez.types.coreruleset.v1\x1a\x1bbuf/validate/validate.proto\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1fsentinez/types/v1/options.proto\"\xd4\x05\n" +
 	"\rCoreRuleEvent\x12F\n" +
 	"\x02id\x18\x01 \x01(\tB6\xbaH3r12/^([a-zA-Z0-9-]+-)?crevt_[0-9A-HJKMNP-TV-Z]{26}$R\x02id\x12(\n" +
 	"\x10matched_rule_ids\x18\x02 \x03(\x05R\x0ematchedRuleIds\x12\x1e\n" +
@@ -230,7 +230,7 @@ const file_sentinez_types_coreruleset_v1_event_proto_rawDesc = "" +
 	"\rrequest_query\x18\x0e \x01(\tR\frequestQuery\x12S\n" +
 	"\n" +
 	"request_id\x18\x0f \x01(\tB4\xbaH1r/2-^([a-zA-Z0-9-]+-)?req_[0-9A-HJKMNP-TV-Z]{26}$R\trequestId\x12@\n" +
-	"\bbehavior\x18\x14 \x01(\x0e2$.sentinez.types.rule.v1.RuleBehaviorR\bbehavior:\x06\xca\xf3\x18\x02\b\x01BTZRgithub.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1;corerulesetpbb\x06proto3"
+	"\bbehavior\x18\x14 \x01(\x0e2$.sentinez.types.rule.v1.RuleBehaviorR\bbehavior:\b\xca\xf3\x18\x04\b\x01\x18\x01BTZRgithub.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1;corerulesetpbb\x06proto3"
 
 var (
 	file_sentinez_types_coreruleset_v1_event_proto_rawDescOnce sync.Once

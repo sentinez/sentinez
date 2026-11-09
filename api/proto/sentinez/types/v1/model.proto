@@ -41,13 +41,19 @@ message Owner {
   google.protobuf.Timestamp created_at = 1;
   google.protobuf.Timestamp updated_at = 2;
 
-  string resource_id = 3 [(buf.validate.field) = {
-    required: true
-    string: {prefix: "rsrc_"}
-  }];
+  string resource_id = 3 [
+    (buf.validate.field) = {
+      required: true
+      string: {prefix: "rsrc_"}
+    },
+    (sentinez.types.v1.x_field).nullable = true
+  ];
 
-  string tenant_id = 4 [(buf.validate.field) = {
-    required: true
-    string: {prefix: "tnt_"}
-  }];
+  string tenant_id = 4 [
+    (buf.validate.field) = {
+      required: true
+      string: {prefix: "tnt_"}
+    },
+    (sentinez.types.v1.x_field).nullable = true
+  ];
 }

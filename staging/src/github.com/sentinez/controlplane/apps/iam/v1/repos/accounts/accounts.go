@@ -16,12 +16,10 @@ package accrepos
 
 import (
 	"context"
-	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/controlplane/pkg/schema"
 	"github.com/sentinez/pkg/szerror"
-	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szprefix"
 	"github.com/sentinez/pkg/szrand"
 	"github.com/sentinez/pkg/szstorage/dbx"
@@ -29,7 +27,6 @@ import (
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 var (
@@ -297,59 +294,26 @@ func (acc *Accounts) Update(ctx context.Context, account *AccountX) error {
 
 func (acc *Accounts) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 	return postgres.SelectBuilder(acc.storage, page,
-		iampb.Account_Id,
-		iampb.Account_Credentials,
-		iampb.Account_Username,
-		iampb.Account_Email,
-		iampb.Account_UserId,
-		iampb.Account_PasswordHash,
-		iampb.Account_Provider,
-		iampb.Account_ProviderUserId,
-		typepb.Metadata_CreatedAt,
-		typepb.Metadata_UpdatedAt,
-	)
+		iampb.AccountColumns()...)
 }
 
 func scan(rows dbx.Rows) ([]*AccountX, error) {
 	var accounts []*AccountX
-
 	for rows.Next() {
 		account, err := scanOne(rows)
 		if err != nil {
 			return nil, err
 		}
-
 		accounts = append(accounts, account)
 	}
-
 	return accounts, rows.Err()
 }
 
 func scanOne(row dbx.Row) (*AccountX, error) {
-	var createdAt, updatedAt time.Time
-	account := AccountX{Account: &iampb.Account{}}
-
-	err := row.Scan(
-		&account.Id,
-		&account.Credentials,
-		&account.Username,
-		&account.Email,
-		&account.UserId,
-		&account.PasswordHash,
-		&account.Provider,
-		&account.ProviderUserId,
-		&createdAt,
-		&updatedAt,
-	)
+	account, err := iampb.ScanOneAccount(row)
 	if err != nil {
-		szlog.Debugf("postgres: in tx=false query: %v", row)
 		return nil, err
 	}
 
-	account.Metadata = &typepb.Metadata{
-		CreatedAt: timestamppb.New(createdAt),
-		UpdatedAt: timestamppb.New(updatedAt),
-	}
-
-	return &account, nil
+	return &AccountX{Account: account}, nil
 }

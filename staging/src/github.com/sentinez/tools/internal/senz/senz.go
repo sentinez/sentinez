@@ -42,9 +42,6 @@ func GenerateSentinezOptionFile(gen *protogen.Plugin, file *protogen.File) *prot
 			return g
 		}
 
-		writeImports(g, meta)
-		writeTypeAssertions(g)
-
 		name := protoBaseName(file.Desc.Path())
 		caser := cases.Title(language.Und)
 
@@ -56,6 +53,7 @@ func GenerateSentinezOptionFile(gen *protogen.Plugin, file *protogen.File) *prot
 
 	generateExportedFields(g, file)
 	generateDatabaseModelFields(g, file)
+	generateScanners(gen, g, file)
 	generateMethodRequirementGetters(g, file)
 
 	return g
@@ -69,45 +67,37 @@ func writeHeader(g *protogen.GeneratedFile, file *protogen.File) {
 	g.P()
 }
 
-func writeImports(g *protogen.GeneratedFile, meta *typepb.XMeta) {
-	g.P("import (")
-	g.P(`	"fmt"`)
-	g.P()
-	if meta != nil {
-		g.P(`	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"`)
-	}
-	g.P(`	"google.golang.org/protobuf/proto"`)
-	g.P(")")
-	g.P()
-}
-
-func writeTypeAssertions(g *protogen.GeneratedFile) {
-	g.P("var (")
-	g.P("	_ fmt.Stringer")
-	g.P("	_ proto.Message")
-	g.P(")")
-	g.P()
+// typeIdent is the qualified name of the typepb identifier name; every
+// package is imported by g.QualifiedGoIdent, so that it is imported once.
+func typeIdent(g *protogen.GeneratedFile, name string) string {
+	return g.QualifiedGoIdent(protogen.GoIdent{
+		GoName:       name,
+		GoImportPath: _typepbPackage,
+	})
 }
 
 func writeMetadata(g *protogen.GeneratedFile, name string, meta *typepb.XMeta) {
-	g.P("var metadata_", name, " = &typepb.XMeta{")
+	g.P("var metadata_", name, " = &", typeIdent(g, "XMeta"), "{")
 	g.P("	ServiceName: ", strconv.Quote(meta.GetServiceName()), ",")
-	g.P("	ServiceZone: typepb.Zone_", meta.GetServiceZone(), ",")
+	g.P("	ServiceZone: ",
+		typeIdent(g, "Zone_"+meta.GetServiceZone().String()), ",")
 	g.P("	ServiceKey:  ", strconv.Quote(meta.GetServiceKey()), ",")
 	g.P("}")
 }
 
 func writeMetaGetters(g *protogen.GeneratedFile, name string) {
 	g.P()
-	g.P("func GetMeta", name, "() *typepb.XMeta {")
-	g.P("	return proto.Clone(metadata_", strings.ToLower(name), ").(*typepb.XMeta)")
+	xmeta := typeIdent(g, "XMeta")
+	g.P("func GetMeta", name, "() *", xmeta, " {")
+	g.P("	return ", g.QualifiedGoIdent(_protoClone), "(metadata_",
+		strings.ToLower(name), ").(*", xmeta, ")")
 	g.P("}")
 	g.P()
 	g.P("func GetMeta", name, "ServiceName() string {")
 	g.P("	return metadata_", strings.ToLower(name), ".GetServiceName()")
 	g.P("}")
 	g.P()
-	g.P("func GetMeta", name, "ServiceZone() typepb.Zone {")
+	g.P("func GetMeta", name, "ServiceZone() ", typeIdent(g, "Zone"), " {")
 	g.P("	return metadata_", strings.ToLower(name), ".GetServiceZone()")
 	g.P("}")
 	g.P()
@@ -126,6 +116,7 @@ func generateExportedFields(g *protogen.GeneratedFile, file *protogen.File) {
 		writeFieldConstants(
 			g,
 			msg,
+			false, // flattenAll
 			func(msgName, fieldName string) string {
 				return fmt.Sprintf("X%s_%s", msgName, utils.SnakeToPascal(fieldName))
 			},
@@ -136,65 +127,125 @@ func generateExportedFields(g *protogen.GeneratedFile, file *protogen.File) {
 func generateDatabaseModelFields(g *protogen.GeneratedFile, file *protogen.File) {
 	for _, msg := range file.Messages {
 		xmsg := getXMessage(msg)
-		if xmsg == nil || !xmsg.DatabaseModel {
+		if xmsg == nil || !xmsg.GetDatabaseModel() && !xmsg.GetScanner() {
 			continue
 		}
 
-		writeFieldConstants(
-			g,
-			msg,
-			func(msgName, fieldName string) string {
-				return fmt.Sprintf("%s_%s", msgName, utils.SnakeToPascal(fieldName))
-			},
-		)
+		writeFieldConstants(g, msg, xmsg.GetScanner(), columnConstName)
 	}
 }
 
 func writeFieldConstants(
 	g *protogen.GeneratedFile,
 	msg *protogen.Message,
+	flattenAll bool,
 	nameFn func(msgName, fieldName string) string,
 ) {
 	g.P("const (")
-	for _, fieldName := range fieldNames(msg, "", nil) {
-		constName := nameFn(msg.GoIdent.GoName, fieldName)
-		g.P(fmt.Sprintf(`	%s = "%s"`, constName, fieldName))
+	for _, col := range columns(msg, flattenAll) {
+		constName := nameFn(msg.GoIdent.GoName, col.name)
+		g.P(fmt.Sprintf(`	%s = "%s"`, constName, col.name))
 	}
 	g.P(")")
 	g.P()
 }
 
-// fieldNames lists the field names of msg, each prefixed with prefix. A
-// message field marked with (x_field).flatten is replaced by the names of
-// its own fields, prefixed with "<field>_". parents holds the messages
-// being flattened, so a recursive message is not expanded forever.
-func fieldNames(
+// columnConstName is the name of the constant of the column colName of
+// the database model msgName.
+func columnConstName(msgName, colName string) string {
+	return fmt.Sprintf("%s_%s", msgName, utils.SnakeToPascal(colName))
+}
+
+// column is a field of a message, or of a message nested in it, stored
+// as a column of its own.
+type column struct {
+	// name is the field name, prefixed with "<field>_" for each message
+	// field it is flattened from (e.g. owner_created_at).
+	name string
+	// path is the fields from the message down to the field.
+	path []*protogen.Field
+}
+
+// columns lists the columns of msg in field order. A message field marked
+// with (x_field).flatten, or any one that can be flattened when
+// flattenAll is set, is replaced by the columns of its own fields.
+func columns(msg *protogen.Message, flattenAll bool) []column {
+	return appendColumns(nil, msg, nil, nil, flattenAll)
+}
+
+// appendColumns appends the columns of msg to cols, each under path.
+// parents holds the messages being flattened, so a recursive message is
+// not expanded forever.
+func appendColumns(
+	cols []column,
 	msg *protogen.Message,
-	prefix string,
+	path []*protogen.Field,
 	parents []protoreflect.FullName,
-) []string {
+	flattenAll bool,
+) []column {
 	parents = append(parents, msg.Desc.FullName())
 
-	names := make([]string, 0, len(msg.Fields))
 	for _, field := range msg.Fields {
-		name := prefix + string(field.Desc.Name())
-		if !isFlatten(field) ||
-			slices.Contains(parents, field.Message.Desc.FullName()) {
-			names = append(names, name)
+		fieldPath := append(slices.Clone(path), field)
+		if !expands(field, parents, flattenAll) {
+			cols = append(cols, column{
+				name: columnName(fieldPath),
+				path: fieldPath,
+			})
 			continue
 		}
-		names = append(names, fieldNames(field.Message, name+"_", parents)...)
+		cols = appendColumns(
+			cols, field.Message, fieldPath, parents, flattenAll)
 	}
-	return names
+	return cols
+}
+
+// expands reports whether field is replaced by the columns of its own
+// fields.
+func expands(
+	field *protogen.Field,
+	parents []protoreflect.FullName,
+	flattenAll bool,
+) bool {
+	if !isFlatten(field) && (!flattenAll || !canFlatten(field)) {
+		return false
+	}
+	return !slices.Contains(parents, field.Message.Desc.FullName())
+}
+
+func columnName(path []*protogen.Field) string {
+	names := make([]string, 0, len(path))
+	for _, field := range path {
+		names = append(names, string(field.Desc.Name()))
+	}
+	return strings.Join(names, "_")
+}
+
+// canFlatten reports whether field is a singular message field that is
+// stored, neither a well-known type (google.protobuf.*) nor given a
+// (x_field).codec, both kept as one column.
+func canFlatten(field *protogen.Field) bool {
+	xfield := getXField(field)
+	return isMessage(field) &&
+		field.Message.Desc.ParentFile().Package() != _wellKnownPackage &&
+		!xfield.GetIgnore() &&
+		xfield.GetCodec() == typepb.ColumnCodec_COLUMN_CODEC_UNSPECIFIED
+}
+
+func isMessage(field *protogen.Field) bool {
+	return field.Message != nil && !field.Desc.IsList() &&
+		!field.Desc.IsMap()
 }
 
 func isFlatten(field *protogen.Field) bool {
-	if field.Message == nil || field.Desc.IsList() || field.Desc.IsMap() {
-		return false
-	}
+	return isMessage(field) && getXField(field).GetFlatten()
+}
+
+// getXField returns the (x_field) options of field, nil when unset.
+func getXField(field *protogen.Field) *typepb.XField {
 	opts := field.Desc.Options()
-	ext, ok := proto.GetExtension(opts, typepb.E_XField).(*typepb.XField)
-	return ok && ext.GetFlatten()
+	ext, _ := proto.GetExtension(opts, typepb.E_XField).(*typepb.XField)
+	return ext
 }
 
 func getXMessage(msg *protogen.Message) *typepb.XMessage {
@@ -228,17 +279,18 @@ func writeMethodRequirementGetter(g *protogen.GeneratedFile, service *protogen.S
 	methodName := method.GoName
 	funcName := fmt.Sprintf("Get%s%s", serviceName, methodName)
 
-	g.P(fmt.Sprintf("func %s() *typepb.XMethod {", funcName))
-	g.P("\treturn &typepb.XMethod{")
+	xmethodType := typeIdent(g, "XMethod")
+	g.P("func ", funcName, "() *", xmethodType, " {")
+	g.P("\treturn &", xmethodType, "{")
 
 	if xmethod.Ignore {
 		g.P("\t\tIgnore: true,")
 	}
 
 	if len(xmethod.GetControlPlanes()) > 0 {
-		g.P("\t\tControlPlanes: []typepb.ControlPlane{")
+		g.P("\t\tControlPlanes: []", typeIdent(g, "ControlPlane"), "{")
 		for _, c := range xmethod.GetControlPlanes() {
-			g.P(fmt.Sprintf("\t\t\ttypepb.ControlPlane_%s,", c.String()))
+			g.P("\t\t\t", typeIdent(g, "ControlPlane_"+c.String()), ",")
 		}
 		g.P("\t\t},")
 	}

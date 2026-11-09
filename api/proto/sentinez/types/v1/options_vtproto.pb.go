@@ -100,6 +100,16 @@ func (m *XMessage) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
 	}
+	if m.Scanner {
+		i--
+		if m.Scanner {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x18
+	}
 	if m.ExportField {
 		i--
 		if m.ExportField {
@@ -152,6 +162,31 @@ func (m *XField) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m.unknownFields != nil {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
+	}
+	if m.Nullable {
+		i--
+		if m.Nullable {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x20
+	}
+	if m.Codec != 0 {
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(m.Codec))
+		i--
+		dAtA[i] = 0x18
+	}
+	if m.Ignore {
+		i--
+		if m.Ignore {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x10
 	}
 	if m.Flatten {
 		i--
@@ -263,6 +298,9 @@ func (m *XMessage) SizeVT() (n int) {
 	if m.ExportField {
 		n += 2
 	}
+	if m.Scanner {
+		n += 2
+	}
 	n += len(m.unknownFields)
 	return n
 }
@@ -274,6 +312,15 @@ func (m *XField) SizeVT() (n int) {
 	var l int
 	_ = l
 	if m.Flatten {
+		n += 2
+	}
+	if m.Ignore {
+		n += 2
+	}
+	if m.Codec != 0 {
+		n += 1 + protohelpers.SizeOfVarint(uint64(m.Codec))
+	}
+	if m.Nullable {
 		n += 2
 	}
 	n += len(m.unknownFields)
@@ -503,6 +550,26 @@ func (m *XMessage) UnmarshalVT(dAtA []byte) error {
 				}
 			}
 			m.ExportField = bool(v != 0)
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Scanner", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protohelpers.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Scanner = bool(v != 0)
 		default:
 			iNdEx = preIndex
 			skippy, err := protohelpers.Skip(dAtA[iNdEx:])
@@ -574,6 +641,65 @@ func (m *XField) UnmarshalVT(dAtA []byte) error {
 				}
 			}
 			m.Flatten = bool(v != 0)
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Ignore", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protohelpers.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Ignore = bool(v != 0)
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Codec", wireType)
+			}
+			m.Codec = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protohelpers.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Codec |= ColumnCodec(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Nullable", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protohelpers.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Nullable = bool(v != 0)
 		default:
 			iNdEx = preIndex
 			skippy, err := protohelpers.Skip(dAtA[iNdEx:])

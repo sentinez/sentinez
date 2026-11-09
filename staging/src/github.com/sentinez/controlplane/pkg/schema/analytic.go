@@ -48,7 +48,9 @@ func EventHypertable(s dbx.Schema,
 // AnalyticActivities the schema of the sztable.AnalyticActivities table.
 func AnalyticActivities() dbx.Schema {
 	return dbx.Schema{
-		Table: sztable.AnalyticActivities,
+		Table:     sztable.AnalyticActivities,
+		CreatedAt: analyticpb.Activity_OwnerCreatedAt,
+		UpdatedAt: analyticpb.Activity_OwnerUpdatedAt,
 		Columns: []dbx.Column{
 			{Name: analyticpb.Activity_Id, Type: dbx.Text},
 			{Name: analyticpb.Activity_OwnerResourceId, Type: dbx.Text},

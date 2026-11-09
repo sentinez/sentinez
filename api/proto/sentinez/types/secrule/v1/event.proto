@@ -23,7 +23,10 @@ import "sentinez/types/v1/options.proto";
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1;secrulepb";
 
 message SecRuleEvent {
-  option (sentinez.types.v1.x_message).database_model = true;
+  option (sentinez.types.v1.x_message) = {
+    database_model: true
+    scanner: true
+  };
 
   string id = 1 [(buf.validate.field).string.pattern = "^([a-zA-Z0-9-]+-)?srevt_[0-9A-HJKMNP-TV-Z]{26}$"];
   repeated string matched_secrule_ids = 2;
@@ -31,7 +34,7 @@ message SecRuleEvent {
   string resource_id = 4;
   string tenant_id = 5;
   int64 matched_time = 6; // milisec
-  sentinez.types.rule.v1.Action action = 7;
+  sentinez.types.rule.v1.Action action = 7 [(sentinez.types.v1.x_field).codec = COLUMN_CODEC_DRIVER];
   sentinez.types.rule.v1.RuleService service = 8;
 
   string request_domain = 10;

@@ -16,7 +16,6 @@ package secrule
 
 import (
 	"context"
-	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/controlplane/pkg/schema"
@@ -28,7 +27,6 @@ import (
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // nolint
@@ -41,16 +39,6 @@ type ISecRule interface {
 	WithTX(tx *postgres.TxSession) ISecRule
 
 	List(ctx context.Context, req *securitypb.ListSecRulesRequest) ([]*securitypb.SecRule, int64, error)
-}
-
-// The action column is JSONB while the action is a plain string (the
-// ActionType name): it is stored as a JSON string and read back as text.
-var _selectAction = securitypb.SecRule_Action + " #>> '{}' AS " +
-	securitypb.SecRule_Action
-
-// actionJSON stores action as a JSON string in the action column.
-func actionJSON(action string) sq.Sqlizer {
-	return sq.Expr("to_jsonb(?::text)", action)
 }
 
 func New(ctx context.Context, appConf *settingpb.Config) (ISecRule, error) {
@@ -100,7 +88,7 @@ func (r *SecRule) List(ctx context.Context,
 	}
 	szlog.Debug("[security.secrules] query: ", query, " args: ", args)
 
-	models, err := r.storage.CollectRows(ctx, builder, scan)
+	models, err := r.storage.CollectRows(ctx, builder, securitypb.ScanSecRule)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -140,7 +128,7 @@ func (r *SecRule) Create(ctx context.Context,
 		securitypb.SecRule_Expr:            model.GetExpr(),
 		securitypb.SecRule_Status:          model.GetStatus(),
 		securitypb.SecRule_Priority:        model.GetPriority(),
-		securitypb.SecRule_Action:          actionJSON(model.GetAction()),
+		securitypb.SecRule_Action:          model.GetAction(),
 		securitypb.SecRule_OwnerResourceId: model.GetOwner().GetResourceId(),
 		securitypb.SecRule_OwnerTenantId:   model.GetOwner().GetTenantId(),
 	})
@@ -161,7 +149,7 @@ func (r *SecRule) Get(
 	id string,
 ) (*securitypb.SecRule, error) {
 	builder := r.selectQuery(nil).Where(sq.Eq{securitypb.SecRule_Id: id})
-	return r.storage.Select(ctx, builder, scanOne)
+	return r.storage.Select(ctx, builder, securitypb.ScanOneSecRule)
 }
 
 func (r *SecRule) Update(
@@ -186,7 +174,7 @@ func (r *SecRule) Update(
 	query = query.
 		Set(securitypb.SecRule_Status, model.GetStatus()).
 		Set(securitypb.SecRule_Priority, model.GetPriority()).
-		Set(securitypb.SecRule_Action, actionJSON(model.GetAction()))
+		Set(securitypb.SecRule_Action, model.GetAction())
 
 	_, err := r.storage.Exec(ctx, query)
 	return err
@@ -194,62 +182,5 @@ func (r *SecRule) Update(
 
 func (r *SecRule) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 	return postgres.SelectBuilder(r.storage, page,
-		securitypb.SecRule_Id,
-		securitypb.SecRule_Name,
-		securitypb.SecRule_Description,
-		securitypb.SecRule_Expr,
-		securitypb.SecRule_Status,
-		securitypb.SecRule_Priority,
-		_selectAction,
-		postgres.SelectCoalesce(securitypb.SecRule_OwnerResourceId),
-		postgres.SelectCoalesce(securitypb.SecRule_OwnerTenantId),
-		typepb.Metadata_CreatedAt,
-		typepb.Metadata_UpdatedAt,
-	)
-}
-
-func scan(rows dbx.Rows) ([]*securitypb.SecRule, error) {
-	var models []*securitypb.SecRule
-	for rows.Next() {
-		model, err := scanOne(rows)
-		if err != nil {
-			return nil, err
-		}
-		models = append(models, model)
-	}
-	return models, rows.Err()
-}
-
-func scanOne(row dbx.Row) (*securitypb.SecRule, error) {
-	var (
-		createdAt, updatedAt time.Time
-		resourceId, tenantId string
-		model                securitypb.SecRule
-	)
-
-	err := row.Scan(
-		&model.Id,
-		&model.Name,
-		&model.Description,
-		&model.Expr,
-		&model.Status,
-		&model.Priority,
-		&model.Action,
-		&resourceId,
-		&tenantId,
-		&createdAt,
-		&updatedAt,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	model.Owner = &typepb.Owner{
-		ResourceId: resourceId,
-		TenantId:   tenantId,
-		CreatedAt:  timestamppb.New(createdAt),
-		UpdatedAt:  timestamppb.New(updatedAt),
-	}
-
-	return &model, nil
+		securitypb.SecRuleColumns()...)
 }

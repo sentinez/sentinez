@@ -258,7 +258,7 @@ func New(ctx context.Context, conf *settingpb.Config,
 	}
 
 	source, err := postgres.Open[Point](ctx, conf,
-		spec.Source.Schema.Table, postgres.NoSync)
+		spec.Source.Schema, postgres.NoSync)
 	if err != nil {
 		return nil, err
 	}

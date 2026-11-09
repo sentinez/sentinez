@@ -230,15 +230,15 @@ const file_sentinez_types_v1_model_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt:\x06\xca\xf3\x18\x02\b\x01\"\xe4\x01\n" +
+	"updated_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt:\x06\xca\xf3\x18\x02\b\x01\"\xf0\x01\n" +
 	"\x05Owner\x129\n" +
 	"\n" +
 	"created_at\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x120\n" +
-	"\vresource_id\x18\x03 \x01(\tB\x0f\xbaH\f\xc8\x01\x01r\a:\x05rsrc_R\n" +
-	"resourceId\x12+\n" +
-	"\ttenant_id\x18\x04 \x01(\tB\x0e\xbaH\v\xc8\x01\x01r\x06:\x04tnt_R\btenantId:\x06\xca\xf3\x18\x02\b\x01BAZ?github.com/sentinez/sentinez/api/proto/sentinez/types/v1;typepbb\x06proto3"
+	"updated_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x126\n" +
+	"\vresource_id\x18\x03 \x01(\tB\x15\xbaH\f\xc8\x01\x01r\a:\x05rsrc_\xca\xf0\x19\x02 \x01R\n" +
+	"resourceId\x121\n" +
+	"\ttenant_id\x18\x04 \x01(\tB\x14\xbaH\v\xc8\x01\x01r\x06:\x04tnt_\xca\xf0\x19\x02 \x01R\btenantId:\x06\xca\xf3\x18\x02\b\x01BAZ?github.com/sentinez/sentinez/api/proto/sentinez/types/v1;typepbb\x06proto3"
 
 var (
 	file_sentinez_types_v1_model_proto_rawDescOnce sync.Once

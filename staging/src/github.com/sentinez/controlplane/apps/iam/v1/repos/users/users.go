@@ -16,7 +16,6 @@ package usersrepo
 
 import (
 	"context"
-	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/controlplane/pkg/schema"
@@ -29,7 +28,6 @@ import (
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 var (
@@ -109,7 +107,7 @@ func (u *Users) List(ctx context.Context,
 	}
 	szlog.Debug("[users] query: ", query, " args: ", args)
 
-	users, err := u.storage.CollectRows(ctx, builder, scan)
+	users, err := u.storage.CollectRows(ctx, builder, iampb.ScanUser)
 	if err != nil {
 		return nil, err
 	}
@@ -168,7 +166,7 @@ func (u *Users) Delete(ctx context.Context, id string) error {
 // Get implements IUser.
 func (u *Users) Get(ctx context.Context, id string) (*iampb.User, error) {
 	builder := u.selectQuery(nil).Where(sq.Eq{iampb.User_Id: id})
-	return u.storage.Select(ctx, builder, scanOne)
+	return u.storage.Select(ctx, builder, iampb.ScanOneUser)
 }
 
 // GetByEmail implements IUser. It returns szerror.ErrNotFound if no user
@@ -178,7 +176,7 @@ func (u *Users) GetByEmail(
 
 	builder := u.selectQuery(nil).Where(sq.Eq{iampb.User_Email: email})
 
-	user, err := u.storage.CollectOneRow(ctx, builder, scanOne)
+	user, err := u.storage.CollectOneRow(ctx, builder, iampb.ScanOneUser)
 	if err != nil {
 		if !szerror.IsNoRows(err) {
 			return nil, err
@@ -213,52 +211,5 @@ func (u *Users) Update(ctx context.Context, user *iampb.User) error {
 
 func (u *Users) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 	return postgres.SelectBuilder(u.storage, page,
-		iampb.User_Id,
-		iampb.User_Email,
-		iampb.User_FullName,
-		iampb.User_ControlPlane,
-		typepb.Metadata_CreatedAt,
-		typepb.Metadata_UpdatedAt,
-	)
-}
-
-func scan(rows dbx.Rows) ([]*iampb.User, error) {
-	var users []*iampb.User
-
-	for rows.Next() {
-		user, err := scanOne(rows)
-		if err != nil {
-			return nil, err
-		}
-
-		users = append(users, user)
-	}
-
-	return users, rows.Err()
-}
-
-func scanOne(row dbx.Row) (*iampb.User, error) {
-	var (
-		createdAt, updatedAt time.Time
-		user                 iampb.User
-	)
-
-	err := row.Scan(
-		&user.Id,
-		&user.Email,
-		&user.FullName,
-		&user.ControlPlane,
-		&createdAt,
-		&updatedAt,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	user.Metadata = &typepb.Metadata{
-		CreatedAt: timestamppb.New(createdAt),
-		UpdatedAt: timestamppb.New(updatedAt),
-	}
-
-	return &user, nil
+		iampb.UserColumns()...)
 }

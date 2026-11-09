@@ -19,6 +19,7 @@ require (
 	github.com/sentinez/core v0.0.0-00010101000000-000000000000
 	github.com/sentinez/sentinez/api v0.0.0
 	github.com/sqlc-dev/sqlc v1.31.1
+	github.com/stretchr/testify v1.12.1
 	github.com/vektra/mockery/v3 v3.8.0
 	golang.org/x/text v0.42.0
 	google.golang.org/grpc v1.83.2

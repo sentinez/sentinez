@@ -28,7 +28,10 @@ option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant
 // of server (server.name, server.resource_domain), its id is the
 // server.resource_id the edge fills into the events of its requests.
 message Resource {
-  option (sentinez.types.v1.x_message).database_model = true;
+  option (sentinez.types.v1.x_message) = {
+    database_model: true
+    scanner: true
+  };
 
   sentinez.types.v1.Metadata metadata = 1 [(sentinez.types.v1.x_field).flatten = true];
 
@@ -37,18 +40,24 @@ message Resource {
     string: {prefix: "rsrc_"}
   }];
 
-  string tenant_id = 3 [(buf.validate.field) = {
-    required: true
-    string: {prefix: "tnt_"}
-  }];
+  string tenant_id = 3 [
+    (buf.validate.field) = {
+      required: true
+      string: {prefix: "tnt_"}
+    },
+    (sentinez.types.v1.x_field).nullable = true
+  ];
 
-  sentinez.dmz.edge.v1.Server server = 4;
+  sentinez.dmz.edge.v1.Server server = 4 [(sentinez.types.v1.x_field).codec = COLUMN_CODEC_PROTO];
 
   sentinez.types.v1.Status status = 5;
 }
 
 message Tenant {
-  option (sentinez.types.v1.x_message).database_model = true;
+  option (sentinez.types.v1.x_message) = {
+    database_model: true
+    scanner: true
+  };
 
   sentinez.types.v1.Metadata metadata = 1 [(sentinez.types.v1.x_field).flatten = true];
 
@@ -57,15 +66,18 @@ message Tenant {
     string: {prefix: "tnt_"}
   }];
 
-  string name = 3;
-  string description = 4;
+  string name = 3 [(sentinez.types.v1.x_field).nullable = true];
+  string description = 4 [(sentinez.types.v1.x_field).nullable = true];
 
   sentinez.types.v1.Plan plan = 5;
 }
 
 message Member {
-  option (sentinez.types.v1.x_message).database_model = true;
-  sentinez.types.v1.Metadata metadata = 1;
+  option (sentinez.types.v1.x_message) = {
+    database_model: true
+    scanner: true
+  };
+  sentinez.types.v1.Metadata metadata = 1 [(sentinez.types.v1.x_field).flatten = true];
 
   string id = 2 [(buf.validate.field) = {
     required: true

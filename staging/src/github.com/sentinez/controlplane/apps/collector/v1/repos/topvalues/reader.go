@@ -48,7 +48,8 @@ type Reader struct {
 // the names are empty).
 func Open(ctx context.Context, conf *settingpb.Config, table sztable.Table,
 	cols eventfilter.Columns) (*Reader, error) {
-	db, err := postgres.Open[Row](ctx, conf, table, postgres.NoSync)
+	db, err := postgres.Open[Row](ctx, conf,
+		dbx.Schema{Table: table}, postgres.NoSync)
 	if err != nil {
 		return nil, err
 	}

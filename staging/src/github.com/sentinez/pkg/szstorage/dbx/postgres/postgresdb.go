@@ -56,19 +56,20 @@ func NoSync(context.Context, Client, string) error {
 func New[T any](ctx context.Context, conf *settingpb.Config,
 	schema dbx.Schema) (dbx.Database[T], error) {
 
-	return Open[T](ctx, conf, schema.Table,
+	return Open[T](ctx, conf, schema,
 		func(ctx context.Context, client Client, tableName string) error {
 			return syncSchema(ctx, client, tableName, schema)
 		})
 }
 
-// Open returns the Database of the relation name, on the shared pool,
-// once sync created or migrated it; New with a sync of its own, for
-// the relations a dbx.Schema does not describe (hypertables, views).
+// Open returns the Database of the relation of schema, on the shared
+// pool, its timestamp columns those of schema, once sync created or
+// migrated it; New with a sync of its own, for the relations syncSchema
+// does not create (hypertables, views).
 func Open[T any](ctx context.Context, conf *settingpb.Config,
-	name sztable.Table, sync SyncFn) (dbx.Database[T], error) {
+	schema dbx.Schema, sync SyncFn) (dbx.Database[T], error) {
 
-	tableName, err := TableName(conf, name)
+	tableName, err := TableName(conf, schema.Table)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +83,12 @@ func Open[T any](ctx context.Context, conf *settingpb.Config,
 		return nil, err
 	}
 
-	return &postgres[T]{client: pool, tableName: tableName}, nil
+	return &postgres[T]{
+		client:    pool,
+		tableName: tableName,
+		createdAt: schema.CreatedAtColumn(),
+		updatedAt: schema.UpdatedAtColumn(),
+	}, nil
 }
 
 // TableName the name of the relation name in the database of conf: the
@@ -99,12 +105,24 @@ func TableName(conf *settingpb.Config, name sztable.Table) (string, error) {
 type postgres[T any] struct {
 	client    Client
 	tableName string
+	createdAt string
+	updatedAt string
 	tx        bool
 }
 
 // Table implements dbx.Database.
 func (p *postgres[T]) Table() string {
 	return p.tableName
+}
+
+// CreatedAt implements dbx.Database.
+func (p *postgres[T]) CreatedAt() string {
+	return p.createdAt
+}
+
+// UpdatedAt implements dbx.Database.
+func (p *postgres[T]) UpdatedAt() string {
+	return p.updatedAt
 }
 
 // Total implements dbx.Database.

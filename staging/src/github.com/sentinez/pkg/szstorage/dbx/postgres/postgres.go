@@ -16,7 +16,6 @@ package postgres
 
 import (
 	"context"
-	"fmt"
 	"maps"
 	"slices"
 	"strings"
@@ -30,10 +29,6 @@ import (
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
 
-func SelectCoalesce(field string) string {
-	return fmt.Sprintf("COALESCE(%s, '')", field)
-}
-
 type M map[string]any
 
 type Client interface {
@@ -44,15 +39,16 @@ type Client interface {
 	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
 }
 
+// Paging selects the rows of page, the latest created first by the
+// createdAt column.
 func Paging(builder squirrel.SelectBuilder,
-	page *typepb.Pages) squirrel.SelectBuilder {
+	page *typepb.Pages, createdAt string) squirrel.SelectBuilder {
 
 	if page.GetSize() == 0 || page.GetIndex() == 0 {
 		return builder
 	}
 
-	return LimitOffset(builder, page).
-		OrderBy(fmt.Sprintf("%s DESC", typepb.Metadata_CreatedAt))
+	return LimitOffset(builder, page).OrderBy(createdAt + " DESC")
 }
 
 // LimitOffset selects the rows of page, all of them when page is nil or
@@ -78,7 +74,7 @@ func SelectBuilder[T any](db dbx.Database[T],
 		return builder
 	}
 
-	return Paging(builder, page)
+	return Paging(builder, page, db.CreatedAt())
 }
 
 // _idColumn is the primary key every table has (see dbx/stmt).
@@ -89,11 +85,30 @@ func InsertBuilder[T any](db dbx.Database[T], mapp M) squirrel.InsertBuilder {
 		Suffix("RETURNING " + _idColumn)
 }
 
+// InsertRowsBuilder inserts rows into the table of db in one statement,
+// each the values valuesOf returns for columns, in their order.
+func InsertRowsBuilder[T, R any](db dbx.Database[T], columns []string,
+	rows []R, valuesOf func(R) ([]any, error)) (squirrel.InsertBuilder, error) {
+
+	builder := squirrel.Insert(db.Table()).
+		Columns(columns...).
+		PlaceholderFormat(squirrel.Dollar)
+	for _, row := range rows {
+		values, err := valuesOf(row)
+		if err != nil {
+			return squirrel.InsertBuilder{}, err
+		}
+		builder = builder.Values(values...)
+	}
+
+	return builder, nil
+}
+
 // UpsertBuilder inserts the row of mapp, or updates its columns when a row
 // with the same id exists. mapp must hold the id.
 func UpsertBuilder[T any](db dbx.Database[T], mapp M) squirrel.InsertBuilder {
 	columns := slices.Sorted(maps.Keys(mapp))
-	sets := []string{typepb.Metadata_UpdatedAt + " = now() AT TIME ZONE 'UTC'"}
+	sets := []string{db.UpdatedAt() + " = now() AT TIME ZONE 'UTC'"}
 	for _, column := range columns {
 		if column != _idColumn {
 			sets = append(sets, column+" = EXCLUDED."+column)
@@ -125,6 +140,6 @@ func UpdateBuilder[T any](
 	db dbx.Database[T], id string) squirrel.UpdateBuilder {
 
 	return squirrel.Update(db.Table()).
-		Set(typepb.Metadata_UpdatedAt, time.Now().UTC()).
+		Set(db.UpdatedAt(), time.Now().UTC()).
 		Where(squirrel.Eq{"id": id})
 }
