@@ -87,7 +87,7 @@ export function windowOf(range: TimeRange, now: number): Window {
   return { from: (Math.floor(now / millis) - count + 1) * millis };
 }
 
-const SECONDS_TICK: DateTimeFormatOptions = {
+export const SECONDS_TICK: DateTimeFormatOptions = {
   hour: '2-digit',
   minute: '2-digit',
   second: '2-digit',

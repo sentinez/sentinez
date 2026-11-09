@@ -1,8 +1,17 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type MouseEvent, type RefObject } from 'react';
 import { useFormatter } from 'next-intl';
-import { Bar, BarChart, CartesianGrid, Cell, ReferenceArea, XAxis, YAxis } from 'recharts';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  XAxis,
+  YAxis,
+  getRelativeCoordinate,
+  usePlotArea,
+} from 'recharts';
 
 import {
   ChartContainer,
@@ -14,7 +23,8 @@ import {
 } from '@sentinez/ui/components/chart';
 import type { HistogramPoint } from '@sentinez/proto/sentinez/apps/analytic/v1/event';
 import type { HistogramResolution } from '@sentinez/proto/sentinez/types/v1/known';
-import { DATE_TIME_ZONE, tickFormatOf } from './time-range';
+import { SECOND_MILLIS } from '@/lib/api/analytic';
+import { DATE_TIME_ZONE, SECONDS_TICK, tickFormatOf } from './time-range';
 import type { SeriesDef } from './types';
 
 // Bucket the events of the bucket starting at time (millis), per series
@@ -48,20 +58,74 @@ interface Props {
   selected?: number;
   /** A click on a bar: the start of its bucket */
   onSelect: (time: number) => void;
-  /** A drag over bars: from the start of the first bucket to the end of the last */
+  /** A drag over bars: the range it went over, to the second */
   onSelectRange: (from: number, to: number) => void;
 }
 
-// Drag the buckets a drag went over, from the one it started on (millis)
-type Drag = { start: number; end: number };
+// Drag the pointer positions a drag went from and to (px from the chart
+// left), and the bucket it started on, the one a click selects
+type Drag = { startX: number; endX: number; bucket?: number };
+
+// The plot area of the chart (px)
+type Plot = { x: number; y: number; width: number; height: number };
+
+// A drag shorter than this (px) is a click
+const CLICK_PX = 4;
+
+// The x of a chart mouse event from the chart left (px)
+const xOf = (event: MouseEvent<SVGGraphicsElement>) => getRelativeCoordinate(event).relativeX;
+
+/**
+ * The layer of a drag in the chart: reports its plot area to plotRef, and
+ * shades the dragged span, left to right (px), labeled with its times.
+ */
+function DragLayer({
+  plotRef,
+  span,
+  label,
+}: {
+  plotRef: RefObject<Plot | null>;
+  span?: { left: number; right: number };
+  label: string;
+}) {
+  const plot = usePlotArea();
+  useEffect(() => {
+    plotRef.current = plot ?? null;
+  }, [plot, plotRef]);
+  if (!plot || !span) return null;
+  return (
+    <g className="pointer-events-none">
+      <rect
+        x={span.left}
+        y={plot.y}
+        width={span.right - span.left}
+        height={plot.height}
+        className="fill-primary/15 stroke-primary/40"
+      />
+      <foreignObject
+        x={(span.left + span.right) / 2 - 80}
+        y={plot.y}
+        width={160}
+        height={24}
+        className="overflow-visible"
+      >
+        <div className="flex justify-center">
+          <span className="bg-popover text-popover-foreground rounded border px-1.5 py-0.5 text-xs whitespace-nowrap tabular-nums shadow-sm">
+            {label}
+          </span>
+        </div>
+      </foreignObject>
+    </g>
+  );
+}
 
 // The state of a chart event, the bucket under the pointer
 type ChartState = { activeTooltipIndex?: number | string | null } | null | undefined;
 
 /**
  * Stacked bars of the events per bucket and series (Kibana Discover): a
- * click on a bar selects its bucket, a drag over bars zooms the time range
- * to them.
+ * click on a bar selects its bucket, a drag zooms the time range to the
+ * time it went over, to the second, however wide the buckets.
  */
 export function EventHistogram({
   data,
@@ -74,16 +138,39 @@ export function EventHistogram({
 }: Props) {
   const format = useFormatter();
   const [drag, setDrag] = useState<Drag | null>(null);
+  const plotRef = useRef<Plot | null>(null);
   const timeAt = (state: ChartState) => data[Number(state?.activeTooltipIndex)]?.time;
-  const dragged = drag && {
-    from: Math.min(drag.start, drag.end),
-    to: Math.max(drag.start, drag.end),
+  // An x within the plot area (px)
+  const clampX = (x: number) => {
+    const plot = plotRef.current;
+    return plot ? Math.min(Math.max(x, plot.x), plot.x + plot.width) : x;
   };
+  // The time at a plot area x, to the second: the buckets share the plot
+  // width evenly (a band axis), every one of them present (bucketsOf)
+  const timeAtX = (x: number) => {
+    const plot = plotRef.current;
+    const first = data[0]?.time;
+    if (!plot || first === undefined || plot.width <= 0) return undefined;
+    const time = first + ((x - plot.x) / plot.width) * data.length * bucketMillis;
+    return Math.round(time / SECOND_MILLIS) * SECOND_MILLIS;
+  };
+  const span = drag && {
+    left: clampX(Math.min(drag.startX, drag.endX)),
+    right: clampX(Math.max(drag.startX, drag.endX)),
+  };
+  // The span of a drag, none for a click
+  const dragged = span && span.right - span.left >= CLICK_PX ? span : undefined;
+  const times = dragged && { from: timeAtX(dragged.left), to: timeAtX(dragged.right) };
   const endDrag = () => {
     setDrag(null);
-    if (!dragged) return;
-    if (dragged.from === dragged.to) onSelect(dragged.from);
-    else onSelectRange(dragged.from, dragged.to + bucketMillis);
+    if (!drag) return;
+    if (!times) {
+      if (drag.bucket !== undefined) onSelect(drag.bucket);
+      return;
+    }
+    const { from, to } = times;
+    if (from === undefined || to === undefined) return;
+    onSelectRange(from, Math.max(to, from + SECOND_MILLIS));
   };
   const config = useMemo(
     () =>
@@ -92,31 +179,21 @@ export function EventHistogram({
       ) satisfies ChartConfig,
     [series],
   );
-  const tickFormat = tickFormatOf(bucketMillis, resolution);
-  const tickOf = (time: number) => format.dateTime(new Date(time), tickFormat);
-  const labelOf = (_: unknown, payload: readonly { payload?: Bucket }[]) => {
-    const time = payload?.[0]?.payload?.time;
-    return time ? format.dateTime(new Date(time), DATE_TIME_ZONE) : '';
-  };
-  // Only the series with events get bars, so the legend stays short
-  const shown = series.filter((s) => data.some((d) => (d[s.id] ?? 0) > 0));
+  const secondOf = (time?: number) =>
+    time === undefined ? '' : format.dateTime(new Date(time), SECONDS_TICK);
 
-  return (
-    <ChartContainer config={config} className="h-56 w-full select-none">
-      <BarChart
-        data={data}
-        margin={{ top: 8, bottom: 0, left: 0, right: 8 }}
-        onMouseDown={(state) => {
-          const time = timeAt(state);
-          if (time !== undefined) setDrag({ start: time, end: time });
-        }}
-        onMouseMove={(state) => {
-          const time = timeAt(state);
-          if (drag && time !== undefined && time !== drag.end) setDrag({ ...drag, end: time });
-        }}
-        onMouseUp={endDrag}
-        onMouseLeave={() => setDrag(null)}
-      >
+  // The bars, axes and legend: kept while a drag re-renders the chart
+  const content = useMemo(() => {
+    const tickFormat = tickFormatOf(bucketMillis, resolution);
+    const tickOf = (time: number) => format.dateTime(new Date(time), tickFormat);
+    const labelOf = (_: unknown, payload: readonly { payload?: Bucket }[]) => {
+      const time = payload?.[0]?.payload?.time;
+      return time ? format.dateTime(new Date(time), DATE_TIME_ZONE) : '';
+    };
+    // Only the series with events get bars, so the legend stays short
+    const shown = series.filter((s) => data.some((d) => (d[s.id] ?? 0) > 0));
+    return (
+      <>
         <CartesianGrid vertical={false} />
         <XAxis
           dataKey="time"
@@ -132,17 +209,6 @@ export function EventHistogram({
           content={<ChartTooltipContent labelFormatter={labelOf} />}
         />
         {shown.length > 1 && <ChartLegend content={<ChartLegendContent />} />}
-        {dragged && dragged.from !== dragged.to && (
-          <ReferenceArea
-            x1={dragged.from}
-            x2={dragged.to}
-            fill="var(--primary)"
-            fillOpacity={0.15}
-            stroke="var(--primary)"
-            strokeOpacity={0.4}
-            ifOverflow="visible"
-          />
-        )}
         {shown.map((s, i) => (
           <Bar
             key={s.id}
@@ -161,6 +227,31 @@ export function EventHistogram({
             ))}
           </Bar>
         ))}
+      </>
+    );
+  }, [data, series, selected, bucketMillis, resolution, format]);
+
+  return (
+    <ChartContainer config={config} className="h-56 w-full select-none">
+      <BarChart
+        data={data}
+        margin={{ top: 8, bottom: 0, left: 0, right: 8 }}
+        onMouseDown={(state, event) =>
+          setDrag({ startX: xOf(event), endX: xOf(event), bucket: timeAt(state) })
+        }
+        onMouseMove={(_, event) => {
+          const x = xOf(event);
+          if (drag && x !== drag.endX) setDrag({ ...drag, endX: x });
+        }}
+        onMouseUp={endDrag}
+        onMouseLeave={() => setDrag(null)}
+      >
+        {content}
+        <DragLayer
+          plotRef={plotRef}
+          span={dragged}
+          label={times ? `${secondOf(times.from)} – ${secondOf(times.to)}` : ''}
+        />
       </BarChart>
     </ChartContainer>
   );
