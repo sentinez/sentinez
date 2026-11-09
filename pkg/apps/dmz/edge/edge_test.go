@@ -107,7 +107,6 @@ func newTestChain(tb testing.TB) *chains.Chain {
 
 	env := envplugin.NewEnv(nil,
 		option.WithLevel(szlog.LevelError),
-		option.WithHostname("is.s6z.io.vn"),
 	)
 	chain, err := chains.Build(env, handlers.Stage,
 		&trace.Tracer{},

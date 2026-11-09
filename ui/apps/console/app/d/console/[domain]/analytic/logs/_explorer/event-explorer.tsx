@@ -16,7 +16,7 @@ import { useApi } from '@/hooks/use-api';
 import { useResourceId } from '@/hooks/use-resource-id';
 import {
   RESOLUTION_BUCKETS,
-  getEventHistogram,
+  getEventHistogramPages,
   getEventTopValues,
   type ApiOptions,
 } from '@/lib/api/analytic';
@@ -31,10 +31,11 @@ import { RemovableBadge } from './removable-badge';
 import { AT_PARAM, REQUEST_PARAM } from './request-link';
 import {
   DATE_TIME_ZONE,
-  isClipped,
+  clippedOf,
   resolutionOf,
   timeZoneOf,
   windowOf,
+  zoomOf,
   type TimeRange,
 } from './time-range';
 import { TimeRangePicker } from './time-range-picker';
@@ -54,7 +55,7 @@ const keyed =
   (k: Keyed<R>, options?: ApiOptions) =>
     fn(k.req, options);
 
-const fetchHistogram = keyed(getEventHistogram);
+const fetchHistogram = keyed(getEventHistogramPages);
 const fetchTopValues = keyed(getEventTopValues);
 // The fetch of a config without byId, never called
 const noFetch = async () => null;
@@ -107,12 +108,24 @@ export function EventExplorer<T>({ config }: { config: EventConfig<T> }) {
   const resolution = resolutionOf(range, now);
   const bucketMillis = RESOLUTION_BUCKETS[resolution].millis;
   const bounds = useMemo(() => windowOf(range, now), [range, now]);
-  // An absolute range ends its buckets with it: the API ends them before to
+  // The request ids of the filter are asked to the API, the other terms
+  // filter the page; the histogram counts those of the API filters
+  const requestIds = useMemo(() => requestIdsOf(query), [query]);
+  // An absolute range ends its buckets with it: the API ends them before
+  // to, in pages back to its start
   const histogram = useApi(
     fetchHistogram,
     resourceId
       ? {
-          req: { kind, resolution, resourceIds: [resourceId], to: dateOf(bounds.to) },
+          req: {
+            kind,
+            resolution,
+            resourceIds: [resourceId],
+            to: dateOf(bounds.to),
+            from: dateOf(bounds.from),
+            requestIds,
+            filters: filterParams,
+          },
           key: reloadKey,
         }
       : null,
@@ -120,7 +133,7 @@ export function EventExplorer<T>({ config }: { config: EventConfig<T> }) {
   // The API returns a fixed number of buckets: keep those within the range
   const buckets = useMemo(
     () =>
-      bucketsOf(histogram.data?.points ?? [], seriesOf).filter(
+      bucketsOf(histogram.data ?? [], seriesOf).filter(
         (b) => b.time + bucketMillis > bounds.from && b.time < (bounds.to ?? Infinity),
       ),
     [histogram.data, seriesOf, bucketMillis, bounds],
@@ -156,9 +169,6 @@ export function EventExplorer<T>({ config }: { config: EventConfig<T> }) {
       : null,
   );
 
-  // The request ids of the filter are asked to the API, the other terms
-  // filter the page
-  const requestIds = useMemo(() => requestIdsOf(query), [query]);
   const fetchList = useMemo(() => keyed(list), [list]);
   const page = useApi(
     fetchList,
@@ -240,6 +250,7 @@ export function EventExplorer<T>({ config }: { config: EventConfig<T> }) {
     setFilters((fs) => fs.filter((_, i) => i !== index));
     firstPage();
   };
+  const clipped = clippedOf(range, now);
   const bucketLabel = (time: number) =>
     format.dateTimeRange(new Date(time), new Date(time + bucketMillis), DATE_TIME_ZONE);
 
@@ -275,8 +286,13 @@ export function EventExplorer<T>({ config }: { config: EventConfig<T> }) {
               <span className="hidden md:inline">{t('histogramHint')} · </span>
               {t('timeZone', { zone: timeZoneOf(locale) })}
             </span>
-            {isClipped(range, now) && (
-              <p className="w-full text-xs text-muted-foreground">{t('histogramClipped')}</p>
+            {clipped !== undefined && (
+              <p className="w-full text-xs text-muted-foreground">
+                {t('histogramClipped', {
+                  count: clipped,
+                  unit: RESOLUTION_BUCKETS[resolution].unit,
+                })}
+              </p>
             )}
           </CardHeader>
           <CardContent className="px-2 sm:px-4">
@@ -292,7 +308,7 @@ export function EventExplorer<T>({ config }: { config: EventConfig<T> }) {
                   bucketMillis={bucketMillis}
                   selected={bucket}
                   onSelect={pickBucket}
-                  onSelectRange={(from, to) => pickRange({ from, to })}
+                  onSelectRange={(from, to) => pickRange(zoomOf(resolution, from, to))}
                 />
               </div>
             )}

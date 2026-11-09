@@ -7,18 +7,13 @@ import {
   CardHeader,
   CardTitle,
 } from '@sentinez/ui/components/card';
-import { Badge } from '@sentinez/ui/components/badge';
 import { Separator } from '@sentinez/ui/components/separator';
-import { Skeleton } from '@sentinez/ui/components/skeleton';
 import { getResourceByDomain } from '@/lib/api/tenant';
-import { Status, statusToJSON } from '@sentinez/proto/sentinez/types/v1/known';
+import { statusToJSON } from '@sentinez/proto/sentinez/types/v1/known';
 import { useApi } from '@/hooks/use-api';
-import { ResourceSetting } from '@sentinez/proto/sentinez/apps/tenant/v1/model';
-import { Loader2 } from 'lucide-react';
 import IsLoading from '@sentinez/ui/components/common/loading';
-import { Button } from '@sentinez/ui/components/button';
+import { ResourceUnavailable } from './resource-unavailable';
 import { ResourceVisitors } from './resource-visitors';
-import { useState } from 'react';
 import { useFormatter, useTranslations } from 'next-intl';
 import BadgeStatus from '@/components/badge-status';
 import { statusLabel } from '@/lib/type/security';
@@ -30,10 +25,8 @@ type Props = {
 export function ResourceView({ domain }: Props) {
   const { data, isLoading, error } = useApi(getResourceByDomain, { resourceDomain: domain });
   const resource = data?.resource;
-  const [showJson, setShowJson] = useState(false);
   const t = useTranslations('Resource');
   const tc = useTranslations('Common');
-  const ts = useTranslations('Enum.status');
   const format = useFormatter();
   // Rendered after the client-side fetch, so the browser's time zone is safe to use
   const formatDate = (date?: Date) =>
@@ -50,26 +43,16 @@ export function ResourceView({ domain }: Props) {
   }
 
   if (error || !resource) {
-    return (
-      <div className="p-8 flex flex-col items-center justify-center text-center space-y-4">
-        <div className="text-muted-foreground">{error?.message || t('unavailable')}</div>
-        <p className="text-sm text-muted-foreground max-w-xs">
-          {t.rich('unavailableHint', {
-            domain,
-            strong: (chunks) => <strong>{chunks}</strong>,
-          })}
-        </p>
-      </div>
-    );
+    return <ResourceUnavailable domain={domain} error={error} />;
   }
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-6xl p-4 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">{resource.resourceName}</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{resource.server?.name}</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            {resource.resourceDomain} &mdash; {resource.id}
+            {resource.server?.resourceDomain} &mdash; {resource.id}
           </p>
         </div>
         <BadgeStatus status={statusLabel(resource.status)} value={statusLabel(resource.status)} />
@@ -77,83 +60,39 @@ export function ResourceView({ domain }: Props) {
 
       <Separator />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('overview')}</CardTitle>
-            <CardDescription>{t('overviewDescription')}</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-3 items-center gap-4">
-              <span className="font-semibold text-sm">{t('id')}</span>
-              <span className="col-span-2 text-sm break-all">{resource.id}</span>
-            </div>
-            <div className="grid grid-cols-3 items-center gap-4">
-              <span className="font-semibold text-sm">{t('name')}</span>
-              <span className="col-span-2 text-sm">{resource.resourceName}</span>
-            </div>
-            <div className="grid grid-cols-3 items-center gap-4">
-              <span className="font-semibold text-sm">{t('domain')}</span>
-              <span className="col-span-2 text-sm">{resource.resourceDomain}</span>
-            </div>
-            <div className="grid grid-cols-3 items-center gap-4">
-              <span className="font-semibold text-sm">{t('status')}</span>
-              <span className="col-span-2 text-sm">{statusToJSON(resource.status)}</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('metadata')}</CardTitle>
-            <CardDescription>{t('metadataDescription')}</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-3 gap-4">
-              <span className="font-semibold text-sm">{t('createdAt')}</span>
-              <span className="col-span-2 text-sm">{formatDate(resource.metadata?.createdAt)}</span>
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              <span className="font-semibold text-sm">{t('updatedAt')}</span>
-              <span className="col-span-2 text-sm">{formatDate(resource.metadata?.updatedAt)}</span>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <ResourceVisitors resourceId={resource.id} />
-
       <Card>
-        <CardHeader className="flex flex-row items-start justify-between gap-4">
-          <div className="grid gap-1.5">
-            <CardTitle>{t('settings')}</CardTitle>
-            <CardDescription>{t('settingsDescription')}</CardDescription>
-          </div>
-          {resource.resourceSetting && (
-            <Button
-              variant="outline"
-              size="sm"
-              aria-expanded={showJson}
-              onClick={() => setShowJson((v) => !v)}
-            >
-              {showJson ? t('hideJson') : t('showJson')}
-            </Button>
-          )}
+        <CardHeader>
+          <CardTitle>{t('overview')}</CardTitle>
+          <CardDescription>{t('overviewDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
-          {!resource.resourceSetting ? (
-            <div className="text-sm text-muted-foreground p-4 border rounded-md">
-              {t('noSettings')}
-            </div>
-          ) : showJson ? (
-            <pre className="bg-muted text-foreground p-4 rounded-md overflow-x-auto text-xs min-h-[300px]">
-              {JSON.stringify(ResourceSetting.toJSON(resource.resourceSetting), null, 2)}
-            </pre>
-          ) : (
-            <div className="text-sm text-muted-foreground">{t('hiddenJson')}</div>
-          )}
+          <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+            <Field label={t('id')}>{resource.id}</Field>
+            <Field label={t('tenantId')}>{resource.tenantId}</Field>
+            <Field label={t('name')}>{resource.server?.name}</Field>
+            <Field label={t('domain')}>{resource.server?.resourceDomain}</Field>
+            <Field label={t('status')}>{statusToJSON(resource.status)}</Field>
+            {/* The id the edge stamps its events with, when not the resource's */}
+            {resource.server?.resourceId && resource.server.resourceId !== resource.id && (
+              <Field label={t('eventsResourceId')}>{resource.server.resourceId}</Field>
+            )}
+            <Field label={t('createdAt')}>{formatDate(resource.metadata?.createdAt)}</Field>
+            <Field label={t('updatedAt')}>{formatDate(resource.metadata?.updatedAt)}</Field>
+          </dl>
         </CardContent>
       </Card>
+
+      <ResourceVisitors resourceId={resource.id} />
+    </div>
+  );
+}
+
+// A label and its value of the overview
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="grid grid-cols-3 items-center gap-4">
+      <dt className="font-semibold text-sm">{label}</dt>
+      <dd className="col-span-2 text-sm break-all">{children}</dd>
     </div>
   );
 }

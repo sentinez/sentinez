@@ -48,7 +48,7 @@ type Reader struct {
 // the names are empty).
 func Open(ctx context.Context, conf *settingpb.Config, table sztable.Table,
 	cols eventfilter.Columns) (*Reader, error) {
-	db, err := postgres.Open[Row](ctx, conf, table, noSync)
+	db, err := postgres.Open[Row](ctx, conf, table, postgres.NoSync)
 	if err != nil {
 		return nil, err
 	}
@@ -80,9 +80,4 @@ func (r *Reader) TopValues(ctx context.Context, filter *eventfilter.Filter,
 	}
 
 	return group(rows, fields), nil
-}
-
-// noSync the postgres.SyncFn of a table synced already.
-func noSync(context.Context, postgres.Client, string) error {
-	return nil
 }

@@ -262,18 +262,25 @@ given the email as user handle, so their authenticators only work with
 
 ## 7.4 Tenant
 
-Protos: [apps/tenant/v1](../api/proto/sentinez/apps/tenant/v1/). Table
-`tenant.resources` (`id, resource_setting BYTEA, resource_name,
-resource_domain, plan, status`). `resource_setting` is an `edgepb.Setting`
-stored as binary protobuf — i.e. the tenant's edge configuration.
+Protos: [apps/tenant/v1](../api/proto/sentinez/apps/tenant/v1/). A
+`Resource` is `id, tenant_id, server, status`: `server` is the
+`edgepb.Server` of the resource, the only place its name
+(`server.name`) and domain (`server.resource_domain`) live, and
+`server.resource_id` is always the resource `id`. Table
+`tenant.resources` (`id, tenant_id, server BYTEA, server_name,
+server_resource_domain, status`): `server` is stored as binary protobuf,
+`server_name`/`server_resource_domain` are derived from it on every write
+(`schema.ResourceServerName`/`ResourceServerDomain`) to filter by. The
+service lower-cases the domain as the edge matches it, and refuses a
+server without one.
 
 | RPC | REST | Notes |
 |---|---|---|
-| `ListResource` | `GET /tenant/resources` | Filters `status`, `plan`, `resource_name`, `resource_domain` |
-| `CreateResource` | `POST /tenant/resource` | Empty `resource_setting` → default `Setting{}` |
-| `UpdateResource` | `PUT /tenant/resource` | Updates domain/name/status/plan (not the setting) |
+| `ListResource` | `GET /tenant/resources` | Filters `status`, `resource_name` (`server.name`), `resource_domain` (`server.resource_domain`), `tenant_ids` |
+| `CreateResource` | `POST /tenant/resource` | `server` with `resource_domain` required |
+| `UpdateResource` | `PUT /tenant/resource` | Sets `status`; a `server` replaces the stored one |
 | `DeleteResource` | `DELETE /tenant/resource` | |
-| `GetResource` | `GET /tenant/resource` | `default=true` → replaces the setting with the default |
+| `GetResource` | `GET /tenant/resource` | `default=true` → the server without its locations |
 | `GetResourceByDomain` | `GET /tenant/resource/{resource_domain}` | Returns the first record matching the domain |
 | `Status` | `GET /tenant/status` | |
 
@@ -382,8 +389,9 @@ Repositories ([apps/collector/v1/repos](../staging/src/github.com/sentinez/contr
 
 - `Create(ctx, events...)` inserts the events, which must have ids, in one
   statement; `Get`, `Delete`, `WithTX`.
-- `Histogram(ctx, *histogram.Filter)`: the counts per time bucket, see
-  [Histograms](#histograms).
+- `Histogram(ctx, *histogram.Filter, *eventfilter.Filter)`: the counts per
+  time bucket, see [Histograms](#histograms); the second filter only
+  narrows them to some requests and fields, and may be nil.
 - `List(ctx, *eventfilter.Filter)`: filters on `ResourceIds` and on
   `matched_time` (`From` inclusive, `To` exclusive; `timestamp` for the
   ingress events), pages with `Page`, and orders by `matched_time DESC`.
@@ -420,6 +428,16 @@ to 15 minutes (`_secondSpan`) whose `From` is still within the 7 days of
 the second view, else `Minute`. `From` is inclusive, `To` exclusive, on the
 bucket start.
 
+The views cannot be narrowed to a request or a field, so
+`Histogram.PointsWhere(ctx, *Filter, Where)` counts the rows of the source
+table instead (`SELECT (time / bucket) * bucket, resource_id, key,
+count(*) ... GROUP BY`), `Where` adding the conditions. The window, the
+resolution and the empty buckets are those of `Points`, but the source time
+column must hold unix milliseconds. `eventfilter.Points` picks between the
+two: the views without an `eventfilter.Filter`, else `PointsWhere` with the
+`RequestIds` and `Matches` of the filter, on the columns of the table, as
+the lists apply them. The raw scan is slower than the views on a long range.
+
 ### Analytic: event reads
 
 The analytic reads the collector tables through
@@ -442,7 +460,12 @@ events. Building it syncs the tables and views, as the collector does.
 - `GetEventHistogram` takes `kind` (`EventKind`), `resolution`
   (`HistogramResolution`, `UNSPECIFIED` picks it by the range, see
   [Histograms](#histograms)), `resource_ids`, `from` and `to`, and returns
-  `HistogramPoint{time, resource_id, key, total}`, oldest first.
+  `HistogramPoint{time, resource_id, key, total}`, oldest first. It
+  returns the buckets ending with the one of `to` (60 seconds, 60 minutes
+  or 24 hours), so a longer range is asked in pages, each ending where the
+  next starts. With `request_ids` or `filters` (each `field:value`, as the
+  lists and the top values take them) it counts the matching events from
+  the table, not the views; an unknown field is an invalid argument.
 - Every RPC requires a token (`headers.Allow`, `ignore: true`). The reads
   are not scoped by tenant: with no `resource_ids` they return the events
   of every tenant.

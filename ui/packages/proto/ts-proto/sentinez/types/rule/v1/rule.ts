@@ -320,6 +320,11 @@ export enum RuleBehavior {
   RULE_BEHAVIOR_UNSPECIFIED = 0,
   RULE_BEHAVIOR_DENY = 1,
   RULE_BEHAVIOR_ALLOW = 2,
+  /**
+   * RULE_BEHAVIOR_LOG - Would have been denied, but the engine only detects
+   * (ENGINE_MODE_DETECTION_ONLY).
+   */
+  RULE_BEHAVIOR_LOG = 3,
   UNRECOGNIZED = -1,
 }
 
@@ -334,6 +339,9 @@ export function ruleBehaviorFromJSON(object: any): RuleBehavior {
     case 2:
     case "RULE_BEHAVIOR_ALLOW":
       return RuleBehavior.RULE_BEHAVIOR_ALLOW;
+    case 3:
+    case "RULE_BEHAVIOR_LOG":
+      return RuleBehavior.RULE_BEHAVIOR_LOG;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -349,6 +357,8 @@ export function ruleBehaviorToJSON(object: RuleBehavior): string {
       return "RULE_BEHAVIOR_DENY";
     case RuleBehavior.RULE_BEHAVIOR_ALLOW:
       return "RULE_BEHAVIOR_ALLOW";
+    case RuleBehavior.RULE_BEHAVIOR_LOG:
+      return "RULE_BEHAVIOR_LOG";
     case RuleBehavior.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";

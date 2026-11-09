@@ -33,6 +33,7 @@ import {
   UpdateTenantRequest,
   UpdateTenantResponse,
 } from '@sentinez/proto/sentinez/apps/tenant/v1/tenant';
+import { Server } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 import axios, { AxiosError, AxiosHeaders } from 'axios';
 
@@ -59,76 +60,79 @@ export const SAMPLE_RESOURCES: Resource[] = [
     metadata: { createdAt: '2026-09-01T08:00:00Z', updatedAt: '2026-10-05T10:30:00Z' },
     id: 'rsrc_0199a6f0-4c1e-7a2b-9d3e-000000000001',
     tenantId: SAMPLE_TENANT_ID,
-    resourceDomain: 'badcheese.s6z.io.vn',
-    resourceName: 'badcheese',
     status: 'STATUS_ACTIVE',
-    resourceSetting: {
-      server: {
-        name: 'badcheese',
-        locations: [
-          {
-            location: '/',
-            proxyRewrite: '/',
-            proxyPass: [upstream('10.0.1.10'), upstream('10.0.1.11')],
-            balanceStrategy: 'BALANCE_STRATEGY_ROUND_ROBIN',
-            proxySetHeaders: { 'X-Forwarded-Proto': 'https' },
-          },
-          {
-            location: '/api',
-            proxyRewrite: '/',
-            proxyPass: [upstream('api.badcheese.internal', 'PROXY_PROTOCOL_HTTP')],
-            balanceStrategy: 'BALANCE_STRATEGY_ROUND_ROBIN',
-            proxySetHeaders: {},
-          },
-        ],
-      },
+    server: {
+      name: 'badcheese',
+      resourceId: 'rsrc_0199a6f0-4c1e-7a2b-9d3e-000000000001',
+      resourceDomain: 'badcheese.s6z.io.vn',
+      locations: [
+        {
+          location: '/',
+          proxyRewrite: '/',
+          proxyPass: [upstream('10.0.1.10'), upstream('10.0.1.11')],
+          balanceStrategy: 'BALANCE_STRATEGY_ROUND_ROBIN',
+          proxySetHeaders: { 'X-Forwarded-Proto': 'https' },
+        },
+        {
+          location: '/api',
+          proxyRewrite: '/',
+          proxyPass: [upstream('api.badcheese.internal', 'PROXY_PROTOCOL_HTTP')],
+          balanceStrategy: 'BALANCE_STRATEGY_ROUND_ROBIN',
+          proxySetHeaders: {},
+        },
+      ],
     },
   },
   {
     metadata: { createdAt: '2026-09-12T02:15:00Z', updatedAt: '2026-09-28T14:00:00Z' },
     id: 'rsrc_0199a6f0-4c1e-7a2b-9d3e-000000000002',
     tenantId: SAMPLE_TENANT_ID,
-    resourceDomain: 'shop.example.com',
-    resourceName: 'shop',
     status: 'STATUS_ACTIVE',
-    resourceSetting: {
-      server: {
-        name: 'shop',
-        locations: [
-          {
-            location: '/',
-            proxyRewrite: '/',
-            proxyPass: [upstream('203.0.113.20')],
-            balanceStrategy: 'BALANCE_STRATEGY_ROUND_ROBIN',
-            proxySetHeaders: {},
-          },
-        ],
-      },
+    server: {
+      name: 'shop',
+      resourceId: 'rsrc_0199a6f0-4c1e-7a2b-9d3e-000000000002',
+      resourceDomain: 'shop.example.com',
+      locations: [
+        {
+          location: '/',
+          proxyRewrite: '/',
+          proxyPass: [upstream('203.0.113.20')],
+          balanceStrategy: 'BALANCE_STRATEGY_ROUND_ROBIN',
+          proxySetHeaders: {},
+        },
+      ],
     },
   },
   {
     metadata: { createdAt: '2026-10-01T09:45:00Z', updatedAt: '2026-10-01T09:45:00Z' },
     id: 'rsrc_0199a6f0-4c1e-7a2b-9d3e-000000000003',
     tenantId: SAMPLE_TENANT_ID,
-    resourceDomain: 'staging.example.com',
-    resourceName: 'staging',
     status: 'STATUS_DISABLE',
+    server: {
+      name: 'staging',
+      resourceId: 'rsrc_0199a6f0-4c1e-7a2b-9d3e-000000000003',
+      resourceDomain: 'staging.example.com',
+    },
   },
 ].map((r) => Resource.fromJSON(r));
 
 // Extra generated resources so the list has several pages to page through
-const generatedResources: Resource[] = Array.from({ length: 20 }, (_, i) => {
+const generatedResources: Resource[] = Array.from({ length: 20 }, (_, i): Resource => {
   const n = i + 1;
+  const id = `rsrc_0199a6f0-4c1e-7a2b-9d3e-1000000000${String(n).padStart(2, '0')}`;
   const day = String(1 + (n % 28)).padStart(2, '0');
   return {
     metadata: {
       createdAt: new Date(`2026-08-${day}T00:00:00Z`),
       updatedAt: new Date(`2026-09-${day}T00:00:00Z`),
     },
-    id: `rsrc_0199a6f0-4c1e-7a2b-9d3e-1000000000${String(n).padStart(2, '0')}`,
+    id,
     tenantId: SAMPLE_TENANT_ID,
-    resourceDomain: `site${n}.example.com`,
-    resourceName: `site${n}`,
+    server: Server.fromPartial({
+      name: `site${n}`,
+      resourceId: id,
+      resourceDomain: `site${n}.example.com`,
+    }),
     status: n % 4 === 0 ? Status.STATUS_DISABLE : Status.STATUS_ACTIVE,
   };
 });
@@ -238,8 +242,8 @@ async function orNull<T>(label: string, run: () => Promise<T>): Promise<T | null
 function filterSample(req: Partial<ListResourceRequest>): Resource[] {
   return sampleStore.filter(
     (r) =>
-      (!req.resourceDomain || r.resourceDomain === req.resourceDomain) &&
-      (!req.resourceName || r.resourceName === req.resourceName) &&
+      (!req.resourceDomain || r.server?.resourceDomain === req.resourceDomain) &&
+      (!req.resourceName || r.server?.name === req.resourceName) &&
       (!req.status || r.status === req.status),
   );
 }
@@ -263,7 +267,7 @@ export async function getResource(req: Partial<GetResourceRequest>, options?: Ap
 export async function getResourceByDomain(req: GetResourceByDomainRequest, options?: ApiOptions) {
   return orNull('fetching resource by domain', () =>
     withFallback<GetResourceByDomainResponse>('getResourceByDomain', () => ({
-      resource: sampleStore.find((r) => r.resourceDomain === req.resourceDomain),
+      resource: sampleStore.find((r) => r.server?.resourceDomain === req.resourceDomain),
     }))(async () => {
       const domain = encodeURIComponent(req.resourceDomain);
       const resp = await axios.get(`${API_BASE_PATH}/tenant/resource/${domain}`, {
@@ -299,10 +303,13 @@ export async function createResource(
 ): Promise<CreateResourceResponse> {
   return withFallback<CreateResourceResponse>('createResource', () => {
     const now = new Date();
+    const id = `rsrc_${crypto.randomUUID()}`;
     const created: Resource = {
       ...req,
-      id: `rsrc_${crypto.randomUUID()}`,
+      id,
       tenantId: SAMPLE_TENANT_ID,
+      // the API stores the server under the resource id
+      server: req.server && { ...req.server, resourceId: id },
       metadata: { createdAt: now, updatedAt: now },
     };
     sampleStore = [...sampleStore, created];
@@ -328,8 +335,8 @@ export async function updateResource(
         ? {
             ...r,
             ...req,
-            // An update without a setting keeps the stored one
-            resourceSetting: req.resourceSetting ?? r.resourceSetting,
+            // An update without a server keeps the stored one
+            server: req.server ?? r.server,
             metadata: { ...r.metadata, updatedAt: new Date() },
           }
         : r,

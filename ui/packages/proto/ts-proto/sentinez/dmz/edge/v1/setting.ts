@@ -125,11 +125,6 @@ export interface Metadata {
   tenantName: string;
   /** Plan of the tenant the apiserver imports this setting under. */
   plan: Plan;
-  /**
-   * Domain the servers of this setting are served under: the apiserver
-   * stores the resource of server.name as <server.name>.<hostname>.
-   */
-  hostname: string;
 }
 
 /** Server defines where the request goes and how the edge processes it: */
@@ -143,6 +138,12 @@ export interface Server {
    * of the requests; "rsrc_default" when empty.
    */
   resourceId: string;
+  /**
+   * Domain the server is served at, the namespace of the setting: the
+   * edge keys its stores by it and matches the request host against it,
+   * the apiserver stores it as the domain of the resource. Required.
+   */
+  resourceDomain: string;
 }
 
 export interface Location {
@@ -394,7 +395,7 @@ export const Setting: MessageFns<Setting> = {
 };
 
 function createBaseMetadata(): Metadata {
-  return { tenantId: "", tenantName: "", plan: 0, hostname: "" };
+  return { tenantId: "", tenantName: "", plan: 0 };
 }
 
 export const Metadata: MessageFns<Metadata> = {
@@ -407,9 +408,6 @@ export const Metadata: MessageFns<Metadata> = {
     }
     if (message.plan !== 0) {
       writer.uint32(32).int32(message.plan);
-    }
-    if (message.hostname !== "") {
-      writer.uint32(42).string(message.hostname);
     }
     return writer;
   },
@@ -451,14 +449,6 @@ export const Metadata: MessageFns<Metadata> = {
             message.plan = reader.int32() as any;
             continue;
           }
-          case 5: {
-            if (tag !== 42) {
-              break;
-            }
-
-            message.hostname = reader.string();
-            continue;
-          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -484,7 +474,6 @@ export const Metadata: MessageFns<Metadata> = {
         ? globalThis.String(object.tenant_name)
         : "",
       plan: isSet(object.plan) ? planFromJSON(object.plan) : 0,
-      hostname: isSet(object.hostname) ? globalThis.String(object.hostname) : "",
     };
   },
 
@@ -499,9 +488,6 @@ export const Metadata: MessageFns<Metadata> = {
     if (message.plan !== 0) {
       obj.plan = planToJSON(message.plan);
     }
-    if (message.hostname !== "") {
-      obj.hostname = message.hostname;
-    }
     return obj;
   },
 
@@ -513,13 +499,12 @@ export const Metadata: MessageFns<Metadata> = {
     message.tenantId = object.tenantId ?? "";
     message.tenantName = object.tenantName ?? "";
     message.plan = object.plan ?? 0;
-    message.hostname = object.hostname ?? "";
     return message;
   },
 };
 
 function createBaseServer(): Server {
-  return { name: "", locations: [], resourceId: "" };
+  return { name: "", locations: [], resourceId: "", resourceDomain: "" };
 }
 
 export const Server: MessageFns<Server> = {
@@ -532,6 +517,9 @@ export const Server: MessageFns<Server> = {
     }
     if (message.resourceId !== "") {
       writer.uint32(26).string(message.resourceId);
+    }
+    if (message.resourceDomain !== "") {
+      writer.uint32(34).string(message.resourceDomain);
     }
     return writer;
   },
@@ -573,6 +561,14 @@ export const Server: MessageFns<Server> = {
             message.resourceId = reader.string();
             continue;
           }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.resourceDomain = reader.string();
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -596,6 +592,11 @@ export const Server: MessageFns<Server> = {
         : isSet(object.resource_id)
         ? globalThis.String(object.resource_id)
         : "",
+      resourceDomain: isSet(object.resourceDomain)
+        ? globalThis.String(object.resourceDomain)
+        : isSet(object.resource_domain)
+        ? globalThis.String(object.resource_domain)
+        : "",
     };
   },
 
@@ -610,6 +611,9 @@ export const Server: MessageFns<Server> = {
     if (message.resourceId !== "") {
       obj.resourceId = message.resourceId;
     }
+    if (message.resourceDomain !== "") {
+      obj.resourceDomain = message.resourceDomain;
+    }
     return obj;
   },
 
@@ -621,6 +625,7 @@ export const Server: MessageFns<Server> = {
     message.name = object.name ?? "";
     message.locations = object.locations?.map((e) => Location.fromPartial(e)) || [];
     message.resourceId = object.resourceId ?? "";
+    message.resourceDomain = object.resourceDomain ?? "";
     return message;
   },
 };

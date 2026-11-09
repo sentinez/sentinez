@@ -258,18 +258,24 @@ authenticator của chúng chỉ hoạt động khi `provider_user_id` = email.
 
 ## 7.4 Tenant
 
-Proto: [apps/tenant/v1](../../api/proto/sentinez/apps/tenant/v1/). Bảng
-`tenant.resources` (`id, resource_setting BYTEA, resource_name,
-resource_domain, plan, status`). `resource_setting` là `edgepb.Setting` lưu
-dạng protobuf nhị phân — tức chính cấu hình edge của tenant.
+Proto: [apps/tenant/v1](../../api/proto/sentinez/apps/tenant/v1/). Một
+`Resource` gồm `id, tenant_id, server, status`: `server` là
+`edgepb.Server` của resource, nơi duy nhất giữ tên (`server.name`) và
+domain (`server.resource_domain`), và `server.resource_id` luôn là `id`
+của resource. Bảng `tenant.resources` (`id, tenant_id, server BYTEA,
+server_name, server_resource_domain, status`): `server` lưu dạng protobuf
+nhị phân, `server_name`/`server_resource_domain` được dẫn xuất từ nó ở mỗi
+lần ghi (`schema.ResourceServerName`/`ResourceServerDomain`) để lọc. Service
+đổi domain về chữ thường như edge so khớp, và từ chối server không có
+domain.
 
 | RPC | REST | Ghi chú |
 |---|---|---|
-| `ListResource` | `GET /tenant/resources` | Lọc `status`, `plan`, `resource_name`, `resource_domain` |
-| `CreateResource` | `POST /tenant/resource` | `resource_setting` rỗng → `Setting{}` mặc định |
-| `UpdateResource` | `PUT /tenant/resource` | Cập nhật domain/name/status/plan (không cập nhật setting) |
+| `ListResource` | `GET /tenant/resources` | Lọc `status`, `resource_name` (`server.name`), `resource_domain` (`server.resource_domain`), `tenant_ids` |
+| `CreateResource` | `POST /tenant/resource` | Bắt buộc `server` có `resource_domain` |
+| `UpdateResource` | `PUT /tenant/resource` | Đặt `status`; `server` (nếu có) thay server đang lưu |
 | `DeleteResource` | `DELETE /tenant/resource` | |
-| `GetResource` | `GET /tenant/resource` | `default=true` → thay setting bằng mặc định |
+| `GetResource` | `GET /tenant/resource` | `default=true` → server bỏ các location |
 | `GetResourceByDomain` | `GET /tenant/resource/{resource_domain}` | Lấy bản ghi đầu tiên khớp domain |
 | `Status` | `GET /tenant/status` | |
 
@@ -377,8 +383,9 @@ Repository ([apps/collector/v1/repos](../../staging/src/github.com/sentinez/cont
 
 - `Create(ctx, events...)` insert các event (bắt buộc đã có id) trong một
   câu lệnh; `Get`, `Delete`, `WithTX`.
-- `Histogram(ctx, *histogram.Filter)`: số lượng theo bucket thời gian, xem
-  [Histogram](#histogram).
+- `Histogram(ctx, *histogram.Filter, *eventfilter.Filter)`: số lượng theo
+  bucket thời gian, xem [Histogram](#histogram); filter thứ hai chỉ thu hẹp
+  theo request và field, có thể là nil.
 - `List(ctx, *eventfilter.Filter)`: lọc theo `ResourceIds` và theo
   `matched_time` (`From` tính cả mốc, `To` không tính; event ingress dùng
   `timestamp`), phân trang bằng `Page`, sắp theo `matched_time DESC`.
@@ -414,6 +421,16 @@ gian sẽ quyết định: `Second` nếu `From`..`To` (`To` mặc định là h
 không quá 15 phút (`_secondSpan`) và `From` còn trong 7 ngày của view giây,
 ngược lại là `Minute`. `From` tính cả mốc, `To` không tính, theo đầu bucket.
 
+Các view không thu hẹp được theo request hay field, nên
+`Histogram.PointsWhere(ctx, *Filter, Where)` đếm trực tiếp các dòng của bảng
+nguồn (`SELECT (time / bucket) * bucket, resource_id, key, count(*) ...
+GROUP BY`), `Where` thêm các điều kiện. Cửa sổ, độ phân giải và các bucket
+rỗng giống `Points`, nhưng cột thời gian của bảng nguồn phải là unix mili
+giây. `eventfilter.Points` chọn giữa hai cách: dùng view khi không có
+`eventfilter.Filter`, ngược lại là `PointsWhere` với `RequestIds` và
+`Matches` của filter, trên các cột của bảng, giống cách các list áp dụng.
+Quét bảng gốc chậm hơn view khi khoảng thời gian dài.
+
 ### Analytic: đọc event
 
 Analytic đọc các bảng của collector qua
@@ -436,7 +453,12 @@ event. Khi dựng, nó sync bảng và view như collector.
 - `GetEventHistogram` nhận `kind` (`EventKind`), `resolution`
   (`HistogramResolution`, `UNSPECIFIED` thì chọn theo khoảng thời gian, xem
   [Histogram](#histogram)), `resource_ids`, `from` và `to`, trả về
-  `HistogramPoint{time, resource_id, key, total}`, cũ nhất trước.
+  `HistogramPoint{time, resource_id, key, total}`, cũ nhất trước. Nó trả
+  các bucket kết thúc ở bucket của `to` (60 giây, 60 phút hoặc 24 giờ), nên
+  khoảng dài hơn phải hỏi theo trang, mỗi trang kết thúc nơi trang sau bắt
+  đầu. Với `request_ids` hoặc `filters` (mỗi cái là `field:value`, giống
+  list và top values) nó đếm các event khớp từ bảng, không từ view; field
+  không tồn tại là invalid argument.
 - Mọi RPC cần token (`headers.Allow`, `ignore: true`). Việc đọc chưa lọc
   theo tenant: không truyền `resource_ids` thì trả event của mọi tenant.
 

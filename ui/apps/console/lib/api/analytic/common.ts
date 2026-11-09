@@ -57,13 +57,47 @@ export const HOUR_MILLIS = 60 * MINUTE_MILLIS;
 
 // The width and number of the buckets of each resolution, as the API
 // returns them (unspecified: minutes)
-export const RESOLUTION_BUCKETS: Record<HistogramResolution, { millis: number; count: number }> = {
-  [HistogramResolution.HISTOGRAM_RESOLUTION_UNSPECIFIED]: { millis: MINUTE_MILLIS, count: 60 },
-  [HistogramResolution.HISTOGRAM_RESOLUTION_SECOND]: { millis: SECOND_MILLIS, count: 60 },
-  [HistogramResolution.HISTOGRAM_RESOLUTION_MINUTE]: { millis: MINUTE_MILLIS, count: 60 },
-  [HistogramResolution.HISTOGRAM_RESOLUTION_HOUR]: { millis: HOUR_MILLIS, count: 24 },
-  [HistogramResolution.UNRECOGNIZED]: { millis: MINUTE_MILLIS, count: 60 },
+export const RESOLUTION_BUCKETS: Record<
+  HistogramResolution,
+  { millis: number; count: number; unit: 'second' | 'minute' | 'hour' }
+> = {
+  [HistogramResolution.HISTOGRAM_RESOLUTION_UNSPECIFIED]: {
+    millis: MINUTE_MILLIS,
+    count: 60,
+    unit: 'minute',
+  },
+  [HistogramResolution.HISTOGRAM_RESOLUTION_SECOND]: {
+    millis: SECOND_MILLIS,
+    count: 60,
+    unit: 'second',
+  },
+  [HistogramResolution.HISTOGRAM_RESOLUTION_MINUTE]: {
+    millis: MINUTE_MILLIS,
+    count: 60,
+    unit: 'minute',
+  },
+  [HistogramResolution.HISTOGRAM_RESOLUTION_HOUR]: {
+    millis: HOUR_MILLIS,
+    count: 24,
+    unit: 'hour',
+  },
+  [HistogramResolution.UNRECOGNIZED]: { millis: MINUTE_MILLIS, count: 60, unit: 'minute' },
 };
+
+// The resolutions of a histogram, the finest first
+export const RESOLUTIONS = [
+  HistogramResolution.HISTOGRAM_RESOLUTION_SECOND,
+  HistogramResolution.HISTOGRAM_RESOLUTION_MINUTE,
+  HistogramResolution.HISTOGRAM_RESOLUTION_HOUR,
+];
+
+// The most buckets a histogram shows, fetched in pages of the buckets the
+// API returns for its resolution
+const MAX_BUCKETS = 360;
+
+// The pages of buckets a histogram of a resolution fetches at most
+export const maxPagesOf = (resolution: HistogramResolution) =>
+  Math.max(1, Math.floor(MAX_BUCKETS / RESOLUTION_BUCKETS[resolution].count));
 
 // The time the buckets of a resolution cover
 export const spanOf = (resolution: HistogramResolution) =>
@@ -71,11 +105,9 @@ export const spanOf = (resolution: HistogramResolution) =>
 
 // The finest resolution whose buckets cover span (millis), the hours beyond
 export function resolutionOfSpan(span: number): HistogramResolution {
-  const covering = [
-    HistogramResolution.HISTOGRAM_RESOLUTION_SECOND,
-    HistogramResolution.HISTOGRAM_RESOLUTION_MINUTE,
-  ].find((r) => span <= spanOf(r));
-  return covering ?? HistogramResolution.HISTOGRAM_RESOLUTION_HOUR;
+  return (
+    RESOLUTIONS.find((r) => span <= spanOf(r)) ?? HistogramResolution.HISTOGRAM_RESOLUTION_HOUR
+  );
 }
 
 // The sample buckets of a resolution: those ending with the one of `to`,

@@ -163,7 +163,7 @@ Dựng trong [internal/handlers/handlers.go](../../internal/handlers/handlers.go
 plugin cài `chains.Plugin` (`ID()`, `Handle(ctx, next)`) và, nếu cần
 dependency, `Provision(*envplugin.Env)`:
 [Env](../../internal/envplugin/env.go) resolve option một lần và cấp các
-sub-store của `MemStore`, hostname và logger sự kiện (`Env.Logger(kind)`),
+sub-store của `MemStore`, secret key và logger sự kiện (`Env.Logger(kind)`),
 nên plugin không nhận tham số constructor. Mỗi plugin được bọc bởi
 `handlers.Stage` để gắn `ID()` của plugin vào lỗi
 (`sztracer.StageError{Stage, Elapsed, Err}`) và log một lần duy nhất ở stage
@@ -174,7 +174,7 @@ gây lỗi; tên stage là hằng exported (vd `secure.WAFId`). Panic của plug
 |---|---|---|---|
 | 0 | `TRC` | `trace.Tracer` | Sinh request ID `senz:req:<xid>` nếu context chưa có |
 | 1 | `LOG` | `logging.Logging` | Gọi `next` trước, sau đó log `httppb.IngressEvent` (JSON, kind `LOG_TYPE_HTTP_INGRESS`, chiều ingress) và, nếu `ROU` đã proxy request, một `httppb.EgressEvent` cho chặng proxy → upstream origin (kind `LOG_TYPE_HTTP_EGRESS`: upstream, status của origin, content type/length, latency, lấy từ các trường `ctx.X().Upstream*` do `ROU` ghi) |
-| 2 | `DMA` | `secure.DomainBased` | Host phải có dạng `<ns>.<SENZ_HOSTNAME>` (một cấp, bỏ port). Sai → `403`. Gán `X().Namespace = ns` |
+| 2 | `DMA` | `secure.DomainBased` | Host (bỏ port, chữ thường) là namespace: phải là `server.resourceDomain` của một setting đã nạp. Sai → `403`. Gán `X().Namespace` và tenant/resource id của setting |
 | 3 | `PUB` | `cdn.Public` | Phục vụ ảnh embed trong binary dưới `/cdn/sentinez/public/`; nạp ảnh lỗi lúc provision thì edge không khởi động |
 | 4 | `CDN` | `cdn.Cache` | Nếu có CDN rule active cho namespace và expression khớp: tra cache theo key `method+scheme+host+path+query+Accept-Encoding`; hit → trả response với `X-Cache: HIT`; miss → chạy tiếp và lưu response cache được (TTL 1h, xem [04-rule-engine.md](04-rule-engine.md#44-cdn-rules)) |
 | 5 | `LMT` | `secure.Limiter` | với mỗi limiter có `ingress.expr` (bắt buộc) khớp, theo priority như `RUL`: `limiter.Allow(IP)`; vượt → `429` |
@@ -201,7 +201,8 @@ setting:
   metadata:
     tenantId: tnt_acme           # id of this proxy.yaml (default tnt_default, then not synced)
   server:
-    name: badcheese              # namespace = subdomain
+    name: badcheese              # tên hiển thị
+    resourceDomain: badcheese.is.s6z.io.vn # namespace = host của request (bắt buộc)
     resourceId: rsrc_shop        # id of the upstream servers (default rsrc_default)
     locations:
       - location: /api           # prefix khớp
@@ -347,7 +348,8 @@ Reverse proxy được tạo một lần cho mỗi `upstream.server` trong
 
 ## 3.7 Memory store
 
-`memory.MemStore` (singleton) gom các kho theo **namespace** (`server.name`):
+`memory.MemStore` (singleton) gom các kho theo **namespace**
+(`server.resourceDomain`, chữ thường, bỏ dấu chấm cuối):
 
 | Kho | Kiểu | Nội dung |
 |---|---|---|
@@ -437,7 +439,7 @@ transport, limiter kèm bộ đếm). Vì vậy các edge đồng bộ **nguồn
   edge dựng lại nó.
 - Mỗi lần thay đổi (`OnChange`), node normalize một bản sao
   (`sznormalize.NormalizeEdgeSetting`) rồi dựng lại store của namespace
-  (`server.name`) mà request vẫn dùng để định tuyến. Namespace đổi tên hoặc
+  (`server.resourceDomain`) mà request vẫn dùng để định tuyến. Namespace đổi tên hoặc
   resource bị xoá thì được gỡ trước.
 - Một namespace thuộc về một resource: resource thứ hai nhận cùng namespace
   sẽ không được nạp (có log), và không gỡ được namespace đó.

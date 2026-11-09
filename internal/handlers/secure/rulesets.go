@@ -17,10 +17,10 @@ package secure
 import (
 	"net/http"
 
-	"github.com/sentinez/core/szhttp/chains"
-
+	"github.com/corazawaf/coraza/v3/types"
 	"github.com/sentinez/core/szcrs"
 	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szhttp/chains"
 	"github.com/sentinez/pkg/bytesconv"
 	"github.com/sentinez/pkg/szlog"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
@@ -87,41 +87,26 @@ func (rs *Rulesets) Handle(ctx szhttp.Context, next chains.Handler) error {
 	return err
 }
 
-// nolint:funlen
+// capture logs the rules of an interrupted request: DENY when the engine
+// blocked it, LOG when the engine is DetectionOnly and would have blocked
+// it. Only DetectionOnly reports an interruption it did not perform.
 func (rs *Rulesets) capture(ctx szhttp.Context, ruleset *szcrs.Rulesets) {
-
-	interruption, matched, isInterrupted := ruleset.Matched()
-	if !isInterrupted {
+	matched, it, blocked := ruleset.Matched()
+	if it == nil {
 		return
 	}
 
-	var (
-		ruleIds    []int32
-		severities []string
-		msgs       []string
-	)
+	event := coreruleset.Acquire()
+	fillDetections(event, matched, it.RuleID)
 
-	for _, rule := range matched {
-		if rule.Rule().ID() == interruption.RuleID ||
-			szcrs.IsFrameworkRule(rule.Rule().ID()) {
-			continue
-		}
-
-		if rule.Message() != "" {
-			ruleIds = append(ruleIds, int32(rule.Rule().ID()))
-			severities = append(severities, rule.Rule().Severity().String())
-			msgs = append(msgs, rule.Message())
-		}
+	event.Behavior = rulepb.RuleBehavior_RULE_BEHAVIOR_LOG
+	if blocked {
+		event.Behavior = rulepb.RuleBehavior_RULE_BEHAVIOR_DENY
 	}
 
 	inbound, outbound := ruleset.AnomalyScore()
-	event := coreruleset.Acquire()
-	event.MatchedRuleIds = ruleIds
-	event.Severities = severities
-	event.Messages = msgs
 	event.TotalScore = int32(inbound + outbound)
 	event.Service = rulepb.RuleService_RULE_SERVICE_CORE_RULESETS
-	event.Behavior = rulepb.RuleBehavior_RULE_BEHAVIOR_DENY
 	event.MatchedTime = ctx.RequestTime().UnixMilli()
 
 	event.RequestId = ctx.RequestId()
@@ -134,4 +119,26 @@ func (rs *Rulesets) capture(ctx szhttp.Context, ruleset *szcrs.Rulesets) {
 	event.TenantId = ctx.TenantId()
 
 	rs.log.Info("rulesets: matched", event, event)
+}
+
+// fillDetections sets the detecting rules of event: the matched rules with
+// a message, but the framework rules and the interrupting rule.
+func fillDetections(
+	event *coreruleset.CoreRuleEvent,
+	matched []types.MatchedRule,
+	interruptId int,
+) {
+	for _, rule := range matched {
+		id := rule.Rule().ID()
+		if id == interruptId || szcrs.IsFrameworkRule(id) ||
+			rule.Message() == "" {
+			continue
+		}
+
+		event.MatchedRuleIds = append(event.MatchedRuleIds, int32(id))
+		event.Severities = append(
+			event.Severities, rule.Rule().Severity().String(),
+		)
+		event.Messages = append(event.Messages, rule.Message())
+	}
 }

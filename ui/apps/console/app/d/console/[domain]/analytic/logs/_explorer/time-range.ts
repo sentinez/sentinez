@@ -1,7 +1,7 @@
 import { HistogramResolution } from '@sentinez/proto/sentinez/apps/analytic/v1/event';
 import type { DateTimeFormatOptions } from 'next-intl';
 
-import { RESOLUTION_BUCKETS, resolutionOfSpan, spanOf } from '@/lib/api/analytic';
+import { RESOLUTIONS, RESOLUTION_BUCKETS, maxPagesOf, resolutionOfSpan } from '@/lib/api/analytic';
 
 // QuickRange a relative range of the picker, the resolution of its histogram
 export type QuickRange = 'last60s' | 'last60m' | 'last24h';
@@ -14,9 +14,11 @@ export const QUICK_RANGES: Record<QuickRange, HistogramResolution> = {
 
 /**
  * TimeRange the range of the page: a quick one, ending now, or an absolute
- * one picked on the calendar, from inclusive to exclusive (millis).
+ * one, from inclusive to exclusive (millis): picked on the calendar, or
+ * zoomed into on the histogram, then with the resolution of its histogram.
  */
-export type TimeRange = { quick: QuickRange } | { from: number; to: number };
+export type TimeRange =
+  { quick: QuickRange } | { from: number; to: number; resolution?: HistogramResolution };
 
 // Window the bounds of a range at a time, to undefined when it ends now
 type Window = { from: number; to?: number };
@@ -26,16 +28,27 @@ const SECOND_RETENTION_MILLIS = 7 * 24 * 60 * 60 * 1000;
 
 /**
  * The resolution of the histogram of a range: that of a quick one, else the
- * finest whose buckets cover it (the seconds within their retention), the
- * hours beyond a day: the histogram then shows its last 24 hours only.
+ * one it was zoomed with, else the finest whose buckets of one page cover
+ * it; the seconds only within their retention.
  */
 export function resolutionOf(range: TimeRange, now: number): HistogramResolution {
   if ('quick' in range) return QUICK_RANGES[range.quick];
-  const resolution = resolutionOfSpan(range.to - range.from);
+  const resolution = range.resolution ?? resolutionOfSpan(range.to - range.from);
   const expired = now - range.from > SECOND_RETENTION_MILLIS;
   return resolution === HistogramResolution.HISTOGRAM_RESOLUTION_SECOND && expired
     ? HistogramResolution.HISTOGRAM_RESOLUTION_MINUTE
     : resolution;
+}
+
+/**
+ * The range a drag over the histogram zooms into, from inclusive to
+ * exclusive: one resolution finer than `current` (hours to minutes to
+ * seconds), finer still when the range fits in a page of a finer one.
+ */
+export function zoomOf(current: HistogramResolution, from: number, to: number): TimeRange {
+  const finer = Math.max(RESOLUTIONS.indexOf(current) - 1, 0);
+  const fitting = RESOLUTIONS.indexOf(resolutionOfSpan(to - from));
+  return { from, to, resolution: RESOLUTIONS[Math.min(finer, fitting)] };
 }
 
 /** The bounds of a range: a quick one starts with its first bucket at now */
@@ -45,9 +58,18 @@ export function windowOf(range: TimeRange, now: number): Window {
   return { from: (Math.floor(now / millis) - count + 1) * millis };
 }
 
-/** Whether the histogram of a range shows only its end (longer than a day) */
-export function isClipped(range: TimeRange, now: number): boolean {
-  return 'from' in range && range.to - range.from > spanOf(resolutionOf(range, now));
+/**
+ * The buckets the histogram of a range shows when they are only its end,
+ * the range longer than its pages, else undefined.
+ */
+export function clippedOf(range: TimeRange, now: number): number | undefined {
+  if ('quick' in range) return undefined;
+  const resolution = resolutionOf(range, now);
+  const { count } = RESOLUTION_BUCKETS[resolution];
+  const buckets = count * maxPagesOf(resolution);
+  return range.to - range.from > RESOLUTION_BUCKETS[resolution].millis * buckets
+    ? buckets
+    : undefined;
 }
 
 // The tick of a bucket start of each resolution

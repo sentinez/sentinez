@@ -1,11 +1,6 @@
-'use server';
+import { redirect } from 'next/navigation';
 
-export default async function Page() {
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-
-  return (
-    <>
-      <div>access-log</div>
-    </>
-  );
+export default async function Page({ params }: { params: Promise<{ domain: string }> }) {
+  const { domain } = await params;
+  redirect(`/d/console/${domain}/analytic/logs/ingress`);
 }

@@ -44,10 +44,7 @@ func New() *Rulesets {
 }
 
 type Rulesets struct {
-	// key: namespace
-	// ex: dev.sentinez.vn
-	//	- domain: sentinez.vn
-	// 	- namespace: dev
+	// key: namespace, the resource domain of the server (dev.sentinez.vn)
 	space *szsync.Map[string, coraza.WAF]
 }
 

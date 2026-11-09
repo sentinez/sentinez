@@ -28,7 +28,7 @@ import (
 func TestLoadRateLimiterKeepsAllLimiters(t *testing.T) {
 	m := &MemStore{limiter: ratelimiter.New()}
 	err := m.LoadRateLimiter(&edgepb.Setting{
-		Server: &edgepb.Server{Name: "multi-limiter"},
+		Server: &edgepb.Server{ResourceDomain: "multi-limiter"},
 		Security: &edgepb.Security{Limiters: []*edgepb.RateLimit{
 			newRateLimit("a", typepb.Status_STATUS_ACTIVE, 1),
 			newRateLimit("b", typepb.Status_STATUS_DISABLE, 1),
@@ -58,7 +58,7 @@ func TestLoadRateLimiterKeepsAllLimiters(t *testing.T) {
 func TestLoadRateLimiterRequiresExpr(t *testing.T) {
 	m := &MemStore{limiter: ratelimiter.New()}
 	err := m.LoadRateLimiter(&edgepb.Setting{
-		Server: &edgepb.Server{Name: "no-expr-limiter"},
+		Server: &edgepb.Server{ResourceDomain: "no-expr-limiter"},
 		Security: &edgepb.Security{Limiters: []*edgepb.RateLimit{{
 			IngressRuntime: &secrulepb.SecRule{
 				Id: "a", Status: typepb.Status_STATUS_ACTIVE,

@@ -34,6 +34,11 @@ Không có.
   sync giữa các edge.
 - Chọn rõ `HISTOGRAM_RESOLUTION_SECOND` mà không có `from` sẽ đọc cả 7 ngày
   của view giây.
+- Histogram có `request_ids` hoặc `filters` quét bảng event, mỗi trang bucket
+  một lần (tới 15 request cho khoảng dài theo giờ): chậm trên bảng lớn, và
+  `request_id` của bảng secrule và core ruleset chưa có index.
+  `GetEventTopValuesRequest` không có `request_ids`, nên top values bỏ qua
+  request id mà list và histogram đều áp dụng.
 - [deploy/docker/docker-compose.yaml](../../deploy/docker/docker-compose.yaml)
   tạo các topic event với 3 partition và tắt tự tạo topic, nên
   `DefaultTopicPartitions` (6) của producer không bao giờ có tác dụng trong
@@ -44,7 +49,7 @@ Không có.
   (`sentinez/dmz/edge/zone/<zone>/status`); `Elector.Publish` và
   `leader.All` đã sẵn cho các bản ghi zone-wide khác nhưng chưa có bản ghi
   nào. Cũng chưa có gì đọc status.
-- Gỡ một namespace (resource bị xoá, `server.name` đổi tên) vẫn giữ các
+- Gỡ một namespace (resource bị xoá, `server.resourceDomain` đổi) vẫn giữ các
   reverse proxy của nó: chúng được key theo upstream và dùng chung giữa các
   namespace, không có đếm tham chiếu.
 - Waiting room (`ROM`), `pkg/szqueue`, `pkg/sztopic`, `pkg/szstorage/{keyval,

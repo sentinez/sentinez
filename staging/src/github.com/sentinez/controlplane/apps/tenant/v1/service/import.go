@@ -26,17 +26,19 @@ import (
 // ImportServer stores the server of a proxy.yaml: tenant, whose name and
 // plan are updated when it exists, and the resource of srv under its
 // resource id, replaced so that importing again updates it. The resource
-// is served at <srv.name>.<hostname>, no domain without a hostname.
+// is served at srv.resource_domain, errNoDomain without one.
 func (svc *Service) ImportServer(ctx context.Context, tenant *tenantpb.Tenant,
-	hostname string, srv *edgepb.Server) error {
+	srv *edgepb.Server) error {
+
+	if err := normalizeServer(srv); err != nil {
+		return err
+	}
 
 	rsrc := &tenantpb.Resource{
-		Id:              srv.GetResourceId(),
-		TenantId:        tenant.GetId(),
-		ResourceName:    srv.GetName(),
-		ResourceDomain:  resourceDomain(srv.GetName(), hostname),
-		ResourceSetting: &tenantpb.ResourceSetting{Server: srv},
-		Status:          typepb.Status_STATUS_ACTIVE,
+		Id:       srv.GetResourceId(),
+		TenantId: tenant.GetId(),
+		Server:   srv,
+		Status:   typepb.Status_STATUS_ACTIVE,
 	}
 
 	txss, err := svc.tx.Begin(ctx)
@@ -59,13 +61,4 @@ func (svc *Service) ImportServer(ctx context.Context, tenant *tenantpb.Tenant,
 	}
 
 	return nil
-}
-
-// resourceDomain is the domain name is served at under hostname.
-func resourceDomain(name, hostname string) string {
-	if hostname == "" {
-		return ""
-	}
-
-	return name + "." + hostname
 }

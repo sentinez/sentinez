@@ -20,6 +20,7 @@ import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "sentinez/apps/tenant/v1/model.proto";
+import "sentinez/dmz/edge/v1/setting.proto";
 import "sentinez/types/v1/known.proto";
 import "sentinez/types/v1/model.proto";
 import "sentinez/types/v1/options.proto";
@@ -282,7 +283,7 @@ message GetResourceRequest {
 }
 
 message GetResourceByDomainRequest {
-  string resource_domain = 1 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
+  string resource_domain = 1 [(buf.validate.field).string.pattern = "^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,63}$"];
 }
 
 message GetResourceByDomainResponse {
@@ -307,21 +308,19 @@ message UpdateResourceRequest {
     required: true
     string: {prefix: "rsrc_"}
   }];
-  string resource_domain = 2 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
-  string resource_name = 3 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
-  sentinez.types.v1.Status status = 4;
-  sentinez.apps.tenant.v1.ResourceSetting resource_setting = 5;
+  // Replaces the stored server when set.
+  sentinez.dmz.edge.v1.Server server = 2;
+  sentinez.types.v1.Status status = 3;
 }
 
 message UpdateResourceResponse {}
 
 message CreateResourceRequest {
-  sentinez.apps.tenant.v1.ResourceSetting resource_setting = 1;
-  string resource_domain = 2 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
-  string resource_name = 3 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
-  sentinez.types.v1.Status status = 4;
+  // server.resource_domain is required.
+  sentinez.dmz.edge.v1.Server server = 1 [(buf.validate.field).required = true];
+  sentinez.types.v1.Status status = 2;
 
-  string tenant_id = 5 [(buf.validate.field) = {
+  string tenant_id = 3 [(buf.validate.field) = {
     required: true
     string: {prefix: "tnt_"}
   }];
@@ -335,14 +334,16 @@ message ListResourceRequest {
   sentinez.types.v1.Pages page = 1;
   sentinez.types.v1.Status status = 2;
 
+  // server.name
   string resource_name = 4 [(buf.validate.field) = {
     ignore: IGNORE_IF_ZERO_VALUE
-    string: {pattern: "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"}
+    string: {pattern: "^[a-zA-Z0-9-]+"}
   }];
 
+  // server.resource_domain
   string resource_domain = 5 [(buf.validate.field) = {
     ignore: IGNORE_IF_ZERO_VALUE
-    string: {pattern: "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"}
+    string: {pattern: "^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,63}$"}
   }];
 
   repeated string tenant_ids = 6 [(buf.validate.field) = {

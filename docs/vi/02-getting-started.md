@@ -62,9 +62,9 @@ make sz.edge.run
 
 `make sz.edge.run` truyền `--cert_file`, `--cert_key_file`,
 `--proxy_config=./cmd/szedge/v1/proxy.yaml`, `--env_file`, `--engine=quic`.
-Edge yêu cầu
-`SENZ_HOSTNAME` khớp domain gốc: request tới `badcheese.<SENZ_HOSTNAME>` sẽ
-dùng cấu hình `server.name: badcheese`. Edge còn mở pprof ở `:6060`.
+Request được phục vụ
+bằng cấu hình có `server.resourceDomain` trùng host của nó (bỏ port): request
+tới `badcheese.is.s6z.io.vn` dùng `resourceDomain: badcheese.is.s6z.io.vn`. Edge còn mở pprof ở `:6060`.
 
 > `hack/mkcert-local.sh` đặt cert vào `cmd/szedge/v1/`; truyền chúng qua
 > `--cert_file`/`--cert_key_file`.
@@ -96,7 +96,7 @@ Tên biến là các giá trị của enum `Senz` trong
 
 | Biến | Dùng ở | Ý nghĩa |
 |---|---|---|
-| `SENZ_HOSTNAME` | edge, IAM | Domain gốc của edge (`sentinez.vn`); RP ID cho WebAuthn |
+| `SENZ_HOSTNAME` | IAM | RP ID cho WebAuthn (`sentinez.vn`) |
 | `SENZ_ADDRESS` | tất cả | Địa chỉ listen; nếu rỗng mỗi service dùng hằng trong [internal/defaults](../../internal/defaults/defaults.go): edge `0.0.0.0:443` (TCP và UDP/HTTP/3), apiserver `0.0.0.0:9000`, realtime `0.0.0.0:7778`, dataplane và greeter `0.0.0.0:9001` |
 | `SENZ_SECRET_KEY` | IAM | Khoá HMAC ký JWT, **phải là base64** |
 | `SENZ_CLIENT_ORIGIN` | IAM | Origin được phép cho WebAuthn (URL console) |

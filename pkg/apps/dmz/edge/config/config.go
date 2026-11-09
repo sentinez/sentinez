@@ -42,7 +42,6 @@ func load() (*settingpb.Config, error) {
 	}
 
 	env, err := szconfig.LoadEnv(flag.GetEnvFile(),
-		settingpb.Senz_SENZ_HOSTNAME,
 		settingpb.Senz_SENZ_ADDRESS,
 		settingpb.Senz_SENZ_SECRET_KEY,
 		settingpb.Senz_SENZ_MEMBERSHIP_ADDRESS,

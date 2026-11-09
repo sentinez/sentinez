@@ -245,6 +245,28 @@
             "required": false,
             "type": "string",
             "format": "date-time"
+          },
+          {
+            "name": "requestIds",
+            "description": "Requests of the events, by request id, any of them (see\nListHttpIngressEventsRequest.request_ids); all when empty.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "filters",
+            "description": "Field filters, all of them, each \"field:value\" (see\nGetEventTopValuesRequest.filters). With requests or filters the\nevents are counted from their table, slower than unfiltered.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
           }
         ],
         "tags": [
@@ -1377,9 +1399,11 @@
       "enum": [
         "RULE_BEHAVIOR_UNSPECIFIED",
         "RULE_BEHAVIOR_DENY",
-        "RULE_BEHAVIOR_ALLOW"
+        "RULE_BEHAVIOR_ALLOW",
+        "RULE_BEHAVIOR_LOG"
       ],
-      "default": "RULE_BEHAVIOR_UNSPECIFIED"
+      "default": "RULE_BEHAVIOR_UNSPECIFIED",
+      "description": " - RULE_BEHAVIOR_LOG: Would have been denied, but the engine only detects\n(ENGINE_MODE_DETECTION_ONLY)."
     },
     "v1RuleService": {
       "type": "string",

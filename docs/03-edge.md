@@ -170,7 +170,7 @@ Built in [internal/handlers/handlers.go](../internal/handlers/handlers.go) with
 plugin implements `chains.Plugin` (`ID()`, `Handle(ctx, next)`) and, when it
 needs dependencies, `Provision(*envplugin.Env)`: the
 [Env](../internal/envplugin/env.go) resolves the options once and hands out
-the sub-stores of `MemStore`, the hostname and event loggers
+the sub-stores of `MemStore`, the secret key and event loggers
 (`Env.Logger(kind)`), so plugins take no constructor arguments. Every plugin
 is wrapped by `handlers.Stage`, which tags errors with the plugin `ID()`
 (`sztracer.StageError{Stage, Elapsed, Err}`) and logs them once, at the
@@ -181,7 +181,7 @@ stage that produced them; the stage names are exported constants (e.g.
 |---|---|---|---|
 | 0 | `TRC` | `trace.Tracer` | Generates request ID `senz:req:<xid>` when the context has none |
 | 1 | `LOG` | `logging.Logging` | Calls `next` first, then logs an `httppb.IngressEvent` (JSON, kind `LOG_TYPE_HTTP_INGRESS`, the ingress) and, when `ROU` proxied the request, an `httppb.EgressEvent` of the proxy → upstream origin leg (kind `LOG_TYPE_HTTP_EGRESS`: upstream, origin status, content type/length, latency, from the `ctx.X().Upstream*` fields `ROU` sets) |
-| 2 | `DMA` | `secure.DomainBased` | Host must be `<ns>.<SENZ_HOSTNAME>` (single level, port stripped). Otherwise → `403`. Sets `X().Namespace = ns` |
+| 2 | `DMA` | `secure.DomainBased` | The host (port stripped, lower case) is the namespace: it must be the `server.resourceDomain` of a loaded setting. Otherwise → `403`. Sets `X().Namespace` and the tenant/resource ids of the setting |
 | 3 | `PUB` | `cdn.Public` | Serves the images embedded in the binary under `/cdn/sentinez/public/`; a load failure at provisioning stops the edge |
 | 4 | `CDN` | `cdn.Cache` | If the namespace has an active CDN rule whose expression matches: look up the cache by `method+scheme+host+path+query+Accept-Encoding`; hit → return the cached response with `X-Cache: HIT`; miss → continue and store cacheable responses (TTL 1h, see [04-rule-engine.md](04-rule-engine.md#44-cdn-rules)) |
 | 5 | `LMT` | `secure.Limiter` | for each limiter whose required `ingress.expr` matches (priority order, like `RUL`): `limiter.Allow(IP)`; exceeded → `429` |
@@ -210,7 +210,8 @@ setting:
   metadata:
     tenantId: tnt_acme           # id of this proxy.yaml (default tnt_default, then not synced)
   server:
-    name: badcheese              # namespace = subdomain
+    name: badcheese              # display name
+    resourceDomain: badcheese.is.s6z.io.vn # namespace = request host (required)
     resourceId: rsrc_shop        # id of the upstream servers (default rsrc_default)
     locations:
       - location: /api           # prefix to match
@@ -358,7 +359,7 @@ A reverse proxy is created once per `upstream.server` in
 ## 3.7 Memory store
 
 `memory.MemStore` (a singleton) groups stores keyed by **namespace**
-(`server.name`):
+(`server.resourceDomain`, lower case, no trailing dot):
 
 | Store | Type | Contents |
 |---|---|---|
@@ -450,7 +451,7 @@ stores from it ([internal/memory/sync.go](../internal/memory/sync.go)):
   a restart does not make every edge rebuild it.
 - On each change (`OnChange`), the node normalizes a copy
   (`sznormalize.NormalizeEdgeSetting`) and rebuilds the stores of its
-  namespace (`server.name`), which requests still route by. A namespace
+  namespace (`server.resourceDomain`), which requests still route by. A namespace
   that changed name, or a deleted resource, is unloaded first.
 - A namespace belongs to one resource: a second resource claiming it is
   not loaded (logged), and cannot unload it.

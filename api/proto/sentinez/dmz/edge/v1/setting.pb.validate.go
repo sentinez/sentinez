@@ -174,8 +174,6 @@ func (m *Metadata) Validate() error {
 
 	// no validation rules for Plan
 
-	// no validation rules for Hostname
-
 	return nil
 }
 
@@ -258,6 +256,8 @@ func (m *Server) Validate() error {
 	}
 
 	// no validation rules for ResourceId
+
+	// no validation rules for ResourceDomain
 
 	return nil
 }

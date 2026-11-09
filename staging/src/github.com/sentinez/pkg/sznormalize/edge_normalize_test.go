@@ -21,6 +21,7 @@ import (
 	cdnpb "github.com/sentinez/sentinez/api/proto/sentinez/types/cdn/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNormalizeEdgeSettingLimiters(t *testing.T) {
@@ -131,5 +132,24 @@ func TestNormalizeEdgeSettingCDN(t *testing.T) {
 
 	if got.GetStatus() != typepb.Status_STATUS_ACTIVE {
 		t.Errorf("status = %v, want active", got.GetStatus())
+	}
+}
+
+func TestResourceDomain(t *testing.T) {
+	tests := []struct {
+		name string
+		give string
+		want string
+	}{
+		{"lower case", "shop.s6z.io.vn", "shop.s6z.io.vn"},
+		{"upper case", "Shop.S6Z.io.vn", "shop.s6z.io.vn"},
+		{"trailing dot", "shop.s6z.io.vn.", "shop.s6z.io.vn"},
+		{"empty", "", ""},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, ResourceDomain(tt.give))
+		})
 	}
 }

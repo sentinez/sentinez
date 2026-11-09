@@ -46,9 +46,10 @@ type Reader[T any] interface {
 // kindReader what the analytic reads of the table of a kind of events,
 // whatever its event type.
 type kindReader interface {
-	// Histogram counts the events per bucket, resource and key.
-	Histogram(ctx context.Context,
-		filter *histogram.Filter) ([]*histogram.Point, error)
+	// Histogram counts the events per bucket, resource and key; those
+	// of events only when set (see eventfilter.Points).
+	Histogram(ctx context.Context, filter *histogram.Filter,
+		events *eventfilter.Filter) ([]*histogram.Point, error)
 	topvalues.TopValuer
 }
 
@@ -105,15 +106,17 @@ func New(ctx context.Context, appConf *settingpb.Config) (*Events, error) {
 }
 
 // Histogram the points of the histogram of kind, split by the key of its
-// table: the http status, the status of the origin or the behavior.
+// table: the http status, the status of the origin or the behavior; the
+// events of events only when set.
 func (e *Events) Histogram(ctx context.Context, kind analyticpb.EventKind,
-	filter *histogram.Filter) ([]*histogram.Point, error) {
+	filter *histogram.Filter,
+	events *eventfilter.Filter) ([]*histogram.Point, error) {
 	reader, err := e.reader(kind)
 	if err != nil {
 		return nil, err
 	}
 
-	return reader.Histogram(ctx, filter)
+	return reader.Histogram(ctx, filter, events)
 }
 
 // TopValues the top values of the fields of names of the events of kind

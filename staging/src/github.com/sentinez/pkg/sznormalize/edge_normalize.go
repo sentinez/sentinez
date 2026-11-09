@@ -15,6 +15,8 @@
 package sznormalize
 
 import (
+	"strings"
+
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szprefix"
 	"github.com/sentinez/pkg/szrand"
@@ -29,8 +31,18 @@ import (
 const _defaultLimiterDuration = "5s"
 
 func NormalizeEdgeSetting(edge *edgepb.Setting) {
+	if srv := edge.GetServer(); srv != nil {
+		srv.ResourceDomain = ResourceDomain(srv.GetResourceDomain())
+	}
+
 	normalizeEdgeDelivery(edge.GetDelivery())
 	normalizeEdgeSecurity(edge.GetSecurity())
+}
+
+// ResourceDomain is domain as the edge keys a setting by and matches the
+// request host against: lower case, without the trailing dot.
+func ResourceDomain(domain string) string {
+	return strings.ToLower(strings.TrimSuffix(domain, "."))
 }
 
 func normalizeEdgeDelivery(delivery *edgepb.Delivery) {

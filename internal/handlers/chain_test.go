@@ -45,7 +45,7 @@ type fake struct {
 func (f *fake) ID() string { return f.id }
 
 func (f *fake) Provision(env *envplugin.Env) error {
-	*f.log = append(*f.log, "provision "+f.id+" "+env.Hostname())
+	*f.log = append(*f.log, "provision "+f.id+" "+env.SecretKey())
 	return f.provisionErr
 }
 
@@ -69,7 +69,7 @@ func newContext() szhttp.Context {
 }
 
 func newEnv() *envplugin.Env {
-	return envplugin.NewEnv(nil, option.WithHostname("example.com"))
+	return envplugin.NewEnv(nil, option.WithSecretKey("key"))
 }
 
 func TestBuildHandle(t *testing.T) {
@@ -119,8 +119,8 @@ func TestBuildProvision(t *testing.T) {
 
 	require.ErrorIs(t, err, errFake)
 	assert.Equal(t, []string{
-		"provision A example.com",
-		"provision B example.com",
+		"provision A key",
+		"provision B key",
 		"cleanup A",
 	}, log)
 }

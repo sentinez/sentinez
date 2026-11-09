@@ -28,7 +28,9 @@ const seriesOf = (key: number) =>
     ? 'deny'
     : key === RuleBehavior.RULE_BEHAVIOR_ALLOW
       ? 'allow'
-      : 'other';
+      : key === RuleBehavior.RULE_BEHAVIOR_LOG
+        ? 'log'
+        : 'other';
 
 const distinct = (values: string[]) => [...new Set(values)];
 
@@ -78,6 +80,7 @@ export function useCoreRuleConfig(): EventConfig<CoreRuleEvent> {
       series: [
         { id: 'deny', label: t('series.deny'), color: STATUS_COLORS.s5xx },
         { id: 'allow', label: t('series.allow'), color: STATUS_COLORS.s2xx },
+        { id: 'log', label: t('series.log'), color: STATUS_COLORS.s4xx },
         { id: 'other', label: t('series.other'), color: STATUS_COLORS.other },
       ],
       seriesOf,

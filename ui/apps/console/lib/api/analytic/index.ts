@@ -16,7 +16,14 @@ import { type Pages, paginate } from '@/lib/api/pages';
 import { SAMPLE_TENANT_ID } from '@/lib/api/tenant';
 import { type ApiOptions, SAMPLE_IPS, getJSON, sampleBuckets } from './common';
 
-export { RESOLUTION_BUCKETS, resolutionOfSpan, spanOf, type ApiOptions } from './common';
+export {
+  RESOLUTIONS,
+  RESOLUTION_BUCKETS,
+  maxPagesOf,
+  resolutionOfSpan,
+  spanOf,
+  type ApiOptions,
+} from './common';
 export * from './events';
 export type { Pages };
 

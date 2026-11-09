@@ -22,17 +22,16 @@ import { Metadata } from "../../../types/v1/model";
 
 export const protobufPackage = "sentinez.apps.tenant.v1";
 
-export interface ResourceSetting {
-  server?: Server | undefined;
-}
-
+/**
+ * Resource is a server of a tenant: its name, domain and routes are those
+ * of server (server.name, server.resource_domain), its id is the
+ * server.resource_id the edge fills into the events of its requests.
+ */
 export interface Resource {
   metadata?: Metadata | undefined;
   id: string;
   tenantId: string;
-  resourceSetting?: ResourceSetting | undefined;
-  resourceDomain: string;
-  resourceName: string;
+  server?: Server | undefined;
   status: Status;
 }
 
@@ -52,85 +51,8 @@ export interface Member {
   roles: Role[];
 }
 
-function createBaseResourceSetting(): ResourceSetting {
-  return { server: undefined };
-}
-
-export const ResourceSetting: MessageFns<ResourceSetting> = {
-  encode(message: ResourceSetting, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.server !== undefined) {
-      Server.encode(message.server, writer.uint32(10).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): ResourceSetting {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
-    if (previousRecursionDepth >= 100) {
-      throw new globalThis.Error("protobuf decode recursion limit exceeded");
-    }
-    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
-    try {
-      const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseResourceSetting();
-      while (reader.pos < end) {
-        const tag = reader.uint32();
-        switch (tag >>> 3) {
-          case 1: {
-            if (tag !== 10) {
-              break;
-            }
-
-            message.server = Server.decode(reader, reader.uint32());
-            continue;
-          }
-        }
-        if ((tag & 7) === 4 || tag === 0) {
-          break;
-        }
-        reader.skip(tag & 7);
-      }
-      return message;
-    } finally {
-      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
-    }
-  },
-
-  fromJSON(object: any): ResourceSetting {
-    return { server: isSet(object.server) ? Server.fromJSON(object.server) : undefined };
-  },
-
-  toJSON(message: ResourceSetting): unknown {
-    const obj: any = {};
-    if (message.server !== undefined) {
-      obj.server = Server.toJSON(message.server);
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<ResourceSetting>, I>>(base?: I): ResourceSetting {
-    return ResourceSetting.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<ResourceSetting>, I>>(object: I): ResourceSetting {
-    const message = createBaseResourceSetting();
-    message.server = (object.server !== undefined && object.server !== null)
-      ? Server.fromPartial(object.server)
-      : undefined;
-    return message;
-  },
-};
-
 function createBaseResource(): Resource {
-  return {
-    metadata: undefined,
-    id: "",
-    tenantId: "",
-    resourceSetting: undefined,
-    resourceDomain: "",
-    resourceName: "",
-    status: 0,
-  };
+  return { metadata: undefined, id: "", tenantId: "", server: undefined, status: 0 };
 }
 
 export const Resource: MessageFns<Resource> = {
@@ -144,17 +66,11 @@ export const Resource: MessageFns<Resource> = {
     if (message.tenantId !== "") {
       writer.uint32(26).string(message.tenantId);
     }
-    if (message.resourceSetting !== undefined) {
-      ResourceSetting.encode(message.resourceSetting, writer.uint32(34).fork()).join();
-    }
-    if (message.resourceDomain !== "") {
-      writer.uint32(42).string(message.resourceDomain);
-    }
-    if (message.resourceName !== "") {
-      writer.uint32(50).string(message.resourceName);
+    if (message.server !== undefined) {
+      Server.encode(message.server, writer.uint32(34).fork()).join();
     }
     if (message.status !== 0) {
-      writer.uint32(56).int32(message.status);
+      writer.uint32(40).int32(message.status);
     }
     return writer;
   },
@@ -201,27 +117,11 @@ export const Resource: MessageFns<Resource> = {
               break;
             }
 
-            message.resourceSetting = ResourceSetting.decode(reader, reader.uint32());
+            message.server = Server.decode(reader, reader.uint32());
             continue;
           }
           case 5: {
-            if (tag !== 42) {
-              break;
-            }
-
-            message.resourceDomain = reader.string();
-            continue;
-          }
-          case 6: {
-            if (tag !== 50) {
-              break;
-            }
-
-            message.resourceName = reader.string();
-            continue;
-          }
-          case 7: {
-            if (tag !== 56) {
+            if (tag !== 40) {
               break;
             }
 
@@ -249,21 +149,7 @@ export const Resource: MessageFns<Resource> = {
         : isSet(object.tenant_id)
         ? globalThis.String(object.tenant_id)
         : "",
-      resourceSetting: isSet(object.resourceSetting)
-        ? ResourceSetting.fromJSON(object.resourceSetting)
-        : isSet(object.resource_setting)
-        ? ResourceSetting.fromJSON(object.resource_setting)
-        : undefined,
-      resourceDomain: isSet(object.resourceDomain)
-        ? globalThis.String(object.resourceDomain)
-        : isSet(object.resource_domain)
-        ? globalThis.String(object.resource_domain)
-        : "",
-      resourceName: isSet(object.resourceName)
-        ? globalThis.String(object.resourceName)
-        : isSet(object.resource_name)
-        ? globalThis.String(object.resource_name)
-        : "",
+      server: isSet(object.server) ? Server.fromJSON(object.server) : undefined,
       status: isSet(object.status) ? statusFromJSON(object.status) : 0,
     };
   },
@@ -279,14 +165,8 @@ export const Resource: MessageFns<Resource> = {
     if (message.tenantId !== "") {
       obj.tenantId = message.tenantId;
     }
-    if (message.resourceSetting !== undefined) {
-      obj.resourceSetting = ResourceSetting.toJSON(message.resourceSetting);
-    }
-    if (message.resourceDomain !== "") {
-      obj.resourceDomain = message.resourceDomain;
-    }
-    if (message.resourceName !== "") {
-      obj.resourceName = message.resourceName;
+    if (message.server !== undefined) {
+      obj.server = Server.toJSON(message.server);
     }
     if (message.status !== 0) {
       obj.status = statusToJSON(message.status);
@@ -304,11 +184,9 @@ export const Resource: MessageFns<Resource> = {
       : undefined;
     message.id = object.id ?? "";
     message.tenantId = object.tenantId ?? "";
-    message.resourceSetting = (object.resourceSetting !== undefined && object.resourceSetting !== null)
-      ? ResourceSetting.fromPartial(object.resourceSetting)
+    message.server = (object.server !== undefined && object.server !== null)
+      ? Server.fromPartial(object.server)
       : undefined;
-    message.resourceDomain = object.resourceDomain ?? "";
-    message.resourceName = object.resourceName ?? "";
     message.status = object.status ?? 0;
     return message;
   },

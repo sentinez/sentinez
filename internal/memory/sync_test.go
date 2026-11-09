@@ -50,7 +50,7 @@ func newSyncStore() *MemStore {
 func newSetting(id, ns string) *edgepb.Setting {
 	return &edgepb.Setting{
 		Metadata: &edgepb.Metadata{TenantId: id},
-		Server:   &edgepb.Server{Name: ns},
+		Server:   &edgepb.Server{ResourceDomain: ns},
 	}
 }
 

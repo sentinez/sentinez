@@ -6,6 +6,7 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { Server } from "../../../dmz/edge/v1/setting";
 import {
   Plan,
   planFromJSON,
@@ -18,7 +19,7 @@ import {
   statusToJSON,
 } from "../../../types/v1/known";
 import { Pages } from "../../../types/v1/model";
-import { Member, Resource, ResourceSetting, Tenant } from "./model";
+import { Member, Resource, Tenant } from "./model";
 
 export const protobufPackage = "sentinez.apps.tenant.v1";
 
@@ -48,19 +49,17 @@ export interface DeleteResourceResponse {
 
 export interface UpdateResourceRequest {
   id: string;
-  resourceDomain: string;
-  resourceName: string;
+  /** Replaces the stored server when set. */
+  server?: Server | undefined;
   status: Status;
-  resourceSetting?: ResourceSetting | undefined;
 }
 
 export interface UpdateResourceResponse {
 }
 
 export interface CreateResourceRequest {
-  resourceSetting?: ResourceSetting | undefined;
-  resourceDomain: string;
-  resourceName: string;
+  /** server.resource_domain is required. */
+  server?: Server | undefined;
   status: Status;
   tenantId: string;
 }
@@ -72,7 +71,9 @@ export interface CreateResourceResponse {
 export interface ListResourceRequest {
   page?: Pages | undefined;
   status: Status;
+  /** server.name */
   resourceName: string;
+  /** server.resource_domain */
   resourceDomain: string;
   tenantIds: string[];
 }
@@ -599,7 +600,7 @@ export const DeleteResourceResponse: MessageFns<DeleteResourceResponse> = {
 };
 
 function createBaseUpdateResourceRequest(): UpdateResourceRequest {
-  return { id: "", resourceDomain: "", resourceName: "", status: 0, resourceSetting: undefined };
+  return { id: "", server: undefined, status: 0 };
 }
 
 export const UpdateResourceRequest: MessageFns<UpdateResourceRequest> = {
@@ -607,17 +608,11 @@ export const UpdateResourceRequest: MessageFns<UpdateResourceRequest> = {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
-    if (message.resourceDomain !== "") {
-      writer.uint32(18).string(message.resourceDomain);
-    }
-    if (message.resourceName !== "") {
-      writer.uint32(26).string(message.resourceName);
+    if (message.server !== undefined) {
+      Server.encode(message.server, writer.uint32(18).fork()).join();
     }
     if (message.status !== 0) {
-      writer.uint32(32).int32(message.status);
-    }
-    if (message.resourceSetting !== undefined) {
-      ResourceSetting.encode(message.resourceSetting, writer.uint32(42).fork()).join();
+      writer.uint32(24).int32(message.status);
     }
     return writer;
   },
@@ -648,31 +643,15 @@ export const UpdateResourceRequest: MessageFns<UpdateResourceRequest> = {
               break;
             }
 
-            message.resourceDomain = reader.string();
+            message.server = Server.decode(reader, reader.uint32());
             continue;
           }
           case 3: {
-            if (tag !== 26) {
-              break;
-            }
-
-            message.resourceName = reader.string();
-            continue;
-          }
-          case 4: {
-            if (tag !== 32) {
+            if (tag !== 24) {
               break;
             }
 
             message.status = reader.int32() as any;
-            continue;
-          }
-          case 5: {
-            if (tag !== 42) {
-              break;
-            }
-
-            message.resourceSetting = ResourceSetting.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -690,22 +669,8 @@ export const UpdateResourceRequest: MessageFns<UpdateResourceRequest> = {
   fromJSON(object: any): UpdateResourceRequest {
     return {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
-      resourceDomain: isSet(object.resourceDomain)
-        ? globalThis.String(object.resourceDomain)
-        : isSet(object.resource_domain)
-        ? globalThis.String(object.resource_domain)
-        : "",
-      resourceName: isSet(object.resourceName)
-        ? globalThis.String(object.resourceName)
-        : isSet(object.resource_name)
-        ? globalThis.String(object.resource_name)
-        : "",
+      server: isSet(object.server) ? Server.fromJSON(object.server) : undefined,
       status: isSet(object.status) ? statusFromJSON(object.status) : 0,
-      resourceSetting: isSet(object.resourceSetting)
-        ? ResourceSetting.fromJSON(object.resourceSetting)
-        : isSet(object.resource_setting)
-        ? ResourceSetting.fromJSON(object.resource_setting)
-        : undefined,
     };
   },
 
@@ -714,17 +679,11 @@ export const UpdateResourceRequest: MessageFns<UpdateResourceRequest> = {
     if (message.id !== "") {
       obj.id = message.id;
     }
-    if (message.resourceDomain !== "") {
-      obj.resourceDomain = message.resourceDomain;
-    }
-    if (message.resourceName !== "") {
-      obj.resourceName = message.resourceName;
+    if (message.server !== undefined) {
+      obj.server = Server.toJSON(message.server);
     }
     if (message.status !== 0) {
       obj.status = statusToJSON(message.status);
-    }
-    if (message.resourceSetting !== undefined) {
-      obj.resourceSetting = ResourceSetting.toJSON(message.resourceSetting);
     }
     return obj;
   },
@@ -735,12 +694,10 @@ export const UpdateResourceRequest: MessageFns<UpdateResourceRequest> = {
   fromPartial<I extends Exact<DeepPartial<UpdateResourceRequest>, I>>(object: I): UpdateResourceRequest {
     const message = createBaseUpdateResourceRequest();
     message.id = object.id ?? "";
-    message.resourceDomain = object.resourceDomain ?? "";
-    message.resourceName = object.resourceName ?? "";
-    message.status = object.status ?? 0;
-    message.resourceSetting = (object.resourceSetting !== undefined && object.resourceSetting !== null)
-      ? ResourceSetting.fromPartial(object.resourceSetting)
+    message.server = (object.server !== undefined && object.server !== null)
+      ? Server.fromPartial(object.server)
       : undefined;
+    message.status = object.status ?? 0;
     return message;
   },
 };
@@ -798,25 +755,19 @@ export const UpdateResourceResponse: MessageFns<UpdateResourceResponse> = {
 };
 
 function createBaseCreateResourceRequest(): CreateResourceRequest {
-  return { resourceSetting: undefined, resourceDomain: "", resourceName: "", status: 0, tenantId: "" };
+  return { server: undefined, status: 0, tenantId: "" };
 }
 
 export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
   encode(message: CreateResourceRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.resourceSetting !== undefined) {
-      ResourceSetting.encode(message.resourceSetting, writer.uint32(10).fork()).join();
-    }
-    if (message.resourceDomain !== "") {
-      writer.uint32(18).string(message.resourceDomain);
-    }
-    if (message.resourceName !== "") {
-      writer.uint32(26).string(message.resourceName);
+    if (message.server !== undefined) {
+      Server.encode(message.server, writer.uint32(10).fork()).join();
     }
     if (message.status !== 0) {
-      writer.uint32(32).int32(message.status);
+      writer.uint32(16).int32(message.status);
     }
     if (message.tenantId !== "") {
-      writer.uint32(42).string(message.tenantId);
+      writer.uint32(26).string(message.tenantId);
     }
     return writer;
   },
@@ -839,35 +790,19 @@ export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
               break;
             }
 
-            message.resourceSetting = ResourceSetting.decode(reader, reader.uint32());
+            message.server = Server.decode(reader, reader.uint32());
             continue;
           }
           case 2: {
-            if (tag !== 18) {
-              break;
-            }
-
-            message.resourceDomain = reader.string();
-            continue;
-          }
-          case 3: {
-            if (tag !== 26) {
-              break;
-            }
-
-            message.resourceName = reader.string();
-            continue;
-          }
-          case 4: {
-            if (tag !== 32) {
+            if (tag !== 16) {
               break;
             }
 
             message.status = reader.int32() as any;
             continue;
           }
-          case 5: {
-            if (tag !== 42) {
+          case 3: {
+            if (tag !== 26) {
               break;
             }
 
@@ -888,21 +823,7 @@ export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
 
   fromJSON(object: any): CreateResourceRequest {
     return {
-      resourceSetting: isSet(object.resourceSetting)
-        ? ResourceSetting.fromJSON(object.resourceSetting)
-        : isSet(object.resource_setting)
-        ? ResourceSetting.fromJSON(object.resource_setting)
-        : undefined,
-      resourceDomain: isSet(object.resourceDomain)
-        ? globalThis.String(object.resourceDomain)
-        : isSet(object.resource_domain)
-        ? globalThis.String(object.resource_domain)
-        : "",
-      resourceName: isSet(object.resourceName)
-        ? globalThis.String(object.resourceName)
-        : isSet(object.resource_name)
-        ? globalThis.String(object.resource_name)
-        : "",
+      server: isSet(object.server) ? Server.fromJSON(object.server) : undefined,
       status: isSet(object.status) ? statusFromJSON(object.status) : 0,
       tenantId: isSet(object.tenantId)
         ? globalThis.String(object.tenantId)
@@ -914,14 +835,8 @@ export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
 
   toJSON(message: CreateResourceRequest): unknown {
     const obj: any = {};
-    if (message.resourceSetting !== undefined) {
-      obj.resourceSetting = ResourceSetting.toJSON(message.resourceSetting);
-    }
-    if (message.resourceDomain !== "") {
-      obj.resourceDomain = message.resourceDomain;
-    }
-    if (message.resourceName !== "") {
-      obj.resourceName = message.resourceName;
+    if (message.server !== undefined) {
+      obj.server = Server.toJSON(message.server);
     }
     if (message.status !== 0) {
       obj.status = statusToJSON(message.status);
@@ -937,11 +852,9 @@ export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
   },
   fromPartial<I extends Exact<DeepPartial<CreateResourceRequest>, I>>(object: I): CreateResourceRequest {
     const message = createBaseCreateResourceRequest();
-    message.resourceSetting = (object.resourceSetting !== undefined && object.resourceSetting !== null)
-      ? ResourceSetting.fromPartial(object.resourceSetting)
+    message.server = (object.server !== undefined && object.server !== null)
+      ? Server.fromPartial(object.server)
       : undefined;
-    message.resourceDomain = object.resourceDomain ?? "";
-    message.resourceName = object.resourceName ?? "";
     message.status = object.status ?? 0;
     message.tenantId = object.tenantId ?? "";
     return message;

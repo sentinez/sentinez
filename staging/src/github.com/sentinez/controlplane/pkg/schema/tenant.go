@@ -46,15 +46,23 @@ func TenantMembers() dbx.Schema {
 	}
 }
 
+// Columns of the sztable.TenantResources table derived from the stored
+// server (tenantpb.Resource_Server), to filter the resources by: they are
+// written with it, never on their own.
+const (
+	ResourceServerName   = "server_name"
+	ResourceServerDomain = "server_resource_domain"
+)
+
 // TenantResources the schema of the sztable.TenantResources table.
 func TenantResources() dbx.Schema {
 	return dbx.Schema{
 		Table: sztable.TenantResources,
 		Columns: []dbx.Column{
 			{Name: tenantpb.Resource_Id, Type: dbx.Text},
-			{Name: tenantpb.Resource_ResourceSetting, Type: dbx.ByteA},
-			{Name: tenantpb.Resource_ResourceName, Type: dbx.Text},
-			{Name: tenantpb.Resource_ResourceDomain, Type: dbx.Text},
+			{Name: tenantpb.Resource_Server, Type: dbx.ByteA},
+			{Name: ResourceServerName, Type: dbx.Text},
+			{Name: ResourceServerDomain, Type: dbx.Text},
 			{Name: tenantpb.Resource_TenantId, Type: dbx.Text},
 			{Name: tenantpb.Resource_Status, Type: dbx.Int4},
 		},

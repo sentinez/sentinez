@@ -41,7 +41,7 @@ const _proxyImportTimeout = 10 * time.Second
 // tenantImporter stores the server of a proxy.yaml.
 type tenantImporter interface {
 	ImportServer(ctx context.Context, tenant *tenantpb.Tenant,
-		hostname string, srv *edgepb.Server) error
+		srv *edgepb.Server) error
 }
 
 // securityImporter stores the security block of a proxy.yaml.
@@ -109,7 +109,7 @@ func storeProxy(ctx context.Context, data []byte,
 		Id:   tenantId,
 		Name: cmp.Or(meta.GetTenantName(), tenantId),
 		Plan: meta.GetPlan(),
-	}, meta.GetHostname(), srv)
+	}, srv)
 	if err != nil {
 		return fmt.Errorf("import server: %w", err)
 	}

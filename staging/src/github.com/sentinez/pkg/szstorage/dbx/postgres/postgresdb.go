@@ -46,6 +46,11 @@ var (
 // SyncFn creates or migrates the relation tableName through client.
 type SyncFn func(ctx context.Context, client Client, tableName string) error
 
+// NoSync the SyncFn of a relation synced already, by its own repo.
+func NoSync(context.Context, Client, string) error {
+	return nil
+}
+
 // New returns the Database of the table described by schema, synced on
 // the way: the table, its missing columns and indexes are created.
 func New[T any](ctx context.Context, conf *settingpb.Config,

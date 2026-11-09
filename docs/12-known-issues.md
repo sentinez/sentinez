@@ -35,6 +35,11 @@ None known.
   synced between the edges.
 - An explicit `HISTOGRAM_RESOLUTION_SECOND` with no `from` reads the whole
   7 days of the second view.
+- A histogram with `request_ids` or `filters` scans the event table, once per
+  page of buckets (up to 15 requests for a long range per hour): slow on a
+  large table, and the `request_id` of the secrule and core ruleset tables
+  has no index. `GetEventTopValuesRequest` has no `request_ids`, so the top
+  values ignore a request id the list and the histogram apply.
 - [deploy/docker/docker-compose.yaml](../deploy/docker/docker-compose.yaml)
   creates the event topics with 3 partitions and disables topic auto-create,
   so the producer's `DefaultTopicPartitions` (6) never applies in that
@@ -45,7 +50,7 @@ None known.
   (`sentinez/dmz/edge/zone/<zone>/status`); `Elector.Publish` and
   `leader.All` are ready for more zone-wide records, but none exists yet.
   Nothing reads the status either.
-- Unloading a namespace (deleted resource, renamed `server.name`) keeps
+- Unloading a namespace (deleted resource, changed `server.resourceDomain`) keeps
   its reverse proxies: they are keyed by upstream and shared between
   namespaces, with no reference count.
 - Waiting room (`ROM`), `pkg/szqueue`, `pkg/sztopic`, `pkg/szstorage/{keyval,

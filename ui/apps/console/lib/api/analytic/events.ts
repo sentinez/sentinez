@@ -30,6 +30,7 @@ import {
   getJSON,
   RESOLUTION_BUCKETS,
   SAMPLE_IPS,
+  maxPagesOf,
   resolutionOfSpan,
   sampleBuckets,
 } from './common';
@@ -316,8 +317,12 @@ function sampleHistogram(req: GetEventHistogramRequest): HistogramPoint[] {
       points.set(`${time.getTime()}|${resourceId}|0`, { time, resourceId, key: 0, total: 0 });
     }
   }
-  const requests = sampleIngressWindow(req.resolution, ids, req.to);
-  for (const r of sampleRecordsOf(req.kind, requests)) {
+  // The events of the requests and filters only, as the API counts them
+  const requests = sampleIngressWindow(req.resolution, ids, req.to).filter(
+    ofRequests(req.requestIds, (e) => e.id),
+  );
+  const records = sampleRecordsOf(req.kind, requests).filter((r) => matchesFilters(r, req.filters));
+  for (const r of records) {
     const start = Math.floor(r.time / millis) * millis;
     const id = `${start}|${r.resourceId}|${r.key}`;
     const point = points.get(id) ?? {
@@ -373,6 +378,34 @@ export async function getEventHistogram(
     () => ({ points: sampleHistogram(full) }),
     options,
   );
+}
+
+/**
+ * The points of the histogram of a range: `from` to `to` in as many pages
+ * of buckets as the API returns for the resolution (at most maxPagesOf),
+ * the latest ending with the bucket of `to`. A single page without `to`
+ * (the buckets ending now) or `from`.
+ */
+export async function getEventHistogramPages(
+  req: Partial<GetEventHistogramRequest>,
+  options?: ApiOptions,
+): Promise<HistogramPoint[]> {
+  const resolution = req.resolution ?? HistogramResolution.HISTOGRAM_RESOLUTION_UNSPECIFIED;
+  const { millis, count } = RESOLUTION_BUCKETS[resolution];
+  const { from, to } = req;
+  const wanted = from && to ? Math.ceil((to.getTime() - from.getTime()) / (millis * count)) : 1;
+  const pages = Math.min(Math.max(wanted, 1), maxPagesOf(resolution));
+  // The API ends the buckets with the start of the one after `to`
+  const end = to && Math.ceil(to.getTime() / millis) * millis;
+  const resps = await Promise.all(
+    Array.from({ length: pages }, (_, i) =>
+      getEventHistogram(
+        { ...req, to: end === undefined ? undefined : new Date(end - i * millis * count) },
+        options,
+      ),
+    ),
+  );
+  return resps.flatMap((r) => r.points);
 }
 
 // GET /analytic/events/top-values

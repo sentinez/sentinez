@@ -65,7 +65,7 @@ func (m *MemStore) share(ctx context.Context, s *edgepb.Setting) {
 	id := s.GetMetadata().GetTenantId()
 	if id == "" || id == defaults.TenantId {
 		szlog.Warnf("edge: setting %q has no tenant id of its own, "+
-			"not synced", s.GetServer().GetName())
+			"not synced", namespace(s))
 		m.load("", s)
 
 		return
@@ -79,9 +79,10 @@ func (m *MemStore) share(ctx context.Context, s *edgepb.Setting) {
 // applySetting rebuilds the stores of the setting of resource id when
 // it changes: a removed or renamed namespace is unloaded first.
 func (m *MemStore) applySetting(id string, prev, next *edgepb.Setting) {
-	ns := next.GetServer().GetName()
-	if prev != nil && (next == nil || prev.GetServer().GetName() != ns) {
-		m.unload(id, prev.GetServer().GetName())
+	if prev != nil {
+		if old := namespace(prev); next == nil || namespace(next) != old {
+			m.unload(id, old)
+		}
 	}
 
 	if next != nil {
@@ -92,7 +93,18 @@ func (m *MemStore) applySetting(id string, prev, next *edgepb.Setting) {
 // load normalizes a copy of s and rebuilds the stores of its namespace,
 // unless another resource holds the namespace.
 func (m *MemStore) load(id string, s *edgepb.Setting) {
-	ns := s.GetServer().GetName()
+	st, _ := proto.Clone(s).(*edgepb.Setting)
+	sznormalize.NormalizeEdgeSetting(st)
+
+	// the stores key st by it too
+	ns := st.GetServer().GetResourceDomain()
+	if ns == "" {
+		szlog.Errorf("edge: setting of %s has no server.resourceDomain, "+
+			"not loaded", id)
+
+		return
+	}
+
 	if owner, ok := m.claim(ns, id); !ok {
 		szlog.Errorf("edge: namespace %q of %s is held by %s",
 			ns, id, owner)
@@ -100,8 +112,6 @@ func (m *MemStore) load(id string, s *edgepb.Setting) {
 		return
 	}
 
-	st, _ := proto.Clone(s).(*edgepb.Setting)
-	sznormalize.NormalizeEdgeSetting(st)
 	m.setting.Store(st)
 
 	err := errors.Join(
@@ -136,6 +146,12 @@ func (m *MemStore) unload(id, ns string) {
 	m.secRule.Delete(ns)
 	m.limiter.Delete(ns)
 	m.rulesets.Delete(ns)
+}
+
+// namespace of the raw (not normalized) s: the resource domain of its
+// server, as sznormalize.NormalizeEdgeSetting normalizes it.
+func namespace(s *edgepb.Setting) string {
+	return sznormalize.ResourceDomain(s.GetServer().GetResourceDomain())
 }
 
 // claim gives namespace to resource id, unless another one holds it.
