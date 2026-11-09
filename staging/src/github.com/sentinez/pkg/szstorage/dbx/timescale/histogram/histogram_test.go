@@ -15,12 +15,14 @@
 package histogram
 
 import (
+	"slices"
 	"testing"
 	"time"
 
 	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/sentinez/pkg/szstorage/dbx/timescale"
 	"github.com/sentinez/pkg/sztable"
+	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -119,10 +121,11 @@ func sourceQueryTests() []queryTest {
 
 // viewSchemaTest a case of TestViewSchema.
 type viewSchemaTest struct {
-	give       Resolution
+	give       typepb.HistogramInterval
 	wantName   sztable.Table
 	wantBucket time.Duration
 	wantKeep   time.Duration
+	wantLate   time.Duration
 }
 
 func TestViewSchema(t *testing.T) {
@@ -146,8 +149,9 @@ func TestViewSchema(t *testing.T) {
 				view.GroupBy)
 			assert.True(t, view.RealTime)
 			assert.Equal(t, tt.wantKeep, view.Retention)
-			assert.Greater(t, view.Refresh.StartOffset,
-				2*tt.wantBucket+view.Refresh.EndOffset)
+			assert.Equal(t, tt.wantLate, view.Refresh.StartOffset)
+			assert.Equal(t, min(tt.wantBucket, time.Minute),
+				view.Refresh.EndOffset)
 		})
 	}
 }
@@ -156,16 +160,19 @@ func TestViewSchema(t *testing.T) {
 func viewSchemaTests(sourceKeep time.Duration) []viewSchemaTest {
 	return []viewSchemaTest{
 		{
-			give: Minute, wantName: "a.events.minutely",
+			give: _int1m, wantName: "a.events.1m",
 			wantBucket: time.Minute, wantKeep: sourceKeep,
+			wantLate: _lateEvents,
 		},
 		{
-			give: Hour, wantName: "a.events.hourly",
+			give: _int1h, wantName: "a.events.1h",
 			wantBucket: time.Hour, wantKeep: sourceKeep,
+			wantLate: 3 * 24 * time.Hour,
 		},
 		{
-			give: Second, wantName: "a.events.secondly",
-			wantBucket: time.Second, wantKeep: _secondRetention,
+			give: _int10s, wantName: "a.events.10s",
+			wantBucket: 10 * time.Second, wantKeep: _secondRetention,
+			wantLate: _lateEvents,
 		},
 	}
 }
@@ -181,7 +188,7 @@ type viewNameTest struct {
 func TestViewSchemaName(t *testing.T) {
 	for _, tt := range viewNameTests() {
 		t.Run(tt.name, func(t *testing.T) {
-			view := tt.give.schema(Minute)
+			view := tt.give.schema(_int1m)
 
 			assert.Equal(t, tt.wantName, view.Name)
 			assert.Equal(t, tt.wantGroupBy, view.GroupBy)
@@ -196,13 +203,13 @@ func viewNameTests() []viewNameTest {
 		{
 			name:        "spec without key",
 			give:        Spec{Source: source}.def(),
-			wantName:    "a.events.minutely",
+			wantName:    "a.events.1m",
 			wantGroupBy: []string{"resource_id", "tenant_id"},
 		},
 		{
 			name:        "spec with key",
 			give:        Spec{Source: source, Key: "k"}.def(),
-			wantName:    "a.events.minutely",
+			wantName:    "a.events.1m",
 			wantGroupBy: []string{"resource_id", "tenant_id", "k"},
 		},
 		{
@@ -211,7 +218,7 @@ func viewNameTests() []viewNameTest {
 				source: source, name: "client_ip",
 				groupBy: []string{"client_ip"},
 			},
-			wantName: "a.events.client_ip.minutely",
+			wantName: "a.events.client_ip.1m",
 			wantGroupBy: []string{
 				"resource_id", "tenant_id", "client_ip",
 			},
@@ -223,28 +230,30 @@ func TestViewsOf(t *testing.T) {
 	now := time.Date(2026, 1, 2, 12, 30, 15, 0, time.UTC)
 	hour := &timescale.View[Point]{}
 
-	view, w, err := views{Hour: hour}.of(&Filter{Resolution: Hour}, now)
+	view, w, err := views{_int30m: hour}.of(
+		&Filter{Resolution: _res24h}, now)
 
 	require.NoError(t, err)
 	assert.Same(t, hour, view)
 	assert.Equal(t, window{
 		from:   time.Date(2026, 1, 1, 13, 0, 0, 0, time.UTC),
-		bucket: time.Hour,
-		count:  24,
+		bucket: 30 * time.Minute,
+		count:  48,
 	}, w)
 }
 
 func TestViewsOfUnknown(t *testing.T) {
-	_, _, err := views{}.of(&Filter{Resolution: Hour}, time.Now())
+	_, _, err := views{}.of(
+		&Filter{Resolution: _res24h}, time.Now())
 
-	require.EqualError(t, err, "histogram: unknown resolution 3")
+	require.EqualError(t, err, "histogram: no view of interval 15")
 }
 
 // windowTest a case of TestFilterWindow.
 type windowTest struct {
 	name     string
 	give     *Filter
-	giveSpec Resolution
+	giveSpec typepb.HistogramResolution
 	wantFrom time.Time
 	wantTo   time.Time
 }
@@ -259,7 +268,7 @@ func TestFilterWindow(t *testing.T) {
 
 			assert.Equal(t, tt.wantFrom, w.from)
 			assert.Equal(t, tt.wantTo, w.to())
-			assert.Equal(t, spec.count, w.count)
+			assert.Equal(t, int(spec.span/w.bucket), w.count)
 		})
 	}
 }
@@ -273,28 +282,28 @@ func windowTests() []windowTest {
 
 	return []windowTest{
 		{
-			name: "hour until now", give: nil, giveSpec: Hour,
-			wantFrom: at(12, 0, 0).Add(-23 * time.Hour),
+			name: "2 days until now", give: nil, giveSpec: _res2d,
+			wantFrom: at(13, 0, 0).Add(-48 * time.Hour),
 			wantTo:   at(13, 0, 0),
 		},
 		{
-			name: "minute until now", give: &Filter{}, giveSpec: Minute,
+			name: "1 hour until now", give: &Filter{}, giveSpec: _res1h,
 			wantFrom: at(11, 31, 0), wantTo: at(12, 31, 0),
 		},
 		{
-			name: "second until now", give: &Filter{}, giveSpec: Second,
-			wantFrom: at(12, 29, 16), wantTo: at(12, 30, 16),
+			name: "5 minutes until now", give: &Filter{}, giveSpec: _res5m,
+			wantFrom: at(12, 25, 20), wantTo: at(12, 30, 20),
 		},
 		{
-			name:     "minute until to",
+			name:     "1 hour until to",
 			give:     &Filter{From: at(1, 0, 0), To: at(10, 0, 30)},
-			giveSpec: Minute,
+			giveSpec: _res1h,
 			wantFrom: at(9, 1, 0), wantTo: at(10, 1, 0),
 		},
 		{
 			name:     "on a bucket start, to excluded",
 			give:     &Filter{To: at(10, 0, 0)},
-			giveSpec: Minute,
+			giveSpec: _res1h,
 			wantFrom: at(9, 0, 0), wantTo: at(10, 0, 0),
 		},
 	}
@@ -326,11 +335,28 @@ func TestWindowFillEmpty(t *testing.T) {
 	assert.Empty(t, w.fill(nil, nil))
 }
 
+func TestFilterResolve(t *testing.T) {
+	now := time.Date(2026, 1, 2, 12, 0, 0, 0, time.UTC)
+	filter := &Filter{From: now.Add(-3 * time.Hour)}
+
+	interval := filter.Resolve(now)
+
+	assert.Equal(t, _res3h, filter.Resolution)
+	assert.Equal(t, _int5m, interval)
+}
+
+func TestFilterResolveUnknown(t *testing.T) {
+	interval := (&Filter{Resolution: 99}).Resolve(time.Now())
+
+	assert.Equal(t,
+		typepb.HistogramInterval_HISTOGRAM_INTERVAL_UNSPECIFIED, interval)
+}
+
 // resolutionTest a case of TestFilterResolution.
 type resolutionTest struct {
 	name string
 	give *Filter
-	want Resolution
+	want typepb.HistogramResolution
 }
 
 func TestFilterResolution(t *testing.T) {
@@ -345,36 +371,67 @@ func TestFilterResolution(t *testing.T) {
 
 // resolutionTests the filters of ranges relative to now.
 func resolutionTests(now time.Time) []resolutionTest {
+	return append([]resolutionTest{
+		{name: "nil", give: nil, want: _res1h},
+		{name: "set", give: &Filter{Resolution: _res24h}, want: _res24h},
+		{name: "unbounded", give: &Filter{}, want: _res1h},
+		{
+			name: "inverted",
+			give: &Filter{From: now, To: now.Add(-time.Minute)},
+			want: _res1h,
+		},
+	}, slices.Concat(rangeResolutionTests(now),
+		toleranceResolutionTests(now))...)
+}
+
+// rangeResolutionTests the filters of a range picking the Resolution.
+func rangeResolutionTests(now time.Time) []resolutionTest {
 	return []resolutionTest{
-		{name: "nil", give: nil, want: Minute},
-		{name: "set", give: &Filter{Resolution: Hour}, want: Hour},
-		{name: "unbounded", give: &Filter{}, want: Minute},
 		{
 			name: "zoom",
 			give: &Filter{
 				From: now.Add(-10 * time.Minute),
 				To:   now.Add(-5 * time.Minute),
 			},
-			want: Second,
+			want: _res5m,
 		},
 		{
 			name: "zoom until now",
 			give: &Filter{From: now.Add(-time.Minute)},
-			want: Second,
+			want: _res5m,
 		},
-		{name: "wide", give: &Filter{From: now.Add(-time.Hour)}, want: Minute},
+		{name: "wide", give: &Filter{From: now.Add(-time.Hour)}, want: _res1h},
 		{
 			name: "expired seconds",
 			give: &Filter{
 				From: now.Add(-8 * 24 * time.Hour),
 				To:   now.Add(-8*24*time.Hour + time.Minute),
 			},
-			want: Minute,
+			want: _res30m,
 		},
 		{
-			name: "inverted",
-			give: &Filter{From: now, To: now.Add(-time.Minute)},
-			want: Minute,
+			name: "beyond the longest",
+			give: &Filter{From: now.Add(-60 * 24 * time.Hour)},
+			want: _res30d,
+		},
+	}
+}
+
+// toleranceResolutionTests the ranges longer than a Resolution: by up to
+// one of its buckets they keep it, else take the next one.
+func toleranceResolutionTests(now time.Time) []resolutionTest {
+	week := 7 * 24 * time.Hour
+
+	return []resolutionTest{
+		{
+			name: "7 days and a bucket",
+			give: &Filter{From: now.Add(-week - 3*time.Hour)},
+			want: _res7d,
+		},
+		{
+			name: "7 days and more than a bucket",
+			give: &Filter{From: now.Add(-week - 4*time.Hour)},
+			want: _res30d,
 		},
 	}
 }

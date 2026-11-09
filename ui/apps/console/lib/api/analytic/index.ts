@@ -7,19 +7,31 @@ import {
   GetUniqueVisitorHistogramRequest,
   GetUniqueVisitorHistogramResponse,
   type HistogramPoint,
-  HistogramResolution,
   ListVisitorsRequest,
   ListVisitorsResponse,
   type VisitorPoint,
 } from '@sentinez/proto/sentinez/apps/analytic/v1/event';
+import { HistogramResolution } from '@sentinez/proto/sentinez/types/v1/known';
 import { type Pages, paginate } from '@/lib/api/pages';
 import { SAMPLE_TENANT_ID } from '@/lib/api/tenant';
-import { type ApiOptions, SAMPLE_IPS, getJSON, sampleBuckets } from './common';
+import {
+  type ApiOptions,
+  SAMPLE_IPS,
+  VISITORS_RESOLUTION,
+  getJSON,
+  intervalOf,
+  sampleBuckets,
+} from './common';
 
 export {
+  EVENT_RETENTION_MILLIS,
+  HOUR_MILLIS,
   RESOLUTIONS,
   RESOLUTION_BUCKETS,
-  maxPagesOf,
+  VISITORS_RESOLUTION,
+  bucketMillisOf,
+  durationOf,
+  fits,
   resolutionOfSpan,
   spanOf,
   type ApiOptions,
@@ -105,15 +117,23 @@ export async function getUniqueVisitorHistogram(
     '/analytic/visitors/histogram',
     full,
     { req: GetUniqueVisitorHistogramRequest, resp: GetUniqueVisitorHistogramResponse },
-    () => ({ points: sampleVisitorPoints(full) }),
+    () => ({
+      points: sampleVisitorPoints(full),
+      interval: intervalOf(sampleResolution(full)),
+    }),
     options,
   );
 }
 
-// Hourly sample visitors of each resource (sampleBuckets): the most requests
-// first in each bucket
+// The resolution of the samples of a request: the one asked, else that of
+// the visitors
+const sampleResolution = (req: { resolution: HistogramResolution }) =>
+  req.resolution || VISITORS_RESOLUTION;
+
+// Sample visitors of each resource per bucket of the resolution
+// (sampleBuckets): the most requests first in each bucket
 function sampleVisitors(req: ListVisitorsRequest): VisitorPoint[] {
-  return sampleBuckets(HistogramResolution.HISTOGRAM_RESOLUTION_HOUR, req.to).flatMap((time, i) =>
+  return sampleBuckets(sampleResolution(req), req.to).flatMap((time, i) =>
     req.resourceIds.flatMap((resourceId) =>
       SAMPLE_IPS.slice(0, 2 + (i % 4)).map((clientIp, n) => ({
         time,
@@ -135,7 +155,10 @@ export async function listVisitors(
     '/analytic/visitors',
     full,
     { req: ListVisitorsRequest, resp: ListVisitorsResponse },
-    () => ({ visitors: sampleVisitors(full) }),
+    () => ({
+      visitors: sampleVisitors(full),
+      interval: intervalOf(sampleResolution(full)),
+    }),
     options,
   );
 }

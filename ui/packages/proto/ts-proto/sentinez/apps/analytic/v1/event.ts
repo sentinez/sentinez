@@ -10,6 +10,14 @@ import { Timestamp } from "../../../../google/protobuf/timestamp";
 import { CoreRuleEvent } from "../../../types/coreruleset/v1/event";
 import { EgressEvent, IngressEvent } from "../../../types/net/http/v1/event";
 import { SecRuleEvent } from "../../../types/secrule/v1/event";
+import {
+  HistogramInterval,
+  histogramIntervalFromJSON,
+  histogramIntervalToJSON,
+  HistogramResolution,
+  histogramResolutionFromJSON,
+  histogramResolutionToJSON,
+} from "../../../types/v1/known";
 import { Pages } from "../../../types/v1/model";
 
 export const protobufPackage = "sentinez.apps.analytic.v1";
@@ -72,62 +80,6 @@ export function eventKindToJSON(object: EventKind): string {
     case EventKind.EVENT_KIND_CORE_RULE:
       return "EVENT_KIND_CORE_RULE";
     case EventKind.UNRECOGNIZED:
-    default:
-      return "UNRECOGNIZED";
-  }
-}
-
-/**
- * HistogramResolution the time range of the buckets of a histogram, and
- * their number.
- */
-export enum HistogramResolution {
-  /**
-   * HISTOGRAM_RESOLUTION_UNSPECIFIED - Picked by the range: seconds for a short zoom within their
-   * retention, else minutes.
-   */
-  HISTOGRAM_RESOLUTION_UNSPECIFIED = 0,
-  /** HISTOGRAM_RESOLUTION_SECOND - The last 60 seconds. */
-  HISTOGRAM_RESOLUTION_SECOND = 1,
-  /** HISTOGRAM_RESOLUTION_MINUTE - The last 60 minutes. */
-  HISTOGRAM_RESOLUTION_MINUTE = 2,
-  /** HISTOGRAM_RESOLUTION_HOUR - The last 24 hours. */
-  HISTOGRAM_RESOLUTION_HOUR = 3,
-  UNRECOGNIZED = -1,
-}
-
-export function histogramResolutionFromJSON(object: any): HistogramResolution {
-  switch (object) {
-    case 0:
-    case "HISTOGRAM_RESOLUTION_UNSPECIFIED":
-      return HistogramResolution.HISTOGRAM_RESOLUTION_UNSPECIFIED;
-    case 1:
-    case "HISTOGRAM_RESOLUTION_SECOND":
-      return HistogramResolution.HISTOGRAM_RESOLUTION_SECOND;
-    case 2:
-    case "HISTOGRAM_RESOLUTION_MINUTE":
-      return HistogramResolution.HISTOGRAM_RESOLUTION_MINUTE;
-    case 3:
-    case "HISTOGRAM_RESOLUTION_HOUR":
-      return HistogramResolution.HISTOGRAM_RESOLUTION_HOUR;
-    case -1:
-    case "UNRECOGNIZED":
-    default:
-      return HistogramResolution.UNRECOGNIZED;
-  }
-}
-
-export function histogramResolutionToJSON(object: HistogramResolution): string {
-  switch (object) {
-    case HistogramResolution.HISTOGRAM_RESOLUTION_UNSPECIFIED:
-      return "HISTOGRAM_RESOLUTION_UNSPECIFIED";
-    case HistogramResolution.HISTOGRAM_RESOLUTION_SECOND:
-      return "HISTOGRAM_RESOLUTION_SECOND";
-    case HistogramResolution.HISTOGRAM_RESOLUTION_MINUTE:
-      return "HISTOGRAM_RESOLUTION_MINUTE";
-    case HistogramResolution.HISTOGRAM_RESOLUTION_HOUR:
-      return "HISTOGRAM_RESOLUTION_HOUR";
-    case HistogramResolution.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
   }
@@ -317,6 +269,11 @@ export interface GetEventHistogramResponse {
    * 0 when it has no event; a resource without any has key 0.
    */
   points: HistogramPoint[];
+  /**
+   * The width of one bucket, that of the resolution asked or picked by
+   * from and to.
+   */
+  interval: HistogramInterval;
 }
 
 export interface GetUniqueVisitorHistogramRequest {
@@ -337,6 +294,11 @@ export interface GetUniqueVisitorHistogramResponse {
    * the number of distinct client ips of the bucket, 0 without.
    */
   points: HistogramPoint[];
+  /**
+   * The width of one bucket, that of the resolution asked or picked by
+   * from and to.
+   */
+  interval: HistogramInterval;
 }
 
 export interface ListVisitorsRequest {
@@ -365,6 +327,11 @@ export interface VisitorPoint {
 export interface ListVisitorsResponse {
   /** Oldest bucket first, then the client ip of the most requests. */
   visitors: VisitorPoint[];
+  /**
+   * The width of one bucket, that of the resolution asked or picked by
+   * from and to.
+   */
+  interval: HistogramInterval;
 }
 
 export interface GetEventTopValuesRequest {
@@ -1856,13 +1823,16 @@ export const HistogramPoint: MessageFns<HistogramPoint> = {
 };
 
 function createBaseGetEventHistogramResponse(): GetEventHistogramResponse {
-  return { points: [] };
+  return { points: [], interval: 0 };
 }
 
 export const GetEventHistogramResponse: MessageFns<GetEventHistogramResponse> = {
   encode(message: GetEventHistogramResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     for (const v of message.points) {
       HistogramPoint.encode(v!, writer.uint32(10).fork()).join();
+    }
+    if (message.interval !== 0) {
+      writer.uint32(16).int32(message.interval);
     }
     return writer;
   },
@@ -1888,6 +1858,14 @@ export const GetEventHistogramResponse: MessageFns<GetEventHistogramResponse> = 
             message.points.push(HistogramPoint.decode(reader, reader.uint32()));
             continue;
           }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.interval = reader.int32() as any;
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -1903,6 +1881,7 @@ export const GetEventHistogramResponse: MessageFns<GetEventHistogramResponse> = 
   fromJSON(object: any): GetEventHistogramResponse {
     return {
       points: globalThis.Array.isArray(object?.points) ? object.points.map((e: any) => HistogramPoint.fromJSON(e)) : [],
+      interval: isSet(object.interval) ? histogramIntervalFromJSON(object.interval) : 0,
     };
   },
 
@@ -1910,6 +1889,9 @@ export const GetEventHistogramResponse: MessageFns<GetEventHistogramResponse> = 
     const obj: any = {};
     if (message.points?.length) {
       obj.points = message.points.map((e) => HistogramPoint.toJSON(e));
+    }
+    if (message.interval !== 0) {
+      obj.interval = histogramIntervalToJSON(message.interval);
     }
     return obj;
   },
@@ -1920,6 +1902,7 @@ export const GetEventHistogramResponse: MessageFns<GetEventHistogramResponse> = 
   fromPartial<I extends Exact<DeepPartial<GetEventHistogramResponse>, I>>(object: I): GetEventHistogramResponse {
     const message = createBaseGetEventHistogramResponse();
     message.points = object.points?.map((e) => HistogramPoint.fromPartial(e)) || [];
+    message.interval = object.interval ?? 0;
     return message;
   },
 };
@@ -2050,13 +2033,16 @@ export const GetUniqueVisitorHistogramRequest: MessageFns<GetUniqueVisitorHistog
 };
 
 function createBaseGetUniqueVisitorHistogramResponse(): GetUniqueVisitorHistogramResponse {
-  return { points: [] };
+  return { points: [], interval: 0 };
 }
 
 export const GetUniqueVisitorHistogramResponse: MessageFns<GetUniqueVisitorHistogramResponse> = {
   encode(message: GetUniqueVisitorHistogramResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     for (const v of message.points) {
       HistogramPoint.encode(v!, writer.uint32(10).fork()).join();
+    }
+    if (message.interval !== 0) {
+      writer.uint32(16).int32(message.interval);
     }
     return writer;
   },
@@ -2082,6 +2068,14 @@ export const GetUniqueVisitorHistogramResponse: MessageFns<GetUniqueVisitorHisto
             message.points.push(HistogramPoint.decode(reader, reader.uint32()));
             continue;
           }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.interval = reader.int32() as any;
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -2097,6 +2091,7 @@ export const GetUniqueVisitorHistogramResponse: MessageFns<GetUniqueVisitorHisto
   fromJSON(object: any): GetUniqueVisitorHistogramResponse {
     return {
       points: globalThis.Array.isArray(object?.points) ? object.points.map((e: any) => HistogramPoint.fromJSON(e)) : [],
+      interval: isSet(object.interval) ? histogramIntervalFromJSON(object.interval) : 0,
     };
   },
 
@@ -2104,6 +2099,9 @@ export const GetUniqueVisitorHistogramResponse: MessageFns<GetUniqueVisitorHisto
     const obj: any = {};
     if (message.points?.length) {
       obj.points = message.points.map((e) => HistogramPoint.toJSON(e));
+    }
+    if (message.interval !== 0) {
+      obj.interval = histogramIntervalToJSON(message.interval);
     }
     return obj;
   },
@@ -2118,6 +2116,7 @@ export const GetUniqueVisitorHistogramResponse: MessageFns<GetUniqueVisitorHisto
   ): GetUniqueVisitorHistogramResponse {
     const message = createBaseGetUniqueVisitorHistogramResponse();
     message.points = object.points?.map((e) => HistogramPoint.fromPartial(e)) || [];
+    message.interval = object.interval ?? 0;
     return message;
   },
 };
@@ -2369,13 +2368,16 @@ export const VisitorPoint: MessageFns<VisitorPoint> = {
 };
 
 function createBaseListVisitorsResponse(): ListVisitorsResponse {
-  return { visitors: [] };
+  return { visitors: [], interval: 0 };
 }
 
 export const ListVisitorsResponse: MessageFns<ListVisitorsResponse> = {
   encode(message: ListVisitorsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     for (const v of message.visitors) {
       VisitorPoint.encode(v!, writer.uint32(10).fork()).join();
+    }
+    if (message.interval !== 0) {
+      writer.uint32(16).int32(message.interval);
     }
     return writer;
   },
@@ -2401,6 +2403,14 @@ export const ListVisitorsResponse: MessageFns<ListVisitorsResponse> = {
             message.visitors.push(VisitorPoint.decode(reader, reader.uint32()));
             continue;
           }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.interval = reader.int32() as any;
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -2418,6 +2428,7 @@ export const ListVisitorsResponse: MessageFns<ListVisitorsResponse> = {
       visitors: globalThis.Array.isArray(object?.visitors)
         ? object.visitors.map((e: any) => VisitorPoint.fromJSON(e))
         : [],
+      interval: isSet(object.interval) ? histogramIntervalFromJSON(object.interval) : 0,
     };
   },
 
@@ -2425,6 +2436,9 @@ export const ListVisitorsResponse: MessageFns<ListVisitorsResponse> = {
     const obj: any = {};
     if (message.visitors?.length) {
       obj.visitors = message.visitors.map((e) => VisitorPoint.toJSON(e));
+    }
+    if (message.interval !== 0) {
+      obj.interval = histogramIntervalToJSON(message.interval);
     }
     return obj;
   },
@@ -2435,6 +2449,7 @@ export const ListVisitorsResponse: MessageFns<ListVisitorsResponse> = {
   fromPartial<I extends Exact<DeepPartial<ListVisitorsResponse>, I>>(object: I): ListVisitorsResponse {
     const message = createBaseListVisitorsResponse();
     message.visitors = object.visitors?.map((e) => VisitorPoint.fromPartial(e)) || [];
+    message.interval = object.interval ?? 0;
     return message;
   },
 };

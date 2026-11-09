@@ -327,7 +327,7 @@ batches, in the analytic event tables.
 | `sentinez.event.http.secrule` | `secrulepb.SecRuleEvent` | `analytic.secrules.events` | `secruleeventsrepo.NewSecRules` |
 | `sentinez.event.http.ratelimit` | `secrulepb.SecRuleEvent` | `analytic.ratelimiters.events` | `secruleeventsrepo.NewRateLimits` |
 | `sentinez.event.http.rulesets` | `corerulesetpb.CoreRuleEvent` | `analytic.corerulesets.events` | `coreruleeventsrepo.New` |
-| `sentinez.event.http.ingress` | `httppb.IngressEvent` (one per request, from the `logging` handler) | `analytic.httpingress.events` | `httpingressrepo.New` |
+| `sentinez.event.http.ingress` | `httppb.IngressEvent` (one per request, from the `logging` handler) | `analytic.httpingress.events` | `httpingresseventrepo.New` |
 | `sentinez.event.http.egress` | `httppb.EgressEvent` (one per request proxied to its upstream origin, from the `logging` handler) | `analytic.httpegress.events` | `httpegresseventsrepo.New` |
 
 Flow of a batch:
@@ -400,20 +400,37 @@ Repositories ([apps/collector/v1/repos](../staging/src/github.com/sentinez/contr
 #### Histograms
 
 [pkg/szstorage/dbx/timescale/histogram](../staging/src/github.com/sentinez/pkg/szstorage/dbx/timescale/histogram/)
-keeps, for each event table, three continuous aggregates counting its rows
-per bucket, resource and key, for charts:
+keeps, for each event table, one continuous aggregate per
+`HistogramInterval`, counting its rows per bucket, resource and key; each
+`HistogramResolution` (the range a chart covers) reads the view of its
+interval, the resolutions of one interval sharing it:
 
-| View | Bucket | Refreshed | Range | Kept |
-|---|---|---|---|---|
-| `<table>_secondly` | 1 second | every 10 seconds, the last 3 minutes up to 1 second ago | a zoom of up to 15 minutes | 7 days |
-| `<table>_minutely` | 1 minute | every minute, the last 2 hours up to 1 minute ago | up to a day | 30 days |
-| `<table>_hourly` | 1 hour | every 30 minutes, the last 3 days up to 1 hour ago | up to 30 days | 30 days |
+| Resolution | Interval (view suffix) | Buckets |
+|---|---|---|
+| 5 minutes | 10 seconds (`_10s`) | 30 |
+| 15 minutes | 30 seconds (`_30s`) | 30 |
+| 30 minutes | 1 minute (`_1m`) | 30 |
+| 1 hour | 1 minute (`_1m`) | 60 |
+| 3 hours | 5 minutes (`_5m`) | 36 |
+| 6 hours | 10 minutes (`_10m`) | 36 |
+| 12 hours | 15 minutes (`_15m`) | 48 |
+| 24 hours | 30 minutes (`_30m`) | 48 |
+| 2 days | 1 hour (`_1h`) | 48 |
+| 7 days | 3 hours (`_3h`) | 56 |
+| 30 days | 12 hours (`_12h`) | 60 |
 
-For example `dev_sentinez_analytic_httpingress_events_minutely`. The views
-are real time, so the latest buckets include the rows not refreshed yet;
-the minute and hour views are kept for `schema.EventRetention`, the second
-one for 7 days (`_secondRetention`). Their columns are `bucket` (unix
-milliseconds), `resource_id`, `tenant_id`, the key and `total`.
+For example `dev_sentinez_analytic_httpingress_events_1m`. A view is
+refreshed as often as its buckets fill (10 seconds to 30 minutes), up to a
+minute ago (or one bucket, when shorter), over the last 2 hours
+(`_lateEvents`; 3 days for the buckets of hours): the events the collector
+inserts late, below the watermark (e.g. a Kafka backlog after a restart),
+are counted within that window. It is not longer because TimescaleDB
+invalidates the whole time range of a transaction: a batch holding one old
+event would make every refresh recompute all of it. The views of seconds
+keep 7 days (`_secondRetention`), the others `schema.EventRetention`. The
+views are real time, so the latest buckets include the rows not refreshed
+yet. Their columns are `bucket` (unix milliseconds), `resource_id`,
+`tenant_id`, the key and `total`.
 
 The key splits the counts further: the http `status` for the ingress and
 egress events, `behavior` for the core ruleset events, none for the secrule
@@ -421,12 +438,15 @@ and rate limit events (`Point.Key` is 0).
 
 `Histogram.Points(ctx, *Filter{Resolution, ResourceIds, TenantId, From, To})`
 sums the totals over the tenants and returns `[]*Point{Time, ResourceId,
-Key, Total}`, oldest first. `Resolution` is `histogram.Second`, `Minute` or
-`Hour`, numbered as the proto `HistogramResolution`. When it is zero the
-range picks it: `Second` for a `From`..`To` (`To` defaulting to now) of up
-to 15 minutes (`_secondSpan`) whose `From` is still within the 7 days of
-the second view, else `Minute`. `From` is inclusive, `To` exclusive, on the
-bucket start.
+Key, Total}`, oldest first: the buckets of the resolution ending with the
+current one, or with the one of `To` (exclusive). `Resolution` is the
+proto `typepb.HistogramResolution`; when it is unspecified the range picks
+it: the shortest one whose span holds `From`..`To` (`To` defaulting to
+now) but one bucket, skipping the views of seconds once `From` is older
+than 7 days, else 30 days; 1 hour without `From`. `Filter.Resolve` returns
+the resolution picked and the `HistogramInterval` of its buckets, which the
+analytic histogram RPCs return as `interval`. They refuse a `from` or `to`
+older than `schema.EventRetention` (`INVALID_ARGUMENT`).
 
 The views cannot be narrowed to a request or a field, so
 `Histogram.PointsWhere(ctx, *Filter, Where)` counts the rows of the source

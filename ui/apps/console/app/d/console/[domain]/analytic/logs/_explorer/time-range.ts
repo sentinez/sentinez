@@ -1,54 +1,83 @@
-import { HistogramResolution } from '@sentinez/proto/sentinez/apps/analytic/v1/event';
+import { HistogramResolution } from '@sentinez/proto/sentinez/types/v1/known';
 import type { DateTimeFormatOptions } from 'next-intl';
 
-import { RESOLUTIONS, RESOLUTION_BUCKETS, maxPagesOf, resolutionOfSpan } from '@/lib/api/analytic';
+import {
+  HOUR_MILLIS,
+  RESOLUTIONS,
+  RESOLUTION_BUCKETS,
+  durationOf,
+  fits,
+  resolutionOfSpan,
+  spanOf,
+} from '@/lib/api/analytic';
 
-// QuickRange a relative range of the picker, the resolution of its histogram
-export type QuickRange = 'last60s' | 'last60m' | 'last24h';
+// The quick ranges of the picker, ending now, and the resolution of their
+// histogram
+export const QUICK_RANGES = {
+  last5m: HistogramResolution.HISTOGRAM_RESOLUTION_5_MINUTES,
+  last15m: HistogramResolution.HISTOGRAM_RESOLUTION_15_MINUTES,
+  last30m: HistogramResolution.HISTOGRAM_RESOLUTION_30_MINUTES,
+  last1h: HistogramResolution.HISTOGRAM_RESOLUTION_1_HOUR,
+  last3h: HistogramResolution.HISTOGRAM_RESOLUTION_3_HOURS,
+  last6h: HistogramResolution.HISTOGRAM_RESOLUTION_6_HOURS,
+  last12h: HistogramResolution.HISTOGRAM_RESOLUTION_12_HOURS,
+  last24h: HistogramResolution.HISTOGRAM_RESOLUTION_24_HOURS,
+  last2d: HistogramResolution.HISTOGRAM_RESOLUTION_2_DAYS,
+  last7d: HistogramResolution.HISTOGRAM_RESOLUTION_7_DAYS,
+  last30d: HistogramResolution.HISTOGRAM_RESOLUTION_30_DAYS,
+} as const satisfies Record<string, HistogramResolution>;
 
-export const QUICK_RANGES: Record<QuickRange, HistogramResolution> = {
-  last60s: HistogramResolution.HISTOGRAM_RESOLUTION_SECOND,
-  last60m: HistogramResolution.HISTOGRAM_RESOLUTION_MINUTE,
-  last24h: HistogramResolution.HISTOGRAM_RESOLUTION_HOUR,
-};
+// QuickRange a relative range of the picker
+export type QuickRange = keyof typeof QUICK_RANGES;
 
-/**
- * TimeRange the range of the page: a quick one, ending now, or an absolute
- * one, from inclusive to exclusive (millis): picked on the calendar, or
- * zoomed into on the histogram, then with the resolution of its histogram.
- */
-export type TimeRange =
-  { quick: QuickRange } | { from: number; to: number; resolution?: HistogramResolution };
+// The quick range the page opens on
+export const DEFAULT_QUICK_RANGE: QuickRange = 'last1h';
 
 // Window the bounds of a range at a time, to undefined when it ends now
 type Window = { from: number; to?: number };
 
-// The second buckets are kept a week (histogram _secondRetention)
-const SECOND_RETENTION_MILLIS = 7 * 24 * 60 * 60 * 1000;
+/**
+ * TimeRange the range of the page: a quick one, ending now, or an absolute
+ * one, from inclusive to exclusive (millis): picked on the calendar, or
+ * zoomed into on the histogram, then with the resolution of its histogram
+ * and, when the zoom kept it, the window its buckets were loaded for.
+ */
+export type TimeRange =
+  | { quick: QuickRange }
+  | { from: number; to: number; resolution?: HistogramResolution; loaded?: Window };
 
 /**
  * The resolution of the histogram of a range: that of a quick one, else the
- * one it was zoomed with, else the finest whose buckets of one page cover
- * it; the seconds only within their retention.
+ * one it was zoomed with while it still fits it, else the shortest fitting
+ * it, as the API picks it (resolutionOfSpan); buckets of seconds only
+ * within their retention.
  */
 export function resolutionOf(range: TimeRange, now: number): HistogramResolution {
   if ('quick' in range) return QUICK_RANGES[range.quick];
-  const resolution = range.resolution ?? resolutionOfSpan(range.to - range.from);
-  const expired = now - range.from > SECOND_RETENTION_MILLIS;
-  return resolution === HistogramResolution.HISTOGRAM_RESOLUTION_SECOND && expired
-    ? HistogramResolution.HISTOGRAM_RESOLUTION_MINUTE
-    : resolution;
+  const span = range.to - range.from;
+  const age = now - range.from;
+  if (range.resolution && fits(range.resolution, span, age)) return range.resolution;
+  return resolutionOfSpan(span, age);
 }
 
 /**
  * The range a drag over the histogram zooms into, from inclusive to
- * exclusive: one resolution finer than `current` (hours to minutes to
- * seconds), finer still when the range fits in a page of a finer one.
+ * exclusive: at least one resolution shorter than `current`, shorter still
+ * when the range fits a shorter one. At the shortest one the resolution is
+ * kept, so are the buckets of `loaded`, the window of the histogram: they
+ * hold the narrower range already.
  */
-export function zoomOf(current: HistogramResolution, from: number, to: number): TimeRange {
-  const finer = Math.max(RESOLUTIONS.indexOf(current) - 1, 0);
+export function zoomOf(
+  current: HistogramResolution,
+  from: number,
+  to: number,
+  loaded: Window,
+): TimeRange {
+  const shorter = Math.max(RESOLUTIONS.indexOf(current) - 1, 0);
   const fitting = RESOLUTIONS.indexOf(resolutionOfSpan(to - from));
-  return { from, to, resolution: RESOLUTIONS[Math.min(finer, fitting)] };
+  const resolution = RESOLUTIONS[Math.min(shorter, fitting)];
+  const kept = resolution === current && loaded.to !== undefined;
+  return { from, to, resolution, ...(kept && { loaded }) };
 }
 
 /** The bounds of a range: a quick one starts with its first bucket at now */
@@ -58,37 +87,25 @@ export function windowOf(range: TimeRange, now: number): Window {
   return { from: (Math.floor(now / millis) - count + 1) * millis };
 }
 
-/**
- * The buckets the histogram of a range shows when they are only its end,
- * the range longer than its pages, else undefined.
- */
-export function clippedOf(range: TimeRange, now: number): number | undefined {
-  if ('quick' in range) return undefined;
-  const resolution = resolutionOf(range, now);
-  const { count } = RESOLUTION_BUCKETS[resolution];
-  const buckets = count * maxPagesOf(resolution);
-  return range.to - range.from > RESOLUTION_BUCKETS[resolution].millis * buckets
-    ? buckets
-    : undefined;
-}
-
-// The tick of a bucket start of each resolution
-export const TICK_FORMATS: Record<HistogramResolution, DateTimeFormatOptions> = {
-  [HistogramResolution.HISTOGRAM_RESOLUTION_UNSPECIFIED]: { hour: '2-digit', minute: '2-digit' },
-  [HistogramResolution.HISTOGRAM_RESOLUTION_SECOND]: {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  },
-  [HistogramResolution.HISTOGRAM_RESOLUTION_MINUTE]: { hour: '2-digit', minute: '2-digit' },
-  [HistogramResolution.HISTOGRAM_RESOLUTION_HOUR]: {
-    day: '2-digit',
-    month: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  },
-  [HistogramResolution.UNRECOGNIZED]: { hour: '2-digit', minute: '2-digit' },
+const SECONDS_TICK: DateTimeFormatOptions = {
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
 };
+const MINUTES_TICK: DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit' };
+const DAYS_TICK: DateTimeFormatOptions = {
+  day: '2-digit',
+  month: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+};
+
+// The tick of a bucket start: its seconds for buckets of seconds, its day
+// for a histogram over a day or more, else its time
+export function tickFormatOf(bucketMillis: number, resolution: HistogramResolution) {
+  if (durationOf(bucketMillis).unit === 'second') return SECONDS_TICK;
+  return spanOf(resolution) > 12 * HOUR_MILLIS ? DAYS_TICK : MINUTES_TICK;
+}
 
 // "HH:mm:ss" of a local time, the value of an <input type="time" step="1">
 export function timeOf(date: Date): string {

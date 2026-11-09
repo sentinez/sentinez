@@ -19,12 +19,15 @@ import {
   TableHeader,
   TableRow,
 } from '@sentinez/ui/components/table';
-import {
-  HistogramResolution,
-  type VisitorPoint,
-} from '@sentinez/proto/sentinez/apps/analytic/v1/event';
+import type { VisitorPoint } from '@sentinez/proto/sentinez/apps/analytic/v1/event';
 import { useApi } from '@/hooks/use-api';
-import { getUniqueVisitorHistogram, listVisitors } from '@/lib/api/analytic';
+import {
+  VISITORS_RESOLUTION,
+  bucketMillisOf,
+  durationOf,
+  getUniqueVisitorHistogram,
+  listVisitors,
+} from '@/lib/api/analytic';
 import { HOUR_FORMAT, ResourceVisitorChart, bucketOf } from './chart';
 
 // The client ips listed in the top visitors card
@@ -47,29 +50,28 @@ function topVisitorsOf(visitors: VisitorPoint[]): TopVisitor[] {
 }
 
 /**
- * The visitors of a resource over the last 24 hours, per hour: the unique
- * visitor chart and the client ips of the most requests.
+ * The visitors of a resource over the last 24 hours, per bucket of the
+ * interval the API answers with: the unique visitor chart and the client
+ * ips of the most requests.
  */
 export function ResourceVisitors({ resourceId }: { resourceId: string }) {
   const t = useTranslations('Resource');
   const tc = useTranslations('Common');
   const format = useFormatter();
-  const req = {
-    resolution: HistogramResolution.HISTOGRAM_RESOLUTION_HOUR,
-    resourceIds: [resourceId],
-  };
+  const req = { resolution: VISITORS_RESOLUTION, resourceIds: [resourceId] };
   const histogram = useApi(getUniqueVisitorHistogram, req);
   const visitors = useApi(listVisitors, req);
 
   const buckets = useMemo(() => (histogram.data?.points ?? []).map(bucketOf), [histogram.data]);
   const top = useMemo(() => topVisitorsOf(visitors.data?.visitors ?? []), [visitors.data]);
+  const interval = durationOf(bucketMillisOf(VISITORS_RESOLUTION, histogram.data?.interval));
 
   return (
     <>
       <Card>
         <CardHeader>
           <CardTitle>{t('uniqueVisitors')}</CardTitle>
-          <CardDescription>{t('uniqueVisitorsDescription')}</CardDescription>
+          <CardDescription>{t('uniqueVisitorsDescription', interval)}</CardDescription>
         </CardHeader>
         <CardContent>
           {histogram.isLoading || visitors.isLoading ? (
@@ -83,9 +85,7 @@ export function ResourceVisitors({ resourceId }: { resourceId: string }) {
       <Card>
         <CardHeader>
           <CardTitle>{t('topVisitors')}</CardTitle>
-          <CardDescription>
-            {t('topVisitorsDescription', { count: TOP_VISITORS })}
-          </CardDescription>
+          <CardDescription>{t('topVisitorsDescription', { count: TOP_VISITORS })}</CardDescription>
         </CardHeader>
         <CardContent>
           {visitors.isLoading ? (

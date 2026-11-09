@@ -15,8 +15,8 @@ import { RefreshButton } from '@/components/refresh-button';
 import { useApi } from '@/hooks/use-api';
 import { useResourceId } from '@/hooks/use-resource-id';
 import {
-  RESOLUTION_BUCKETS,
-  getEventHistogramPages,
+  bucketMillisOf,
+  getEventHistogram,
   getEventTopValues,
   type ApiOptions,
 } from '@/lib/api/analytic';
@@ -31,7 +31,7 @@ import { RemovableBadge } from './removable-badge';
 import { AT_PARAM, REQUEST_PARAM } from './request-link';
 import {
   DATE_TIME_ZONE,
-  clippedOf,
+  DEFAULT_QUICK_RANGE,
   resolutionOf,
   timeZoneOf,
   windowOf,
@@ -55,7 +55,7 @@ const keyed =
   (k: Keyed<R>, options?: ApiOptions) =>
     fn(k.req, options);
 
-const fetchHistogram = keyed(getEventHistogramPages);
+const fetchHistogram = keyed(getEventHistogram);
 const fetchTopValues = keyed(getEventTopValues);
 // The fetch of a config without byId, never called
 const noFetch = async () => null;
@@ -84,7 +84,9 @@ export function EventExplorer<T>({ config }: { config: EventConfig<T> }) {
   const focusAt = Number(params.get(AT_PARAM)) || 0;
 
   const [range, setRange] = useState<TimeRange>(() =>
-    focusAt ? { from: focusAt - AROUND_MILLIS, to: focusAt + AROUND_MILLIS } : { quick: 'last60m' },
+    focusAt
+      ? { from: focusAt - AROUND_MILLIS, to: focusAt + AROUND_MILLIS }
+      : { quick: DEFAULT_QUICK_RANGE },
   );
   // When the range was picked or refreshed: a quick range ends then
   const [now, setNow] = useState(() => Date.now());
@@ -106,13 +108,16 @@ export function EventExplorer<T>({ config }: { config: EventConfig<T> }) {
 
   const { kind, list, seriesOf } = config;
   const resolution = resolutionOf(range, now);
-  const bucketMillis = RESOLUTION_BUCKETS[resolution].millis;
   const bounds = useMemo(() => windowOf(range, now), [range, now]);
+  // The window the histogram loads, the one before a zoom that kept its
+  // buckets; a past one cannot change, a refresh keeps it
+  const loaded = ('loaded' in range && range.loaded) || bounds;
+  const histogramKey = loaded.to !== undefined && loaded.to <= now ? 0 : reloadKey;
   // The request ids of the filter are asked to the API, the other terms
   // filter the page; the histogram counts those of the API filters
   const requestIds = useMemo(() => requestIdsOf(query), [query]);
   // An absolute range ends its buckets with it: the API ends them before
-  // to, in pages back to its start
+  // to, back the span of the resolution
   const histogram = useApi(
     fetchHistogram,
     resourceId
@@ -121,19 +126,22 @@ export function EventExplorer<T>({ config }: { config: EventConfig<T> }) {
             kind,
             resolution,
             resourceIds: [resourceId],
-            to: dateOf(bounds.to),
-            from: dateOf(bounds.from),
+            to: dateOf(loaded.to),
+            from: dateOf(loaded.from),
             requestIds,
             filters: filterParams,
           },
-          key: reloadKey,
+          key: histogramKey,
         }
       : null,
   );
+  // The width of the buckets: the interval the API answered with, else the
+  // one of the resolution until it does
+  const bucketMillis = bucketMillisOf(resolution, histogram.data?.interval);
   // The API returns a fixed number of buckets: keep those within the range
   const buckets = useMemo(
     () =>
-      bucketsOf(histogram.data ?? [], seriesOf).filter(
+      bucketsOf(histogram.data?.points ?? [], seriesOf).filter(
         (b) => b.time + bucketMillis > bounds.from && b.time < (bounds.to ?? Infinity),
       ),
     [histogram.data, seriesOf, bucketMillis, bounds],
@@ -250,7 +258,6 @@ export function EventExplorer<T>({ config }: { config: EventConfig<T> }) {
     setFilters((fs) => fs.filter((_, i) => i !== index));
     firstPage();
   };
-  const clipped = clippedOf(range, now);
   const bucketLabel = (time: number) =>
     format.dateTimeRange(new Date(time), new Date(time + bucketMillis), DATE_TIME_ZONE);
 
@@ -286,14 +293,6 @@ export function EventExplorer<T>({ config }: { config: EventConfig<T> }) {
               <span className="hidden md:inline">{t('histogramHint')} · </span>
               {t('timeZone', { zone: timeZoneOf(locale) })}
             </span>
-            {clipped !== undefined && (
-              <p className="w-full text-xs text-muted-foreground">
-                {t('histogramClipped', {
-                  count: clipped,
-                  unit: RESOLUTION_BUCKETS[resolution].unit,
-                })}
-              </p>
-            )}
           </CardHeader>
           <CardContent className="px-2 sm:px-4">
             {/* A refetch keeps the chart, dimmed: a skeleton until the first data */}
@@ -308,7 +307,7 @@ export function EventExplorer<T>({ config }: { config: EventConfig<T> }) {
                   bucketMillis={bucketMillis}
                   selected={bucket}
                   onSelect={pickBucket}
-                  onSelectRange={(from, to) => pickRange(zoomOf(resolution, from, to))}
+                  onSelectRange={(from, to) => pickRange(zoomOf(resolution, from, to, loaded))}
                 />
               </div>
             )}

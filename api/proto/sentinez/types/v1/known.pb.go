@@ -418,6 +418,164 @@ func (Errors) EnumDescriptor() ([]byte, []int) {
 	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{6}
 }
 
+// HistogramResolution the time range a histogram charts, ending with the
+// current bucket or before to: as many buckets of its interval as fill it
+// (5 minutes of 10 seconds, ..., 30 days of 12 hours).
+type HistogramResolution int32
+
+const (
+	// Picked by from and to: the shortest range holding them but one bucket
+	// (buckets of seconds only within the 7 days they are kept), else 30
+	// days; 1 hour without from.
+	HistogramResolution_HISTOGRAM_RESOLUTION_UNSPECIFIED HistogramResolution = 0
+	HistogramResolution_HISTOGRAM_RESOLUTION_5_MINUTES   HistogramResolution = 1
+	HistogramResolution_HISTOGRAM_RESOLUTION_15_MINUTES  HistogramResolution = 2
+	HistogramResolution_HISTOGRAM_RESOLUTION_30_MINUTES  HistogramResolution = 3
+	HistogramResolution_HISTOGRAM_RESOLUTION_1_HOUR      HistogramResolution = 11
+	HistogramResolution_HISTOGRAM_RESOLUTION_3_HOURS     HistogramResolution = 12
+	HistogramResolution_HISTOGRAM_RESOLUTION_6_HOURS     HistogramResolution = 13
+	HistogramResolution_HISTOGRAM_RESOLUTION_12_HOURS    HistogramResolution = 14
+	HistogramResolution_HISTOGRAM_RESOLUTION_24_HOURS    HistogramResolution = 15
+	HistogramResolution_HISTOGRAM_RESOLUTION_2_DAYS      HistogramResolution = 21
+	HistogramResolution_HISTOGRAM_RESOLUTION_7_DAYS      HistogramResolution = 22
+	HistogramResolution_HISTOGRAM_RESOLUTION_30_DAYS     HistogramResolution = 23
+)
+
+// Enum value maps for HistogramResolution.
+var (
+	HistogramResolution_name = map[int32]string{
+		0:  "HISTOGRAM_RESOLUTION_UNSPECIFIED",
+		1:  "HISTOGRAM_RESOLUTION_5_MINUTES",
+		2:  "HISTOGRAM_RESOLUTION_15_MINUTES",
+		3:  "HISTOGRAM_RESOLUTION_30_MINUTES",
+		11: "HISTOGRAM_RESOLUTION_1_HOUR",
+		12: "HISTOGRAM_RESOLUTION_3_HOURS",
+		13: "HISTOGRAM_RESOLUTION_6_HOURS",
+		14: "HISTOGRAM_RESOLUTION_12_HOURS",
+		15: "HISTOGRAM_RESOLUTION_24_HOURS",
+		21: "HISTOGRAM_RESOLUTION_2_DAYS",
+		22: "HISTOGRAM_RESOLUTION_7_DAYS",
+		23: "HISTOGRAM_RESOLUTION_30_DAYS",
+	}
+	HistogramResolution_value = map[string]int32{
+		"HISTOGRAM_RESOLUTION_UNSPECIFIED": 0,
+		"HISTOGRAM_RESOLUTION_5_MINUTES":   1,
+		"HISTOGRAM_RESOLUTION_15_MINUTES":  2,
+		"HISTOGRAM_RESOLUTION_30_MINUTES":  3,
+		"HISTOGRAM_RESOLUTION_1_HOUR":      11,
+		"HISTOGRAM_RESOLUTION_3_HOURS":     12,
+		"HISTOGRAM_RESOLUTION_6_HOURS":     13,
+		"HISTOGRAM_RESOLUTION_12_HOURS":    14,
+		"HISTOGRAM_RESOLUTION_24_HOURS":    15,
+		"HISTOGRAM_RESOLUTION_2_DAYS":      21,
+		"HISTOGRAM_RESOLUTION_7_DAYS":      22,
+		"HISTOGRAM_RESOLUTION_30_DAYS":     23,
+	}
+)
+
+func (x HistogramResolution) Enum() *HistogramResolution {
+	p := new(HistogramResolution)
+	*p = x
+	return p
+}
+
+func (x HistogramResolution) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (HistogramResolution) Descriptor() protoreflect.EnumDescriptor {
+	return file_sentinez_types_v1_known_proto_enumTypes[7].Descriptor()
+}
+
+func (HistogramResolution) Type() protoreflect.EnumType {
+	return &file_sentinez_types_v1_known_proto_enumTypes[7]
+}
+
+func (x HistogramResolution) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use HistogramResolution.Descriptor instead.
+func (HistogramResolution) EnumDescriptor() ([]byte, []int) {
+	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{7}
+}
+
+// HistogramInterval the width of one bucket of a histogram, the one of its
+// HistogramResolution.
+type HistogramInterval int32
+
+const (
+	HistogramInterval_HISTOGRAM_INTERVAL_UNSPECIFIED HistogramInterval = 0
+	// Kept 7 days.
+	HistogramInterval_HISTOGRAM_INTERVAL_10_SECONDS HistogramInterval = 1
+	HistogramInterval_HISTOGRAM_INTERVAL_30_SECONDS HistogramInterval = 2
+	HistogramInterval_HISTOGRAM_INTERVAL_1_MINUTE   HistogramInterval = 11
+	HistogramInterval_HISTOGRAM_INTERVAL_5_MINUTES  HistogramInterval = 12
+	HistogramInterval_HISTOGRAM_INTERVAL_10_MINUTES HistogramInterval = 13
+	HistogramInterval_HISTOGRAM_INTERVAL_15_MINUTES HistogramInterval = 14
+	HistogramInterval_HISTOGRAM_INTERVAL_30_MINUTES HistogramInterval = 15
+	HistogramInterval_HISTOGRAM_INTERVAL_1_HOUR     HistogramInterval = 21
+	HistogramInterval_HISTOGRAM_INTERVAL_3_HOURS    HistogramInterval = 22
+	HistogramInterval_HISTOGRAM_INTERVAL_12_HOURS   HistogramInterval = 23
+)
+
+// Enum value maps for HistogramInterval.
+var (
+	HistogramInterval_name = map[int32]string{
+		0:  "HISTOGRAM_INTERVAL_UNSPECIFIED",
+		1:  "HISTOGRAM_INTERVAL_10_SECONDS",
+		2:  "HISTOGRAM_INTERVAL_30_SECONDS",
+		11: "HISTOGRAM_INTERVAL_1_MINUTE",
+		12: "HISTOGRAM_INTERVAL_5_MINUTES",
+		13: "HISTOGRAM_INTERVAL_10_MINUTES",
+		14: "HISTOGRAM_INTERVAL_15_MINUTES",
+		15: "HISTOGRAM_INTERVAL_30_MINUTES",
+		21: "HISTOGRAM_INTERVAL_1_HOUR",
+		22: "HISTOGRAM_INTERVAL_3_HOURS",
+		23: "HISTOGRAM_INTERVAL_12_HOURS",
+	}
+	HistogramInterval_value = map[string]int32{
+		"HISTOGRAM_INTERVAL_UNSPECIFIED": 0,
+		"HISTOGRAM_INTERVAL_10_SECONDS":  1,
+		"HISTOGRAM_INTERVAL_30_SECONDS":  2,
+		"HISTOGRAM_INTERVAL_1_MINUTE":    11,
+		"HISTOGRAM_INTERVAL_5_MINUTES":   12,
+		"HISTOGRAM_INTERVAL_10_MINUTES":  13,
+		"HISTOGRAM_INTERVAL_15_MINUTES":  14,
+		"HISTOGRAM_INTERVAL_30_MINUTES":  15,
+		"HISTOGRAM_INTERVAL_1_HOUR":      21,
+		"HISTOGRAM_INTERVAL_3_HOURS":     22,
+		"HISTOGRAM_INTERVAL_12_HOURS":    23,
+	}
+)
+
+func (x HistogramInterval) Enum() *HistogramInterval {
+	p := new(HistogramInterval)
+	*p = x
+	return p
+}
+
+func (x HistogramInterval) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (HistogramInterval) Descriptor() protoreflect.EnumDescriptor {
+	return file_sentinez_types_v1_known_proto_enumTypes[8].Descriptor()
+}
+
+func (HistogramInterval) Type() protoreflect.EnumType {
+	return &file_sentinez_types_v1_known_proto_enumTypes[8]
+}
+
+func (x HistogramInterval) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use HistogramInterval.Descriptor instead.
+func (HistogramInterval) EnumDescriptor() ([]byte, []int) {
+	return file_sentinez_types_v1_known_proto_rawDescGZIP(), []int{8}
+}
+
 type Empty struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -574,7 +732,32 @@ const file_sentinez_types_v1_known_proto_rawDesc = "" +
 	"\x13ERRORS_UNAUTHORIZED\x10\x03\x12\x14\n" +
 	"\x10ERRORS_FORBIDDEN\x10\x04\x12\x17\n" +
 	"\x13ERRORS_INVALID_DATA\x10\x05\x12\x18\n" +
-	"\x14ERRORS_UNIMPLEMENTED\x10\x06BAZ?github.com/sentinez/sentinez/api/proto/sentinez/types/v1;typepbb\x06proto3"
+	"\x14ERRORS_UNIMPLEMENTED\x10\x06*\xb8\x03\n" +
+	"\x13HistogramResolution\x12$\n" +
+	" HISTOGRAM_RESOLUTION_UNSPECIFIED\x10\x00\x12\"\n" +
+	"\x1eHISTOGRAM_RESOLUTION_5_MINUTES\x10\x01\x12#\n" +
+	"\x1fHISTOGRAM_RESOLUTION_15_MINUTES\x10\x02\x12#\n" +
+	"\x1fHISTOGRAM_RESOLUTION_30_MINUTES\x10\x03\x12\x1f\n" +
+	"\x1bHISTOGRAM_RESOLUTION_1_HOUR\x10\v\x12 \n" +
+	"\x1cHISTOGRAM_RESOLUTION_3_HOURS\x10\f\x12 \n" +
+	"\x1cHISTOGRAM_RESOLUTION_6_HOURS\x10\r\x12!\n" +
+	"\x1dHISTOGRAM_RESOLUTION_12_HOURS\x10\x0e\x12!\n" +
+	"\x1dHISTOGRAM_RESOLUTION_24_HOURS\x10\x0f\x12\x1f\n" +
+	"\x1bHISTOGRAM_RESOLUTION_2_DAYS\x10\x15\x12\x1f\n" +
+	"\x1bHISTOGRAM_RESOLUTION_7_DAYS\x10\x16\x12 \n" +
+	"\x1cHISTOGRAM_RESOLUTION_30_DAYS\x10\x17*\x89\x03\n" +
+	"\x11HistogramInterval\x12\"\n" +
+	"\x1eHISTOGRAM_INTERVAL_UNSPECIFIED\x10\x00\x12!\n" +
+	"\x1dHISTOGRAM_INTERVAL_10_SECONDS\x10\x01\x12!\n" +
+	"\x1dHISTOGRAM_INTERVAL_30_SECONDS\x10\x02\x12\x1f\n" +
+	"\x1bHISTOGRAM_INTERVAL_1_MINUTE\x10\v\x12 \n" +
+	"\x1cHISTOGRAM_INTERVAL_5_MINUTES\x10\f\x12!\n" +
+	"\x1dHISTOGRAM_INTERVAL_10_MINUTES\x10\r\x12!\n" +
+	"\x1dHISTOGRAM_INTERVAL_15_MINUTES\x10\x0e\x12!\n" +
+	"\x1dHISTOGRAM_INTERVAL_30_MINUTES\x10\x0f\x12\x1d\n" +
+	"\x19HISTOGRAM_INTERVAL_1_HOUR\x10\x15\x12\x1e\n" +
+	"\x1aHISTOGRAM_INTERVAL_3_HOURS\x10\x16\x12\x1f\n" +
+	"\x1bHISTOGRAM_INTERVAL_12_HOURS\x10\x17BAZ?github.com/sentinez/sentinez/api/proto/sentinez/types/v1;typepbb\x06proto3"
 
 var (
 	file_sentinez_types_v1_known_proto_rawDescOnce sync.Once
@@ -588,7 +771,7 @@ func file_sentinez_types_v1_known_proto_rawDescGZIP() []byte {
 	return file_sentinez_types_v1_known_proto_rawDescData
 }
 
-var file_sentinez_types_v1_known_proto_enumTypes = make([]protoimpl.EnumInfo, 7)
+var file_sentinez_types_v1_known_proto_enumTypes = make([]protoimpl.EnumInfo, 9)
 var file_sentinez_types_v1_known_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_sentinez_types_v1_known_proto_goTypes = []any{
 	(Role)(0),                     // 0: sentinez.types.v1.Role
@@ -598,18 +781,20 @@ var file_sentinez_types_v1_known_proto_goTypes = []any{
 	(Plan)(0),                     // 4: sentinez.types.v1.Plan
 	(LogType)(0),                  // 5: sentinez.types.v1.LogType
 	(Errors)(0),                   // 6: sentinez.types.v1.Errors
-	(*Empty)(nil),                 // 7: sentinez.types.v1.Empty
-	(*Context)(nil),               // 8: sentinez.types.v1.Context
-	(*timestamppb.Timestamp)(nil), // 9: google.protobuf.Timestamp
+	(HistogramResolution)(0),      // 7: sentinez.types.v1.HistogramResolution
+	(HistogramInterval)(0),        // 8: sentinez.types.v1.HistogramInterval
+	(*Empty)(nil),                 // 9: sentinez.types.v1.Empty
+	(*Context)(nil),               // 10: sentinez.types.v1.Context
+	(*timestamppb.Timestamp)(nil), // 11: google.protobuf.Timestamp
 }
 var file_sentinez_types_v1_known_proto_depIdxs = []int32{
-	9, // 0: sentinez.types.v1.Context.expire_at:type_name -> google.protobuf.Timestamp
-	2, // 1: sentinez.types.v1.Context.control_plane:type_name -> sentinez.types.v1.ControlPlane
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	11, // 0: sentinez.types.v1.Context.expire_at:type_name -> google.protobuf.Timestamp
+	2,  // 1: sentinez.types.v1.Context.control_plane:type_name -> sentinez.types.v1.ControlPlane
+	2,  // [2:2] is the sub-list for method output_type
+	2,  // [2:2] is the sub-list for method input_type
+	2,  // [2:2] is the sub-list for extension type_name
+	2,  // [2:2] is the sub-list for extension extendee
+	0,  // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_types_v1_known_proto_init() }
@@ -622,7 +807,7 @@ func file_sentinez_types_v1_known_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_types_v1_known_proto_rawDesc), len(file_sentinez_types_v1_known_proto_rawDesc)),
-			NumEnums:      7,
+			NumEnums:      9,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   0,
