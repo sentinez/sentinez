@@ -41,3 +41,180 @@ const (
 	EgressEvent_TenantId      = "tenant_id"
 	EgressEvent_Protocol      = "protocol"
 )
+
+// IngressEventColumns returns the columns of IngressEvent, in the order ScanOneIngressEvent scans them.
+func IngressEventColumns() []string {
+	return []string{
+		IngressEvent_Id,
+		IngressEvent_Method,
+		IngressEvent_Scheme,
+		IngressEvent_Host,
+		IngressEvent_Path,
+		IngressEvent_Queries,
+		IngressEvent_Headers,
+		IngressEvent_Protocol,
+		IngressEvent_RemoteAddress,
+		IngressEvent_Status,
+		IngressEvent_UserAgent,
+		IngressEvent_Asn,
+		IngressEvent_Country,
+		IngressEvent_ContentType,
+		IngressEvent_Timestamp,
+		IngressEvent_Fingerprint,
+		IngressEvent_ClientIp,
+		IngressEvent_ResourceId,
+		IngressEvent_TenantId,
+	}
+}
+
+// IngressEventValues returns the values of m, in the order of IngressEventColumns.
+func IngressEventValues(m *IngressEvent) ([]any, error) {
+	return []any{
+		m.GetId(),
+		m.GetMethod(),
+		m.GetScheme(),
+		m.GetHost(),
+		m.GetPath(),
+		m.GetQueries(),
+		m.GetHeaders(),
+		m.GetProtocol(),
+		m.GetRemoteAddress(),
+		m.GetStatus(),
+		m.GetUserAgent(),
+		m.GetAsn(),
+		m.GetCountry(),
+		m.GetContentType(),
+		m.GetTimestamp(),
+		m.GetFingerprint(),
+		m.GetClientIp(),
+		m.GetResourceId(),
+		m.GetTenantId(),
+	}, nil
+}
+
+// ScanOneIngressEvent scans row, holding the columns of IngressEventColumns, into a IngressEvent.
+func ScanOneIngressEvent[R interface{ Scan(dest ...any) error }](row R) (*IngressEvent, error) {
+	m := &IngressEvent{}
+	if err := row.Scan(
+		&m.Id,
+		&m.Method,
+		&m.Scheme,
+		&m.Host,
+		&m.Path,
+		&m.Queries,
+		&m.Headers,
+		&m.Protocol,
+		&m.RemoteAddress,
+		&m.Status,
+		&m.UserAgent,
+		&m.Asn,
+		&m.Country,
+		&m.ContentType,
+		&m.Timestamp,
+		&m.Fingerprint,
+		&m.ClientIp,
+		&m.ResourceId,
+		&m.TenantId,
+	); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// ScanIngressEvent scans each row of rows with ScanOneIngressEvent.
+func ScanIngressEvent[R interface {
+	Next() bool
+	Scan(dest ...any) error
+	Err() error
+}](rows R) ([]*IngressEvent, error) {
+	var ms []*IngressEvent
+	for rows.Next() {
+		m, err := ScanOneIngressEvent(rows)
+		if err != nil {
+			return nil, err
+		}
+		ms = append(ms, m)
+	}
+	return ms, rows.Err()
+}
+
+// EgressEventColumns returns the columns of EgressEvent, in the order ScanOneEgressEvent scans them.
+func EgressEventColumns() []string {
+	return []string{
+		EgressEvent_Id,
+		EgressEvent_Upstream,
+		EgressEvent_Method,
+		EgressEvent_Scheme,
+		EgressEvent_Path,
+		EgressEvent_Queries,
+		EgressEvent_Status,
+		EgressEvent_ContentType,
+		EgressEvent_ContentLength,
+		EgressEvent_LatencyMicros,
+		EgressEvent_Timestamp,
+		EgressEvent_ResourceId,
+		EgressEvent_TenantId,
+		EgressEvent_Protocol,
+	}
+}
+
+// EgressEventValues returns the values of m, in the order of EgressEventColumns.
+func EgressEventValues(m *EgressEvent) ([]any, error) {
+	return []any{
+		m.GetId(),
+		m.GetUpstream(),
+		m.GetMethod(),
+		m.GetScheme(),
+		m.GetPath(),
+		m.GetQueries(),
+		m.GetStatus(),
+		m.GetContentType(),
+		m.GetContentLength(),
+		m.GetLatencyMicros(),
+		m.GetTimestamp(),
+		m.GetResourceId(),
+		m.GetTenantId(),
+		m.GetProtocol(),
+	}, nil
+}
+
+// ScanOneEgressEvent scans row, holding the columns of EgressEventColumns, into a EgressEvent.
+func ScanOneEgressEvent[R interface{ Scan(dest ...any) error }](row R) (*EgressEvent, error) {
+	m := &EgressEvent{}
+	if err := row.Scan(
+		&m.Id,
+		&m.Upstream,
+		&m.Method,
+		&m.Scheme,
+		&m.Path,
+		&m.Queries,
+		&m.Status,
+		&m.ContentType,
+		&m.ContentLength,
+		&m.LatencyMicros,
+		&m.Timestamp,
+		&m.ResourceId,
+		&m.TenantId,
+		&m.Protocol,
+	); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// ScanEgressEvent scans each row of rows with ScanOneEgressEvent.
+func ScanEgressEvent[R interface {
+	Next() bool
+	Scan(dest ...any) error
+	Err() error
+}](rows R) ([]*EgressEvent, error) {
+	var ms []*EgressEvent
+	for rows.Next() {
+		m, err := ScanOneEgressEvent(rows)
+		if err != nil {
+			return nil, err
+		}
+		ms = append(ms, m)
+	}
+	return ms, rows.Err()
+}

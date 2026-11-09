@@ -4,32 +4,25 @@
 package securitypb
 
 import (
-	"fmt"
-
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"google.golang.org/protobuf/proto"
+	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	proto "google.golang.org/protobuf/proto"
 )
 
-var (
-	_ fmt.Stringer
-	_ proto.Message
-)
-
-var metadata_security = &typepb.XMeta{
+var metadata_security = &v1.XMeta{
 	ServiceName: "SENTINEZ // SECURITY",
-	ServiceZone: typepb.Zone_ZONE_INTERNAL,
+	ServiceZone: v1.Zone_ZONE_INTERNAL,
 	ServiceKey:  "sentinez.apps.security.v1",
 }
 
-func GetMetaSecurity() *typepb.XMeta {
-	return proto.Clone(metadata_security).(*typepb.XMeta)
+func GetMetaSecurity() *v1.XMeta {
+	return proto.Clone(metadata_security).(*v1.XMeta)
 }
 
 func GetMetaSecurityServiceName() string {
 	return metadata_security.GetServiceName()
 }
 
-func GetMetaSecurityServiceZone() typepb.Zone {
+func GetMetaSecurityServiceZone() v1.Zone {
 	return metadata_security.GetServiceZone()
 }
 
@@ -37,8 +30,8 @@ func GetMetaSecurityServiceKey() string {
 	return metadata_security.GetServiceKey()
 }
 
-func GetSecurityServiceStatus() *typepb.XMethod {
-	return &typepb.XMethod{
+func GetSecurityServiceStatus() *v1.XMethod {
+	return &v1.XMethod{
 		Ignore: true,
 	}
 }

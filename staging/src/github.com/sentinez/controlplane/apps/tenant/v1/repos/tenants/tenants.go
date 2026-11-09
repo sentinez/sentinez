@@ -17,7 +17,6 @@ package tenantrepo
 import (
 	"context"
 	"strings"
-	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/controlplane/pkg/schema"
@@ -29,7 +28,6 @@ import (
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 var _ ITenant = (*Tenants)(nil)
@@ -89,7 +87,7 @@ func (t *Tenants) List(ctx context.Context,
 	}
 	szlog.Debug("[tenants] query: ", query, " args: ", args)
 
-	tenants, err := t.storage.CollectRows(ctx, builder, scan)
+	tenants, err := t.storage.CollectRows(ctx, builder, tenantpb.ScanTenant)
 	if err != nil {
 		return nil, err
 	}
@@ -182,7 +180,7 @@ func (t *Tenants) Get(
 	ctx context.Context, id string) (*tenantpb.Tenant, error) {
 
 	builder := t.selectQuery(nil).Where(sq.Eq{tenantpb.Tenant_Id: id})
-	return t.storage.Select(ctx, builder, scanOne)
+	return t.storage.Select(ctx, builder, tenantpb.ScanOneTenant)
 }
 
 // Update implements ITenant. Zero-valued fields are left unchanged.
@@ -206,53 +204,5 @@ func (t *Tenants) Update(ctx context.Context, tenant *tenantpb.Tenant) error {
 
 func (t *Tenants) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 	return postgres.SelectBuilder(t.storage, page,
-		tenantpb.Tenant_Id,
-		// rows created before these columns existed hold NULL
-		postgres.SelectCoalesce(tenantpb.Tenant_Name),
-		postgres.SelectCoalesce(tenantpb.Tenant_Description),
-		tenantpb.Tenant_Plan,
-		typepb.Metadata_CreatedAt,
-		typepb.Metadata_UpdatedAt,
-	)
-}
-
-func scan(rows dbx.Rows) ([]*tenantpb.Tenant, error) {
-	var tenants []*tenantpb.Tenant
-
-	for rows.Next() {
-		tenant, err := scanOne(rows)
-		if err != nil {
-			return nil, err
-		}
-
-		tenants = append(tenants, tenant)
-	}
-
-	return tenants, rows.Err()
-}
-
-func scanOne(row dbx.Row) (*tenantpb.Tenant, error) {
-	var (
-		createdAt, updatedAt time.Time
-		tenant               tenantpb.Tenant
-	)
-
-	err := row.Scan(
-		&tenant.Id,
-		&tenant.Name,
-		&tenant.Description,
-		&tenant.Plan,
-		&createdAt,
-		&updatedAt,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	tenant.Metadata = &typepb.Metadata{
-		CreatedAt: timestamppb.New(createdAt),
-		UpdatedAt: timestamppb.New(updatedAt),
-	}
-
-	return &tenant, nil
+		tenantpb.TenantColumns()...)
 }

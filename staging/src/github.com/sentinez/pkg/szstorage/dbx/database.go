@@ -42,6 +42,10 @@ type Database[T any] interface {
 	Total(ctx context.Context) (int64, error)
 
 	Table() string
+	// CreatedAt names the creation time column of the table.
+	CreatedAt() string
+	// UpdatedAt names the last update time column of the table.
+	UpdatedAt() string
 }
 
 type TxSession interface {

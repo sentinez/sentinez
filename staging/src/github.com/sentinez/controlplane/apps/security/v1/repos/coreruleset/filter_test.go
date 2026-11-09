@@ -24,6 +24,7 @@ import (
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -184,7 +185,7 @@ func TestContentRoundTrip(t *testing.T) {
 	require.NoError(t, err)
 
 	got := &corerulesetpb.CoreRuleset{}
-	require.NoError(t, _unmarshalContent.Unmarshal([]byte(data), got))
+	require.NoError(t, protojson.Unmarshal([]byte(data), got))
 	assert.True(t, proto.Equal(give, got))
 
 	empty, err := marshalContent(nil)

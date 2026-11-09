@@ -4,33 +4,25 @@
 package dataplanepb
 
 import (
-	"fmt"
-
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"google.golang.org/protobuf/proto"
+	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	proto "google.golang.org/protobuf/proto"
 )
 
-var (
-	_ typepb.Empty
-	_ fmt.Stringer
-	_ proto.Message
-)
-
-var metadata_dataplane = &typepb.XMeta{
+var metadata_dataplane = &v1.XMeta{
 	ServiceName: "SENTINEZ // DATAPLANE",
-	ServiceZone: typepb.Zone_ZONE_DEMILITARIZED,
+	ServiceZone: v1.Zone_ZONE_DEMILITARIZED,
 	ServiceKey:  "sentinez.dmz.dataplane.v1",
 }
 
-func GetMetaDataplane() *typepb.XMeta {
-	return proto.Clone(metadata_dataplane).(*typepb.XMeta)
+func GetMetaDataplane() *v1.XMeta {
+	return proto.Clone(metadata_dataplane).(*v1.XMeta)
 }
 
 func GetMetaDataplaneServiceName() string {
 	return metadata_dataplane.GetServiceName()
 }
 
-func GetMetaDataplaneServiceZone() typepb.Zone {
+func GetMetaDataplaneServiceZone() v1.Zone {
 	return metadata_dataplane.GetServiceZone()
 }
 

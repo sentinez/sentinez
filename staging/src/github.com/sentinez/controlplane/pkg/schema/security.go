@@ -23,7 +23,9 @@ import (
 // SecuritySecRules the schema of the sztable.SecuritySecRules table.
 func SecuritySecRules() dbx.Schema {
 	return dbx.Schema{
-		Table: sztable.SecuritySecRules,
+		Table:     sztable.SecuritySecRules,
+		CreatedAt: securitypb.SecRule_OwnerCreatedAt,
+		UpdatedAt: securitypb.SecRule_OwnerUpdatedAt,
 		Columns: []dbx.Column{
 			{Name: securitypb.SecRule_Id, Type: dbx.Text},
 			{Name: securitypb.SecRule_Name, Type: dbx.Text},
@@ -31,7 +33,7 @@ func SecuritySecRules() dbx.Schema {
 			{Name: securitypb.SecRule_Expr, Type: dbx.JSONB},
 			{Name: securitypb.SecRule_Status, Type: dbx.Int4},
 			{Name: securitypb.SecRule_Priority, Type: dbx.Int4},
-			{Name: securitypb.SecRule_Action, Type: dbx.JSONB},
+			{Name: securitypb.SecRule_Action, Type: dbx.Text},
 			{Name: securitypb.SecRule_OwnerResourceId, Type: dbx.Text},
 			{Name: securitypb.SecRule_OwnerTenantId, Type: dbx.Text},
 		},
@@ -41,7 +43,9 @@ func SecuritySecRules() dbx.Schema {
 // SecurityRateLimits the schema of the sztable.SecurityRateLimits table.
 func SecurityRateLimits() dbx.Schema {
 	return dbx.Schema{
-		Table: sztable.SecurityRateLimits,
+		Table:     sztable.SecurityRateLimits,
+		CreatedAt: securitypb.RateLimit_OwnerCreatedAt,
+		UpdatedAt: securitypb.RateLimit_OwnerUpdatedAt,
 		Columns: []dbx.Column{
 			{Name: securitypb.RateLimit_Id, Type: dbx.Text},
 			{Name: securitypb.RateLimit_Name, Type: dbx.Text},
@@ -62,7 +66,9 @@ func SecurityRateLimits() dbx.Schema {
 // SecurityCoreRulesets the schema of the sztable.SecurityCoreRulesets table.
 func SecurityCoreRulesets() dbx.Schema {
 	return dbx.Schema{
-		Table: sztable.SecurityCoreRulesets,
+		Table:     sztable.SecurityCoreRulesets,
+		CreatedAt: securitypb.CoreRuleset_OwnerCreatedAt,
+		UpdatedAt: securitypb.CoreRuleset_OwnerUpdatedAt,
 		Columns: []dbx.Column{
 			{Name: securitypb.CoreRuleset_Id, Type: dbx.Text},
 			{Name: securitypb.CoreRuleset_Name, Type: dbx.Text},

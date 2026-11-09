@@ -4,32 +4,25 @@
 package iampb
 
 import (
-	"fmt"
-
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"google.golang.org/protobuf/proto"
+	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	proto "google.golang.org/protobuf/proto"
 )
 
-var (
-	_ fmt.Stringer
-	_ proto.Message
-)
-
-var metadata_iam = &typepb.XMeta{
+var metadata_iam = &v1.XMeta{
 	ServiceName: "SENTINEZ // IAM",
-	ServiceZone: typepb.Zone_ZONE_INTERNAL,
+	ServiceZone: v1.Zone_ZONE_INTERNAL,
 	ServiceKey:  "sentinez.apps.iam.v1",
 }
 
-func GetMetaIam() *typepb.XMeta {
-	return proto.Clone(metadata_iam).(*typepb.XMeta)
+func GetMetaIam() *v1.XMeta {
+	return proto.Clone(metadata_iam).(*v1.XMeta)
 }
 
 func GetMetaIamServiceName() string {
 	return metadata_iam.GetServiceName()
 }
 
-func GetMetaIamServiceZone() typepb.Zone {
+func GetMetaIamServiceZone() v1.Zone {
 	return metadata_iam.GetServiceZone()
 }
 
@@ -37,83 +30,83 @@ func GetMetaIamServiceKey() string {
 	return metadata_iam.GetServiceKey()
 }
 
-func GetIdentityAccessManagementServiceListAccounts() *typepb.XMethod {
-	return &typepb.XMethod{
+func GetIdentityAccessManagementServiceListAccounts() *v1.XMethod {
+	return &v1.XMethod{
 		Ignore: true,
 	}
 }
 
-func GetIdentityAccessManagementServiceListUsers() *typepb.XMethod {
-	return &typepb.XMethod{
-		ControlPlanes: []typepb.ControlPlane{
-			typepb.ControlPlane_CONTROL_PLANE_PORTAL,
-			typepb.ControlPlane_CONTROL_PLANE_ADMIN,
+func GetIdentityAccessManagementServiceListUsers() *v1.XMethod {
+	return &v1.XMethod{
+		ControlPlanes: []v1.ControlPlane{
+			v1.ControlPlane_CONTROL_PLANE_PORTAL,
+			v1.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
 	}
 }
 
-func GetIdentityAccessManagementServiceStatus() *typepb.XMethod {
-	return &typepb.XMethod{
+func GetIdentityAccessManagementServiceStatus() *v1.XMethod {
+	return &v1.XMethod{
 		Ignore: true,
 	}
 }
 
-func GetIdentityAccessManagementServiceCreateAccount() *typepb.XMethod {
-	return &typepb.XMethod{
+func GetIdentityAccessManagementServiceCreateAccount() *v1.XMethod {
+	return &v1.XMethod{
 		Ignore: true,
 	}
 }
 
-func GetIdentityAccessManagementServiceGetUser() *typepb.XMethod {
-	return &typepb.XMethod{
+func GetIdentityAccessManagementServiceGetUser() *v1.XMethod {
+	return &v1.XMethod{
 		Ignore: true,
 	}
 }
 
-func GetIdentityAccessManagementServiceUpdateUser() *typepb.XMethod {
-	return &typepb.XMethod{
+func GetIdentityAccessManagementServiceUpdateUser() *v1.XMethod {
+	return &v1.XMethod{
 		Ignore: true,
 	}
 }
 
-func GetIdentityAccessManagementServiceDeleteUser() *typepb.XMethod {
-	return &typepb.XMethod{
+func GetIdentityAccessManagementServiceDeleteUser() *v1.XMethod {
+	return &v1.XMethod{
 		Ignore: true,
 	}
 }
 
-func GetIdentityAccessManagementServiceLogin() *typepb.XMethod {
-	return &typepb.XMethod{
+func GetIdentityAccessManagementServiceLogin() *v1.XMethod {
+	return &v1.XMethod{
 		Ignore: true,
 	}
 }
 
-func GetIdentityAccessManagementServicePasskeyRegisterChallenge() *typepb.XMethod {
-	return &typepb.XMethod{
+func GetIdentityAccessManagementServicePasskeyRegisterChallenge() *v1.XMethod {
+	return &v1.XMethod{
 		Ignore: true,
 	}
 }
 
-func GetIdentityAccessManagementServicePasskeyRegisterVerify() *typepb.XMethod {
-	return &typepb.XMethod{
+func GetIdentityAccessManagementServicePasskeyRegisterVerify() *v1.XMethod {
+	return &v1.XMethod{
 		Ignore: true,
 	}
 }
 
-func GetIdentityAccessManagementServicePasskeyLinkChallenge() *typepb.XMethod {
-	return &typepb.XMethod{
+func GetIdentityAccessManagementServicePasskeyLinkChallenge() *v1.XMethod {
+	return &v1.XMethod{
 		Ignore: true,
 	}
 }
 
-func GetIdentityAccessManagementServicePasskeyLoginChallenge() *typepb.XMethod {
-	return &typepb.XMethod{
+func GetIdentityAccessManagementServicePasskeyLoginChallenge() *v1.XMethod {
+	return &v1.XMethod{
 		Ignore: true,
 	}
 }
 
-func GetIdentityAccessManagementServicePasskeyLoginVerify() *typepb.XMethod {
-	return &typepb.XMethod{
+func GetIdentityAccessManagementServicePasskeyLoginVerify() *v1.XMethod {
+	return &v1.XMethod{
 		Ignore: true,
 	}
 }

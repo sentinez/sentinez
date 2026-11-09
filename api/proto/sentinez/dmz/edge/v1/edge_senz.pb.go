@@ -4,32 +4,25 @@
 package edgepb
 
 import (
-	"fmt"
-
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"google.golang.org/protobuf/proto"
+	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	proto "google.golang.org/protobuf/proto"
 )
 
-var (
-	_ fmt.Stringer
-	_ proto.Message
-)
-
-var metadata_edge = &typepb.XMeta{
+var metadata_edge = &v1.XMeta{
 	ServiceName: "SENTINEZ // EDGE",
-	ServiceZone: typepb.Zone_ZONE_DEMILITARIZED,
+	ServiceZone: v1.Zone_ZONE_DEMILITARIZED,
 	ServiceKey:  "sentinez.dmz.edge.v1",
 }
 
-func GetMetaEdge() *typepb.XMeta {
-	return proto.Clone(metadata_edge).(*typepb.XMeta)
+func GetMetaEdge() *v1.XMeta {
+	return proto.Clone(metadata_edge).(*v1.XMeta)
 }
 
 func GetMetaEdgeServiceName() string {
 	return metadata_edge.GetServiceName()
 }
 
-func GetMetaEdgeServiceZone() typepb.Zone {
+func GetMetaEdgeServiceZone() v1.Zone {
 	return metadata_edge.GetServiceZone()
 }
 

@@ -16,7 +16,6 @@ package activitiesrepo
 
 import (
 	"context"
-	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/controlplane/pkg/schema"
@@ -28,7 +27,6 @@ import (
 	analyticpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 var (
@@ -100,7 +98,8 @@ func (a *Activities) List(ctx context.Context,
 	}
 	szlog.Debug("[activities] query: ", query, " args: ", args)
 
-	activities, err := a.storage.CollectRows(ctx, builder, scan)
+	activities, err := a.storage.CollectRows(
+		ctx, builder, analyticpb.ScanActivity)
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +159,7 @@ func (a *Activities) Delete(ctx context.Context, id string) error {
 func (a *Activities) Get(ctx context.Context,
 	id string) (*analyticpb.Activity, error) {
 	builder := a.selectQuery(nil).Where(sq.Eq{analyticpb.Activity_Id: id})
-	return a.storage.Select(ctx, builder, scanOne)
+	return a.storage.Select(ctx, builder, analyticpb.ScanOneActivity)
 }
 
 // Update implements IActivity.
@@ -184,55 +183,5 @@ func (a *Activities) Update(ctx context.Context,
 
 func (a *Activities) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 	return postgres.SelectBuilder(a.storage, page,
-		analyticpb.Activity_Id,
-		postgres.SelectCoalesce(analyticpb.Activity_OwnerResourceId),
-		postgres.SelectCoalesce(analyticpb.Activity_OwnerTenantId),
-		analyticpb.Activity_UniqueVisitor,
-		typepb.Metadata_CreatedAt,
-		typepb.Metadata_UpdatedAt,
-	)
-}
-
-func scan(rows dbx.Rows) ([]*analyticpb.Activity, error) {
-	var activities []*analyticpb.Activity
-
-	for rows.Next() {
-		activity, err := scanOne(rows)
-		if err != nil {
-			return nil, err
-		}
-
-		activities = append(activities, activity)
-	}
-
-	return activities, rows.Err()
-}
-
-func scanOne(row dbx.Row) (*analyticpb.Activity, error) {
-	var (
-		createdAt, updatedAt time.Time
-		resourceId, tenantId string
-		activity             analyticpb.Activity
-	)
-
-	err := row.Scan(
-		&activity.Id,
-		&resourceId,
-		&tenantId,
-		&activity.UniqueVisitor,
-		&createdAt,
-		&updatedAt,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	activity.Owner = &typepb.Owner{
-		TenantId:   tenantId,
-		ResourceId: resourceId,
-		CreatedAt:  timestamppb.New(createdAt),
-		UpdatedAt:  timestamppb.New(updatedAt),
-	}
-
-	return &activity, nil
+		analyticpb.ActivityColumns()...)
 }

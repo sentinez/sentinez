@@ -392,7 +392,7 @@ var File_sentinez_types_net_http_v1_event_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_net_http_v1_event_proto_rawDesc = "" +
 	"\n" +
-	"&sentinez/types/net/http/v1/event.proto\x12\x1asentinez.types.net.http.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fsentinez/types/v1/options.proto\"\xcc\x04\n" +
+	"&sentinez/types/net/http/v1/event.proto\x12\x1asentinez.types.net.http.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fsentinez/types/v1/options.proto\"\xce\x04\n" +
 	"\fIngressEvent\x12D\n" +
 	"\x02id\x18\x01 \x01(\tB4\xbaH1r/2-^([a-zA-Z0-9-]+-)?req_[0-9A-HJKMNP-TV-Z]{26}$R\x02id\x12\x16\n" +
 	"\x06method\x18\x02 \x01(\tR\x06method\x12\x16\n" +
@@ -415,7 +415,7 @@ const file_sentinez_types_net_http_v1_event_proto_rawDesc = "" +
 	"\tclient_ip\x18\x13 \x01(\tR\bclientIp\x12\x1f\n" +
 	"\vresource_id\x18\x14 \x01(\tR\n" +
 	"resourceId\x12\x1b\n" +
-	"\ttenant_id\x18\x15 \x01(\tR\btenantId:\x06\xca\xf3\x18\x02\b\x01\"\xd6\x03\n" +
+	"\ttenant_id\x18\x15 \x01(\tR\btenantId:\b\xca\xf3\x18\x04\b\x01\x18\x01\"\xd8\x03\n" +
 	"\vEgressEvent\x12D\n" +
 	"\x02id\x18\x01 \x01(\tB4\xbaH1r/2-^([a-zA-Z0-9-]+-)?req_[0-9A-HJKMNP-TV-Z]{26}$R\x02id\x12\x1a\n" +
 	"\bupstream\x18\x02 \x01(\tR\bupstream\x12\x16\n" +
@@ -432,7 +432,7 @@ const file_sentinez_types_net_http_v1_event_proto_rawDesc = "" +
 	"\vresource_id\x18\f \x01(\tR\n" +
 	"resourceId\x12\x1b\n" +
 	"\ttenant_id\x18\r \x01(\tR\btenantId\x12\x1a\n" +
-	"\bprotocol\x18\x0e \x01(\tR\bprotocol:\x06\xca\xf3\x18\x02\b\x01BJZHgithub.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1;httppbb\x06proto3"
+	"\bprotocol\x18\x0e \x01(\tR\bprotocol:\b\xca\xf3\x18\x04\b\x01\x18\x01BJZHgithub.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1;httppbb\x06proto3"
 
 var (
 	file_sentinez_types_net_http_v1_event_proto_rawDescOnce sync.Once

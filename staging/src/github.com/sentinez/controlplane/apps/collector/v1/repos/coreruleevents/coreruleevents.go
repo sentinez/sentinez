@@ -33,9 +33,6 @@ import (
 
 var _ ICoreRuleEvent = (*CoreRuleEvents)(nil)
 
-// _columns the columns of the table, in the order of values and scanOne.
-var _columns = schema.AnalyticCoreRulesetsEvent().ColumnNames()
-
 var _hypertable = schema.EventHypertable(
 	schema.AnalyticCoreRulesetsEvent(), crspb.CoreRuleEvent_MatchedTime)
 
@@ -131,20 +128,20 @@ func (r *CoreRuleEvents) Create(ctx context.Context,
 		return nil
 	}
 
-	query := sq.Insert(r.storage.Table()).Columns(_columns...).
-		Suffix(_hypertable.OnConflictDoNothing())
-	for _, event := range events {
-		query = query.Values(values(event)...)
+	query, err := postgres.InsertRowsBuilder(r.storage,
+		crspb.CoreRuleEventColumns(), events, crspb.CoreRuleEventValues)
+	if err != nil {
+		return err
 	}
 
-	_, err := r.storage.Exec(ctx, query)
+	_, err = r.storage.Exec(ctx, query.Suffix(_hypertable.OnConflictDoNothing()))
 	return err
 }
 
 func (r *CoreRuleEvents) Get(ctx context.Context,
 	id string) (*crspb.CoreRuleEvent, error) {
 	builder := r.selectQuery().Where(sq.Eq{crspb.CoreRuleEvent_Id: id})
-	return r.storage.Select(ctx, builder, scanOne)
+	return r.storage.Select(ctx, builder, crspb.ScanOneCoreRuleEvent)
 }
 
 func (r *CoreRuleEvents) Delete(ctx context.Context, id string) error {
@@ -158,7 +155,7 @@ func (r *CoreRuleEvents) List(ctx context.Context,
 		return nil, err
 	}
 
-	return r.storage.CollectRows(ctx, builder, scan)
+	return r.storage.CollectRows(ctx, builder, crspb.ScanCoreRuleEvent)
 }
 
 func (r *CoreRuleEvents) Histogram(ctx context.Context,
@@ -175,68 +172,5 @@ func (r *CoreRuleEvents) TopValues(ctx context.Context,
 }
 
 func (r *CoreRuleEvents) selectQuery() sq.SelectBuilder {
-	return sq.Select(_columns...).From(r.storage.Table())
-}
-
-// values the values of event, in the order of _columns.
-func values(event *crspb.CoreRuleEvent) []any {
-	return []any{
-		event.GetId(),
-		event.GetMatchedRuleIds(),
-		event.GetSeverities(),
-		event.GetMessages(),
-		event.GetTotalScore(),
-		event.GetMatchedTime(),
-		event.GetResourceId(),
-		event.GetTenantId(),
-		event.GetService(),
-		event.GetRequestIp(),
-		event.GetRequestDomain(),
-		event.GetRequestScheme(),
-		event.GetRequestPath(),
-		event.GetRequestQuery(),
-		event.GetRequestId(),
-		event.GetBehavior(),
-	}
-}
-
-func scan(rows dbx.Rows) ([]*crspb.CoreRuleEvent, error) {
-	var events []*crspb.CoreRuleEvent
-	for rows.Next() {
-		event, err := scanOne(rows)
-		if err != nil {
-			return nil, err
-		}
-		events = append(events, event)
-	}
-
-	return events, rows.Err()
-}
-
-func scanOne(row dbx.Row) (*crspb.CoreRuleEvent, error) {
-	var event crspb.CoreRuleEvent
-
-	err := row.Scan(
-		&event.Id,
-		&event.MatchedRuleIds,
-		&event.Severities,
-		&event.Messages,
-		&event.TotalScore,
-		&event.MatchedTime,
-		&event.ResourceId,
-		&event.TenantId,
-		&event.Service,
-		&event.RequestIp,
-		&event.RequestDomain,
-		&event.RequestScheme,
-		&event.RequestPath,
-		&event.RequestQuery,
-		&event.RequestId,
-		&event.Behavior,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	return &event, nil
+	return sq.Select(crspb.CoreRuleEventColumns()...).From(r.storage.Table())
 }

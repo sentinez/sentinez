@@ -4,33 +4,25 @@
 package greeterpb
 
 import (
-	"fmt"
-
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"google.golang.org/protobuf/proto"
+	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	proto "google.golang.org/protobuf/proto"
 )
 
-var (
-	_ typepb.Empty
-	_ fmt.Stringer
-	_ proto.Message
-)
-
-var metadata_greeter = &typepb.XMeta{
+var metadata_greeter = &v1.XMeta{
 	ServiceName: "SENTINEZ // GREETER",
-	ServiceZone: typepb.Zone_ZONE_INTERNAL,
+	ServiceZone: v1.Zone_ZONE_INTERNAL,
 	ServiceKey:  "sentinez.apps.greeter.v1",
 }
 
-func GetMetaGreeter() *typepb.XMeta {
-	return proto.Clone(metadata_greeter).(*typepb.XMeta)
+func GetMetaGreeter() *v1.XMeta {
+	return proto.Clone(metadata_greeter).(*v1.XMeta)
 }
 
 func GetMetaGreeterServiceName() string {
 	return metadata_greeter.GetServiceName()
 }
 
-func GetMetaGreeterServiceZone() typepb.Zone {
+func GetMetaGreeterServiceZone() v1.Zone {
 	return metadata_greeter.GetServiceZone()
 }
 
@@ -38,14 +30,14 @@ func GetMetaGreeterServiceKey() string {
 	return metadata_greeter.GetServiceKey()
 }
 
-func GetGreeterServiceSayHello() *typepb.XMethod {
-	return &typepb.XMethod{
+func GetGreeterServiceSayHello() *v1.XMethod {
+	return &v1.XMethod{
 		Ignore: true,
 	}
 }
 
-func GetGreeterServiceStatus() *typepb.XMethod {
-	return &typepb.XMethod{
+func GetGreeterServiceStatus() *v1.XMethod {
+	return &v1.XMethod{
 		Ignore: true,
 	}
 }

@@ -16,7 +16,6 @@ package memberrepo
 
 import (
 	"context"
-	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/controlplane/pkg/schema"
@@ -28,7 +27,6 @@ import (
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 var _ IMember = (*Members)(nil)
@@ -101,7 +99,7 @@ func (m *Members) List(ctx context.Context,
 	}
 	szlog.Debug("[members] query: ", query, " args: ", args)
 
-	members, err := m.storage.CollectRows(ctx, builder, scan)
+	members, err := m.storage.CollectRows(ctx, builder, tenantpb.ScanMember)
 	if err != nil {
 		return nil, err
 	}
@@ -163,7 +161,7 @@ func (m *Members) Get(
 	ctx context.Context, id string) (*tenantpb.Member, error) {
 
 	builder := m.selectQuery(nil).Where(sq.Eq{tenantpb.Member_Id: id})
-	return m.storage.Select(ctx, builder, scanOne)
+	return m.storage.Select(ctx, builder, tenantpb.ScanOneMember)
 }
 
 // Update implements IMember. Only the roles of a member can change.
@@ -181,56 +179,7 @@ func (m *Members) Update(ctx context.Context, member *tenantpb.Member) error {
 
 func (m *Members) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 	return postgres.SelectBuilder(m.storage, page,
-		tenantpb.Member_Id,
-		tenantpb.Member_UserId,
-		tenantpb.Member_TenantId,
-		tenantpb.Member_Roles,
-		typepb.Metadata_CreatedAt,
-		typepb.Metadata_UpdatedAt,
-	)
-}
-
-func scan(rows dbx.Rows) ([]*tenantpb.Member, error) {
-	var members []*tenantpb.Member
-
-	for rows.Next() {
-		member, err := scanOne(rows)
-		if err != nil {
-			return nil, err
-		}
-
-		members = append(members, member)
-	}
-
-	return members, rows.Err()
-}
-
-func scanOne(row dbx.Row) (*tenantpb.Member, error) {
-	var (
-		createdAt, updatedAt time.Time
-		member               tenantpb.Member
-		roles                []int32
-	)
-
-	err := row.Scan(
-		&member.Id,
-		&member.UserId,
-		&member.TenantId,
-		&roles,
-		&createdAt,
-		&updatedAt,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	member.Roles = toRoles(roles)
-	member.Metadata = &typepb.Metadata{
-		CreatedAt: timestamppb.New(createdAt),
-		UpdatedAt: timestamppb.New(updatedAt),
-	}
-
-	return &member, nil
+		tenantpb.MemberColumns()...)
 }
 
 // fromRoles converts roles to the INTEGER[] column value.
@@ -241,13 +190,4 @@ func fromRoles(roles []typepb.Role) []int32 {
 	}
 
 	return values
-}
-
-func toRoles(values []int32) []typepb.Role {
-	roles := make([]typepb.Role, 0, len(values))
-	for _, value := range values {
-		roles = append(roles, typepb.Role(value))
-	}
-
-	return roles
 }

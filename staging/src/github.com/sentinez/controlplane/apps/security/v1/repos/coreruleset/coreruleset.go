@@ -16,7 +16,6 @@ package coreruleset
 
 import (
 	"context"
-	"time"
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/controlplane/pkg/schema"
@@ -30,16 +29,12 @@ import (
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"google.golang.org/protobuf/encoding/protojson"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // The content column holds the proto JSON of the CRS setting: fields by
 // their proto name, enums by their value name. The list filters rely on
 // this encoding.
-var (
-	_marshalContent   = protojson.MarshalOptions{UseProtoNames: true}
-	_unmarshalContent = protojson.UnmarshalOptions{DiscardUnknown: true}
-)
+var _marshalContent = protojson.MarshalOptions{UseProtoNames: true}
 
 // nolint
 type ICoreRuleset interface {
@@ -100,7 +95,8 @@ func (r *CoreRuleset) List(ctx context.Context,
 	}
 	szlog.Debug("[security.coreruleset] query: ", query, " args: ", args)
 
-	models, err := r.storage.CollectRows(ctx, builder, scan)
+	models, err := r.storage.CollectRows(
+		ctx, builder, securitypb.ScanCoreRuleset)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -169,7 +165,7 @@ func (r *CoreRuleset) Get(
 ) (*securitypb.CoreRuleset, error) {
 	builder := r.selectQuery(nil).
 		Where(sq.Eq{securitypb.CoreRuleset_Id: id})
-	return r.storage.Select(ctx, builder, scanOne)
+	return r.storage.Select(ctx, builder, securitypb.ScanOneCoreRuleset)
 }
 
 func (r *CoreRuleset) Update(
@@ -194,15 +190,7 @@ func (r *CoreRuleset) Update(
 
 func (r *CoreRuleset) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 	return postgres.SelectBuilder(r.storage, page,
-		securitypb.CoreRuleset_Id,
-		securitypb.CoreRuleset_Name,
-		securitypb.CoreRuleset_Description,
-		securitypb.CoreRuleset_Content,
-		postgres.SelectCoalesce(securitypb.CoreRuleset_OwnerResourceId),
-		postgres.SelectCoalesce(securitypb.CoreRuleset_OwnerTenantId),
-		typepb.Metadata_CreatedAt,
-		typepb.Metadata_UpdatedAt,
-	)
+		securitypb.CoreRulesetColumns()...)
 }
 
 // marshalContent a setting without content is stored as an empty object,
@@ -218,67 +206,4 @@ func marshalContent(content *corerulesetpb.CoreRuleset) (string, error) {
 	}
 
 	return string(data), nil
-}
-
-// unmarshalContent an empty column leaves the setting unset.
-func unmarshalContent(data []byte) (*corerulesetpb.CoreRuleset, error) {
-	if len(data) == 0 {
-		return nil, nil
-	}
-
-	content := &corerulesetpb.CoreRuleset{}
-	if err := _unmarshalContent.Unmarshal(data, content); err != nil {
-		return nil, err
-	}
-
-	return content, nil
-}
-
-func scan(rows dbx.Rows) ([]*securitypb.CoreRuleset, error) {
-	var models []*securitypb.CoreRuleset
-	for rows.Next() {
-		model, err := scanOne(rows)
-		if err != nil {
-			return nil, err
-		}
-		models = append(models, model)
-	}
-	return models, rows.Err()
-}
-
-func scanOne(row dbx.Row) (*securitypb.CoreRuleset, error) {
-	var (
-		createdAt, updatedAt time.Time
-		resourceId, tenantId string
-		content              []byte
-		model                securitypb.CoreRuleset
-	)
-
-	err := row.Scan(
-		&model.Id,
-		&model.Name,
-		&model.Description,
-		&content,
-		&resourceId,
-		&tenantId,
-		&createdAt,
-		&updatedAt,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	model.Content, err = unmarshalContent(content)
-	if err != nil {
-		return nil, err
-	}
-
-	model.Owner = &typepb.Owner{
-		ResourceId: resourceId,
-		TenantId:   tenantId,
-		CreatedAt:  timestamppb.New(createdAt),
-		UpdatedAt:  timestamppb.New(updatedAt),
-	}
-
-	return &model, nil
 }

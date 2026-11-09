@@ -137,7 +137,7 @@ func NewView[T any](ctx context.Context, conf *settingpb.Config,
 		return nil, err
 	}
 
-	db, err := postgres.Open[T](ctx, conf, schema.Name,
+	db, err := postgres.Open[T](ctx, conf, dbx.Schema{Table: schema.Name},
 		func(ctx context.Context, client postgres.Client,
 			viewName string) error {
 			return syncView(ctx, client, viewName, sourceName, schema)

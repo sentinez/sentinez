@@ -110,7 +110,7 @@ setting:
       status: STATUS_ACTIVE
       # ENGINE_MODE_OFF | ENGINE_MODE_DETECTION_ONLY (log only) |
       # ENGINE_MODE_ON (block)
-      mode: ENGINE_MODE_DETECTION_ONLY
+      mode: ENGINE_MODE_ON
       # VERSION_V4_16_0 (no 956 Ruby group) | VERSION_V4_17_0 (default)
       version: VERSION_V4_17_0
 

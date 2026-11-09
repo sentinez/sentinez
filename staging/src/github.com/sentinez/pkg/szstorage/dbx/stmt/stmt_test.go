@@ -78,3 +78,38 @@ func TestAddColumn(t *testing.T) {
 		})
 	}
 }
+
+func TestCreateTable(t *testing.T) {
+	tests := []struct {
+		name       string
+		giveSchema dbx.Schema
+		want       string
+	}{
+		{
+			name: "default timestamps",
+			want: "CREATE TABLE IF NOT EXISTS t ( id TEXT PRIMARY KEY, " +
+				"created_at " + _timestampDDL + ", " +
+				"updated_at " + _timestampDDL + " )",
+		},
+		{
+			name: "schema timestamps",
+			giveSchema: dbx.Schema{
+				CreatedAt: "owner_created_at",
+				UpdatedAt: "owner_updated_at",
+			},
+			want: "CREATE TABLE IF NOT EXISTS t ( id TEXT PRIMARY KEY, " +
+				"owner_created_at " + _timestampDDL + ", " +
+				"owner_updated_at " + _timestampDDL + " )",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := CreateTable("t", tt.giveSchema)
+
+			assert.Equal(t, tt.want, strings.Join(strings.Fields(got), " "))
+		})
+	}
+}
+
+const _timestampDDL = "TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'UTC')"

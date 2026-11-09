@@ -1684,7 +1684,7 @@ var File_sentinez_apps_tenant_v1_tenant_proto protoreflect.FileDescriptor
 
 const file_sentinez_apps_tenant_v1_tenant_proto_rawDesc = "" +
 	"\n" +
-	"$sentinez/apps/tenant/v1/tenant.proto\x12\x17sentinez.apps.tenant.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\"sentinez/dmz/edge/v1/setting.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a#sentinez/apps/tenant/v1/model.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"O\n" +
+	"$sentinez/apps/tenant/v1/tenant.proto\x12\x17sentinez.apps.tenant.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a#sentinez/apps/tenant/v1/model.proto\x1a\"sentinez/dmz/edge/v1/setting.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"O\n" +
 	"\x12GetResourceRequest\x12\x1f\n" +
 	"\x02id\x18\x01 \x01(\tB\x0f\xbaH\f\xd8\x01\x01r\a:\x05rsrc_R\x02id\x12\x18\n" +
 	"\adefault\x18\x02 \x01(\bR\adefault\"\x8e\x01\n" +

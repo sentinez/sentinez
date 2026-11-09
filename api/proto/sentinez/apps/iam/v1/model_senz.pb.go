@@ -3,22 +3,184 @@
 
 package iampb
 
-const (
-	Account_Metadata       = "metadata"
-	Account_Id             = "id"
-	Account_UserId         = "user_id"
-	Account_Username       = "username"
-	Account_PasswordHash   = "password_hash"
-	Account_Email          = "email"
-	Account_Credentials    = "credentials"
-	Account_Provider       = "provider"
-	Account_ProviderUserId = "provider_user_id"
+import (
+	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+	time "time"
 )
 
 const (
-	User_Metadata     = "metadata"
-	User_Id           = "id"
-	User_FullName     = "full_name"
-	User_Email        = "email"
-	User_ControlPlane = "control_plane"
+	Account_MetadataCreatedAt = "metadata_created_at"
+	Account_MetadataUpdatedAt = "metadata_updated_at"
+	Account_Id                = "id"
+	Account_UserId            = "user_id"
+	Account_Username          = "username"
+	Account_PasswordHash      = "password_hash"
+	Account_Email             = "email"
+	Account_Credentials       = "credentials"
+	Account_Provider          = "provider"
+	Account_ProviderUserId    = "provider_user_id"
 )
+
+const (
+	User_MetadataCreatedAt = "metadata_created_at"
+	User_MetadataUpdatedAt = "metadata_updated_at"
+	User_Id                = "id"
+	User_FullName          = "full_name"
+	User_Email             = "email"
+	User_ControlPlane      = "control_plane"
+)
+
+// AccountColumns returns the columns of Account, in the order ScanOneAccount scans them.
+func AccountColumns() []string {
+	return []string{
+		Account_MetadataCreatedAt,
+		Account_MetadataUpdatedAt,
+		Account_Id,
+		Account_UserId,
+		Account_Username,
+		Account_PasswordHash,
+		Account_Email,
+		Account_Credentials,
+		Account_Provider,
+		Account_ProviderUserId,
+	}
+}
+
+// AccountValues returns the values of m, in the order of AccountColumns.
+func AccountValues(m *Account) ([]any, error) {
+	var colMetadataCreatedAt any
+	if v := m.GetMetadata().GetCreatedAt(); v != nil {
+		colMetadataCreatedAt = v.AsTime()
+	}
+	var colMetadataUpdatedAt any
+	if v := m.GetMetadata().GetUpdatedAt(); v != nil {
+		colMetadataUpdatedAt = v.AsTime()
+	}
+	return []any{
+		colMetadataCreatedAt,
+		colMetadataUpdatedAt,
+		m.GetId(),
+		m.GetUserId(),
+		m.GetUsername(),
+		m.GetPasswordHash(),
+		m.GetEmail(),
+		m.GetCredentials(),
+		m.GetProvider(),
+		m.GetProviderUserId(),
+	}, nil
+}
+
+// ScanOneAccount scans row, holding the columns of AccountColumns, into a Account.
+func ScanOneAccount[R interface{ Scan(dest ...any) error }](row R) (*Account, error) {
+	m := &Account{Metadata: &v1.Metadata{}}
+	var (
+		colMetadataCreatedAt time.Time
+		colMetadataUpdatedAt time.Time
+	)
+	if err := row.Scan(
+		&colMetadataCreatedAt,
+		&colMetadataUpdatedAt,
+		&m.Id,
+		&m.UserId,
+		&m.Username,
+		&m.PasswordHash,
+		&m.Email,
+		&m.Credentials,
+		&m.Provider,
+		&m.ProviderUserId,
+	); err != nil {
+		return nil, err
+	}
+	m.Metadata.CreatedAt = timestamppb.New(colMetadataCreatedAt)
+	m.Metadata.UpdatedAt = timestamppb.New(colMetadataUpdatedAt)
+	return m, nil
+}
+
+// ScanAccount scans each row of rows with ScanOneAccount.
+func ScanAccount[R interface {
+	Next() bool
+	Scan(dest ...any) error
+	Err() error
+}](rows R) ([]*Account, error) {
+	var ms []*Account
+	for rows.Next() {
+		m, err := ScanOneAccount(rows)
+		if err != nil {
+			return nil, err
+		}
+		ms = append(ms, m)
+	}
+	return ms, rows.Err()
+}
+
+// UserColumns returns the columns of User, in the order ScanOneUser scans them.
+func UserColumns() []string {
+	return []string{
+		User_MetadataCreatedAt,
+		User_MetadataUpdatedAt,
+		User_Id,
+		User_FullName,
+		User_Email,
+		User_ControlPlane,
+	}
+}
+
+// UserValues returns the values of m, in the order of UserColumns.
+func UserValues(m *User) ([]any, error) {
+	var colMetadataCreatedAt any
+	if v := m.GetMetadata().GetCreatedAt(); v != nil {
+		colMetadataCreatedAt = v.AsTime()
+	}
+	var colMetadataUpdatedAt any
+	if v := m.GetMetadata().GetUpdatedAt(); v != nil {
+		colMetadataUpdatedAt = v.AsTime()
+	}
+	return []any{
+		colMetadataCreatedAt,
+		colMetadataUpdatedAt,
+		m.GetId(),
+		m.GetFullName(),
+		m.GetEmail(),
+		m.GetControlPlane(),
+	}, nil
+}
+
+// ScanOneUser scans row, holding the columns of UserColumns, into a User.
+func ScanOneUser[R interface{ Scan(dest ...any) error }](row R) (*User, error) {
+	m := &User{Metadata: &v1.Metadata{}}
+	var (
+		colMetadataCreatedAt time.Time
+		colMetadataUpdatedAt time.Time
+	)
+	if err := row.Scan(
+		&colMetadataCreatedAt,
+		&colMetadataUpdatedAt,
+		&m.Id,
+		&m.FullName,
+		&m.Email,
+		&m.ControlPlane,
+	); err != nil {
+		return nil, err
+	}
+	m.Metadata.CreatedAt = timestamppb.New(colMetadataCreatedAt)
+	m.Metadata.UpdatedAt = timestamppb.New(colMetadataUpdatedAt)
+	return m, nil
+}
+
+// ScanUser scans each row of rows with ScanOneUser.
+func ScanUser[R interface {
+	Next() bool
+	Scan(dest ...any) error
+	Err() error
+}](rows R) ([]*User, error) {
+	var ms []*User
+	for rows.Next() {
+		m, err := ScanOneUser(rows)
+		if err != nil {
+			return nil, err
+		}
+		ms = append(ms, m)
+	}
+	return ms, rows.Err()
+}

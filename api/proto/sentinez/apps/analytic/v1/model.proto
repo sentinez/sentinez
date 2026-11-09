@@ -23,7 +23,10 @@ import "sentinez/types/v1/options.proto";
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1;analyticpb";
 
 message Activity {
-  option (sentinez.types.v1.x_message).database_model = true;
+  option (sentinez.types.v1.x_message) = {
+    database_model: true
+    scanner: true
+  };
 
   sentinez.types.v1.Owner owner = 1 [(sentinez.types.v1.x_field).flatten = true];
 

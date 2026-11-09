@@ -34,10 +34,6 @@ import (
 
 var _ ISecRuleEvent = (*SecRuleEvents)(nil)
 
-// _columns the columns of a rule event table, both tables sharing them, in
-// the order of values and scanOne.
-var _columns = schema.AnalyticSecRulesEvent().ColumnNames()
-
 var _filterColumns = eventfilter.Columns{
 	RequestId:   secrulepb.SecRuleEvent_RequestId,
 	ResourceId:  secrulepb.SecRuleEvent_ResourceId,
@@ -115,20 +111,20 @@ func (r *SecRuleEvents) Create(ctx context.Context,
 		return nil
 	}
 
-	query := sq.Insert(r.storage.Table()).Columns(_columns...).
-		Suffix(r.onConflict)
-	for _, event := range events {
-		query = query.Values(values(event)...)
+	query, err := postgres.InsertRowsBuilder(r.storage,
+		secrulepb.SecRuleEventColumns(), events, secrulepb.SecRuleEventValues)
+	if err != nil {
+		return err
 	}
 
-	_, err := r.storage.Exec(ctx, query)
+	_, err = r.storage.Exec(ctx, query.Suffix(r.onConflict))
 	return err
 }
 
 func (r *SecRuleEvents) Get(ctx context.Context,
 	id string) (*secrulepb.SecRuleEvent, error) {
 	builder := r.selectQuery().Where(sq.Eq{secrulepb.SecRuleEvent_Id: id})
-	return r.storage.Select(ctx, builder, scanOne)
+	return r.storage.Select(ctx, builder, secrulepb.ScanOneSecRuleEvent)
 }
 
 func (r *SecRuleEvents) Delete(ctx context.Context, id string) error {
@@ -142,7 +138,7 @@ func (r *SecRuleEvents) List(ctx context.Context,
 		return nil, err
 	}
 
-	return r.storage.CollectRows(ctx, builder, scan)
+	return r.storage.CollectRows(ctx, builder, secrulepb.ScanSecRuleEvent)
 }
 
 func (r *SecRuleEvents) Histogram(ctx context.Context,
@@ -188,66 +184,5 @@ func (r *SecRuleEvents) TopValues(ctx context.Context,
 }
 
 func (r *SecRuleEvents) selectQuery() sq.SelectBuilder {
-	return sq.Select(_columns...).From(r.storage.Table())
-}
-
-// values the values of event, in the order of _columns.
-func values(event *secrulepb.SecRuleEvent) []any {
-	return []any{
-		event.GetId(),
-		event.GetMatchedSecruleIds(),
-		event.GetMessages(),
-		event.GetResourceId(),
-		event.GetTenantId(),
-		event.GetMatchedTime(),
-		event.GetAction(),
-		event.GetService(),
-		event.GetRequestDomain(),
-		event.GetRequestScheme(),
-		event.GetRequestPath(),
-		event.GetRequestQuery(),
-		event.GetRequestIp(),
-		event.GetRequestId(),
-		event.GetTags(),
-	}
-}
-
-func scan(rows dbx.Rows) ([]*secrulepb.SecRuleEvent, error) {
-	var events []*secrulepb.SecRuleEvent
-	for rows.Next() {
-		event, err := scanOne(rows)
-		if err != nil {
-			return nil, err
-		}
-		events = append(events, event)
-	}
-
-	return events, rows.Err()
-}
-
-func scanOne(row dbx.Row) (*secrulepb.SecRuleEvent, error) {
-	var event secrulepb.SecRuleEvent
-
-	err := row.Scan(
-		&event.Id,
-		&event.MatchedSecruleIds,
-		&event.Messages,
-		&event.ResourceId,
-		&event.TenantId,
-		&event.MatchedTime,
-		&event.Action,
-		&event.Service,
-		&event.RequestDomain,
-		&event.RequestScheme,
-		&event.RequestPath,
-		&event.RequestQuery,
-		&event.RequestIp,
-		&event.RequestId,
-		&event.Tags,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	return &event, nil
+	return sq.Select(secrulepb.SecRuleEventColumns()...).From(r.storage.Table())
 }

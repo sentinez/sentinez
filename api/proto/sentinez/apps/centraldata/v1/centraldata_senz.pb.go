@@ -4,33 +4,25 @@
 package centraldatapb
 
 import (
-	"fmt"
-
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"google.golang.org/protobuf/proto"
+	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	proto "google.golang.org/protobuf/proto"
 )
 
-var (
-	_ typepb.Empty
-	_ fmt.Stringer
-	_ proto.Message
-)
-
-var metadata_centraldata = &typepb.XMeta{
+var metadata_centraldata = &v1.XMeta{
 	ServiceName: "SENTINEZ // CENTRALDATA",
-	ServiceZone: typepb.Zone_ZONE_INTERNAL,
+	ServiceZone: v1.Zone_ZONE_INTERNAL,
 	ServiceKey:  "sentinez.apps.centraldata.v1",
 }
 
-func GetMetaCentraldata() *typepb.XMeta {
-	return proto.Clone(metadata_centraldata).(*typepb.XMeta)
+func GetMetaCentraldata() *v1.XMeta {
+	return proto.Clone(metadata_centraldata).(*v1.XMeta)
 }
 
 func GetMetaCentraldataServiceName() string {
 	return metadata_centraldata.GetServiceName()
 }
 
-func GetMetaCentraldataServiceZone() typepb.Zone {
+func GetMetaCentraldataServiceZone() v1.Zone {
 	return metadata_centraldata.GetServiceZone()
 }
 

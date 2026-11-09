@@ -199,7 +199,7 @@ var File_sentinez_types_secrule_v1_event_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_secrule_v1_event_proto_rawDesc = "" +
 	"\n" +
-	"%sentinez/types/secrule/v1/event.proto\x12\x19sentinez.types.secrule.v1\x1a\x1bbuf/validate/validate.proto\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1fsentinez/types/v1/options.proto\"\x8c\x06\n" +
+	"%sentinez/types/secrule/v1/event.proto\x12\x19sentinez.types.secrule.v1\x1a\x1bbuf/validate/validate.proto\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1fsentinez/types/v1/options.proto\"\x96\x06\n" +
 	"\fSecRuleEvent\x12F\n" +
 	"\x02id\x18\x01 \x01(\tB6\xbaH3r12/^([a-zA-Z0-9-]+-)?srevt_[0-9A-HJKMNP-TV-Z]{26}$R\x02id\x12.\n" +
 	"\x13matched_secrule_ids\x18\x02 \x03(\tR\x11matchedSecruleIds\x12\x1a\n" +
@@ -207,8 +207,8 @@ const file_sentinez_types_secrule_v1_event_proto_rawDesc = "" +
 	"\vresource_id\x18\x04 \x01(\tR\n" +
 	"resourceId\x12\x1b\n" +
 	"\ttenant_id\x18\x05 \x01(\tR\btenantId\x12!\n" +
-	"\fmatched_time\x18\x06 \x01(\x03R\vmatchedTime\x126\n" +
-	"\x06action\x18\a \x01(\v2\x1e.sentinez.types.rule.v1.ActionR\x06action\x12=\n" +
+	"\fmatched_time\x18\x06 \x01(\x03R\vmatchedTime\x12>\n" +
+	"\x06action\x18\a \x01(\v2\x1e.sentinez.types.rule.v1.ActionB\x06\xca\xf0\x19\x02\x18\x03R\x06action\x12=\n" +
 	"\aservice\x18\b \x01(\x0e2#.sentinez.types.rule.v1.RuleServiceR\aservice\x12%\n" +
 	"\x0erequest_domain\x18\n" +
 	" \x01(\tR\rrequestDomain\x12%\n" +
@@ -222,7 +222,7 @@ const file_sentinez_types_secrule_v1_event_proto_rawDesc = "" +
 	"\x04tags\x18\x14 \x03(\v21.sentinez.types.secrule.v1.SecRuleEvent.TagsEntryR\x04tags\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\x06\xca\xf3\x18\x02\b\x01BLZJgithub.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1;secrulepbb\x06proto3"
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01:\b\xca\xf3\x18\x04\b\x01\x18\x01BLZJgithub.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1;secrulepbb\x06proto3"
 
 var (
 	file_sentinez_types_secrule_v1_event_proto_rawDescOnce sync.Once

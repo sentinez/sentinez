@@ -20,3 +20,87 @@ const (
 	SecRuleEvent_RequestId         = "request_id"
 	SecRuleEvent_Tags              = "tags"
 )
+
+// SecRuleEventColumns returns the columns of SecRuleEvent, in the order ScanOneSecRuleEvent scans them.
+func SecRuleEventColumns() []string {
+	return []string{
+		SecRuleEvent_Id,
+		SecRuleEvent_MatchedSecruleIds,
+		SecRuleEvent_Messages,
+		SecRuleEvent_ResourceId,
+		SecRuleEvent_TenantId,
+		SecRuleEvent_MatchedTime,
+		SecRuleEvent_Action,
+		SecRuleEvent_Service,
+		SecRuleEvent_RequestDomain,
+		SecRuleEvent_RequestScheme,
+		SecRuleEvent_RequestPath,
+		SecRuleEvent_RequestQuery,
+		SecRuleEvent_RequestIp,
+		SecRuleEvent_RequestId,
+		SecRuleEvent_Tags,
+	}
+}
+
+// SecRuleEventValues returns the values of m, in the order of SecRuleEventColumns.
+func SecRuleEventValues(m *SecRuleEvent) ([]any, error) {
+	return []any{
+		m.GetId(),
+		m.GetMatchedSecruleIds(),
+		m.GetMessages(),
+		m.GetResourceId(),
+		m.GetTenantId(),
+		m.GetMatchedTime(),
+		m.GetAction(),
+		m.GetService(),
+		m.GetRequestDomain(),
+		m.GetRequestScheme(),
+		m.GetRequestPath(),
+		m.GetRequestQuery(),
+		m.GetRequestIp(),
+		m.GetRequestId(),
+		m.GetTags(),
+	}, nil
+}
+
+// ScanOneSecRuleEvent scans row, holding the columns of SecRuleEventColumns, into a SecRuleEvent.
+func ScanOneSecRuleEvent[R interface{ Scan(dest ...any) error }](row R) (*SecRuleEvent, error) {
+	m := &SecRuleEvent{}
+	if err := row.Scan(
+		&m.Id,
+		&m.MatchedSecruleIds,
+		&m.Messages,
+		&m.ResourceId,
+		&m.TenantId,
+		&m.MatchedTime,
+		&m.Action,
+		&m.Service,
+		&m.RequestDomain,
+		&m.RequestScheme,
+		&m.RequestPath,
+		&m.RequestQuery,
+		&m.RequestIp,
+		&m.RequestId,
+		&m.Tags,
+	); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// ScanSecRuleEvent scans each row of rows with ScanOneSecRuleEvent.
+func ScanSecRuleEvent[R interface {
+	Next() bool
+	Scan(dest ...any) error
+	Err() error
+}](rows R) ([]*SecRuleEvent, error) {
+	var ms []*SecRuleEvent
+	for rows.Next() {
+		m, err := ScanOneSecRuleEvent(rows)
+		if err != nil {
+			return nil, err
+		}
+		ms = append(ms, m)
+	}
+	return ms, rows.Err()
+}

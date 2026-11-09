@@ -4,33 +4,25 @@
 package apiserver
 
 import (
-	"fmt"
-
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"google.golang.org/protobuf/proto"
+	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	proto "google.golang.org/protobuf/proto"
 )
 
-var (
-	_ typepb.Empty
-	_ fmt.Stringer
-	_ proto.Message
-)
-
-var metadata_apiserver = &typepb.XMeta{
+var metadata_apiserver = &v1.XMeta{
 	ServiceName: "SENTINEZ // APISERVER",
-	ServiceZone: typepb.Zone_ZONE_PRIVATE_API,
+	ServiceZone: v1.Zone_ZONE_PRIVATE_API,
 	ServiceKey:  "sentinez.gateway.apiserver.v1",
 }
 
-func GetMetaApiserver() *typepb.XMeta {
-	return proto.Clone(metadata_apiserver).(*typepb.XMeta)
+func GetMetaApiserver() *v1.XMeta {
+	return proto.Clone(metadata_apiserver).(*v1.XMeta)
 }
 
 func GetMetaApiserverServiceName() string {
 	return metadata_apiserver.GetServiceName()
 }
 
-func GetMetaApiserverServiceZone() typepb.Zone {
+func GetMetaApiserverServiceZone() v1.Zone {
 	return metadata_apiserver.GetServiceZone()
 }
 

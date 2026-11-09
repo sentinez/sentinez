@@ -4,32 +4,25 @@
 package collectorpb
 
 import (
-	"fmt"
-
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"google.golang.org/protobuf/proto"
+	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	proto "google.golang.org/protobuf/proto"
 )
 
-var (
-	_ fmt.Stringer
-	_ proto.Message
-)
-
-var metadata_collector = &typepb.XMeta{
+var metadata_collector = &v1.XMeta{
 	ServiceName: "SENTINEZ // COLLECTOR",
-	ServiceZone: typepb.Zone_ZONE_INTERNAL,
+	ServiceZone: v1.Zone_ZONE_INTERNAL,
 	ServiceKey:  "sentinez.apps.collector.v1",
 }
 
-func GetMetaCollector() *typepb.XMeta {
-	return proto.Clone(metadata_collector).(*typepb.XMeta)
+func GetMetaCollector() *v1.XMeta {
+	return proto.Clone(metadata_collector).(*v1.XMeta)
 }
 
 func GetMetaCollectorServiceName() string {
 	return metadata_collector.GetServiceName()
 }
 
-func GetMetaCollectorServiceZone() typepb.Zone {
+func GetMetaCollectorServiceZone() v1.Zone {
 	return metadata_collector.GetServiceZone()
 }
 

@@ -4,33 +4,25 @@
 package realtimepb
 
 import (
-	"fmt"
-
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"google.golang.org/protobuf/proto"
+	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	proto "google.golang.org/protobuf/proto"
 )
 
-var (
-	_ typepb.Empty
-	_ fmt.Stringer
-	_ proto.Message
-)
-
-var metadata_realtime = &typepb.XMeta{
+var metadata_realtime = &v1.XMeta{
 	ServiceName: "SENTINEZ // REALTIME",
-	ServiceZone: typepb.Zone_ZONE_PRIVATE_API,
+	ServiceZone: v1.Zone_ZONE_PRIVATE_API,
 	ServiceKey:  "sentinez.gateway.realtime.v1",
 }
 
-func GetMetaRealtime() *typepb.XMeta {
-	return proto.Clone(metadata_realtime).(*typepb.XMeta)
+func GetMetaRealtime() *v1.XMeta {
+	return proto.Clone(metadata_realtime).(*v1.XMeta)
 }
 
 func GetMetaRealtimeServiceName() string {
 	return metadata_realtime.GetServiceName()
 }
 
-func GetMetaRealtimeServiceZone() typepb.Zone {
+func GetMetaRealtimeServiceZone() v1.Zone {
 	return metadata_realtime.GetServiceZone()
 }
 

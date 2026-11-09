@@ -28,6 +28,7 @@ export {
   HOUR_MILLIS,
   RESOLUTIONS,
   RESOLUTION_BUCKETS,
+  SECOND_MILLIS,
   VISITORS_RESOLUTION,
   bucketMillisOf,
   durationOf,

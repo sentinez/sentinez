@@ -24,9 +24,12 @@ import "sentinez/types/v1/options.proto";
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1;iampb";
 
 message Account {
-  option (sentinez.types.v1.x_message).database_model = true;
+  option (sentinez.types.v1.x_message) = {
+    database_model: true
+    scanner: true
+  };
 
-  sentinez.types.v1.Metadata metadata = 1;
+  sentinez.types.v1.Metadata metadata = 1 [(sentinez.types.v1.x_field).flatten = true];
 
   string id = 2 [(buf.validate.field) = {
     required: true
@@ -80,9 +83,12 @@ enum Provider {
 }
 
 message User {
-  option (sentinez.types.v1.x_message).database_model = true;
+  option (sentinez.types.v1.x_message) = {
+    database_model: true
+    scanner: true
+  };
 
-  sentinez.types.v1.Metadata metadata = 1;
+  sentinez.types.v1.Metadata metadata = 1 [(sentinez.types.v1.x_field).flatten = true];
 
   string id = 2 [(buf.validate.field) = {
     required: true

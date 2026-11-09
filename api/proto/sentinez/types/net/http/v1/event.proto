@@ -22,7 +22,10 @@ import "sentinez/types/v1/options.proto";
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1;httppb";
 
 message IngressEvent {
-  option (sentinez.types.v1.x_message).database_model = true;
+  option (sentinez.types.v1.x_message) = {
+    database_model: true
+    scanner: true
+  };
 
   string id = 1 [(buf.validate.field).string.pattern = "^([a-zA-Z0-9-]+-)?req_[0-9A-HJKMNP-TV-Z]{26}$"];
   string method = 2;
@@ -50,7 +53,10 @@ message IngressEvent {
 // upstream origin, logged once the origin answered; id is the one of
 // the request IngressEvent.
 message EgressEvent {
-  option (sentinez.types.v1.x_message).database_model = true;
+  option (sentinez.types.v1.x_message) = {
+    database_model: true
+    scanner: true
+  };
 
   string id = 1 [(buf.validate.field).string.pattern = "^([a-zA-Z0-9-]+-)?req_[0-9A-HJKMNP-TV-Z]{26}$"];
   // upstream is the origin the request was sent to, e.g.

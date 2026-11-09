@@ -90,7 +90,7 @@ func hypertableStmts(tableName string, ht Hypertable) []string {
 		len(ht.Schema.Indexes))
 	stmts = append(stmts,
 		_createExtensionStmt,
-		stmt.CreateKeylessTable(tableName),
+		stmt.CreateKeylessTable(tableName, ht.Schema),
 	)
 
 	for _, column := range ht.Schema.Columns {

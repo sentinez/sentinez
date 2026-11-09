@@ -23,7 +23,9 @@ import (
 // Tenants the schema of the sztable.Tenants table.
 func Tenants() dbx.Schema {
 	return dbx.Schema{
-		Table: sztable.Tenants,
+		Table:     sztable.Tenants,
+		CreatedAt: tenantpb.Tenant_MetadataCreatedAt,
+		UpdatedAt: tenantpb.Tenant_MetadataUpdatedAt,
 		Columns: []dbx.Column{
 			{Name: tenantpb.Tenant_Id, Type: dbx.Text},
 			{Name: tenantpb.Tenant_Name, Type: dbx.Text},
@@ -36,7 +38,9 @@ func Tenants() dbx.Schema {
 // TenantMembers the schema of the sztable.TenantMembers table.
 func TenantMembers() dbx.Schema {
 	return dbx.Schema{
-		Table: sztable.TenantMembers,
+		Table:     sztable.TenantMembers,
+		CreatedAt: tenantpb.Member_MetadataCreatedAt,
+		UpdatedAt: tenantpb.Member_MetadataUpdatedAt,
 		Columns: []dbx.Column{
 			{Name: tenantpb.Member_Id, Type: dbx.Text},
 			{Name: tenantpb.Member_UserId, Type: dbx.Text},
@@ -57,7 +61,9 @@ const (
 // TenantResources the schema of the sztable.TenantResources table.
 func TenantResources() dbx.Schema {
 	return dbx.Schema{
-		Table: sztable.TenantResources,
+		Table:     sztable.TenantResources,
+		CreatedAt: tenantpb.Resource_MetadataCreatedAt,
+		UpdatedAt: tenantpb.Resource_MetadataUpdatedAt,
 		Columns: []dbx.Column{
 			{Name: tenantpb.Resource_Id, Type: dbx.Text},
 			{Name: tenantpb.Resource_Server, Type: dbx.ByteA},

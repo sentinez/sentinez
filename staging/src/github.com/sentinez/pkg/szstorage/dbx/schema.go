@@ -16,13 +16,44 @@ package dbx
 
 import "github.com/sentinez/pkg/sztable"
 
+// The timestamp columns of a Schema that names none.
+const (
+	DefaultCreatedAt = "created_at"
+	DefaultUpdatedAt = "updated_at"
+)
+
 // Schema describes a table. On startup the table is created, then the
 // missing columns are added in order, then the indexes are created; the
-// id, created_at and updated_at columns are always present.
+// id column and the CreatedAt and UpdatedAt timestamp columns are always
+// present.
 type Schema struct {
 	Table   sztable.Table
 	Columns []Column
 	Indexes []Index
+	// CreatedAt names the creation time column, DefaultCreatedAt when
+	// empty: the generated model constant, e.g. owner_created_at.
+	CreatedAt string
+	// UpdatedAt names the last update time column, DefaultUpdatedAt when
+	// empty.
+	UpdatedAt string
+}
+
+// CreatedAtColumn the name of the creation time column of s.
+func (s Schema) CreatedAtColumn() string {
+	if s.CreatedAt == "" {
+		return DefaultCreatedAt
+	}
+
+	return s.CreatedAt
+}
+
+// UpdatedAtColumn the name of the last update time column of s.
+func (s Schema) UpdatedAtColumn() string {
+	if s.UpdatedAt == "" {
+		return DefaultUpdatedAt
+	}
+
+	return s.UpdatedAt
 }
 
 // ColumnNames the names of the columns of s, in order.

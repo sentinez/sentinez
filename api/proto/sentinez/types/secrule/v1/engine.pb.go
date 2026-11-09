@@ -225,7 +225,7 @@ var File_sentinez_types_secrule_v1_engine_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_secrule_v1_engine_proto_rawDesc = "" +
 	"\n" +
-	"&sentinez/types/secrule/v1/engine.proto\x12\x19sentinez.types.secrule.v1\x1a\x1dsentinez/types/v1/known.proto\x1a!sentinez/types/rule/v1/rule.proto\"\xb1\x02\n" +
+	"&sentinez/types/secrule/v1/engine.proto\x12\x19sentinez.types.secrule.v1\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1dsentinez/types/v1/known.proto\"\xb1\x02\n" +
 	"\aSecRule\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +

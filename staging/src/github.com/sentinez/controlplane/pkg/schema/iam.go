@@ -23,7 +23,9 @@ import (
 // IAMUsers the schema of the sztable.IAMUsers table.
 func IAMUsers() dbx.Schema {
 	return dbx.Schema{
-		Table: sztable.IAMUsers,
+		Table:     sztable.IAMUsers,
+		CreatedAt: iampb.User_MetadataCreatedAt,
+		UpdatedAt: iampb.User_MetadataUpdatedAt,
 		Columns: []dbx.Column{
 			{Name: iampb.User_Id, Type: dbx.Text},
 			{Name: iampb.User_Email, Type: dbx.Text},
@@ -36,7 +38,9 @@ func IAMUsers() dbx.Schema {
 // IAMAccounts the schema of the sztable.IAMAccounts table.
 func IAMAccounts() dbx.Schema {
 	return dbx.Schema{
-		Table: sztable.IAMAccounts,
+		Table:     sztable.IAMAccounts,
+		CreatedAt: iampb.Account_MetadataCreatedAt,
+		UpdatedAt: iampb.Account_MetadataUpdatedAt,
 		Columns: []dbx.Column{
 			{Name: iampb.Account_Id, Type: dbx.Text},
 			{Name: iampb.Account_Email, Type: dbx.Text},

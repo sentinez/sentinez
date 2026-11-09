@@ -7,11 +7,14 @@
 package example
 
 import (
-	_ "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	_ "google.golang.org/protobuf/types/descriptorpb"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	structpb "google.golang.org/protobuf/types/known/structpb"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -76,14 +79,236 @@ func (x *Hello) GetF_2() string {
 	return ""
 }
 
+// Scanned is a database model whose nested messages are all flattened.
+type Scanned struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Owner         *v1.Owner              `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
+	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	Status        v1.Status              `protobuf:"varint,3,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`
+	Tags          []string               `protobuf:"bytes,4,rep,name=tags,proto3" json:"tags,omitempty"`
+	Audit         *Scanned_Audit         `protobuf:"bytes,5,opt,name=audit,proto3" json:"audit,omitempty"`
+	Ttl           *durationpb.Duration   `protobuf:"bytes,6,opt,name=ttl,proto3" json:"ttl,omitempty"`
+	Attrs         *structpb.Struct       `protobuf:"bytes,7,opt,name=attrs,proto3" json:"attrs,omitempty"`
+	Priority      *int32                 `protobuf:"varint,8,opt,name=priority,proto3,oneof" json:"priority,omitempty"`
+	Note          string                 `protobuf:"bytes,9,opt,name=note,proto3" json:"note,omitempty"`
+	Snapshot      *Scanned_Audit         `protobuf:"bytes,10,opt,name=snapshot,proto3" json:"snapshot,omitempty"`
+	AuditJson     *Scanned_Audit         `protobuf:"bytes,11,opt,name=audit_json,json=auditJson,proto3" json:"audit_json,omitempty"`
+	Preview       string                 `protobuf:"bytes,12,opt,name=preview,proto3" json:"preview,omitempty"`
+	Level         v1.Status              `protobuf:"varint,13,opt,name=level,proto3,enum=sentinez.types.v1.Status" json:"level,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Scanned) Reset() {
+	*x = Scanned{}
+	mi := &file_example_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Scanned) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Scanned) ProtoMessage() {}
+
+func (x *Scanned) ProtoReflect() protoreflect.Message {
+	mi := &file_example_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Scanned.ProtoReflect.Descriptor instead.
+func (*Scanned) Descriptor() ([]byte, []int) {
+	return file_example_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *Scanned) GetOwner() *v1.Owner {
+	if x != nil {
+		return x.Owner
+	}
+	return nil
+}
+
+func (x *Scanned) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Scanned) GetStatus() v1.Status {
+	if x != nil {
+		return x.Status
+	}
+	return v1.Status(0)
+}
+
+func (x *Scanned) GetTags() []string {
+	if x != nil {
+		return x.Tags
+	}
+	return nil
+}
+
+func (x *Scanned) GetAudit() *Scanned_Audit {
+	if x != nil {
+		return x.Audit
+	}
+	return nil
+}
+
+func (x *Scanned) GetTtl() *durationpb.Duration {
+	if x != nil {
+		return x.Ttl
+	}
+	return nil
+}
+
+func (x *Scanned) GetAttrs() *structpb.Struct {
+	if x != nil {
+		return x.Attrs
+	}
+	return nil
+}
+
+func (x *Scanned) GetPriority() int32 {
+	if x != nil && x.Priority != nil {
+		return *x.Priority
+	}
+	return 0
+}
+
+func (x *Scanned) GetNote() string {
+	if x != nil {
+		return x.Note
+	}
+	return ""
+}
+
+func (x *Scanned) GetSnapshot() *Scanned_Audit {
+	if x != nil {
+		return x.Snapshot
+	}
+	return nil
+}
+
+func (x *Scanned) GetAuditJson() *Scanned_Audit {
+	if x != nil {
+		return x.AuditJson
+	}
+	return nil
+}
+
+func (x *Scanned) GetPreview() string {
+	if x != nil {
+		return x.Preview
+	}
+	return ""
+}
+
+func (x *Scanned) GetLevel() v1.Status {
+	if x != nil {
+		return x.Level
+	}
+	return v1.Status(0)
+}
+
+type Scanned_Audit struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Actor         string                 `protobuf:"bytes,1,opt,name=actor,proto3" json:"actor,omitempty"`
+	At            *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=at,proto3" json:"at,omitempty"`
+	Parent        *Scanned               `protobuf:"bytes,3,opt,name=parent,proto3" json:"parent,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Scanned_Audit) Reset() {
+	*x = Scanned_Audit{}
+	mi := &file_example_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Scanned_Audit) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Scanned_Audit) ProtoMessage() {}
+
+func (x *Scanned_Audit) ProtoReflect() protoreflect.Message {
+	mi := &file_example_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Scanned_Audit.ProtoReflect.Descriptor instead.
+func (*Scanned_Audit) Descriptor() ([]byte, []int) {
+	return file_example_proto_rawDescGZIP(), []int{1, 0}
+}
+
+func (x *Scanned_Audit) GetActor() string {
+	if x != nil {
+		return x.Actor
+	}
+	return ""
+}
+
+func (x *Scanned_Audit) GetAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.At
+	}
+	return nil
+}
+
+func (x *Scanned_Audit) GetParent() *Scanned {
+	if x != nil {
+		return x.Parent
+	}
+	return nil
+}
+
 var File_example_proto protoreflect.FileDescriptor
 
 const file_example_proto_rawDesc = "" +
 	"\n" +
-	"\rexample.proto\x12\aexample\x1a google/protobuf/descriptor.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1fsentinez/types/v1/options.proto\"1\n" +
+	"\rexample.proto\x12\aexample\x1a google/protobuf/descriptor.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"1\n" +
 	"\x05Hello\x12\x0f\n" +
 	"\x03f_1\x18\x01 \x01(\tR\x02f1\x12\x0f\n" +
-	"\x03f_2\x18\x02 \x01(\tR\x02f2:\x06\xca\xf3\x18\x02\b\x012\xda\x01\n" +
+	"\x03f_2\x18\x02 \x01(\tR\x02f2:\x06\xca\xf3\x18\x02\b\x01\"\xb7\x05\n" +
+	"\aScanned\x12.\n" +
+	"\x05owner\x18\x01 \x01(\v2\x18.sentinez.types.v1.OwnerR\x05owner\x12\x0e\n" +
+	"\x02id\x18\x02 \x01(\tR\x02id\x121\n" +
+	"\x06status\x18\x03 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12\x12\n" +
+	"\x04tags\x18\x04 \x03(\tR\x04tags\x12,\n" +
+	"\x05audit\x18\x05 \x01(\v2\x16.example.Scanned.AuditR\x05audit\x12+\n" +
+	"\x03ttl\x18\x06 \x01(\v2\x19.google.protobuf.DurationR\x03ttl\x12-\n" +
+	"\x05attrs\x18\a \x01(\v2\x17.google.protobuf.StructR\x05attrs\x12\x1f\n" +
+	"\bpriority\x18\b \x01(\x05H\x00R\bpriority\x88\x01\x01\x12\x1a\n" +
+	"\x04note\x18\t \x01(\tB\x06\xca\xf0\x19\x02 \x01R\x04note\x12:\n" +
+	"\bsnapshot\x18\n" +
+	" \x01(\v2\x16.example.Scanned.AuditB\x06\xca\xf0\x19\x02\x18\x01R\bsnapshot\x12=\n" +
+	"\n" +
+	"audit_json\x18\v \x01(\v2\x16.example.Scanned.AuditB\x06\xca\xf0\x19\x02\x18\x02R\tauditJson\x12 \n" +
+	"\apreview\x18\f \x01(\tB\x06\xca\xf0\x19\x02\x10\x01R\apreview\x127\n" +
+	"\x05level\x18\r \x01(\x0e2\x19.sentinez.types.v1.StatusB\x06\xca\xf0\x19\x02 \x01R\x05level\x1as\n" +
+	"\x05Audit\x12\x14\n" +
+	"\x05actor\x18\x01 \x01(\tR\x05actor\x12*\n" +
+	"\x02at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x02at\x12(\n" +
+	"\x06parent\x18\x03 \x01(\v2\x10.example.ScannedR\x06parent:\x06\xca\xf3\x18\x02\x18\x01B\v\n" +
+	"\t_priority2\xda\x01\n" +
 	"\x0eExampleService\x12A\n" +
 	"\x06Create\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\a\x8a\xb5\x18\x03\x12\x01\x01\x12B\n" +
 	"\x06Delete\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\b\x8a\xb5\x18\x04\x12\x02\x01\x02\x12A\n" +
@@ -102,23 +327,40 @@ func file_example_proto_rawDescGZIP() []byte {
 	return file_example_proto_rawDescData
 }
 
-var file_example_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_example_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_example_proto_goTypes = []any{
-	(*Hello)(nil),         // 0: example.Hello
-	(*emptypb.Empty)(nil), // 1: google.protobuf.Empty
+	(*Hello)(nil),                 // 0: example.Hello
+	(*Scanned)(nil),               // 1: example.Scanned
+	(*Scanned_Audit)(nil),         // 2: example.Scanned.Audit
+	(*v1.Owner)(nil),              // 3: sentinez.types.v1.Owner
+	(v1.Status)(0),                // 4: sentinez.types.v1.Status
+	(*durationpb.Duration)(nil),   // 5: google.protobuf.Duration
+	(*structpb.Struct)(nil),       // 6: google.protobuf.Struct
+	(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),         // 8: google.protobuf.Empty
 }
 var file_example_proto_depIdxs = []int32{
-	1, // 0: example.ExampleService.Create:input_type -> google.protobuf.Empty
-	1, // 1: example.ExampleService.Delete:input_type -> google.protobuf.Empty
-	1, // 2: example.ExampleService.Ignored:input_type -> google.protobuf.Empty
-	1, // 3: example.ExampleService.Create:output_type -> google.protobuf.Empty
-	1, // 4: example.ExampleService.Delete:output_type -> google.protobuf.Empty
-	1, // 5: example.ExampleService.Ignored:output_type -> google.protobuf.Empty
-	3, // [3:6] is the sub-list for method output_type
-	0, // [0:3] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	3,  // 0: example.Scanned.owner:type_name -> sentinez.types.v1.Owner
+	4,  // 1: example.Scanned.status:type_name -> sentinez.types.v1.Status
+	2,  // 2: example.Scanned.audit:type_name -> example.Scanned.Audit
+	5,  // 3: example.Scanned.ttl:type_name -> google.protobuf.Duration
+	6,  // 4: example.Scanned.attrs:type_name -> google.protobuf.Struct
+	2,  // 5: example.Scanned.snapshot:type_name -> example.Scanned.Audit
+	2,  // 6: example.Scanned.audit_json:type_name -> example.Scanned.Audit
+	4,  // 7: example.Scanned.level:type_name -> sentinez.types.v1.Status
+	7,  // 8: example.Scanned.Audit.at:type_name -> google.protobuf.Timestamp
+	1,  // 9: example.Scanned.Audit.parent:type_name -> example.Scanned
+	8,  // 10: example.ExampleService.Create:input_type -> google.protobuf.Empty
+	8,  // 11: example.ExampleService.Delete:input_type -> google.protobuf.Empty
+	8,  // 12: example.ExampleService.Ignored:input_type -> google.protobuf.Empty
+	8,  // 13: example.ExampleService.Create:output_type -> google.protobuf.Empty
+	8,  // 14: example.ExampleService.Delete:output_type -> google.protobuf.Empty
+	8,  // 15: example.ExampleService.Ignored:output_type -> google.protobuf.Empty
+	13, // [13:16] is the sub-list for method output_type
+	10, // [10:13] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_example_proto_init() }
@@ -126,13 +368,14 @@ func file_example_proto_init() {
 	if File_example_proto != nil {
 		return
 	}
+	file_example_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_example_proto_rawDesc), len(file_example_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   1,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -35,7 +35,13 @@ func NewTX(conf *settingpb.Config) *Tx {
 }
 
 func WithTx[T any](ss *TxSession, db dbx.Database[T]) dbx.Database[T] {
-	return &postgres[T]{client: ss.tx, tableName: db.Table(), tx: true}
+	return &postgres[T]{
+		client:    ss.tx,
+		tableName: db.Table(),
+		createdAt: db.CreatedAt(),
+		updatedAt: db.UpdatedAt(),
+		tx:        true,
+	}
 }
 
 type Tx struct {
