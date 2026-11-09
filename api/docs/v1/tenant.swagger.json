@@ -413,12 +413,14 @@
           },
           {
             "name": "resourceName",
+            "description": "server.name",
             "in": "query",
             "required": false,
             "type": "string"
           },
           {
             "name": "resourceDomain",
+            "description": "server.resource_domain",
             "in": "query",
             "required": false,
             "type": "string"
@@ -769,14 +771,9 @@
     "v1CreateResourceRequest": {
       "type": "object",
       "properties": {
-        "resourceSetting": {
-          "$ref": "#/definitions/v1ResourceSetting"
-        },
-        "resourceDomain": {
-          "type": "string"
-        },
-        "resourceName": {
-          "type": "string"
+        "server": {
+          "$ref": "#/definitions/v1Server",
+          "description": "server.resource_domain is required."
         },
         "status": {
           "$ref": "#/definitions/typesv1Status"
@@ -975,27 +972,14 @@
         "tenantId": {
           "type": "string"
         },
-        "resourceSetting": {
-          "$ref": "#/definitions/v1ResourceSetting"
-        },
-        "resourceDomain": {
-          "type": "string"
-        },
-        "resourceName": {
-          "type": "string"
+        "server": {
+          "$ref": "#/definitions/v1Server"
         },
         "status": {
           "$ref": "#/definitions/typesv1Status"
         }
-      }
-    },
-    "v1ResourceSetting": {
-      "type": "object",
-      "properties": {
-        "server": {
-          "$ref": "#/definitions/v1Server"
-        }
-      }
+      },
+      "description": "Resource is a server of a tenant: its name, domain and routes are those\nof server (server.name, server.resource_domain), its id is the\nserver.resource_id the edge fills into the events of its requests."
     },
     "v1Role": {
       "type": "string",
@@ -1022,6 +1006,14 @@
             "$ref": "#/definitions/edgev1Location"
           },
           "title": "@gotags: yaml:\"locations\""
+        },
+        "resourceId": {
+          "type": "string",
+          "description": "Id of the upstream servers of the locations, filled into the events\nof the requests; \"rsrc_default\" when empty.\n\n@gotags: yaml:\"resourceId\""
+        },
+        "resourceDomain": {
+          "type": "string",
+          "description": "Domain the server is served at, the namespace of the setting: the\nedge keys its stores by it and matches the request host against it,\nthe apiserver stores it as the domain of the resource. Required.\n\n@gotags: yaml:\"resourceDomain\""
         }
       },
       "title": "Server defines where the request goes and how the edge processes it:"
@@ -1078,17 +1070,12 @@
         "id": {
           "type": "string"
         },
-        "resourceDomain": {
-          "type": "string"
-        },
-        "resourceName": {
-          "type": "string"
+        "server": {
+          "$ref": "#/definitions/v1Server",
+          "description": "Replaces the stored server when set."
         },
         "status": {
           "$ref": "#/definitions/typesv1Status"
-        },
-        "resourceSetting": {
-          "$ref": "#/definitions/v1ResourceSetting"
         }
       }
     },

@@ -57,7 +57,7 @@ function rowOf(r: Resource, visitors: VisitorBucket[] = []): Payment {
   return {
     id: r.id,
     status: enumLabel(statusToJSON(r.status), 'STATUS_') as Payment['status'],
-    name: r.resourceDomain,
+    name: r.server?.resourceDomain ?? '',
     visitors,
   };
 }

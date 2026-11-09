@@ -29,7 +29,10 @@ import (
 )
 
 var (
-	_importServer = &edgepb.Server{Name: "badcheese", ResourceId: "rsrc_shop"}
+	_importServer = &edgepb.Server{
+		Name: "badcheese", ResourceId: "rsrc_shop",
+		ResourceDomain: "badcheese.s6z.io.vn",
+	}
 	_importTenant = &tenantpb.Tenant{
 		Id: _tenantId, Name: "admin", Plan: typepb.Plan_PLAN_PRO,
 	}
@@ -52,17 +55,15 @@ func TestImportServer(t *testing.T) {
 
 	want := &tenantpb.Resource{
 		Id: "rsrc_shop", TenantId: _tenantId,
-		ResourceName:    "badcheese",
-		ResourceDomain:  "badcheese.s6z.io.vn",
-		ResourceSetting: &tenantpb.ResourceSetting{Server: _importServer},
-		Status:          typepb.Status_STATUS_ACTIVE,
+		Server: _importServer,
+		Status: typepb.Status_STATUS_ACTIVE,
 	}
 	resources := resourcemock.NewMockIResource(t)
 	resources.EXPECT().WithTX(mock.Anything).Return(resources)
 	resources.EXPECT().Upsert(mock.Anything, want).Return(nil)
 
 	err := New(tx, resources, nil, importTenants(t)).ImportServer(
-		t.Context(), _importTenant, "s6z.io.vn", _importServer)
+		t.Context(), _importTenant, _importServer)
 
 	require.NoError(t, err)
 	assert.NoError(t, conn.ExpectationsWereMet())
@@ -78,25 +79,17 @@ func TestImportServerRollsBackWhenResourceFails(t *testing.T) {
 		Return(errors.New("insert resource"))
 
 	err := New(tx, resources, nil, importTenants(t)).ImportServer(
-		t.Context(), _importTenant, "s6z.io.vn", _importServer)
+		t.Context(), _importTenant, _importServer)
 
 	require.Error(t, err)
 	assert.NoError(t, conn.ExpectationsWereMet())
 }
 
-func TestResourceDomain(t *testing.T) {
-	tests := []struct {
-		name         string
-		giveHostname string
-		want         string
-	}{
-		{"hostname", "s6z.io.vn", "shop.s6z.io.vn"},
-		{"no hostname", "", ""},
-	}
+func TestImportServerWithoutDomain(t *testing.T) {
+	srv := &edgepb.Server{Name: "badcheese", ResourceId: "rsrc_shop"}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, resourceDomain("shop", tt.giveHostname))
-		})
-	}
+	err := New(nil, nil, nil, nil).ImportServer(
+		t.Context(), _importTenant, srv)
+
+	assert.ErrorIs(t, err, errNoDomain)
 }

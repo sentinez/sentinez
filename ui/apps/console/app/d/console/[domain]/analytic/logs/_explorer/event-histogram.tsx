@@ -152,7 +152,7 @@ export function EventHistogram({
             fill={`var(--color-${s.id})`}
             radius={i === shown.length - 1 ? [2, 2, 0, 0] : 0}
             className="cursor-pointer"
-            isAnimationActive={false}
+            isAnimationActive={true}
           >
             {data.map((d) => (
               <Cell

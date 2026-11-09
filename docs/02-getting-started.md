@@ -63,9 +63,9 @@ make sz.edge.run
 
 `make sz.edge.run` passes `--cert_file`, `--cert_key_file`,
 `--proxy_config=./cmd/szedge/v1/proxy.yaml`, `--env_file` and
-`--engine=quic`. The edge needs
-`SENZ_HOSTNAME` to match the root domain: a request to
-`badcheese.<SENZ_HOSTNAME>` uses the config with `server.name: badcheese`.
+`--engine=quic`. A request is served with the config whose
+`server.resourceDomain` is its host (port stripped): a request to
+`badcheese.is.s6z.io.vn` uses `resourceDomain: badcheese.is.s6z.io.vn`.
 The edge also opens pprof on `:6060`.
 
 > `hack/mkcert-local.sh` puts the certs in `cmd/szedge/v1/`; pass them with
@@ -98,7 +98,7 @@ They are loaded by `pkg/szconfig.LoadEnv` (using `godotenv`) and read with
 
 | Variable | Used by | Meaning |
 |---|---|---|
-| `SENZ_HOSTNAME` | edge, IAM | Edge root domain (`sentinez.vn`); WebAuthn RP ID |
+| `SENZ_HOSTNAME` | IAM | WebAuthn RP ID (`sentinez.vn`) |
 | `SENZ_ADDRESS` | all | Listen address; when empty each service falls back to its constant in [internal/defaults](../internal/defaults/defaults.go): edge `0.0.0.0:443` (TCP and UDP/HTTP/3), apiserver `0.0.0.0:9000`, realtime `0.0.0.0:7778`, dataplane and greeter `0.0.0.0:9001` |
 | `SENZ_SECRET_KEY` | IAM | HMAC key for signing JWTs, **must be base64** |
 | `SENZ_CLIENT_ORIGIN` | IAM | Allowed WebAuthn origin (console URL) |

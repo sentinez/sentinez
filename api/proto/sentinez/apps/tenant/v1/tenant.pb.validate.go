@@ -488,21 +488,17 @@ func (m *UpdateResourceRequest) Validate() error {
 
 	// no validation rules for Id
 
-	// no validation rules for ResourceDomain
-
-	// no validation rules for ResourceName
-
-	// no validation rules for Status
-
-	if v, ok := interface{}(m.GetResourceSetting()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetServer()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UpdateResourceRequestValidationError{
-				field:  "ResourceSetting",
+				field:  "Server",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
 		}
 	}
+
+	// no validation rules for Status
 
 	return nil
 }
@@ -638,19 +634,15 @@ func (m *CreateResourceRequest) Validate() error {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetResourceSetting()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetServer()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return CreateResourceRequestValidationError{
-				field:  "ResourceSetting",
+				field:  "Server",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
 		}
 	}
-
-	// no validation rules for ResourceDomain
-
-	// no validation rules for ResourceName
 
 	// no validation rules for Status
 

@@ -75,7 +75,7 @@ func (r *route) upstream() (string, error) {
 func (r *Router) Store(server *edgepb.Server) {
 	// an update without locations drops the previous routes
 	if len(server.GetLocations()) == 0 {
-		r.Delete(server.GetName())
+		r.Delete(server.GetResourceDomain())
 		return
 	}
 
@@ -83,13 +83,13 @@ func (r *Router) Store(server *edgepb.Server) {
 	for _, routeConfig := range server.GetLocations() {
 		if len(routeConfig.GetProxyPass()) == 0 {
 			szlog.Warnf("no proxyPass in ns=%q location=%q, ignoring",
-				server.GetName(), routeConfig.GetLocation())
+				server.GetResourceDomain(), routeConfig.GetLocation())
 			continue
 		}
 
 		szlog.Debugf(
 			"edge: ns=%s %s -> %s (rewrite: %s)",
-			server.GetName(), routeConfig.GetLocation(),
+			server.GetResourceDomain(), routeConfig.GetLocation(),
 			routeConfig.GetProxyPass(), routeConfig.GetProxyRewrite(),
 		)
 
@@ -107,7 +107,7 @@ func (r *Router) Store(server *edgepb.Server) {
 			} else {
 				szlog.Warnf(
 					"invalid proxy header %q in ns=%q location=%q, ignoring",
-					k, server.GetName(), routeConfig.GetLocation(),
+					k, server.GetResourceDomain(), routeConfig.GetLocation(),
 				)
 			}
 		}
@@ -120,7 +120,7 @@ func (r *Router) Store(server *edgepb.Server) {
 	}
 
 	if len(validRoutes) == 0 {
-		r.Delete(server.GetName())
+		r.Delete(server.GetResourceDomain())
 		return
 	}
 
@@ -131,7 +131,7 @@ func (r *Router) Store(server *edgepb.Server) {
 			len(validRoutes[j].loc.GetLocation())
 	})
 
-	r.routes.Store(server.GetName(), validRoutes)
+	r.routes.Store(server.GetResourceDomain(), validRoutes)
 }
 
 // nolint:funlen

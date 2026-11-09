@@ -169,7 +169,7 @@ func (m *MemStore) CDNRules() *cdnrules.Rule {
 
 func (m *MemStore) LoadCDNRule(st ...*edgepb.Setting) error {
 	for _, s := range st {
-		m.cdnRules.Store(s.GetServer().GetName(), s.GetDelivery())
+		m.cdnRules.Store(s.GetServer().GetResourceDomain(), s.GetDelivery())
 	}
 
 	return nil
@@ -217,7 +217,8 @@ func (m *MemStore) LoadRateLimiter(s *edgepb.Setting) error {
 		}
 
 		if l.GetIngressRuntime().GetStatus() != typepb.Status_STATUS_ACTIVE {
-			szlog.Infof("edge:limiter: ignore '%s'", s.GetServer().GetName())
+			szlog.Infof("edge:limiter: ignore '%s'",
+				s.GetServer().GetResourceDomain())
 			continue
 		}
 
@@ -229,13 +230,13 @@ func (m *MemStore) LoadRateLimiter(s *edgepb.Setting) error {
 		entries = append(entries, entry)
 	}
 
-	m.limiter.Store(s.GetServer().GetName(), entries)
+	m.limiter.Store(s.GetServer().GetResourceDomain(), entries)
 
 	return nil
 }
 
 func (m *MemStore) LoadRulesets(s *edgepb.Setting) error {
-	ns := s.GetServer().GetName()
+	ns := s.GetServer().GetResourceDomain()
 
 	err := m.rulesets.Store(ns, s.GetSecurity().GetCoreRuleset())
 	if err != nil {
@@ -251,7 +252,7 @@ func (m *MemStore) LoadSecRule(s *edgepb.Setting) error {
 		rules = append(rules, rule.GetIngressRuntime())
 	}
 
-	m.secRule.Store(s.GetServer().GetName(), rules)
+	m.secRule.Store(s.GetServer().GetResourceDomain(), rules)
 
 	return nil
 }

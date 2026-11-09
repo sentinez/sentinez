@@ -60,8 +60,9 @@ const PROTOCOL_OPTIONS: Option<ProxyProtocol>[] = [
   { label: 'HTTP', value: ProxyProtocol.PROXY_PROTOCOL_HTTP },
 ];
 
-// Patterns from tenant.proto / setting.proto (buf.validate)
-const DOMAIN_RE = /^[a-zA-Z][a-zA-Z0-9._]{2,29}$/;
+// Patterns from setting.proto (buf.validate): server.name, server.resource_domain
+const NAME_RE = /^[a-zA-Z0-9-]+$/;
+const DOMAIN_RE = /^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,63}$/;
 const LOCATION_RE = /^\/.*$/;
 const UPSTREAM_RE =
   /^(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3})|(([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}))$/;
@@ -78,10 +79,10 @@ export function createEmptyResourceForm(): ResourceFormValue {
 
 /** Resource (API) -> form value */
 export function resourceFormOf(r: Resource): ResourceFormValue {
-  const loc = r.resourceSetting?.server?.locations?.[0];
+  const loc = r.server?.locations?.[0];
   return {
-    resourceName: r.resourceName,
-    resourceDomain: r.resourceDomain,
+    resourceName: r.server?.name ?? '',
+    resourceDomain: r.server?.resourceDomain ?? '',
     status: r.status || Status.STATUS_ACTIVE,
     location: loc?.location || '/',
     origins: (loc?.proxyPass ?? []).map((u) => ({
@@ -96,39 +97,38 @@ export function resourceFormOf(r: Resource): ResourceFormValue {
 
 /** Form value -> CreateResourceRequest (API) for a resource of `tenantId` */
 export function resourceOf(f: ResourceFormValue, tenantId: string): CreateResourceRequest {
-  const name = f.resourceName.trim();
   const origins = f.origins.filter((o) => o.server.trim());
   return {
-    resourceName: name,
-    resourceDomain: f.resourceDomain.trim(),
     status: f.status,
     tenantId,
-    resourceSetting:
-      origins.length === 0
-        ? undefined
-        : {
-            server: {
-              name,
-              locations: [
-                {
-                  location: f.location.trim(),
-                  proxyRewrite: '/',
-                  proxyPass: origins.map((o) => ({
-                    server: o.server.trim(),
-                    protocol: o.protocol,
-                  })),
-                  balanceStrategy: BalanceStrategy.BALANCE_STRATEGY_ROUND_ROBIN,
-                  proxySetHeaders: {},
-                },
-              ],
-            },
-          },
+    server: {
+      name: f.resourceName.trim(),
+      // the edge serves the requests of this domain with it
+      resourceDomain: f.resourceDomain.trim().toLowerCase(),
+      // assigned by the API
+      resourceId: '',
+      locations:
+        origins.length === 0
+          ? []
+          : [
+              {
+                location: f.location.trim(),
+                proxyRewrite: '/',
+                proxyPass: origins.map((o) => ({
+                  server: o.server.trim(),
+                  protocol: o.protocol,
+                })),
+                balanceStrategy: BalanceStrategy.BALANCE_STRATEGY_ROUND_ROBIN,
+                proxySetHeaders: {},
+              },
+            ],
+    },
   };
 }
 
 /** Returns an error message, or null when the form is valid */
 export function validateResourceForm(f: ResourceFormValue, t: ValidationTranslator): string | null {
-  if (!DOMAIN_RE.test(f.resourceName.trim())) {
+  if (!NAME_RE.test(f.resourceName.trim())) {
     return t('resourceName');
   }
   if (!DOMAIN_RE.test(f.resourceDomain.trim())) {

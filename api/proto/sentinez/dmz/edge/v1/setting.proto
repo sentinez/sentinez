@@ -46,10 +46,6 @@ message Metadata {
 
   // Plan of the tenant the apiserver imports this setting under.
   sentinez.types.v1.Plan plan = 4; // @gotags: yaml:"plan"
-
-  // Domain the servers of this setting are served under: the apiserver
-  // stores the resource of server.name as <server.name>.<hostname>.
-  string hostname = 5; // @gotags: yaml:"hostname"
 }
 
 // Server defines where the request goes and how the edge processes it:
@@ -63,6 +59,14 @@ message Server {
   // Id of the upstream servers of the locations, filled into the events
   // of the requests; "rsrc_default" when empty.
   string resource_id = 3; // @gotags: yaml:"resourceId"
+
+  // Domain the server is served at, the namespace of the setting: the
+  // edge keys its stores by it and matches the request host against it,
+  // the apiserver stores it as the domain of the resource. Required.
+  string resource_domain = 4 [(buf.validate.field) = {
+    ignore: IGNORE_IF_ZERO_VALUE
+    string: {pattern: "^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,63}$"}
+  }]; // @gotags: yaml:"resourceDomain"
 }
 
 message Location {

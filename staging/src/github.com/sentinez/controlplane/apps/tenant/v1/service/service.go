@@ -23,8 +23,10 @@ import (
 	tenantrepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/tenants"
 	"github.com/sentinez/pkg/szerror"
 	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/sznormalize"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
+	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 )
 
 var _ tenantpb.TenantServiceServer = (*Service)(nil)
@@ -72,9 +74,28 @@ func (svc *Service) GetResourceByDomain(ctx context.Context,
 	return resp, nil
 }
 
-func (svc *Service) defaultSetting() *tenantpb.ResourceSetting {
-	st := &tenantpb.ResourceSetting{}
-	return st
+// errNoDomain a server stored without the domain the edge serves it at.
+var errNoDomain = szerror.StatusInvalidArgumentF(
+	"server.resource_domain is required")
+
+// defaultServer is srv without its routes.
+func defaultServer(srv *edgepb.Server) *edgepb.Server {
+	return &edgepb.Server{
+		Name:           srv.GetName(),
+		ResourceId:     srv.GetResourceId(),
+		ResourceDomain: srv.GetResourceDomain(),
+	}
+}
+
+// normalizeServer normalizes the domain of srv as the edge matches it,
+// errNoDomain without one.
+func normalizeServer(srv *edgepb.Server) error {
+	srv.ResourceDomain = sznormalize.ResourceDomain(srv.GetResourceDomain())
+	if srv.GetResourceDomain() == "" {
+		return errNoDomain
+	}
+
+	return nil
 }
 
 func (svc *Service) GetResource(ctx context.Context,
@@ -86,7 +107,7 @@ func (svc *Service) GetResource(ctx context.Context,
 	}
 
 	if req.GetDefault() {
-		rsc.ResourceSetting = svc.defaultSetting()
+		rsc.Server = defaultServer(rsc.GetServer())
 	}
 
 	return &tenantpb.GetResourceResponse{Resource: rsc}, nil
@@ -96,19 +117,15 @@ func (svc *Service) GetResource(ctx context.Context,
 func (svc *Service) CreateResource(ctx context.Context,
 	req *tenantpb.CreateResourceRequest,
 ) (*tenantpb.CreateResourceResponse, error) {
-	resource := &tenantpb.Resource{
-		ResourceSetting: req.GetResourceSetting(),
-		ResourceDomain:  req.GetResourceDomain(),
-		ResourceName:    req.GetResourceName(),
-		Status:          req.GetStatus(),
-		TenantId:        req.GetTenantId(),
+	if err := normalizeServer(req.GetServer()); err != nil {
+		return nil, err
 	}
 
-	if resource.GetResourceSetting() == nil {
-		resource.ResourceSetting = svc.defaultSetting()
-	}
-
-	resp, err := svc.resource.Create(ctx, resource)
+	resp, err := svc.resource.Create(ctx, &tenantpb.Resource{
+		Server:   req.GetServer(),
+		Status:   req.GetStatus(),
+		TenantId: req.GetTenantId(),
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -131,17 +148,21 @@ func (svc *Service) DeleteResource(ctx context.Context,
 func (svc *Service) UpdateResource(ctx context.Context,
 	req *tenantpb.UpdateResourceRequest,
 ) (*tenantpb.UpdateResourceResponse, error) {
+	if srv := req.GetServer(); srv != nil {
+		if err := normalizeServer(srv); err != nil {
+			return nil, err
+		}
+	}
+
 	_, err := svc.resource.Get(ctx, req.GetId())
 	if err != nil {
 		return nil, fmt.Errorf("resource.Get: %w", err)
 	}
 
 	err = svc.resource.Update(ctx, &tenantpb.Resource{
-		Id:              req.GetId(),
-		ResourceDomain:  req.GetResourceDomain(),
-		ResourceName:    req.GetResourceName(),
-		Status:          req.GetStatus(),
-		ResourceSetting: req.GetResourceSetting(),
+		Id:     req.GetId(),
+		Status: req.GetStatus(),
+		Server: req.GetServer(),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("resource.Update: %w", err)

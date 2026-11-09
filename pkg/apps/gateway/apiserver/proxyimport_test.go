@@ -30,15 +30,14 @@ import (
 
 // fakeTenant records the imported server.
 type fakeTenant struct {
-	err      error
-	tenant   *tenantpb.Tenant
-	hostname string
-	server   *edgepb.Server
+	err    error
+	tenant *tenantpb.Tenant
+	server *edgepb.Server
 }
 
 func (f *fakeTenant) ImportServer(_ context.Context, tenant *tenantpb.Tenant,
-	hostname string, srv *edgepb.Server) error {
-	f.tenant, f.hostname, f.server = tenant, hostname, srv
+	srv *edgepb.Server) error {
+	f.tenant, f.server = tenant, srv
 	return f.err
 }
 
@@ -72,8 +71,9 @@ func TestStoreProxy(t *testing.T) {
 	assert.Equal(t, "tnt_default_admin", tenant.tenant.GetId())
 	assert.Equal(t, "admin", tenant.tenant.GetName())
 	assert.Equal(t, typepb.Plan_PLAN_PRO, tenant.tenant.GetPlan())
-	assert.Equal(t, "is.s6z.io.vn", tenant.hostname)
 	assert.Equal(t, "badcheese", tenant.server.GetName())
+	assert.Equal(t, "badcheese.is.s6z.io.vn",
+		tenant.server.GetResourceDomain())
 	assert.Equal(t, "rsrc_default", tenant.server.GetResourceId())
 	assert.Equal(t, "badcheese", security.name)
 	assert.Equal(t, &typepb.Owner{

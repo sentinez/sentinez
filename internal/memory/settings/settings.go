@@ -45,7 +45,7 @@ type Setting struct {
 
 // Store sets the setting of its namespace, replacing the previous one.
 func (s *Setting) Store(st *edgepb.Setting) {
-	s.setting.Store(st.GetServer().GetName(), st)
+	s.setting.Store(st.GetServer().GetResourceDomain(), st)
 }
 
 // Delete removes the setting of namespace.

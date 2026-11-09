@@ -136,7 +136,7 @@ func TestRouteUpstreamNone(t *testing.T) {
 func TestStoreSkipsLocationWithoutUpstream(t *testing.T) {
 	router := New()
 	router.Store(&edgepb.Server{
-		Name: "test-no-upstream",
+		ResourceDomain: "test-no-upstream",
 		Locations: []*edgepb.Location{
 			{Location: "/api"},
 			{

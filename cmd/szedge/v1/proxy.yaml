@@ -36,9 +36,6 @@ setting:
     # szapiserver imports this file under. Default name: tenantId
     tenantName: admin
     plan: PLAN_PRO
-    # szapiserver stores the server as <server.name>.<hostname>
-    # (resource domain); without one, the resource has no domain.
-    hostname: is.s6z.io.vn
 
   # ----------------------------------------------------------
   # SERVER — ROUTING CONFIGURATION
@@ -47,7 +44,11 @@ setting:
   # and how URLs are rewritten before reaching the origin server.
   # ----------------------------------------------------------
   server:
-    name: badcheese # Logical namespace grouping related routes
+    name: badcheese # Display name of the server
+    # Domain the server is served at (required): the namespace of this
+    # setting, the edge serves the requests whose Host is this domain
+    # with it. szapiserver stores it as the domain of the resource.
+    resourceDomain: badcheese.is.s6z.io.vn
     # Id of the upstream servers below, filled into the logs of the
     # requests as resource_id. Default: rsrc_default
     resourceId: rsrc_default
@@ -86,6 +87,7 @@ setting:
     # EXAMPLE: NEWS NAMESPACE
     # --------------------------------------------------------
     # name: news
+    # resourceDomain: news.is.s6z.io.vn
     # listen:
     #   - 80
     # locations:
@@ -108,7 +110,7 @@ setting:
       status: STATUS_ACTIVE
       # ENGINE_MODE_OFF | ENGINE_MODE_DETECTION_ONLY (log only) |
       # ENGINE_MODE_ON (block)
-      mode: ENGINE_MODE_ON
+      mode: ENGINE_MODE_DETECTION_ONLY
       # VERSION_V4_16_0 (no 956 Ruby group) | VERSION_V4_17_0 (default)
       version: VERSION_V4_17_0
 

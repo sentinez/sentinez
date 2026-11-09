@@ -24,10 +24,9 @@ import "sentinez/types/v1/options.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1;tenantpb";
 
-message ResourceSetting {
-  sentinez.dmz.edge.v1.Server server = 1;
-}
-
+// Resource is a server of a tenant: its name, domain and routes are those
+// of server (server.name, server.resource_domain), its id is the
+// server.resource_id the edge fills into the events of its requests.
 message Resource {
   option (sentinez.types.v1.x_message).database_model = true;
 
@@ -43,13 +42,9 @@ message Resource {
     string: {prefix: "tnt_"}
   }];
 
-  ResourceSetting resource_setting = 4;
+  sentinez.dmz.edge.v1.Server server = 4;
 
-  string resource_domain = 5 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
-
-  string resource_name = 6 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
-
-  sentinez.types.v1.Status status = 7;
+  sentinez.types.v1.Status status = 5;
 }
 
 message Tenant {

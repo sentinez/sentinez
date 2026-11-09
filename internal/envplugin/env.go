@@ -47,11 +47,6 @@ func (e *Env) Store() *memory.MemStore {
 	return e.mem
 }
 
-// Hostname returns the root domain tenants are served under.
-func (e *Env) Hostname() string {
-	return e.opts.Hostname
-}
-
 // SecretKey returns the base64 encoded SENZ_SECRET_KEY.
 func (e *Env) SecretKey() string {
 	return e.opts.SecretKey

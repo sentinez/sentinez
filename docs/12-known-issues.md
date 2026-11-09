@@ -50,7 +50,7 @@ None known.
   (`sentinez/dmz/edge/zone/<zone>/status`); `Elector.Publish` and
   `leader.All` are ready for more zone-wide records, but none exists yet.
   Nothing reads the status either.
-- Unloading a namespace (deleted resource, renamed `server.name`) keeps
+- Unloading a namespace (deleted resource, changed `server.resourceDomain`) keeps
   its reverse proxies: they are keyed by upstream and shared between
   namespaces, with no reference count.
 - Waiting room (`ROM`), `pkg/szqueue`, `pkg/sztopic`, `pkg/szstorage/{keyval,

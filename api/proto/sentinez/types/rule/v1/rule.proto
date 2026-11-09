@@ -149,4 +149,7 @@ enum RuleBehavior {
   RULE_BEHAVIOR_UNSPECIFIED = 0;
   RULE_BEHAVIOR_DENY = 1;
   RULE_BEHAVIOR_ALLOW = 2;
+  // Would have been denied, but the engine only detects
+  // (ENGINE_MODE_DETECTION_ONLY).
+  RULE_BEHAVIOR_LOG = 3;
 }

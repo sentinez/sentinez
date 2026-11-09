@@ -48,6 +48,7 @@
     "member": "Thành viên",
     "tenant": "Tenant",
     "resource": "Tài nguyên",
+    "resourceSetting": "Cấu hình",
     "delivery": "Phân phối",
     "cdn": "CDN",
     "security": "Bảo mật",
@@ -257,14 +258,12 @@
     "unavailable": "Tài nguyên không khả dụng",
     "unavailableHint": "Tên miền <strong>{domain}</strong> có thể không đúng hoặc đã bị xóa.",
     "overview": "Tổng quan",
-    "overviewDescription": "Thông tin chung về tài nguyên",
+    "overviewDescription": "Thông tin chung và thời gian của tài nguyên",
     "id": "ID:",
     "name": "Tên:",
     "domain": "Tên miền:",
     "plan": "Gói:",
     "status": "Trạng thái:",
-    "metadata": "Metadata",
-    "metadataDescription": "Thời gian và dữ liệu quản lý",
     "createdAt": "Tạo lúc:",
     "updatedAt": "Cập nhật lúc:",
     "uniqueVisitors": "Khách truy cập duy nhất",
@@ -282,7 +281,22 @@
     "topVisitorsDescription": "{count} IP có nhiều request nhất trong 24 giờ qua",
     "clientIp": "IP",
     "requests": "Số request",
-    "lastSeen": "Lần cuối"
+    "lastSeen": "Lần cuối",
+    "tenantId": "ID tenant:",
+    "eventsResourceId": "ID resource của sự kiện:",
+    "routing": "Định tuyến",
+    "routingDescription": "{count, plural, =0 {Không có location} other {# location}} edge chuyển tiếp tới origin",
+    "noLocations": "Chưa có location: edge không chuyển tiếp request nào của tên miền này.",
+    "rewrite": "Viết lại thành",
+    "upstreams": "Upstream",
+    "noUpstreams": "Không có",
+    "headers": "Header",
+    "balanceRoundRobin": "Round robin",
+    "balanceDefault": "Cân bằng mặc định"
+  },
+  "ResourceSetting": {
+    "title": "Cấu hình",
+    "subtitle": "Cấu hình edge của tên miền này: cách chuyển tiếp các request tới origin"
   },
   "Delivery": {
     "cdnTitle": "Quy tắc CDN",
@@ -614,8 +628,8 @@
     "timeWindow": "Cửa sổ thời gian phải là khoảng thời gian dương, ví dụ 10s, 1m",
     "maxRequests": "Số request tối đa phải là số nguyên lớn hơn 0",
     "blockTimeout": "Thời gian chặn phải là khoảng thời gian dương, ví dụ 30s, 10m",
-    "resourceName": "Tên phải bắt đầu bằng chữ cái và dài 3-30 ký tự gồm chữ, số, \".\" hoặc \"_\"",
-    "resourceDomain": "Tên miền phải bắt đầu bằng chữ cái và dài 3-30 ký tự gồm chữ, số, \".\" hoặc \"_\"",
+    "resourceName": "Tên chỉ gồm chữ, số hoặc \"-\"",
+    "resourceDomain": "Tên miền phải là tên miền đầy đủ, ví dụ shop.example.com",
     "location": "Location phải bắt đầu bằng \"/\"",
     "origin": "Origin \"{server}\" phải là địa chỉ IPv4 hoặc hostname",
     "nameRequired": "Tên là bắt buộc",
@@ -695,7 +709,8 @@
       "other": "Khác",
       "events": "Sự kiện",
       "deny": "Chặn",
-      "allow": "Cho phép"
+      "allow": "Cho phép",
+      "log": "Ghi log"
     },
     "column": {
       "status": "Trạng thái",

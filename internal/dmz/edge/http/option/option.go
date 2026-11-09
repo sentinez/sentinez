@@ -27,7 +27,6 @@ type Options struct {
 	Named    string
 	Level    szlog.Level
 	Exporter *szsdklog.Exporter
-	Hostname string
 	// SecretKey is base64 encoded (SENZ_SECRET_KEY).
 	SecretKey string
 }
@@ -90,17 +89,6 @@ func (e exporterOption) apply(o *Options) {
 // WithExporter exports the node's records through exporter.
 func WithExporter(exporter *szsdklog.Exporter) Option {
 	return exporterOption{exporter: exporter}
-}
-
-type hostnameOption string
-
-func (h hostnameOption) apply(o *Options) {
-	o.Hostname = string(h)
-}
-
-// WithHostname sets the root domain tenants are served under.
-func WithHostname(hostname string) Option {
-	return hostnameOption(hostname)
 }
 
 type secretKeyOption string

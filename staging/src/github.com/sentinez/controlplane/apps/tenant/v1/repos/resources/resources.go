@@ -119,72 +119,64 @@ func (rsc *Resources) Create(
 	return rs, nil
 }
 
-// resourceRow is the stored columns of rs.
+// resourceRow is the stored columns of rs, whose server is stored under
+// the id of rs.
 func resourceRow(rs *tenantpb.Resource) (postgres.M, error) {
-	st, err := protox.Marshal(rs.GetResourceSetting())
+	if rs.GetServer() != nil {
+		rs.Server.ResourceId = rs.GetId()
+	}
+
+	row, err := serverColumns(rs.GetServer())
+	if err != nil {
+		return nil, err
+	}
+
+	row[tenantpb.Resource_Id] = rs.GetId()
+	row[tenantpb.Resource_TenantId] = rs.GetTenantId()
+	row[tenantpb.Resource_Status] = rs.GetStatus()
+
+	return row, nil
+}
+
+// serverColumns is the stored server column and the columns derived from
+// it, written together so that they never disagree.
+func serverColumns(srv *edgepb.Server) (postgres.M, error) {
+	st, err := protox.Marshal(srv)
 	if err != nil {
 		return nil, err
 	}
 
 	return postgres.M{
-		tenantpb.Resource_Id:              rs.GetId(),
-		tenantpb.Resource_TenantId:        rs.GetTenantId(),
-		tenantpb.Resource_Status:          rs.GetStatus(),
-		tenantpb.Resource_ResourceDomain:  rs.GetResourceDomain(),
-		tenantpb.Resource_ResourceName:    rs.GetResourceName(),
-		tenantpb.Resource_ResourceSetting: st,
+		tenantpb.Resource_Server:    st,
+		schema.ResourceServerName:   srv.GetName(),
+		schema.ResourceServerDomain: srv.GetResourceDomain(),
 	}, nil
 }
 
-// nolint
+// Update sets the status of rs unless unspecified, and replaces the
+// stored server with the one of rs when set.
 func (rsc *Resources) Update(
-	ctx context.Context, req *tenantpb.Resource) error {
+	ctx context.Context, rs *tenantpb.Resource) error {
 
-	old, err := rsc.Get(ctx, req.GetId())
-	if err != nil {
-		return err
+	q := postgres.UpdateBuilder(rsc.storage, rs.GetId())
+	if rs.GetStatus() != typepb.Status_STATUS_UNSPECIFIED {
+		q = q.Set(tenantpb.Resource_Status, rs.GetStatus())
 	}
 
-	q := postgres.UpdateBuilder(rsc.storage, req.GetId())
-	if req.GetStatus() != typepb.Status_STATUS_UNSPECIFIED {
-		q = q.Set(tenantpb.Resource_Status, req.GetStatus())
-	}
+	if rs.GetServer() != nil {
+		rs.Server.ResourceId = rs.GetId()
 
-	if len(req.GetResourceDomain()) != 0 {
-		q = q.Set(tenantpb.Resource_ResourceDomain, req.GetResourceDomain())
-	}
-
-	if len(req.GetResourceName()) != 0 {
-		q = q.Set(tenantpb.Resource_ResourceName, req.GetResourceName())
-	}
-
-	if req.GetResourceSetting() != nil {
-		updating := old.GetResourceSetting()
-		if updating == nil {
-			updating = &tenantpb.ResourceSetting{}
-		}
-		// A stored setting may lack a server block.
-		if updating.GetServer() == nil {
-			updating.Server = &edgepb.Server{}
+		cols, err := serverColumns(rs.GetServer())
+		if err != nil {
+			return err
 		}
 
-		srv := req.GetResourceSetting().GetServer()
-		if srv.GetName() != "" {
-			updating.Server.Name = srv.GetName()
-		}
-		if srv.GetLocations() != nil {
-			updating.Server.Locations = srv.GetLocations()
-		}
-
-		st, _ := protox.Marshal(updating)
-		q = q.Set(tenantpb.Resource_ResourceSetting, st)
+		q = q.SetMap(cols)
 	}
 
-	if _, err := rsc.storage.Exec(ctx, q); err != nil {
-		return err
-	}
+	_, err := rsc.storage.Exec(ctx, q)
 
-	return nil
+	return err
 }
 
 func (rsc *Resources) Get(
@@ -207,12 +199,11 @@ func (rsc *Resources) listQ(req *tenantpb.ListResourceRequest) sq.SelectBuilder 
 
 	if len(req.GetResourceDomain()) != 0 {
 		q = q.Where(
-			sq.Eq{tenantpb.Resource_ResourceDomain: req.GetResourceDomain()})
+			sq.Eq{schema.ResourceServerDomain: req.GetResourceDomain()})
 	}
 
 	if len(req.GetResourceName()) != 0 {
-		q = q.Where(
-			sq.Eq{tenantpb.Resource_ResourceName: req.GetResourceName()})
+		q = q.Where(sq.Eq{schema.ResourceServerName: req.GetResourceName()})
 	}
 
 	if len(req.GetTenantIds()) != 0 {
@@ -227,9 +218,7 @@ func (rsc *Resources) selectQ(page *typepb.Pages) sq.SelectBuilder {
 		postgres.SelectCoalesce(tenantpb.Resource_Id),
 		postgres.SelectCoalesce(tenantpb.Resource_TenantId),
 		tenantpb.Resource_Status,
-		tenantpb.Resource_ResourceName,
-		tenantpb.Resource_ResourceDomain,
-		tenantpb.Resource_ResourceSetting,
+		tenantpb.Resource_Server,
 		typepb.Metadata_CreatedAt,
 		typepb.Metadata_UpdatedAt,
 	)
@@ -260,8 +249,6 @@ func scanOne(row dbx.Row) (*tenantpb.Resource, error) {
 		&rsc.Id,
 		&rsc.TenantId,
 		&rsc.Status,
-		&rsc.ResourceName,
-		&rsc.ResourceDomain,
 		&st,
 		&createdAt,
 		&updatedAt,
@@ -275,8 +262,8 @@ func scanOne(row dbx.Row) (*tenantpb.Resource, error) {
 		UpdatedAt: timestamppb.New(updatedAt),
 	}
 
-	rsc.ResourceSetting = &tenantpb.ResourceSetting{}
-	if err = protox.Unmarshal(st, rsc.ResourceSetting); err != nil {
+	rsc.Server = &edgepb.Server{}
+	if err = protox.Unmarshal(st, rsc.Server); err != nil {
 		return nil, err
 	}
 

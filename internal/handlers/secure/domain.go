@@ -15,12 +15,11 @@
 package secure
 
 import (
-	"strings"
-
 	"github.com/sentinez/core/szhttp/chains"
 
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/pkg/bytesconv"
+	"github.com/sentinez/pkg/sznormalize"
 	"github.com/sentinez/sentinez/internal/envplugin"
 	"github.com/sentinez/sentinez/internal/memory/settings"
 )
@@ -33,17 +32,15 @@ var (
 	_ chains.Provisioner[*envplugin.Env] = (*DomainBased)(nil)
 )
 
-// DomainBased resolves the tenant namespace from single-level
-// subdomains of the Env hostname.
+// DomainBased resolves the namespace of the request: its host, the
+// resource domain of the server of a setting (server.resourceDomain).
 type DomainBased struct {
-	hostname string
 	settings *settings.Setting
 }
 
 func (*DomainBased) ID() string { return DomainBasedId }
 
 func (d *DomainBased) Provision(env *envplugin.Env) error {
-	d.hostname = env.Hostname()
 	d.settings = env.Store().Setting()
 	return nil
 }
@@ -51,59 +48,24 @@ func (d *DomainBased) Provision(env *envplugin.Env) error {
 func (d *DomainBased) Handle(
 	ctx szhttp.Context, next chains.Handler) error {
 
-	// szlog.Debug("[edge] >>> visit domain")
-
 	xctx := ctx.X()
 	if xctx == nil {
 		return szhttp.BadRequest(ctx)
 	}
 
-	ns, ok := d.isValidSingleLevelSubdomain(
-		bytesconv.B2s(ctx.Host()), d.hostname)
-	if !ok {
+	ns := sznormalize.ResourceDomain(
+		bytesconv.B2s(szhttp.StripPort(ctx.Host())),
+	)
+
+	st, err := d.settings.Load(ns)
+	if err != nil {
 		return szhttp.Forbidden(ctx)
 	}
 
 	xctx.Namespace = ns
-	d.setIds(ctx, ns)
-
-	return next.Handle(ctx)
-}
-
-// setIds puts the tenant and resource id the setting of ns declares into
-// ctx, for the next stages to fill into their logs; ctx keeps the default
-// ids otherwise (defaults.TenantId, defaults.ResourceId).
-func (d *DomainBased) setIds(ctx szhttp.Context, ns string) {
-	st, err := d.settings.Load(ns)
-	if err != nil {
-		return
-	}
-
+	// the ids the next stages fill into their logs
 	ctx.SetTenantId(st.GetMetadata().GetTenantId())
 	ctx.SetResourceId(st.GetServer().GetResourceId())
-}
 
-func (d *DomainBased) isValidSingleLevelSubdomain(
-	subdomain, root string) (string, bool) {
-
-	// Remove port if present
-	if colon := strings.IndexByte(subdomain, ':'); colon >= 0 {
-		subdomain = subdomain[:colon]
-	}
-
-	// Check if it ends with "." + root
-	suffix := "." + root
-	if !strings.HasSuffix(subdomain, suffix) {
-		return "", false
-	}
-
-	// Extract subdomain part (before root)
-	subPart := subdomain[:len(subdomain)-len(suffix)]
-
-	// Ensure single-level (no extra dots) and non-empty
-	if subPart == "" || strings.IndexByte(subPart, '.') >= 0 {
-		return "", false
-	}
-
-	return subPart, true
+	return next.Handle(ctx)
 }

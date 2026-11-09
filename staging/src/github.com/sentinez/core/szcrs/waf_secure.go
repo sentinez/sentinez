@@ -98,16 +98,22 @@ func (rs *Rulesets) Final(callback func()) {
 	}
 }
 
-func (rs *Rulesets) Matched() (*types.Interruption, []types.MatchedRule, bool) {
+// Matched returns the rules the transaction matched, the interruption
+// and whether the engine blocked the transaction. In DetectionOnly mode
+// nothing is blocked, the interruption is the one the engine would have
+// performed were it On (nil = none).
+func (rs *Rulesets) Matched() (
+	matched []types.MatchedRule, it *types.Interruption, blocked bool,
+) {
 	if rs == nil {
 		return nil, nil, false
 	}
 
-	if !rs.tx.IsInterrupted() {
-		return nil, nil, false
+	if rs.tx.IsInterrupted() {
+		return rs.tx.MatchedRules(), rs.tx.Interruption(), true
 	}
 
-	return rs.tx.Interruption(), rs.tx.MatchedRules(), true
+	return rs.tx.MatchedRules(), detectionOnlyInterruption(rs.tx), false
 }
 
 // AnomalyScore returns the inbound and outbound anomaly scores CRS sums up
@@ -162,6 +168,20 @@ func IsFrameworkRule(id int) bool {
 	default:
 		return false
 	}
+}
+
+// detectionOnlyInterruption the interruption a DetectionOnly transaction
+// would have performed, nil if none. Coraza does not expose it in
+// types.Transaction yet.
+func detectionOnlyInterruption(tx types.Transaction) *types.Interruption {
+	d, ok := tx.(interface {
+		DetectionOnlyInterruption() *types.Interruption
+	})
+	if !ok {
+		return nil
+	}
+
+	return d.DetectionOnlyInterruption()
 }
 
 func txInt(vars collection.Map, key string) int {

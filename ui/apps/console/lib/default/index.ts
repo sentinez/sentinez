@@ -104,6 +104,11 @@ export const dashboard: {
           url: '/d/console/tenant/resource',
           icon: Server,
         },
+        {
+          titleKey: 'resourceSetting',
+          url: '/d/console/tenant/setting',
+          icon: Settings,
+        },
       ],
     },
     {

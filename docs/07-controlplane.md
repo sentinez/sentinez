@@ -262,18 +262,25 @@ given the email as user handle, so their authenticators only work with
 
 ## 7.4 Tenant
 
-Protos: [apps/tenant/v1](../api/proto/sentinez/apps/tenant/v1/). Table
-`tenant.resources` (`id, resource_setting BYTEA, resource_name,
-resource_domain, plan, status`). `resource_setting` is an `edgepb.Setting`
-stored as binary protobuf — i.e. the tenant's edge configuration.
+Protos: [apps/tenant/v1](../api/proto/sentinez/apps/tenant/v1/). A
+`Resource` is `id, tenant_id, server, status`: `server` is the
+`edgepb.Server` of the resource, the only place its name
+(`server.name`) and domain (`server.resource_domain`) live, and
+`server.resource_id` is always the resource `id`. Table
+`tenant.resources` (`id, tenant_id, server BYTEA, server_name,
+server_resource_domain, status`): `server` is stored as binary protobuf,
+`server_name`/`server_resource_domain` are derived from it on every write
+(`schema.ResourceServerName`/`ResourceServerDomain`) to filter by. The
+service lower-cases the domain as the edge matches it, and refuses a
+server without one.
 
 | RPC | REST | Notes |
 |---|---|---|
-| `ListResource` | `GET /tenant/resources` | Filters `status`, `plan`, `resource_name`, `resource_domain` |
-| `CreateResource` | `POST /tenant/resource` | Empty `resource_setting` → default `Setting{}` |
-| `UpdateResource` | `PUT /tenant/resource` | Updates domain/name/status/plan (not the setting) |
+| `ListResource` | `GET /tenant/resources` | Filters `status`, `resource_name` (`server.name`), `resource_domain` (`server.resource_domain`), `tenant_ids` |
+| `CreateResource` | `POST /tenant/resource` | `server` with `resource_domain` required |
+| `UpdateResource` | `PUT /tenant/resource` | Sets `status`; a `server` replaces the stored one |
 | `DeleteResource` | `DELETE /tenant/resource` | |
-| `GetResource` | `GET /tenant/resource` | `default=true` → replaces the setting with the default |
+| `GetResource` | `GET /tenant/resource` | `default=true` → the server without its locations |
 | `GetResourceByDomain` | `GET /tenant/resource/{resource_domain}` | Returns the first record matching the domain |
 | `Status` | `GET /tenant/status` | |
 
@@ -421,13 +428,6 @@ to 15 minutes (`_secondSpan`) whose `From` is still within the 7 days of
 the second view, else `Minute`. `From` is inclusive, `To` exclusive, on the
 bucket start.
 
-### Analytic: event reads
-
-The analytic reads the collector tables through
-[apps/analytic/v1/repos/events](../staging/src/github.com/sentinez/controlplane/apps/analytic/v1/repos/events/):
-`eventsrepo.Events` holds one read-only `Reader[T]` (`List`, `Histogram`)
-per table, built from the collector repos, so the analytic cannot write
-events. Building it syncs the tables and views, as the collector does.
 The views cannot be narrowed to a request or a field, so
 `Histogram.PointsWhere(ctx, *Filter, Where)` counts the rows of the source
 table instead (`SELECT (time / bucket) * bucket, resource_id, key,
@@ -438,6 +438,13 @@ two: the views without an `eventfilter.Filter`, else `PointsWhere` with the
 `RequestIds` and `Matches` of the filter, on the columns of the table, as
 the lists apply them. The raw scan is slower than the views on a long range.
 
+### Analytic: event reads
+
+The analytic reads the collector tables through
+[apps/analytic/v1/repos/events](../staging/src/github.com/sentinez/controlplane/apps/analytic/v1/repos/events/):
+`eventsrepo.Events` holds one read-only `Reader[T]` (`List`, `Histogram`)
+per table, built from the collector repos, so the analytic cannot write
+events. Building it syncs the tables and views, as the collector does.
 
 | RPC | REST | Reads |
 |---|---|---|

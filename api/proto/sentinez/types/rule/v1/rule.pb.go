@@ -314,6 +314,9 @@ const (
 	RuleBehavior_RULE_BEHAVIOR_UNSPECIFIED RuleBehavior = 0
 	RuleBehavior_RULE_BEHAVIOR_DENY        RuleBehavior = 1
 	RuleBehavior_RULE_BEHAVIOR_ALLOW       RuleBehavior = 2
+	// Would have been denied, but the engine only detects
+	// (ENGINE_MODE_DETECTION_ONLY).
+	RuleBehavior_RULE_BEHAVIOR_LOG RuleBehavior = 3
 )
 
 // Enum value maps for RuleBehavior.
@@ -322,11 +325,13 @@ var (
 		0: "RULE_BEHAVIOR_UNSPECIFIED",
 		1: "RULE_BEHAVIOR_DENY",
 		2: "RULE_BEHAVIOR_ALLOW",
+		3: "RULE_BEHAVIOR_LOG",
 	}
 	RuleBehavior_value = map[string]int32{
 		"RULE_BEHAVIOR_UNSPECIFIED": 0,
 		"RULE_BEHAVIOR_DENY":        1,
 		"RULE_BEHAVIOR_ALLOW":       2,
+		"RULE_BEHAVIOR_LOG":         3,
 	}
 )
 
@@ -1008,11 +1013,12 @@ const file_sentinez_types_rule_v1_rule_proto_rawDesc = "" +
 	"\x18RULE_SERVICE_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aRULE_SERVICE_CORE_RULESETS\x10\x01\x12\x19\n" +
 	"\x15RULE_SERVICE_SEC_RULE\x10\x02\x12\x1b\n" +
-	"\x17RULE_SERVICE_RATE_LIMIT\x10\x03*^\n" +
+	"\x17RULE_SERVICE_RATE_LIMIT\x10\x03*u\n" +
 	"\fRuleBehavior\x12\x1d\n" +
 	"\x19RULE_BEHAVIOR_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12RULE_BEHAVIOR_DENY\x10\x01\x12\x17\n" +
-	"\x13RULE_BEHAVIOR_ALLOW\x10\x02BFZDgithub.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1;rulepbb\x06proto3"
+	"\x13RULE_BEHAVIOR_ALLOW\x10\x02\x12\x15\n" +
+	"\x11RULE_BEHAVIOR_LOG\x10\x03BFZDgithub.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1;rulepbb\x06proto3"
 
 var (
 	file_sentinez_types_rule_v1_rule_proto_rawDescOnce sync.Once
