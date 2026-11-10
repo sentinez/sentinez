@@ -45,6 +45,16 @@ func EventHypertable(s dbx.Schema,
 	}
 }
 
+// resourceTime the index of the events of a resource over a time range: one
+// ordered scan of the range per chunk. The request ids of the http events
+// are served by the unique (id, time) key of their hypertable.
+func resourceTime(resourceColumn, timeColumn string) dbx.Index {
+	return dbx.Index{
+		Columns: []string{resourceColumn, timeColumn},
+		Method:  dbx.BTree,
+	}
+}
+
 // AnalyticActivities the schema of the sztable.AnalyticActivities table.
 func AnalyticActivities() dbx.Schema {
 	return dbx.Schema{
@@ -100,7 +110,9 @@ func AnalyticCoreRulesetsEvent() dbx.Schema {
 		},
 		Indexes: []dbx.Index{
 			{Column: crspb.CoreRuleEvent_MatchedTime, Method: dbx.BTree},
-			{Column: crspb.CoreRuleEvent_ResourceId, Method: dbx.BTree},
+			resourceTime(crspb.CoreRuleEvent_ResourceId,
+				crspb.CoreRuleEvent_MatchedTime),
+			{Column: crspb.CoreRuleEvent_RequestId, Method: dbx.BTree},
 		},
 	}
 }
@@ -134,7 +146,8 @@ func AnalyticHttpIngressEvent() dbx.Schema {
 		},
 		Indexes: []dbx.Index{
 			{Column: httppb.IngressEvent_Timestamp, Method: dbx.BTree},
-			{Column: httppb.IngressEvent_ResourceId, Method: dbx.BTree},
+			resourceTime(httppb.IngressEvent_ResourceId,
+				httppb.IngressEvent_Timestamp),
 		},
 	}
 }
@@ -160,10 +173,12 @@ func AnalyticHttpEgressEvent() dbx.Schema {
 			{Name: httppb.EgressEvent_ResourceId, Type: dbx.Text},
 			{Name: httppb.EgressEvent_TenantId, Type: dbx.Text},
 			{Name: httppb.EgressEvent_Protocol, Type: dbx.Text},
+			{Name: httppb.EgressEvent_Headers, Type: dbx.Text},
 		},
 		Indexes: []dbx.Index{
 			{Column: httppb.EgressEvent_Timestamp, Method: dbx.BTree},
-			{Column: httppb.EgressEvent_ResourceId, Method: dbx.BTree},
+			resourceTime(httppb.EgressEvent_ResourceId,
+				httppb.EgressEvent_Timestamp),
 		},
 	}
 }
@@ -191,7 +206,9 @@ func secRuleEvents(table sztable.Table) dbx.Schema {
 		},
 		Indexes: []dbx.Index{
 			{Column: secrulepb.SecRuleEvent_MatchedTime, Method: dbx.BTree},
-			{Column: secrulepb.SecRuleEvent_ResourceId, Method: dbx.BTree},
+			resourceTime(secrulepb.SecRuleEvent_ResourceId,
+				secrulepb.SecRuleEvent_MatchedTime),
+			{Column: secrulepb.SecRuleEvent_RequestId, Method: dbx.BTree},
 		},
 	}
 }

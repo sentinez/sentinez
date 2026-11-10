@@ -46,9 +46,20 @@ export interface ContextExtra {
   upstreamTimestamp: number;
   /** UpstreamLatency the time Upstream took to answer, in microseconds. */
   upstreamLatencyMicros: number;
+  /**
+   * SetHeaders the request headers the edge set for the upstream (the
+   * router and the SecRule MODIFY_HEADER actions), name to value; the
+   * egress log records them.
+   */
+  setHeaders: { [key: string]: string };
 }
 
 export interface ContextExtra_TagsEntry {
+  key: string;
+  value: string;
+}
+
+export interface ContextExtra_SetHeadersEntry {
   key: string;
   value: string;
 }
@@ -189,6 +200,7 @@ function createBaseContextExtra(): ContextExtra {
     upstream: "",
     upstreamTimestamp: 0,
     upstreamLatencyMicros: 0,
+    setHeaders: {},
   };
 }
 
@@ -227,6 +239,9 @@ export const ContextExtra: MessageFns<ContextExtra> = {
     if (message.upstreamLatencyMicros !== 0) {
       writer.uint32(152).int64(message.upstreamLatencyMicros);
     }
+    globalThis.Object.entries(message.setHeaders).forEach(([key, value]: [string, string]) => {
+      ContextExtra_SetHeadersEntry.encode({ key: key as any, value }, writer.uint32(162).fork()).join();
+    });
     return writer;
   },
 
@@ -334,6 +349,17 @@ export const ContextExtra: MessageFns<ContextExtra> = {
             message.upstreamLatencyMicros = longToNumber(reader.int64());
             continue;
           }
+          case 20: {
+            if (tag !== 162) {
+              break;
+            }
+
+            const entry20 = ContextExtra_SetHeadersEntry.decode(reader, reader.uint32());
+            if (entry20.value !== undefined) {
+              message.setHeaders[entry20.key] = entry20.value;
+            }
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -404,6 +430,33 @@ export const ContextExtra: MessageFns<ContextExtra> = {
         : isSet(object.upstream_latency_micros)
         ? globalThis.Number(object.upstream_latency_micros)
         : 0,
+      setHeaders: isObject(object.setHeaders)
+        ? (globalThis.Object.entries(object.setHeaders) as [string, any][]).reduce(
+          (acc: { [key: string]: string }, [key, value]: [string, any]) => {
+            globalThis.Object.defineProperty(acc, key, {
+              value: globalThis.String(value),
+              enumerable: true,
+              configurable: true,
+              writable: true,
+            });
+            return acc;
+          },
+          {},
+        )
+        : isObject(object.set_headers)
+        ? (globalThis.Object.entries(object.set_headers) as [string, any][]).reduce(
+          (acc: { [key: string]: string }, [key, value]: [string, any]) => {
+            globalThis.Object.defineProperty(acc, key, {
+              value: globalThis.String(value),
+              enumerable: true,
+              configurable: true,
+              writable: true,
+            });
+            return acc;
+          },
+          {},
+        )
+        : {},
     };
   },
 
@@ -448,6 +501,15 @@ export const ContextExtra: MessageFns<ContextExtra> = {
     if (message.upstreamLatencyMicros !== 0) {
       obj.upstreamLatencyMicros = Math.round(message.upstreamLatencyMicros);
     }
+    if (message.setHeaders) {
+      const entries = globalThis.Object.entries(message.setHeaders) as [string, string][];
+      if (entries.length > 0) {
+        obj.setHeaders = {};
+        entries.forEach(([k, v]) => {
+          obj.setHeaders[k] = v;
+        });
+      }
+    }
     return obj;
   },
 
@@ -475,6 +537,15 @@ export const ContextExtra: MessageFns<ContextExtra> = {
     message.upstream = object.upstream ?? "";
     message.upstreamTimestamp = object.upstreamTimestamp ?? 0;
     message.upstreamLatencyMicros = object.upstreamLatencyMicros ?? 0;
+    message.setHeaders = (globalThis.Object.entries(object.setHeaders ?? {}) as [string, string][]).reduce(
+      (acc: { [key: string]: string }, [key, value]: [string, string]) => {
+        if (value !== undefined) {
+          acc[key] = globalThis.String(value);
+        }
+        return acc;
+      },
+      {},
+    );
     return message;
   },
 };
@@ -558,6 +629,91 @@ export const ContextExtra_TagsEntry: MessageFns<ContextExtra_TagsEntry> = {
   },
   fromPartial<I extends Exact<DeepPartial<ContextExtra_TagsEntry>, I>>(object: I): ContextExtra_TagsEntry {
     const message = createBaseContextExtra_TagsEntry();
+    message.key = object.key ?? "";
+    message.value = object.value ?? "";
+    return message;
+  },
+};
+
+function createBaseContextExtra_SetHeadersEntry(): ContextExtra_SetHeadersEntry {
+  return { key: "", value: "" };
+}
+
+export const ContextExtra_SetHeadersEntry: MessageFns<ContextExtra_SetHeadersEntry> = {
+  encode(message: ContextExtra_SetHeadersEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.key !== "") {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.value !== "") {
+      writer.uint32(18).string(message.value);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ContextExtra_SetHeadersEntry {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseContextExtra_SetHeadersEntry();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.key = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.value = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): ContextExtra_SetHeadersEntry {
+    return {
+      key: isSet(object.key) ? globalThis.String(object.key) : "",
+      value: isSet(object.value) ? globalThis.String(object.value) : "",
+    };
+  },
+
+  toJSON(message: ContextExtra_SetHeadersEntry): unknown {
+    const obj: any = {};
+    if (message.key !== "") {
+      obj.key = message.key;
+    }
+    if (message.value !== "") {
+      obj.value = message.value;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ContextExtra_SetHeadersEntry>, I>>(base?: I): ContextExtra_SetHeadersEntry {
+    return ContextExtra_SetHeadersEntry.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ContextExtra_SetHeadersEntry>, I>>(object: I): ContextExtra_SetHeadersEntry {
+    const message = createBaseContextExtra_SetHeadersEntry();
     message.key = object.key ?? "";
     message.value = object.value ?? "";
     return message;

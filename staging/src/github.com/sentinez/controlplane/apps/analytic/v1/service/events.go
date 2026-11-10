@@ -17,7 +17,6 @@ package analyticsvc
 import (
 	"context"
 	"errors"
-	"strings"
 	"time"
 
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventfilter"
@@ -92,38 +91,40 @@ func (srv *AnalyticService) GetEventHistogram(ctx context.Context,
 		return nil, err
 	}
 
-	filter, interval, err := histogramFilter(req, time.Now())
+	filter, window, err := histogramFilter(req, time.Now())
 	if err != nil {
 		return nil, err
 	}
 
 	points, err := srv.events.Histogram(ctx, req.GetKind(), filter, events)
 	if err != nil {
-		return nil, fieldError(err)
+		return nil, filterError(err)
 	}
 
 	return &pb.GetEventHistogramResponse{
-		Points:   histogramPoints(points),
-		Interval: interval,
+		Points:    histogramPoints(points),
+		Interval:  window.Interval,
+		From:      timestamppb.New(window.From),
+		To:        timestamppb.New(window.To),
+		Truncated: window.Truncated,
 	}, nil
 }
 
-// histogramEvents the events the histogram of req counts: its requests
+// histogramEvents the events the histogram of sel counts: its requests
 // and field filters, nil without any (the views count them all); a filter
 // that is not "field:value" is an invalid argument.
-func histogramEvents(
-	req *pb.GetEventHistogramRequest) (*eventfilter.Filter, error) {
-	if len(req.GetRequestIds()) == 0 && len(req.GetFilters()) == 0 {
+func histogramEvents(sel eventfilter.Selection) (*eventfilter.Filter, error) {
+	if len(sel.GetRequestIds()) == 0 && len(sel.GetFilters()) == 0 {
 		return nil, nil
 	}
 
-	matches, err := matchesOf(req.GetFilters())
+	matches, err := eventfilter.MatchesOf(sel.GetFilters())
 	if err != nil {
-		return nil, err
+		return nil, filterError(err)
 	}
 
 	return &eventfilter.Filter{
-		RequestIds: req.GetRequestIds(),
+		RequestIds: sel.GetRequestIds(),
 		Matches:    matches,
 	}, nil
 }
@@ -132,7 +133,7 @@ func histogramEvents(
 func (srv *AnalyticService) GetUniqueVisitorHistogram(ctx context.Context,
 	req *pb.GetUniqueVisitorHistogramRequest,
 ) (*pb.GetUniqueVisitorHistogramResponse, error) {
-	filter, interval, err := histogramFilter(req, time.Now())
+	filter, window, err := histogramFilter(req, time.Now())
 	if err != nil {
 		return nil, err
 	}
@@ -143,15 +144,18 @@ func (srv *AnalyticService) GetUniqueVisitorHistogram(ctx context.Context,
 	}
 
 	return &pb.GetUniqueVisitorHistogramResponse{
-		Points:   histogramPoints(points),
-		Interval: interval,
+		Points:    histogramPoints(points),
+		Interval:  window.Interval,
+		From:      timestamppb.New(window.From),
+		To:        timestamppb.New(window.To),
+		Truncated: window.Truncated,
 	}, nil
 }
 
 // ListVisitors implements pb.AnalyticServiceServer.
 func (srv *AnalyticService) ListVisitors(ctx context.Context,
 	req *pb.ListVisitorsRequest) (*pb.ListVisitorsResponse, error) {
-	filter, interval, err := histogramFilter(req, time.Now())
+	filter, window, err := histogramFilter(req, time.Now())
 	if err != nil {
 		return nil, err
 	}
@@ -161,12 +165,20 @@ func (srv *AnalyticService) ListVisitors(ctx context.Context,
 		return nil, err
 	}
 
-	resp := &pb.ListVisitorsResponse{
-		Visitors: make([]*pb.VisitorPoint, 0, len(points)),
-		Interval: interval,
-	}
+	return &pb.ListVisitorsResponse{
+		Visitors:  visitorPoints(points),
+		Interval:  window.Interval,
+		From:      timestamppb.New(window.From),
+		To:        timestamppb.New(window.To),
+		Truncated: window.Truncated,
+	}, nil
+}
+
+// visitorPoints the proto of points, the client ip their Value.
+func visitorPoints(points []*histogram.Point) []*pb.VisitorPoint {
+	visitors := make([]*pb.VisitorPoint, 0, len(points))
 	for _, point := range points {
-		resp.Visitors = append(resp.Visitors, &pb.VisitorPoint{
+		visitors = append(visitors, &pb.VisitorPoint{
 			Time:       timestamppb.New(point.Time),
 			ResourceId: point.ResourceId,
 			ClientIp:   point.Value,
@@ -174,7 +186,7 @@ func (srv *AnalyticService) ListVisitors(ctx context.Context,
 		})
 	}
 
-	return resp, nil
+	return visitors
 }
 
 // histogramRequest the filters every histogram has.
@@ -185,21 +197,21 @@ type histogramRequest interface {
 	GetTo() *timestamppb.Timestamp
 }
 
-// histogramFilter the filter of the histogram of req, its resolution
-// resolved at now, and the interval of its buckets; from or to older than
-// the events are kept is an invalid argument.
+// histogramFilter the filter of the histogram of req, its resolution and
+// range resolved at now, and the window of its buckets; from or to older
+// than the events are kept is an invalid argument.
 func histogramFilter(req histogramRequest, now time.Time) (
-	*histogram.Filter, typepb.HistogramInterval, error) {
+	*histogram.Filter, histogram.Window, error) {
 	filter := &histogram.Filter{
 		Resolution:  req.GetResolution(),
 		ResourceIds: req.GetResourceIds(),
-		From:        asTime(req.GetFrom()),
-		To:          asTime(req.GetTo()),
+		From:        eventfilter.TimeOf(req.GetFrom()),
+		To:          eventfilter.TimeOf(req.GetTo()),
 	}
 
 	err := keptSince(now, filter.From, filter.To)
 	if err != nil {
-		return nil, 0, err
+		return nil, histogram.Window{}, err
 	}
 
 	return filter, filter.Resolve(now), nil
@@ -243,14 +255,10 @@ const (
 	_maxPageSize = 500
 )
 
-// listRequest the filters every list of events has.
+// listRequest what every list of events selects, and its page.
 type listRequest interface {
+	eventfilter.Selection
 	GetPage() *typepb.Pages
-	GetFilters() []string
-	GetRequestIds() []string
-	GetResourceIds() []string
-	GetFrom() *timestamppb.Timestamp
-	GetTo() *timestamppb.Timestamp
 }
 
 // listEvents the events list returns for the filter of req; an unknown
@@ -258,35 +266,50 @@ type listRequest interface {
 func listEvents[T any](ctx context.Context, req listRequest,
 	list func(context.Context, *eventfilter.Filter) ([]*T, error),
 ) ([]*T, error) {
-	filter, err := eventFilter(req)
+	filter, err := listFilter(req)
 	if err != nil {
 		return nil, err
 	}
 
 	events, err := list(ctx, filter)
 	if err != nil {
-		return nil, fieldError(err)
+		return nil, filterError(err)
 	}
 
 	return events, nil
 }
 
-// eventFilter the filter of the list of req; a filter that is not
-// "field:value" is an invalid argument.
-func eventFilter(req listRequest) (*eventfilter.Filter, error) {
-	matches, err := matchesOf(req.GetFilters())
+// listFilter the filter of the list of req, its page bounded; a filter
+// that is not "field:value" is an invalid argument.
+func listFilter(req listRequest) (*eventfilter.Filter, error) {
+	filter, err := eventfilter.FilterOf(req)
 	if err != nil {
-		return nil, err
+		return nil, filterError(err)
 	}
 
-	return &eventfilter.Filter{
-		RequestIds:  req.GetRequestIds(),
-		ResourceIds: req.GetResourceIds(),
-		Matches:     matches,
-		From:        asTime(req.GetFrom()),
-		To:          asTime(req.GetTo()),
-		Page:        eventPage(req.GetPage()),
-	}, nil
+	filter.Page = eventPage(req.GetPage())
+
+	return filter, nil
+}
+
+// rangedFilter the filter of sel up to its to, else now, from its from,
+// else span before: a scan never reads a whole table.
+func rangedFilter(sel eventfilter.Selection, now time.Time,
+	span time.Duration) (*eventfilter.Filter, error) {
+	filter, err := eventfilter.FilterOf(sel)
+	if err != nil {
+		return nil, filterError(err)
+	}
+
+	if filter.From.IsZero() {
+		end := filter.To
+		if end.IsZero() {
+			end = now
+		}
+		filter.From = end.Add(-span)
+	}
+
+	return filter, nil
 }
 
 // eventPage page bounded to _maxPageSize events, the first _pageSize
@@ -303,43 +326,16 @@ func eventPage(page *typepb.Pages) *typepb.Pages {
 	return &typepb.Pages{Size: min(size, _maxPageSize), Index: index}
 }
 
-// asTime the time of ts, zero when unset.
-func asTime(ts *timestamppb.Timestamp) time.Time {
-	if ts == nil {
-		return time.Time{}
-	}
-
-	return ts.AsTime()
-}
-
-// matchesOf the eventfilter.Match of filters, each "field:value" (the
-// field before the first colon); one without a colon is an invalid
-// argument.
-func matchesOf(filters []string) ([]eventfilter.Match, error) {
-	if len(filters) == 0 {
-		return nil, nil
-	}
-
-	matches := make([]eventfilter.Match, 0, len(filters))
-	for _, f := range filters {
-		field, value, ok := strings.Cut(f, ":")
-		if !ok || field == "" {
-			return nil, szerror.StatusInvalidArgumentF(
-				"invalid filter %q: want field:value", f)
-		}
-		matches = append(matches,
-			eventfilter.Match{Field: field, Value: value})
-	}
-
-	return matches, nil
-}
-
-// fieldError err, an invalid argument when it names a field the events do
-// not have (eventfilter.ErrUnknownField).
-func fieldError(err error) error {
-	if errors.Is(err, eventfilter.ErrUnknownField) {
+// filterError err, an invalid argument when the request selects events
+// wrongly: a field the events do not have, a filter that is not
+// "field:value", or a value that is not one of the type of its field.
+func filterError(err error) error {
+	switch {
+	case errors.Is(err, eventfilter.ErrUnknownField),
+		errors.Is(err, eventfilter.ErrInvalidFilter),
+		errors.Is(err, eventfilter.ErrInvalidValue):
 		return szerror.StatusInvalidArgumentF("%s", err)
+	default:
+		return err
 	}
-
-	return err
 }

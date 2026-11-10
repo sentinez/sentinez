@@ -16,9 +16,12 @@ package routes
 
 import (
 	"bytes"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
+	"github.com/sentinez/sentinez/pkg/network/httpx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -160,4 +163,32 @@ func newRoutes(locations ...string) []*route {
 	}
 
 	return routes
+}
+
+func TestForwardRecordsHeaders(t *testing.T) {
+	r := newRoute(&edgepb.Location{
+		Location:     "/api",
+		ProxyRewrite: "/",
+		ProxyPass:    []*edgepb.Upstream{{Server: "origin.example.com"}},
+		ProxySetHeaders: map[string]string{
+			"X-Env":  "prod",
+			"X-Host": "$host",
+		},
+	})
+	req := httptest.NewRequest(http.MethodGet, "http://example.com/api/a",
+		nil)
+	ctx := httpx.NewContext(req, httptest.NewRecorder())
+
+	upstream, err := forward(ctx, r)
+
+	require.NoError(t, err)
+	assert.NotEmpty(t, upstream)
+	want := map[string]string{
+		"X-Forwarded-Prefix": "/api",
+		"X-Env":              "prod",
+		"X-Host":             "example.com",
+	}
+	assert.Equal(t, want, ctx.X().GetSetHeaders())
+	assert.Equal(t, "prod", req.Header.Get("X-Env"))
+	assert.Equal(t, "/api", req.Header.Get("X-Forwarded-Prefix"))
 }

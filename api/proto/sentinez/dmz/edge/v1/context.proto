@@ -53,4 +53,9 @@ message ContextExtra {
   int64 upstream_timestamp = 18;
   // UpstreamLatency the time Upstream took to answer, in microseconds.
   int64 upstream_latency_micros = 19;
+
+  // SetHeaders the request headers the edge set for the upstream (the
+  // router and the SecRule MODIFY_HEADER actions), name to value; the
+  // egress log records them.
+  map<string, string> set_headers = 20;
 }

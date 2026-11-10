@@ -241,7 +241,7 @@
           },
           {
             "name": "from",
-            "description": "The buckets end before to (exclusive), else with the current one,\ntheir number that of the resolution; from and to pick the\nresolution when unspecified.",
+            "description": "The buckets end before to (exclusive), else with the current one,\nand start at from rounded down to a bucket, else a span of the\nresolution before: at most 1000 of them, see the response. from and\nto pick the resolution when unspecified.",
             "in": "query",
             "required": false,
             "type": "string",
@@ -367,6 +367,79 @@
               "type": "string"
             },
             "collectionFormat": "multi"
+          }
+        ],
+        "tags": [
+          "AnalyticService"
+        ]
+      }
+    },
+    "/analytic/events/http-egress/latency": {
+      "get": {
+        "summary": "GetEgressLatency measures the latency of the requests proxied to\neach upstream over a range: average, median, p95, p99 and maximum.",
+        "operationId": "AnalyticService_GetEgressLatency",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetEgressLatencyResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "selection.resourceIds",
+            "description": "Resources of the events, any of them; all when empty.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "selection.requestIds",
+            "description": "Requests of the events, by request id (an ingress or egress event\nid, the request_id of a rule event), any of them; all when empty.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "selection.filters",
+            "description": "Field filters, all of them, each \"field:value\" (see\nGetEventTopValuesRequest.filters).",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "selection.from",
+            "description": "Bound the time of the events, from inclusive, to exclusive.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "selection.to",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
           }
         ],
         "tags": [
@@ -732,7 +805,18 @@
           },
           {
             "name": "filters",
-            "description": "Field filters, all of them, each \"field:value\": the events holding\nthe value in the field, compared as text (an element of a repeated\none). The field is before the first colon, one of those of fields;\nthe value is the rest, colons and spaces included.",
+            "description": "Field filters, all of them, each \"field:value\": the events holding\nthe value in the field, compared in the type of the field (a number\nfor status; an element of a repeated one). The field is before the first colon, one of those of fields;\nthe value is the rest, colons and spaces included.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "requestIds",
+            "description": "Requests of the events, by request id, any of them (see\nListHttpIngressEventsRequest.request_ids); all when empty.",
             "in": "query",
             "required": false,
             "type": "array",
@@ -800,7 +884,7 @@
           },
           {
             "name": "from",
-            "description": "The buckets end before to (exclusive), else with the current one,\ntheir number that of the resolution; from and to pick the\nresolution when unspecified.",
+            "description": "The buckets end before to (exclusive), else with the current one,\nand start at from rounded down to a bucket, else a span of the\nresolution before: at most 1000 of them, see the response. from and\nto pick the resolution when unspecified.",
             "in": "query",
             "required": false,
             "type": "string",
@@ -872,7 +956,7 @@
           },
           {
             "name": "from",
-            "description": "The buckets end before to (exclusive), else with the current one,\ntheir number that of the resolution; from and to pick the\nresolution when unspecified.",
+            "description": "The buckets end before to (exclusive), else with the current one,\nand start at from rounded down to a bucket, else a span of the\nresolution before: at most 1000 of them, see the response. from and\nto pick the resolution when unspecified.",
             "in": "query",
             "required": false,
             "type": "string",
@@ -1100,6 +1184,10 @@
         "protocol": {
           "type": "string",
           "description": "protocol is the HTTP version the client used to reach the edge, e.g.\nHTTP/2.0: the one used to reach upstream is not observable."
+        },
+        "headers": {
+          "type": "string",
+          "description": "headers are the request headers the edge set for the upstream, one\n\"Name: value\" line each, sorted by name: X-Forwarded-Prefix, the\nproxySetHeaders once their variables are resolved and the SecRule\nMODIFY_HEADER ones, without the credential ones."
         }
       },
       "description": "EgressEvent is the leg of a request from the reverse proxy to its\nupstream origin, logged once the origin answered; id is the one of\nthe request IngressEvent."
@@ -1116,6 +1204,42 @@
       ],
       "default": "EVENT_KIND_UNSPECIFIED",
       "description": "EventKind the table of the events a histogram counts.\n\n - EVENT_KIND_HTTP_INGRESS: Requests received by the edge; keyed by the http status.\n - EVENT_KIND_HTTP_EGRESS: Requests proxied to the origins; keyed by the status of the origin.\n - EVENT_KIND_SEC_RULE: Matched SecRules; keyed by the action.\n - EVENT_KIND_RATE_LIMIT: Exceeded rate limiters; keyed by the action.\n - EVENT_KIND_CORE_RULE: Matched core ruleset rules; keyed by the behavior."
+    },
+    "v1EventSelection": {
+      "type": "object",
+      "properties": {
+        "resourceIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Resources of the events, any of them; all when empty."
+        },
+        "requestIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Requests of the events, by request id (an ingress or egress event\nid, the request_id of a rule event), any of them; all when empty."
+        },
+        "filters": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Field filters, all of them, each \"field:value\" (see\nGetEventTopValuesRequest.filters)."
+        },
+        "from": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Bound the time of the events, from inclusive, to exclusive."
+        },
+        "to": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "description": "EventSelection selects the events of a kind: those of any of the\nresources and requests, holding every field filter, in the time range.\nThe flat resource_ids, request_ids, filters, from and to of the list,\nhistogram and top values requests mirror it."
     },
     "v1FieldTopValues": {
       "type": "object",
@@ -1151,6 +1275,28 @@
       },
       "description": "FieldValue the events holding a value of a field."
     },
+    "v1GetEgressLatencyResponse": {
+      "type": "object",
+      "properties": {
+        "upstreams": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1UpstreamLatency"
+          },
+          "description": "One per upstream, ordered by upstream."
+        },
+        "from": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The range measured."
+        },
+        "to": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
     "v1GetEventHistogramResponse": {
       "type": "object",
       "properties": {
@@ -1165,6 +1311,19 @@
         "interval": {
           "$ref": "#/definitions/v1HistogramInterval",
           "description": "The width of one bucket, that of the resolution asked or picked by\nfrom and to."
+        },
+        "from": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The first bucket starts at from and the last one ends at to."
+        },
+        "to": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "truncated": {
+          "type": "boolean",
+          "description": "The range held more than 1000 buckets: from was moved later so the\nlatest 1000 are returned."
         }
       }
     },
@@ -1200,6 +1359,19 @@
         "interval": {
           "$ref": "#/definitions/v1HistogramInterval",
           "description": "The width of one bucket, that of the resolution asked or picked by\nfrom and to."
+        },
+        "from": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The first bucket starts at from and the last one ends at to."
+        },
+        "to": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "truncated": {
+          "type": "boolean",
+          "description": "The range held more than 1000 buckets: from was moved later so the\nlatest 1000 are returned."
         }
       }
     },
@@ -1418,6 +1590,19 @@
         "interval": {
           "$ref": "#/definitions/v1HistogramInterval",
           "description": "The width of one bucket, that of the resolution asked or picked by\nfrom and to."
+        },
+        "from": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The first bucket starts at from and the last one ends at to."
+        },
+        "to": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "truncated": {
+          "type": "boolean",
+          "description": "The range held more than 1000 buckets: from was moved later so the\nlatest 1000 are returned."
         }
       }
     },
@@ -1546,6 +1731,39 @@
           "type": "string"
         }
       }
+    },
+    "v1UpstreamLatency": {
+      "type": "object",
+      "properties": {
+        "upstream": {
+          "type": "string"
+        },
+        "total": {
+          "type": "string",
+          "format": "int64"
+        },
+        "avgMicros": {
+          "type": "string",
+          "format": "int64"
+        },
+        "p50Micros": {
+          "type": "string",
+          "format": "int64"
+        },
+        "p95Micros": {
+          "type": "string",
+          "format": "int64"
+        },
+        "p99Micros": {
+          "type": "string",
+          "format": "int64"
+        },
+        "maxMicros": {
+          "type": "string",
+          "format": "int64"
+        }
+      },
+      "description": "UpstreamLatency the latency of the requests proxied to an upstream, in\nmicroseconds."
     },
     "v1VisitorPoint": {
       "type": "object",

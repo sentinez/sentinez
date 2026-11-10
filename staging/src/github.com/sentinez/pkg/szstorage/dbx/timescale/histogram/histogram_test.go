@@ -82,11 +82,17 @@ func pointsQueryTests() []queryTest {
 	}
 }
 
-func TestSourceQuery(t *testing.T) {
+func TestBucketQuerySource(t *testing.T) {
+	src := bucketSource{
+		table:  "t",
+		bucket: "time_bucket(1000::BIGINT, ts)",
+		time:   "ts",
+	}
+
 	for _, tt := range sourceQueryTests() {
 		t.Run(tt.name, func(t *testing.T) {
-			sql, args, err := sourceQuery("t", "ts", tt.giveKey, tt.give,
-				_window).ToSql()
+			sql, args, err := bucketQuery(src, tt.giveKey, "count(*)",
+				tt.give, _window).ToSql()
 
 			require.NoError(t, err)
 			assert.Equal(t, tt.wantSql, sql)
@@ -95,25 +101,29 @@ func TestSourceQuery(t *testing.T) {
 	}
 }
 
-// sourceQueryTests the cases of TestSourceQuery, of a table "t" timed by
-// "ts".
+// sourceQueryTests the cases of TestBucketQuerySource, of a table "t"
+// timed by "ts".
 func sourceQueryTests() []queryTest {
 	return []queryTest{
 		{
 			name: "no filter, no key",
-			wantSql: "SELECT (ts / 1000) * 1000, resource_id, 0, " +
-				"count(*) FROM t WHERE ts >= ? AND ts < ? " +
-				"GROUP BY 1, 2, 3 ORDER BY 1, 2",
+			wantSql: "SELECT time_bucket(1000::BIGINT, ts), " +
+				"resource_id, 0, count(*) FROM t " +
+				"WHERE ts >= ? AND ts < ? " +
+				"GROUP BY time_bucket(1000::BIGINT, ts), resource_id " +
+				"ORDER BY time_bucket(1000::BIGINT, ts), resource_id",
 			wantArgs: []any{int64(1000), int64(3000)},
 		},
 		{
 			name:    "filter and key",
 			giveKey: "status",
 			give:    &Filter{ResourceIds: []string{"r1"}},
-			wantSql: "SELECT (ts / 1000) * 1000, resource_id, status, " +
-				"count(*) FROM t WHERE ts >= ? AND ts < ? " +
-				"AND resource_id IN (?) " +
-				"GROUP BY 1, 2, 3 ORDER BY 1, 2",
+			wantSql: "SELECT time_bucket(1000::BIGINT, ts), " +
+				"resource_id, status, count(*) FROM t " +
+				"WHERE ts >= ? AND ts < ? AND resource_id IN (?) " +
+				"GROUP BY time_bucket(1000::BIGINT, ts), resource_id, " +
+				"status ORDER BY time_bucket(1000::BIGINT, ts), " +
+				"resource_id",
 			wantArgs: []any{int64(1000), int64(3000), "r1"},
 		},
 	}
@@ -256,25 +266,30 @@ type windowTest struct {
 	giveSpec typepb.HistogramResolution
 	wantFrom time.Time
 	wantTo   time.Time
+	// wantCount the buckets of the window
+	wantCount     int
+	wantTruncated bool
 }
 
 func TestFilterWindow(t *testing.T) {
 	now := time.Date(2026, 1, 2, 12, 30, 15, 0, time.UTC)
 
-	for _, tt := range windowTests() {
+	for _, tt := range slices.Concat(windowTests(), windowFromTests(),
+		windowEdgeTests()) {
 		t.Run(tt.name, func(t *testing.T) {
 			spec := _resolutions[tt.giveSpec]
 			w := tt.give.window(spec, now)
 
 			assert.Equal(t, tt.wantFrom, w.from)
 			assert.Equal(t, tt.wantTo, w.to())
-			assert.Equal(t, int(spec.span/w.bucket), w.count)
+			assert.Equal(t, tt.wantCount, w.count)
+			assert.Equal(t, tt.wantTruncated, w.truncated)
 		})
 	}
 }
 
 // windowTests the windows ending with the current bucket of 12:30:15,
-// before To.
+// before To, from From.
 func windowTests() []windowTest {
 	at := func(h, m, s int) time.Time {
 		return time.Date(2026, 1, 2, h, m, s, 0, time.UTC)
@@ -283,28 +298,84 @@ func windowTests() []windowTest {
 	return []windowTest{
 		{
 			name: "2 days until now", give: nil, giveSpec: _res2d,
-			wantFrom: at(13, 0, 0).Add(-48 * time.Hour),
-			wantTo:   at(13, 0, 0),
+			wantFrom:  at(13, 0, 0).Add(-48 * time.Hour),
+			wantTo:    at(13, 0, 0),
+			wantCount: 48,
 		},
 		{
 			name: "1 hour until now", give: &Filter{}, giveSpec: _res1h,
 			wantFrom: at(11, 31, 0), wantTo: at(12, 31, 0),
+			wantCount: 60,
 		},
 		{
 			name: "5 minutes until now", give: &Filter{}, giveSpec: _res5m,
 			wantFrom: at(12, 25, 20), wantTo: at(12, 30, 20),
-		},
-		{
-			name:     "1 hour until to",
-			give:     &Filter{From: at(1, 0, 0), To: at(10, 0, 30)},
-			giveSpec: _res1h,
-			wantFrom: at(9, 1, 0), wantTo: at(10, 1, 0),
+			wantCount: 30,
 		},
 		{
 			name:     "on a bucket start, to excluded",
 			give:     &Filter{To: at(10, 0, 0)},
 			giveSpec: _res1h,
 			wantFrom: at(9, 0, 0), wantTo: at(10, 0, 0),
+			wantCount: 60,
+		},
+	}
+}
+
+// windowFromTests the windows read from From, and the capped ones.
+func windowFromTests() []windowTest {
+	at := func(h, m, s int) time.Time {
+		return time.Date(2026, 1, 2, h, m, s, 0, time.UTC)
+	}
+
+	return []windowTest{
+		{
+			name:     "from before the span is honoured",
+			give:     &Filter{From: at(1, 0, 0), To: at(10, 0, 30)},
+			giveSpec: _res1h,
+			wantFrom: at(1, 0, 0), wantTo: at(10, 1, 0),
+			wantCount: 541,
+		},
+		{
+			name:     "to only",
+			give:     &Filter{To: at(10, 0, 30)},
+			giveSpec: _res1h,
+			wantFrom: at(9, 1, 0), wantTo: at(10, 1, 0),
+			wantCount: 60,
+		},
+		{
+			name:     "from rounded down, until now",
+			give:     &Filter{From: at(9, 12, 30)},
+			giveSpec: _res1h,
+			wantFrom: at(9, 12, 0), wantTo: at(12, 31, 0),
+			wantCount: 199,
+		},
+	}
+}
+
+// windowEdgeTests the windows From does not move or moves too far.
+func windowEdgeTests() []windowTest {
+	at := func(h, m, s int) time.Time {
+		return time.Date(2026, 1, 2, h, m, s, 0, time.UTC)
+	}
+
+	return []windowTest{
+		{
+			name:     "from after the end falls back to the span",
+			give:     &Filter{From: at(13, 0, 0)},
+			giveSpec: _res1h,
+			wantFrom: at(11, 31, 0), wantTo: at(12, 31, 0),
+			wantCount: 60,
+		},
+		{
+			name: "capped to the latest buckets",
+			give: &Filter{
+				From: time.Date(2025, 12, 30, 12, 0, 0, 0, time.UTC),
+			},
+			giveSpec: _res1h,
+			wantFrom: time.Date(2026, 1, 1, 19, 51, 0, 0, time.UTC),
+			wantTo:   at(12, 31, 0), wantCount: MaxBuckets,
+			wantTruncated: true,
 		},
 	}
 }
@@ -339,17 +410,37 @@ func TestFilterResolve(t *testing.T) {
 	now := time.Date(2026, 1, 2, 12, 0, 0, 0, time.UTC)
 	filter := &Filter{From: now.Add(-3 * time.Hour)}
 
-	interval := filter.Resolve(now)
+	got := filter.Resolve(now)
 
+	// the range is read from its start to the end of the current bucket
+	want := Window{
+		Interval: _int5m,
+		From:     now.Add(-3 * time.Hour),
+		To:       now.Add(5 * time.Minute),
+	}
 	assert.Equal(t, _res3h, filter.Resolution)
-	assert.Equal(t, _int5m, interval)
+	assert.Equal(t, want, got)
+	assert.Equal(t, want.From, filter.From)
+	assert.Equal(t, want.To, filter.To)
+}
+
+func TestFilterResolveKeepsWindow(t *testing.T) {
+	now := time.Date(2026, 1, 2, 12, 0, 0, 0, time.UTC)
+	filter := &Filter{From: now.Add(-3 * time.Hour)}
+	got := filter.Resolve(now)
+
+	// a later read, in the next bucket, reads the window returned
+	_, w, err := planOf(filter, now.Add(5*time.Minute))
+
+	require.NoError(t, err)
+	assert.Equal(t, got.From, w.from)
+	assert.Equal(t, got.To, w.to())
 }
 
 func TestFilterResolveUnknown(t *testing.T) {
-	interval := (&Filter{Resolution: 99}).Resolve(time.Now())
+	got := (&Filter{Resolution: 99}).Resolve(time.Now())
 
-	assert.Equal(t,
-		typepb.HistogramInterval_HISTOGRAM_INTERVAL_UNSPECIFIED, interval)
+	assert.Equal(t, Window{}, got)
 }
 
 // resolutionTest a case of TestFilterResolution.

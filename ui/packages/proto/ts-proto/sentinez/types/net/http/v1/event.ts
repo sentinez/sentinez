@@ -75,6 +75,13 @@ export interface EgressEvent {
    * HTTP/2.0: the one used to reach upstream is not observable.
    */
   protocol: string;
+  /**
+   * headers are the request headers the edge set for the upstream, one
+   * "Name: value" line each, sorted by name: X-Forwarded-Prefix, the
+   * proxySetHeaders once their variables are resolved and the SecRule
+   * MODIFY_HEADER ones, without the credential ones.
+   */
+  headers: string;
 }
 
 function createBaseIngressEvent(): IngressEvent {
@@ -494,6 +501,7 @@ function createBaseEgressEvent(): EgressEvent {
     resourceId: "",
     tenantId: "",
     protocol: "",
+    headers: "",
   };
 }
 
@@ -540,6 +548,9 @@ export const EgressEvent: MessageFns<EgressEvent> = {
     }
     if (message.protocol !== "") {
       writer.uint32(114).string(message.protocol);
+    }
+    if (message.headers !== "") {
+      writer.uint32(122).string(message.headers);
     }
     return writer;
   },
@@ -669,6 +680,14 @@ export const EgressEvent: MessageFns<EgressEvent> = {
             message.protocol = reader.string();
             continue;
           }
+          case 15: {
+            if (tag !== 122) {
+              break;
+            }
+
+            message.headers = reader.string();
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -717,6 +736,7 @@ export const EgressEvent: MessageFns<EgressEvent> = {
         ? globalThis.String(object.tenant_id)
         : "",
       protocol: isSet(object.protocol) ? globalThis.String(object.protocol) : "",
+      headers: isSet(object.headers) ? globalThis.String(object.headers) : "",
     };
   },
 
@@ -764,6 +784,9 @@ export const EgressEvent: MessageFns<EgressEvent> = {
     if (message.protocol !== "") {
       obj.protocol = message.protocol;
     }
+    if (message.headers !== "") {
+      obj.headers = message.headers;
+    }
     return obj;
   },
 
@@ -786,6 +809,7 @@ export const EgressEvent: MessageFns<EgressEvent> = {
     message.resourceId = object.resourceId ?? "";
     message.tenantId = object.tenantId ?? "";
     message.protocol = object.protocol ?? "";
+    message.headers = object.headers ?? "";
     return message;
   },
 };

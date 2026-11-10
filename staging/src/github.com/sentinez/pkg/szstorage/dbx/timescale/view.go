@@ -126,7 +126,7 @@ func NewView[T any](ctx context.Context, conf *settingpb.Config,
 		return nil, errBucket
 	}
 
-	source, err := schema.Source.normalize()
+	source, err := schema.Source.Normalized()
 	if err != nil {
 		return nil, err
 	}
@@ -223,9 +223,8 @@ func backfillView(ctx context.Context, client postgres.Client,
 // createViewStmt selects the bucket, the GroupBy columns then the
 // Aggregates of schema from sourceName.
 func createViewStmt(viewName, sourceName string, schema ViewSchema) string {
-	bucket := fmt.Sprintf("time_bucket(%s, %s) AS %s",
-		schema.Source.kind.interval(schema.Bucket),
-		schema.Source.TimeColumn, BucketColumn)
+	bucket := schema.Source.TimeBucket(schema.Bucket) +
+		" AS " + BucketColumn
 
 	columns := make([]string, 0, 1+len(schema.GroupBy)+
 		len(schema.Aggregates))

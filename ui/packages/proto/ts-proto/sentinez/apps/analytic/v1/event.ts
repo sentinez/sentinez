@@ -85,6 +85,30 @@ export function eventKindToJSON(object: EventKind): string {
   }
 }
 
+/**
+ * EventSelection selects the events of a kind: those of any of the
+ * resources and requests, holding every field filter, in the time range.
+ * The flat resource_ids, request_ids, filters, from and to of the list,
+ * histogram and top values requests mirror it.
+ */
+export interface EventSelection {
+  /** Resources of the events, any of them; all when empty. */
+  resourceIds: string[];
+  /**
+   * Requests of the events, by request id (an ingress or egress event
+   * id, the request_id of a rule event), any of them; all when empty.
+   */
+  requestIds: string[];
+  /**
+   * Field filters, all of them, each "field:value" (see
+   * GetEventTopValuesRequest.filters).
+   */
+  filters: string[];
+  /** Bound the time of the events, from inclusive, to exclusive. */
+  from?: Date | undefined;
+  to?: Date | undefined;
+}
+
 /** ListHttpIngressEventsRequest selects the events of a list, the latest first. */
 export interface ListHttpIngressEventsRequest {
   page?:
@@ -231,8 +255,9 @@ export interface GetEventHistogramRequest {
   resourceIds: string[];
   /**
    * The buckets end before to (exclusive), else with the current one,
-   * their number that of the resolution; from and to pick the
-   * resolution when unspecified.
+   * and start at from rounded down to a bucket, else a span of the
+   * resolution before: at most 1000 of them, see the response. from and
+   * to pick the resolution when unspecified.
    */
   from?: Date | undefined;
   to?:
@@ -274,6 +299,16 @@ export interface GetEventHistogramResponse {
    * from and to.
    */
   interval: HistogramInterval;
+  /** The first bucket starts at from and the last one ends at to. */
+  from?: Date | undefined;
+  to?:
+    | Date
+    | undefined;
+  /**
+   * The range held more than 1000 buckets: from was moved later so the
+   * latest 1000 are returned.
+   */
+  truncated: boolean;
 }
 
 export interface GetUniqueVisitorHistogramRequest {
@@ -281,8 +316,9 @@ export interface GetUniqueVisitorHistogramRequest {
   resourceIds: string[];
   /**
    * The buckets end before to (exclusive), else with the current one,
-   * their number that of the resolution; from and to pick the
-   * resolution when unspecified.
+   * and start at from rounded down to a bucket, else a span of the
+   * resolution before: at most 1000 of them, see the response. from and
+   * to pick the resolution when unspecified.
    */
   from?: Date | undefined;
   to?: Date | undefined;
@@ -299,6 +335,16 @@ export interface GetUniqueVisitorHistogramResponse {
    * from and to.
    */
   interval: HistogramInterval;
+  /** The first bucket starts at from and the last one ends at to. */
+  from?: Date | undefined;
+  to?:
+    | Date
+    | undefined;
+  /**
+   * The range held more than 1000 buckets: from was moved later so the
+   * latest 1000 are returned.
+   */
+  truncated: boolean;
 }
 
 export interface ListVisitorsRequest {
@@ -306,8 +352,9 @@ export interface ListVisitorsRequest {
   resourceIds: string[];
   /**
    * The buckets end before to (exclusive), else with the current one,
-   * their number that of the resolution; from and to pick the
-   * resolution when unspecified.
+   * and start at from rounded down to a bucket, else a span of the
+   * resolution before: at most 1000 of them, see the response. from and
+   * to pick the resolution when unspecified.
    */
   from?: Date | undefined;
   to?: Date | undefined;
@@ -332,6 +379,16 @@ export interface ListVisitorsResponse {
    * from and to.
    */
   interval: HistogramInterval;
+  /** The first bucket starts at from and the last one ends at to. */
+  from?: Date | undefined;
+  to?:
+    | Date
+    | undefined;
+  /**
+   * The range held more than 1000 buckets: from was moved later so the
+   * latest 1000 are returned.
+   */
+  truncated: boolean;
 }
 
 export interface GetEventTopValuesRequest {
@@ -365,11 +422,16 @@ export interface GetEventTopValuesRequest {
   limit: number;
   /**
    * Field filters, all of them, each "field:value": the events holding
-   * the value in the field, compared as text (an element of a repeated
-   * one). The field is before the first colon, one of those of fields;
+   * the value in the field, compared in the type of the field (a number
+   * for status; an element of a repeated one). The field is before the first colon, one of those of fields;
    * the value is the rest, colons and spaces included.
    */
   filters: string[];
+  /**
+   * Requests of the events, by request id, any of them (see
+   * ListHttpIngressEventsRequest.request_ids); all when empty.
+   */
+  requestIds: string[];
 }
 
 /** FieldValue the events holding a value of a field. */
@@ -395,6 +457,177 @@ export interface GetEventTopValuesResponse {
   /** One per field of the request, in its order. */
   fields: FieldTopValues[];
 }
+
+export interface GetEgressLatencyRequest {
+  /**
+   * The proxied requests measured. Without from, the last 24 hours up to
+   * to, else up to now; at most the retention of the events.
+   */
+  selection?: EventSelection | undefined;
+}
+
+/**
+ * UpstreamLatency the latency of the requests proxied to an upstream, in
+ * microseconds.
+ */
+export interface UpstreamLatency {
+  upstream: string;
+  total: number;
+  avgMicros: number;
+  p50Micros: number;
+  p95Micros: number;
+  p99Micros: number;
+  maxMicros: number;
+}
+
+export interface GetEgressLatencyResponse {
+  /** One per upstream, ordered by upstream. */
+  upstreams: UpstreamLatency[];
+  /** The range measured. */
+  from?: Date | undefined;
+  to?: Date | undefined;
+}
+
+function createBaseEventSelection(): EventSelection {
+  return { resourceIds: [], requestIds: [], filters: [], from: undefined, to: undefined };
+}
+
+export const EventSelection: MessageFns<EventSelection> = {
+  encode(message: EventSelection, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.resourceIds) {
+      writer.uint32(10).string(v!);
+    }
+    for (const v of message.requestIds) {
+      writer.uint32(18).string(v!);
+    }
+    for (const v of message.filters) {
+      writer.uint32(26).string(v!);
+    }
+    if (message.from !== undefined) {
+      Timestamp.encode(toTimestamp(message.from), writer.uint32(34).fork()).join();
+    }
+    if (message.to !== undefined) {
+      Timestamp.encode(toTimestamp(message.to), writer.uint32(42).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): EventSelection {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseEventSelection();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.resourceIds.push(reader.string());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.requestIds.push(reader.string());
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.filters.push(reader.string());
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.from = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.to = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): EventSelection {
+    return {
+      resourceIds: globalThis.Array.isArray(object?.resourceIds)
+        ? object.resourceIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.resource_ids)
+        ? object.resource_ids.map((e: any) => globalThis.String(e))
+        : [],
+      requestIds: globalThis.Array.isArray(object?.requestIds)
+        ? object.requestIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.request_ids)
+        ? object.request_ids.map((e: any) => globalThis.String(e))
+        : [],
+      filters: globalThis.Array.isArray(object?.filters) ? object.filters.map((e: any) => globalThis.String(e)) : [],
+      from: isSet(object.from) ? fromJsonTimestamp(object.from) : undefined,
+      to: isSet(object.to) ? fromJsonTimestamp(object.to) : undefined,
+    };
+  },
+
+  toJSON(message: EventSelection): unknown {
+    const obj: any = {};
+    if (message.resourceIds?.length) {
+      obj.resourceIds = message.resourceIds;
+    }
+    if (message.requestIds?.length) {
+      obj.requestIds = message.requestIds;
+    }
+    if (message.filters?.length) {
+      obj.filters = message.filters;
+    }
+    if (message.from !== undefined) {
+      obj.from = message.from.toISOString();
+    }
+    if (message.to !== undefined) {
+      obj.to = message.to.toISOString();
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<EventSelection>, I>>(base?: I): EventSelection {
+    return EventSelection.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<EventSelection>, I>>(object: I): EventSelection {
+    const message = createBaseEventSelection();
+    message.resourceIds = object.resourceIds?.map((e) => e) || [];
+    message.requestIds = object.requestIds?.map((e) => e) || [];
+    message.filters = object.filters?.map((e) => e) || [];
+    message.from = object.from ?? undefined;
+    message.to = object.to ?? undefined;
+    return message;
+  },
+};
 
 function createBaseListHttpIngressEventsRequest(): ListHttpIngressEventsRequest {
   return { page: undefined, resourceIds: [], from: undefined, to: undefined, requestIds: [], filters: [] };
@@ -1823,7 +2056,7 @@ export const HistogramPoint: MessageFns<HistogramPoint> = {
 };
 
 function createBaseGetEventHistogramResponse(): GetEventHistogramResponse {
-  return { points: [], interval: 0 };
+  return { points: [], interval: 0, from: undefined, to: undefined, truncated: false };
 }
 
 export const GetEventHistogramResponse: MessageFns<GetEventHistogramResponse> = {
@@ -1833,6 +2066,15 @@ export const GetEventHistogramResponse: MessageFns<GetEventHistogramResponse> = 
     }
     if (message.interval !== 0) {
       writer.uint32(16).int32(message.interval);
+    }
+    if (message.from !== undefined) {
+      Timestamp.encode(toTimestamp(message.from), writer.uint32(26).fork()).join();
+    }
+    if (message.to !== undefined) {
+      Timestamp.encode(toTimestamp(message.to), writer.uint32(34).fork()).join();
+    }
+    if (message.truncated !== false) {
+      writer.uint32(40).bool(message.truncated);
     }
     return writer;
   },
@@ -1866,6 +2108,30 @@ export const GetEventHistogramResponse: MessageFns<GetEventHistogramResponse> = 
             message.interval = reader.int32() as any;
             continue;
           }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.from = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.to = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 5: {
+            if (tag !== 40) {
+              break;
+            }
+
+            message.truncated = reader.bool();
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -1882,6 +2148,9 @@ export const GetEventHistogramResponse: MessageFns<GetEventHistogramResponse> = 
     return {
       points: globalThis.Array.isArray(object?.points) ? object.points.map((e: any) => HistogramPoint.fromJSON(e)) : [],
       interval: isSet(object.interval) ? histogramIntervalFromJSON(object.interval) : 0,
+      from: isSet(object.from) ? fromJsonTimestamp(object.from) : undefined,
+      to: isSet(object.to) ? fromJsonTimestamp(object.to) : undefined,
+      truncated: isSet(object.truncated) ? globalThis.Boolean(object.truncated) : false,
     };
   },
 
@@ -1893,6 +2162,15 @@ export const GetEventHistogramResponse: MessageFns<GetEventHistogramResponse> = 
     if (message.interval !== 0) {
       obj.interval = histogramIntervalToJSON(message.interval);
     }
+    if (message.from !== undefined) {
+      obj.from = message.from.toISOString();
+    }
+    if (message.to !== undefined) {
+      obj.to = message.to.toISOString();
+    }
+    if (message.truncated !== false) {
+      obj.truncated = message.truncated;
+    }
     return obj;
   },
 
@@ -1903,6 +2181,9 @@ export const GetEventHistogramResponse: MessageFns<GetEventHistogramResponse> = 
     const message = createBaseGetEventHistogramResponse();
     message.points = object.points?.map((e) => HistogramPoint.fromPartial(e)) || [];
     message.interval = object.interval ?? 0;
+    message.from = object.from ?? undefined;
+    message.to = object.to ?? undefined;
+    message.truncated = object.truncated ?? false;
     return message;
   },
 };
@@ -2033,7 +2314,7 @@ export const GetUniqueVisitorHistogramRequest: MessageFns<GetUniqueVisitorHistog
 };
 
 function createBaseGetUniqueVisitorHistogramResponse(): GetUniqueVisitorHistogramResponse {
-  return { points: [], interval: 0 };
+  return { points: [], interval: 0, from: undefined, to: undefined, truncated: false };
 }
 
 export const GetUniqueVisitorHistogramResponse: MessageFns<GetUniqueVisitorHistogramResponse> = {
@@ -2043,6 +2324,15 @@ export const GetUniqueVisitorHistogramResponse: MessageFns<GetUniqueVisitorHisto
     }
     if (message.interval !== 0) {
       writer.uint32(16).int32(message.interval);
+    }
+    if (message.from !== undefined) {
+      Timestamp.encode(toTimestamp(message.from), writer.uint32(26).fork()).join();
+    }
+    if (message.to !== undefined) {
+      Timestamp.encode(toTimestamp(message.to), writer.uint32(34).fork()).join();
+    }
+    if (message.truncated !== false) {
+      writer.uint32(40).bool(message.truncated);
     }
     return writer;
   },
@@ -2076,6 +2366,30 @@ export const GetUniqueVisitorHistogramResponse: MessageFns<GetUniqueVisitorHisto
             message.interval = reader.int32() as any;
             continue;
           }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.from = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.to = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 5: {
+            if (tag !== 40) {
+              break;
+            }
+
+            message.truncated = reader.bool();
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -2092,6 +2406,9 @@ export const GetUniqueVisitorHistogramResponse: MessageFns<GetUniqueVisitorHisto
     return {
       points: globalThis.Array.isArray(object?.points) ? object.points.map((e: any) => HistogramPoint.fromJSON(e)) : [],
       interval: isSet(object.interval) ? histogramIntervalFromJSON(object.interval) : 0,
+      from: isSet(object.from) ? fromJsonTimestamp(object.from) : undefined,
+      to: isSet(object.to) ? fromJsonTimestamp(object.to) : undefined,
+      truncated: isSet(object.truncated) ? globalThis.Boolean(object.truncated) : false,
     };
   },
 
@@ -2102,6 +2419,15 @@ export const GetUniqueVisitorHistogramResponse: MessageFns<GetUniqueVisitorHisto
     }
     if (message.interval !== 0) {
       obj.interval = histogramIntervalToJSON(message.interval);
+    }
+    if (message.from !== undefined) {
+      obj.from = message.from.toISOString();
+    }
+    if (message.to !== undefined) {
+      obj.to = message.to.toISOString();
+    }
+    if (message.truncated !== false) {
+      obj.truncated = message.truncated;
     }
     return obj;
   },
@@ -2117,6 +2443,9 @@ export const GetUniqueVisitorHistogramResponse: MessageFns<GetUniqueVisitorHisto
     const message = createBaseGetUniqueVisitorHistogramResponse();
     message.points = object.points?.map((e) => HistogramPoint.fromPartial(e)) || [];
     message.interval = object.interval ?? 0;
+    message.from = object.from ?? undefined;
+    message.to = object.to ?? undefined;
+    message.truncated = object.truncated ?? false;
     return message;
   },
 };
@@ -2368,7 +2697,7 @@ export const VisitorPoint: MessageFns<VisitorPoint> = {
 };
 
 function createBaseListVisitorsResponse(): ListVisitorsResponse {
-  return { visitors: [], interval: 0 };
+  return { visitors: [], interval: 0, from: undefined, to: undefined, truncated: false };
 }
 
 export const ListVisitorsResponse: MessageFns<ListVisitorsResponse> = {
@@ -2378,6 +2707,15 @@ export const ListVisitorsResponse: MessageFns<ListVisitorsResponse> = {
     }
     if (message.interval !== 0) {
       writer.uint32(16).int32(message.interval);
+    }
+    if (message.from !== undefined) {
+      Timestamp.encode(toTimestamp(message.from), writer.uint32(26).fork()).join();
+    }
+    if (message.to !== undefined) {
+      Timestamp.encode(toTimestamp(message.to), writer.uint32(34).fork()).join();
+    }
+    if (message.truncated !== false) {
+      writer.uint32(40).bool(message.truncated);
     }
     return writer;
   },
@@ -2411,6 +2749,30 @@ export const ListVisitorsResponse: MessageFns<ListVisitorsResponse> = {
             message.interval = reader.int32() as any;
             continue;
           }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.from = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.to = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 5: {
+            if (tag !== 40) {
+              break;
+            }
+
+            message.truncated = reader.bool();
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -2429,6 +2791,9 @@ export const ListVisitorsResponse: MessageFns<ListVisitorsResponse> = {
         ? object.visitors.map((e: any) => VisitorPoint.fromJSON(e))
         : [],
       interval: isSet(object.interval) ? histogramIntervalFromJSON(object.interval) : 0,
+      from: isSet(object.from) ? fromJsonTimestamp(object.from) : undefined,
+      to: isSet(object.to) ? fromJsonTimestamp(object.to) : undefined,
+      truncated: isSet(object.truncated) ? globalThis.Boolean(object.truncated) : false,
     };
   },
 
@@ -2440,6 +2805,15 @@ export const ListVisitorsResponse: MessageFns<ListVisitorsResponse> = {
     if (message.interval !== 0) {
       obj.interval = histogramIntervalToJSON(message.interval);
     }
+    if (message.from !== undefined) {
+      obj.from = message.from.toISOString();
+    }
+    if (message.to !== undefined) {
+      obj.to = message.to.toISOString();
+    }
+    if (message.truncated !== false) {
+      obj.truncated = message.truncated;
+    }
     return obj;
   },
 
@@ -2450,12 +2824,24 @@ export const ListVisitorsResponse: MessageFns<ListVisitorsResponse> = {
     const message = createBaseListVisitorsResponse();
     message.visitors = object.visitors?.map((e) => VisitorPoint.fromPartial(e)) || [];
     message.interval = object.interval ?? 0;
+    message.from = object.from ?? undefined;
+    message.to = object.to ?? undefined;
+    message.truncated = object.truncated ?? false;
     return message;
   },
 };
 
 function createBaseGetEventTopValuesRequest(): GetEventTopValuesRequest {
-  return { kind: 0, resourceIds: [], from: undefined, to: undefined, fields: [], limit: 0, filters: [] };
+  return {
+    kind: 0,
+    resourceIds: [],
+    from: undefined,
+    to: undefined,
+    fields: [],
+    limit: 0,
+    filters: [],
+    requestIds: [],
+  };
 }
 
 export const GetEventTopValuesRequest: MessageFns<GetEventTopValuesRequest> = {
@@ -2480,6 +2866,9 @@ export const GetEventTopValuesRequest: MessageFns<GetEventTopValuesRequest> = {
     }
     for (const v of message.filters) {
       writer.uint32(58).string(v!);
+    }
+    for (const v of message.requestIds) {
+      writer.uint32(66).string(v!);
     }
     return writer;
   },
@@ -2553,6 +2942,14 @@ export const GetEventTopValuesRequest: MessageFns<GetEventTopValuesRequest> = {
             message.filters.push(reader.string());
             continue;
           }
+          case 8: {
+            if (tag !== 66) {
+              break;
+            }
+
+            message.requestIds.push(reader.string());
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -2578,6 +2975,11 @@ export const GetEventTopValuesRequest: MessageFns<GetEventTopValuesRequest> = {
       fields: globalThis.Array.isArray(object?.fields) ? object.fields.map((e: any) => globalThis.String(e)) : [],
       limit: isSet(object.limit) ? globalThis.Number(object.limit) : 0,
       filters: globalThis.Array.isArray(object?.filters) ? object.filters.map((e: any) => globalThis.String(e)) : [],
+      requestIds: globalThis.Array.isArray(object?.requestIds)
+        ? object.requestIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.request_ids)
+        ? object.request_ids.map((e: any) => globalThis.String(e))
+        : [],
     };
   },
 
@@ -2604,6 +3006,9 @@ export const GetEventTopValuesRequest: MessageFns<GetEventTopValuesRequest> = {
     if (message.filters?.length) {
       obj.filters = message.filters;
     }
+    if (message.requestIds?.length) {
+      obj.requestIds = message.requestIds;
+    }
     return obj;
   },
 
@@ -2619,6 +3024,7 @@ export const GetEventTopValuesRequest: MessageFns<GetEventTopValuesRequest> = {
     message.fields = object.fields?.map((e) => e) || [];
     message.limit = object.limit ?? 0;
     message.filters = object.filters?.map((e) => e) || [];
+    message.requestIds = object.requestIds?.map((e) => e) || [];
     return message;
   },
 };
@@ -2890,6 +3296,363 @@ export const GetEventTopValuesResponse: MessageFns<GetEventTopValuesResponse> = 
     const message = createBaseGetEventTopValuesResponse();
     message.total = object.total ?? 0;
     message.fields = object.fields?.map((e) => FieldTopValues.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseGetEgressLatencyRequest(): GetEgressLatencyRequest {
+  return { selection: undefined };
+}
+
+export const GetEgressLatencyRequest: MessageFns<GetEgressLatencyRequest> = {
+  encode(message: GetEgressLatencyRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.selection !== undefined) {
+      EventSelection.encode(message.selection, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetEgressLatencyRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetEgressLatencyRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.selection = EventSelection.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): GetEgressLatencyRequest {
+    return { selection: isSet(object.selection) ? EventSelection.fromJSON(object.selection) : undefined };
+  },
+
+  toJSON(message: GetEgressLatencyRequest): unknown {
+    const obj: any = {};
+    if (message.selection !== undefined) {
+      obj.selection = EventSelection.toJSON(message.selection);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetEgressLatencyRequest>, I>>(base?: I): GetEgressLatencyRequest {
+    return GetEgressLatencyRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetEgressLatencyRequest>, I>>(object: I): GetEgressLatencyRequest {
+    const message = createBaseGetEgressLatencyRequest();
+    message.selection = (object.selection !== undefined && object.selection !== null)
+      ? EventSelection.fromPartial(object.selection)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseUpstreamLatency(): UpstreamLatency {
+  return { upstream: "", total: 0, avgMicros: 0, p50Micros: 0, p95Micros: 0, p99Micros: 0, maxMicros: 0 };
+}
+
+export const UpstreamLatency: MessageFns<UpstreamLatency> = {
+  encode(message: UpstreamLatency, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.upstream !== "") {
+      writer.uint32(10).string(message.upstream);
+    }
+    if (message.total !== 0) {
+      writer.uint32(16).int64(message.total);
+    }
+    if (message.avgMicros !== 0) {
+      writer.uint32(24).int64(message.avgMicros);
+    }
+    if (message.p50Micros !== 0) {
+      writer.uint32(32).int64(message.p50Micros);
+    }
+    if (message.p95Micros !== 0) {
+      writer.uint32(40).int64(message.p95Micros);
+    }
+    if (message.p99Micros !== 0) {
+      writer.uint32(48).int64(message.p99Micros);
+    }
+    if (message.maxMicros !== 0) {
+      writer.uint32(56).int64(message.maxMicros);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): UpstreamLatency {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseUpstreamLatency();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.upstream = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.total = longToNumber(reader.int64());
+            continue;
+          }
+          case 3: {
+            if (tag !== 24) {
+              break;
+            }
+
+            message.avgMicros = longToNumber(reader.int64());
+            continue;
+          }
+          case 4: {
+            if (tag !== 32) {
+              break;
+            }
+
+            message.p50Micros = longToNumber(reader.int64());
+            continue;
+          }
+          case 5: {
+            if (tag !== 40) {
+              break;
+            }
+
+            message.p95Micros = longToNumber(reader.int64());
+            continue;
+          }
+          case 6: {
+            if (tag !== 48) {
+              break;
+            }
+
+            message.p99Micros = longToNumber(reader.int64());
+            continue;
+          }
+          case 7: {
+            if (tag !== 56) {
+              break;
+            }
+
+            message.maxMicros = longToNumber(reader.int64());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): UpstreamLatency {
+    return {
+      upstream: isSet(object.upstream) ? globalThis.String(object.upstream) : "",
+      total: isSet(object.total) ? globalThis.Number(object.total) : 0,
+      avgMicros: isSet(object.avgMicros)
+        ? globalThis.Number(object.avgMicros)
+        : isSet(object.avg_micros)
+        ? globalThis.Number(object.avg_micros)
+        : 0,
+      p50Micros: isSet(object.p50Micros)
+        ? globalThis.Number(object.p50Micros)
+        : isSet(object.p50_micros)
+        ? globalThis.Number(object.p50_micros)
+        : 0,
+      p95Micros: isSet(object.p95Micros)
+        ? globalThis.Number(object.p95Micros)
+        : isSet(object.p95_micros)
+        ? globalThis.Number(object.p95_micros)
+        : 0,
+      p99Micros: isSet(object.p99Micros)
+        ? globalThis.Number(object.p99Micros)
+        : isSet(object.p99_micros)
+        ? globalThis.Number(object.p99_micros)
+        : 0,
+      maxMicros: isSet(object.maxMicros)
+        ? globalThis.Number(object.maxMicros)
+        : isSet(object.max_micros)
+        ? globalThis.Number(object.max_micros)
+        : 0,
+    };
+  },
+
+  toJSON(message: UpstreamLatency): unknown {
+    const obj: any = {};
+    if (message.upstream !== "") {
+      obj.upstream = message.upstream;
+    }
+    if (message.total !== 0) {
+      obj.total = Math.round(message.total);
+    }
+    if (message.avgMicros !== 0) {
+      obj.avgMicros = Math.round(message.avgMicros);
+    }
+    if (message.p50Micros !== 0) {
+      obj.p50Micros = Math.round(message.p50Micros);
+    }
+    if (message.p95Micros !== 0) {
+      obj.p95Micros = Math.round(message.p95Micros);
+    }
+    if (message.p99Micros !== 0) {
+      obj.p99Micros = Math.round(message.p99Micros);
+    }
+    if (message.maxMicros !== 0) {
+      obj.maxMicros = Math.round(message.maxMicros);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<UpstreamLatency>, I>>(base?: I): UpstreamLatency {
+    return UpstreamLatency.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<UpstreamLatency>, I>>(object: I): UpstreamLatency {
+    const message = createBaseUpstreamLatency();
+    message.upstream = object.upstream ?? "";
+    message.total = object.total ?? 0;
+    message.avgMicros = object.avgMicros ?? 0;
+    message.p50Micros = object.p50Micros ?? 0;
+    message.p95Micros = object.p95Micros ?? 0;
+    message.p99Micros = object.p99Micros ?? 0;
+    message.maxMicros = object.maxMicros ?? 0;
+    return message;
+  },
+};
+
+function createBaseGetEgressLatencyResponse(): GetEgressLatencyResponse {
+  return { upstreams: [], from: undefined, to: undefined };
+}
+
+export const GetEgressLatencyResponse: MessageFns<GetEgressLatencyResponse> = {
+  encode(message: GetEgressLatencyResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.upstreams) {
+      UpstreamLatency.encode(v!, writer.uint32(10).fork()).join();
+    }
+    if (message.from !== undefined) {
+      Timestamp.encode(toTimestamp(message.from), writer.uint32(18).fork()).join();
+    }
+    if (message.to !== undefined) {
+      Timestamp.encode(toTimestamp(message.to), writer.uint32(26).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetEgressLatencyResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetEgressLatencyResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.upstreams.push(UpstreamLatency.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.from = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.to = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): GetEgressLatencyResponse {
+    return {
+      upstreams: globalThis.Array.isArray(object?.upstreams)
+        ? object.upstreams.map((e: any) => UpstreamLatency.fromJSON(e))
+        : [],
+      from: isSet(object.from) ? fromJsonTimestamp(object.from) : undefined,
+      to: isSet(object.to) ? fromJsonTimestamp(object.to) : undefined,
+    };
+  },
+
+  toJSON(message: GetEgressLatencyResponse): unknown {
+    const obj: any = {};
+    if (message.upstreams?.length) {
+      obj.upstreams = message.upstreams.map((e) => UpstreamLatency.toJSON(e));
+    }
+    if (message.from !== undefined) {
+      obj.from = message.from.toISOString();
+    }
+    if (message.to !== undefined) {
+      obj.to = message.to.toISOString();
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetEgressLatencyResponse>, I>>(base?: I): GetEgressLatencyResponse {
+    return GetEgressLatencyResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetEgressLatencyResponse>, I>>(object: I): GetEgressLatencyResponse {
+    const message = createBaseGetEgressLatencyResponse();
+    message.upstreams = object.upstreams?.map((e) => UpstreamLatency.fromPartial(e)) || [];
+    message.from = object.from ?? undefined;
+    message.to = object.to ?? undefined;
     return message;
   },
 };

@@ -40,6 +40,24 @@ enum EventKind {
   EVENT_KIND_CORE_RULE = 5;
 }
 
+// EventSelection selects the events of a kind: those of any of the
+// resources and requests, holding every field filter, in the time range.
+// The flat resource_ids, request_ids, filters, from and to of the list,
+// histogram and top values requests mirror it.
+message EventSelection {
+  // Resources of the events, any of them; all when empty.
+  repeated string resource_ids = 1;
+  // Requests of the events, by request id (an ingress or egress event
+  // id, the request_id of a rule event), any of them; all when empty.
+  repeated string request_ids = 2;
+  // Field filters, all of them, each "field:value" (see
+  // GetEventTopValuesRequest.filters).
+  repeated string filters = 3;
+  // Bound the time of the events, from inclusive, to exclusive.
+  google.protobuf.Timestamp from = 4;
+  google.protobuf.Timestamp to = 5;
+}
+
 // ListHttpIngressEventsRequest selects the events of a list, the latest first.
 message ListHttpIngressEventsRequest {
   sentinez.types.v1.Pages page = 1;
@@ -145,8 +163,9 @@ message GetEventHistogramRequest {
   sentinez.types.v1.HistogramResolution resolution = 2;
   repeated string resource_ids = 3;
   // The buckets end before to (exclusive), else with the current one,
-  // their number that of the resolution; from and to pick the
-  // resolution when unspecified.
+  // and start at from rounded down to a bucket, else a span of the
+  // resolution before: at most 1000 of them, see the response. from and
+  // to pick the resolution when unspecified.
   google.protobuf.Timestamp from = 4;
   google.protobuf.Timestamp to = 5;
   // Requests of the events, by request id, any of them (see
@@ -175,14 +194,21 @@ message GetEventHistogramResponse {
   // The width of one bucket, that of the resolution asked or picked by
   // from and to.
   sentinez.types.v1.HistogramInterval interval = 2;
+  // The first bucket starts at from and the last one ends at to.
+  google.protobuf.Timestamp from = 3;
+  google.protobuf.Timestamp to = 4;
+  // The range held more than 1000 buckets: from was moved later so the
+  // latest 1000 are returned.
+  bool truncated = 5;
 }
 
 message GetUniqueVisitorHistogramRequest {
   sentinez.types.v1.HistogramResolution resolution = 1;
   repeated string resource_ids = 2;
   // The buckets end before to (exclusive), else with the current one,
-  // their number that of the resolution; from and to pick the
-  // resolution when unspecified.
+  // and start at from rounded down to a bucket, else a span of the
+  // resolution before: at most 1000 of them, see the response. from and
+  // to pick the resolution when unspecified.
   google.protobuf.Timestamp from = 3;
   google.protobuf.Timestamp to = 4;
 }
@@ -194,14 +220,21 @@ message GetUniqueVisitorHistogramResponse {
   // The width of one bucket, that of the resolution asked or picked by
   // from and to.
   sentinez.types.v1.HistogramInterval interval = 2;
+  // The first bucket starts at from and the last one ends at to.
+  google.protobuf.Timestamp from = 3;
+  google.protobuf.Timestamp to = 4;
+  // The range held more than 1000 buckets: from was moved later so the
+  // latest 1000 are returned.
+  bool truncated = 5;
 }
 
 message ListVisitorsRequest {
   sentinez.types.v1.HistogramResolution resolution = 1;
   repeated string resource_ids = 2;
   // The buckets end before to (exclusive), else with the current one,
-  // their number that of the resolution; from and to pick the
-  // resolution when unspecified.
+  // and start at from rounded down to a bucket, else a span of the
+  // resolution before: at most 1000 of them, see the response. from and
+  // to pick the resolution when unspecified.
   google.protobuf.Timestamp from = 3;
   google.protobuf.Timestamp to = 4;
 }
@@ -221,6 +254,12 @@ message ListVisitorsResponse {
   // The width of one bucket, that of the resolution asked or picked by
   // from and to.
   sentinez.types.v1.HistogramInterval interval = 2;
+  // The first bucket starts at from and the last one ends at to.
+  google.protobuf.Timestamp from = 3;
+  google.protobuf.Timestamp to = 4;
+  // The range held more than 1000 buckets: from was moved later so the
+  // latest 1000 are returned.
+  bool truncated = 5;
 }
 
 message GetEventTopValuesRequest {
@@ -247,10 +286,13 @@ message GetEventTopValuesRequest {
   // The values per field: 5 when 0, at most 20.
   int32 limit = 6;
   // Field filters, all of them, each "field:value": the events holding
-  // the value in the field, compared as text (an element of a repeated
-  // one). The field is before the first colon, one of those of fields;
+  // the value in the field, compared in the type of the field (a number
+  // for status; an element of a repeated one). The field is before the first colon, one of those of fields;
   // the value is the rest, colons and spaces included.
   repeated string filters = 7;
+  // Requests of the events, by request id, any of them (see
+  // ListHttpIngressEventsRequest.request_ids); all when empty.
+  repeated string request_ids = 8;
 }
 
 // FieldValue the events holding a value of a field.
@@ -273,4 +315,30 @@ message GetEventTopValuesResponse {
   int64 total = 1;
   // One per field of the request, in its order.
   repeated FieldTopValues fields = 2;
+}
+
+message GetEgressLatencyRequest {
+  // The proxied requests measured. Without from, the last 24 hours up to
+  // to, else up to now; at most the retention of the events.
+  EventSelection selection = 1;
+}
+
+// UpstreamLatency the latency of the requests proxied to an upstream, in
+// microseconds.
+message UpstreamLatency {
+  string upstream = 1;
+  int64 total = 2;
+  int64 avg_micros = 3;
+  int64 p50_micros = 4;
+  int64 p95_micros = 5;
+  int64 p99_micros = 6;
+  int64 max_micros = 7;
+}
+
+message GetEgressLatencyResponse {
+  // One per upstream, ordered by upstream.
+  repeated UpstreamLatency upstreams = 1;
+  // The range measured.
+  google.protobuf.Timestamp from = 2;
+  google.protobuf.Timestamp to = 3;
 }

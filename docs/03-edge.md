@@ -149,7 +149,8 @@ There are three implementations:
 | `httpx.Context` | `pkg/network/httpx/context.go` | Edge in `Quic` (HTTP/3 and TCP) and `Standard` modes, realtime |
 | `httpreq.RequestContext` | `core/szhttp/httpreq/context_value.go` | Evaluating rules against an `httppb.Request` (only tests use it now) |
 
-Contexts come from a `sync.Pool` and are returned in `Close()`.
+Contexts come from a `sync.Pool` and are returned in `Close()`, which
+keeps the emptied `X.SetHeaders` map for the next request.
 
 `RequestIP()`: the Hertz version uses Hertz's `ClientIP()`; the `net/http`
 version (`httpx.Context`) prefers `X-Forwarded-For` (first entry) → `X-Real-IP` →
@@ -180,7 +181,7 @@ stage that produced them; the stage names are exported constants (e.g.
 | Order | Stage | Plugin | Behavior |
 |---|---|---|---|
 | 0 | `TRC` | `trace.Tracer` | Generates request ID `senz:req:<xid>` when the context has none |
-| 1 | `LOG` | `logging.Logging` | Calls `next` first, then logs an `httppb.IngressEvent` (JSON, kind `LOG_TYPE_HTTP_INGRESS`, the ingress) and, when `ROU` proxied the request, an `httppb.EgressEvent` of the proxy → upstream origin leg (kind `LOG_TYPE_HTTP_EGRESS`: upstream, origin status, content type/length, latency, from the `ctx.X().Upstream*` fields `ROU` sets) |
+| 1 | `LOG` | `logging.Logging` | Calls `next` first, then logs an `httppb.IngressEvent` (JSON, kind `LOG_TYPE_HTTP_INGRESS`, the ingress) and, when `ROU` proxied the request, an `httppb.EgressEvent` of the proxy → upstream origin leg (kind `LOG_TYPE_HTTP_EGRESS`: upstream, origin status, content type/length, latency, and the headers the edge set on the upstream request via `szhttp.SetUpstreamHeader`, sorted by name with credential headers omitted) |
 | 2 | `DMA` | `secure.DomainBased` | The host (port stripped, lower case) is the namespace: it must be the `server.resourceDomain` of a loaded setting. Otherwise → `403`. Sets `X().Namespace` and the tenant/resource ids of the setting |
 | 3 | `PUB` | `cdn.Public` | Serves the images embedded in the binary under `/cdn/sentinez/public/`; a load failure at provisioning stops the edge |
 | 4 | `CDN` | `cdn.Cache` | If the namespace has an active CDN rule whose expression matches: look up the cache by `method+scheme+host+path+query+Accept-Encoding`; hit → return the cached response with `X-Cache: HIT`; miss → continue and store cacheable responses (TTL 1h, see [04-rule-engine.md](04-rule-engine.md#44-cdn-rules)) |

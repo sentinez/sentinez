@@ -207,19 +207,29 @@ func forward(ctx szhttp.Context, r *route) (string, error) {
 	ctx.SetPath(remainingPath.Bytes())
 
 	// Set default proxy routing headers
-	ctx.SetHeader(szbytestr.HeaderXForwardedPrefix, locationBytes)
+	szhttp.SetUpstreamHeader(ctx,
+		bytesconv.B2s(szbytestr.HeaderXForwardedPrefix), route.GetLocation())
 
-	// Add custom headers from config
-	for hk, hv := range route.GetProxySetHeaders() {
-		val, err := variable.ParseProxyVal(ctx, hv)
-		if err != nil {
-			return "", err
-		}
-
-		ctx.SetHeader(bytesconv.S2b(hk), bytesconv.S2b(val))
+	if err := setProxyHeaders(ctx, route); err != nil {
+		return "", err
 	}
 
 	return upstream, nil
+}
+
+// setProxyHeaders sets the custom headers of loc, from its config, on the
+// request sent upstream.
+func setProxyHeaders(ctx szhttp.Context, loc *edgepb.Location) error {
+	for hk, hv := range loc.GetProxySetHeaders() {
+		val, err := variable.ParseProxyVal(ctx, hv)
+		if err != nil {
+			return err
+		}
+
+		szhttp.SetUpstreamHeader(ctx, hk, val)
+	}
+
+	return nil
 }
 
 func newRoute(loc *edgepb.Location) *route {

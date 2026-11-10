@@ -37,9 +37,14 @@ import (
 
 const _totalColumn = "total"
 
-// errTimeColumn the source of a Histogram counted by PointsWhere has no
-// time column.
-var errTimeColumn = errors.New("histogram: source without time column")
+// MaxBuckets the most buckets a query returns: a longer range is cut to
+// its latest buckets (Window.Truncated).
+const MaxBuckets = 1000
+
+// errTimeColumn the time column of the source of a Histogram, counted by
+// PointsWhere, does not hold unix milliseconds.
+var errTimeColumn = errors.New(
+	"histogram: source time column must hold unix milliseconds")
 
 // _sumTotal the events of the rows of a group of a view.
 const _sumTotal = "sum(" + _totalColumn + ")::BIGINT"
@@ -199,25 +204,36 @@ type Filter struct {
 	Resolution  typepb.HistogramResolution
 	ResourceIds []string
 	TenantId    string
-	// From and To the range picking the Resolution when zero. The buckets
-	// start before To (exclusive), else end with the current one; From
-	// only picks the Resolution.
+	// From and To the range of the buckets, and the one picking the
+	// Resolution when zero. The buckets start before To (exclusive), else
+	// end with the current one, and start at From rounded down to a
+	// bucket, else a span of the Resolution before the end: at most
+	// MaxBuckets of them, the latest ones.
 	From time.Time
 	To   time.Time
+}
+
+// Window the buckets a Filter reads, as Filter.Resolve resolved it.
+type Window struct {
+	// Interval the width of a bucket.
+	Interval typepb.HistogramInterval
+	// From the start of the first bucket, To the end of the last one.
+	From time.Time
+	To   time.Time
+	// Truncated the range held more than MaxBuckets buckets: From was
+	// moved later, so the latest ones are read.
+	Truncated bool
 }
 
 // Histogram the continuous aggregates of a Spec, and its source.
 type Histogram struct {
 	views views
 	key   string
-	// source the events PointsWhere counts, by timeColumn, unix millis.
-	source     dbx.Database[Point]
-	timeColumn string
+	// source the hypertable PointsWhere counts the events of, normalized,
+	// and db its rows.
+	source timescale.Hypertable
+	db     dbx.Database[Point]
 }
-
-// Where narrows the events PointsWhere counts: the conditions it adds to
-// b, on the columns of the source hypertable.
-type Where func(b sq.SelectBuilder) (sq.SelectBuilder, error)
 
 // views the continuous aggregates of a histogram, one per interval.
 type views map[typepb.HistogramInterval]*timescale.View[Point]
@@ -233,11 +249,13 @@ type viewDef struct {
 }
 
 // window the buckets a query reads: count buckets of bucket, the first
-// starting at from.
+// starting at from; truncated when they are the latest MaxBuckets of a
+// longer range.
 type window struct {
-	from   time.Time
-	bucket time.Duration
-	count  int
+	from      time.Time
+	bucket    time.Duration
+	count     int
+	truncated bool
 }
 
 // series the points of a resource and key.
@@ -252,23 +270,26 @@ type series struct {
 func New(ctx context.Context, conf *settingpb.Config,
 	spec Spec) (*Histogram, error) {
 
+	source, err := spec.Source.Normalized()
+	if err != nil {
+		return nil, err
+	}
+	if !source.MillisTime() {
+		return nil, errTimeColumn
+	}
+
 	views, err := newViews(ctx, conf, spec.def())
 	if err != nil {
 		return nil, err
 	}
 
-	source, err := postgres.Open[Point](ctx, conf,
-		spec.Source.Schema, postgres.NoSync)
+	db, err := postgres.Open[Point](ctx, conf, source.Schema,
+		postgres.NoSync)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Histogram{
-		views:      views,
-		key:        spec.Key,
-		source:     source,
-		timeColumn: spec.Source.TimeColumn,
-	}, nil
+	return &Histogram{views: views, key: spec.Key, source: source, db: db}, nil
 }
 
 // Points the points of filter, nil included, oldest first: one per
@@ -292,33 +313,37 @@ func (h *Histogram) Points(ctx context.Context,
 }
 
 // PointsWhere the points of filter, nil included, as Points, but of the
-// events of the source hypertable where narrows: they are counted on the
-// fly, not read from a view. The time column of the source must hold unix
-// milliseconds.
+// events of the source hypertable that where selects, none when nil: they
+// are counted on the fly, not read from a view.
 func (h *Histogram) PointsWhere(ctx context.Context, filter *Filter,
-	where Where) ([]*Point, error) {
-
-	if h.timeColumn == "" {
-		return nil, errTimeColumn
-	}
+	where sq.Sqlizer) ([]*Point, error) {
 
 	_, w, err := planOf(filter, time.Now())
 	if err != nil {
 		return nil, err
 	}
 
-	b, err := where(sourceQuery(h.source.Table(), h.timeColumn, h.key,
-		filter, w))
-	if err != nil {
-		return nil, err
+	b := bucketQuery(h.sourceOf(w), h.key, "count(*)", filter, w)
+	if where != nil {
+		b = b.Where(where)
 	}
 
-	points, err := h.source.CollectRows(ctx, b, scanKey)
+	points, err := h.db.CollectRows(ctx, b, scanKey)
 	if err != nil {
 		return nil, err
 	}
 
 	return w.fill(points, filter.resourceIds()), nil
+}
+
+// sourceOf the source hypertable as bucketQuery reads it: the events
+// bucketed on the fly, by their time.
+func (h *Histogram) sourceOf(w window) bucketSource {
+	return bucketSource{
+		table:  h.db.Table(),
+		bucket: h.source.TimeBucket(w.bucket),
+		time:   h.source.TimeColumn,
+	}
 }
 
 // def the views of s.
@@ -380,12 +405,26 @@ func planOf(filter *Filter,
 	return spec.interval, filter.window(spec, now), nil
 }
 
-// Resolve sets f.Resolution to the one the Points of f use at now, and
-// returns the interval of its buckets; an unknown Resolution has none.
-func (f *Filter) Resolve(now time.Time) typepb.HistogramInterval {
+// Resolve sets f.Resolution to the one the Points of f use at now, f.From
+// and f.To to the bounds of its buckets, so the Points of f read the very
+// Window returned; an unknown Resolution has a zero Window.
+func (f *Filter) Resolve(now time.Time) Window {
 	f.Resolution = f.resolution(now)
 
-	return _resolutions[f.Resolution].interval
+	spec, ok := _resolutions[f.Resolution]
+	if !ok {
+		return Window{}
+	}
+
+	w := f.window(spec, now)
+	f.From, f.To = w.from, w.to()
+
+	return Window{
+		Interval:  spec.interval,
+		From:      f.From,
+		To:        f.To,
+		Truncated: w.truncated,
+	}
 }
 
 // resolution the Resolution of f, nil included: the one set, else the
@@ -434,8 +473,9 @@ func (s resolutionSpec) fits(span, age time.Duration) bool {
 	return s.span+view.bucket >= span
 }
 
-// window the last buckets of spec f reads, nil included: those starting
-// before To when set, else up to the current one, that of now.
+// window the buckets of spec f reads, nil included: those starting before
+// To when set, else up to the current one, that of now; from From when
+// set, else a span of spec before; at most MaxBuckets, the latest ones.
 func (f *Filter) window(spec resolutionSpec, now time.Time) window {
 	bucket := _views[spec.interval].bucket
 	// the end of the current bucket, else To: the buckets start before it
@@ -444,11 +484,29 @@ func (f *Filter) window(spec resolutionSpec, now time.Time) window {
 		end = ceil(f.To, bucket)
 	}
 
-	return window{
-		from:   end.Add(-spec.span).UTC(),
-		bucket: bucket,
-		count:  int(spec.span / bucket),
+	start := end.Add(-spec.span)
+	if f != nil && !f.From.IsZero() && f.From.Before(end) {
+		start = f.From.Truncate(bucket)
 	}
+
+	return window{
+		from:   start.UTC(),
+		bucket: bucket,
+		count:  int(end.Sub(start) / bucket),
+	}.capped()
+}
+
+// capped w, or its latest MaxBuckets buckets when it has more.
+func (w window) capped() window {
+	if w.count <= MaxBuckets {
+		return w
+	}
+
+	w.from = w.to().Add(-MaxBuckets * w.bucket)
+	w.count = MaxBuckets
+	w.truncated = true
+
+	return w
 }
 
 // resourceIds the resources of f, nil included.
@@ -560,48 +618,44 @@ func (d viewDef) schema(interval typepb.HistogramInterval,
 func pointsQuery(view, key string, filter *Filter,
 	w window) sq.SelectBuilder {
 
-	return bucketQuery(view, key, _sumTotal, filter, w)
+	return bucketQuery(viewSource(view), key, _sumTotal, filter, w)
 }
 
-// bucketQuery selects total per bucket, resource and column of the view,
-// of the filter and w, oldest first; the column is 0 when empty.
-func bucketQuery(view, column, total string, filter *Filter,
+// bucketSource where a bucketQuery reads: a table, the SQL of the start of
+// the bucket of its rows, and the column bounding them.
+type bucketSource struct {
+	table  string
+	bucket string
+	time   string
+}
+
+// viewSource the source of a view: its buckets are stored.
+func viewSource(view string) bucketSource {
+	return bucketSource{
+		table:  view,
+		bucket: timescale.BucketColumn,
+		time:   timescale.BucketColumn,
+	}
+}
+
+// bucketQuery selects total per bucket, resource and column of src, of the
+// filter and w, oldest first; the column is 0 when empty.
+func bucketQuery(src bucketSource, column, total string, filter *Filter,
 	w window) sq.SelectBuilder {
 
 	selected := "0"
-	groupBy := []string{timescale.BucketColumn, typepb.Owner_ResourceId}
+	groupBy := []string{src.bucket, typepb.Owner_ResourceId}
 	if column != "" {
 		selected = column
 		groupBy = append(groupBy, column)
 	}
 
-	b := sq.Select(timescale.BucketColumn, typepb.Owner_ResourceId, selected,
-		total).
-		From(view).
-		Where(sq.GtOrEq{timescale.BucketColumn: w.from.UnixMilli()}).
-		Where(sq.Lt{timescale.BucketColumn: w.to().UnixMilli()}).
+	b := sq.Select(src.bucket, typepb.Owner_ResourceId, selected, total).
+		From(src.table).
+		Where(sq.GtOrEq{src.time: w.from.UnixMilli()}).
+		Where(sq.Lt{src.time: w.to().UnixMilli()}).
 		GroupBy(groupBy...).
-		OrderBy(timescale.BucketColumn, typepb.Owner_ResourceId)
-
-	return filter.apply(b)
-}
-
-// sourceQuery counts the events of table per bucket of its timeColumn
-// (unix millis), resource and key, of the filter and w, oldest first; the
-// key is 0 when empty.
-func sourceQuery(table, timeColumn, key string, filter *Filter,
-	w window) sq.SelectBuilder {
-
-	millis := w.bucket.Milliseconds()
-	bucket := fmt.Sprintf("(%[1]s / %[2]d) * %[2]d", timeColumn, millis)
-
-	b := sq.Select(bucket, typepb.Owner_ResourceId, cmp.Or(key, "0"),
-		"count(*)").
-		From(table).
-		Where(sq.GtOrEq{timeColumn: w.from.UnixMilli()}).
-		Where(sq.Lt{timeColumn: w.to().UnixMilli()}).
-		GroupBy("1", "2", "3").
-		OrderBy("1", "2")
+		OrderBy(src.bucket, typepb.Owner_ResourceId)
 
 	return filter.apply(b)
 }

@@ -13,17 +13,18 @@ import {
   SheetTitle,
 } from '@sentinez/ui/components/sheet';
 import { toast } from '@/lib/toast';
+import { InfoRow } from '@/components/info-card';
 import { RequestLink } from './request-link';
 import type { DetailSection, EventConfig } from './types';
 
 type View = 'table' | 'json';
 
+// A field of the event: dense, its value in monospace
 function Row({ name, children }: { name: string; children: ReactNode }) {
   return (
-    <div className="grid grid-cols-[6.5rem_minmax(0,1fr)] gap-3 border-b py-1.5 text-xs last:border-0 sm:grid-cols-[9rem_minmax(0,1fr)]">
-      <span className="break-words font-medium text-muted-foreground">{name}</span>
-      <span className="min-w-0 break-all font-mono">{children || '—'}</span>
-    </div>
+    <InfoRow label={name} mono compact>
+      {children || '—'}
+    </InfoRow>
   );
 }
 
@@ -32,11 +33,13 @@ function Section({ title, pairs }: DetailSection) {
   return (
     <div className="flex flex-col">
       <p className="pb-1 pt-4 text-sm font-semibold">{title}</p>
-      {pairs.map(([k, v], i) => (
-        <Row key={`${k}-${i}`} name={k}>
-          {v}
-        </Row>
-      ))}
+      <dl className="flex flex-col">
+        {pairs.map(([k, v], i) => (
+          <Row key={`${k}-${i}`} name={k}>
+            {v}
+          </Row>
+        ))}
+      </dl>
     </div>
   );
 }
@@ -109,7 +112,7 @@ export function EventDetail<T>({ config, event, onClose }: Props<T>) {
               </pre>
             ) : (
               <>
-                <div className="flex flex-col pt-2">
+                <dl className="flex flex-col pt-2">
                   <Row name={t('time')}>
                     {format.dateTime(new Date(config.timeOf(event)), {
                       dateStyle: 'medium',
@@ -126,7 +129,7 @@ export function EventDetail<T>({ config, event, onClose }: Props<T>) {
                       <RequestLink request={request} />
                     </Row>
                   )}
-                </div>
+                </dl>
                 {detail.sections?.(event).map((section) => (
                   <Section key={section.title} {...section} />
                 ))}

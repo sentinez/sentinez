@@ -7,7 +7,9 @@ xoá mục tương ứng.
 
 ## 12.1 Lỗi logic (ảnh hưởng hành vi)
 
-Không có.
+| # | Vị trí | Vấn đề |
+|---|---|---|
+| L1 | [controlplane/pkg/schema](../../staging/src/github.com/sentinez/controlplane/pkg/schema/) từ `28dd2173` *(cần xác minh)* | Cột timestamp của các bảng iam, tenant, security và activities đã đổi tên (`created_at` → `metadata_created_at` / `owner_created_at`) và `security.sec_rules.action` đổi từ `JSONB` sang `TEXT`, nhưng sync schema không bao giờ đổi tên/đổi kiểu cột: với database tạo từ trước, scanner được sinh sẽ select cột không tồn tại. Xoá bảng (dev) hoặc migrate tay |
 
 ## 12.2 Bảo mật
 
@@ -34,11 +36,9 @@ Không có.
   sync giữa các edge.
 - Chọn rõ `HISTOGRAM_RESOLUTION_SECOND` mà không có `from` sẽ đọc cả 7 ngày
   của view giây.
-- Histogram có `request_ids` hoặc `filters` quét bảng event, mỗi trang bucket
-  một lần (tới 15 request cho khoảng dài theo giờ): chậm trên bảng lớn, và
-  `request_id` của bảng secrule và core ruleset chưa có index.
-  `GetEventTopValuesRequest` không có `request_ids`, nên top values bỏ qua
-  request id mà list và histogram đều áp dụng.
+- Database cũ vẫn giữ index đơn `resource_id` dư thừa: index phức hợp
+  `(resource_id, <time>)` đã được thêm cho mọi bảng event, nhưng sync schema
+  không bao giờ xoá index.
 - [deploy/docker/docker-compose.yaml](../../deploy/docker/docker-compose.yaml)
   tạo các topic event với 3 partition và tắt tự tạo topic, nên
   `DefaultTopicPartitions` (6) của producer không bao giờ có tác dụng trong
@@ -57,8 +57,8 @@ Không có.
 - `DataPlaneService` chưa có handler; `wsz.WebSocket.Shutdown` là no-op.
 - Tính duy nhất trong IAM (mỗi email một user, mỗi user một account cho mỗi
   provider, username của `LOCAL`) chỉ được service kiểm tra trước khi
-  insert; bảng không có unique index (`dbx.Index` chỉ một cột, không
-  unique), nên hai lượt đăng ký đồng thời có thể cùng lọt.
+  insert; bảng không có unique index (chưa dùng unique index của schema ở
+  đây), nên hai lượt đăng ký đồng thời có thể cùng lọt.
 - IAM: user đăng ký bằng passkey chưa thể thêm mật khẩu (chưa có RPC "link"
   cho `LOCAL`). Console có `PasskeyLink()` trong `lib/api/iam/passkey.ts`
   nhưng chưa trang nào gọi.

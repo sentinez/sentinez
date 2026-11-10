@@ -19,13 +19,12 @@ package coreruleeventsrepo
 import (
 	"context"
 
-	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventfilter"
+	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventreader"
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/topvalues"
 	"github.com/sentinez/controlplane/pkg/schema"
 	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
-	"github.com/sentinez/pkg/szstorage/dbx/timescale"
 	"github.com/sentinez/pkg/szstorage/dbx/timescale/histogram"
 	crspb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -33,28 +32,31 @@ import (
 
 var _ ICoreRuleEvent = (*CoreRuleEvents)(nil)
 
-var _hypertable = schema.EventHypertable(
-	schema.AnalyticCoreRulesetsEvent(), crspb.CoreRuleEvent_MatchedTime)
-
-var _histogram = histogram.Spec{
-	Source: _hypertable,
-	Key:    crspb.CoreRuleEvent_Behavior,
-}
-
-var _filterColumns = eventfilter.Columns{
-	RequestId:   crspb.CoreRuleEvent_RequestId,
-	ResourceId:  crspb.CoreRuleEvent_ResourceId,
-	MatchedTime: crspb.CoreRuleEvent_MatchedTime,
-	Fields:      _fields,
+// _spec the reader of the events: their histogram is split by behavior.
+var _spec = eventreader.Spec[crspb.CoreRuleEvent]{
+	Hypertable: schema.EventHypertable(
+		schema.AnalyticCoreRulesetsEvent(), crspb.CoreRuleEvent_MatchedTime),
+	Key: crspb.CoreRuleEvent_Behavior,
+	Columns: eventfilter.Columns{
+		RequestId:   crspb.CoreRuleEvent_RequestId,
+		ResourceId:  crspb.CoreRuleEvent_ResourceId,
+		MatchedTime: crspb.CoreRuleEvent_MatchedTime,
+		Fields:      _fields,
+	},
+	Select:   crspb.CoreRuleEventColumns(),
+	Scan:     crspb.ScanCoreRuleEvent[dbx.Rows],
+	ScanOne:  crspb.ScanOneCoreRuleEvent[dbx.Row],
+	Values:   crspb.CoreRuleEventValues,
+	IdColumn: crspb.CoreRuleEvent_Id,
 }
 
 // _fields the fields of the events filters match and top values count,
 // in this order.
 var _fields = []eventfilter.Field{
-	eventfilter.ArrayColumn(crspb.CoreRuleEvent_MatchedRuleIds),
-	eventfilter.ArrayColumn(crspb.CoreRuleEvent_Severities),
-	eventfilter.Column(crspb.CoreRuleEvent_Behavior),
-	eventfilter.Column(crspb.CoreRuleEvent_TotalScore),
+	eventfilter.TypedColumn(crspb.CoreRuleEvent_MatchedRuleIds, dbx.IntArr),
+	eventfilter.TypedColumn(crspb.CoreRuleEvent_Severities, dbx.TextArr),
+	eventfilter.TypedColumn(crspb.CoreRuleEvent_Behavior, dbx.Int4),
+	eventfilter.TypedColumn(crspb.CoreRuleEvent_TotalScore, dbx.Int4),
 	eventfilter.Column(crspb.CoreRuleEvent_RequestIp),
 	eventfilter.Column(crspb.CoreRuleEvent_RequestDomain),
 	eventfilter.Column(crspb.CoreRuleEvent_RequestPath),
@@ -74,103 +76,28 @@ type ICoreRuleEvent interface {
 		filter *eventfilter.Filter) ([]*crspb.CoreRuleEvent, error)
 	// Histogram counts the events per bucket, resource and behavior
 	// (histogram.Point.Key).
-	// The events of events only when set (see eventfilter.Points).
+	// The events of events only when set (see eventreader.Reader).
 	Histogram(ctx context.Context, filter *histogram.Filter,
 		events *eventfilter.Filter) ([]*histogram.Point, error)
 	topvalues.TopValuer
 }
 
 type CoreRuleEvents struct {
-	storage   dbx.Database[crspb.CoreRuleEvent]
-	histogram *histogram.Histogram
-	topValues *topvalues.Reader
+	*eventreader.Reader[crspb.CoreRuleEvent]
 }
 
 // New returns the repo of the sztable.AnalyticCoreRulesetsEvent
 // hypertable, and of its histograms.
 func New(ctx context.Context,
 	appConf *settingpb.Config) (ICoreRuleEvent, error) {
-	storage, err := timescale.New[crspb.CoreRuleEvent](ctx, appConf,
-		_hypertable)
+	reader, err := eventreader.New(ctx, appConf, _spec)
 	if err != nil {
 		return nil, err
 	}
 
-	hist, err := histogram.New(ctx, appConf, _histogram)
-	if err != nil {
-		return nil, err
-	}
-
-	topValues, err := topvalues.Open(ctx, appConf, _hypertable.Schema.Table,
-		_filterColumns)
-	if err != nil {
-		return nil, err
-	}
-
-	return &CoreRuleEvents{
-		storage:   storage,
-		histogram: hist,
-		topValues: topValues,
-	}, nil
+	return &CoreRuleEvents{Reader: reader}, nil
 }
 
 func (r *CoreRuleEvents) WithTX(tx *postgres.TxSession) ICoreRuleEvent {
-	return &CoreRuleEvents{
-		storage:   postgres.WithTx(tx, r.storage),
-		histogram: r.histogram,
-		topValues: r.topValues,
-	}
-}
-
-func (r *CoreRuleEvents) Create(ctx context.Context,
-	events ...*crspb.CoreRuleEvent) error {
-	if len(events) == 0 {
-		return nil
-	}
-
-	query, err := postgres.InsertRowsBuilder(r.storage,
-		crspb.CoreRuleEventColumns(), events, crspb.CoreRuleEventValues)
-	if err != nil {
-		return err
-	}
-
-	_, err = r.storage.Exec(ctx, query.Suffix(_hypertable.OnConflictDoNothing()))
-	return err
-}
-
-func (r *CoreRuleEvents) Get(ctx context.Context,
-	id string) (*crspb.CoreRuleEvent, error) {
-	builder := r.selectQuery().Where(sq.Eq{crspb.CoreRuleEvent_Id: id})
-	return r.storage.Select(ctx, builder, crspb.ScanOneCoreRuleEvent)
-}
-
-func (r *CoreRuleEvents) Delete(ctx context.Context, id string) error {
-	return r.storage.Delete(ctx, id)
-}
-
-func (r *CoreRuleEvents) List(ctx context.Context,
-	filter *eventfilter.Filter) ([]*crspb.CoreRuleEvent, error) {
-	builder, err := filter.Apply(r.selectQuery(), _filterColumns)
-	if err != nil {
-		return nil, err
-	}
-
-	return r.storage.CollectRows(ctx, builder, crspb.ScanCoreRuleEvent)
-}
-
-func (r *CoreRuleEvents) Histogram(ctx context.Context,
-	filter *histogram.Filter,
-	events *eventfilter.Filter) ([]*histogram.Point, error) {
-	return eventfilter.Points(ctx, r.histogram, filter, events,
-		_filterColumns)
-}
-
-func (r *CoreRuleEvents) TopValues(ctx context.Context,
-	filter *eventfilter.Filter, names []string,
-	limit uint64) (*topvalues.Result, error) {
-	return r.topValues.TopValues(ctx, filter, names, limit)
-}
-
-func (r *CoreRuleEvents) selectQuery() sq.SelectBuilder {
-	return sq.Select(crspb.CoreRuleEventColumns()...).From(r.storage.Table())
+	return &CoreRuleEvents{Reader: r.WithTx(tx)}
 }

@@ -75,3 +75,57 @@ var (
 	_ingressEventColumns  = httppb.IngressEventColumns()
 	_egressEventColumns   = httppb.EgressEventColumns()
 )
+
+// eventIndexTest a table of events and the column of its time.
+type eventIndexTest struct {
+	name       string
+	giveSchema dbx.Schema
+	giveTime   string
+}
+
+// indexedColumns the columns of each index of s.
+func indexedColumns(s dbx.Schema) [][]string {
+	indexed := make([][]string, 0, len(s.Indexes))
+	for _, index := range s.Indexes {
+		indexed = append(indexed, index.ColumnNames())
+	}
+
+	return indexed
+}
+
+// TestEventResourceTimeIndex checks that the events of a resource over a
+// time range are served by one index.
+func TestEventResourceTimeIndex(t *testing.T) {
+	tests := []eventIndexTest{
+		{"secrule", AnalyticSecRulesEvent(), "matched_time"},
+		{"ratelimit", AnalyticRateLimiterEvent(), "matched_time"},
+		{"corerule", AnalyticCoreRulesetsEvent(), "matched_time"},
+		{"ingress", AnalyticHttpIngressEvent(), "timestamp"},
+		{"egress", AnalyticHttpEgressEvent(), "timestamp"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Contains(t, indexedColumns(tt.giveSchema),
+				[]string{"resource_id", tt.giveTime})
+		})
+	}
+}
+
+// TestRuleEventRequestIndex checks that the events of a request are
+// served by an index; the http events are by the unique (id, time) key of
+// their hypertable.
+func TestRuleEventRequestIndex(t *testing.T) {
+	tests := []eventIndexTest{
+		{name: "secrule", giveSchema: AnalyticSecRulesEvent()},
+		{name: "ratelimit", giveSchema: AnalyticRateLimiterEvent()},
+		{name: "corerule", giveSchema: AnalyticCoreRulesetsEvent()},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Contains(t, indexedColumns(tt.giveSchema),
+				[]string{"request_id"})
+		})
+	}
+}

@@ -255,7 +255,12 @@ type EgressEvent struct {
 	TenantId      string `protobuf:"bytes,13,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
 	// protocol is the HTTP version the client used to reach the edge, e.g.
 	// HTTP/2.0: the one used to reach upstream is not observable.
-	Protocol      string `protobuf:"bytes,14,opt,name=protocol,proto3" json:"protocol,omitempty"`
+	Protocol string `protobuf:"bytes,14,opt,name=protocol,proto3" json:"protocol,omitempty"`
+	// headers are the request headers the edge set for the upstream, one
+	// "Name: value" line each, sorted by name: X-Forwarded-Prefix, the
+	// proxySetHeaders once their variables are resolved and the SecRule
+	// MODIFY_HEADER ones, without the credential ones.
+	Headers       string `protobuf:"bytes,15,opt,name=headers,proto3" json:"headers,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -388,6 +393,13 @@ func (x *EgressEvent) GetProtocol() string {
 	return ""
 }
 
+func (x *EgressEvent) GetHeaders() string {
+	if x != nil {
+		return x.Headers
+	}
+	return ""
+}
+
 var File_sentinez_types_net_http_v1_event_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_net_http_v1_event_proto_rawDesc = "" +
@@ -415,7 +427,7 @@ const file_sentinez_types_net_http_v1_event_proto_rawDesc = "" +
 	"\tclient_ip\x18\x13 \x01(\tR\bclientIp\x12\x1f\n" +
 	"\vresource_id\x18\x14 \x01(\tR\n" +
 	"resourceId\x12\x1b\n" +
-	"\ttenant_id\x18\x15 \x01(\tR\btenantId:\b\xca\xf3\x18\x04\b\x01\x18\x01\"\xd8\x03\n" +
+	"\ttenant_id\x18\x15 \x01(\tR\btenantId:\b\xca\xf3\x18\x04\b\x01\x18\x01\"\xf2\x03\n" +
 	"\vEgressEvent\x12D\n" +
 	"\x02id\x18\x01 \x01(\tB4\xbaH1r/2-^([a-zA-Z0-9-]+-)?req_[0-9A-HJKMNP-TV-Z]{26}$R\x02id\x12\x1a\n" +
 	"\bupstream\x18\x02 \x01(\tR\bupstream\x12\x16\n" +
@@ -432,7 +444,8 @@ const file_sentinez_types_net_http_v1_event_proto_rawDesc = "" +
 	"\vresource_id\x18\f \x01(\tR\n" +
 	"resourceId\x12\x1b\n" +
 	"\ttenant_id\x18\r \x01(\tR\btenantId\x12\x1a\n" +
-	"\bprotocol\x18\x0e \x01(\tR\bprotocol:\b\xca\xf3\x18\x04\b\x01\x18\x01BJZHgithub.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1;httppbb\x06proto3"
+	"\bprotocol\x18\x0e \x01(\tR\bprotocol\x12\x18\n" +
+	"\aheaders\x18\x0f \x01(\tR\aheaders:\b\xca\xf3\x18\x04\b\x01\x18\x01BJZHgithub.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1;httppbb\x06proto3"
 
 var (
 	file_sentinez_types_net_http_v1_event_proto_rawDescOnce sync.Once

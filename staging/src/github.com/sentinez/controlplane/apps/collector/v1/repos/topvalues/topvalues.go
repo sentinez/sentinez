@@ -87,7 +87,7 @@ func query(b sq.SelectBuilder, fields []eventfilter.Field,
 
 	var scalars, arrays []eventfilter.Field
 	for _, field := range fields {
-		if field.Array {
+		if field.IsArray() {
 			arrays = append(arrays, field)
 			continue
 		}

@@ -21,7 +21,7 @@ services:
     env_file:
       - timescale.env
     volumes:
-      - ./volume/timescale:/var/lib/timescale/data
+      - ./volume/timescale:/var/lib/postgresql/data
     networks:
       - sentinez-network
 

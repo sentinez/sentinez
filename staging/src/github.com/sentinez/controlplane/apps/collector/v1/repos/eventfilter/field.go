@@ -17,13 +17,19 @@ package eventfilter
 import (
 	"errors"
 	"fmt"
+	"strconv"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/sentinez/pkg/szstorage/dbx"
 )
 
 // ErrUnknownField the error of a field the table of a Columns does not
 // have among its Fields.
 var ErrUnknownField = errors.New("unknown field")
+
+// ErrInvalidValue the error of the value of a Match that is not one of
+// the type of its field, e.g. a status that is not a number.
+var ErrInvalidValue = errors.New("invalid value")
 
 // Field a field of the events their top values count and a Match filters.
 type Field struct {
@@ -32,22 +38,29 @@ type Field struct {
 	// Expr the SQL of its value, a column or an expression of the row:
 	// written in the query, it must not come from a request.
 	Expr string
-	// Array Expr is an array whose elements are the values.
-	Array bool
+	// Type the type of Expr, dbx.Text when empty: a Match compares its
+	// value in that type, so the index of the column serves. dbx.IntArr
+	// and dbx.TextArr are arrays of the integers and texts they hold.
+	Type dbx.ColumnType
 }
 
-// Column the Field of a column.
+// IsArray reports whether Expr is an array whose elements are the values.
+func (f Field) IsArray() bool {
+	return f.Type == dbx.TextArr || f.Type == dbx.IntArr
+}
+
+// Column the Field of a TEXT column.
 func Column(name string) Field {
 	return Field{Name: name, Expr: name}
 }
 
-// ArrayColumn the Array Field of an array column.
-func ArrayColumn(name string) Field {
-	return Field{Name: name, Expr: name, Array: true}
+// TypedColumn the Field of a column of type typ.
+func TypedColumn(name string, typ dbx.ColumnType) Field {
+	return Field{Name: name, Expr: name, Type: typ}
 }
 
 // Match the events holding Value in the field Field (an element of an
-// Array one), compared as TEXT.
+// Array one), compared in the type of the field.
 type Match struct {
 	Field string
 	Value string
@@ -64,11 +77,51 @@ func (cols Columns) Field(name string) (Field, error) {
 	return Field{}, fmt.Errorf("%w %q", ErrUnknownField, name)
 }
 
-// condition the SQL condition of m on field.
-func (m Match) condition(field Field) sq.Sqlizer {
-	if field.Array {
-		return sq.Expr("? = ANY(("+field.Expr+")::TEXT[])", m.Value)
+// value m.Value in the type of field, or of its elements: an int32 for
+// INTEGER, an int64 for BIGINT, a bool for BOOLEAN, else the string; an
+// ErrInvalidValue when it is not one of that type.
+func (m Match) value(field Field) (any, error) {
+	var (
+		n   int64
+		err error
+	)
+
+	switch field.Type {
+	case dbx.Int4, dbx.IntArr:
+		n, err = strconv.ParseInt(m.Value, 10, 32)
+		if err == nil {
+			return int32(n), nil
+		}
+	case dbx.Int8:
+		n, err = strconv.ParseInt(m.Value, 10, 64)
+		if err == nil {
+			return n, nil
+		}
+	case dbx.Bool:
+		var b bool
+		b, err = strconv.ParseBool(m.Value)
+		if err == nil {
+			return b, nil
+		}
+	default:
+		return m.Value, nil
 	}
 
-	return sq.Expr("("+field.Expr+")::TEXT = ?", m.Value)
+	return nil, fmt.Errorf("%w %q of field %s: want %s",
+		ErrInvalidValue, m.Value, field.Name, field.Type)
+}
+
+// condition the SQL condition of m on field: its value, typed, is the one
+// of the column, or one of its elements.
+func (m Match) condition(field Field) (sq.Sqlizer, error) {
+	value, err := m.value(field)
+	if err != nil {
+		return nil, err
+	}
+
+	if field.IsArray() {
+		return sq.Expr("? = ANY("+field.Expr+")", value), nil
+	}
+
+	return sq.Expr("("+field.Expr+") = ?", value), nil
 }

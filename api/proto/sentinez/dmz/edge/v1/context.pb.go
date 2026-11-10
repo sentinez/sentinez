@@ -127,8 +127,12 @@ type ContextExtra struct {
 	UpstreamTimestamp int64 `protobuf:"varint,18,opt,name=upstream_timestamp,json=upstreamTimestamp,proto3" json:"upstream_timestamp,omitempty"`
 	// UpstreamLatency the time Upstream took to answer, in microseconds.
 	UpstreamLatencyMicros int64 `protobuf:"varint,19,opt,name=upstream_latency_micros,json=upstreamLatencyMicros,proto3" json:"upstream_latency_micros,omitempty"`
-	unknownFields         protoimpl.UnknownFields
-	sizeCache             protoimpl.SizeCache
+	// SetHeaders the request headers the edge set for the upstream (the
+	// router and the SecRule MODIFY_HEADER actions), name to value; the
+	// egress log records them.
+	SetHeaders    map[string]string `protobuf:"bytes,20,rep,name=set_headers,json=setHeaders,proto3" json:"set_headers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ContextExtra) Reset() {
@@ -238,6 +242,13 @@ func (x *ContextExtra) GetUpstreamLatencyMicros() int64 {
 	return 0
 }
 
+func (x *ContextExtra) GetSetHeaders() map[string]string {
+	if x != nil {
+		return x.SetHeaders
+	}
+	return nil
+}
+
 var File_sentinez_dmz_edge_v1_context_proto protoreflect.FileDescriptor
 
 const file_sentinez_dmz_edge_v1_context_proto_rawDesc = "" +
@@ -248,7 +259,7 @@ const file_sentinez_dmz_edge_v1_context_proto_rawDesc = "" +
 	"\ttransport\x18\x02 \x01(\v2 .sentinez.types.net.v1.TransportR\ttransport\x12=\n" +
 	"\arequest\x18\x03 \x01(\v2#.sentinez.types.net.http.v1.RequestR\arequest\x120\n" +
 	"\x01x\x18\n" +
-	" \x01(\v2\".sentinez.dmz.edge.v1.ContextExtraR\x01x\"\xdb\x04\n" +
+	" \x01(\v2\".sentinez.dmz.edge.v1.ContextExtraR\x01x\"\xef\x05\n" +
 	"\fContextExtra\x12\x1c\n" +
 	"\tnamespace\x18\x01 \x01(\tR\tnamespace\x12/\n" +
 	"\x14sec_rule_matched_ids\x18\n" +
@@ -261,8 +272,13 @@ const file_sentinez_dmz_edge_v1_context_proto_rawDesc = "" +
 	"\x0eroute_location\x18\x10 \x01(\tR\rrouteLocation\x12\x1a\n" +
 	"\bupstream\x18\x11 \x01(\tR\bupstream\x12-\n" +
 	"\x12upstream_timestamp\x18\x12 \x01(\x03R\x11upstreamTimestamp\x126\n" +
-	"\x17upstream_latency_micros\x18\x13 \x01(\x03R\x15upstreamLatencyMicros\x1a7\n" +
+	"\x17upstream_latency_micros\x18\x13 \x01(\x03R\x15upstreamLatencyMicros\x12S\n" +
+	"\vset_headers\x18\x14 \x03(\v22.sentinez.dmz.edge.v1.ContextExtra.SetHeadersEntryR\n" +
+	"setHeaders\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a=\n" +
+	"\x0fSetHeadersEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01BDZBgithub.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1;edgepbb\x06proto3"
 
@@ -278,26 +294,28 @@ func file_sentinez_dmz_edge_v1_context_proto_rawDescGZIP() []byte {
 	return file_sentinez_dmz_edge_v1_context_proto_rawDescData
 }
 
-var file_sentinez_dmz_edge_v1_context_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_sentinez_dmz_edge_v1_context_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_sentinez_dmz_edge_v1_context_proto_goTypes = []any{
 	(*Context)(nil),      // 0: sentinez.dmz.edge.v1.Context
 	(*ContextExtra)(nil), // 1: sentinez.dmz.edge.v1.ContextExtra
 	nil,                  // 2: sentinez.dmz.edge.v1.ContextExtra.TagsEntry
-	(*Metadata)(nil),     // 3: sentinez.dmz.edge.v1.Metadata
-	(*v1.Transport)(nil), // 4: sentinez.types.net.v1.Transport
-	(*v11.Request)(nil),  // 5: sentinez.types.net.http.v1.Request
+	nil,                  // 3: sentinez.dmz.edge.v1.ContextExtra.SetHeadersEntry
+	(*Metadata)(nil),     // 4: sentinez.dmz.edge.v1.Metadata
+	(*v1.Transport)(nil), // 5: sentinez.types.net.v1.Transport
+	(*v11.Request)(nil),  // 6: sentinez.types.net.http.v1.Request
 }
 var file_sentinez_dmz_edge_v1_context_proto_depIdxs = []int32{
-	3, // 0: sentinez.dmz.edge.v1.Context.metadata:type_name -> sentinez.dmz.edge.v1.Metadata
-	4, // 1: sentinez.dmz.edge.v1.Context.transport:type_name -> sentinez.types.net.v1.Transport
-	5, // 2: sentinez.dmz.edge.v1.Context.request:type_name -> sentinez.types.net.http.v1.Request
+	4, // 0: sentinez.dmz.edge.v1.Context.metadata:type_name -> sentinez.dmz.edge.v1.Metadata
+	5, // 1: sentinez.dmz.edge.v1.Context.transport:type_name -> sentinez.types.net.v1.Transport
+	6, // 2: sentinez.dmz.edge.v1.Context.request:type_name -> sentinez.types.net.http.v1.Request
 	1, // 3: sentinez.dmz.edge.v1.Context.x:type_name -> sentinez.dmz.edge.v1.ContextExtra
 	2, // 4: sentinez.dmz.edge.v1.ContextExtra.tags:type_name -> sentinez.dmz.edge.v1.ContextExtra.TagsEntry
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	3, // 5: sentinez.dmz.edge.v1.ContextExtra.set_headers:type_name -> sentinez.dmz.edge.v1.ContextExtra.SetHeadersEntry
+	6, // [6:6] is the sub-list for method output_type
+	6, // [6:6] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_dmz_edge_v1_context_proto_init() }
@@ -312,7 +330,7 @@ func file_sentinez_dmz_edge_v1_context_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_dmz_edge_v1_context_proto_rawDesc), len(file_sentinez_dmz_edge_v1_context_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

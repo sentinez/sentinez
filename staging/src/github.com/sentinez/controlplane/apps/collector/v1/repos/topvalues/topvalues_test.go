@@ -20,6 +20,7 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventfilter"
+	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -27,8 +28,8 @@ import (
 var (
 	_method = eventfilter.Field{Name: "method", Expr: "method"}
 	_action = eventfilter.Field{Name: "action", Expr: "action->>'type'"}
-	_rules  = eventfilter.Field{Name: "rule_ids", Expr: "rule_ids", Array: true}
-	_tags   = eventfilter.ArrayColumn("tags")
+	_rules  = eventfilter.TypedColumn("rule_ids", dbx.TextArr)
+	_tags   = eventfilter.TypedColumn("tags", dbx.TextArr)
 )
 
 // rankedOf the SQL of a query of the parts.

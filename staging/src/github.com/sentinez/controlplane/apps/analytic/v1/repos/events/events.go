@@ -47,7 +47,7 @@ type Reader[T any] interface {
 // whatever its event type.
 type kindReader interface {
 	// Histogram counts the events per bucket, resource and key; those
-	// of events only when set (see eventfilter.Points).
+	// of events only when set (see eventreader.Reader).
 	Histogram(ctx context.Context, filter *histogram.Filter,
 		events *eventfilter.Filter) ([]*histogram.Point, error)
 	topvalues.TopValuer
@@ -60,10 +60,17 @@ type IngressReader interface {
 	httpingresseventrepo.VisitorReader
 }
 
+// EgressReader the Reader of the requests proxied to the origins, and of
+// their latency.
+type EgressReader interface {
+	Reader[httppb.EgressEvent]
+	httpegresseventsrepo.LatencyReader
+}
+
 // Events the readers of every event table.
 type Events struct {
 	HttpIngress IngressReader
-	HttpEgress  Reader[httppb.EgressEvent]
+	HttpEgress  EgressReader
 	SecRule     Reader[secrulepb.SecRuleEvent]
 	RateLimit   Reader[secrulepb.SecRuleEvent]
 	CoreRule    Reader[crspb.CoreRuleEvent]

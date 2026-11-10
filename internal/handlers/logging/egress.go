@@ -16,6 +16,8 @@ package logging
 
 import (
 	"bytes"
+	"maps"
+	"slices"
 	"strings"
 
 	"github.com/sentinez/core/szbytestr"
@@ -57,12 +59,42 @@ func newEgressEvent(ctx szhttp.Context,
 	ctx.VisitResponseHeaders(func(k, v []byte) {
 		setContentHeader(event, k, v)
 	})
+	event.Headers = setHeadersOf(x)
 	event.LatencyMicros = x.GetUpstreamLatencyMicros()
 	event.Timestamp = x.GetUpstreamTimestamp()
 	event.ResourceId = ctx.ResourceId()
 	event.TenantId = ctx.TenantId()
 
 	return event
+}
+
+// setHeadersOf the request headers the edge set for the upstream, recorded
+// in x, as "Name: value" lines sorted by name, so the log is deterministic;
+// without the credential ones, as the ingress event.
+func setHeadersOf(x *edgepb.ContextExtra) string {
+	set := x.GetSetHeaders()
+	if len(set) == 0 {
+		return ""
+	}
+
+	var buf [8]string
+	names := slices.AppendSeq(buf[:0], maps.Keys(set))
+	slices.Sort(names)
+
+	size := 0
+	for name, value := range set {
+		size += len(name) + len(value) + _headerLineExtra
+	}
+
+	var b strings.Builder
+	b.Grow(size)
+	for _, name := range names {
+		if !isCredential(bytesconv.S2b(name)) {
+			writeHeaderLine(&b, name, set[name])
+		}
+	}
+
+	return b.String()
 }
 
 // setContentHeader sets the content type or length of event from the

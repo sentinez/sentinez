@@ -39,6 +39,8 @@ func TestApplyActionsHeaders(t *testing.T) {
 		"the higher priority rule wins")
 	assert.Equal(t, "7", string(ctx.Header([]byte("X-Score"))))
 	assert.Empty(t, ctx.Header([]byte("Bad Key")))
+	assert.Equal(t, map[string]string{"X-Tier": "gold", "X-Score": "7"},
+		ctx.X().GetSetHeaders(), "the egress log records them")
 }
 
 func TestApplyActionsTags(t *testing.T) {

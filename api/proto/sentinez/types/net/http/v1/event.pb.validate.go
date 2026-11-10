@@ -172,6 +172,8 @@ func (m *EgressEvent) Validate() error {
 
 	// no validation rules for Protocol
 
+	// no validation rules for Headers
+
 	return nil
 }
 

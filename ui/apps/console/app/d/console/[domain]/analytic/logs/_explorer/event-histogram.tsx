@@ -7,7 +7,9 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
+  DefaultZIndexes,
   XAxis,
+  ZIndexLayer,
   YAxis,
   getRelativeCoordinate,
   usePlotArea,
@@ -78,6 +80,7 @@ const xOf = (event: MouseEvent<SVGGraphicsElement>) => getRelativeCoordinate(eve
 /**
  * The layer of a drag in the chart: reports its plot area to plotRef, and
  * shades the dragged span, left to right (px), labeled with its times.
+ * Both are drawn over the bars, the label over everything else too.
  */
 function DragLayer({
   plotRef,
@@ -94,28 +97,32 @@ function DragLayer({
   }, [plot, plotRef]);
   if (!plot || !span) return null;
   return (
-    <g className="pointer-events-none">
-      <rect
-        x={span.left}
-        y={plot.y}
-        width={span.right - span.left}
-        height={plot.height}
-        className="fill-primary/15 stroke-primary/40"
-      />
-      <foreignObject
-        x={(span.left + span.right) / 2 - 80}
-        y={plot.y}
-        width={160}
-        height={24}
-        className="overflow-visible"
-      >
-        <div className="flex justify-center">
-          <span className="bg-popover text-popover-foreground rounded border px-1.5 py-0.5 text-xs whitespace-nowrap tabular-nums shadow-sm">
-            {label}
-          </span>
-        </div>
-      </foreignObject>
-    </g>
+    <>
+      <ZIndexLayer zIndex={DefaultZIndexes.activeBar + 1}>
+        <rect
+          x={span.left}
+          y={plot.y}
+          width={span.right - span.left}
+          height={plot.height}
+          className="pointer-events-none fill-primary/15 stroke-primary/40"
+        />
+      </ZIndexLayer>
+      <ZIndexLayer zIndex={DefaultZIndexes.label + 1}>
+        <foreignObject
+          x={(span.left + span.right) / 2 - 80}
+          y={plot.y}
+          width={160}
+          height={24}
+          className="pointer-events-none overflow-visible"
+        >
+          <div className="flex justify-center">
+            <span className="bg-popover text-popover-foreground rounded border px-1.5 py-0.5 text-xs whitespace-nowrap tabular-nums shadow-sm">
+              {label}
+            </span>
+          </div>
+        </foreignObject>
+      </ZIndexLayer>
+    </>
   );
 }
 

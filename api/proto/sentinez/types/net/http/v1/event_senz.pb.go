@@ -40,6 +40,7 @@ const (
 	EgressEvent_ResourceId    = "resource_id"
 	EgressEvent_TenantId      = "tenant_id"
 	EgressEvent_Protocol      = "protocol"
+	EgressEvent_Headers       = "headers"
 )
 
 // IngressEventColumns returns the columns of IngressEvent, in the order ScanOneIngressEvent scans them.
@@ -155,6 +156,7 @@ func EgressEventColumns() []string {
 		EgressEvent_ResourceId,
 		EgressEvent_TenantId,
 		EgressEvent_Protocol,
+		EgressEvent_Headers,
 	}
 }
 
@@ -175,6 +177,7 @@ func EgressEventValues(m *EgressEvent) ([]any, error) {
 		m.GetResourceId(),
 		m.GetTenantId(),
 		m.GetProtocol(),
+		m.GetHeaders(),
 	}, nil
 }
 
@@ -196,6 +199,7 @@ func ScanOneEgressEvent[R interface{ Scan(dest ...any) error }](row R) (*EgressE
 		&m.ResourceId,
 		&m.TenantId,
 		&m.Protocol,
+		&m.Headers,
 	); err != nil {
 		return nil, err
 	}

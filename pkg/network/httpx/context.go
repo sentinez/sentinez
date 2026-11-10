@@ -505,7 +505,12 @@ func (c *Context) Close() error {
 	c.ectx.Transport = nil
 	c.ectx.Metadata = nil
 
+	// The map of the headers set is kept, emptied, for the next request:
+	// Reset would drop it and every request would allocate it again.
+	setHeaders := c.ectx.X.SetHeaders
 	c.ectx.X.Reset()
+	clear(setHeaders)
+	c.ectx.X.SetHeaders = setHeaders
 	c.ectx.Request.Reset()
 	c.respBodyBuf.Reset()
 

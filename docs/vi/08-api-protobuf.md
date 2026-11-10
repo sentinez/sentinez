@@ -40,7 +40,8 @@ response trùng type.
 | Extension | Đặt trên | Trường | Dùng để |
 |---|---|---|---|
 | `x_meta` (52001) | File | `service_name`, `service_zone`, `service_key` | Định danh service: banner console, tên logger, key Consul, `GetMeta<Name>()` |
-| `x_message` (51001) | Message | `database_model`, `export_field` | Sinh hằng tên cột `<Msg>_<Field>` / `X<Msg>_<Field>` |
+| `x_message` (51001) | Message | `database_model`, `export_field`, `scanner` | Sinh hằng tên cột `<Msg>_<Field>` / `X<Msg>_<Field>`; `scanner` sinh thêm row scanner bên dưới |
+| `x_field` (53001) | Field | `flatten`, `ignore`, `codec`, `nullable` | Cách một field của model DB ánh xạ ra cột, xem bên dưới |
 | `x_method` (50001) | RPC | `ignore`, `control_planes[]` | Sinh `Get<Service><Method>() *XMethod` cho phân quyền |
 
 `Zone`: `DEMILITARIZED` (edge, dataplane), `INTERNAL` (domain service),
@@ -49,6 +50,39 @@ response trùng type.
 Plugin xử lý các option này là `protoc-gen-go-senz`
 ([tools/internal/senz/senz.go](../../staging/src/github.com/sentinez/tools/internal/senz/senz.go)),
 sinh file `*_senz.pb.go`.
+
+### Row scanner được sinh
+
+Với message có `x_message.scanner = true`
+([tools/internal/senz/scanner.go](../../staging/src/github.com/sentinez/tools/internal/senz/scanner.go)),
+mọi field kiểu message lồng nhau được flatten thành cột `<field>_<nested>`
+(ví dụ `metadata_created_at`, `owner_tenant_id`), và plugin sinh:
+
+| Hàm | Làm gì |
+|---|---|
+| `<Msg>Columns() []string` | Các cột được lưu, theo thứ tự scan |
+| `<Msg>Values(m) ([]any, error)` | Giá trị của `m` theo cùng thứ tự, để insert |
+| `ScanOne<Msg>(row) (*<Msg>, error)` | Scan một dòng (bất kỳ `Scan(dest ...any) error`: `pgx.Row`, `dbx.Row`) |
+| `Scan<Msg>(rows) ([]*<Msg>, error)` | Scan mọi dòng (`Next`/`Scan`/`Err`: `pgx.Rows`, `dbx.Rows`) |
+
+Cách scan một field, đặt bằng `x_field`:
+
+| Field | Cột |
+|---|---|
+| scalar, enum | scan thẳng vào field |
+| `google.protobuf.Timestamp` / `Duration` | `time.Time` / `time.Duration`, rồi chuyển đổi |
+| message khác, không codec | flatten thành các cột của field con |
+| `codec = COLUMN_CODEC_PROTO` | một cột protobuf nhị phân (`proto.Unmarshal`), ví dụ `Resource.server` |
+| `codec = COLUMN_CODEC_PROTOJSON` | một cột protobuf JSON (`protojson.Unmarshal`, bỏ field lạ), ví dụ `CoreRuleset.content` |
+| `codec = COLUMN_CODEC_DRIVER` | một cột driver tự scan vào field (ví dụ JSONB), ví dụ `SecRule.expr`, `SecRuleEvent.action` |
+| `ignore = true` | không lưu, bị bỏ qua (ví dụ `SecRule.action_value`, `expr_preview`) |
+| `nullable = true` | scalar đơn có cột có thể `NULL`, scan thành zero value (ví dụ `Owner.tenant_id`, `Tenant.name`) |
+
+`flatten` (có từ trước) chỉ tách hằng tên cột của message lồng nhau; với
+`scanner` thì mọi message lồng nhau đều được flatten. Plugin báo lỗi khi
+gặp field thuộc oneof, `nullable` trên field không phải scalar, và `codec`
+trên field không phải message. Test:
+[tools/example/example_scanner_test.go](../../staging/src/github.com/sentinez/tools/example/example_scanner_test.go).
 
 ## 8.3 Sinh code
 
@@ -122,9 +156,20 @@ header `Authorization: Bearer <JWT>`.
 | GET | `/analytic/events/ratelimit` | `AnalyticService.ListRateLimitEvents` | ignore |
 | GET | `/analytic/events/coreruleset` | `AnalyticService.ListCoreRuleEvents` | ignore |
 | GET | `/analytic/events/histogram` | `AnalyticService.GetEventHistogram` | ignore |
+| GET | `/analytic/events/top-values` | `AnalyticService.GetEventTopValues` | ignore |
+| GET | `/analytic/events/http-egress/latency` | `AnalyticService.GetEgressLatency` | ignore |
 
 "Quyền khai báo" là option trong proto; việc thực thi phụ thuộc handler (xem
 [07-controlplane.md](07-controlplane.md#72-xác-thực--phân-quyền)).
+
+`GetEgressLatency` truy vấn độ trễ gom nhóm theo upstream qua `EventSelection`
+(trả về tổng request, avg, p50, p95, p99 và max micro giây). `EventSelection`
+là message dùng chung biểu diễn các tiêu chí lọc resource, request, filter
+và khoảng thời gian.
+
+`GetEventHistogramResponse`, `GetUniqueVisitorHistogramResponse`, và
+`ListVisitorsResponse` trả về `from`, `to`, và `truncated` (true khi khoảng
+thời gian vượt quá 1000 bucket và các bucket trước đó đã bị cắt bớt).
 
 Phân trang dùng `types.v1.Pages{index, size, total}`; qua REST truyền dạng
 query `page.index=1&page.size=20&page.total=true`.
@@ -162,8 +207,12 @@ lời gọi reverse proxy, để log egress dùng.
 | Type | Logger kind | Phát bởi |
 |---|---|---|
 | `net.http.v1.IngressEvent` | `LOG_TYPE_HTTP_INGRESS` | Node `LOG` ở edge, middleware `Logging` ở apiserver |
-| `net.http.v1.EgressEvent` | `LOG_TYPE_HTTP_EGRESS` | Node `LOG` ở edge, với request được proxy tới upstream origin; cùng `id` với event ingress của nó |
+| `net.http.v1.EgressEvent` | `LOG_TYPE_HTTP_EGRESS` | Node `LOG` ở edge, với request được proxy tới upstream origin; cùng `id` với event ingress của nó. Trường `headers` ghi nhận các header được gửi tới upstream |
 | `secrule.v1.Event` | `LOG_TYPE_CORE_RULESETS` | Node `WAF` khi transaction bị interrupt |
+
+`ContextExtra` (`dmz/edge/v1/context.proto`) lưu metadata theo từng request của edge,
+bao gồm `set_headers` (trường 20), được điền qua `szhttp.SetUpstreamHeader` khi
+edge thêm hoặc sửa đổi header chuyển tiếp tới origin.
 
 Event được tái sử dụng qua pool trong
 `pkg/pools/{ingress,egress,secrule,coreruleset,matchedrule}`: mỗi wrapper giữ sẵn

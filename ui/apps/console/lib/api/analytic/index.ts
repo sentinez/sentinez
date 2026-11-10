@@ -25,6 +25,7 @@ import {
 
 export {
   EVENT_RETENTION_MILLIS,
+  DAY_MILLIS,
   HOUR_MILLIS,
   RESOLUTIONS,
   RESOLUTION_BUCKETS,
@@ -121,6 +122,7 @@ export async function getUniqueVisitorHistogram(
     () => ({
       points: sampleVisitorPoints(full),
       interval: intervalOf(sampleResolution(full)),
+      truncated: false,
     }),
     options,
   );
@@ -159,6 +161,7 @@ export async function listVisitors(
     () => ({
       visitors: sampleVisitors(full),
       interval: intervalOf(sampleResolution(full)),
+      truncated: false,
     }),
     options,
   );

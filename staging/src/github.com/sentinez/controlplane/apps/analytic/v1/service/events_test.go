@@ -61,44 +61,56 @@ func TestEventPage(t *testing.T) {
 func TestHistogramFilter(t *testing.T) {
 	now := time.Date(2026, 11, 9, 12, 0, 0, 0, time.UTC)
 	from := now.Add(-time.Hour)
+	res1h := typepb.HistogramResolution_HISTOGRAM_RESOLUTION_1_HOUR
+	int1m := typepb.HistogramInterval_HISTOGRAM_INTERVAL_1_MINUTE
+
+	// the buckets end with the current one, of 12:00, so at 12:01
+	end := now.Add(time.Minute)
 
 	tests := []struct {
-		name         string
-		give         histogramRequest
-		want         *histogram.Filter
-		wantInterval typepb.HistogramInterval
+		name       string
+		give       histogramRequest
+		want       *histogram.Filter
+		wantWindow histogram.Window
 	}{
 		{
-			name: "event histogram",
+			name: "event histogram, from honoured",
 			give: &pb.GetEventHistogramRequest{
-				Resolution:  typepb.HistogramResolution_HISTOGRAM_RESOLUTION_1_HOUR,
+				Resolution:  res1h,
 				ResourceIds: []string{"r1"},
 				From:        timestamppb.New(from),
 			},
 			want: &histogram.Filter{
-				Resolution:  typepb.HistogramResolution_HISTOGRAM_RESOLUTION_1_HOUR,
+				Resolution:  res1h,
 				ResourceIds: []string{"r1"},
 				From:        from,
+				To:          end,
 			},
-			wantInterval: typepb.HistogramInterval_HISTOGRAM_INTERVAL_1_MINUTE,
+			wantWindow: histogram.Window{
+				Interval: int1m, From: from, To: end,
+			},
 		},
 		{
 			name: "visitors, resolution picked",
 			give: &pb.ListVisitorsRequest{},
 			want: &histogram.Filter{
-				Resolution: typepb.HistogramResolution_HISTOGRAM_RESOLUTION_1_HOUR,
+				Resolution: res1h,
+				From:       end.Add(-time.Hour),
+				To:         end,
 			},
-			wantInterval: typepb.HistogramInterval_HISTOGRAM_INTERVAL_1_MINUTE,
+			wantWindow: histogram.Window{
+				Interval: int1m, From: end.Add(-time.Hour), To: end,
+			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			filter, interval, err := histogramFilter(tt.give, now)
+			filter, window, err := histogramFilter(tt.give, now)
 
 			require.NoError(t, err)
 			assert.Equal(t, tt.want, filter)
-			assert.Equal(t, tt.wantInterval, interval)
+			assert.Equal(t, tt.wantWindow, window)
 		})
 	}
 }
@@ -130,11 +142,12 @@ func TestHistogramFilterKept(t *testing.T) {
 		From: timestamppb.New(now.Add(-30 * 24 * time.Hour)),
 	}
 
-	_, interval, err := histogramFilter(req, now)
+	_, window, err := histogramFilter(req, now)
 
 	require.NoError(t, err)
 	assert.Equal(t,
-		typepb.HistogramInterval_HISTOGRAM_INTERVAL_12_HOURS, interval)
+		typepb.HistogramInterval_HISTOGRAM_INTERVAL_12_HOURS, window.Interval)
+	assert.False(t, window.Truncated)
 }
 
 func TestHistogramPoints(t *testing.T) {
@@ -191,5 +204,34 @@ func TestHistogramEventsRejectsFilter(t *testing.T) {
 		Filters: []string{"status"},
 	})
 
-	require.Error(t, err)
+	assert.Equal(t, codes.InvalidArgument, status.Code(err))
+}
+
+func TestListFilter(t *testing.T) {
+	give := &pb.ListHttpEgressEventsRequest{
+		Page:        &typepb.Pages{Size: 10_000},
+		ResourceIds: []string{"r1"},
+		RequestIds:  []string{"req_1"},
+		Filters:     []string{"status:502"},
+		From:        timestamppb.New(time.UnixMilli(1000)),
+	}
+
+	got, err := listFilter(give)
+
+	require.NoError(t, err)
+	assert.Equal(t, &eventfilter.Filter{
+		RequestIds:  []string{"req_1"},
+		ResourceIds: []string{"r1"},
+		Matches:     []eventfilter.Match{{Field: "status", Value: "502"}},
+		From:        time.UnixMilli(1000).UTC(),
+		Page:        &typepb.Pages{Size: _maxPageSize, Index: 1},
+	}, got)
+}
+
+func TestListFilterRejectsFilter(t *testing.T) {
+	_, err := listFilter(&pb.ListHttpEgressEventsRequest{
+		Filters: []string{"status"},
+	})
+
+	assert.Equal(t, codes.InvalidArgument, status.Code(err))
 }

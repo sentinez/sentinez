@@ -10,6 +10,58 @@ import { ControlPlane, controlPlaneFromJSON, controlPlaneToJSON, Zone, zoneFromJ
 
 export const protobufPackage = "sentinez.types.v1";
 
+/** ColumnCodec how a message field stored as one column is scanned. */
+export enum ColumnCodec {
+  COLUMN_CODEC_UNSPECIFIED = 0,
+  /** COLUMN_CODEC_PROTO - Binary protobuf bytes, read with proto.Unmarshal. */
+  COLUMN_CODEC_PROTO = 1,
+  /**
+   * COLUMN_CODEC_PROTOJSON - Protobuf JSON, read with protojson.Unmarshal, unknown fields
+   * discarded.
+   */
+  COLUMN_CODEC_PROTOJSON = 2,
+  /** COLUMN_CODEC_DRIVER - Scanned straight into the field by the database driver. */
+  COLUMN_CODEC_DRIVER = 3,
+  UNRECOGNIZED = -1,
+}
+
+export function columnCodecFromJSON(object: any): ColumnCodec {
+  switch (object) {
+    case 0:
+    case "COLUMN_CODEC_UNSPECIFIED":
+      return ColumnCodec.COLUMN_CODEC_UNSPECIFIED;
+    case 1:
+    case "COLUMN_CODEC_PROTO":
+      return ColumnCodec.COLUMN_CODEC_PROTO;
+    case 2:
+    case "COLUMN_CODEC_PROTOJSON":
+      return ColumnCodec.COLUMN_CODEC_PROTOJSON;
+    case 3:
+    case "COLUMN_CODEC_DRIVER":
+      return ColumnCodec.COLUMN_CODEC_DRIVER;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return ColumnCodec.UNRECOGNIZED;
+  }
+}
+
+export function columnCodecToJSON(object: ColumnCodec): string {
+  switch (object) {
+    case ColumnCodec.COLUMN_CODEC_UNSPECIFIED:
+      return "COLUMN_CODEC_UNSPECIFIED";
+    case ColumnCodec.COLUMN_CODEC_PROTO:
+      return "COLUMN_CODEC_PROTO";
+    case ColumnCodec.COLUMN_CODEC_PROTOJSON:
+      return "COLUMN_CODEC_PROTOJSON";
+    case ColumnCodec.COLUMN_CODEC_DRIVER:
+      return "COLUMN_CODEC_DRIVER";
+    case ColumnCodec.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 export interface XMeta {
   serviceName: string;
   serviceZone: Zone;
@@ -19,6 +71,12 @@ export interface XMeta {
 export interface XMessage {
   databaseModel: boolean;
   exportField: boolean;
+  /**
+   * Flattens every nested message into "<field>_<nested>" columns and
+   * generates <Msg>Columns, the column order, then ScanOne<Msg> and
+   * Scan<Msg> that scan a row of them into the message.
+   */
+  scanner: boolean;
 }
 
 export interface XField {
@@ -27,6 +85,15 @@ export interface XField {
    * nested field, named "<field>_<nested field>" (e.g. owner_created_at).
    */
   flatten: boolean;
+  /** The field is not stored: the scanner of its message leaves it out. */
+  ignore: boolean;
+  /**
+   * Stores a message field as one column, encoded with codec, instead of
+   * flattening it.
+   */
+  codec: ColumnCodec;
+  /** The column of a scalar field may be NULL, scanned as its zero value. */
+  nullable: boolean;
 }
 
 export interface XMethod {
@@ -148,7 +215,7 @@ export const XMeta: MessageFns<XMeta> = {
 };
 
 function createBaseXMessage(): XMessage {
-  return { databaseModel: false, exportField: false };
+  return { databaseModel: false, exportField: false, scanner: false };
 }
 
 export const XMessage: MessageFns<XMessage> = {
@@ -158,6 +225,9 @@ export const XMessage: MessageFns<XMessage> = {
     }
     if (message.exportField !== false) {
       writer.uint32(16).bool(message.exportField);
+    }
+    if (message.scanner !== false) {
+      writer.uint32(24).bool(message.scanner);
     }
     return writer;
   },
@@ -191,6 +261,14 @@ export const XMessage: MessageFns<XMessage> = {
             message.exportField = reader.bool();
             continue;
           }
+          case 3: {
+            if (tag !== 24) {
+              break;
+            }
+
+            message.scanner = reader.bool();
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -215,6 +293,7 @@ export const XMessage: MessageFns<XMessage> = {
         : isSet(object.export_field)
         ? globalThis.Boolean(object.export_field)
         : false,
+      scanner: isSet(object.scanner) ? globalThis.Boolean(object.scanner) : false,
     };
   },
 
@@ -226,6 +305,9 @@ export const XMessage: MessageFns<XMessage> = {
     if (message.exportField !== false) {
       obj.exportField = message.exportField;
     }
+    if (message.scanner !== false) {
+      obj.scanner = message.scanner;
+    }
     return obj;
   },
 
@@ -236,18 +318,28 @@ export const XMessage: MessageFns<XMessage> = {
     const message = createBaseXMessage();
     message.databaseModel = object.databaseModel ?? false;
     message.exportField = object.exportField ?? false;
+    message.scanner = object.scanner ?? false;
     return message;
   },
 };
 
 function createBaseXField(): XField {
-  return { flatten: false };
+  return { flatten: false, ignore: false, codec: 0, nullable: false };
 }
 
 export const XField: MessageFns<XField> = {
   encode(message: XField, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.flatten !== false) {
       writer.uint32(8).bool(message.flatten);
+    }
+    if (message.ignore !== false) {
+      writer.uint32(16).bool(message.ignore);
+    }
+    if (message.codec !== 0) {
+      writer.uint32(24).int32(message.codec);
+    }
+    if (message.nullable !== false) {
+      writer.uint32(32).bool(message.nullable);
     }
     return writer;
   },
@@ -273,6 +365,30 @@ export const XField: MessageFns<XField> = {
             message.flatten = reader.bool();
             continue;
           }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.ignore = reader.bool();
+            continue;
+          }
+          case 3: {
+            if (tag !== 24) {
+              break;
+            }
+
+            message.codec = reader.int32() as any;
+            continue;
+          }
+          case 4: {
+            if (tag !== 32) {
+              break;
+            }
+
+            message.nullable = reader.bool();
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -286,13 +402,27 @@ export const XField: MessageFns<XField> = {
   },
 
   fromJSON(object: any): XField {
-    return { flatten: isSet(object.flatten) ? globalThis.Boolean(object.flatten) : false };
+    return {
+      flatten: isSet(object.flatten) ? globalThis.Boolean(object.flatten) : false,
+      ignore: isSet(object.ignore) ? globalThis.Boolean(object.ignore) : false,
+      codec: isSet(object.codec) ? columnCodecFromJSON(object.codec) : 0,
+      nullable: isSet(object.nullable) ? globalThis.Boolean(object.nullable) : false,
+    };
   },
 
   toJSON(message: XField): unknown {
     const obj: any = {};
     if (message.flatten !== false) {
       obj.flatten = message.flatten;
+    }
+    if (message.ignore !== false) {
+      obj.ignore = message.ignore;
+    }
+    if (message.codec !== 0) {
+      obj.codec = columnCodecToJSON(message.codec);
+    }
+    if (message.nullable !== false) {
+      obj.nullable = message.nullable;
     }
     return obj;
   },
@@ -303,6 +433,9 @@ export const XField: MessageFns<XField> = {
   fromPartial<I extends Exact<DeepPartial<XField>, I>>(object: I): XField {
     const message = createBaseXField();
     message.flatten = object.flatten ?? false;
+    message.ignore = object.ignore ?? false;
+    message.codec = object.codec ?? 0;
+    message.nullable = object.nullable ?? false;
     return message;
   },
 };

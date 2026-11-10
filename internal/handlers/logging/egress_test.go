@@ -110,3 +110,59 @@ func TestContentLength(t *testing.T) {
 		})
 	}
 }
+
+func TestSetHeadersOf(t *testing.T) {
+	tests := []struct {
+		name string
+		give map[string]string
+		want string
+	}{
+		{"none", nil, ""},
+		{
+			"sorted by name",
+			map[string]string{
+				"X-Real-IP":          "1.2.3.4",
+				"X-Forwarded-Prefix": "/api",
+			},
+			"X-Forwarded-Prefix: /api\nX-Real-IP: 1.2.3.4\n",
+		},
+		{
+			"credentials left out",
+			map[string]string{
+				"Authorization": "Bearer secret",
+				"cookie":        "a=b",
+				"X-Env":         "prod",
+			},
+			"X-Env: prod\n",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			x := &edgepb.ContextExtra{SetHeaders: tt.give}
+
+			assert.Equal(t, tt.want, setHeadersOf(x))
+		})
+	}
+}
+
+func TestNewEgressEventHeaders(t *testing.T) {
+	ctx := &fakeContext{x: &edgepb.ContextExtra{
+		Upstream:   "http://o",
+		SetHeaders: map[string]string{"X-Env": "prod"},
+	}}
+
+	event := newEgressEvent(ctx, ctx.x)
+	defer egress.Release(event)
+
+	assert.Equal(t, "X-Env: prod\n", event.Headers)
+}
+
+func TestEgressEventReleaseClearsHeaders(t *testing.T) {
+	event := egress.Acquire()
+	event.Headers = "X-Env: prod\n"
+
+	egress.Release(event)
+
+	assert.Empty(t, egress.Acquire().Headers)
+}

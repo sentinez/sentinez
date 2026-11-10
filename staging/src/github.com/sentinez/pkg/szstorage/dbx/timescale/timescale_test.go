@@ -91,7 +91,7 @@ func eventsHypertable() Hypertable {
 }
 
 func normalized(t *testing.T, ht Hypertable) Hypertable {
-	ht, err := ht.normalize()
+	ht, err := ht.Normalized()
 	require.NoError(t, err)
 
 	return ht
@@ -104,7 +104,7 @@ func TestOnConflictDoNothing(t *testing.T) {
 		Hypertable{}.OnConflictDoNothing())
 }
 
-func TestNormalize(t *testing.T) {
+func TestNormalized(t *testing.T) {
 	tests := []struct {
 		name      string
 		give      Hypertable
@@ -129,7 +129,7 @@ func TestNormalize(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ht, err := tt.give.normalize()
+			ht, err := tt.give.Normalized()
 
 			require.NoError(t, err)
 			assert.Equal(t, tt.wantTime, ht.TimeColumn)
@@ -139,7 +139,7 @@ func TestNormalize(t *testing.T) {
 	}
 }
 
-func TestNormalizeError(t *testing.T) {
+func TestNormalizedError(t *testing.T) {
 	schema := eventsHypertable().Schema
 
 	tests := []struct {
@@ -161,9 +161,41 @@ func TestNormalizeError(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := tt.give.normalize()
+			_, err := tt.give.Normalized()
 
 			require.ErrorContains(t, err, tt.wantErr)
+		})
+	}
+}
+
+func TestTimeBucket(t *testing.T) {
+	timestamp, err := Hypertable{}.Normalized()
+	require.NoError(t, err)
+
+	tests := []struct {
+		name       string
+		give       Hypertable
+		wantMillis bool
+		want       string
+	}{
+		{
+			name:       "millis",
+			give:       normalized(t, eventsHypertable()),
+			wantMillis: true,
+			want:       "time_bucket(60000::BIGINT, ts)",
+		},
+		{
+			name: "timestamp",
+			give: timestamp,
+			want: "time_bucket(INTERVAL '60000 milliseconds', " +
+				"created_at)",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.wantMillis, tt.give.MillisTime())
+			assert.Equal(t, tt.want, tt.give.TimeBucket(time.Minute))
 		})
 	}
 }

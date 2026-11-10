@@ -49,6 +49,13 @@ service AnalyticService {
     option (sentinez.types.v1.x_method) = {ignore: true};
   }
 
+  // GetEgressLatency measures the latency of the requests proxied to
+  // each upstream over a range: average, median, p95, p99 and maximum.
+  rpc GetEgressLatency(GetEgressLatencyRequest) returns (GetEgressLatencyResponse) {
+    option (google.api.http) = {get: "/analytic/events/http-egress/latency"};
+    option (sentinez.types.v1.x_method) = {ignore: true};
+  }
+
   rpc ListSecRuleEvents(ListSecRuleEventsRequest) returns (ListSecRuleEventsResponse) {
     option (google.api.http) = {get: "/analytic/events/secrule"};
     option (sentinez.types.v1.x_method) = {ignore: true};

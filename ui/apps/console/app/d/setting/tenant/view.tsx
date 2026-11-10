@@ -7,13 +7,12 @@ import { ArrowLeftRight } from 'lucide-react';
 import Link from 'next/link';
 import { useFormatter, useTranslations } from 'next-intl';
 
+import { InfoCard, InfoRow } from '@/components/info-card';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 import { useApi } from '@/hooks/use-api';
 import { usePlanLabel } from '@/hooks/use-plan-label';
 import { useTenantId } from '@/hooks/use-tenant-id';
 import { getTenant } from '@/lib/api/tenant';
-
-import { InfoCard, InfoRow } from '../components';
 
 export default function View() {
   const t = useTranslations('Setting');

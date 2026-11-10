@@ -18,7 +18,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventfilter"
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/topvalues"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 )
@@ -35,7 +34,7 @@ const _topRange = time.Hour
 func (srv *AnalyticService) GetEventTopValues(ctx context.Context,
 	req *pb.GetEventTopValuesRequest,
 ) (*pb.GetEventTopValuesResponse, error) {
-	filter, err := topFilter(req, time.Now())
+	filter, err := rangedFilter(req, time.Now(), _topRange)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +42,7 @@ func (srv *AnalyticService) GetEventTopValues(ctx context.Context,
 	result, err := srv.events.TopValues(ctx, req.GetKind(), filter,
 		req.GetFields(), topLimit(req.GetLimit()))
 	if err != nil {
-		return nil, fieldError(err)
+		return nil, filterError(err)
 	}
 
 	return topValuesResponse(result), nil
@@ -56,34 +55,6 @@ func topLimit(limit int32) uint64 {
 	}
 
 	return uint64(min(limit, _maxTopLimit))
-}
-
-// topFilter the events of req at now: up to to, else now, from from, else
-// _topRange before; a top never reads a whole table. A filter that is not
-// "field:value" is an invalid argument.
-func topFilter(req *pb.GetEventTopValuesRequest,
-	now time.Time) (*eventfilter.Filter, error) {
-	matches, err := matchesOf(req.GetFilters())
-	if err != nil {
-		return nil, err
-	}
-
-	to := asTime(req.GetTo())
-	from := asTime(req.GetFrom())
-	if from.IsZero() {
-		end := to
-		if end.IsZero() {
-			end = now
-		}
-		from = end.Add(-_topRange)
-	}
-
-	return &eventfilter.Filter{
-		ResourceIds: req.GetResourceIds(),
-		Matches:     matches,
-		From:        from,
-		To:          to,
-	}, nil
 }
 
 // topValuesResponse the proto of result.

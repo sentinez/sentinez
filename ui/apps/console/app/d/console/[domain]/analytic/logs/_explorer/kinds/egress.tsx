@@ -6,8 +6,9 @@ import { useFormatter, useTranslations } from 'next-intl';
 import { EventKind } from '@sentinez/proto/sentinez/apps/analytic/v1/event';
 import { EgressEvent } from '@sentinez/proto/sentinez/types/net/http/v1/event';
 import { listHttpEgressEvents, type ApiOptions } from '@/lib/api/analytic';
+import { latencyMs } from '@/lib/latency';
 import { StatusBadge } from '../status-badge';
-import { queryParamsOf, statusClassOf } from '../status';
+import { headerPairsOf, queryParamsOf, statusClassOf } from '../status';
 import type { EventConfig, ListRequest } from '../types';
 import { MonoCell, PathCell, columnOf, statusSeries } from './shared';
 
@@ -20,8 +21,7 @@ export function useEgressConfig(): EventConfig<EgressEvent> {
   const format = useFormatter();
   return useMemo(() => {
     const c = columnOf(t);
-    const latencyOf = (e: EgressEvent) =>
-      `${format.number(e.latencyMicros / 1000, { maximumFractionDigits: 1 })} ms`;
+    const latencyOf = (e: EgressEvent) => latencyMs(format, e.latencyMicros);
     const lengthOf = (e: EgressEvent) =>
       e.contentLength < 0 ? t('streamed') : format.number(e.contentLength);
     return {
@@ -76,6 +76,21 @@ export function useEgressConfig(): EventConfig<EgressEvent> {
             </div>
           ),
         },
+        {
+          // the headers the edge set on the request to the origin: their
+          // names, the values in the title and the detail
+          id: 'headers',
+          size: 200,
+          header: c('headers'),
+          cell: ({ row }) => (
+            <MonoCell
+              value={headerPairsOf(row.original.headers)
+                .map(([name]) => name)
+                .join(', ')}
+              title={row.original.headers}
+            />
+          ),
+        },
       ],
       series: statusSeries(t),
       seriesOf: statusClassOf,
@@ -111,7 +126,10 @@ export function useEgressConfig(): EventConfig<EgressEvent> {
           [c('contentType'), e.contentType],
           [c('contentLength'), lengthOf(e)],
         ],
-        sections: (e) => [{ title: t('detail.queries'), pairs: queryParamsOf(e.queries) }],
+        sections: (e) => [
+          { title: t('detail.queries'), pairs: queryParamsOf(e.queries) },
+          { title: t('detail.setHeaders'), pairs: headerPairsOf(e.headers) },
+        ],
         toJSON: (e) => EgressEvent.toJSON(e),
       },
     };

@@ -20,40 +20,43 @@ package httpegresseventsrepo
 import (
 	"context"
 
-	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventfilter"
+	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventreader"
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/topvalues"
 	"github.com/sentinez/controlplane/pkg/schema"
 	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
-	"github.com/sentinez/pkg/szstorage/dbx/timescale"
 	"github.com/sentinez/pkg/szstorage/dbx/timescale/histogram"
+	analyticpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
 
 var _ IHttpEgressEvent = (*HttpEgressEvents)(nil)
 
-var _hypertable = schema.EventHypertable(
-	schema.AnalyticHttpEgressEvent(), httppb.EgressEvent_Timestamp)
-
-var _histogram = histogram.Spec{
-	Source: _hypertable,
-	Key:    httppb.EgressEvent_Status,
-}
-
-var _filterColumns = eventfilter.Columns{
-	RequestId:   httppb.EgressEvent_Id,
-	ResourceId:  httppb.EgressEvent_ResourceId,
-	MatchedTime: httppb.EgressEvent_Timestamp,
-	Fields:      _fields,
+// _spec the reader of the events: their histogram is split by status.
+var _spec = eventreader.Spec[httppb.EgressEvent]{
+	Hypertable: schema.EventHypertable(
+		schema.AnalyticHttpEgressEvent(), httppb.EgressEvent_Timestamp),
+	Key: httppb.EgressEvent_Status,
+	Columns: eventfilter.Columns{
+		RequestId:   httppb.EgressEvent_Id,
+		ResourceId:  httppb.EgressEvent_ResourceId,
+		MatchedTime: httppb.EgressEvent_Timestamp,
+		Fields:      _fields,
+	},
+	Select:   httppb.EgressEventColumns(),
+	Scan:     httppb.ScanEgressEvent[dbx.Rows],
+	ScanOne:  httppb.ScanOneEgressEvent[dbx.Row],
+	Values:   httppb.EgressEventValues,
+	IdColumn: httppb.EgressEvent_Id,
 }
 
 // _fields the fields of the events filters match and top values count,
 // in this order.
 var _fields = []eventfilter.Field{
 	eventfilter.Column(httppb.EgressEvent_Upstream),
-	eventfilter.Column(httppb.EgressEvent_Status),
+	eventfilter.TypedColumn(httppb.EgressEvent_Status, dbx.Int4),
 	eventfilter.Column(httppb.EgressEvent_Method),
 	eventfilter.Column(httppb.EgressEvent_Path),
 	eventfilter.Column(httppb.EgressEvent_ContentType),
@@ -74,104 +77,43 @@ type IHttpEgressEvent interface {
 		filter *eventfilter.Filter) ([]*httppb.EgressEvent, error)
 	// Histogram counts the proxied requests per bucket, resource and
 	// status of the origin (histogram.Point.Key).
-	// The events of events only when set (see eventfilter.Points).
+	// The events of events only when set (see eventreader.Reader).
 	Histogram(ctx context.Context, filter *histogram.Filter,
 		events *eventfilter.Filter) ([]*histogram.Point, error)
+	LatencyReader
 	topvalues.TopValuer
 }
 
 type HttpEgressEvents struct {
-	storage   dbx.Database[httppb.EgressEvent]
-	histogram *histogram.Histogram
-	topValues *topvalues.Reader
+	*eventreader.Reader[httppb.EgressEvent]
+
+	latency *latencyReader
 }
 
 // New returns the repo of the sztable.AnalyticHttpEgressEvent
 // hypertable, and of its histograms.
 func New(ctx context.Context,
 	appConf *settingpb.Config) (IHttpEgressEvent, error) {
-	storage, err := timescale.New[httppb.EgressEvent](ctx, appConf,
-		_hypertable)
+	reader, err := eventreader.New(ctx, appConf, _spec)
 	if err != nil {
 		return nil, err
 	}
 
-	hist, err := histogram.New(ctx, appConf, _histogram)
+	latency, err := openLatency(ctx, appConf,
+		_spec.Hypertable.Schema.Table, _spec.Columns)
 	if err != nil {
 		return nil, err
 	}
 
-	topValues, err := topvalues.Open(ctx, appConf, _hypertable.Schema.Table,
-		_filterColumns)
-	if err != nil {
-		return nil, err
-	}
-
-	return &HttpEgressEvents{
-		storage:   storage,
-		histogram: hist,
-		topValues: topValues,
-	}, nil
+	return &HttpEgressEvents{Reader: reader, latency: latency}, nil
 }
 
 func (r *HttpEgressEvents) WithTX(tx *postgres.TxSession) IHttpEgressEvent {
-	return &HttpEgressEvents{
-		storage:   postgres.WithTx(tx, r.storage),
-		histogram: r.histogram,
-		topValues: r.topValues,
-	}
+	return &HttpEgressEvents{Reader: r.WithTx(tx), latency: r.latency}
 }
 
-func (r *HttpEgressEvents) Create(ctx context.Context,
-	events ...*httppb.EgressEvent) error {
-	if len(events) == 0 {
-		return nil
-	}
-
-	query, err := postgres.InsertRowsBuilder(r.storage,
-		httppb.EgressEventColumns(), events, httppb.EgressEventValues)
-	if err != nil {
-		return err
-	}
-
-	_, err = r.storage.Exec(ctx, query.Suffix(_hypertable.OnConflictDoNothing()))
-	return err
-}
-
-func (r *HttpEgressEvents) Get(ctx context.Context,
-	id string) (*httppb.EgressEvent, error) {
-	builder := r.selectQuery().Where(sq.Eq{httppb.EgressEvent_Id: id})
-	return r.storage.Select(ctx, builder, httppb.ScanOneEgressEvent)
-}
-
-func (r *HttpEgressEvents) Delete(ctx context.Context, id string) error {
-	return r.storage.Delete(ctx, id)
-}
-
-// List the events of filter, the latest request first.
-func (r *HttpEgressEvents) List(ctx context.Context,
-	filter *eventfilter.Filter) ([]*httppb.EgressEvent, error) {
-	builder, err := filter.Apply(r.selectQuery(), _filterColumns)
-	if err != nil {
-		return nil, err
-	}
-
-	return r.storage.CollectRows(ctx, builder, httppb.ScanEgressEvent)
-}
-
-func (r *HttpEgressEvents) Histogram(ctx context.Context,
-	filter *histogram.Filter,
-	events *eventfilter.Filter) ([]*histogram.Point, error) {
-	return eventfilter.Points(ctx, r.histogram, filter, events,
-		_filterColumns)
-}
-
-func (r *HttpEgressEvents) TopValues(ctx context.Context,
-	filter *eventfilter.Filter, names []string,
-	limit uint64) (*topvalues.Result, error) {
-	return r.topValues.TopValues(ctx, filter, names, limit)
-}
-
-func (r *HttpEgressEvents) selectQuery() sq.SelectBuilder {
-	return sq.Select(httppb.EgressEventColumns()...).From(r.storage.Table())
+// Latency implements LatencyReader.
+func (r *HttpEgressEvents) Latency(ctx context.Context,
+	filter *eventfilter.Filter) ([]*analyticpb.UpstreamLatency, error) {
+	return r.latency.Latency(ctx, filter)
 }

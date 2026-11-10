@@ -16,6 +16,14 @@ import type { Resource } from '@sentinez/proto/sentinez/apps/tenant/v1/model';
 import type { CreateResourceRequest } from '@sentinez/proto/sentinez/apps/tenant/v1/tenant';
 import { BalanceStrategy, ProxyProtocol } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
+import {
+  DOMAIN_RE,
+  LOCATION_RE,
+  NAME_RE,
+  PROTOCOL_LABEL,
+  UPSTREAM_RE,
+  protocolOf,
+} from '@/lib/type/edge';
 
 export interface OriginRow {
   server: string;
@@ -55,18 +63,6 @@ const statusOptions = (t: FieldsTranslator, ts: StatusTranslator): Option<Status
   },
 ];
 
-const PROTOCOL_OPTIONS: Option<ProxyProtocol>[] = [
-  { label: 'HTTPS', value: ProxyProtocol.PROXY_PROTOCOL_HTTPS },
-  { label: 'HTTP', value: ProxyProtocol.PROXY_PROTOCOL_HTTP },
-];
-
-// Patterns from setting.proto (buf.validate): server.name, server.resource_domain
-const NAME_RE = /^[a-zA-Z0-9-]+$/;
-const DOMAIN_RE = /^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,63}$/;
-const LOCATION_RE = /^\/.*$/;
-const UPSTREAM_RE =
-  /^(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3})|(([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}))$/;
-
 export function createEmptyResourceForm(): ResourceFormValue {
   return {
     resourceName: '',
@@ -87,10 +83,7 @@ export function resourceFormOf(r: Resource): ResourceFormValue {
     location: loc?.location || '/',
     origins: (loc?.proxyPass ?? []).map((u) => ({
       server: u.server,
-      protocol:
-        u.protocol === ProxyProtocol.PROXY_PROTOCOL_HTTP
-          ? ProxyProtocol.PROXY_PROTOCOL_HTTP
-          : ProxyProtocol.PROXY_PROTOCOL_HTTPS,
+      protocol: protocolOf(u.protocol),
     })),
   };
 }
@@ -146,7 +139,7 @@ export function validateResourceForm(f: ResourceFormValue, t: ValidationTranslat
   return null;
 }
 
-function OptionSelect<T extends number>({
+export function OptionSelect<T extends number>({
   label,
   value,
   options,
@@ -180,7 +173,7 @@ function OptionSelect<T extends number>({
   );
 }
 
-function OriginRows({
+export function OriginRows({
   rows,
   onChange,
   idPrefix,
@@ -205,7 +198,7 @@ function OriginRows({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {PROTOCOL_OPTIONS.map((o) => (
+              {PROTOCOL_LABEL.map((o) => (
                 <SelectItem key={o.value} value={String(o.value)}>
                   {o.label}
                 </SelectItem>
