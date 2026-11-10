@@ -1,11 +1,15 @@
 import {
   EventKind,
+  EventSelection,
+  GetEgressLatencyRequest,
+  GetEgressLatencyResponse,
   GetEventHistogramRequest,
   GetEventHistogramResponse,
   GetEventTopValuesRequest,
   GetEventTopValuesResponse,
   type FieldTopValues,
   type HistogramPoint,
+  type UpstreamLatency,
   ListCoreRuleEventsRequest,
   ListCoreRuleEventsResponse,
   ListHttpEgressEventsRequest,
@@ -26,6 +30,7 @@ import { paginate } from '@/lib/api/pages';
 import { SAMPLE_TENANT_ID } from '@/lib/api/tenant';
 import {
   type ApiOptions,
+  DAY_MILLIS,
   HOUR_MILLIS,
   getJSON,
   RESOLUTION_BUCKETS,
@@ -135,6 +140,7 @@ function sampleEgressOf(e: IngressEvent): EgressEvent | null {
     resourceId: e.resourceId,
     tenantId: e.tenantId,
     protocol: e.protocol,
+    headers: `X-Forwarded-Prefix: /\nX-Real-IP: ${e.clientIp}\n`,
   };
 }
 
@@ -221,6 +227,15 @@ const ofFilters = (kind: EventKind, filters: string[]) => (e: IngressEvent) => {
   const [record] = sampleRecordsOf(kind, [e]);
   return record !== undefined && matchesFilters(record, filters);
 };
+
+// The sample egress events of a selection: its range, field filters and
+// requests, as the egress list and latency select them
+const sampleEgressOfSelection = (sel: EventSelection): EgressEvent[] =>
+  sampleIngressRange(sel)
+    .filter(ofFilters(EventKind.EVENT_KIND_HTTP_EGRESS, sel.filters))
+    .map(sampleEgressOf)
+    .filter(present)
+    .filter(ofRequests(sel.requestIds, (e) => e.id));
 
 // SampleRecord a sample event as the histogram and the top values count it
 type SampleRecord = {
@@ -342,10 +357,10 @@ function sampleHistogram(req: GetEventHistogramRequest): HistogramPoint[] {
 function sampleTopValues(req: GetEventTopValuesRequest): GetEventTopValuesResponse {
   const to = req.to ?? new Date();
   const from = req.from ?? new Date(to.getTime() - HOUR_MILLIS);
-  const records = sampleRecordsOf(
-    req.kind,
-    sampleIngressRange({ resourceIds: req.resourceIds, from, to }),
-  ).filter((r) => matchesFilters(r, req.filters));
+  const requests = sampleIngressRange({ resourceIds: req.resourceIds, from, to }).filter(
+    ofRequests(req.requestIds, (e) => e.id),
+  );
+  const records = sampleRecordsOf(req.kind, requests).filter((r) => matchesFilters(r, req.filters));
   const limit = Math.min(req.limit > 0 ? req.limit : 5, 20);
   const names = req.fields.length ? req.fields : Object.keys(records[0]?.fields ?? {});
   const fields: FieldTopValues[] = names.map((field) => {
@@ -378,6 +393,7 @@ export async function getEventHistogram(
     () => ({
       points: sampleHistogram(full),
       interval: intervalOf(full.resolution),
+      truncated: false,
     }),
     options,
   );
@@ -431,15 +447,60 @@ export async function listHttpEgressEvents(
     full,
     { req: ListHttpEgressEventsRequest, resp: ListHttpEgressEventsResponse },
     () => ({
-      events: paginate(
-        sampleIngressRange(full)
-          .filter(ofFilters(EventKind.EVENT_KIND_HTTP_EGRESS, full.filters))
-          .map(sampleEgressOf)
-          .filter(present)
-          .filter(ofRequests(full.requestIds, (e) => e.id)),
-        full.page,
-      ),
+      events: paginate(sampleEgressOfSelection(full), full.page),
     }),
+    options,
+  );
+}
+
+// The p-th quantile (0 to 1) of micros, sorted ascending
+const quantileOf = (sorted: number[], p: number) =>
+  sorted[Math.min(sorted.length - 1, Math.floor(p * sorted.length))] ?? 0;
+
+// The latency of the sample requests proxied to an upstream
+function sampleLatencyOf(upstream: string, micros: number[]): UpstreamLatency {
+  const sorted = micros.sort((a, b) => a - b);
+  const sum = sorted.reduce((total, m) => total + m, 0);
+  return {
+    upstream,
+    total: sorted.length,
+    avgMicros: Math.round(sum / sorted.length),
+    p50Micros: quantileOf(sorted, 0.5),
+    p95Micros: quantileOf(sorted, 0.95),
+    p99Micros: quantileOf(sorted, 0.99),
+    maxMicros: sorted[sorted.length - 1] ?? 0,
+  };
+}
+
+// The sample latency per upstream of the requests of the selection, the
+// last 24 hours up to its end without a start
+function sampleEgressLatency(req: GetEgressLatencyRequest): GetEgressLatencyResponse {
+  const selection = EventSelection.fromPartial(req.selection ?? {});
+  const to = selection.to ?? new Date();
+  const from = selection.from ?? new Date(to.getTime() - DAY_MILLIS);
+  const byUpstream = new Map<string, number[]>();
+  sampleEgressOfSelection({ ...selection, from, to }).forEach((e) => {
+    const micros = byUpstream.get(e.upstream) ?? [];
+    micros.push(e.latencyMicros);
+    byUpstream.set(e.upstream, micros);
+  });
+  const upstreams = [...byUpstream]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([upstream, micros]) => sampleLatencyOf(upstream, micros));
+  return { upstreams, from, to };
+}
+
+// GET /analytic/events/http-egress/latency
+export async function getEgressLatency(
+  req: Partial<GetEgressLatencyRequest> = {},
+  options?: ApiOptions,
+): Promise<GetEgressLatencyResponse> {
+  const full = GetEgressLatencyRequest.fromPartial(req);
+  return getJSON(
+    '/analytic/events/http-egress/latency',
+    full,
+    { req: GetEgressLatencyRequest, resp: GetEgressLatencyResponse },
+    () => sampleEgressLatency(full),
     options,
   );
 }

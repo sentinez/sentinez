@@ -8,7 +8,9 @@ Remove an entry once it is fixed.
 
 ## 12.1 Logic bugs (affect behavior)
 
-None known.
+| # | Location | Problem |
+|---|---|---|
+| L1 | [controlplane/pkg/schema](../staging/src/github.com/sentinez/controlplane/pkg/schema/) since `28dd2173` *(needs verification)* | The timestamp columns of the iam, tenant, security and activities tables were renamed (`created_at` → `metadata_created_at` / `owner_created_at`) and `security.sec_rules.action` went from `JSONB` to `TEXT`, but the schema sync never renames or retypes: on a database created before, the generated scanners select columns that do not exist. Drop the tables (dev) or migrate them by hand |
 
 ## 12.2 Security
 
@@ -35,11 +37,9 @@ None known.
   synced between the edges.
 - An explicit `HISTOGRAM_RESOLUTION_SECOND` with no `from` reads the whole
   7 days of the second view.
-- A histogram with `request_ids` or `filters` scans the event table, once per
-  page of buckets (up to 15 requests for a long range per hour): slow on a
-  large table, and the `request_id` of the secrule and core ruleset tables
-  has no index. `GetEventTopValuesRequest` has no `request_ids`, so the top
-  values ignore a request id the list and the histogram apply.
+- Old DBs keep the redundant single `resource_id` index: the composite index
+  `(resource_id, <time>)` was added to every event table, but schema sync
+  never drops indexes.
 - [deploy/docker/docker-compose.yaml](../deploy/docker/docker-compose.yaml)
   creates the event topics with 3 partitions and disables topic auto-create,
   so the producer's `DefaultTopicPartitions` (6) never applies in that
@@ -58,7 +58,7 @@ None known.
 - `DataPlaneService` has no handler; `wsz.WebSocket.Shutdown` is a no-op.
 - IAM uniqueness (one user per email, one account per provider per user,
   `LOCAL` usernames) is only checked in the service before inserting; the
-  tables have no unique index (`dbx.Index` is single-column, non-unique), so
+  tables have no unique index (schema unique indexes are not used here), so
   two concurrent sign-ups can both pass.
 - IAM: a user who signed up with a passkey cannot add a password (there is
   no "link" RPC for `LOCAL`). The console has `PasskeyLink()` in

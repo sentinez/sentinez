@@ -1,8 +1,6 @@
 'use client';
 
-import { useDomain } from '@/hooks/use-domain';
-import { getResourceByDomain } from '@/lib/api/tenant';
-import { useApi } from '@/hooks/use-api';
+import { useResource } from '@/app/d/console/[domain]/resource-context';
 
 /**
  * The id of the resource behind the `[domain]` route segment and of its
@@ -10,14 +8,11 @@ import { useApi } from '@/hooks/use-api';
  * to it. Empty while loading or when the domain has no resource.
  */
 export function useResourceId() {
-  const domain = useDomain();
-  const { data, isLoading } = useApi(getResourceByDomain, {
-    resourceDomain: decodeURIComponent(domain),
-  });
+  const { resource, isLoading } = useResource();
 
   return {
-    resourceId: data?.resource?.id ?? '',
-    tenantId: data?.resource?.tenantId ?? '',
+    resourceId: resource?.id ?? '',
+    tenantId: resource?.tenantId ?? '',
     isLoading,
   };
 }

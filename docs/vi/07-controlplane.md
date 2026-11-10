@@ -20,26 +20,37 @@ Scaffold mẫu cho từng lớp nằm trong `hack/.agent/skills/` (`create-servi
 
 [pkg/szstorage/dbx](../../staging/src/github.com/sentinez/pkg/szstorage/dbx/):
 
-- `dbx.Database[T]`: `Insert`, `Select`, `Delete`, `Total`, `Table`, cùng
+- `dbx.Database[T]`: `Insert`, `Select`, `Delete`, `Total`, `Table`,
+  `CreatedAt`, `UpdatedAt` (tên hai cột timestamp của bảng), cùng
   `Exec`, `Query`, `CollectRows`, `CollectOneRow` nhận `query.Query`
   (interface `ToSql()` của squirrel).
 - `postgres.New[T](ctx, conf, schema)`, với `schema` là một `dbx.Schema`
-  (bảng, cột có kiểu, index) lấy từ
+  (bảng, cột có kiểu, index, tên cột timestamp) lấy từ
   [controlplane/pkg/schema](../../staging/src/github.com/sentinez/controlplane/pkg/schema/)
   (`schema.Tenants()`, ...; `schema.All()` liệt kê tất cả):
   - Tên bảng thật = `<mode>.sentinez.<name>` thay `.` bằng `_`, ví dụ
     `dev_sentinez_iam_users`; phải khớp regex
     `^(dev|sandbox|prod)_sentinez_[a-z]+(_[a-z]+)*$`.
-  - Tự tạo bảng (`id TEXT PK, created_at, updated_at`), thêm cột còn thiếu
-    theo thứ tự rồi tạo index, trong một round trip — **không xoá/đổi kiểu
-    cột**.
+  - Tự tạo bảng (`id TEXT PK`, rồi hai cột `TIMESTAMPTZ` đặt tên theo
+    `Schema.CreatedAt`/`UpdatedAt`, mặc định `created_at` và `updated_at`),
+    thêm cột còn thiếu theo thứ tự rồi tạo index, trong một round trip —
+    **không xoá/đổi tên/đổi kiểu cột**.
+  - Model có metadata được flatten đặt tên cột timestamp theo hằng được
+    sinh: `metadata_created_at` (iam users và accounts, tenants, members,
+    resources), `owner_created_at` (secrules, rate limits, core rulesets,
+    activities).
   - Cùng schema đó dựng được bảng go-memdb (`dbx.MemDBSchema`): centraldata
     giữ mọi bảng controlplane trong bộ nhớ theo cách này.
   - Dùng một `pgxpool.Pool` toàn cục từ `SENZ_POSTGRES_URI`.
-- Helper: `SelectBuilder` (+ phân trang `LIMIT/OFFSET ORDER BY created_at DESC`
+- Helper: `SelectBuilder` (+ phân trang `LIMIT/OFFSET ORDER BY <created at> DESC`
   khi `page.index` và `page.size` > 0), `LimitOffset` (cùng `LIMIT/OFFSET`
   đó, thứ tự để caller tự đặt), `InsertBuilder` (`RETURNING id`),
-  `UpdateBuilder` (tự set `updated_at`).
+  `InsertRowsBuilder(db, columns, rows, valuesOf)` (nhiều dòng trong một
+  `INSERT`, ví dụ `<Msg>Columns()` với `<Msg>Values`), `UpsertBuilder` và
+  `UpdateBuilder` (tự set cột updated-at). Các builder insert thay byte NUL
+  và UTF-8 không hợp lệ trong giá trị chuỗi bằng U+FFFD, vì text của
+  postgres không chứa được (SQLSTATE 22021). `SelectCoalesce` đã bị bỏ: cột
+  nullable được khai báo trên field proto (`x_field.nullable`).
 - `Schema.ColumnNames()` trả về tên các cột của schema theo thứ tự, để repo
   không phải chép lại.
 - Transaction: `postgres.NewTX(conf).Begin(ctx)` → `*TxSession`;
@@ -60,6 +71,14 @@ Tên bảng ([pkg/sztable](../../staging/src/github.com/sentinez/pkg/sztable/tab
 
 Hằng tên cột (`User_Email`, `SecRule_Expr`, ...) được sinh bởi
 `protoc-gen-go-senz` cho message có option `x_message.database_model = true`.
+Model đặt thêm `x_message.scanner = true` (mọi model controlplane và event
+của edge) có thêm row scanner được sinh: `<Msg>Columns()`, `<Msg>Values(m)`,
+`ScanOne<Msg>(row)` và `Scan<Msg>(rows)` (xem
+[8.2](08-api-protobuf.md#row-scanner-được-sinh)): repo select
+`<Msg>Columns()...` rồi truyền `ScanOne<Msg>` cho `Select`/`CollectOneRow`
+hoặc `Scan<Msg>` cho `CollectRows`, không còn `row.Scan` viết tay.
+`schema_test.go` kiểm tra mọi cột mà scanner select đều có trong schema
+bảng.
 
 ### TimescaleDB: hypertable và continuous aggregate
 
@@ -72,8 +91,8 @@ xây trên `postgres.Open`: dùng chung pool và tham gia được transaction c
   ChunkInterval, Retention})` tạo extension `timescaledb`, bảng, các cột
   còn thiếu, hypertable, index và retention policy, trong một round trip.
   Bảng thường đã có được chuyển tại chỗ (`migrate_data`, bỏ primary key).
-  - `TimeColumn` dùng để chia partition: cột `TIMESTAMPTZ` (mặc định
-    `created_at`) hoặc `BIGINT` là unix mili giây; với loại sau, hàm
+  - `TimeColumn` dùng để chia partition: cột `TIMESTAMPTZ` (mặc định là
+    cột created-at của schema) hoặc `BIGINT` là unix mili giây; với loại sau, hàm
     `<table>_now()` mà các policy cần được tạo tự động. `ChunkInterval`
     mặc định 7 ngày; đổi giá trị chỉ áp dụng cho chunk tạo sau đó.
   - Unique index của hypertable bắt buộc chứa cột thời gian, nên `id` một
@@ -354,10 +373,12 @@ Các bảng ([pkg/schema/analytic.go](../../staging/src/github.com/sentinez/cont
 `AnalyticHttpEgressEvent`) lấy theo các trường
 của message Kafka: mảng là `TEXT[]`/`INTEGER[]`, `action` và `tags` là
 `JSONB`, enum là `INTEGER`, `matched_time` (mili giây) là `BIGINT`, có index
-`BTREE` trên `matched_time` và `resource_id`. Bảng ingress có các trường
+`BTREE` trên cột thời gian, index phức hợp trên `(resource_id, <time>)`,
+và `request_id` trên các bảng event quy tắc (`secruleEvents` và
+`AnalyticCoreRulesetsEvent`; bảng HTTP được bao phủ bởi index unique `(id, time)`). Bảng ingress có các trường
 scalar của `httppb.IngressEvent` (`status` là `INTEGER`, `asn` và `timestamp` (mili
 giây) là `BIGINT`, còn lại là `TEXT`, header không gồm các header chứa
-credential), có index trên `timestamp` và `resource_id`; `resource_id`/
+credential); `resource_id`/
 `tenant_id` của nó do stage `DomainBased` của edge đặt
 (`SetResourceId`/`SetTenantId`). Chúng không nằm trong `schema.All()`:
 centraldata không giữ event trong bộ nhớ. Hằng tên cột lấy từ
@@ -370,26 +391,38 @@ nên hai bảng nối với nhau qua `id`; tiếp theo là `upstream` (vd
 `http://10.0.0.1:8080`), `method`, `scheme` (của upstream), `path`,
 `queries`, `status` (của origin, 502 khi không kết nối được), `content_type`,
 `content_length` (-1 khi stream), `latency_micros`, `timestamp` (lúc gửi
-request, mili giây), `resource_id`, `tenant_id` và `protocol` (phiên bản
-HTTP client dùng để tới edge). Request do edge tự trả lời (cache, static, bị
-chặn) không có dòng egress.
+request, mili giây), `resource_id`, `tenant_id`, `protocol` (phiên bản
+HTTP client dùng để tới edge), và `headers` (các request header edge đặt
+cho upstream, sắp xếp theo tên, lược bỏ header nhạy cảm). Request do edge
+tự trả lời (cache, static, bị chặn) không có dòng egress.
 
 Mọi bảng event đều là hypertable
 (`schema.EventHypertable(schema, timeColumn)`), chia theo cột thời gian
 (`matched_time`, `timestamp`) thành chunk một ngày, và giữ trong
 `schema.EventRetention`, 30 ngày.
 
-Repository ([apps/collector/v1/repos](../../staging/src/github.com/sentinez/controlplane/apps/collector/v1/repos/)):
+Repository ([apps/collector/v1/repos](../../staging/src/github.com/sentinez/controlplane/apps/collector/v1/repos/)) nhúng `*eventreader.Reader[T]` ([eventreader](../../staging/src/github.com/sentinez/controlplane/apps/collector/v1/repos/eventreader/)):
 
 - `Create(ctx, events...)` insert các event (bắt buộc đã có id) trong một
-  câu lệnh; `Get`, `Delete`, `WithTX`.
+  câu lệnh; `Get`, `Delete`, `WithTx`, `Select()`.
 - `Histogram(ctx, *histogram.Filter, *eventfilter.Filter)`: số lượng theo
   bucket thời gian, xem [Histogram](#histogram); filter thứ hai chỉ thu hẹp
   theo request và field, có thể là nil.
-- `List(ctx, *eventfilter.Filter)`: lọc theo `ResourceIds` và theo
+- `List(ctx, *eventfilter.Filter)`: lọc theo `ResourceIds`, `RequestIds`, và theo
   `matched_time` (`From` tính cả mốc, `To` không tính; event ingress dùng
   `timestamp`), phân trang bằng `Page`, sắp theo `matched_time DESC`.
-- Danh sách cột lấy từ `Schema.ColumnNames()` của schema bảng.
+- `TopValues(ctx, *eventfilter.Filter, names, limit)`: đếm các giá trị phổ biến
+  nhất của các trường trên tập event đã lọc.
+- `eventfilter` so sánh trường theo đúng kiểu dữ liệu cột (`INTEGER`,
+  `INTEGER[]`, `BOOLEAN`, `TEXT`; `eventfilter.TypedColumn(name, type)`, kiểu
+  mảng thì khớp bất kỳ phần tử nào, `Field.IsArray()`) thay vì so sánh chuỗi,
+  và `Filter.Cond`
+  biên dịch các điều kiện thành `sq.Sqlizer`. `eventfilter.Selection` là
+  interface được thoả mãn bởi cả các field phẳng của request và `EventSelection`.
+- Repo egress cung cấp thêm `LatencyReader` (xem [Analytic: đọc event](#analytic-đọc-event)).
+- Cột và việc scan dòng dùng các hàm được sinh `<Event>Columns()`,
+  `<Event>Values` (cho `Create`, qua `postgres.InsertRowsBuilder`) và
+  `ScanOne<Event>`/`Scan<Event>`.
 
 #### Histogram
 
@@ -436,28 +469,30 @@ tại hoặc ở bucket chứa `To` (không tính). `Resolution` là
 `typepb.HistogramResolution` của proto; khi để trống, khoảng thời gian sẽ
 quyết định: resolution ngắn nhất có span chứa `From`..`To` (`To` mặc định
 là hiện tại) với dung sai một bucket, bỏ qua view giây khi `From` cũ hơn 7
-ngày, ngược lại là 30 ngày; 1 giờ khi không có `From`. `Filter.Resolve` trả
-resolution được chọn và `HistogramInterval` của bucket, được các RPC
-histogram của analytic trả về trong `interval`. Các RPC này từ chối `from`
+ngày, ngược lại là 30 ngày; 1 giờ khi không có `From`. `Filter.Resolve(now)`
+tôn trọng `From` khi được đặt (căn chỉnh cả hai đầu theo biên bucket) và giới
+hạn cửa sổ tối đa `MaxBuckets = 1000`, đẩy `From` muộn hơn và bật `Truncated = true`
+nếu vượt quá; nó trả về `Window{Interval, From, To, Truncated}`, được các RPC
+histogram và visitor của analytic phản chiếu trong các trường `interval`, `from`, `to`,
+và `truncated` của response. Các RPC này từ chối `from`
 hoặc `to` cũ hơn `schema.EventRetention` (`INVALID_ARGUMENT`).
 
 Các view không thu hẹp được theo request hay field, nên
-`Histogram.PointsWhere(ctx, *Filter, Where)` đếm trực tiếp các dòng của bảng
-nguồn (`SELECT (time / bucket) * bucket, resource_id, key, count(*) ...
-GROUP BY`), `Where` thêm các điều kiện. Cửa sổ, độ phân giải và các bucket
-rỗng giống `Points`, nhưng cột thời gian của bảng nguồn phải là unix mili
-giây. `eventfilter.Points` chọn giữa hai cách: dùng view khi không có
-`eventfilter.Filter`, ngược lại là `PointsWhere` với `RequestIds` và
-`Matches` của filter, trên các cột của bảng, giống cách các list áp dụng.
-Quét bảng gốc chậm hơn view khi khoảng thời gian dài.
+`Histogram.PointsWhere(ctx, *Filter, sq.Sqlizer)` đếm trực tiếp các dòng của bảng
+nguồn (`SELECT time_bucket(<interval>, <time>), resource_id, key, count(*) ...
+GROUP BY`), `sq.Sqlizer` thêm các điều kiện. Cửa sổ, độ phân giải và các bucket
+rỗng giống `Points`. `eventreader.Reader[T].Histogram` chọn giữa hai cách:
+dùng view khi filter `events` là nil hoặc không có điều kiện, ngược lại là
+`PointsWhere` với `events.Cond(spec.Columns)`.
 
 ### Analytic: đọc event
 
 Analytic đọc các bảng của collector qua
 [apps/analytic/v1/repos/events](../../staging/src/github.com/sentinez/controlplane/apps/analytic/v1/repos/events/):
-`eventsrepo.Events` giữ một `Reader[T]` chỉ đọc (`List`, `Histogram`) cho
-mỗi bảng, dựng từ các repo của collector, nên analytic không ghi được
-event. Khi dựng, nó sync bảng và view như collector.
+`eventsrepo.Events` giữ một `Reader[T]` chỉ đọc (`List`, `Histogram`,
+`TopValues`) cho mỗi bảng, dựng từ các repo của collector, kèm `IngressReader`
+(bổ sung `VisitorReader`) và `EgressReader` (bổ sung `LatencyReader`).
+Khi dựng, nó sync bảng và view như collector.
 
 | RPC | REST | Đọc |
 |---|---|---|
@@ -466,19 +501,23 @@ event. Khi dựng, nó sync bảng và view như collector.
 | `ListSecRuleEvents` | `GET /analytic/events/secrule` | `analytic.secrules.events` |
 | `ListRateLimitEvents` | `GET /analytic/events/ratelimit` | `analytic.ratelimiters.events` |
 | `ListCoreRuleEvents` | `GET /analytic/events/coreruleset` | `analytic.corerulesets.events` |
-| `GetEventHistogram` | `GET /analytic/events/histogram` | các view của `kind` |
+| `GetEventHistogram` | `GET /analytic/events/histogram` | các view hoặc bảng của `kind` |
+| `GetEventTopValues` | `GET /analytic/events/top-values` | bảng của `kind` |
+| `GetEgressLatency` | `GET /analytic/events/http-egress/latency` | `analytic.httpegress.events` |
 
-- Request list có `page`, `resource_ids`, `from` và `to`; event mới nhất
-  trước. Một trang có 50 event khi không truyền, tối đa 500.
+- Request list có `page`, `resource_ids`, `request_ids`, `filters`, `from` và `to`;
+  event mới nhất trước. Một trang có 50 event khi không truyền, tối đa 500.
 - `GetEventHistogram` nhận `kind` (`EventKind`), `resolution`
-  (`HistogramResolution`, `UNSPECIFIED` thì chọn theo khoảng thời gian, xem
-  [Histogram](#histogram)), `resource_ids`, `from` và `to`, trả về
-  `HistogramPoint{time, resource_id, key, total}`, cũ nhất trước. Nó trả
-  các bucket kết thúc ở bucket của `to` (60 giây, 60 phút hoặc 24 giờ), nên
-  khoảng dài hơn phải hỏi theo trang, mỗi trang kết thúc nơi trang sau bắt
-  đầu. Với `request_ids` hoặc `filters` (mỗi cái là `field:value`, giống
-  list và top values) nó đếm các event khớp từ bảng, không từ view; field
-  không tồn tại là invalid argument.
+  (`HistogramResolution`), `resource_ids`, `request_ids`, `filters`, `from` và `to`,
+  trả về `HistogramPoint{time, resource_id, key, total}`, cũ nhất trước, cùng
+  với `from`, `to`, `interval`, và `truncated`.
+- `GetEventTopValues` đếm số lần xuất hiện của các trường trong khoảng `from`..`to`,
+  lọc theo `resource_ids`, `request_ids`, và `filters`.
+- `GetEgressLatency` nhận `EventSelection` (mặc định 24h gần nhất), gom nhóm
+  theo `upstream`, trả về `total`, `avg_micros`, `p50_micros`, `p95_micros`,
+  `p99_micros`, và `max_micros` (tính bằng hàm `percentile_cont` của PostgreSQL).
+- `EventSelection` là message chuẩn đại diện cho các tiêu chí lọc resource, request,
+  filter và khoảng thời gian, dùng chung giữa các RPC analytic.
 - Mọi RPC cần token (`headers.Allow`, `ignore: true`). Việc đọc chưa lọc
   theo tenant: không truyền `resource_ids` thì trả event của mọi tenant.
 

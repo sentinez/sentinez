@@ -20,13 +20,12 @@ package secruleeventsrepo
 import (
 	"context"
 
-	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventfilter"
+	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventreader"
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/topvalues"
 	"github.com/sentinez/controlplane/pkg/schema"
 	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
-	"github.com/sentinez/pkg/szstorage/dbx/timescale"
 	"github.com/sentinez/pkg/szstorage/dbx/timescale/histogram"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -42,10 +41,10 @@ var _filterColumns = eventfilter.Columns{
 }
 
 // _fields the fields of the events filters match and top values count,
-// in this order; the
-// action is its type, a rule.v1.ActionType number.
+// in this order; the action is its type, a rule.v1.ActionType number.
 var _fields = []eventfilter.Field{
-	eventfilter.ArrayColumn(secrulepb.SecRuleEvent_MatchedSecruleIds),
+	eventfilter.TypedColumn(secrulepb.SecRuleEvent_MatchedSecruleIds,
+		dbx.TextArr),
 	{
 		Name: secrulepb.SecRuleEvent_Action,
 		Expr: secrulepb.SecRuleEvent_Action + "->>'type'",
@@ -53,6 +52,21 @@ var _fields = []eventfilter.Field{
 	eventfilter.Column(secrulepb.SecRuleEvent_RequestIp),
 	eventfilter.Column(secrulepb.SecRuleEvent_RequestDomain),
 	eventfilter.Column(secrulepb.SecRuleEvent_RequestPath),
+}
+
+// specOf the reader of the events of the table of sch, whose histogram is
+// not split by key.
+func specOf(sch dbx.Schema) eventreader.Spec[secrulepb.SecRuleEvent] {
+	return eventreader.Spec[secrulepb.SecRuleEvent]{
+		Hypertable: schema.EventHypertable(sch,
+			secrulepb.SecRuleEvent_MatchedTime),
+		Columns:  _filterColumns,
+		Select:   secrulepb.SecRuleEventColumns(),
+		Scan:     secrulepb.ScanSecRuleEvent[dbx.Rows],
+		ScanOne:  secrulepb.ScanOneSecRuleEvent[dbx.Row],
+		Values:   secrulepb.SecRuleEventValues,
+		IdColumn: secrulepb.SecRuleEvent_Id,
+	}
 }
 
 type ISecRuleEvent interface {
@@ -68,18 +82,14 @@ type ISecRuleEvent interface {
 	List(ctx context.Context,
 		filter *eventfilter.Filter) ([]*secrulepb.SecRuleEvent, error)
 	// Histogram counts the events per bucket and resource.
-	// The events of events only when set (see eventfilter.Points).
+	// The events of events only when set (see eventreader.Reader).
 	Histogram(ctx context.Context, filter *histogram.Filter,
 		events *eventfilter.Filter) ([]*histogram.Point, error)
 	topvalues.TopValuer
 }
 
 type SecRuleEvents struct {
-	storage   dbx.Database[secrulepb.SecRuleEvent]
-	histogram *histogram.Histogram
-	topValues *topvalues.Reader
-	// onConflict the conflict clause of Create, of the hypertable.
-	onConflict string
+	*eventreader.Reader[secrulepb.SecRuleEvent]
 }
 
 // NewSecRules returns the repo of the sztable.AnalyticSecRulesEvent
@@ -96,93 +106,18 @@ func NewRateLimits(ctx context.Context,
 	return newSecRuleEvents(ctx, appConf, schema.AnalyticRateLimiterEvent())
 }
 
-func (r *SecRuleEvents) WithTX(tx *postgres.TxSession) ISecRuleEvent {
-	return &SecRuleEvents{
-		storage:    postgres.WithTx(tx, r.storage),
-		histogram:  r.histogram,
-		topValues:  r.topValues,
-		onConflict: r.onConflict,
-	}
-}
-
-func (r *SecRuleEvents) Create(ctx context.Context,
-	events ...*secrulepb.SecRuleEvent) error {
-	if len(events) == 0 {
-		return nil
-	}
-
-	query, err := postgres.InsertRowsBuilder(r.storage,
-		secrulepb.SecRuleEventColumns(), events, secrulepb.SecRuleEventValues)
-	if err != nil {
-		return err
-	}
-
-	_, err = r.storage.Exec(ctx, query.Suffix(r.onConflict))
-	return err
-}
-
-func (r *SecRuleEvents) Get(ctx context.Context,
-	id string) (*secrulepb.SecRuleEvent, error) {
-	builder := r.selectQuery().Where(sq.Eq{secrulepb.SecRuleEvent_Id: id})
-	return r.storage.Select(ctx, builder, secrulepb.ScanOneSecRuleEvent)
-}
-
-func (r *SecRuleEvents) Delete(ctx context.Context, id string) error {
-	return r.storage.Delete(ctx, id)
-}
-
-func (r *SecRuleEvents) List(ctx context.Context,
-	filter *eventfilter.Filter) ([]*secrulepb.SecRuleEvent, error) {
-	builder, err := filter.Apply(r.selectQuery(), _filterColumns)
-	if err != nil {
-		return nil, err
-	}
-
-	return r.storage.CollectRows(ctx, builder, secrulepb.ScanSecRuleEvent)
-}
-
-func (r *SecRuleEvents) Histogram(ctx context.Context,
-	filter *histogram.Filter,
-	events *eventfilter.Filter) ([]*histogram.Point, error) {
-	return eventfilter.Points(ctx, r.histogram, filter, events,
-		_filterColumns)
-}
-
 // newSecRuleEvents returns the repo of the hypertable of sch, and of its
 // histograms.
 func newSecRuleEvents(ctx context.Context, appConf *settingpb.Config,
 	sch dbx.Schema) (ISecRuleEvent, error) {
-	ht := schema.EventHypertable(sch, secrulepb.SecRuleEvent_MatchedTime)
-
-	storage, err := timescale.New[secrulepb.SecRuleEvent](ctx, appConf, ht)
+	reader, err := eventreader.New(ctx, appConf, specOf(sch))
 	if err != nil {
 		return nil, err
 	}
 
-	hist, err := histogram.New(ctx, appConf, histogram.Spec{Source: ht})
-	if err != nil {
-		return nil, err
-	}
-
-	topValues, err := topvalues.Open(ctx, appConf, sch.Table, _filterColumns)
-	if err != nil {
-		return nil, err
-	}
-
-	return &SecRuleEvents{
-		storage:    storage,
-		histogram:  hist,
-		topValues:  topValues,
-		onConflict: ht.OnConflictDoNothing(),
-	}, nil
+	return &SecRuleEvents{Reader: reader}, nil
 }
 
-func (r *SecRuleEvents) TopValues(ctx context.Context,
-	filter *eventfilter.Filter, names []string,
-	limit uint64) (*topvalues.Result, error) {
-	return r.topValues.TopValues(ctx, filter, names, limit)
-}
-
-func (r *SecRuleEvents) selectQuery() sq.SelectBuilder {
-	return sq.Select(secrulepb.SecRuleEventColumns()...).From(r.storage.Table())
+func (r *SecRuleEvents) WithTX(tx *postgres.TxSession) ISecRuleEvent {
+	return &SecRuleEvents{Reader: r.WithTx(tx)}
 }

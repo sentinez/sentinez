@@ -48,6 +48,12 @@ func GetAnalyticServiceListHttpEgressEvents() *v1.XMethod {
 	}
 }
 
+func GetAnalyticServiceGetEgressLatency() *v1.XMethod {
+	return &v1.XMethod{
+		Ignore: true,
+	}
+}
+
 func GetAnalyticServiceListSecRuleEvents() *v1.XMethod {
 	return &v1.XMethod{
 		Ignore: true,

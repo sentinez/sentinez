@@ -85,4 +85,10 @@ message EgressEvent {
   // protocol is the HTTP version the client used to reach the edge, e.g.
   // HTTP/2.0: the one used to reach upstream is not observable.
   string protocol = 14;
+
+  // headers are the request headers the edge set for the upstream, one
+  // "Name: value" line each, sorted by name: X-Forwarded-Prefix, the
+  // proxySetHeaders once their variables are resolved and the SecRule
+  // MODIFY_HEADER ones, without the credential ones.
+  string headers = 15;
 }

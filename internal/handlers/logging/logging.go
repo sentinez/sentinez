@@ -136,13 +136,23 @@ func headersOf(ctx szhttp.Context) string {
 		if isCredential(k) {
 			return
 		}
-		b.Write(k)
-		b.WriteString(": ")
-		b.Write(v)
-		b.WriteByte('\n')
+		writeHeaderLine(&b, bytesconv.B2s(k), bytesconv.B2s(v))
 	})
 
 	return b.String()
+}
+
+// _headerLineExtra the bytes of a header line besides its name and
+// value: ": " and the newline.
+const _headerLineExtra = 3
+
+// writeHeaderLine writes the header k: v to b as a "Name: value" line,
+// the format of the headers of the events the console parses.
+func writeHeaderLine(b *strings.Builder, k, v string) {
+	b.WriteString(k)
+	b.WriteString(": ")
+	b.WriteString(v)
+	b.WriteByte('\n')
 }
 
 func isCredential(k []byte) bool {

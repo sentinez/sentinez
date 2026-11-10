@@ -36,7 +36,7 @@ const (
 		ADD COLUMN IF NOT EXISTS %s %s
 	`
 
-	// index name: <table>_<column>_<method>_idx
+	// index name: <table>_<column>[_<column>...]_<method>_idx
 	_createIndexStmt = `
 		CREATE INDEX IF NOT EXISTS %s_%s_%s_idx
 		ON %s USING %s (%s)
@@ -63,11 +63,13 @@ func AddColumn(tableName string, column dbx.Column) string {
 	return fmt.Sprintf(_addColumnStmt, tableName, column.Name, column.Type)
 }
 
+// CreateIndex creates the index of tableName, named after its columns.
 func CreateIndex(tableName string, index dbx.Index) string {
 	method := string(index.Method)
+	columns := index.ColumnNames()
 
 	return fmt.Sprintf(_createIndexStmt,
-		tableName, index.Column, strings.ToLower(method),
-		tableName, method, index.Column,
+		tableName, strings.Join(columns, "_"), strings.ToLower(method),
+		tableName, method, strings.Join(columns, ", "),
 	)
 }

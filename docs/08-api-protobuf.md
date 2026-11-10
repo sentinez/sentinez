@@ -40,7 +40,8 @@ response types must differ.
 | Extension | On | Fields | Purpose |
 |---|---|---|---|
 | `x_meta` (52001) | File | `service_name`, `service_zone`, `service_key` | Service identity: console banner, logger name, Consul key, `GetMeta<Name>()` |
-| `x_message` (51001) | Message | `database_model`, `export_field` | Generates column-name constants `<Msg>_<Field>` / `X<Msg>_<Field>` |
+| `x_message` (51001) | Message | `database_model`, `export_field`, `scanner` | Generates column-name constants `<Msg>_<Field>` / `X<Msg>_<Field>`; `scanner` also generates the row scanners below |
+| `x_field` (53001) | Field | `flatten`, `ignore`, `codec`, `nullable` | How a field of a database model maps to columns, see below |
 | `x_method` (50001) | RPC | `ignore`, `control_planes[]` | Generates `Get<Service><Method>() *XMethod` for authorization |
 
 `Zone`: `DEMILITARIZED` (edge, dataplane), `INTERNAL` (domain services),
@@ -49,6 +50,39 @@ response types must differ.
 These options are processed by the `protoc-gen-go-senz` plugin
 ([tools/internal/senz/senz.go](../staging/src/github.com/sentinez/tools/internal/senz/senz.go)),
 which emits `*_senz.pb.go` files.
+
+### Generated row scanners
+
+For a message with `x_message.scanner = true`
+([tools/internal/senz/scanner.go](../staging/src/github.com/sentinez/tools/internal/senz/scanner.go)),
+every nested message field is flattened into `<field>_<nested>` columns
+(e.g. `metadata_created_at`, `owner_tenant_id`), and the plugin generates:
+
+| Function | Does |
+|---|---|
+| `<Msg>Columns() []string` | The stored columns, in scan order |
+| `<Msg>Values(m) ([]any, error)` | The values of `m` in the same order, for an insert |
+| `ScanOne<Msg>(row) (*<Msg>, error)` | Scans one row (any `Scan(dest ...any) error`: `pgx.Row`, `dbx.Row`) |
+| `Scan<Msg>(rows) ([]*<Msg>, error)` | Scans every row (`Next`/`Scan`/`Err`: `pgx.Rows`, `dbx.Rows`) |
+
+How a field is scanned, set with `x_field`:
+
+| Field | Column |
+|---|---|
+| scalar, enum | scanned straight into the field |
+| `google.protobuf.Timestamp` / `Duration` | `time.Time` / `time.Duration`, converted |
+| other message, no codec | flattened into its fields' columns |
+| `codec = COLUMN_CODEC_PROTO` | one column of binary protobuf (`proto.Unmarshal`), e.g. `Resource.server` |
+| `codec = COLUMN_CODEC_PROTOJSON` | one column of protobuf JSON (`protojson.Unmarshal`, unknown fields discarded), e.g. `CoreRuleset.content` |
+| `codec = COLUMN_CODEC_DRIVER` | one column the driver scans into the field (e.g. JSONB), e.g. `SecRule.expr`, `SecRuleEvent.action` |
+| `ignore = true` | not stored, left out (e.g. `SecRule.action_value`, `expr_preview`) |
+| `nullable = true` | a singular scalar whose column may be `NULL`, scanned as the zero value (e.g. `Owner.tenant_id`, `Tenant.name`) |
+
+`flatten` (older) only splits the field constants of a nested message;
+with `scanner` every nested message is flattened anyway. The plugin fails
+on a oneof member, on `nullable` set on a non-scalar, and on a `codec` set
+on a non-message field. Tests:
+[tools/example/example_scanner_test.go](../staging/src/github.com/sentinez/tools/example/example_scanner_test.go).
 
 ## 8.3 Code generation
 
@@ -122,10 +156,21 @@ Base URL: the apiserver address (`:8080` in `.env.example`). Auth: header
 | GET | `/analytic/events/ratelimit` | `AnalyticService.ListRateLimitEvents` | ignore |
 | GET | `/analytic/events/coreruleset` | `AnalyticService.ListCoreRuleEvents` | ignore |
 | GET | `/analytic/events/histogram` | `AnalyticService.GetEventHistogram` | ignore |
+| GET | `/analytic/events/top-values` | `AnalyticService.GetEventTopValues` | ignore |
+| GET | `/analytic/events/http-egress/latency` | `AnalyticService.GetEgressLatency` | ignore |
 
 "Declared permission" is the option in the proto; enforcement depends on the
 handler (see
 [07-controlplane.md](07-controlplane.md#72-authentication--authorization)).
+
+`GetEgressLatency` queries latency aggregated by upstream over `EventSelection`
+(returning total requests, avg, p50, p95, p99, and max microseconds). `EventSelection`
+is the shared message representing resource, request, filter, and time bounds
+criteria.
+
+`GetEventHistogramResponse`, `GetUniqueVisitorHistogramResponse`, and
+`ListVisitorsResponse` return `from`, `to`, and `truncated` (true when the range
+holds more than 1000 buckets and earlier buckets were truncated).
 
 Paging uses `types.v1.Pages{index, size, total}`; over REST pass it as query
 `page.index=1&page.size=20&page.total=true`.
@@ -164,8 +209,12 @@ fields around the reverse proxy call, for the egress log.
 | Type | Logger kind | Emitted by |
 |---|---|---|
 | `net.http.v1.IngressEvent` | `LOG_TYPE_HTTP_INGRESS` | Edge `LOG` node, apiserver `Logging` middleware |
-| `net.http.v1.EgressEvent` | `LOG_TYPE_HTTP_EGRESS` | Edge `LOG` node, for a request proxied to its upstream origin; same `id` as its ingress event |
+| `net.http.v1.EgressEvent` | `LOG_TYPE_HTTP_EGRESS` | Edge `LOG` node, for a request proxied to its upstream origin; same `id` as its ingress event. Field `headers` records the request headers set on the upstream |
 | `secrule.v1.Event` | `LOG_TYPE_CORE_RULESETS` | Edge `WAF` node when a transaction is interrupted |
+
+`ContextExtra` (`dmz/edge/v1/context.proto`) records per-request edge metadata
+including `set_headers` (field 20), populated via `szhttp.SetUpstreamHeader`
+when the edge mutates or injects headers forwarded to an origin.
 
 Events are reused through pools in
 `pkg/pools/{ingress,egress,secrule,coreruleset,matchedrule}`: each wrapper keeps

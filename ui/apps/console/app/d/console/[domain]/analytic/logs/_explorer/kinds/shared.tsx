@@ -25,11 +25,20 @@ export const statusSeries = (t: LogsTranslator): SeriesDef[] =>
   }));
 
 /** A cell of monospace text, truncated */
-export function MonoCell({ value, muted = false }: { value: string; muted?: boolean }) {
+export function MonoCell({
+  value,
+  muted = false,
+  title = value,
+}: {
+  value: string;
+  muted?: boolean;
+  /** The tooltip, the value itself by default */
+  title?: string;
+}) {
   return (
     <div
       className={cn('truncate font-mono text-xs', muted && 'text-muted-foreground')}
-      title={value}
+      title={title}
     >
       {value || '—'}
     </div>

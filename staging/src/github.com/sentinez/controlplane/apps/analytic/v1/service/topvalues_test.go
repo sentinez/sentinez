@@ -70,14 +70,18 @@ func TestTopFilter(t *testing.T) {
 			want: &eventfilter.Filter{From: to.Add(-_topRange), To: to},
 		},
 		{
-			name: "range",
+			name: "range, requests and filters",
 			give: &pb.GetEventTopValuesRequest{
 				ResourceIds: []string{"r1"},
+				RequestIds:  []string{"req_1"},
+				Filters:     []string{"status:429"},
 				From:        timestamppb.New(from),
 				To:          timestamppb.New(to),
 			},
 			want: &eventfilter.Filter{
+				RequestIds:  []string{"req_1"},
 				ResourceIds: []string{"r1"},
+				Matches:     []eventfilter.Match{{Field: "status", Value: "429"}},
 				From:        from,
 				To:          to,
 			},
@@ -86,7 +90,7 @@ func TestTopFilter(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := topFilter(tt.give, now)
+			got, err := rangedFilter(tt.give, now, _topRange)
 
 			require.NoError(t, err)
 			assert.Equal(t, tt.want, got)
@@ -125,52 +129,28 @@ func TestShareOf(t *testing.T) {
 	assert.Zero(t, shareOf(1, 0))
 }
 
-func TestMatchesOf(t *testing.T) {
+func TestFilterError(t *testing.T) {
 	tests := []struct {
 		name string
-		give []string
-		want []eventfilter.Match
+		give error
 	}{
-		{"none", nil, nil},
-		{
-			"value with colons and spaces",
-			[]string{"user_agent:Mozilla/5.0 (X11; a:b)", "status:429"},
-			[]eventfilter.Match{
-				{Field: "user_agent", Value: "Mozilla/5.0 (X11; a:b)"},
-				{Field: "status", Value: "429"},
-			},
-		},
-		{"empty value", []string{"country:"}, []eventfilter.Match{
-			{Field: "country", Value: ""},
-		}},
+		{"unknown field", eventfilter.ErrUnknownField},
+		{"invalid filter", eventfilter.ErrInvalidFilter},
+		{"invalid value", eventfilter.ErrInvalidValue},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := matchesOf(tt.give)
+			wrapped := fmt.Errorf("where: %w", tt.give)
 
-			require.NoError(t, err)
-			assert.Equal(t, tt.want, got)
+			assert.Equal(t, codes.InvalidArgument,
+				status.Code(filterError(wrapped)))
 		})
 	}
 }
 
-func TestMatchesOfRejectsFilter(t *testing.T) {
-	tests := []string{"status", ":429"}
-
-	for _, give := range tests {
-		t.Run(give, func(t *testing.T) {
-			_, err := matchesOf([]string{give})
-
-			assert.Equal(t, codes.InvalidArgument, status.Code(err))
-		})
-	}
-}
-
-func TestFieldError(t *testing.T) {
-	unknown := fmt.Errorf("where: %w", eventfilter.ErrUnknownField)
+func TestFilterErrorOther(t *testing.T) {
 	other := errors.New("db down")
 
-	assert.Equal(t, codes.InvalidArgument, status.Code(fieldError(unknown)))
-	assert.Equal(t, other, fieldError(other))
+	assert.Equal(t, other, filterError(other))
 }

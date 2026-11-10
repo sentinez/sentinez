@@ -50,7 +50,7 @@ type Hypertable struct {
 	// rows are kept forever when zero.
 	Retention time.Duration
 
-	// kind the kind of TimeColumn, set by normalize.
+	// kind the kind of TimeColumn, set by Normalized.
 	kind timeKind
 }
 
@@ -61,7 +61,7 @@ type Hypertable struct {
 func New[T any](ctx context.Context, conf *settingpb.Config,
 	ht Hypertable) (dbx.Database[T], error) {
 
-	ht, err := ht.normalize()
+	ht, err := ht.Normalized()
 	if err != nil {
 		return nil, err
 	}
@@ -79,8 +79,10 @@ func (ht Hypertable) OnConflictDoNothing() string {
 	return "ON CONFLICT (id, " + ht.timeColumn() + ") DO NOTHING"
 }
 
-// normalize returns ht with its defaults and kind set.
-func (ht Hypertable) normalize() (Hypertable, error) {
+// Normalized returns ht with its defaults and the kind of its time
+// column set, as New and NewView take it; an error when the time column
+// is not in the schema or neither a TIMESTAMPTZ nor a BIGINT.
+func (ht Hypertable) Normalized() (Hypertable, error) {
 	ht.TimeColumn = ht.timeColumn()
 	if ht.ChunkInterval <= 0 {
 		ht.ChunkInterval = _defaultChunkInterval
@@ -90,6 +92,18 @@ func (ht Hypertable) normalize() (Hypertable, error) {
 	ht.kind = kind
 
 	return ht, err
+}
+
+// MillisTime whether the time column of ht, Normalized, holds unix
+// milliseconds.
+func (ht Hypertable) MillisTime() bool {
+	return ht.kind == millisTime
+}
+
+// TimeBucket the SQL of the start of the bucket of d holding the time
+// column of ht, Normalized: time_bucket(<interval of d>, <column>).
+func (ht Hypertable) TimeBucket(d time.Duration) string {
+	return "time_bucket(" + ht.kind.interval(d) + ", " + ht.TimeColumn + ")"
 }
 
 func (ht Hypertable) timeColumn() string {

@@ -22,7 +22,6 @@ import (
 	"github.com/sentinez/core/szbytestr"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/variable"
-	"github.com/sentinez/pkg/bytesconv"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	"github.com/sentinez/sentinez/internal/memory/secrules"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -124,7 +123,7 @@ func modifyHeaders(ctx szhttp.Context, params *structpb.Struct) {
 			continue
 		}
 
-		ctx.SetHeader(bytesconv.S2b(k), bytesconv.S2b(valueString(v)))
+		szhttp.SetUpstreamHeader(ctx, k, valueString(v))
 	}
 }
 

@@ -7,7 +7,7 @@ import { EventKind } from '@sentinez/proto/sentinez/apps/analytic/v1/event';
 import { IngressEvent } from '@sentinez/proto/sentinez/types/net/http/v1/event';
 import { listHttpIngressEvents, type ApiOptions } from '@/lib/api/analytic';
 import { StatusBadge } from '../status-badge';
-import { headerLinesOf, queryParamsOf, statusClassOf } from '../status';
+import { headerPairsOf, queryParamsOf, statusClassOf } from '../status';
 import type { EventConfig, ListRequest } from '../types';
 import { MonoCell, PathCell, columnOf, statusSeries } from './shared';
 
@@ -132,7 +132,7 @@ export function useIngressConfig(): EventConfig<IngressEvent> {
         ],
         sections: (e) => [
           { title: t('detail.queries'), pairs: queryParamsOf(e.queries) },
-          { title: t('detail.headers'), pairs: headerLinesOf(e.headers) },
+          { title: t('detail.headers'), pairs: headerPairsOf(e.headers) },
         ],
         toJSON: (e) => IngressEvent.toJSON(e),
       },

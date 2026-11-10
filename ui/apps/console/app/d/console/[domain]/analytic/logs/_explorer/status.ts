@@ -1,3 +1,5 @@
+import { headerLinesOf } from '@/lib/type/edge';
+
 // StatusClass the class of an HTTP status, a series of the histogram of
 // the requests
 export type StatusClass = 's2xx' | 's3xx' | 's4xx' | 's5xx' | 'other';
@@ -23,14 +25,8 @@ export function statusClassOf(status: number): StatusClass {
 }
 
 // The headers of an event, sent as "Key: value" lines
-export function headerLinesOf(headers: string): [string, string][] {
-  return headers
-    .split('\n')
-    .filter(Boolean)
-    .map((line) => {
-      const at = line.indexOf(':');
-      return at < 0 ? [line, ''] : [line.slice(0, at).trim(), line.slice(at + 1).trim()];
-    });
+export function headerPairsOf(headers: string): [string, string][] {
+  return headerLinesOf(headers).map((h) => [h.name, h.value]);
 }
 
 // The query params of an event, sent as the raw query string

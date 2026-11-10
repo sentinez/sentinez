@@ -22,13 +22,26 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// createIndexTest a case of TestCreateIndex.
+type createIndexTest struct {
+	name      string
+	giveTable string
+	give      dbx.Index
+	want      string
+}
+
 func TestCreateIndex(t *testing.T) {
-	tests := []struct {
-		name      string
-		giveTable string
-		give      dbx.Index
-		want      string
-	}{
+	for _, tt := range createIndexTests() {
+		t.Run(tt.name, func(t *testing.T) {
+			got := CreateIndex(tt.giveTable, tt.give)
+
+			assert.Equal(t, tt.want, strings.Join(strings.Fields(got), " "))
+		})
+	}
+}
+
+func createIndexTests() []createIndexTest {
+	return []createIndexTest{
 		{
 			name:      "gin",
 			giveTable: "dev_sentinez_security_coreruleset",
@@ -44,14 +57,16 @@ func TestCreateIndex(t *testing.T) {
 			want: "CREATE INDEX IF NOT EXISTS t_name_btree_idx " +
 				"ON t USING BTREE (name)",
 		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := CreateIndex(tt.giveTable, tt.give)
-
-			assert.Equal(t, tt.want, strings.Join(strings.Fields(got), " "))
-		})
+		{
+			name:      "composite",
+			giveTable: "t",
+			give: dbx.Index{
+				Columns: []string{"resource_id", "ts"},
+				Method:  "BTREE",
+			},
+			want: "CREATE INDEX IF NOT EXISTS t_resource_id_ts_btree_idx " +
+				"ON t USING BTREE (resource_id, ts)",
+		},
 	}
 }
 

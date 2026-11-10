@@ -116,6 +116,14 @@ export function EventExplorer<T>({ config }: { config: EventConfig<T> }) {
   // The request ids of the filter are asked to the API, the other terms
   // filter the page; the histogram counts those of the API filters
   const requestIds = useMemo(() => requestIdsOf(query), [query]);
+  const selection = useMemo(
+    () => ({
+      resourceIds: resourceId ? [resourceId] : [],
+      requestIds,
+      filters: filterParams,
+    }),
+    [resourceId, requestIds, filterParams],
+  );
   // An absolute range ends its buckets with it: the API ends them before
   // to, back the span of the resolution
   const histogram = useApi(
@@ -125,11 +133,9 @@ export function EventExplorer<T>({ config }: { config: EventConfig<T> }) {
           req: {
             kind,
             resolution,
-            resourceIds: [resourceId],
+            ...selection,
             to: dateOf(loaded.to),
             from: dateOf(loaded.from),
-            requestIds,
-            filters: filterParams,
           },
           key: histogramKey,
         }
@@ -166,11 +172,10 @@ export function EventExplorer<T>({ config }: { config: EventConfig<T> }) {
       ? {
           req: {
             kind,
-            resourceIds: [resourceId],
+            ...selection,
             from: new Date(listRange.from),
             to: dateOf(listRange.to),
             fields: fieldNames,
-            filters: filterParams,
           },
           key: reloadKey,
         }
@@ -183,9 +188,7 @@ export function EventExplorer<T>({ config }: { config: EventConfig<T> }) {
     resourceId
       ? {
           req: {
-            resourceIds: [resourceId],
-            requestIds,
-            filters: filterParams,
+            ...selection,
             page: { index: pagination.pageIndex + 1, size: pagination.pageSize, total: false },
             from: new Date(listRange.from),
             to: dateOf(listRange.to),
@@ -288,6 +291,11 @@ export function EventExplorer<T>({ config }: { config: EventConfig<T> }) {
               >
                 {bucketLabel(bucket)}
               </RemovableBadge>
+            )}
+            {histogram.data?.truncated && (
+              <span className="text-xs text-amber-600 dark:text-amber-500 font-medium">
+                {t('histogramTruncated', { count: buckets.length })}
+              </span>
             )}
             <span className="ml-auto text-xs text-muted-foreground">
               <span className="hidden md:inline">{t('histogramHint')} · </span>

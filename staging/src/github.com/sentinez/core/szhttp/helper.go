@@ -37,3 +37,19 @@ func Cookie(req Request, name string) (string, bool) {
 
 	return "", false
 }
+
+// _setHeadersHint presizes ContextExtra.SetHeaders: a route sets a few.
+const _setHeadersHint = 4
+
+// SetUpstreamHeader sets the request header key, sent to the upstream, to
+// value, and records it in ctx.X().SetHeaders for the egress log.
+func SetUpstreamHeader(ctx Context, key, value string) {
+	ctx.SetHeader(bytesconv.S2b(key), bytesconv.S2b(value))
+
+	x := ctx.X()
+	if x.SetHeaders == nil {
+		x.SetHeaders = make(map[string]string, _setHeadersHint)
+	}
+
+	x.SetHeaders[key] = value
+}

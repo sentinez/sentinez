@@ -54,7 +54,7 @@ export async function getJSON<Req, Resp>(
 export const SECOND_MILLIS = 1000;
 const MINUTE_MILLIS = 60 * SECOND_MILLIS;
 export const HOUR_MILLIS = 60 * MINUTE_MILLIS;
-const DAY_MILLIS = 24 * HOUR_MILLIS;
+export const DAY_MILLIS = 24 * HOUR_MILLIS;
 
 // BucketUnit the unit a duration is told in
 type BucketUnit = 'second' | 'minute' | 'hour' | 'day';

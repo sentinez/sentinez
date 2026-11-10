@@ -37,6 +37,7 @@ const (
 	AnalyticService_ListActivities_FullMethodName            = "/sentinez.apps.analytic.v1.AnalyticService/ListActivities"
 	AnalyticService_ListHttpIngressEvents_FullMethodName     = "/sentinez.apps.analytic.v1.AnalyticService/ListHttpIngressEvents"
 	AnalyticService_ListHttpEgressEvents_FullMethodName      = "/sentinez.apps.analytic.v1.AnalyticService/ListHttpEgressEvents"
+	AnalyticService_GetEgressLatency_FullMethodName          = "/sentinez.apps.analytic.v1.AnalyticService/GetEgressLatency"
 	AnalyticService_ListSecRuleEvents_FullMethodName         = "/sentinez.apps.analytic.v1.AnalyticService/ListSecRuleEvents"
 	AnalyticService_ListRateLimitEvents_FullMethodName       = "/sentinez.apps.analytic.v1.AnalyticService/ListRateLimitEvents"
 	AnalyticService_ListCoreRuleEvents_FullMethodName        = "/sentinez.apps.analytic.v1.AnalyticService/ListCoreRuleEvents"
@@ -57,6 +58,9 @@ type AnalyticServiceClient interface {
 	ListActivities(ctx context.Context, in *ListActivitiesRequest, opts ...grpc.CallOption) (*ListActivitiesResponse, error)
 	ListHttpIngressEvents(ctx context.Context, in *ListHttpIngressEventsRequest, opts ...grpc.CallOption) (*ListHttpIngressEventsResponse, error)
 	ListHttpEgressEvents(ctx context.Context, in *ListHttpEgressEventsRequest, opts ...grpc.CallOption) (*ListHttpEgressEventsResponse, error)
+	// GetEgressLatency measures the latency of the requests proxied to
+	// each upstream over a range: average, median, p95, p99 and maximum.
+	GetEgressLatency(ctx context.Context, in *GetEgressLatencyRequest, opts ...grpc.CallOption) (*GetEgressLatencyResponse, error)
 	ListSecRuleEvents(ctx context.Context, in *ListSecRuleEventsRequest, opts ...grpc.CallOption) (*ListSecRuleEventsResponse, error)
 	ListRateLimitEvents(ctx context.Context, in *ListRateLimitEventsRequest, opts ...grpc.CallOption) (*ListRateLimitEventsResponse, error)
 	ListCoreRuleEvents(ctx context.Context, in *ListCoreRuleEventsRequest, opts ...grpc.CallOption) (*ListCoreRuleEventsResponse, error)
@@ -116,6 +120,16 @@ func (c *analyticServiceClient) ListHttpEgressEvents(ctx context.Context, in *Li
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListHttpEgressEventsResponse)
 	err := c.cc.Invoke(ctx, AnalyticService_ListHttpEgressEvents_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *analyticServiceClient) GetEgressLatency(ctx context.Context, in *GetEgressLatencyRequest, opts ...grpc.CallOption) (*GetEgressLatencyResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetEgressLatencyResponse)
+	err := c.cc.Invoke(ctx, AnalyticService_GetEgressLatency_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -203,6 +217,9 @@ type AnalyticServiceServer interface {
 	ListActivities(context.Context, *ListActivitiesRequest) (*ListActivitiesResponse, error)
 	ListHttpIngressEvents(context.Context, *ListHttpIngressEventsRequest) (*ListHttpIngressEventsResponse, error)
 	ListHttpEgressEvents(context.Context, *ListHttpEgressEventsRequest) (*ListHttpEgressEventsResponse, error)
+	// GetEgressLatency measures the latency of the requests proxied to
+	// each upstream over a range: average, median, p95, p99 and maximum.
+	GetEgressLatency(context.Context, *GetEgressLatencyRequest) (*GetEgressLatencyResponse, error)
 	ListSecRuleEvents(context.Context, *ListSecRuleEventsRequest) (*ListSecRuleEventsResponse, error)
 	ListRateLimitEvents(context.Context, *ListRateLimitEventsRequest) (*ListRateLimitEventsResponse, error)
 	ListCoreRuleEvents(context.Context, *ListCoreRuleEventsRequest) (*ListCoreRuleEventsResponse, error)
@@ -238,6 +255,9 @@ func (UnimplementedAnalyticServiceServer) ListHttpIngressEvents(context.Context,
 }
 func (UnimplementedAnalyticServiceServer) ListHttpEgressEvents(context.Context, *ListHttpEgressEventsRequest) (*ListHttpEgressEventsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListHttpEgressEvents not implemented")
+}
+func (UnimplementedAnalyticServiceServer) GetEgressLatency(context.Context, *GetEgressLatencyRequest) (*GetEgressLatencyResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetEgressLatency not implemented")
 }
 func (UnimplementedAnalyticServiceServer) ListSecRuleEvents(context.Context, *ListSecRuleEventsRequest) (*ListSecRuleEventsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListSecRuleEvents not implemented")
@@ -348,6 +368,24 @@ func _AnalyticService_ListHttpEgressEvents_Handler(srv interface{}, ctx context.
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AnalyticServiceServer).ListHttpEgressEvents(ctx, req.(*ListHttpEgressEventsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AnalyticService_GetEgressLatency_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEgressLatencyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AnalyticServiceServer).GetEgressLatency(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AnalyticService_GetEgressLatency_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AnalyticServiceServer).GetEgressLatency(ctx, req.(*GetEgressLatencyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -500,6 +538,10 @@ var AnalyticService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListHttpEgressEvents",
 			Handler:    _AnalyticService_ListHttpEgressEvents_Handler,
+		},
+		{
+			MethodName: "GetEgressLatency",
+			Handler:    _AnalyticService_GetEgressLatency_Handler,
 		},
 		{
 			MethodName: "ListSecRuleEvents",

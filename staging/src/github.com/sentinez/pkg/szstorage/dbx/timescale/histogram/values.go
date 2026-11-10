@@ -105,6 +105,6 @@ func valuesQuery(view, column string, filter *Filter,
 func distinctQuery(view, column string, filter *Filter,
 	w window) sq.SelectBuilder {
 
-	return bucketQuery(view, "", "count(DISTINCT "+column+")::BIGINT",
-		filter, w)
+	return bucketQuery(viewSource(view), "",
+		"count(DISTINCT "+column+")::BIGINT", filter, w)
 }

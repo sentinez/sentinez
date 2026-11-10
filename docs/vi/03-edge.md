@@ -143,7 +143,8 @@ Có ba cài đặt:
 | `httpx.Context` | `pkg/network/httpx/context.go` | Edge chế độ `Quic` (HTTP/3 và TCP) và `Standard`, realtime |
 | `httpreq.RequestContext` | `core/szhttp/httpreq/context_value.go` | Đánh giá rule trên `httppb.Request` (hiện chỉ test dùng) |
 
-Context được lấy từ `sync.Pool` và trả lại trong `Close()`.
+Context được lấy từ `sync.Pool` và trả lại trong `Close()`, giữ lại map
+`X.SetHeaders` (đã xoá rỗng) cho request kế tiếp.
 
 `RequestIP()`: bản Hertz dùng `ClientIP()` của Hertz; bản `net/http`
 (`httpx.Context`) ưu tiên `X-Forwarded-For` (phần tử đầu) → `X-Real-IP` →
@@ -173,7 +174,7 @@ gây lỗi; tên stage là hằng exported (vd `secure.WAFId`). Panic của plug
 | Thứ tự | Stage | Plugin | Hành vi |
 |---|---|---|---|
 | 0 | `TRC` | `trace.Tracer` | Sinh request ID `senz:req:<xid>` nếu context chưa có |
-| 1 | `LOG` | `logging.Logging` | Gọi `next` trước, sau đó log `httppb.IngressEvent` (JSON, kind `LOG_TYPE_HTTP_INGRESS`, chiều ingress) và, nếu `ROU` đã proxy request, một `httppb.EgressEvent` cho chặng proxy → upstream origin (kind `LOG_TYPE_HTTP_EGRESS`: upstream, status của origin, content type/length, latency, lấy từ các trường `ctx.X().Upstream*` do `ROU` ghi) |
+| 1 | `LOG` | `logging.Logging` | Gọi `next` trước, sau đó log `httppb.IngressEvent` (JSON, kind `LOG_TYPE_HTTP_INGRESS`, chiều ingress) và, nếu `ROU` đã proxy request, một `httppb.EgressEvent` cho chặng proxy → upstream origin (kind `LOG_TYPE_HTTP_EGRESS`: upstream, status của origin, content type/length, latency, cùng các header do edge thiết lập gửi tới upstream qua `szhttp.SetUpstreamHeader`, được sắp xếp theo tên và lược bỏ header nhạy cảm) |
 | 2 | `DMA` | `secure.DomainBased` | Host (bỏ port, chữ thường) là namespace: phải là `server.resourceDomain` của một setting đã nạp. Sai → `403`. Gán `X().Namespace` và tenant/resource id của setting |
 | 3 | `PUB` | `cdn.Public` | Phục vụ ảnh embed trong binary dưới `/cdn/sentinez/public/`; nạp ảnh lỗi lúc provision thì edge không khởi động |
 | 4 | `CDN` | `cdn.Cache` | Nếu có CDN rule active cho namespace và expression khớp: tra cache theo key `method+scheme+host+path+query+Accept-Encoding`; hit → trả response với `X-Cache: HIT`; miss → chạy tiếp và lưu response cache được (TTL 1h, xem [04-rule-engine.md](04-rule-engine.md#44-cdn-rules)) |

@@ -45,6 +45,18 @@ func (hdl *AnalyticHandler) ListHttpEgressEvents(ctx context.Context,
 	return hdl.service.ListHttpEgressEvents(ctx, req)
 }
 
+// GetEgressLatency implements pb.AnalyticServiceServer.
+func (hdl *AnalyticHandler) GetEgressLatency(ctx context.Context,
+	req *pb.GetEgressLatencyRequest,
+) (*pb.GetEgressLatencyResponse, error) {
+	err := headers.Allow(ctx, pb.GetAnalyticServiceGetEgressLatency())
+	if err != nil {
+		return nil, err
+	}
+
+	return hdl.service.GetEgressLatency(ctx, req)
+}
+
 // ListSecRuleEvents implements pb.AnalyticServiceServer.
 func (hdl *AnalyticHandler) ListSecRuleEvents(ctx context.Context,
 	req *pb.ListSecRuleEventsRequest,

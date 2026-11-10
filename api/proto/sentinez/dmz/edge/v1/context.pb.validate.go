@@ -157,6 +157,8 @@ func (m *ContextExtra) Validate() error {
 
 	// no validation rules for UpstreamLatencyMicros
 
+	// no validation rules for SetHeaders
+
 	return nil
 }
 

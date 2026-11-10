@@ -66,33 +66,73 @@ func (f *Filter) Apply(b sq.SelectBuilder,
 
 // Where adds the conditions of f, nil included, to b: its requests,
 // resources, matches and time range, not its page; a Match of a field cols
-// does not have is an ErrUnknownField.
+// does not have is an ErrUnknownField, one of a value it cannot hold an
+// ErrInvalidValue.
 func (f *Filter) Where(b sq.SelectBuilder,
 	cols Columns) (sq.SelectBuilder, error) {
-	if f == nil {
-		return b, nil
+	conds, err := f.conds(cols)
+	if err != nil {
+		return b, err
 	}
 
-	for _, m := range f.Matches {
-		field, err := cols.Field(m.Field)
-		if err != nil {
-			return b, err
-		}
-		b = b.Where(m.condition(field))
-	}
-
-	if len(f.RequestIds) > 0 {
-		b = b.Where(sq.Eq{cols.RequestId: f.RequestIds})
-	}
-	if len(f.ResourceIds) > 0 {
-		b = b.Where(sq.Eq{cols.ResourceId: f.ResourceIds})
-	}
-	if !f.From.IsZero() {
-		b = b.Where(sq.GtOrEq{cols.MatchedTime: f.From.UnixMilli()})
-	}
-	if !f.To.IsZero() {
-		b = b.Where(sq.Lt{cols.MatchedTime: f.To.UnixMilli()})
+	for _, cond := range conds {
+		b = b.Where(cond)
 	}
 
 	return b, nil
+}
+
+// Cond the conditions of f, nil included, as one: none, a nil Sqlizer,
+// without any; the errors are those of Where.
+func (f *Filter) Cond(cols Columns) (sq.Sqlizer, error) {
+	conds, err := f.conds(cols)
+	if err != nil || len(conds) == 0 {
+		return nil, err
+	}
+
+	return sq.And(conds), nil
+}
+
+// conds the conditions of f, nil included: its matches, requests,
+// resources and time range.
+func (f *Filter) conds(cols Columns) ([]sq.Sqlizer, error) {
+	if f == nil {
+		return nil, nil
+	}
+
+	conds := make([]sq.Sqlizer, 0, len(f.Matches)+4)
+	for _, m := range f.Matches {
+		field, err := cols.Field(m.Field)
+		if err != nil {
+			return nil, err
+		}
+
+		cond, err := m.condition(field)
+		if err != nil {
+			return nil, err
+		}
+		conds = append(conds, cond)
+	}
+
+	return append(conds, f.scope(cols)...), nil
+}
+
+// scope the conditions of the requests, resources and time range of f.
+func (f *Filter) scope(cols Columns) []sq.Sqlizer {
+	var conds []sq.Sqlizer
+	if len(f.RequestIds) > 0 {
+		conds = append(conds, sq.Eq{cols.RequestId: f.RequestIds})
+	}
+	if len(f.ResourceIds) > 0 {
+		conds = append(conds, sq.Eq{cols.ResourceId: f.ResourceIds})
+	}
+	if !f.From.IsZero() {
+		conds = append(conds,
+			sq.GtOrEq{cols.MatchedTime: f.From.UnixMilli()})
+	}
+	if !f.To.IsZero() {
+		conds = append(conds, sq.Lt{cols.MatchedTime: f.To.UnixMilli()})
+	}
+
+	return conds
 }

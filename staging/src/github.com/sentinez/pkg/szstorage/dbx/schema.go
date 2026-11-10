@@ -91,10 +91,22 @@ const (
 	JSONB     ColumnType = "JSONB"
 )
 
-// Index a single column index of a Schema.
+// Index an index of a Schema over Column, or over Columns when set.
 type Index struct {
+	// Column the indexed column; ignored when Columns is set.
 	Column string
-	Method IndexMethod
+	// Columns the indexed columns, in order: a composite index.
+	Columns []string
+	Method  IndexMethod
+}
+
+// ColumnNames the indexed columns of i, in order: Columns, else Column.
+func (i Index) ColumnNames() []string {
+	if len(i.Columns) > 0 {
+		return i.Columns
+	}
+
+	return []string{i.Column}
 }
 
 // IndexMethod access method of an index, ex: GIN.

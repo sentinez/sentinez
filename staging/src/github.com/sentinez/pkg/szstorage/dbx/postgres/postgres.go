@@ -86,7 +86,8 @@ func InsertBuilder[T any](db dbx.Database[T], mapp M) squirrel.InsertBuilder {
 }
 
 // InsertRowsBuilder inserts rows into the table of db in one statement,
-// each the values valuesOf returns for columns, in their order.
+// each the values valuesOf returns for columns, in their order. Their
+// strings are made text postgres accepts (see textValue).
 func InsertRowsBuilder[T, R any](db dbx.Database[T], columns []string,
 	rows []R, valuesOf func(R) ([]any, error)) (squirrel.InsertBuilder, error) {
 
@@ -97,6 +98,9 @@ func InsertRowsBuilder[T, R any](db dbx.Database[T], columns []string,
 		values, err := valuesOf(row)
 		if err != nil {
 			return squirrel.InsertBuilder{}, err
+		}
+		for i, v := range values {
+			values[i] = textValue(v)
 		}
 		builder = builder.Values(values...)
 	}
@@ -121,13 +125,14 @@ func UpsertBuilder[T any](db dbx.Database[T], mapp M) squirrel.InsertBuilder {
 }
 
 // insertBuilder inserts the row of mapp; columns, its keys sorted, keep
-// the statement the same for the same keys.
+// the statement the same for the same keys. Its strings are made text
+// postgres accepts (see textValue).
 func insertBuilder[T any](db dbx.Database[T], mapp M,
 	columns []string) squirrel.InsertBuilder {
 
 	values := make([]any, 0, len(columns))
 	for _, column := range columns {
-		values = append(values, mapp[column])
+		values = append(values, textValue(mapp[column]))
 	}
 
 	return squirrel.Insert(db.Table()).

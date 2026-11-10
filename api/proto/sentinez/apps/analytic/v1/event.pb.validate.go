@@ -47,6 +47,91 @@ var (
 	_ = typepb.HistogramInterval(0)
 )
 
+// Validate checks the field values on EventSelection with the rules defined in
+// the proto definition for this message. If any rules are violated, an error
+// is returned.
+func (m *EventSelection) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if v, ok := interface{}(m.GetFrom()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return EventSelectionValidationError{
+				field:  "From",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetTo()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return EventSelectionValidationError{
+				field:  "To",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	return nil
+}
+
+// EventSelectionValidationError is the validation error returned by
+// EventSelection.Validate if the designated constraints aren't met.
+type EventSelectionValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e EventSelectionValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e EventSelectionValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e EventSelectionValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e EventSelectionValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e EventSelectionValidationError) ErrorName() string { return "EventSelectionValidationError" }
+
+// Error satisfies the builtin error interface
+func (e EventSelectionValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sEventSelection.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = EventSelectionValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = EventSelectionValidationError{}
+
 // Validate checks the field values on ListHttpIngressEventsRequest with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
@@ -1144,6 +1229,28 @@ func (m *GetEventHistogramResponse) Validate() error {
 
 	// no validation rules for Interval
 
+	if v, ok := interface{}(m.GetFrom()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetEventHistogramResponseValidationError{
+				field:  "From",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetTo()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetEventHistogramResponseValidationError{
+				field:  "To",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Truncated
+
 	return nil
 }
 
@@ -1317,6 +1424,28 @@ func (m *GetUniqueVisitorHistogramResponse) Validate() error {
 	}
 
 	// no validation rules for Interval
+
+	if v, ok := interface{}(m.GetFrom()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetUniqueVisitorHistogramResponseValidationError{
+				field:  "From",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetTo()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetUniqueVisitorHistogramResponseValidationError{
+				field:  "To",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Truncated
 
 	return nil
 }
@@ -1572,6 +1701,28 @@ func (m *ListVisitorsResponse) Validate() error {
 	}
 
 	// no validation rules for Interval
+
+	if v, ok := interface{}(m.GetFrom()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ListVisitorsResponseValidationError{
+				field:  "From",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetTo()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ListVisitorsResponseValidationError{
+				field:  "To",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Truncated
 
 	return nil
 }
@@ -1958,3 +2109,261 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetEventTopValuesResponseValidationError{}
+
+// Validate checks the field values on GetEgressLatencyRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *GetEgressLatencyRequest) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if v, ok := interface{}(m.GetSelection()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetEgressLatencyRequestValidationError{
+				field:  "Selection",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	return nil
+}
+
+// GetEgressLatencyRequestValidationError is the validation error returned by
+// GetEgressLatencyRequest.Validate if the designated constraints aren't met.
+type GetEgressLatencyRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetEgressLatencyRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetEgressLatencyRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetEgressLatencyRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetEgressLatencyRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetEgressLatencyRequestValidationError) ErrorName() string {
+	return "GetEgressLatencyRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetEgressLatencyRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetEgressLatencyRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetEgressLatencyRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetEgressLatencyRequestValidationError{}
+
+// Validate checks the field values on UpstreamLatency with the rules defined
+// in the proto definition for this message. If any rules are violated, an
+// error is returned.
+func (m *UpstreamLatency) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Upstream
+
+	// no validation rules for Total
+
+	// no validation rules for AvgMicros
+
+	// no validation rules for P50Micros
+
+	// no validation rules for P95Micros
+
+	// no validation rules for P99Micros
+
+	// no validation rules for MaxMicros
+
+	return nil
+}
+
+// UpstreamLatencyValidationError is the validation error returned by
+// UpstreamLatency.Validate if the designated constraints aren't met.
+type UpstreamLatencyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpstreamLatencyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UpstreamLatencyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UpstreamLatencyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UpstreamLatencyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UpstreamLatencyValidationError) ErrorName() string { return "UpstreamLatencyValidationError" }
+
+// Error satisfies the builtin error interface
+func (e UpstreamLatencyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpstreamLatency.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UpstreamLatencyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpstreamLatencyValidationError{}
+
+// Validate checks the field values on GetEgressLatencyResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *GetEgressLatencyResponse) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	for idx, item := range m.GetUpstreams() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetEgressLatencyResponseValidationError{
+					field:  fmt.Sprintf("Upstreams[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if v, ok := interface{}(m.GetFrom()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetEgressLatencyResponseValidationError{
+				field:  "From",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetTo()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetEgressLatencyResponseValidationError{
+				field:  "To",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	return nil
+}
+
+// GetEgressLatencyResponseValidationError is the validation error returned by
+// GetEgressLatencyResponse.Validate if the designated constraints aren't met.
+type GetEgressLatencyResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetEgressLatencyResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetEgressLatencyResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetEgressLatencyResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetEgressLatencyResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetEgressLatencyResponseValidationError) ErrorName() string {
+	return "GetEgressLatencyResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetEgressLatencyResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetEgressLatencyResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetEgressLatencyResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetEgressLatencyResponseValidationError{}

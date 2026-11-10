@@ -257,8 +257,6 @@
     "subtitle": "Quản lý tài nguyên của tên miền này",
     "unavailable": "Tài nguyên không khả dụng",
     "unavailableHint": "Tên miền <strong>{domain}</strong> có thể không đúng hoặc đã bị xóa.",
-    "overview": "Tổng quan",
-    "overviewDescription": "Thông tin chung và thời gian của tài nguyên",
     "id": "ID:",
     "name": "Tên:",
     "domain": "Tên miền:",
@@ -268,12 +266,6 @@
     "updatedAt": "Cập nhật lúc:",
     "uniqueVisitors": "Khách truy cập duy nhất",
     "uniqueVisitorsDescription": "Số khách truy cập duy nhất mỗi {count, number} {unit, select, second {giây} minute {phút} hour {giờ} other {ngày}} trong 24 giờ qua",
-    "settings": "Cấu hình (JSON thô)",
-    "settingsDescription": "Cấu hình edge áp dụng cho tài nguyên này",
-    "showJson": "Hiện JSON",
-    "hideJson": "Ẩn JSON",
-    "noSettings": "Chưa áp dụng cấu hình nào.",
-    "hiddenJson": "Đang ẩn. Nhấn \"Hiện JSON\" để xem cấu hình thô.",
     "total24h": "Khách duy nhất (24h)",
     "peakHour": "Giờ cao điểm",
     "visitors": "Khách truy cập duy nhất",
@@ -284,6 +276,19 @@
     "lastSeen": "Lần cuối",
     "tenantId": "ID tenant:",
     "eventsResourceId": "ID resource của sự kiện:",
+    "latency": "Độ trễ upstream",
+    "latencyDescription": "Thời gian edge chuyển tiếp request tới từng upstream và nhận lại phản hồi trong 24 giờ qua",
+    "upstream": "Upstream",
+    "avg": "Trung bình",
+    "p50": "Trung vị",
+    "p95": "p95",
+    "p99": "p99",
+    "max": "Lớn nhất",
+    "noLatency": "Không có request nào được chuyển tới upstream trong 24 giờ qua."
+  },
+  "ResourceSetting": {
+    "title": "Cấu hình",
+    "subtitle": "Cấu hình edge của tên miền này: cách chuyển tiếp các request tới origin",
     "routing": "Định tuyến",
     "routingDescription": "{count, plural, =0 {Không có location} other {# location}} edge chuyển tiếp tới origin",
     "noLocations": "Chưa có location: edge không chuyển tiếp request nào của tên miền này.",
@@ -292,11 +297,23 @@
     "noUpstreams": "Không có",
     "headers": "Header",
     "balanceRoundRobin": "Round robin",
-    "balanceDefault": "Cân bằng mặc định"
-  },
-  "ResourceSetting": {
-    "title": "Cấu hình",
-    "subtitle": "Cấu hình edge của tên miền này: cách chuyển tiếp các request tới origin"
+    "balanceDefault": "Cân bằng mặc định",
+    "showJson": "Hiện JSON",
+    "edit": "Chỉnh sửa",
+    "editDescription": "Khi lưu, toàn bộ cấu hình server của tên miền này được thay thế.",
+    "syncHint": "Cấu hình đã lưu được giữ cho tài nguyên. Edge đang chạy sẽ áp dụng khi nạp lại cấu hình proxy.",
+    "serverName": "Tên",
+    "locationN": "Location {n}",
+    "location": "Tiền tố đường dẫn",
+    "rewriteTo": "Viết lại đường dẫn thành",
+    "rewriteSame": "Giữ nguyên đường dẫn",
+    "balance": "Cân bằng tải",
+    "headerHint": "Mỗi dòng một \"Tên: giá trị\", gửi tới origin. Giá trị được gửi nguyên văn, hoặc là một trong $host, $remote_addr, $scheme, $request_uri, $proxy_add_x_forwarded_for và đứng một mình. Proxy tự đặt Host.",
+    "addLocation": "Thêm location",
+    "removeLocation": "Xóa location",
+    "noLocationsEdit": "Chưa có location: thêm một location để chuyển tiếp request của tên miền này.",
+    "saved": "Đã lưu cấu hình",
+    "saveFailed": "Không lưu được cấu hình"
   },
   "Delivery": {
     "cdnTitle": "Quy tắc CDN",
@@ -642,7 +659,13 @@
     "overrideScope": "Ghi đè {n}: chỉ trạng thái Vô hiệu mới giới hạn được theo request khớp điều kiện",
     "scopeSource": "Ngoại lệ và ghi đè không hỗ trợ điều kiện theo body, JA4 hoặc TLS",
     "email": "Nhập địa chỉ email hợp lệ",
-    "rolesRequired": "Chọn ít nhất một vai trò"
+    "rolesRequired": "Chọn ít nhất một vai trò",
+    "rewrite": "Đường dẫn viết lại phải bắt đầu bằng \"/\"",
+    "locationOrigin": "Location \"{location}\" cần ít nhất một origin",
+    "locationTwice": "Location \"{location}\" xuất hiện hai lần",
+    "headerName": "Tên header \"{name}\" không hợp lệ",
+    "headerTwice": "Header \"{name}\" được đặt hai lần trong location \"{location}\"",
+    "headerLine": "Dòng header \"{line}\" phải có dạng \"Tên: giá trị\""
   },
   "Explorer": {
     "timeRange": "Khoảng thời gian",
@@ -685,7 +708,8 @@
     },
     "viewRequest": "Xem request trong Ingress",
     "requestId": "Request ID",
-    "removeFilter": "Bỏ bộ lọc {filter}"
+    "removeFilter": "Bỏ bộ lọc {filter}",
+    "histogramTruncated": "Khoảng thời gian có quá nhiều cột: hiển thị {count} cột mới nhất"
   },
   "Logs": {
     "ingress": {
@@ -745,13 +769,15 @@
       "behavior": "Hành vi",
       "domain": "Tên miền",
       "query": "Query",
-      "requestId": "Request ID"
+      "requestId": "Request ID",
+      "headers": "Header đã đặt"
     },
     "detail": {
       "queries": "Tham số query",
       "headers": "Headers",
       "messages": "Thông điệp",
-      "tags": "Tags"
+      "tags": "Tags",
+      "setHeaders": "Header do edge đặt"
     },
     "streamed": "stream"
   }
