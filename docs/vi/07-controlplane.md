@@ -159,6 +159,9 @@ vai trò. `authz.Authorizer` đọc membership (`tenant.members`) của người
 | quản trị | `ADMIN` | sửa/xoá tenant, tạo/sửa/xoá member |
 | thanh toán | `SUPER_ADMIN` | đổi `plan` của tenant (thứ tenant trả tiền) |
 
+Tenant mới luôn bắt đầu ở plan `FREE` (người gọi `PORTAL` xin plan khác nhận
+`PermissionDenied`); chỉ control plane `ADMIN` mới tạo được tenant ở plan khác.
+
 - Thứ bậc `SUPER_ADMIN` > `ADMIN` > `LEADER` > `MEMBER`. Control plane
   `ADMIN` làm được mọi thứ.
 - Người gọi ngoài tenant nhận `NotFound` nên không biết gì về tenant; người

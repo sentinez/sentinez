@@ -76,16 +76,40 @@ func (svc *Service) CreateTenant(ctx context.Context,
 		return nil, szerror.StatusUnauthorizedF("token has no user")
 	}
 
+	plan, err := newTenantPlan(auth, req.GetPlan())
+	if err != nil {
+		return nil, err
+	}
+
 	tenant, err := svc.createTenantWithOwner(ctx, &tenantpb.Tenant{
 		Name:        req.GetName(),
 		Description: req.GetDescription(),
-		Plan:        req.GetPlan(),
+		Plan:        plan,
 	}, auth.GetUserId())
 	if err != nil {
 		return nil, err
 	}
 
 	return &tenantpb.CreateTenantResponse{Tenant: tenant}, nil
+}
+
+// newTenantPlan returns the plan a new tenant starts on. A tenant starts
+// free, as the plan is what it pays for and only a super admin changes it
+// (see UpdateTenant): only the admin control plane may create one on
+// another plan.
+func newTenantPlan(auth *headers.Auth, plan typepb.Plan) (typepb.Plan, error) {
+	if auth.IsAdmin() && plan != typepb.Plan_PLAN_UNSPECIFIED {
+		return plan, nil
+	}
+
+	if plan != typepb.Plan_PLAN_UNSPECIFIED &&
+		plan != typepb.Plan_PLAN_FREE {
+
+		return 0, szerror.StatusForbiddenF(
+			"a tenant starts on the free plan")
+	}
+
+	return typepb.Plan_PLAN_FREE, nil
 }
 
 // createTenantWithOwner creates tenant and makes userId its admin in one

@@ -24,13 +24,6 @@ import { Input } from '@sentinez/ui/components/input';
 import { Label } from '@sentinez/ui/components/label';
 import { Skeleton } from '@sentinez/ui/components/skeleton';
 import { Textarea } from '@sentinez/ui/components/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@sentinez/ui/components/select';
 import type { Tenant as TenantModel } from '@sentinez/proto/sentinez/apps/tenant/v1/model';
 import { Plan } from '@sentinez/proto/sentinez/types/v1/known';
 import { MoveRight, Plus } from 'lucide-react';
@@ -46,8 +39,6 @@ import { toast } from '@/lib/toast';
 // Mirrors the buf.validate rules of CreateTenantRequest
 const NAME_MAX_LENGTH = 64;
 const DESCRIPTION_MAX_LENGTH = 255;
-
-const PLANS = [Plan.PLAN_FREE, Plan.PLAN_STANDARD, Plan.PLAN_PRO];
 
 export function Tenant({ tenant }: { tenant: TenantModel }) {
   const t = useTranslations('Tenant');
@@ -133,10 +124,8 @@ function CreateTenantDialog({
   const t = useTranslations('Tenant');
   const tc = useTranslations('Common');
   const te = useTranslations('Errors');
-  const planLabel = usePlanLabel();
   const [name, setName] = React.useState('');
   const [description, setDescription] = React.useState('');
-  const [plan, setPlan] = React.useState<Plan>(Plan.PLAN_FREE);
   const [creating, setCreating] = React.useState(false);
 
   async function handleCreate(e: React.FormEvent) {
@@ -149,11 +138,15 @@ function CreateTenantDialog({
 
     try {
       setCreating(true);
-      await createTenant({ name: name.trim(), description: description.trim(), plan });
+      // a tenant starts free: its plan is changed by a super admin later
+      await createTenant({
+        name: name.trim(),
+        description: description.trim(),
+        plan: Plan.PLAN_FREE,
+      });
       toast.success(t('created'));
       setName('');
       setDescription('');
-      setPlan(Plan.PLAN_FREE);
       onOpenChange(false);
       onCreated?.();
     } catch (error: any) {
@@ -188,21 +181,6 @@ function CreateTenantDialog({
               maxLength={DESCRIPTION_MAX_LENGTH}
               onChange={(e) => setDescription(e.target.value)}
             />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="tenant-plan">{t('plan')}</Label>
-            <Select value={String(plan)} onValueChange={(v) => setPlan(Number(v) as Plan)}>
-              <SelectTrigger id="tenant-plan" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {PLANS.map((p) => (
-                  <SelectItem key={p} value={String(p)}>
-                    {planLabel(p)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
           <DialogFooter>
             <Button

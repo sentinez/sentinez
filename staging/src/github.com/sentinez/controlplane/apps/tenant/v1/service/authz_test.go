@@ -22,6 +22,7 @@ import (
 	membermock "github.com/sentinez/controlplane/apps/tenant/v1/repos/members/mock"
 	resourcemock "github.com/sentinez/controlplane/apps/tenant/v1/repos/resources/mock"
 	tenantmock "github.com/sentinez/controlplane/apps/tenant/v1/repos/tenants/mock"
+	"github.com/sentinez/controlplane/pkg/headers"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/stretchr/testify/assert"
@@ -426,4 +427,42 @@ func TestUpdateTenantPlanAsAdminControlPlane(t *testing.T) {
 	})
 
 	require.NoError(t, err)
+}
+
+func TestNewTenantPlan(t *testing.T) {
+	const (
+		unset = typepb.Plan_PLAN_UNSPECIFIED
+		free  = typepb.Plan_PLAN_FREE
+		pro   = typepb.Plan_PLAN_PRO
+
+		portal = typepb.ControlPlane_CONTROL_PLANE_PORTAL
+		admin  = typepb.ControlPlane_CONTROL_PLANE_ADMIN
+	)
+
+	tests := []struct {
+		name      string
+		givePlane typepb.ControlPlane
+		givePlan  typepb.Plan
+		wantPlan  typepb.Plan
+		wantCode  codes.Code
+	}{
+		{"portal, none given", portal, unset, free, codes.OK},
+		{"portal, free", portal, free, free, codes.OK},
+		{"portal, a paid plan", portal, pro, unset, codes.PermissionDenied},
+		{"admin control plane, a paid plan", admin, pro, pro, codes.OK},
+		{"admin control plane, none given", admin, unset, free, codes.OK},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			auth := &headers.Auth{Context: &typepb.Context{
+				ControlPlane: tt.givePlane,
+			}}
+
+			got, err := newTenantPlan(auth, tt.givePlan)
+
+			assert.Equal(t, tt.wantCode, status.Code(err))
+			assert.Equal(t, tt.wantPlan, got)
+		})
+	}
 }

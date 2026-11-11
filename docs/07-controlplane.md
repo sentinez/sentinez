@@ -162,6 +162,10 @@ caller on every call, so a change of role applies at once.
 | manage | `ADMIN` | update/delete a tenant, create/update/delete a member |
 | billing | `SUPER_ADMIN` | change the `plan` of a tenant (what it pays for) |
 
+A new tenant always starts on the `FREE` plan (a `PORTAL` caller asking for
+another one gets `PermissionDenied`); only the `ADMIN` control plane creates
+one on another plan.
+
 - Roles rank `SUPER_ADMIN` > `ADMIN` > `LEADER` > `MEMBER`. The `ADMIN`
   control plane does anything.
 - A caller outside a tenant gets `NotFound`, so it learns nothing of the
