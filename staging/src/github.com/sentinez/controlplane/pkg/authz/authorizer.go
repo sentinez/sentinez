@@ -35,6 +35,9 @@ const (
 	Write = typepb.Role_ROLE_LEADER
 	// Manage lets the caller change the tenant and its members.
 	Manage = typepb.Role_ROLE_ADMIN
+	// Billing lets the caller change the plan of a tenant, which is what
+	// the tenant pays for.
+	Billing = typepb.Role_ROLE_SUPER_ADMIN
 )
 
 // Rank orders the roles: the higher, the more the role can do. An unknown

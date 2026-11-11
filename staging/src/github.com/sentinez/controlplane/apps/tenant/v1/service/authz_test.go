@@ -363,3 +363,67 @@ func TestListResourceOfOthers(t *testing.T) {
 	require.NoError(t, err)
 	assert.Empty(t, resp.GetResources())
 }
+
+// tenantOnPlan is a repo whose tenant _tenantId is on plan; it expects an
+// update only when wantUpdate.
+func tenantOnPlan(t *testing.T, plan typepb.Plan, wantUpdate bool,
+) *tenantmock.MockITenant {
+	t.Helper()
+
+	repo := tenantmock.NewMockITenant(t)
+	repo.EXPECT().Get(mock.Anything, _tenantId).
+		Return(&tenantpb.Tenant{Id: _tenantId, Plan: plan}, nil)
+
+	if wantUpdate {
+		repo.EXPECT().Update(mock.Anything, mock.Anything).Return(nil)
+	}
+
+	return repo
+}
+
+func TestUpdateTenantPlan(t *testing.T) {
+	const free, std, pro = typepb.Plan_PLAN_FREE, typepb.Plan_PLAN_STANDARD,
+		typepb.Plan_PLAN_PRO
+
+	tests := []struct {
+		name        string
+		giveRole    typepb.Role
+		giveCurrent typepb.Plan
+		givePlan    typepb.Plan
+		wantCode    codes.Code
+	}{
+		{"admin picks a higher plan", typepb.Role_ROLE_ADMIN, free, pro,
+			codes.PermissionDenied},
+		{"admin picks a lower plan", typepb.Role_ROLE_ADMIN, pro, std,
+			codes.PermissionDenied},
+		{"admin keeps the plan", typepb.Role_ROLE_ADMIN, std, std, codes.OK},
+		{"admin leaves the plan out", typepb.Role_ROLE_ADMIN, std,
+			typepb.Plan_PLAN_UNSPECIFIED, codes.OK},
+		{"super admin changes it", typepb.Role_ROLE_SUPER_ADMIN, free, pro,
+			codes.OK},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := New(nil, nil, memberships(t, "user_1", tt.giveRole),
+				tenantOnPlan(t, tt.giveCurrent, tt.wantCode == codes.OK))
+
+			_, err := svc.UpdateTenant(asUser(t, "user_1"),
+				&tenantpb.UpdateTenantRequest{
+					Id: _tenantId, Name: "acme", Plan: tt.givePlan,
+				})
+
+			assert.Equal(t, tt.wantCode, status.Code(err))
+		})
+	}
+}
+
+func TestUpdateTenantPlanAsAdminControlPlane(t *testing.T) {
+	svc := New(nil, nil, nil, tenantOnPlan(t, typepb.Plan_PLAN_FREE, true))
+
+	_, err := svc.UpdateTenant(asAdmin(t), &tenantpb.UpdateTenantRequest{
+		Id: _tenantId, Plan: typepb.Plan_PLAN_PRO,
+	})
+
+	require.NoError(t, err)
+}

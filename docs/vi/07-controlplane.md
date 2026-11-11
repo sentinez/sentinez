@@ -157,6 +157,7 @@ vai trò. `authz.Authorizer` đọc membership (`tenant.members`) của người
 | đọc | `MEMBER` | xem tenant, member, resource, rule và event |
 | ghi | `LEADER` | tạo/sửa/xoá resource, SecRule, RateLimit, CoreRuleset |
 | quản trị | `ADMIN` | sửa/xoá tenant, tạo/sửa/xoá member |
+| thanh toán | `SUPER_ADMIN` | đổi `plan` của tenant (thứ tenant trả tiền) |
 
 - Thứ bậc `SUPER_ADMIN` > `ADMIN` > `LEADER` > `MEMBER`. Control plane
   `ADMIN` làm được mọi thứ.

@@ -160,6 +160,7 @@ caller on every call, so a change of role applies at once.
 | read | `MEMBER` | get a tenant, its members, resources, rules and events |
 | write | `LEADER` | create/update/delete a resource, SecRule, RateLimit, CoreRuleset |
 | manage | `ADMIN` | update/delete a tenant, create/update/delete a member |
+| billing | `SUPER_ADMIN` | change the `plan` of a tenant (what it pays for) |
 
 - Roles rank `SUPER_ADMIN` > `ADMIN` > `LEADER` > `MEMBER`. The `ADMIN`
   control plane does anything.
