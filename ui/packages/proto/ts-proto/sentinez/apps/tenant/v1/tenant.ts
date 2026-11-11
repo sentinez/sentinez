@@ -177,6 +177,7 @@ export interface ListTenantRequest {
   plan: Plan;
   /** Case-insensitive part of the name. */
   name: string;
+  ids: string[];
 }
 
 export interface ListTenantResponse {
@@ -2660,7 +2661,7 @@ export const CreateTenantResponse: MessageFns<CreateTenantResponse> = {
 };
 
 function createBaseListTenantRequest(): ListTenantRequest {
-  return { page: undefined, plan: 0, name: "" };
+  return { page: undefined, plan: 0, name: "", ids: [] };
 }
 
 export const ListTenantRequest: MessageFns<ListTenantRequest> = {
@@ -2673,6 +2674,9 @@ export const ListTenantRequest: MessageFns<ListTenantRequest> = {
     }
     if (message.name !== "") {
       writer.uint32(26).string(message.name);
+    }
+    for (const v of message.ids) {
+      writer.uint32(34).string(v!);
     }
     return writer;
   },
@@ -2714,6 +2718,14 @@ export const ListTenantRequest: MessageFns<ListTenantRequest> = {
             message.name = reader.string();
             continue;
           }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.ids.push(reader.string());
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -2731,6 +2743,7 @@ export const ListTenantRequest: MessageFns<ListTenantRequest> = {
       page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined,
       plan: isSet(object.plan) ? planFromJSON(object.plan) : 0,
       name: isSet(object.name) ? globalThis.String(object.name) : "",
+      ids: globalThis.Array.isArray(object?.ids) ? object.ids.map((e: any) => globalThis.String(e)) : [],
     };
   },
 
@@ -2745,6 +2758,9 @@ export const ListTenantRequest: MessageFns<ListTenantRequest> = {
     if (message.name !== "") {
       obj.name = message.name;
     }
+    if (message.ids?.length) {
+      obj.ids = message.ids;
+    }
     return obj;
   },
 
@@ -2756,6 +2772,7 @@ export const ListTenantRequest: MessageFns<ListTenantRequest> = {
     message.page = (object.page !== undefined && object.page !== null) ? Pages.fromPartial(object.page) : undefined;
     message.plan = object.plan ?? 0;
     message.name = object.name ?? "";
+    message.ids = object.ids?.map((e) => e) || [];
     return message;
   },
 };

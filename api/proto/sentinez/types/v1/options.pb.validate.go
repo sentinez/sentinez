@@ -254,6 +254,8 @@ func (m *XMethod) Validate() error {
 
 	// no validation rules for Ignore
 
+	// no validation rules for Public
+
 	return nil
 }
 

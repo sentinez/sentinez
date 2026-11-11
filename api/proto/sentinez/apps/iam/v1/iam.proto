@@ -60,7 +60,11 @@ option (sentinez.types.v1.x_meta) = {
 service IdentityAccessManagementService {
   // private method bellow
 
-  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {}
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
+    option (sentinez.types.v1.x_method) = {
+      control_planes: [CONTROL_PLANE_ADMIN]
+    };
+  }
 
   // public method bellow
 
@@ -93,7 +97,7 @@ service IdentityAccessManagementService {
       body: "*"
     };
 
-    option (sentinez.types.v1.x_method) = {ignore: true};
+    option (sentinez.types.v1.x_method) = {public: true};
   }
 
   rpc GetUser(GetUserRequest) returns (GetUserResponse) {
@@ -115,7 +119,9 @@ service IdentityAccessManagementService {
   rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {
     option (google.api.http) = {delete: "/iam/user/{id}"};
 
-    option (sentinez.types.v1.x_method) = {ignore: true};
+    option (sentinez.types.v1.x_method) = {
+      control_planes: [CONTROL_PLANE_ADMIN]
+    };
   }
 
   rpc Login(LoginRequest) returns (LoginResponse) {
@@ -124,13 +130,13 @@ service IdentityAccessManagementService {
       body: "*"
     };
 
-    option (sentinez.types.v1.x_method) = {ignore: true};
+    option (sentinez.types.v1.x_method) = {public: true};
   }
 
   rpc PasskeyRegisterChallenge(PasskeyRegisterChallengeRequest) returns (PasskeyRegisterChallengeResponse) {
     option (google.api.http) = {get: "/iam/passkey/register/challenge"};
 
-    option (sentinez.types.v1.x_method) = {ignore: true};
+    option (sentinez.types.v1.x_method) = {public: true};
   }
 
   rpc PasskeyRegisterVerify(PasskeyRegisterVerifyRequest) returns (PasskeyRegisterVerifyResponse) {
@@ -139,7 +145,7 @@ service IdentityAccessManagementService {
       body: "*"
     };
 
-    option (sentinez.types.v1.x_method) = {ignore: true};
+    option (sentinez.types.v1.x_method) = {public: true};
   }
 
   // PasskeyLinkChallenge starts adding a passkey to the signed-in user.
@@ -153,7 +159,7 @@ service IdentityAccessManagementService {
   rpc PasskeyLoginChallenge(PasskeyLoginChallengeRequest) returns (PasskeyLoginChallengeResponse) {
     option (google.api.http) = {get: "/iam/passkey/login/challenge"};
 
-    option (sentinez.types.v1.x_method) = {ignore: true};
+    option (sentinez.types.v1.x_method) = {public: true};
   }
 
   rpc PasskeyLoginVerify(PasskeyLoginVerifyRequest) returns (PasskeyLoginVerifyResponse) {
@@ -162,7 +168,7 @@ service IdentityAccessManagementService {
       body: "*"
     };
 
-    option (sentinez.types.v1.x_method) = {ignore: true};
+    option (sentinez.types.v1.x_method) = {public: true};
   }
 }
 

@@ -60,14 +60,14 @@ service GreeterService {
   rpc SayHello(SayHelloRequest) returns (SayHelloResponse) {
     option (google.api.http) = {get: "/greeter/say"};
 
-    option (sentinez.types.v1.x_method) = {ignore: true};
+    option (sentinez.types.v1.x_method) = {public: true};
   }
 
   // Health check api
   rpc Status(StatusRequest) returns (StatusResponse) {
     option (google.api.http) = {get: "/greeter/status"};
 
-    option (sentinez.types.v1.x_method) = {ignore: true};
+    option (sentinez.types.v1.x_method) = {public: true};
   }
 }
 

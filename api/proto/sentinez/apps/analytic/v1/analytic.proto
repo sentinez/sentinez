@@ -32,7 +32,9 @@ option (sentinez.types.v1.x_meta) = {
 // AnalyticService handles data visualization
 service AnalyticService {
   // Health check Service
-  rpc Status(StatusRequest) returns (StatusResponse) {}
+  rpc Status(StatusRequest) returns (StatusResponse) {
+    option (sentinez.types.v1.x_method) = {public: true};
+  }
 
   rpc ListActivities(ListActivitiesRequest) returns (ListActivitiesResponse) {
     option (google.api.http) = {get: "/analytic/activities"};

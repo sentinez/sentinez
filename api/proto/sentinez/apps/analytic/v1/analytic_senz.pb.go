@@ -30,6 +30,12 @@ func GetMetaAnalyticServiceKey() string {
 	return metadata_analytic.GetServiceKey()
 }
 
+func GetAnalyticServiceStatus() *v1.XMethod {
+	return &v1.XMethod{
+		Public: true,
+	}
+}
+
 func GetAnalyticServiceListActivities() *v1.XMethod {
 	return &v1.XMethod{
 		Ignore: true,

@@ -123,9 +123,9 @@ const file_sentinez_apps_collector_v1_collector_proto_rawDesc = "" +
 	"*sentinez/apps/collector/v1/collector.proto\x12\x1asentinez.apps.collector.v1\x1a\x1fsentinez/types/v1/options.proto\"\x0f\n" +
 	"\rStatusRequest\"\"\n" +
 	"\x0eStatusResponse\x12\x10\n" +
-	"\x03msg\x18\x01 \x01(\tR\x03msg2u\n" +
-	"\x10CollectorService\x12a\n" +
-	"\x06Status\x12).sentinez.apps.collector.v1.StatusRequest\x1a*.sentinez.apps.collector.v1.StatusResponse\"\x00B\x88\x01\x8a\xb2\x195\n" +
+	"\x03msg\x18\x01 \x01(\tR\x03msg2{\n" +
+	"\x10CollectorService\x12g\n" +
+	"\x06Status\x12).sentinez.apps.collector.v1.StatusRequest\x1a*.sentinez.apps.collector.v1.StatusResponse\"\x06\x8a\xb5\x18\x02\x18\x01B\x88\x01\x8a\xb2\x195\n" +
 	"\x15SENTINEZ // COLLECTOR\x10\x02\x1a\x1asentinez.apps.collector.v1ZMgithub.com/sentinez/sentinez/api/proto/sentinez/apps/collector/v1;collectorpbb\x06proto3"
 
 var (

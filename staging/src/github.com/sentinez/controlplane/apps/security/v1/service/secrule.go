@@ -20,9 +20,11 @@ import (
 	"github.com/sentinez/controlplane/apps/security/v1/repos/coreruleset"
 	"github.com/sentinez/controlplane/apps/security/v1/repos/ratelimit"
 	"github.com/sentinez/controlplane/apps/security/v1/repos/secrule"
+	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/pkg/szerror"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
 
 var _ securitypb.SecurityServiceServer = (*SecurityService)(nil)
@@ -33,12 +35,14 @@ func New(
 	secRuleRepo secrule.ISecRule,
 	rateLimitRepo ratelimit.IRateLimit,
 	coreRulesetRepo coreruleset.ICoreRuleset,
+	az *authz.Authorizer,
 ) *SecurityService {
 	return &SecurityService{
 		config:          config,
 		secRuleRepo:     secRuleRepo,
 		rateLimitRepo:   rateLimitRepo,
 		coreRulesetRepo: coreRulesetRepo,
+		authz:           az,
 	}
 }
 
@@ -48,6 +52,53 @@ type SecurityService struct {
 	secRuleRepo     secrule.ISecRule
 	rateLimitRepo   ratelimit.IRateLimit
 	coreRulesetRepo coreruleset.ICoreRuleset
+	authz           *authz.Authorizer
+}
+
+// newOwner checks the caller may write the resource of owner and returns
+// the owner with the tenant of that resource: the tenant of the request is
+// not trusted.
+func (srv *SecurityService) newOwner(ctx context.Context,
+	owner *typepb.Owner) (*typepb.Owner, error) {
+
+	resource, err := srv.authz.
+		RequireResource(ctx, owner.GetResourceId(), authz.Write)
+	if err != nil {
+		return nil, err
+	}
+
+	return &typepb.Owner{
+		ResourceId: resource.GetId(),
+		TenantId:   resource.GetTenantId(),
+	}, nil
+}
+
+// ownedRow is a rule that belongs to a resource.
+type ownedRow interface {
+	GetOwner() *typepb.Owner
+}
+
+// owned reads the row id with get, NotFound if there is none, and checks
+// the caller has at least role least in the tenant of its resource.
+func owned[M ownedRow](ctx context.Context, srv *SecurityService,
+	get func(context.Context, string) (M, error), what, id string,
+	least typepb.Role) (M, error) {
+
+	var none M
+
+	row, err := get(ctx, id)
+	if szerror.IsNoRows(err) {
+		return none, szerror.StatusNotFoundF("%s not found: id=%s", what, id)
+	}
+	if err != nil {
+		return none, err
+	}
+
+	if err = srv.authz.RequireOwner(ctx, row.GetOwner(), least); err != nil {
+		return none, err
+	}
+
+	return row, nil
 }
 
 // mapSecRule converts a DB SecRule into an API SecRule response.
@@ -80,6 +131,13 @@ func (srv *SecurityService) CreateSecRule(ctx context.Context,
 		return nil, szerror.StatusInvalidArgumentF("sec_rule is required")
 	}
 
+	owner, err := srv.newOwner(ctx, req.GetSecRule().GetOwner())
+	if err != nil {
+		return nil, err
+	}
+
+	req.GetSecRule().Owner = owner
+
 	created, err := srv.secRuleRepo.Create(ctx, req.GetSecRule())
 	if err != nil {
 		return nil, err
@@ -91,7 +149,8 @@ func (srv *SecurityService) CreateSecRule(ctx context.Context,
 func (srv *SecurityService) GetSecRule(ctx context.Context,
 	req *securitypb.GetSecRuleRequest,
 ) (*securitypb.GetSecRuleResponse, error) {
-	dbRB, err := srv.secRuleRepo.Get(ctx, req.GetId())
+	dbRB, err := owned(ctx, srv, srv.secRuleRepo.Get, "sec rule",
+		req.GetId(), authz.Read)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +167,8 @@ func (srv *SecurityService) UpdateSecRule(ctx context.Context,
 		return nil, szerror.StatusInvalidArgumentF("sec_rule is required")
 	}
 
-	dbRB, err := srv.secRuleRepo.Get(ctx, req.GetId())
+	dbRB, err := owned(ctx, srv, srv.secRuleRepo.Get, "sec rule",
+		req.GetId(), authz.Write)
 	if err != nil {
 		return nil, err
 	}
@@ -133,15 +193,27 @@ func (srv *SecurityService) UpdateSecRule(ctx context.Context,
 func (srv *SecurityService) DeleteSecRule(ctx context.Context,
 	req *securitypb.DeleteSecRuleRequest,
 ) (*securitypb.DeleteSecRuleResponse, error) {
-	if err := srv.secRuleRepo.Delete(ctx, req.GetId()); err != nil {
+	_, err := owned(ctx, srv, srv.secRuleRepo.Get, "sec rule",
+		req.GetId(), authz.Write)
+	if err != nil {
 		return nil, err
 	}
+
+	if err = srv.secRuleRepo.Delete(ctx, req.GetId()); err != nil {
+		return nil, err
+	}
+
 	return &securitypb.DeleteSecRuleResponse{}, nil
 }
 
 func (srv *SecurityService) ListSecRules(ctx context.Context,
 	req *securitypb.ListSecRulesRequest,
 ) (*securitypb.ListSecRulesResponse, error) {
+	req, ok, err := authz.Scoped(ctx, srv.authz, req)
+	if err != nil || !ok {
+		return &securitypb.ListSecRulesResponse{}, err
+	}
+
 	dbRBs, total, err := srv.secRuleRepo.List(ctx, req)
 	if err != nil {
 		return nil, err

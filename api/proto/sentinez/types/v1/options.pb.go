@@ -291,9 +291,13 @@ func (x *XField) GetNullable() bool {
 }
 
 type XMethod struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Ignore        bool                   `protobuf:"varint,1,opt,name=ignore,proto3" json:"ignore,omitempty"`
-	ControlPlanes []ControlPlane         `protobuf:"varint,2,rep,packed,name=control_planes,json=controlPlanes,proto3,enum=sentinez.types.v1.ControlPlane" json:"control_planes,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ignore skips the control plane check; a valid token is still required.
+	Ignore        bool           `protobuf:"varint,1,opt,name=ignore,proto3" json:"ignore,omitempty"`
+	ControlPlanes []ControlPlane `protobuf:"varint,2,rep,packed,name=control_planes,json=controlPlanes,proto3,enum=sentinez.types.v1.ControlPlane" json:"control_planes,omitempty"`
+	// public lets the method be called without a token. Methods that do not
+	// set it require a valid token.
+	Public        bool `protobuf:"varint,3,opt,name=public,proto3" json:"public,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -340,6 +344,13 @@ func (x *XMethod) GetControlPlanes() []ControlPlane {
 		return x.ControlPlanes
 	}
 	return nil
+}
+
+func (x *XMethod) GetPublic() bool {
+	if x != nil {
+		return x.Public
+	}
+	return false
 }
 
 var file_sentinez_types_v1_options_proto_extTypes = []protoimpl.ExtensionInfo{
@@ -419,10 +430,11 @@ const file_sentinez_types_v1_options_proto_rawDesc = "" +
 	"\aflatten\x18\x01 \x01(\bR\aflatten\x12\x16\n" +
 	"\x06ignore\x18\x02 \x01(\bR\x06ignore\x124\n" +
 	"\x05codec\x18\x03 \x01(\x0e2\x1e.sentinez.types.v1.ColumnCodecR\x05codec\x12\x1a\n" +
-	"\bnullable\x18\x04 \x01(\bR\bnullable\"i\n" +
+	"\bnullable\x18\x04 \x01(\bR\bnullable\"\x81\x01\n" +
 	"\aXMethod\x12\x16\n" +
 	"\x06ignore\x18\x01 \x01(\bR\x06ignore\x12F\n" +
-	"\x0econtrol_planes\x18\x02 \x03(\x0e2\x1f.sentinez.types.v1.ControlPlaneR\rcontrolPlanes*x\n" +
+	"\x0econtrol_planes\x18\x02 \x03(\x0e2\x1f.sentinez.types.v1.ControlPlaneR\rcontrolPlanes\x12\x16\n" +
+	"\x06public\x18\x03 \x01(\bR\x06public*x\n" +
 	"\vColumnCodec\x12\x1c\n" +
 	"\x18COLUMN_CODEC_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12COLUMN_CODEC_PROTO\x10\x01\x12\x1a\n" +

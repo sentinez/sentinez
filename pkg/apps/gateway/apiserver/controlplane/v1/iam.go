@@ -17,6 +17,7 @@ package controlplane
 import (
 	"context"
 
+	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/core/szgrpc/grpcgateway"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -54,7 +55,7 @@ func (i *identityAccessManagement) Accept(ctx context.Context,
 
 	// a local conn, unlike the generated HandlerServer registration, runs
 	// interceptors, so requests are validated at the gateway.
-	conn := grpcgateway.NewLocalConn()
+	conn := grpcgateway.NewLocalConn(authz.Unary())
 	iampb.RegisterIdentityAccessManagementServiceServer(conn, i.server)
 
 	return iampb.RegisterIdentityAccessManagementServiceHandlerClient(ctx,

@@ -122,22 +122,62 @@ of `postgres.WithTx`. It needs TimescaleDB (`SENZ_POSTGRES_URI` on the
 
 | Package | Purpose |
 |---|---|
-| `crypto` | `TokenGenerator(*typepb.Context)` signs an HS256 JWT with secret = base64-decode(`SENZ_SECRET_KEY`); claim `auth` = `Context.String()` (prototext), `exp`. `BearerTokenVerifier` strips the `Bearer ` prefix, verifies the HMAC and parses the `Context` back. `HashPassword`/`CheckPasswordHash` use bcrypt |
-| `headers` | `GetAuth(ctx)` reads the `Authorization` metadata and verifies it → `Auth{*typepb.Context}`; `Auth.Check(method)` calls `perms.Allow`; `Allow(ctx, method)` does both |
-| `passkey` | `NewWebAuthn(conf)` (RP = `core.Name`, RPID = `SENZ_HOSTNAME`, origin = `SENZ_CLIENT_ORIGIN`); in-memory `Store` (WebAuthn sessions + pending `Registration`s, see 7.3) |
+| `crypto` | `TokenGenerator(*typepb.Context)` signs an HS256 JWT with secret = base64-decode(`SENZ_SECRET_KEY`); claim `auth` = `Context.String()` (prototext), `exp`, `iat`, `iss` = `sentinez.iam`, `aud` = `sentinez.controlplane`. `BearerTokenVerifier` strips the `Bearer ` prefix and verifies the HMAC (HS256 only), the expiry (required), the issuer and the audience, then parses the `Context` back. `HashPassword`/`CheckPasswordHash` use bcrypt |
+| `headers` | `GetAuth(ctx)` returns the caller the `authz` interceptor verified, else reads and verifies the `Authorization` metadata → `Auth{*typepb.Context}`; `Auth.Check(method)` calls `perms.Allow` (fails with `PermissionDenied`); `Auth.IsAdmin()`; `WithAuth(ctx, auth)` |
+| `authz` | `Unary()` / `ServerOption()`: the deny-by-default interceptor (see below); `Authorizer`: what a caller may do in the tenants; `Scoped`: limits a list request to the resources of the caller |
+| `loginlimit` | `Limiter`: blocks a key after N failed sign-ins in a window; used by IAM |
+| `passkey` | `NewWebAuthn(conf)` (RP = `core.Name`, RPID = `SENZ_HOSTNAME`, origins = `ClientOrigins(conf)`, the comma-separated `SENZ_CLIENT_ORIGIN`); in-memory `Store` (WebAuthn sessions + pending `Registration`s, see 7.3) |
 
 `typepb.Context` = `{name, expire_at, user_id, control_plane}`; JWTs expire
 after 1 hour.
 
-Authorization is based on the **control plane** (`PORTAL` / `ADMIN`):
+Authorization has two layers.
 
-- Each RPC may declare `option (sentinez.types.v1.x_method) = {ignore |
-  control_planes: [...]}`; codegen produces `Get<Service><Method>()`.
-- `perms.Allow(method, cp)` allows access if the method is nil, `ignore` is
-  set, the list is empty, or `cp` is in the list.
-- Handlers must **call** `headers.Allow(ctx, method)` **themselves** —
-  today `IAM.ListAccounts`, the Tenant handlers and every Analytic RPC do.
-  There is no shared gRPC interceptor.
+**1. Per call: the control plane (`PORTAL` / `ADMIN`).** `authz.Unary()` is
+installed on every control-plane gRPC server and on the gateway's local
+conns, and denies by default:
+
+- Each RPC may declare `option (sentinez.types.v1.x_method) = {public |
+  ignore | control_planes: [...]}`; codegen produces `Get<Service><Method>()`.
+- `public` needs no token (a valid one is still read). Any other RPC,
+  **including one with no `x_method`**, needs a valid token.
+- `perms.Allow(method, cp)` then allows access if the method is nil,
+  `public` or `ignore` is set, the list is empty, or `cp` is in the list.
+  `ignore` skips only this check, not the token.
+- The public RPCs are `Login`, `CreateAccount`, the passkey register/login
+  RPCs and the `Status`/`SayHello` ones. `CreateUser` and `DeleteUser` are
+  `ADMIN` only.
+- `szgrpc.New` and `grpcgateway.NewLocalConn` put `recovery.Unary()` first:
+  a panic of a handler fails the call with `Internal` instead of stopping
+  the process.
+
+**2. Per tenant: the roles of the caller.** The token holds no tenant and no
+role. `authz.Authorizer` reads the memberships (`tenant.members`) of the
+caller on every call, so a change of role applies at once.
+
+| Needs | Role (or above) | Calls |
+|---|---|---|
+| read | `MEMBER` | get a tenant, its members, resources, rules and events |
+| write | `LEADER` | create/update/delete a resource, SecRule, RateLimit, CoreRuleset |
+| manage | `ADMIN` | update/delete a tenant, create/update/delete a member |
+| billing | `SUPER_ADMIN` | change the `plan` of a tenant (what it pays for) |
+
+A new tenant always starts on the `FREE` plan (a `PORTAL` caller asking for
+another one gets `PermissionDenied`); only the `ADMIN` control plane creates
+one on another plan.
+
+- Roles rank `SUPER_ADMIN` > `ADMIN` > `LEADER` > `MEMBER`. The `ADMIN`
+  control plane does anything.
+- A caller outside a tenant gets `NotFound`, so it learns nothing of the
+  tenant; one inside it without the role gets `PermissionDenied`.
+- A member can only be given a role up to the caller's own, never
+  `SUPER_ADMIN` (only the `ADMIN` control plane gives it), and a tenant
+  cannot lose its last admin.
+- Lists are limited to the tenants/resources of the caller (`TenantIds`,
+  `ResourceIds`, `Scoped`). A caller with nothing to see gets an empty list
+  without a query: an empty filter would match everything.
+- Security rules take the tenant of their resource, not the one of the
+  request.
 
 ## 7.3 IAM
 
@@ -200,15 +240,15 @@ because the email matches:
 
 | RPC | REST | Behavior |
 |---|---|---|
-| `Login` | `PUT /iam/login` | If username = `SENZ_ADMIN_USERNAME`: compares the password with `SENZ_ADMIN_PASSWORD` and issues an ADMIN token (`user_id = sentinez.admin`). Otherwise: finds the `LOCAL` account by username/email, bcrypt check, loads the user, issues a token |
+| `Login` | `PUT /iam/login` | If username = `SENZ_ADMIN_USERNAME`: compares the password with `SENZ_ADMIN_PASSWORD` in constant time (refused when none is set) and issues an ADMIN token (`user_id = sentinez.admin`). Otherwise: finds the `LOCAL` account by username/email, bcrypt check, loads the user, issues a token. Failed attempts are limited: 10 per account and 50 in all per client in 15 minutes, then `ResourceExhausted` (HTTP 429) until the window ends. The client is the last `X-Forwarded-For` hop |
 | `CreateAccount` | `POST /iam/account` | Password sign-up. Rejects (`AlreadyExists`) a username or email used by a `LOCAL` account, the reserved `SENZ_ADMIN_USERNAME`, and an email owned by any user; then creates `User` (PORTAL) + `LOCAL` account |
-| `CreateUser` | — (gRPC only) | Creates a `User` without an account if the email is not taken |
-| `GetUser` | `GET /iam/user` | By `id` or `email` (from `iam.users`) |
-| `ListUsers` | `GET /iam/users` | Filters `ids`, `emails`, paging |
+| `CreateUser` | — (gRPC only) | `ADMIN` control plane only. Creates a `User` without an account if the email is not taken |
+| `GetUser` | `GET /iam/user` | By `id` (from `iam.users`); a `PORTAL` caller gets itself or a user of one of its tenants, else `NotFound` |
+| `ListUsers` | `GET /iam/users` | Filters `ids`, `emails`, paging. A `PORTAL` caller gets: with `ids`, those that are itself or share a tenant with it; with `emails`, the exact matches (at most 5, to invite them); with neither, itself |
 | `UpdateUser` | — | Updates `full_name`, `email` |
-| `DeleteUser` | `DELETE /iam/user/{id}` | Deletes the user and all its accounts in one transaction |
-| `ListAccounts` | `GET /iam/accounts` | Requires a token; filters `ids/emails/user_ids/usernames`; each item carries its `provider` |
-| `Status` | `GET /iam/status` | Calls Greeter.Status over bufconn, returns the `Context` from the token (if any) |
+| `DeleteUser` | `DELETE /iam/user/{id}` | `ADMIN` control plane only. Deletes the user, its tenant memberships and all its accounts in one transaction |
+| `ListAccounts` | `GET /iam/accounts` | Requires a token; filters `ids/emails/user_ids/usernames`; each item carries its `provider`. A `PORTAL` caller gets its own accounts only |
+| `Status` | `GET /iam/status` | Requires a token. Calls Greeter.Status over bufconn, returns the `Context` of the token |
 | `PasskeyRegisterChallenge` | `GET /iam/passkey/register/challenge` | Passkey sign-up, step 1. Needs an email no user owns |
 | `PasskeyLinkChallenge` | `GET /iam/passkey/link/challenge` | Add a passkey to the signed-in user, step 1. Requires a token |
 | `PasskeyRegisterVerify` | `POST /iam/passkey/register/verify` | Step 2 of both: verifies the authenticator response, then writes |
@@ -304,8 +344,8 @@ server without one.
 | `GetResourceByDomain` | `GET /tenant/resource/{resource_domain}` | Returns the first record matching the domain |
 | `Status` | `GET /tenant/status` | |
 
-These RPCs declare `control_planes: [PORTAL, ADMIN]` but the handler does not
-check tokens yet.
+These RPCs declare `control_planes: [PORTAL, ADMIN]`, and the service checks
+the role of the caller in the tenant (see 7.2).
 
 ## 7.5 Security
 
@@ -531,9 +571,10 @@ Building it syncs the tables and views, as the collector does.
   `percentile_cont`).
 - `EventSelection` is the canonical message representing resource, request,
   filter and time range criteria, shared across analytic RPCs.
-- Every RPC requires a token (`headers.Allow`, `ignore: true`). The reads
-  are not scoped by tenant: with no `resource_ids` they return the events
-  of every tenant.
+- Every RPC requires a token. The reads are limited to the resources of the
+  tenants the caller is a member of: without `resource_ids` they return
+  those only, and a caller with no resource gets an empty answer. The
+  `ADMIN` control plane reads all.
 
 #### Event pools
 

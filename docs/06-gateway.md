@@ -8,7 +8,7 @@
 | [pkg/apps/gateway/apiserver/apiserver.go](../pkg/apps/gateway/apiserver/apiserver.go) | `Server.Start/Shutdown`, `Visit`, `VisitToEndpoint` |
 | [pkg/apps/gateway/apiserver/initialize.go](../pkg/apps/gateway/apiserver/initialize.go) | Middleware, Swagger, service registration |
 | [pkg/apps/gateway/apiserver/controlplane/v1/](../pkg/apps/gateway/apiserver/controlplane/v1/) | Registrars for Analytic, Greeter, IAM, Security, Tenant |
-| [pkg/apps/gateway/apiserver/middleware/](../pkg/apps/gateway/apiserver/middleware/) | `Logging`, `AllowCORS`, `SwaggerDefaultRoot`, `Injection` (SQLi/XSS), `Scope` |
+| [pkg/apps/gateway/apiserver/middleware/](../pkg/apps/gateway/apiserver/middleware/) | `Logging`, `CORS`, `SwaggerDefaultRoot`, `Injection` (SQLi/XSS), `Scope` |
 | [pkg/apps/gateway/apiserver/handlers/openapi_swagger.go](../pkg/apps/gateway/apiserver/handlers/openapi_swagger.go) | Serves OpenAPI JSON + Swagger UI |
 | [core/szgrpc/grpcgateway/](../staging/src/github.com/sentinez/core/szgrpc/grpcgateway/) | `XServer` (HTTP mux + runtime mux, HTTP/1.1/2 + HTTP/3), `ServiceRegistrar` |
 
@@ -16,7 +16,7 @@
 
 ```go
 srv.server.Use(middleware.Logging)
-srv.server.Use(middleware.AllowCORS)
+srv.server.Use(middleware.CORS(passkey.ClientOrigins(conf)))
 srv.server.Use(middleware.SwaggerDefaultRoot)
 srv.server.Use(middleware.Scope(
     middleware.Injection, "/iam", "/tenant", "/greeter", "/analytic",
@@ -57,7 +57,7 @@ Greeter run inside the apiserver process and share one PostgreSQL pool.
 ### HTTP request pipeline
 
 ```
-http.Server.Handler = extendHeader( Logging( AllowCORS( httpMux ) ) )
+http.Server.Handler = extendHeader( Logging( CORS( httpMux ) ) )
 httpMux:
   /api/      → OpenAPI JSON (api/docs/v1, embedded)
   /swagger   → 301 /swagger/
@@ -68,9 +68,11 @@ httpMux:
 - `Logging`: reads the whole body (so it can be logged on error), calls the
   handler, debug-logs when status ≥ 400, then writes an `httppb.IngressEvent` (kind
   `LOG_TYPE_HTTP_INGRESS`) through `szlog`.
-- `AllowCORS`: reflects any `Origin`, sets `Allow-Credentials: true`, returns
-  `204` for preflight with methods `GET, HEAD, POST, PUT, DELETE` and headers
-  `Content-Type, Accept, Authorization`.
+- `CORS(origins)`: only an `Origin` listed in `SENZ_CLIENT_ORIGIN` (one, or
+  several separated by commas) is reflected with `Allow-Credentials: true`;
+  its preflight gets `204` with methods `GET, HEAD, POST, PUT, DELETE` and
+  headers `Content-Type, Accept, Authorization`. Any other origin gets no
+  CORS header, and so does every origin when the variable is unset.
 - The gateway error handler maps `szerror.ErrNotFound/ErrInvalidData/
   ErrUnimplemented` to the matching gRPC status before converting to HTTP.
 

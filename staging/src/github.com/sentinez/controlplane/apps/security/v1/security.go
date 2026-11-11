@@ -19,6 +19,7 @@ import (
 	"context"
 
 	securityfac "github.com/sentinez/controlplane/apps/security/v1/factory"
+	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/core/szgrpc"
 	"github.com/sentinez/sentinez/api/client/local"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
@@ -43,7 +44,7 @@ func NewService(
 	}
 
 	return &Security{
-		Server: szgrpc.New(),
+		Server: szgrpc.New(authz.ServerOption()),
 		hdl:    hdl,
 	}, nil
 }

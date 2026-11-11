@@ -22,6 +22,7 @@ import (
 	activitiesrepo "github.com/sentinez/controlplane/apps/analytic/v1/repos/activities"
 	eventsrepo "github.com/sentinez/controlplane/apps/analytic/v1/repos/events"
 	analyticsvc "github.com/sentinez/controlplane/apps/analytic/v1/service"
+	tenantfac "github.com/sentinez/controlplane/apps/tenant/v1/factory"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -55,5 +56,11 @@ func NewDefaultHandler(ctx context.Context,
 		return nil, err
 	}
 
-	return analytichdl.New(service), nil
+	// who sees the events of a resource follows the tenant memberships
+	az, err := tenantfac.NewAuthorizer(ctx, appConf)
+	if err != nil {
+		return nil, err
+	}
+
+	return analytichdl.New(service, az), nil
 }

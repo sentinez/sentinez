@@ -29,3 +29,9 @@ func GetMetaCollectorServiceZone() v1.Zone {
 func GetMetaCollectorServiceKey() string {
 	return metadata_collector.GetServiceKey()
 }
+
+func GetCollectorServiceStatus() *v1.XMethod {
+	return &v1.XMethod{
+		Public: true,
+	}
+}

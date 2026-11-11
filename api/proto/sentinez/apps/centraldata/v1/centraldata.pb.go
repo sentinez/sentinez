@@ -123,9 +123,9 @@ const file_sentinez_apps_centraldata_v1_centraldata_proto_rawDesc = "" +
 	".sentinez/apps/centraldata/v1/centraldata.proto\x12\x1csentinez.apps.centraldata.v1\x1a\x1fsentinez/types/v1/options.proto\"\x0f\n" +
 	"\rStatusRequest\"\"\n" +
 	"\x0eStatusResponse\x12\x10\n" +
-	"\x03msg\x18\x01 \x01(\tR\x03msg2{\n" +
-	"\x12CentralDataService\x12e\n" +
-	"\x06Status\x12+.sentinez.apps.centraldata.v1.StatusRequest\x1a,.sentinez.apps.centraldata.v1.StatusResponse\"\x00B\x90\x01\x8a\xb2\x199\n" +
+	"\x03msg\x18\x01 \x01(\tR\x03msg2\x81\x01\n" +
+	"\x12CentralDataService\x12k\n" +
+	"\x06Status\x12+.sentinez.apps.centraldata.v1.StatusRequest\x1a,.sentinez.apps.centraldata.v1.StatusResponse\"\x06\x8a\xb5\x18\x02\x18\x01B\x90\x01\x8a\xb2\x199\n" +
 	"\x17SENTINEZ // CENTRALDATA\x10\x02\x1a\x1csentinez.apps.centraldata.v1ZQgithub.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1;centraldatapbb\x06proto3"
 
 var (

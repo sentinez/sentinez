@@ -68,7 +68,7 @@ func newPasskeyFixture(t *testing.T) *passkeyFixture {
 		settingpb.Senz_SENZ_HOSTNAME.String():      "localhost",
 		settingpb.Senz_SENZ_CLIENT_ORIGIN.String(): "http://localhost",
 	}}
-	f.svc = New(conf, nil, f.store, f.users, f.accounts)
+	f.svc = New(conf, nil, f.store, f.users, f.accounts, nil, nil)
 
 	return f
 }

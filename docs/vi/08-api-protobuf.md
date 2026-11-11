@@ -42,7 +42,7 @@ response trùng type.
 | `x_meta` (52001) | File | `service_name`, `service_zone`, `service_key` | Định danh service: banner console, tên logger, key Consul, `GetMeta<Name>()` |
 | `x_message` (51001) | Message | `database_model`, `export_field`, `scanner` | Sinh hằng tên cột `<Msg>_<Field>` / `X<Msg>_<Field>`; `scanner` sinh thêm row scanner bên dưới |
 | `x_field` (53001) | Field | `flatten`, `ignore`, `codec`, `nullable` | Cách một field của model DB ánh xạ ra cột, xem bên dưới |
-| `x_method` (50001) | RPC | `ignore`, `control_planes[]` | Sinh `Get<Service><Method>() *XMethod` cho phân quyền |
+| `x_method` (50001) | RPC | `ignore`, `control_planes[]`, `public` | Sinh `Get<Service><Method>() *XMethod` cho phân quyền |
 
 `Zone`: `DEMILITARIZED` (edge, dataplane), `INTERNAL` (domain service),
 `PRIVATE_API` (apiserver, realtime), `PUBLIC_API`.
@@ -159,7 +159,7 @@ header `Authorization: Bearer <JWT>`.
 | GET | `/analytic/events/top-values` | `AnalyticService.GetEventTopValues` | ignore |
 | GET | `/analytic/events/http-egress/latency` | `AnalyticService.GetEgressLatency` | ignore |
 
-"Quyền khai báo" là option trong proto; việc thực thi phụ thuộc handler (xem
+"Quyền khai báo" là option trong proto; interceptor `authz.Unary` thực thi nó và từ chối RPC không khai báo gì (xem
 [07-controlplane.md](07-controlplane.md#72-xác-thực--phân-quyền)).
 
 `GetEgressLatency` truy vấn độ trễ gom nhóm theo upstream qua `EventSelection`

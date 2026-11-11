@@ -17,6 +17,7 @@ package collector
 
 import (
 	collectorfac "github.com/sentinez/controlplane/apps/collector/v1/factory"
+	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/core/szgrpc"
 	collectorpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/collector/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -32,7 +33,7 @@ type Collector struct {
 // NewService creates the collector gRPC server.
 func NewService(conf *settingpb.Config) *Collector {
 	return &Collector{
-		Server:  szgrpc.New(),
+		Server:  szgrpc.New(authz.ServerOption()),
 		handler: collectorfac.NewDefaultHandler(conf),
 		conf:    conf,
 	}

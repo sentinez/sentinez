@@ -15,15 +15,11 @@ xoá mục tương ứng.
 
 | # | Vị trí | Vấn đề |
 |---|---|---|
-| S1 | [pkg/apps/gateway/apiserver/middleware/middleware.go](../../pkg/apps/gateway/apiserver/middleware/middleware.go) `AllowCORS` | Phản chiếu mọi `Origin` kèm `Allow-Credentials: true` (code có ghi chú không dùng cho production) |
-| S2 | Handler controlplane | Phân quyền phải tự gọi trong từng handler (`headers.Allow`); chỉ `ListAccounts`, Tenant và Analytic có kiểm tra. Security, `ListUsers`, `DeleteUser`… không yêu cầu token |
-| S3 | IAM `loginAdmin` | So mật khẩu admin dạng plaintext, không constant-time; admin không có giới hạn đăng nhập sai |
 | S4 | Middleware `Logging` (apiserver) | Đọc toàn bộ body và log ở mức debug khi lỗi — có thể ghi mật khẩu từ `/iam/login` vào log |
 | S5 | [cmd/szedge/v1/server/pprof.go](../../cmd/szedge/v1/server/pprof.go) | pprof luôn mở ở `defaults.PprofAddress` (`0.0.0.0:6060`; compose cũng publish port này) |
 | S6 | [pkg/network/httpx/context.go](../../pkg/network/httpx/context.go), WebSocket realtime | `CheckOrigin` luôn `true` |
 | S7 | `cmd/szedge/v1/Dockerfile` | Image đóng gói cặp cert/key từ thư mục source |
 | S8 | `httpx.Context.RequestIP` | Tin `X-Forwarded-For`/`X-Real-IP` từ client mà không có danh sách proxy tin cậy → giả mạo IP để né rule IP/rate limit (chế độ `Quic` và `Standard`, tức mặc định) |
-| S9 | Đọc event của Analytic | Chưa lọc theo tenant: không truyền `resource_ids` thì mọi token hợp lệ đều đọc được event của mọi tenant |
 
 ## 12.3 Chức năng chưa hoàn thiện
 

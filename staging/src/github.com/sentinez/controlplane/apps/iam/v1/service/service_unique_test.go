@@ -58,7 +58,7 @@ func newTestService(t *testing.T,
 		accountRepo.On("GetByUsernameOrEmail", mock.Anything, input).
 			Return(l.acc, l.err)
 	}
-	svc := New(&settingpb.Config{}, nil, nil, userRepo, accountRepo)
+	svc := New(&settingpb.Config{}, nil, nil, userRepo, accountRepo, nil, nil)
 	return svc, userRepo
 }
 
@@ -77,7 +77,7 @@ func newLocalTestService(t *testing.T,
 	conf := &settingpb.Config{Env: map[string]string{
 		settingpb.Senz_SENZ_ADMIN_USERNAME.String(): "root",
 	}}
-	svc := New(conf, nil, nil, userRepo, accountRepo)
+	svc := New(conf, nil, nil, userRepo, accountRepo, nil, nil)
 	return svc, userRepo
 }
 

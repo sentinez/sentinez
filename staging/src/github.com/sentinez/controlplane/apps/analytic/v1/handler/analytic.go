@@ -18,7 +18,7 @@ import (
 	"context"
 
 	analyticsvc "github.com/sentinez/controlplane/apps/analytic/v1/service"
-	"github.com/sentinez/controlplane/pkg/headers"
+	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/pkg/szlog"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 )
@@ -27,13 +27,18 @@ var _ pb.AnalyticServiceServer = (*AnalyticHandler)(nil)
 
 type AnalyticHandler struct {
 	service *analyticsvc.AnalyticService
+	authz   *authz.Authorizer
 }
 
+// New returns the handler of service. The caller sees the events and the
+// activities of the resources az gives it.
 func New(
 	service *analyticsvc.AnalyticService,
+	az *authz.Authorizer,
 ) pb.AnalyticServiceServer {
 	return &AnalyticHandler{
 		service: service,
+		authz:   az,
 	}
 }
 
@@ -56,9 +61,9 @@ func (hdl *AnalyticHandler) ListActivities(ctx context.Context,
 
 	szlog.Debugf("[AnalyticHandler.ListActivities] req = %v", req)
 
-	err := headers.Allow(ctx, pb.GetAnalyticServiceListActivities())
-	if err != nil {
-		return nil, err
+	req, ok, err := authz.Scoped(ctx, hdl.authz, req)
+	if err != nil || !ok {
+		return &pb.ListActivitiesResponse{}, err
 	}
 
 	resp, err := hdl.service.ListActivities(ctx, req)

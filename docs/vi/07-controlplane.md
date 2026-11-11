@@ -120,22 +120,59 @@ xây trên `postgres.Open`: dùng chung pool và tham gia được transaction c
 
 | Gói | Chức năng |
 |---|---|
-| `crypto` | `TokenGenerator(*typepb.Context)` ký JWT HS256 với secret = base64-decode(`SENZ_SECRET_KEY`); claim `auth` = `Context.String()` (prototext), `exp`. `BearerTokenVerifier` bỏ tiền tố `Bearer `, kiểm tra HMAC, parse lại `Context`. `HashPassword`/`CheckPasswordHash` dùng bcrypt |
-| `headers` | `GetAuth(ctx)` đọc metadata `Authorization`, verify → `Auth{*typepb.Context}`; `Auth.Check(method)` gọi `perms.Allow`; `Allow(ctx, method)` làm cả hai |
-| `passkey` | `NewWebAuthn(conf)` (RP = `core.Name`, RPID = `SENZ_HOSTNAME`, origin = `SENZ_CLIENT_ORIGIN`); `Store` in-memory (session WebAuthn + `Registration` đang chờ, xem 7.3) |
+| `crypto` | `TokenGenerator(*typepb.Context)` ký JWT HS256 với secret = base64-decode(`SENZ_SECRET_KEY`); claim `auth` = `Context.String()` (prototext), `exp`, `iat`, `iss` = `sentinez.iam`, `aud` = `sentinez.controlplane`. `BearerTokenVerifier` bỏ tiền tố `Bearer `, kiểm tra HMAC (chỉ HS256), hạn dùng (bắt buộc), issuer và audience, rồi parse lại `Context`. `HashPassword`/`CheckPasswordHash` dùng bcrypt |
+| `headers` | `GetAuth(ctx)` trả người gọi mà interceptor `authz` đã xác thực, nếu không thì đọc và verify metadata `Authorization` → `Auth{*typepb.Context}`; `Auth.Check(method)` gọi `perms.Allow` (lỗi `PermissionDenied`); `Auth.IsAdmin()`; `WithAuth(ctx, auth)` |
+| `authz` | `Unary()` / `ServerOption()`: interceptor từ chối mặc định (xem dưới); `Authorizer`: người gọi được làm gì trong các tenant; `Scoped`: giới hạn request list theo resource của người gọi |
+| `loginlimit` | `Limiter`: chặn một key sau N lần đăng nhập thất bại trong một cửa sổ; IAM dùng |
+| `passkey` | `NewWebAuthn(conf)` (RP = `core.Name`, RPID = `SENZ_HOSTNAME`, origins = `ClientOrigins(conf)`, tức `SENZ_CLIENT_ORIGIN` cách nhau bằng dấu phẩy); `Store` in-memory (session WebAuthn + `Registration` đang chờ, xem 7.3) |
 
 `typepb.Context` = `{name, expire_at, user_id, control_plane}`; JWT hết hạn
 sau 1 giờ.
 
-Phân quyền dựa trên **control plane** (`PORTAL` / `ADMIN`):
+Phân quyền có hai lớp.
 
-- Mỗi RPC có thể khai báo `option (sentinez.types.v1.x_method) = {ignore |
-  control_planes: [...]}`; codegen sinh hàm `Get<Service><Method>()`.
-- `perms.Allow(method, cp)`: cho phép nếu method nil, `ignore`, danh sách rỗng
-  hoặc `cp` nằm trong danh sách.
-- Handler phải **tự gọi** `headers.Allow(ctx, method)` — hiện
-  `IAM.ListAccounts`, các handler Tenant và mọi RPC của Analytic làm việc
-  này. Không có interceptor gRPC chung.
+**1. Theo từng call: control plane (`PORTAL` / `ADMIN`).** `authz.Unary()`
+được cài trên mọi gRPC server của control plane và trên local conn của
+gateway, và từ chối mặc định:
+
+- Mỗi RPC có thể khai báo `option (sentinez.types.v1.x_method) = {public |
+  ignore | control_planes: [...]}`; codegen sinh hàm `Get<Service><Method>()`.
+- `public` không cần token (token hợp lệ vẫn được đọc). RPC khác, **kể cả
+  RPC không có `x_method`**, cần token hợp lệ.
+- Sau đó `perms.Allow(method, cp)`: cho phép nếu method nil, `public` hoặc
+  `ignore`, danh sách rỗng hoặc `cp` nằm trong danh sách. `ignore` chỉ bỏ
+  qua bước này, không bỏ qua token.
+- Các RPC public: `Login`, `CreateAccount`, các RPC passkey register/login
+  và các RPC `Status`/`SayHello`. `CreateUser` và `DeleteUser` chỉ cho
+  control plane `ADMIN`.
+- `szgrpc.New` và `grpcgateway.NewLocalConn` đặt `recovery.Unary()` đầu
+  chuỗi: panic của handler làm call lỗi `Internal` thay vì dừng process.
+
+**2. Theo từng tenant: vai trò của người gọi.** Token không chứa tenant hay
+vai trò. `authz.Authorizer` đọc membership (`tenant.members`) của người gọi
+ở mỗi call, nên đổi vai trò có hiệu lực ngay.
+
+| Cần | Vai trò (hoặc cao hơn) | Call |
+|---|---|---|
+| đọc | `MEMBER` | xem tenant, member, resource, rule và event |
+| ghi | `LEADER` | tạo/sửa/xoá resource, SecRule, RateLimit, CoreRuleset |
+| quản trị | `ADMIN` | sửa/xoá tenant, tạo/sửa/xoá member |
+| thanh toán | `SUPER_ADMIN` | đổi `plan` của tenant (thứ tenant trả tiền) |
+
+Tenant mới luôn bắt đầu ở plan `FREE` (người gọi `PORTAL` xin plan khác nhận
+`PermissionDenied`); chỉ control plane `ADMIN` mới tạo được tenant ở plan khác.
+
+- Thứ bậc `SUPER_ADMIN` > `ADMIN` > `LEADER` > `MEMBER`. Control plane
+  `ADMIN` làm được mọi thứ.
+- Người gọi ngoài tenant nhận `NotFound` nên không biết gì về tenant; người
+  trong tenant nhưng thiếu vai trò nhận `PermissionDenied`.
+- Chỉ gán được vai trò tối đa bằng vai trò của chính người gọi, không bao
+  giờ `SUPER_ADMIN` (chỉ control plane `ADMIN` gán được), và tenant không
+  được mất admin cuối cùng.
+- Các list bị giới hạn theo tenant/resource của người gọi (`TenantIds`,
+  `ResourceIds`, `Scoped`). Người gọi không thấy gì nhận list rỗng mà không
+  query: filter rỗng sẽ khớp mọi thứ.
+- Rule security lấy tenant từ resource của nó, không từ request.
 
 ## 7.3 IAM
 
@@ -198,15 +235,15 @@ trùng email:
 
 | RPC | REST | Hành vi |
 |---|---|---|
-| `Login` | `PUT /iam/login` | Nếu username = `SENZ_ADMIN_USERNAME`: so mật khẩu với `SENZ_ADMIN_PASSWORD`, cấp token ADMIN (`user_id = sentinez.admin`). Ngược lại: tìm account `LOCAL` theo username/email, bcrypt, lấy user, cấp token |
+| `Login` | `PUT /iam/login` | Nếu username = `SENZ_ADMIN_USERNAME`: so mật khẩu với `SENZ_ADMIN_PASSWORD` trong thời gian hằng số (từ chối khi chưa đặt), cấp token ADMIN (`user_id = sentinez.admin`). Ngược lại: tìm account `LOCAL` theo username/email, bcrypt, lấy user, cấp token. Số lần thất bại bị giới hạn: 10 mỗi account và 50 tổng mỗi client trong 15 phút, sau đó `ResourceExhausted` (HTTP 429) tới hết cửa sổ. Client là hop `X-Forwarded-For` cuối cùng |
 | `CreateAccount` | `POST /iam/account` | Đăng ký bằng mật khẩu. Từ chối (`AlreadyExists`) username hoặc email đã có account `LOCAL`, username dành riêng `SENZ_ADMIN_USERNAME`, và email đã thuộc một user; sau đó tạo `User` (PORTAL) + account `LOCAL` |
-| `CreateUser` | — (chỉ gRPC) | Tạo `User` không kèm account nếu email chưa có |
-| `GetUser` | `GET /iam/user` | Theo `id` hoặc `email` (từ `iam.users`) |
-| `ListUsers` | `GET /iam/users` | Lọc `ids`, `emails`, phân trang |
+| `CreateUser` | — (chỉ gRPC) | Chỉ control plane `ADMIN`. Tạo `User` không kèm account nếu email chưa có |
+| `GetUser` | `GET /iam/user` | Theo `id` (từ `iam.users`); người gọi `PORTAL` chỉ lấy được chính mình hoặc user chung tenant, ngoài ra `NotFound` |
+| `ListUsers` | `GET /iam/users` | Lọc `ids`, `emails`, phân trang. Người gọi `PORTAL`: với `ids` chỉ giữ chính mình và user chung tenant; với `emails` là khớp chính xác (tối đa 5, để mời); không truyền gì thì chỉ chính mình |
 | `UpdateUser` | — | Cập nhật `full_name`, `email` |
-| `DeleteUser` | `DELETE /iam/user/{id}` | Xoá user và toàn bộ account của nó trong một transaction |
-| `ListAccounts` | `GET /iam/accounts` | Yêu cầu token; lọc `ids/emails/user_ids/usernames`; mỗi phần tử có `provider` |
-| `Status` | `GET /iam/status` | Gọi Greeter.Status qua bufconn, trả về `Context` từ token (nếu có) |
+| `DeleteUser` | `DELETE /iam/user/{id}` | Chỉ control plane `ADMIN`. Xoá user, các membership tenant và toàn bộ account của nó trong một transaction |
+| `ListAccounts` | `GET /iam/accounts` | Yêu cầu token; lọc `ids/emails/user_ids/usernames`; mỗi phần tử có `provider`. Người gọi `PORTAL` chỉ lấy account của chính mình |
+| `Status` | `GET /iam/status` | Yêu cầu token. Gọi Greeter.Status qua bufconn, trả về `Context` của token |
 | `PasskeyRegisterChallenge` | `GET /iam/passkey/register/challenge` | Đăng ký bằng passkey, bước 1. Cần email chưa thuộc user nào |
 | `PasskeyLinkChallenge` | `GET /iam/passkey/link/challenge` | Thêm passkey cho user đang đăng nhập, bước 1. Yêu cầu token |
 | `PasskeyRegisterVerify` | `POST /iam/passkey/register/verify` | Bước 2 của cả hai: xác minh phản hồi của authenticator rồi mới ghi |
@@ -298,8 +335,8 @@ domain.
 | `GetResourceByDomain` | `GET /tenant/resource/{resource_domain}` | Lấy bản ghi đầu tiên khớp domain |
 | `Status` | `GET /tenant/status` | |
 
-Các RPC trên khai báo `control_planes: [PORTAL, ADMIN]` nhưng handler chưa
-kiểm tra token.
+Các RPC trên khai báo `control_planes: [PORTAL, ADMIN]`, và service kiểm tra
+vai trò của người gọi trong tenant (xem 7.2).
 
 ## 7.5 Security
 
@@ -518,8 +555,10 @@ Khi dựng, nó sync bảng và view như collector.
   `p99_micros`, và `max_micros` (tính bằng hàm `percentile_cont` của PostgreSQL).
 - `EventSelection` là message chuẩn đại diện cho các tiêu chí lọc resource, request,
   filter và khoảng thời gian, dùng chung giữa các RPC analytic.
-- Mọi RPC cần token (`headers.Allow`, `ignore: true`). Việc đọc chưa lọc
-  theo tenant: không truyền `resource_ids` thì trả event của mọi tenant.
+- Mọi RPC cần token. Việc đọc bị giới hạn theo resource của các tenant mà
+  người gọi là member: không truyền `resource_ids` thì chỉ trả event của
+  chúng, và người gọi không có resource nào nhận kết quả rỗng. Control plane
+  `ADMIN` đọc được tất cả.
 
 #### Pool event
 

@@ -18,6 +18,7 @@ import (
 	"context"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/sentinez/core/szgrpc/recovery"
 	"github.com/sentinez/sentinez/api/interceptor/validate"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -47,11 +48,13 @@ type localMethod struct {
 	handler grpc.MethodHandler
 }
 
-// NewLocalConn returns a LocalConn that validates every request and then
-// runs interceptors in order.
+// NewLocalConn returns a LocalConn that recovers from panics, validates every
+// request and then runs interceptors in order.
 func NewLocalConn(interceptors ...grpc.UnaryServerInterceptor) *LocalConn {
 	chain := append(
-		[]grpc.UnaryServerInterceptor{validate.UnaryServerInterceptor()},
+		[]grpc.UnaryServerInterceptor{
+			recovery.Unary(), validate.UnaryServerInterceptor(),
+		},
 		interceptors...,
 	)
 

@@ -15,6 +15,8 @@
 package passkey
 
 import (
+	"strings"
+
 	"github.com/go-webauthn/webauthn/webauthn"
 	"github.com/sentinez/core"
 	"github.com/sentinez/pkg/szlog"
@@ -44,6 +46,22 @@ type Store interface {
 	TakeRegistration(token string) (*Registration, bool)
 }
 
+// ClientOrigins returns the origins of the clients (the console) from
+// SENZ_CLIENT_ORIGIN: one, or several separated by commas.
+func ClientOrigins(config *settingpb.Config) []string {
+	var origins []string
+	for origin := range strings.SplitSeq(
+		config.Get(settingpb.Senz_SENZ_CLIENT_ORIGIN), ",") {
+
+		origin = strings.TrimRight(strings.TrimSpace(origin), "/")
+		if origin != "" {
+			origins = append(origins, origin)
+		}
+	}
+
+	return origins
+}
+
 func NewWebAuthn(config *settingpb.Config) *webauthn.WebAuthn {
 	wconfig := &webauthn.Config{
 		// Display Name for your site
@@ -51,7 +69,7 @@ func NewWebAuthn(config *settingpb.Config) *webauthn.WebAuthn {
 		// Generally the FQDN for your site
 		RPID: config.Get(settingpb.Senz_SENZ_HOSTNAME),
 		// The origin URLs allowed for WebAuthn
-		RPOrigins: []string{config.Get(settingpb.Senz_SENZ_CLIENT_ORIGIN)},
+		RPOrigins: ClientOrigins(config),
 	}
 
 	wauth, err := webauthn.New(wconfig)

@@ -42,7 +42,7 @@ response types must differ.
 | `x_meta` (52001) | File | `service_name`, `service_zone`, `service_key` | Service identity: console banner, logger name, Consul key, `GetMeta<Name>()` |
 | `x_message` (51001) | Message | `database_model`, `export_field`, `scanner` | Generates column-name constants `<Msg>_<Field>` / `X<Msg>_<Field>`; `scanner` also generates the row scanners below |
 | `x_field` (53001) | Field | `flatten`, `ignore`, `codec`, `nullable` | How a field of a database model maps to columns, see below |
-| `x_method` (50001) | RPC | `ignore`, `control_planes[]` | Generates `Get<Service><Method>() *XMethod` for authorization |
+| `x_method` (50001) | RPC | `ignore`, `control_planes[]`, `public` | Generates `Get<Service><Method>() *XMethod` for authorization |
 
 `Zone`: `DEMILITARIZED` (edge, dataplane), `INTERNAL` (domain services),
 `PRIVATE_API` (apiserver, realtime), `PUBLIC_API`.
@@ -159,8 +159,8 @@ Base URL: the apiserver address (`:8080` in `.env.example`). Auth: header
 | GET | `/analytic/events/top-values` | `AnalyticService.GetEventTopValues` | ignore |
 | GET | `/analytic/events/http-egress/latency` | `AnalyticService.GetEgressLatency` | ignore |
 
-"Declared permission" is the option in the proto; enforcement depends on the
-handler (see
+"Declared permission" is the option in the proto; the `authz.Unary`
+interceptor enforces it, and denies an RPC with none (see
 [07-controlplane.md](07-controlplane.md#72-authentication--authorization)).
 
 `GetEgressLatency` queries latency aggregated by upstream over `EventSelection`

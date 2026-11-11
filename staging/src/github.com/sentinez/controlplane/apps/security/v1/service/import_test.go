@@ -102,7 +102,7 @@ func newImportService(rules *fakeRepo[*securitypb.SecRule],
 	limits *fakeRepo[*securitypb.RateLimit],
 	crs *fakeRepo[*securitypb.CoreRuleset]) *SecurityService {
 	return New(nil, fakeSecRules{fakeRepo: rules},
-		fakeRateLimits{fakeRepo: limits}, fakeCoreRulesets{fakeRepo: crs})
+		fakeRateLimits{fakeRepo: limits}, fakeCoreRulesets{fakeRepo: crs}, nil)
 }
 
 // importSecurity is a normalized proxy.yaml security block with a core

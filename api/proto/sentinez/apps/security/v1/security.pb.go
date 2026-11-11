@@ -2225,7 +2225,7 @@ const file_sentinez_apps_security_v1_security_proto_rawDesc = "" +
 	"\vGetRuleInfo\x12-.sentinez.apps.security.v1.GetRuleInfoRequest\x1a..sentinez.apps.security.v1.GetRuleInfoResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/security/crs/rules/{id}\x12\x8f\x01\n" +
 	"\rListRuleInfos\x12/.sentinez.apps.security.v1.ListRuleInfosRequest\x1a0.sentinez.apps.security.v1.ListRuleInfosResponse\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/security/crs/rules\x12\x8b\x01\n" +
 	"\fListRuleTags\x12..sentinez.apps.security.v1.ListRuleTagsRequest\x1a/.sentinez.apps.security.v1.ListRuleTagsResponse\"\x1a\x82\xd3\xe4\x93\x02\x14\x12\x12/security/crs/tags\x12}\n" +
-	"\x06Status\x12(.sentinez.apps.security.v1.StatusRequest\x1a).sentinez.apps.security.v1.StatusResponse\"\x1e\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x12\x12\x10/security/statusB\xed\x01\x92Af\x12\x17\n" +
+	"\x06Status\x12(.sentinez.apps.security.v1.StatusRequest\x1a).sentinez.apps.security.v1.StatusResponse\"\x1e\x8a\xb5\x18\x02\x18\x01\x82\xd3\xe4\x93\x02\x12\x12\x10/security/statusB\xed\x01\x92Af\x12\x17\n" +
 	"\x10Security Service2\x031.0*\x02\x01\x022\x10application/jsonZ#\n" +
 	"!\n" +
 	"\n" +

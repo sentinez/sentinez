@@ -19,6 +19,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/pkg/szerror"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 )
@@ -58,6 +59,13 @@ func (srv *SecurityService) CreateRateLimit(ctx context.Context,
 		return nil, err
 	}
 
+	owner, err := srv.newOwner(ctx, req.GetRateLimit().GetOwner())
+	if err != nil {
+		return nil, err
+	}
+
+	req.GetRateLimit().Owner = owner
+
 	created, err := srv.rateLimitRepo.Create(ctx, req.GetRateLimit())
 	if err != nil {
 		return nil, err
@@ -69,7 +77,8 @@ func (srv *SecurityService) CreateRateLimit(ctx context.Context,
 func (srv *SecurityService) GetRateLimit(ctx context.Context,
 	req *securitypb.GetRateLimitRequest,
 ) (*securitypb.GetRateLimitResponse, error) {
-	dbRL, err := srv.rateLimitRepo.Get(ctx, req.GetId())
+	dbRL, err := owned(ctx, srv, srv.rateLimitRepo.Get, "rate limit",
+		req.GetId(), authz.Read)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +96,8 @@ func (srv *SecurityService) UpdateRateLimit(ctx context.Context,
 		return nil, err
 	}
 
-	dbRL, err := srv.rateLimitRepo.Get(ctx, req.GetId())
+	dbRL, err := owned(ctx, srv, srv.rateLimitRepo.Get, "rate limit",
+		req.GetId(), authz.Write)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +123,13 @@ func (srv *SecurityService) UpdateRateLimit(ctx context.Context,
 func (srv *SecurityService) DeleteRateLimit(ctx context.Context,
 	req *securitypb.DeleteRateLimitRequest,
 ) (*securitypb.DeleteRateLimitResponse, error) {
-	if err := srv.rateLimitRepo.Delete(ctx, req.GetId()); err != nil {
+	_, err := owned(ctx, srv, srv.rateLimitRepo.Get, "rate limit",
+		req.GetId(), authz.Write)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = srv.rateLimitRepo.Delete(ctx, req.GetId()); err != nil {
 		return nil, err
 	}
 	return &securitypb.DeleteRateLimitResponse{}, nil
@@ -122,6 +138,11 @@ func (srv *SecurityService) DeleteRateLimit(ctx context.Context,
 func (srv *SecurityService) ListRateLimits(ctx context.Context,
 	req *securitypb.ListRateLimitsRequest,
 ) (*securitypb.ListRateLimitsResponse, error) {
+	req, ok, err := authz.Scoped(ctx, srv.authz, req)
+	if err != nil || !ok {
+		return &securitypb.ListRateLimitsResponse{}, err
+	}
+
 	dbRLs, total, err := srv.rateLimitRepo.List(ctx, req)
 	if err != nil {
 		return nil, err

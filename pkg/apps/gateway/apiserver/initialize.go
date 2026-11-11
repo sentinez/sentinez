@@ -24,6 +24,7 @@ import (
 	securityhdl "github.com/sentinez/controlplane/apps/security/v1/handler"
 	tenantfac "github.com/sentinez/controlplane/apps/tenant/v1/factory"
 	tenanthdl "github.com/sentinez/controlplane/apps/tenant/v1/handler"
+	"github.com/sentinez/controlplane/pkg/passkey"
 	"github.com/sentinez/pkg/szlog"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/pkg/apps/gateway/apiserver/controlplane/v1"
@@ -38,7 +39,12 @@ func (srv *Server) Initialize(
 
 	// load all middleware and handlers of api server
 	srv.server.Use(middleware.Logging)
-	srv.server.Use(middleware.AllowCORS)
+	origins := passkey.ClientOrigins(conf)
+	if len(origins) == 0 {
+		szlog.Warnf("no SENZ_CLIENT_ORIGIN: cross origin calls are refused")
+	}
+
+	srv.server.Use(middleware.CORS(origins))
 	srv.server.Use(middleware.SwaggerDefaultRoot)
 	// security is left out: SecRule payloads legitimately carry attack
 	// patterns and would be rejected.

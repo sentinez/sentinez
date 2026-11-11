@@ -17,6 +17,7 @@ package centraldata
 
 import (
 	centraldatafac "github.com/sentinez/controlplane/apps/centraldata/v1/factory"
+	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/core/szgrpc"
 	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -37,7 +38,7 @@ func NewService(conf *settingpb.Config) (*CentralData, error) {
 	}
 
 	return &CentralData{
-		Server: szgrpc.New(),
+		Server: szgrpc.New(authz.ServerOption()),
 		hdl:    hdl,
 		conf:   conf,
 	}, nil

@@ -16,15 +16,11 @@ Remove an entry once it is fixed.
 
 | # | Location | Problem |
 |---|---|---|
-| S1 | [pkg/apps/gateway/apiserver/middleware/middleware.go](../pkg/apps/gateway/apiserver/middleware/middleware.go) `AllowCORS` | Reflects any `Origin` together with `Allow-Credentials: true` (the code itself says not to use this in production) |
-| S2 | Control-plane handlers | Authorization must be called in each handler (`headers.Allow`); only `ListAccounts`, Tenant and Analytic do it. Security, `ListUsers`, `DeleteUser`, … require no token |
-| S3 | IAM `loginAdmin` | Compares the admin password in plaintext, not in constant time; no limit on failed admin logins |
 | S4 | apiserver `Logging` middleware | Reads the whole body and debug-logs it on error — can write passwords from `/iam/login` to the logs |
 | S5 | [cmd/szedge/v1/server/pprof.go](../cmd/szedge/v1/server/pprof.go) | pprof is always open on `defaults.PprofAddress` (`0.0.0.0:6060`; compose also publishes this port) |
 | S6 | [pkg/network/httpx/context.go](../pkg/network/httpx/context.go), realtime WebSocket | `CheckOrigin` always returns `true` |
 | S7 | `cmd/szedge/v1/Dockerfile` | The image bakes in the cert/key pair from the source tree |
 | S8 | `httpx.Context.RequestIP` | Trusts client-supplied `X-Forwarded-For`/`X-Real-IP` with no trusted-proxy list → IP spoofing to evade IP rules/rate limits (`Quic` and `Standard` modes, i.e. the default) |
-| S9 | Analytic event reads | Not scoped by tenant: with no `resource_ids`, any valid token reads the events of every tenant |
 
 ## 12.3 Unfinished features
 

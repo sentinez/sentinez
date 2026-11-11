@@ -17,6 +17,7 @@ package controlplane
 import (
 	"context"
 
+	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/core/szgrpc/grpcgateway"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -51,7 +52,7 @@ func (t *tenant) Accept(ctx context.Context, server grpcgateway.Server) error {
 
 	// a local conn, unlike RegisterTenantServiceHandlerServer, runs
 	// interceptors, so requests are validated at the gateway.
-	conn := grpcgateway.NewLocalConn()
+	conn := grpcgateway.NewLocalConn(authz.Unary())
 	tenantpb.RegisterTenantServiceServer(conn, t.server)
 
 	return tenantpb.RegisterTenantServiceHandlerClient(ctx,

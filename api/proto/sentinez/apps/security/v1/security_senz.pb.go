@@ -32,6 +32,6 @@ func GetMetaSecurityServiceKey() string {
 
 func GetSecurityServiceStatus() *v1.XMethod {
 	return &v1.XMethod{
-		Ignore: true,
+		Public: true,
 	}
 }

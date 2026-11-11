@@ -21,6 +21,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/sentinez/controlplane/pkg/headers/headerstest"
+
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v2"
 	membermock "github.com/sentinez/controlplane/apps/tenant/v1/repos/members/mock"
@@ -62,6 +64,21 @@ func authContext(t *testing.T, userId string) context.Context {
 
 	md := metadata.Pairs(headers.AuthHeader, "Bearer "+token)
 	return metadata.NewIncomingContext(t.Context(), md)
+}
+
+// asAdmin returns a context of the admin control plane, which no tenant
+// check applies to.
+func asAdmin(t *testing.T) context.Context {
+	t.Helper()
+
+	return headerstest.Admin(t.Context())
+}
+
+// asUser returns a context of userId signed in to the portal.
+func asUser(t *testing.T, userId string) context.Context {
+	t.Helper()
+
+	return headerstest.User(t.Context(), userId)
 }
 
 // mockTx returns a Tx backed by pgxmock; the caller sets what must
@@ -146,7 +163,7 @@ func TestGetTenant(t *testing.T) {
 	repo := tenantmock.NewMockITenant(t)
 	repo.EXPECT().Get(mock.Anything, _tenantId).Return(want, nil)
 
-	resp, err := New(nil, nil, nil, repo).GetTenant(t.Context(),
+	resp, err := New(nil, nil, nil, repo).GetTenant(asAdmin(t),
 		&tenantpb.GetTenantRequest{Id: _tenantId})
 
 	require.NoError(t, err)
@@ -162,21 +179,21 @@ func missingTenant(t *testing.T) *Service {
 }
 
 func TestGetTenantNotFound(t *testing.T) {
-	_, err := missingTenant(t).GetTenant(t.Context(),
+	_, err := missingTenant(t).GetTenant(asAdmin(t),
 		&tenantpb.GetTenantRequest{Id: _tenantId})
 
 	assert.Equal(t, codes.NotFound, status.Code(err))
 }
 
 func TestUpdateTenantNotFound(t *testing.T) {
-	_, err := missingTenant(t).UpdateTenant(t.Context(),
+	_, err := missingTenant(t).UpdateTenant(asAdmin(t),
 		&tenantpb.UpdateTenantRequest{Id: _tenantId})
 
 	assert.Equal(t, codes.NotFound, status.Code(err))
 }
 
 func TestDeleteTenantNotFound(t *testing.T) {
-	_, err := missingTenant(t).DeleteTenant(t.Context(),
+	_, err := missingTenant(t).DeleteTenant(asAdmin(t),
 		&tenantpb.DeleteTenantRequest{Id: _tenantId})
 
 	assert.Equal(t, codes.NotFound, status.Code(err))
@@ -192,7 +209,7 @@ func TestUpdateTenant(t *testing.T) {
 		Return(&tenantpb.Tenant{Id: _tenantId}, nil)
 	repo.EXPECT().Update(mock.Anything, want).Return(nil)
 
-	_, err := New(nil, nil, nil, repo).UpdateTenant(t.Context(),
+	_, err := New(nil, nil, nil, repo).UpdateTenant(asAdmin(t),
 		&tenantpb.UpdateTenantRequest{
 			Id: _tenantId, Name: "acme", Plan: typepb.Plan_PLAN_PRO,
 		})
@@ -206,7 +223,7 @@ func TestDeleteTenant(t *testing.T) {
 		Return(&tenantpb.Tenant{Id: _tenantId}, nil)
 	repo.EXPECT().Delete(mock.Anything, _tenantId).Return(nil)
 
-	_, err := New(nil, nil, nil, repo).DeleteTenant(t.Context(),
+	_, err := New(nil, nil, nil, repo).DeleteTenant(asAdmin(t),
 		&tenantpb.DeleteTenantRequest{Id: _tenantId})
 
 	require.NoError(t, err)
@@ -221,7 +238,7 @@ func TestListTenant(t *testing.T) {
 	repo := tenantmock.NewMockITenant(t)
 	repo.EXPECT().List(mock.Anything, req).Return(want, nil)
 
-	resp, err := New(nil, nil, nil, repo).ListTenant(t.Context(), req)
+	resp, err := New(nil, nil, nil, repo).ListTenant(asAdmin(t), req)
 
 	require.NoError(t, err)
 	assert.Equal(t, want, resp)

@@ -184,7 +184,7 @@ service SecurityService {
   rpc Status(StatusRequest) returns (StatusResponse) {
     option (google.api.http) = {get: "/security/status"};
 
-    option (sentinez.types.v1.x_method) = {ignore: true};
+    option (sentinez.types.v1.x_method) = {public: true};
   }
 }
 

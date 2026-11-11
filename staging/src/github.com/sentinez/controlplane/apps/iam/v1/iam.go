@@ -19,6 +19,7 @@ import (
 	"context"
 
 	iamfac "github.com/sentinez/controlplane/apps/iam/v1/factory"
+	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/core/szgrpc"
 	"github.com/sentinez/sentinez/api/client/local"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
@@ -34,7 +35,7 @@ func GetListener() *bufconn.Listener {
 
 func NewService(ctx context.Context, appConf *settingpb.Config) *IAM {
 	return &IAM{
-		Server: szgrpc.New(),
+		Server: szgrpc.New(authz.ServerOption()),
 		hdl:    iamfac.NewDefaultHandler(ctx, appConf),
 	}
 }

@@ -79,33 +79,49 @@ func Logging(h http.Handler) http.Handler {
 	})
 }
 
-// AllowCORS allows Cross Origin Resource Sharing from any origin.
-// Don't do this without consideration in production systems.
-func AllowCORS(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if origin := r.Header.Get("Origin"); origin != "" {
+// CORS allows Cross Origin Resource Sharing, with credentials, from the
+// listed origins only (eg "https://console.example.com"). Any other origin
+// gets no CORS header, so the browser keeps its page from reading the
+// response. Without origins no cross origin call is allowed.
+func CORS(origins []string) func(http.Handler) http.Handler {
+	allowed := make(map[string]struct{}, len(origins))
+	for _, origin := range origins {
+		allowed[origin] = struct{}{}
+	}
+
+	return func(h http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			origin := r.Header.Get("Origin")
+			if origin == "" {
+				h.ServeHTTP(w, r)
+				return
+			}
+
+			// the answer depends on the origin: caches must tell them apart
+			w.Header().Add("Vary", "Origin")
+
+			if _, ok := allowed[origin]; !ok {
+				h.ServeHTTP(w, r)
+				return
+			}
+
 			w.Header().Set("Access-Control-Allow-Origin", origin)
-
-			// Fix cache issue
-			w.Header().Set("Vary", "Origin")
-
-			// If cookies need to be sent
 			w.Header().Set("Access-Control-Allow-Credentials", "true")
 
-			if r.Method == "OPTIONS" &&
+			if r.Method == http.MethodOptions &&
 				r.Header.Get("Access-Control-Request-Method") != "" {
 
 				preflightHandler(w, r)
 				return
 			}
-		}
-		h.ServeHTTP(w, r)
-	})
+
+			h.ServeHTTP(w, r)
+		})
+	}
 }
 
-// preflightHandler adds the necessary headers in order to serve
-// CORS from any origin using the methods "GET", "HEAD", "POST", "PUT", "DELETE"
-// We insist, don't do this without consideration in production systems.
+// preflightHandler answers the preflight of an allowed origin: it may use
+// the methods "GET", "HEAD", "POST", "PUT", "DELETE".
 func preflightHandler(w http.ResponseWriter, r *http.Request) {
 	headers := []string{"Content-Type", "Accept", "Authorization"}
 	w.Header().Set("Access-Control-Allow-Headers", strings.Join(headers, ","))

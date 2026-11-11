@@ -18,22 +18,40 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/controlplane/pkg/headers"
 	"github.com/sentinez/pkg/szerror"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	"google.golang.org/protobuf/proto"
 )
 
 // ListTenant implements tenantpb.TenantServiceServer.
 func (svc *Service) ListTenant(ctx context.Context,
 	req *tenantpb.ListTenantRequest) (*tenantpb.ListTenantResponse, error) {
 
-	return svc.tenant.List(ctx, req)
+	scope, err := svc.authz.TenantIds(ctx, req.GetIds())
+	if err != nil {
+		return nil, err
+	}
+
+	if scope.None {
+		return &tenantpb.ListTenantResponse{}, nil
+	}
+
+	scoped := proto.CloneOf(req)
+	scoped.Ids = scope.Ids
+
+	return svc.tenant.List(ctx, scoped)
 }
 
 // GetTenant implements tenantpb.TenantServiceServer.
 func (svc *Service) GetTenant(ctx context.Context,
 	req *tenantpb.GetTenantRequest) (*tenantpb.GetTenantResponse, error) {
+
+	if err := svc.authz.RequireTenant(ctx, req.GetId(), authz.Read); err != nil {
+		return nil, err
+	}
 
 	tenant, err := svc.getTenant(ctx, req.GetId())
 	if err != nil {
@@ -58,16 +76,40 @@ func (svc *Service) CreateTenant(ctx context.Context,
 		return nil, szerror.StatusUnauthorizedF("token has no user")
 	}
 
+	plan, err := newTenantPlan(auth, req.GetPlan())
+	if err != nil {
+		return nil, err
+	}
+
 	tenant, err := svc.createTenantWithOwner(ctx, &tenantpb.Tenant{
 		Name:        req.GetName(),
 		Description: req.GetDescription(),
-		Plan:        req.GetPlan(),
+		Plan:        plan,
 	}, auth.GetUserId())
 	if err != nil {
 		return nil, err
 	}
 
 	return &tenantpb.CreateTenantResponse{Tenant: tenant}, nil
+}
+
+// newTenantPlan returns the plan a new tenant starts on. A tenant starts
+// free, as the plan is what it pays for and only a super admin changes it
+// (see UpdateTenant): only the admin control plane may create one on
+// another plan.
+func newTenantPlan(auth *headers.Auth, plan typepb.Plan) (typepb.Plan, error) {
+	if auth.IsAdmin() && plan != typepb.Plan_PLAN_UNSPECIFIED {
+		return plan, nil
+	}
+
+	if plan != typepb.Plan_PLAN_UNSPECIFIED &&
+		plan != typepb.Plan_PLAN_FREE {
+
+		return 0, szerror.StatusForbiddenF(
+			"a tenant starts on the free plan")
+	}
+
+	return typepb.Plan_PLAN_FREE, nil
 }
 
 // createTenantWithOwner creates tenant and makes userId its admin in one
@@ -108,11 +150,24 @@ func (svc *Service) UpdateTenant(ctx context.Context,
 	req *tenantpb.UpdateTenantRequest,
 ) (*tenantpb.UpdateTenantResponse, error) {
 
-	if _, err := svc.getTenant(ctx, req.GetId()); err != nil {
+	current, err := svc.getTenant(ctx, req.GetId())
+	if err != nil {
 		return nil, err
 	}
 
-	err := svc.tenant.Update(ctx, &tenantpb.Tenant{
+	// the plan is what the tenant pays for: its admins do not pick it
+	least := authz.Manage
+	if plan := req.GetPlan(); plan != typepb.Plan_PLAN_UNSPECIFIED &&
+		plan != current.GetPlan() {
+
+		least = authz.Billing
+	}
+
+	if err = svc.authz.RequireTenant(ctx, req.GetId(), least); err != nil {
+		return nil, err
+	}
+
+	err = svc.tenant.Update(ctx, &tenantpb.Tenant{
 		Id:          req.GetId(),
 		Name:        req.GetName(),
 		Description: req.GetDescription(),
@@ -130,11 +185,16 @@ func (svc *Service) DeleteTenant(ctx context.Context,
 	req *tenantpb.DeleteTenantRequest,
 ) (*tenantpb.DeleteTenantResponse, error) {
 
-	if _, err := svc.getTenant(ctx, req.GetId()); err != nil {
+	err := svc.authz.RequireTenant(ctx, req.GetId(), authz.Manage)
+	if err != nil {
 		return nil, err
 	}
 
-	if err := svc.tenant.Delete(ctx, req.GetId()); err != nil {
+	if _, err = svc.getTenant(ctx, req.GetId()); err != nil {
+		return nil, err
+	}
+
+	if err = svc.tenant.Delete(ctx, req.GetId()); err != nil {
 		return nil, fmt.Errorf("tenant.Delete: %w", err)
 	}
 

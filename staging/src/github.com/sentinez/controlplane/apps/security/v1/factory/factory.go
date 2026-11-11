@@ -23,6 +23,7 @@ import (
 	"github.com/sentinez/controlplane/apps/security/v1/repos/ratelimit"
 	"github.com/sentinez/controlplane/apps/security/v1/repos/secrule"
 	securitysvc "github.com/sentinez/controlplane/apps/security/v1/service"
+	tenantfac "github.com/sentinez/controlplane/apps/tenant/v1/factory"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
@@ -58,7 +59,14 @@ func NewDefaultService(ctx context.Context,
 		return nil, fmt.Errorf("coreruleset repo: %w", err)
 	}
 
+	// who may touch a rule follows the memberships of the tenants
+	az, err := tenantfac.NewAuthorizer(ctx, appConf)
+	if err != nil {
+		return nil, err
+	}
+
 	return securitysvc.New(
 		appConf, secRuleRepo, rateLimitRepo, coreRulesetRepo,
+		az,
 	), nil
 }
