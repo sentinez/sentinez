@@ -129,6 +129,11 @@ func listConditions(req *tenantpb.ListTenantRequest) []sq.Sqlizer {
 		conds = append(conds, sq.Eq{tenantpb.Tenant_Plan: req.GetPlan()})
 	}
 
+	// a slice becomes id IN (...)
+	if ids := req.GetIds(); len(ids) != 0 {
+		conds = append(conds, sq.Eq{tenantpb.Tenant_Id: ids})
+	}
+
 	if name := req.GetName(); name != "" {
 		conds = append(conds, sq.ILike{
 			tenantpb.Tenant_Name: "%" + _likeEscaper.Replace(name) + "%",

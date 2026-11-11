@@ -21,12 +21,14 @@ import (
 	memberrepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/members"
 	resourcerepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/resources"
 	tenantrepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/tenants"
+	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/pkg/szerror"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/sznormalize"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
+	"google.golang.org/protobuf/proto"
 )
 
 var _ tenantpb.TenantServiceServer = (*Service)(nil)
@@ -42,6 +44,7 @@ func New(
 		resource: resource,
 		member:   member,
 		tenant:   tenant,
+		authz:    authz.New(member, resource),
 	}
 }
 
@@ -50,6 +53,7 @@ type Service struct {
 	resource resourcerepo.IResource
 	member   memberrepo.IMember
 	tenant   tenantrepo.ITenant
+	authz    *authz.Authorizer
 }
 
 // GetResourceByDomain implements [tenantpb.TenantServiceServer].
@@ -68,10 +72,12 @@ func (svc *Service) GetResourceByDomain(ctx context.Context,
 		return nil, szerror.StatusNotFoundF("resource not found!")
 	}
 
-	resp := &tenantpb.GetResourceByDomainResponse{
-		Resource: rsrc.GetResources()[0],
+	found := rsrc.GetResources()[0]
+	if err = svc.authz.RequireResourceOf(ctx, found, authz.Read); err != nil {
+		return nil, err
 	}
-	return resp, nil
+
+	return &tenantpb.GetResourceByDomainResponse{Resource: found}, nil
 }
 
 // errNoDomain a server stored without the domain the edge serves it at.
@@ -101,9 +107,9 @@ func normalizeServer(srv *edgepb.Server) error {
 func (svc *Service) GetResource(ctx context.Context,
 	req *tenantpb.GetResourceRequest) (*tenantpb.GetResourceResponse, error) {
 
-	rsc, err := svc.resource.Get(ctx, req.GetId())
+	rsc, err := svc.authz.RequireResource(ctx, req.GetId(), authz.Read)
 	if err != nil {
-		return nil, fmt.Errorf("resource.Get: %w", err)
+		return nil, err
 	}
 
 	if req.GetDefault() {
@@ -117,7 +123,12 @@ func (svc *Service) GetResource(ctx context.Context,
 func (svc *Service) CreateResource(ctx context.Context,
 	req *tenantpb.CreateResourceRequest,
 ) (*tenantpb.CreateResourceResponse, error) {
-	if err := normalizeServer(req.GetServer()); err != nil {
+	err := svc.authz.RequireTenant(ctx, req.GetTenantId(), authz.Write)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = normalizeServer(req.GetServer()); err != nil {
 		return nil, err
 	}
 
@@ -137,7 +148,12 @@ func (svc *Service) CreateResource(ctx context.Context,
 func (svc *Service) DeleteResource(ctx context.Context,
 	req *tenantpb.DeleteResourceRequest,
 ) (*tenantpb.DeleteResourceResponse, error) {
-	if err := svc.resource.Delete(ctx, req.GetId()); err != nil {
+	_, err := svc.authz.RequireResource(ctx, req.GetId(), authz.Write)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = svc.resource.Delete(ctx, req.GetId()); err != nil {
 		return nil, fmt.Errorf("resource.Delete: %w", err)
 	}
 
@@ -148,15 +164,15 @@ func (svc *Service) DeleteResource(ctx context.Context,
 func (svc *Service) UpdateResource(ctx context.Context,
 	req *tenantpb.UpdateResourceRequest,
 ) (*tenantpb.UpdateResourceResponse, error) {
-	if srv := req.GetServer(); srv != nil {
-		if err := normalizeServer(srv); err != nil {
-			return nil, err
-		}
+	_, err := svc.authz.RequireResource(ctx, req.GetId(), authz.Write)
+	if err != nil {
+		return nil, err
 	}
 
-	_, err := svc.resource.Get(ctx, req.GetId())
-	if err != nil {
-		return nil, fmt.Errorf("resource.Get: %w", err)
+	if srv := req.GetServer(); srv != nil {
+		if err = normalizeServer(srv); err != nil {
+			return nil, err
+		}
 	}
 
 	err = svc.resource.Update(ctx, &tenantpb.Resource{
@@ -181,5 +197,17 @@ func (svc *Service) ListResource(ctx context.Context,
 ) (*tenantpb.ListResourceResponse, error) {
 	szlog.Infof("tenant svc: req = %v", req)
 
-	return svc.resource.List(ctx, req)
+	scope, err := svc.authz.TenantIds(ctx, req.GetTenantIds())
+	if err != nil {
+		return nil, err
+	}
+
+	if scope.None {
+		return &tenantpb.ListResourceResponse{}, nil
+	}
+
+	scoped := proto.CloneOf(req)
+	scoped.TenantIds = scope.Ids
+
+	return svc.resource.List(ctx, scoped)
 }

@@ -17,12 +17,15 @@ package iamsvc
 import (
 	"context"
 	"errors"
+	"slices"
 	"strings"
 	"time"
 
 	"github.com/go-webauthn/webauthn/webauthn"
 	accrepos "github.com/sentinez/controlplane/apps/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/controlplane/apps/iam/v1/repos/users"
+	memberrepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/members"
+	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/controlplane/pkg/crypto"
 	"github.com/sentinez/controlplane/pkg/headers"
 	"github.com/sentinez/controlplane/pkg/passkey"
@@ -30,8 +33,10 @@ import (
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
+	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -42,6 +47,7 @@ func New(config *settingpb.Config,
 	store passkey.Store,
 	users usersrepo.IUser,
 	account accrepos.IAccount,
+	members memberrepo.IMember,
 ) *IAMService {
 
 	wauth := passkey.NewWebAuthn(config)
@@ -51,6 +57,8 @@ func New(config *settingpb.Config,
 		tx:       tx,
 		users:    users,
 		accounts: account,
+		members:  members,
+		authz:    authz.New(members, nil),
 		store:    store,
 		auth:     wauth,
 	}
@@ -61,6 +69,8 @@ type IAMService struct {
 	tx       *postgres.Tx
 	users    usersrepo.IUser
 	accounts accrepos.IAccount
+	members  memberrepo.IMember
+	authz    *authz.Authorizer
 	store    passkey.Store
 	auth     *webauthn.WebAuthn
 }
@@ -68,12 +78,41 @@ type IAMService struct {
 func (srv *IAMService) ListAccounts(ctx context.Context,
 	request *iampb.ListAccountsRequest) (*iampb.ListAccountsResponse, error) {
 
+	auth, err := headers.GetAuth(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// the accounts hold the sign-in methods: each user sees its own
+	if !auth.IsAdmin() {
+		scoped, ok := ownAccounts(request, auth.GetUserId())
+		if !ok {
+			return &iampb.ListAccountsResponse{}, nil
+		}
+
+		request = scoped
+	}
+
 	resp, err := srv.accounts.List(ctx, request)
 	if err != nil {
 		return nil, err
 	}
 
 	return resp, nil
+}
+
+// ownAccounts limits req to the accounts of userId. It returns false when
+// req asks for the accounts of others only.
+func ownAccounts(req *iampb.ListAccountsRequest, userId string,
+) (*iampb.ListAccountsRequest, bool) {
+	if ids := req.GetUserIds(); len(ids) != 0 && !slices.Contains(ids, userId) {
+		return nil, false
+	}
+
+	scoped := proto.CloneOf(req)
+	scoped.UserIds = []string{userId}
+
+	return scoped, true
 }
 
 func (srv *IAMService) Status(ctx context.Context,
@@ -338,6 +377,10 @@ func (srv *IAMService) CreateUser(ctx context.Context,
 func (srv *IAMService) GetUser(ctx context.Context,
 	request *iampb.GetUserRequest) (*iampb.GetUserResponse, error) {
 	if request.GetId() != "" {
+		if err := srv.requireVisible(ctx, request.GetId()); err != nil {
+			return nil, err
+		}
+
 		user, err := srv.users.Get(ctx, request.GetId())
 		if err != nil {
 			return nil, err
@@ -352,6 +395,11 @@ func (srv *IAMService) GetUser(ctx context.Context,
 func (srv *IAMService) ListUsers(ctx context.Context,
 	request *iampb.ListUsersRequest) (*iampb.ListUsersResponse, error) {
 
+	request, ok, err := srv.visibleUsers(ctx, request)
+	if err != nil || !ok {
+		return &iampb.ListUsersResponse{}, err
+	}
+
 	users, err := srv.users.List(ctx, request)
 	if err != nil {
 		return nil, err
@@ -363,8 +411,19 @@ func (srv *IAMService) ListUsers(ctx context.Context,
 func (srv *IAMService) DeleteUser(ctx context.Context,
 	request *iampb.DeleteUserRequest) (*iampb.DeleteUserResponse, error) {
 
+	// an empty id would match every member below
+	if request.GetId() == "" {
+		return nil, szerror.StatusInvalidArgumentF("id is required")
+	}
+
 	txss, err := srv.tx.Begin(ctx)
 	if err != nil {
+		return nil, err
+	}
+
+	// a user who is gone is no member of a tenant any more
+	if err = srv.deleteMemberships(ctx, txss, request.GetId()); err != nil {
+		_ = txss.Rollback(ctx)
 		return nil, err
 	}
 
@@ -416,4 +475,96 @@ func (srv *IAMService) UpdateUser(ctx context.Context,
 	user.FullName = fullName
 
 	return &iampb.UpdateUserResponse{User: user}, nil
+}
+
+// deleteMemberships removes the user from every tenant.
+func (srv *IAMService) deleteMemberships(ctx context.Context,
+	txss *postgres.TxSession, userId string) error {
+
+	members := srv.members.WithTX(txss)
+
+	resp, err := members.List(ctx,
+		&tenantpb.ListMemberRequest{UserId: userId})
+	if err != nil {
+		return err
+	}
+
+	for _, member := range resp.GetMembers() {
+		if err = members.Delete(ctx, member.GetId()); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// _maxEmails is how many emails a user may look up at once.
+const _maxEmails = 5
+
+// requireVisible fails with NotFound unless the caller may see the user:
+// itself, a user it shares a tenant with, or anyone for the admin control
+// plane.
+func (srv *IAMService) requireVisible(ctx context.Context, userId string,
+) error {
+	auth, err := headers.GetAuth(ctx)
+	if err != nil {
+		return err
+	}
+
+	if auth.IsAdmin() || auth.GetUserId() == userId {
+		return nil
+	}
+
+	coMembers, err := srv.authz.CoMemberUserIds(ctx)
+	if err != nil {
+		return err
+	}
+
+	if !slices.Contains(coMembers, userId) {
+		return szerror.StatusNotFoundF("user not found: id=%s", userId)
+	}
+
+	return nil
+}
+
+// visibleUsers limits req to the users the caller may see; it returns
+// false when there are none. The admin control plane sees all of them. Any
+// other caller sees itself and the users of its tenants, and finds a user
+// outside them only by email, to invite it: never by listing everyone.
+func (srv *IAMService) visibleUsers(ctx context.Context,
+	req *iampb.ListUsersRequest) (*iampb.ListUsersRequest, bool, error) {
+
+	auth, err := headers.GetAuth(ctx)
+	if err != nil {
+		return nil, false, err
+	}
+
+	if auth.IsAdmin() {
+		return req, true, nil
+	}
+
+	if len(req.GetEmails()) > _maxEmails {
+		return nil, false, szerror.StatusInvalidArgumentF(
+			"at most %d emails can be looked up at once", _maxEmails)
+	}
+
+	scoped := proto.CloneOf(req)
+	if len(req.GetIds()) == 0 && len(req.GetEmails()) == 0 {
+		scoped.Ids = []string{auth.GetUserId()}
+		return scoped, true, nil
+	}
+
+	if len(req.GetIds()) == 0 {
+		return scoped, true, nil
+	}
+
+	coMembers, err := srv.authz.CoMemberUserIds(ctx)
+	if err != nil {
+		return nil, false, err
+	}
+
+	scoped.Ids = slices.DeleteFunc(slices.Clone(req.GetIds()),
+		func(id string) bool { return !slices.Contains(coMembers, id) })
+
+	return scoped, len(scoped.GetIds()) != 0, nil
 }

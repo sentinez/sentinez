@@ -1572,7 +1572,8 @@ type ListTenantRequest struct {
 	Page  *v11.Pages             `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
 	Plan  v11.Plan               `protobuf:"varint,2,opt,name=plan,proto3,enum=sentinez.types.v1.Plan" json:"plan,omitempty"`
 	// Case-insensitive part of the name.
-	Name          string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Name          string   `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Ids           []string `protobuf:"bytes,4,rep,name=ids,proto3" json:"ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1626,6 +1627,13 @@ func (x *ListTenantRequest) GetName() string {
 		return x.Name
 	}
 	return ""
+}
+
+func (x *ListTenantRequest) GetIds() []string {
+	if x != nil {
+		return x.Ids
+	}
+	return nil
 }
 
 type ListTenantResponse struct {
@@ -1765,11 +1773,12 @@ const file_sentinez_apps_tenant_v1_tenant_proto_rawDesc = "" +
 	"\xbaH\a\xc8\x01\x01r\x02\x18@R\x04name\x12*\n" +
 	"\vdescription\x18\x03 \x01(\tB\b\xbaH\x05r\x03\x18\xff\x01R\vdescription\"O\n" +
 	"\x14CreateTenantResponse\x127\n" +
-	"\x06tenant\x18\x01 \x01(\v2\x1f.sentinez.apps.tenant.v1.TenantR\x06tenant\"\x95\x01\n" +
+	"\x06tenant\x18\x01 \x01(\v2\x1f.sentinez.apps.tenant.v1.TenantR\x06tenant\"\xbb\x01\n" +
 	"\x11ListTenantRequest\x12,\n" +
 	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x125\n" +
 	"\x04plan\x18\x02 \x01(\x0e2\x17.sentinez.types.v1.PlanB\b\xbaH\x05\x82\x01\x02\x10\x01R\x04plan\x12\x1b\n" +
-	"\x04name\x18\x03 \x01(\tB\a\xbaH\x04r\x02\x18@R\x04name\"e\n" +
+	"\x04name\x18\x03 \x01(\tB\a\xbaH\x04r\x02\x18@R\x04name\x12$\n" +
+	"\x03ids\x18\x04 \x03(\tB\x12\xbaH\x0f\x92\x01\f\x18\x01\"\br\x06:\x04tnt_R\x03ids\"e\n" +
 	"\x12ListTenantResponse\x12\x14\n" +
 	"\x05total\x18\x01 \x01(\x03R\x05total\x129\n" +
 	"\atenants\x18\x02 \x03(\v2\x1f.sentinez.apps.tenant.v1.TenantR\atenants2\xa1\x13\n" +

@@ -33,7 +33,7 @@ type listRules = securitypb.ListRuleInfosRequest
 func listRuleIds(t *testing.T, req *listRules) ([]uint32, int64) {
 	t.Helper()
 
-	resp, err := New(nil, nil, nil, nil).
+	resp, err := New(nil, nil, nil, nil, nil).
 		ListRuleInfos(context.Background(), req)
 	require.NoError(t, err)
 
@@ -148,7 +148,7 @@ type listTags = securitypb.ListRuleTagsRequest
 func listTagNames(t *testing.T, req *listTags) ([]string, int64) {
 	t.Helper()
 
-	resp, err := New(nil, nil, nil, nil).
+	resp, err := New(nil, nil, nil, nil, nil).
 		ListRuleTags(context.Background(), req)
 	require.NoError(t, err)
 
@@ -197,7 +197,7 @@ func TestListRuleTags(t *testing.T) {
 }
 
 func TestListRuleTagsCount(t *testing.T) {
-	srv := New(nil, nil, nil, nil)
+	srv := New(nil, nil, nil, nil, nil)
 
 	tags, err := srv.ListRuleTags(context.Background(),
 		&listTags{Search: "crs/attack-sqli"})
@@ -222,7 +222,7 @@ func TestListRuleTagsSystem(t *testing.T) {
 }
 
 func TestGetRuleInfo(t *testing.T) {
-	srv := New(nil, nil, nil, nil)
+	srv := New(nil, nil, nil, nil, nil)
 
 	resp, err := srv.GetRuleInfo(context.Background(),
 		&securitypb.GetRuleInfoRequest{Id: 942100})

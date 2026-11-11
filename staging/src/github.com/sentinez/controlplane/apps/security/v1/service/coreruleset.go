@@ -17,8 +17,10 @@ package securitysvc
 import (
 	"context"
 
+	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/pkg/szerror"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
+	"google.golang.org/protobuf/proto"
 )
 
 // mapCoreRuleset converts a DB CoreRuleset into an API CoreRuleset
@@ -49,6 +51,13 @@ func (srv *SecurityService) CreateCoreRuleset(ctx context.Context,
 		return nil, err
 	}
 
+	owner, err := srv.newOwner(ctx, req.GetCoreRuleset().GetOwner())
+	if err != nil {
+		return nil, err
+	}
+
+	req.GetCoreRuleset().Owner = owner
+
 	created, err := srv.coreRulesetRepo.Create(ctx, req.GetCoreRuleset())
 	if err != nil {
 		return nil, err
@@ -62,6 +71,10 @@ func (srv *SecurityService) GetCoreRuleset(ctx context.Context,
 ) (*securitypb.GetCoreRulesetResponse, error) {
 	dbCRS, err := srv.coreRulesetRepo.Get(ctx, req.GetId())
 	if err != nil {
+		return nil, found(err, "core ruleset", req.GetId())
+	}
+
+	if err = srv.requireOwner(ctx, dbCRS.GetOwner(), authz.Read); err != nil {
 		return nil, err
 	}
 
@@ -81,6 +94,10 @@ func (srv *SecurityService) UpdateCoreRuleset(ctx context.Context,
 
 	dbCRS, err := srv.coreRulesetRepo.Get(ctx, req.GetId())
 	if err != nil {
+		return nil, found(err, "core ruleset", req.GetId())
+	}
+
+	if err = srv.requireOwner(ctx, dbCRS.GetOwner(), authz.Write); err != nil {
 		return nil, err
 	}
 
@@ -100,7 +117,16 @@ func (srv *SecurityService) UpdateCoreRuleset(ctx context.Context,
 func (srv *SecurityService) DeleteCoreRuleset(ctx context.Context,
 	req *securitypb.DeleteCoreRulesetRequest,
 ) (*securitypb.DeleteCoreRulesetResponse, error) {
-	if err := srv.coreRulesetRepo.Delete(ctx, req.GetId()); err != nil {
+	dbCRS, err := srv.coreRulesetRepo.Get(ctx, req.GetId())
+	if err != nil {
+		return nil, found(err, "core ruleset", req.GetId())
+	}
+
+	if err = srv.requireOwner(ctx, dbCRS.GetOwner(), authz.Write); err != nil {
+		return nil, err
+	}
+
+	if err = srv.coreRulesetRepo.Delete(ctx, req.GetId()); err != nil {
 		return nil, err
 	}
 	return &securitypb.DeleteCoreRulesetResponse{}, nil
@@ -109,6 +135,18 @@ func (srv *SecurityService) DeleteCoreRuleset(ctx context.Context,
 func (srv *SecurityService) ListCoreRulesets(ctx context.Context,
 	req *securitypb.ListCoreRulesetsRequest,
 ) (*securitypb.ListCoreRulesetsResponse, error) {
+	scope, err := srv.authz.ResourceIds(ctx, req.GetResourceIds())
+	if err != nil {
+		return nil, err
+	}
+
+	if scope.None {
+		return &securitypb.ListCoreRulesetsResponse{}, nil
+	}
+
+	req = proto.CloneOf(req)
+	req.ResourceIds = scope.Ids
+
 	dbCRSs, total, err := srv.coreRulesetRepo.List(ctx, req)
 	if err != nil {
 		return nil, err

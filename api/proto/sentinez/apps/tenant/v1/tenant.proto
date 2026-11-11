@@ -516,6 +516,15 @@ message ListTenantRequest {
   sentinez.types.v1.Plan plan = 2 [(buf.validate.field).enum.defined_only = true];
   // Case-insensitive part of the name.
   string name = 3 [(buf.validate.field).string.max_len = 64];
+
+  repeated string ids = 4 [(buf.validate.field) = {
+    repeated: {
+      unique: true
+      items: {
+        string: {prefix: "tnt_"}
+      }
+    }
+  }];
 }
 
 message ListTenantResponse {

@@ -23,6 +23,9 @@ import (
 	"github.com/sentinez/controlplane/apps/security/v1/repos/ratelimit"
 	"github.com/sentinez/controlplane/apps/security/v1/repos/secrule"
 	securitysvc "github.com/sentinez/controlplane/apps/security/v1/service"
+	memberrepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/members"
+	resourcerepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/resources"
+	"github.com/sentinez/controlplane/pkg/authz"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
@@ -58,7 +61,19 @@ func NewDefaultService(ctx context.Context,
 		return nil, fmt.Errorf("coreruleset repo: %w", err)
 	}
 
+	// who may touch a rule follows the memberships of the tenants
+	memberRepo, err := memberrepo.New(ctx, appConf)
+	if err != nil {
+		return nil, fmt.Errorf("member repo: %w", err)
+	}
+
+	resourceRepo, err := resourcerepo.New(ctx, appConf)
+	if err != nil {
+		return nil, fmt.Errorf("resource repo: %w", err)
+	}
+
 	return securitysvc.New(
 		appConf, secRuleRepo, rateLimitRepo, coreRulesetRepo,
+		authz.New(memberRepo, resourceRepo),
 	), nil
 }

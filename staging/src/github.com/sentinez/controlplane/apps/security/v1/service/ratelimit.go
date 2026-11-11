@@ -19,8 +19,10 @@ import (
 	"errors"
 	"time"
 
+	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/pkg/szerror"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
+	"google.golang.org/protobuf/proto"
 )
 
 var errNonPositiveDuration = errors.New("must be greater than 0")
@@ -58,6 +60,13 @@ func (srv *SecurityService) CreateRateLimit(ctx context.Context,
 		return nil, err
 	}
 
+	owner, err := srv.newOwner(ctx, req.GetRateLimit().GetOwner())
+	if err != nil {
+		return nil, err
+	}
+
+	req.GetRateLimit().Owner = owner
+
 	created, err := srv.rateLimitRepo.Create(ctx, req.GetRateLimit())
 	if err != nil {
 		return nil, err
@@ -71,6 +80,10 @@ func (srv *SecurityService) GetRateLimit(ctx context.Context,
 ) (*securitypb.GetRateLimitResponse, error) {
 	dbRL, err := srv.rateLimitRepo.Get(ctx, req.GetId())
 	if err != nil {
+		return nil, found(err, "rate limit", req.GetId())
+	}
+
+	if err = srv.requireOwner(ctx, dbRL.GetOwner(), authz.Read); err != nil {
 		return nil, err
 	}
 
@@ -89,6 +102,10 @@ func (srv *SecurityService) UpdateRateLimit(ctx context.Context,
 
 	dbRL, err := srv.rateLimitRepo.Get(ctx, req.GetId())
 	if err != nil {
+		return nil, found(err, "rate limit", req.GetId())
+	}
+
+	if err = srv.requireOwner(ctx, dbRL.GetOwner(), authz.Write); err != nil {
 		return nil, err
 	}
 
@@ -113,7 +130,16 @@ func (srv *SecurityService) UpdateRateLimit(ctx context.Context,
 func (srv *SecurityService) DeleteRateLimit(ctx context.Context,
 	req *securitypb.DeleteRateLimitRequest,
 ) (*securitypb.DeleteRateLimitResponse, error) {
-	if err := srv.rateLimitRepo.Delete(ctx, req.GetId()); err != nil {
+	dbRL, err := srv.rateLimitRepo.Get(ctx, req.GetId())
+	if err != nil {
+		return nil, found(err, "rate limit", req.GetId())
+	}
+
+	if err = srv.requireOwner(ctx, dbRL.GetOwner(), authz.Write); err != nil {
+		return nil, err
+	}
+
+	if err = srv.rateLimitRepo.Delete(ctx, req.GetId()); err != nil {
 		return nil, err
 	}
 	return &securitypb.DeleteRateLimitResponse{}, nil
@@ -122,6 +148,18 @@ func (srv *SecurityService) DeleteRateLimit(ctx context.Context,
 func (srv *SecurityService) ListRateLimits(ctx context.Context,
 	req *securitypb.ListRateLimitsRequest,
 ) (*securitypb.ListRateLimitsResponse, error) {
+	scope, err := srv.authz.ResourceIds(ctx, req.GetResourceIds())
+	if err != nil {
+		return nil, err
+	}
+
+	if scope.None {
+		return &securitypb.ListRateLimitsResponse{}, nil
+	}
+
+	req = proto.CloneOf(req)
+	req.ResourceIds = scope.Ids
+
 	dbRLs, total, err := srv.rateLimitRepo.List(ctx, req)
 	if err != nil {
 		return nil, err

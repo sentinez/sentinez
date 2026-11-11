@@ -18,22 +18,40 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/controlplane/pkg/headers"
 	"github.com/sentinez/pkg/szerror"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	"google.golang.org/protobuf/proto"
 )
 
 // ListTenant implements tenantpb.TenantServiceServer.
 func (svc *Service) ListTenant(ctx context.Context,
 	req *tenantpb.ListTenantRequest) (*tenantpb.ListTenantResponse, error) {
 
-	return svc.tenant.List(ctx, req)
+	scope, err := svc.authz.TenantIds(ctx, req.GetIds())
+	if err != nil {
+		return nil, err
+	}
+
+	if scope.None {
+		return &tenantpb.ListTenantResponse{}, nil
+	}
+
+	scoped := proto.CloneOf(req)
+	scoped.Ids = scope.Ids
+
+	return svc.tenant.List(ctx, scoped)
 }
 
 // GetTenant implements tenantpb.TenantServiceServer.
 func (svc *Service) GetTenant(ctx context.Context,
 	req *tenantpb.GetTenantRequest) (*tenantpb.GetTenantResponse, error) {
+
+	if err := svc.authz.RequireTenant(ctx, req.GetId(), authz.Read); err != nil {
+		return nil, err
+	}
 
 	tenant, err := svc.getTenant(ctx, req.GetId())
 	if err != nil {
@@ -108,11 +126,16 @@ func (svc *Service) UpdateTenant(ctx context.Context,
 	req *tenantpb.UpdateTenantRequest,
 ) (*tenantpb.UpdateTenantResponse, error) {
 
-	if _, err := svc.getTenant(ctx, req.GetId()); err != nil {
+	err := svc.authz.RequireTenant(ctx, req.GetId(), authz.Manage)
+	if err != nil {
 		return nil, err
 	}
 
-	err := svc.tenant.Update(ctx, &tenantpb.Tenant{
+	if _, err = svc.getTenant(ctx, req.GetId()); err != nil {
+		return nil, err
+	}
+
+	err = svc.tenant.Update(ctx, &tenantpb.Tenant{
 		Id:          req.GetId(),
 		Name:        req.GetName(),
 		Description: req.GetDescription(),
@@ -130,11 +153,16 @@ func (svc *Service) DeleteTenant(ctx context.Context,
 	req *tenantpb.DeleteTenantRequest,
 ) (*tenantpb.DeleteTenantResponse, error) {
 
-	if _, err := svc.getTenant(ctx, req.GetId()); err != nil {
+	err := svc.authz.RequireTenant(ctx, req.GetId(), authz.Manage)
+	if err != nil {
 		return nil, err
 	}
 
-	if err := svc.tenant.Delete(ctx, req.GetId()); err != nil {
+	if _, err = svc.getTenant(ctx, req.GetId()); err != nil {
+		return nil, err
+	}
+
+	if err = svc.tenant.Delete(ctx, req.GetId()); err != nil {
 		return nil, fmt.Errorf("tenant.Delete: %w", err)
 	}
 

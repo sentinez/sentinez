@@ -17,6 +17,7 @@ package analytichdl
 import (
 	"context"
 
+	"github.com/sentinez/controlplane/pkg/authz"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 )
 
@@ -24,6 +25,11 @@ import (
 func (hdl *AnalyticHandler) ListHttpIngressEvents(ctx context.Context,
 	req *pb.ListHttpIngressEventsRequest,
 ) (*pb.ListHttpIngressEventsResponse, error) {
+	req, ok, err := authz.Scoped(ctx, hdl.authz, req)
+	if err != nil || !ok {
+		return &pb.ListHttpIngressEventsResponse{}, err
+	}
+
 	return hdl.service.ListHttpIngressEvents(ctx, req)
 }
 
@@ -31,6 +37,11 @@ func (hdl *AnalyticHandler) ListHttpIngressEvents(ctx context.Context,
 func (hdl *AnalyticHandler) ListHttpEgressEvents(ctx context.Context,
 	req *pb.ListHttpEgressEventsRequest,
 ) (*pb.ListHttpEgressEventsResponse, error) {
+	req, ok, err := authz.Scoped(ctx, hdl.authz, req)
+	if err != nil || !ok {
+		return &pb.ListHttpEgressEventsResponse{}, err
+	}
+
 	return hdl.service.ListHttpEgressEvents(ctx, req)
 }
 
@@ -38,13 +49,29 @@ func (hdl *AnalyticHandler) ListHttpEgressEvents(ctx context.Context,
 func (hdl *AnalyticHandler) GetEgressLatency(ctx context.Context,
 	req *pb.GetEgressLatencyRequest,
 ) (*pb.GetEgressLatencyResponse, error) {
-	return hdl.service.GetEgressLatency(ctx, req)
+	selection := req.GetSelection()
+	if selection == nil {
+		selection = &pb.EventSelection{}
+	}
+
+	selection, ok, err := authz.Scoped(ctx, hdl.authz, selection)
+	if err != nil || !ok {
+		return &pb.GetEgressLatencyResponse{}, err
+	}
+
+	return hdl.service.GetEgressLatency(ctx,
+		&pb.GetEgressLatencyRequest{Selection: selection})
 }
 
 // ListSecRuleEvents implements pb.AnalyticServiceServer.
 func (hdl *AnalyticHandler) ListSecRuleEvents(ctx context.Context,
 	req *pb.ListSecRuleEventsRequest,
 ) (*pb.ListSecRuleEventsResponse, error) {
+	req, ok, err := authz.Scoped(ctx, hdl.authz, req)
+	if err != nil || !ok {
+		return &pb.ListSecRuleEventsResponse{}, err
+	}
+
 	return hdl.service.ListSecRuleEvents(ctx, req)
 }
 
@@ -52,6 +79,11 @@ func (hdl *AnalyticHandler) ListSecRuleEvents(ctx context.Context,
 func (hdl *AnalyticHandler) ListRateLimitEvents(ctx context.Context,
 	req *pb.ListRateLimitEventsRequest,
 ) (*pb.ListRateLimitEventsResponse, error) {
+	req, ok, err := authz.Scoped(ctx, hdl.authz, req)
+	if err != nil || !ok {
+		return &pb.ListRateLimitEventsResponse{}, err
+	}
+
 	return hdl.service.ListRateLimitEvents(ctx, req)
 }
 
@@ -59,6 +91,11 @@ func (hdl *AnalyticHandler) ListRateLimitEvents(ctx context.Context,
 func (hdl *AnalyticHandler) ListCoreRuleEvents(ctx context.Context,
 	req *pb.ListCoreRuleEventsRequest,
 ) (*pb.ListCoreRuleEventsResponse, error) {
+	req, ok, err := authz.Scoped(ctx, hdl.authz, req)
+	if err != nil || !ok {
+		return &pb.ListCoreRuleEventsResponse{}, err
+	}
+
 	return hdl.service.ListCoreRuleEvents(ctx, req)
 }
 
@@ -66,6 +103,11 @@ func (hdl *AnalyticHandler) ListCoreRuleEvents(ctx context.Context,
 func (hdl *AnalyticHandler) GetEventHistogram(ctx context.Context,
 	req *pb.GetEventHistogramRequest,
 ) (*pb.GetEventHistogramResponse, error) {
+	req, ok, err := authz.Scoped(ctx, hdl.authz, req)
+	if err != nil || !ok {
+		return &pb.GetEventHistogramResponse{}, err
+	}
+
 	return hdl.service.GetEventHistogram(ctx, req)
 }
 
@@ -73,6 +115,11 @@ func (hdl *AnalyticHandler) GetEventHistogram(ctx context.Context,
 func (hdl *AnalyticHandler) GetUniqueVisitorHistogram(ctx context.Context,
 	req *pb.GetUniqueVisitorHistogramRequest,
 ) (*pb.GetUniqueVisitorHistogramResponse, error) {
+	req, ok, err := authz.Scoped(ctx, hdl.authz, req)
+	if err != nil || !ok {
+		return &pb.GetUniqueVisitorHistogramResponse{}, err
+	}
+
 	return hdl.service.GetUniqueVisitorHistogram(ctx, req)
 }
 
@@ -80,6 +127,11 @@ func (hdl *AnalyticHandler) GetUniqueVisitorHistogram(ctx context.Context,
 func (hdl *AnalyticHandler) ListVisitors(ctx context.Context,
 	req *pb.ListVisitorsRequest,
 ) (*pb.ListVisitorsResponse, error) {
+	req, ok, err := authz.Scoped(ctx, hdl.authz, req)
+	if err != nil || !ok {
+		return &pb.ListVisitorsResponse{}, err
+	}
+
 	return hdl.service.ListVisitors(ctx, req)
 }
 
@@ -87,5 +139,10 @@ func (hdl *AnalyticHandler) ListVisitors(ctx context.Context,
 func (hdl *AnalyticHandler) GetEventTopValues(ctx context.Context,
 	req *pb.GetEventTopValuesRequest,
 ) (*pb.GetEventTopValuesResponse, error) {
+	req, ok, err := authz.Scoped(ctx, hdl.authz, req)
+	if err != nil || !ok {
+		return &pb.GetEventTopValuesResponse{}, err
+	}
+
 	return hdl.service.GetEventTopValues(ctx, req)
 }
