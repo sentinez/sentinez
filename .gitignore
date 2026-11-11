@@ -78,9 +78,7 @@ next-env.d.ts
 *.prof
 
 # local volume
-volume/
-_volume/
-volume*
+.volume/
 
 .vscode/
 

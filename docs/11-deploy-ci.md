@@ -28,7 +28,7 @@ Common pattern: a `golang:1.27.1-alpine` stage (CGO off, `go mod tidy`,
 
 | Service | Image | Ports | Notes |
 |---|---|---|---|
-| `sentinez.postgres` | `postgres:16` | 5432 | user/pass `root/root`, DB `sentinez`, volume `_volume/postgres` |
+| `sentinez.postgres` | `postgres:16` | 5432 | user/pass `root/root`, DB `sentinez`, volume `.volume/postgres` |
 | `sentinez.consul` | `hashicorp/consul` | 8500, 8600/udp | `agent -dev` |
 | `sentinez.gateway.apiserver` | `sentinez/apiserver` | 8080 | `env_file: cmd/szapiserver/.env`, overrides `SENZ_POSTGRES_URI` |
 | `sentinez.dmz.edge` | `sentinez/edge` | 7443/tcp, 7443/udp (HTTP/3), 6060 (pprof) | `env_file: cmd/szedge/v1/.env` |
