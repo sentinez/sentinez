@@ -47,7 +47,7 @@ func TestCreateMember(t *testing.T) {
 	}).Return(&tenantpb.ListMemberResponse{}, nil)
 	repo.EXPECT().Create(mock.Anything, want).Return(want, nil)
 
-	resp, err := New(nil, nil, repo, nil).CreateMember(asAdmin(t),
+	resp, err := New(nil, nil, repo, nil, nil).CreateMember(asAdmin(t),
 		&tenantpb.CreateMemberRequest{
 			UserId: _userId, TenantId: _tenantId, Roles: roles,
 		})
@@ -63,7 +63,7 @@ func TestCreateMemberAlreadyExists(t *testing.T) {
 			Members: []*tenantpb.Member{{Id: _memberId, UserId: _userId}},
 		}, nil)
 
-	_, err := New(nil, nil, repo, nil).CreateMember(asAdmin(t),
+	_, err := New(nil, nil, repo, nil, nil).CreateMember(asAdmin(t),
 		&tenantpb.CreateMemberRequest{UserId: _userId, TenantId: _tenantId})
 
 	assert.Equal(t, codes.AlreadyExists, status.Code(err))
@@ -75,7 +75,7 @@ func TestGetMember(t *testing.T) {
 	repo := membermock.NewMockIMember(t)
 	repo.EXPECT().Get(mock.Anything, _memberId).Return(want, nil)
 
-	resp, err := New(nil, nil, repo, nil).GetMember(asAdmin(t),
+	resp, err := New(nil, nil, repo, nil, nil).GetMember(asAdmin(t),
 		&tenantpb.GetMemberRequest{Id: _memberId})
 
 	require.NoError(t, err)
@@ -87,7 +87,7 @@ func missingMember(t *testing.T) *Service {
 	repo := membermock.NewMockIMember(t)
 	repo.EXPECT().Get(mock.Anything, _memberId).Return(nil, pgx.ErrNoRows)
 
-	return New(nil, nil, repo, nil)
+	return New(nil, nil, repo, nil, nil)
 }
 
 func TestGetMemberNotFound(t *testing.T) {
@@ -120,7 +120,7 @@ func TestUpdateMember(t *testing.T) {
 	repo.EXPECT().Update(mock.Anything,
 		&tenantpb.Member{Id: _memberId, Roles: roles}).Return(nil)
 
-	_, err := New(nil, nil, repo, nil).UpdateMember(asAdmin(t),
+	_, err := New(nil, nil, repo, nil, nil).UpdateMember(asAdmin(t),
 		&tenantpb.UpdateMemberRequest{Id: _memberId, Roles: roles})
 
 	require.NoError(t, err)
@@ -132,7 +132,7 @@ func TestDeleteMember(t *testing.T) {
 		Return(&tenantpb.Member{Id: _memberId}, nil)
 	repo.EXPECT().Delete(mock.Anything, _memberId).Return(nil)
 
-	_, err := New(nil, nil, repo, nil).DeleteMember(asAdmin(t),
+	_, err := New(nil, nil, repo, nil, nil).DeleteMember(asAdmin(t),
 		&tenantpb.DeleteMemberRequest{Id: _memberId})
 
 	require.NoError(t, err)
@@ -147,7 +147,7 @@ func TestListMember(t *testing.T) {
 	repo := membermock.NewMockIMember(t)
 	repo.EXPECT().List(mock.Anything, req).Return(want, nil)
 
-	resp, err := New(nil, nil, repo, nil).ListMember(asAdmin(t), req)
+	resp, err := New(nil, nil, repo, nil, nil).ListMember(asAdmin(t), req)
 
 	require.NoError(t, err)
 	assert.Equal(t, want, resp)

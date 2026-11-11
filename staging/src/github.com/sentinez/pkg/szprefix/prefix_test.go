@@ -27,6 +27,7 @@ var _validPrefix = regexp.MustCompile(`^[a-z]{2,5}$`)
 var _all = []szprefix.Prefix{
 	szprefix.User, szprefix.Account,
 	szprefix.Tenant, szprefix.Member, szprefix.TenantResource,
+	szprefix.CaCertificate,
 	szprefix.SecRule, szprefix.Condition, szprefix.RateLimit,
 	szprefix.CoreRuleset,
 	szprefix.Activity, szprefix.SecRuleEvent, szprefix.CoreRulesetEvent,

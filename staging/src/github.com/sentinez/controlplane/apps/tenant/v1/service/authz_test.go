@@ -66,39 +66,40 @@ func memberships(t *testing.T, userId string, role typepb.Role,
 	return repo
 }
 
-func TestTenantCallsNeedARole(t *testing.T) {
-	tests := []struct {
-		name       string
-		giveRole   typepb.Role
-		giveTenant string
-		call       func(*Service, context.Context, string) error
-		wantCode   codes.Code
-	}{
-		{"get a tenant of others", typepb.Role_ROLE_ADMIN, _otherTenantId,
-			func(s *Service, c context.Context, id string) error {
-				_, err := s.GetTenant(c, &tenantpb.GetTenantRequest{Id: id})
-				return err
-			}, codes.NotFound},
-		{"a leader can not update", typepb.Role_ROLE_LEADER, _tenantId,
-			func(s *Service, c context.Context, id string) error {
-				_, err := s.UpdateTenant(c,
-					&tenantpb.UpdateTenantRequest{Id: id})
-				return err
-			}, codes.PermissionDenied},
-		{"a member can not delete", typepb.Role_ROLE_MEMBER, _tenantId,
-			func(s *Service, c context.Context, id string) error {
-				_, err := s.DeleteTenant(c,
-					&tenantpb.DeleteTenantRequest{Id: id})
-				return err
-			}, codes.PermissionDenied},
-	}
+var _tenantCallCases = []struct {
+	name       string
+	giveRole   typepb.Role
+	giveTenant string
+	call       func(*Service, context.Context, string) error
+	wantCode   codes.Code
+}{
+	{"get a tenant of others", typepb.Role_ROLE_ADMIN, _otherTenantId,
+		func(s *Service, c context.Context, id string) error {
+			_, err := s.GetTenant(c, &tenantpb.GetTenantRequest{Id: id})
+			return err
+		}, codes.NotFound},
+	{"a leader can not update", typepb.Role_ROLE_LEADER, _tenantId,
+		func(s *Service, c context.Context, id string) error {
+			_, err := s.UpdateTenant(c,
+				&tenantpb.UpdateTenantRequest{Id: id})
+			return err
+		}, codes.PermissionDenied},
+	{"a member can not delete", typepb.Role_ROLE_MEMBER, _tenantId,
+		func(s *Service, c context.Context, id string) error {
+			_, err := s.DeleteTenant(c,
+				&tenantpb.DeleteTenantRequest{Id: id})
+			return err
+		}, codes.PermissionDenied},
+}
 
-	for _, tt := range tests {
+func TestTenantCallsNeedARole(t *testing.T) {
+	for _, tt := range _tenantCallCases {
 		t.Run(tt.name, func(t *testing.T) {
 			tenants := tenantmock.NewMockITenant(t)
 			tenants.EXPECT().Get(mock.Anything, mock.Anything).
 				Return(&tenantpb.Tenant{Id: _tenantId}, nil).Maybe()
-			svc := New(nil, nil, memberships(t, "user_1", tt.giveRole), tenants)
+			members := memberships(t, "user_1", tt.giveRole)
+			svc := New(nil, nil, members, tenants, nil)
 
 			err := tt.call(svc, asUser(t, "user_1"), tt.giveTenant)
 
@@ -115,7 +116,7 @@ func TestListTenantIsScoped(t *testing.T) {
 		})).Return(&tenantpb.ListTenantResponse{}, nil)
 
 	svc := New(nil, nil,
-		memberships(t, "user_1", typepb.Role_ROLE_MEMBER), tenants)
+		memberships(t, "user_1", typepb.Role_ROLE_MEMBER), tenants, nil)
 
 	_, err := svc.ListTenant(asUser(t, "user_1"), &tenantpb.ListTenantRequest{})
 
@@ -124,7 +125,7 @@ func TestListTenantIsScoped(t *testing.T) {
 
 func TestListTenantWithoutMembership(t *testing.T) {
 	svc := New(nil, nil, memberships(t, "user_1", typepb.Role_ROLE_ADMIN),
-		tenantmock.NewMockITenant(t)) // List must not run: no filter = all
+		tenantmock.NewMockITenant(t), nil) // List must not run: no filter = all
 
 	resp, err := svc.ListTenant(asUser(t, "user_9"),
 		&tenantpb.ListTenantRequest{})
@@ -149,7 +150,7 @@ func TestListMemberIsScoped(t *testing.T) {
 			return &tenantpb.ListMemberResponse{}, nil
 		})
 
-	_, err := New(nil, nil, members, nil).ListMember(asUser(t, "user_1"),
+	_, err := New(nil, nil, members, nil, nil).ListMember(asUser(t, "user_1"),
 		&tenantpb.ListMemberRequest{UserId: "user_1"})
 
 	require.NoError(t, err)
@@ -173,7 +174,8 @@ func TestCreateMemberTable(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := New(nil, nil, memberships(t, "user_1", tt.giveRole), nil)
+			members := memberships(t, "user_1", tt.giveRole)
+			svc := New(nil, nil, members, nil, nil)
 
 			_, err := svc.CreateMember(asUser(t, "user_1"),
 				&tenantpb.CreateMemberRequest{
@@ -223,7 +225,7 @@ func adminMember(id, userId string) *tenantpb.Member {
 func TestDeleteLastAdmin(t *testing.T) {
 	self := adminMember("mem_1", "user_1")
 
-	_, err := New(nil, nil, memberOf(t, self), nil).
+	_, err := New(nil, nil, memberOf(t, self), nil, nil).
 		DeleteMember(asUser(t, "user_1"), &tenantpb.DeleteMemberRequest{
 			Id: "mem_1",
 		})
@@ -235,7 +237,7 @@ func TestDeleteAdminWithAnotherLeft(t *testing.T) {
 	self := adminMember("mem_1", "user_1")
 	other := adminMember("mem_2", "user_2")
 
-	_, err := New(nil, nil, memberOf(t, other, self), nil).
+	_, err := New(nil, nil, memberOf(t, other, self), nil, nil).
 		DeleteMember(asUser(t, "user_1"), &tenantpb.DeleteMemberRequest{
 			Id: "mem_2",
 		})
@@ -246,7 +248,7 @@ func TestDeleteAdminWithAnotherLeft(t *testing.T) {
 func TestDemoteLastAdmin(t *testing.T) {
 	self := adminMember("mem_1", "user_1")
 
-	_, err := New(nil, nil, memberOf(t, self), nil).
+	_, err := New(nil, nil, memberOf(t, self), nil, nil).
 		UpdateMember(asUser(t, "user_1"), &tenantpb.UpdateMemberRequest{
 			Id: "mem_1", Roles: roleOf(typepb.Role_ROLE_MEMBER),
 		})
@@ -257,7 +259,7 @@ func TestDemoteLastAdmin(t *testing.T) {
 func TestUpdateMemberWithoutRolesKeepsLastAdmin(t *testing.T) {
 	self := adminMember("mem_1", "user_1")
 
-	_, err := New(nil, nil, memberOf(t, self), nil).
+	_, err := New(nil, nil, memberOf(t, self), nil, nil).
 		UpdateMember(asUser(t, "user_1"), &tenantpb.UpdateMemberRequest{
 			Id: "mem_1",
 		})
@@ -272,7 +274,7 @@ func TestAdminCanNotTouchSuperAdmin(t *testing.T) {
 	}
 	self := adminMember("mem_1", "user_1")
 
-	_, err := New(nil, nil, memberOf(t, super, self), nil).
+	_, err := New(nil, nil, memberOf(t, super, self), nil, nil).
 		DeleteMember(asUser(t, "user_1"), &tenantpb.DeleteMemberRequest{
 			Id: "mem_2",
 		})
@@ -280,34 +282,34 @@ func TestAdminCanNotTouchSuperAdmin(t *testing.T) {
 	assert.Equal(t, codes.PermissionDenied, status.Code(err))
 }
 
-func TestResourceNeedsRole(t *testing.T) {
-	tests := []struct {
-		name     string
-		giveRole typepb.Role
-		call     func(*Service) error
-		wantCode codes.Code
-	}{
-		{"member can not update", typepb.Role_ROLE_MEMBER,
-			func(s *Service) error {
-				_, err := s.UpdateResource(asUser(t, "user_1"),
-					&tenantpb.UpdateResourceRequest{Id: _resourceId})
-				return err
-			}, codes.PermissionDenied},
-		{"member can not delete", typepb.Role_ROLE_MEMBER,
-			func(s *Service) error {
-				_, err := s.DeleteResource(asUser(t, "user_1"),
-					&tenantpb.DeleteResourceRequest{Id: _resourceId})
-				return err
-			}, codes.PermissionDenied},
-		{"member can not create", typepb.Role_ROLE_MEMBER,
-			func(s *Service) error {
-				_, err := s.CreateResource(asUser(t, "user_1"),
-					&tenantpb.CreateResourceRequest{TenantId: _tenantId})
-				return err
-			}, codes.PermissionDenied},
-	}
+var _resourceRoleCases = []struct {
+	name     string
+	giveRole typepb.Role
+	call     func(*Service, context.Context) error
+	wantCode codes.Code
+}{
+	{"member can not update", typepb.Role_ROLE_MEMBER,
+		func(s *Service, ctx context.Context) error {
+			_, err := s.UpdateResource(ctx,
+				&tenantpb.UpdateResourceRequest{Id: _resourceId})
+			return err
+		}, codes.PermissionDenied},
+	{"member can not delete", typepb.Role_ROLE_MEMBER,
+		func(s *Service, ctx context.Context) error {
+			_, err := s.DeleteResource(ctx,
+				&tenantpb.DeleteResourceRequest{Id: _resourceId})
+			return err
+		}, codes.PermissionDenied},
+	{"member can not create", typepb.Role_ROLE_MEMBER,
+		func(s *Service, ctx context.Context) error {
+			_, err := s.CreateResource(ctx,
+				&tenantpb.CreateResourceRequest{TenantId: _tenantId})
+			return err
+		}, codes.PermissionDenied},
+}
 
-	for _, tt := range tests {
+func TestResourceNeedsRole(t *testing.T) {
+	for _, tt := range _resourceRoleCases {
 		t.Run(tt.name, func(t *testing.T) {
 			resources := resourcemock.NewMockIResource(t)
 			resources.EXPECT().Get(mock.Anything, _resourceId).
@@ -315,9 +317,11 @@ func TestResourceNeedsRole(t *testing.T) {
 					Id: _resourceId, TenantId: _tenantId,
 				}, nil).Maybe()
 			svc := New(nil, resources, memberships(t, "user_1", tt.giveRole),
-				nil)
+				nil, nil)
 
-			assert.Equal(t, tt.wantCode, status.Code(tt.call(svc)))
+			err := tt.call(svc, asUser(t, "user_1"))
+
+			assert.Equal(t, tt.wantCode, status.Code(err))
 		})
 	}
 }
@@ -327,7 +331,7 @@ func TestResourceOfOthersIsNotFound(t *testing.T) {
 	resources.EXPECT().Get(mock.Anything, _resourceId).Return(
 		&tenantpb.Resource{Id: _resourceId, TenantId: _otherTenantId}, nil)
 	svc := New(nil, resources,
-		memberships(t, "user_1", typepb.Role_ROLE_ADMIN), nil)
+		memberships(t, "user_1", typepb.Role_ROLE_ADMIN), nil, nil)
 
 	_, err := svc.GetResource(asUser(t, "user_1"),
 		&tenantpb.GetResourceRequest{Id: _resourceId})
@@ -341,7 +345,7 @@ func TestResourceMissingIsNotFound(t *testing.T) {
 	resources.EXPECT().Get(mock.Anything, _resourceId).
 		Return(nil, pgx.ErrNoRows)
 	svc := New(nil, resources,
-		memberships(t, "user_1", typepb.Role_ROLE_ADMIN), nil)
+		memberships(t, "user_1", typepb.Role_ROLE_ADMIN), nil, nil)
 
 	_, err := svc.DeleteResource(asUser(t, "user_1"),
 		&tenantpb.DeleteResourceRequest{Id: _resourceId})
@@ -357,7 +361,7 @@ func TestListResourceIsScoped(t *testing.T) {
 				req.GetTenantIds()[0] == _tenantId
 		})).Return(&tenantpb.ListResourceResponse{}, nil)
 	svc := New(nil, resources,
-		memberships(t, "user_1", typepb.Role_ROLE_MEMBER), nil)
+		memberships(t, "user_1", typepb.Role_ROLE_MEMBER), nil, nil)
 
 	_, err := svc.ListResource(asUser(t, "user_1"),
 		&tenantpb.ListResourceRequest{})
@@ -367,7 +371,7 @@ func TestListResourceIsScoped(t *testing.T) {
 
 func TestListResourceOfOthers(t *testing.T) {
 	svc := New(nil, resourcemock.NewMockIResource(t),
-		memberships(t, "user_1", typepb.Role_ROLE_MEMBER), nil)
+		memberships(t, "user_1", typepb.Role_ROLE_MEMBER), nil, nil)
 
 	resp, err := svc.ListResource(asUser(t, "user_1"),
 		&tenantpb.ListResourceRequest{TenantIds: []string{_otherTenantId}})
@@ -418,7 +422,7 @@ func TestUpdateTenantPlan(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := New(nil, nil, memberships(t, "user_1", tt.giveRole),
-				tenantOnPlan(t, tt.giveCurrent, tt.wantCode == codes.OK))
+				tenantOnPlan(t, tt.giveCurrent, tt.wantCode == codes.OK), nil)
 
 			_, err := svc.UpdateTenant(asUser(t, "user_1"),
 				&tenantpb.UpdateTenantRequest{
@@ -431,7 +435,7 @@ func TestUpdateTenantPlan(t *testing.T) {
 }
 
 func TestUpdateTenantPlanAsAdminControlPlane(t *testing.T) {
-	svc := New(nil, nil, nil, tenantOnPlan(t, typepb.Plan_PLAN_FREE, true))
+	svc := New(nil, nil, nil, tenantOnPlan(t, typepb.Plan_PLAN_FREE, true), nil)
 
 	_, err := svc.UpdateTenant(asAdmin(t), &tenantpb.UpdateTenantRequest{
 		Id: _tenantId, Plan: typepb.Plan_PLAN_PRO,

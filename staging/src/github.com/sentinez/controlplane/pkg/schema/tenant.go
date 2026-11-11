@@ -74,3 +74,50 @@ func TenantResources() dbx.Schema {
 		},
 	}
 }
+
+// TenantCaCertificates the schema of the sztable.TenantCaCertificates
+// table. The pem and private_key columns hold sealed values.
+func TenantCaCertificates() dbx.Schema {
+	return dbx.Schema{
+		Table:     sztable.TenantCaCertificates,
+		CreatedAt: tenantpb.CaCertificate_OwnerCreatedAt,
+		UpdatedAt: tenantpb.CaCertificate_OwnerUpdatedAt,
+		Columns:   caCertificateColumns(),
+		// The duplicate check looks a fingerprint up within a resource.
+		Indexes: []dbx.Index{{
+			Columns: []string{
+				tenantpb.CaCertificate_OwnerResourceId,
+				tenantpb.CaCertificate_FingerprintSha256,
+			},
+			Method: dbx.BTree,
+		}},
+	}
+}
+
+func caCertificateColumns() []dbx.Column {
+	return []dbx.Column{
+		{Name: tenantpb.CaCertificate_Id, Type: dbx.Text},
+		{Name: tenantpb.CaCertificate_Name, Type: dbx.Text},
+		{Name: tenantpb.CaCertificate_Description, Type: dbx.Text},
+		{Name: tenantpb.CaCertificate_Usage, Type: dbx.Int4},
+		{Name: tenantpb.CaCertificate_Status, Type: dbx.Int4},
+		{Name: tenantpb.CaCertificate_Pem, Type: dbx.Text},
+		{Name: tenantpb.CaCertificate_PrivateKey, Type: dbx.Text},
+		{Name: tenantpb.CaCertificate_Subject, Type: dbx.Text},
+		{Name: tenantpb.CaCertificate_Issuer, Type: dbx.Text},
+		{Name: tenantpb.CaCertificate_Provider, Type: dbx.Text},
+		{Name: tenantpb.CaCertificate_SerialNumber, Type: dbx.Text},
+		{
+			Name: tenantpb.CaCertificate_FingerprintSha256,
+			Type: dbx.Text,
+		},
+		{Name: tenantpb.CaCertificate_NotBefore, Type: dbx.Timestamp},
+		{Name: tenantpb.CaCertificate_NotAfter, Type: dbx.Timestamp},
+		{Name: tenantpb.CaCertificate_SelfSigned, Type: dbx.Bool},
+		{
+			Name: tenantpb.CaCertificate_OwnerResourceId,
+			Type: dbx.Text,
+		},
+		{Name: tenantpb.CaCertificate_OwnerTenantId, Type: dbx.Text},
+	}
+}

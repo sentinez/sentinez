@@ -6,6 +6,7 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { Timestamp } from "../../../../google/protobuf/timestamp";
 import { Server } from "../../../dmz/edge/v1/setting";
 import {
   Plan,
@@ -18,9 +19,50 @@ import {
   statusFromJSON,
   statusToJSON,
 } from "../../../types/v1/known";
-import { Metadata } from "../../../types/v1/model";
+import { Metadata, Owner } from "../../../types/v1/model";
 
 export const protobufPackage = "sentinez.apps.tenant.v1";
+
+export enum CaCertificateUsage {
+  CA_CERTIFICATE_USAGE_UNSPECIFIED = 0,
+  /** CA_CERTIFICATE_USAGE_UPSTREAM - Verify the certificates of upstream (origin) servers. */
+  CA_CERTIFICATE_USAGE_UPSTREAM = 1,
+  /** CA_CERTIFICATE_USAGE_CLIENT - Verify the client certificates of downstream connections (mTLS). */
+  CA_CERTIFICATE_USAGE_CLIENT = 2,
+  UNRECOGNIZED = -1,
+}
+
+export function caCertificateUsageFromJSON(object: any): CaCertificateUsage {
+  switch (object) {
+    case 0:
+    case "CA_CERTIFICATE_USAGE_UNSPECIFIED":
+      return CaCertificateUsage.CA_CERTIFICATE_USAGE_UNSPECIFIED;
+    case 1:
+    case "CA_CERTIFICATE_USAGE_UPSTREAM":
+      return CaCertificateUsage.CA_CERTIFICATE_USAGE_UPSTREAM;
+    case 2:
+    case "CA_CERTIFICATE_USAGE_CLIENT":
+      return CaCertificateUsage.CA_CERTIFICATE_USAGE_CLIENT;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return CaCertificateUsage.UNRECOGNIZED;
+  }
+}
+
+export function caCertificateUsageToJSON(object: CaCertificateUsage): string {
+  switch (object) {
+    case CaCertificateUsage.CA_CERTIFICATE_USAGE_UNSPECIFIED:
+      return "CA_CERTIFICATE_USAGE_UNSPECIFIED";
+    case CaCertificateUsage.CA_CERTIFICATE_USAGE_UPSTREAM:
+      return "CA_CERTIFICATE_USAGE_UPSTREAM";
+    case CaCertificateUsage.CA_CERTIFICATE_USAGE_CLIENT:
+      return "CA_CERTIFICATE_USAGE_CLIENT";
+    case CaCertificateUsage.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
 
 /**
  * Resource is a server of a tenant: its name, domain and routes are those
@@ -49,6 +91,56 @@ export interface Member {
   userId: string;
   tenantId: string;
   roles: Role[];
+}
+
+/**
+ * CaCertificate is one trusted CA certificate of a resource, with its
+ * private key when one was given. A bundle without a key is split into one
+ * record per certificate on import, so the parsed fields below describe
+ * exactly one certificate and the fingerprint is kept unique per resource.
+ * A record is immutable: it is only created, read and deleted.
+ */
+export interface CaCertificate {
+  owner?: Owner | undefined;
+  id: string;
+  name: string;
+  description: string;
+  /** What the edge trusts this CA for. */
+  usage: CaCertificateUsage;
+  /** Always STATUS_ACTIVE, set on create. */
+  status: Status;
+  /**
+   * PEM-encoded certificate: exactly one CERTIFICATE block, with
+   * BasicConstraints CA=true. The source of truth; every parsed field
+   * below is set from it by the service, never by the client. Stored
+   * encrypted.
+   */
+  pem: string;
+  /** Subject and issuer distinguished names, in RFC 2253 form. */
+  subject: string;
+  issuer: string;
+  /** Serial number, as lowercase hex. */
+  serialNumber: string;
+  /** SHA-256 of the DER bytes, as lowercase hex. */
+  fingerprintSha256: string;
+  notBefore?: Date | undefined;
+  notAfter?:
+    | Date
+    | undefined;
+  /** Whether subject and issuer are the same (a root CA). */
+  selfSigned: boolean;
+  /**
+   * Vendor of the CA: the first organization of the issuer, else its
+   * common name.
+   */
+  provider: string;
+  /**
+   * PEM-encoded private key of the certificate, empty without one. Stored
+   * encrypted and never returned by the API.
+   */
+  privateKey: string;
+  /** Whether the record holds a private key; set on read, not stored. */
+  hasPrivateKey: boolean;
 }
 
 function createBaseResource(): Resource {
@@ -480,6 +572,377 @@ export const Member: MessageFns<Member> = {
   },
 };
 
+function createBaseCaCertificate(): CaCertificate {
+  return {
+    owner: undefined,
+    id: "",
+    name: "",
+    description: "",
+    usage: 0,
+    status: 0,
+    pem: "",
+    subject: "",
+    issuer: "",
+    serialNumber: "",
+    fingerprintSha256: "",
+    notBefore: undefined,
+    notAfter: undefined,
+    selfSigned: false,
+    provider: "",
+    privateKey: "",
+    hasPrivateKey: false,
+  };
+}
+
+export const CaCertificate: MessageFns<CaCertificate> = {
+  encode(message: CaCertificate, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.owner !== undefined) {
+      Owner.encode(message.owner, writer.uint32(10).fork()).join();
+    }
+    if (message.id !== "") {
+      writer.uint32(18).string(message.id);
+    }
+    if (message.name !== "") {
+      writer.uint32(26).string(message.name);
+    }
+    if (message.description !== "") {
+      writer.uint32(34).string(message.description);
+    }
+    if (message.usage !== 0) {
+      writer.uint32(40).int32(message.usage);
+    }
+    if (message.status !== 0) {
+      writer.uint32(48).int32(message.status);
+    }
+    if (message.pem !== "") {
+      writer.uint32(58).string(message.pem);
+    }
+    if (message.subject !== "") {
+      writer.uint32(66).string(message.subject);
+    }
+    if (message.issuer !== "") {
+      writer.uint32(74).string(message.issuer);
+    }
+    if (message.serialNumber !== "") {
+      writer.uint32(82).string(message.serialNumber);
+    }
+    if (message.fingerprintSha256 !== "") {
+      writer.uint32(90).string(message.fingerprintSha256);
+    }
+    if (message.notBefore !== undefined) {
+      Timestamp.encode(toTimestamp(message.notBefore), writer.uint32(98).fork()).join();
+    }
+    if (message.notAfter !== undefined) {
+      Timestamp.encode(toTimestamp(message.notAfter), writer.uint32(106).fork()).join();
+    }
+    if (message.selfSigned !== false) {
+      writer.uint32(112).bool(message.selfSigned);
+    }
+    if (message.provider !== "") {
+      writer.uint32(122).string(message.provider);
+    }
+    if (message.privateKey !== "") {
+      writer.uint32(130).string(message.privateKey);
+    }
+    if (message.hasPrivateKey !== false) {
+      writer.uint32(136).bool(message.hasPrivateKey);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): CaCertificate {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseCaCertificate();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.owner = Owner.decode(reader, reader.uint32());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.name = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.description = reader.string();
+            continue;
+          }
+          case 5: {
+            if (tag !== 40) {
+              break;
+            }
+
+            message.usage = reader.int32() as any;
+            continue;
+          }
+          case 6: {
+            if (tag !== 48) {
+              break;
+            }
+
+            message.status = reader.int32() as any;
+            continue;
+          }
+          case 7: {
+            if (tag !== 58) {
+              break;
+            }
+
+            message.pem = reader.string();
+            continue;
+          }
+          case 8: {
+            if (tag !== 66) {
+              break;
+            }
+
+            message.subject = reader.string();
+            continue;
+          }
+          case 9: {
+            if (tag !== 74) {
+              break;
+            }
+
+            message.issuer = reader.string();
+            continue;
+          }
+          case 10: {
+            if (tag !== 82) {
+              break;
+            }
+
+            message.serialNumber = reader.string();
+            continue;
+          }
+          case 11: {
+            if (tag !== 90) {
+              break;
+            }
+
+            message.fingerprintSha256 = reader.string();
+            continue;
+          }
+          case 12: {
+            if (tag !== 98) {
+              break;
+            }
+
+            message.notBefore = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 13: {
+            if (tag !== 106) {
+              break;
+            }
+
+            message.notAfter = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 14: {
+            if (tag !== 112) {
+              break;
+            }
+
+            message.selfSigned = reader.bool();
+            continue;
+          }
+          case 15: {
+            if (tag !== 122) {
+              break;
+            }
+
+            message.provider = reader.string();
+            continue;
+          }
+          case 16: {
+            if (tag !== 130) {
+              break;
+            }
+
+            message.privateKey = reader.string();
+            continue;
+          }
+          case 17: {
+            if (tag !== 136) {
+              break;
+            }
+
+            message.hasPrivateKey = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): CaCertificate {
+    return {
+      owner: isSet(object.owner) ? Owner.fromJSON(object.owner) : undefined,
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      description: isSet(object.description) ? globalThis.String(object.description) : "",
+      usage: isSet(object.usage) ? caCertificateUsageFromJSON(object.usage) : 0,
+      status: isSet(object.status) ? statusFromJSON(object.status) : 0,
+      pem: isSet(object.pem) ? globalThis.String(object.pem) : "",
+      subject: isSet(object.subject) ? globalThis.String(object.subject) : "",
+      issuer: isSet(object.issuer) ? globalThis.String(object.issuer) : "",
+      serialNumber: isSet(object.serialNumber)
+        ? globalThis.String(object.serialNumber)
+        : isSet(object.serial_number)
+        ? globalThis.String(object.serial_number)
+        : "",
+      fingerprintSha256: isSet(object.fingerprintSha256)
+        ? globalThis.String(object.fingerprintSha256)
+        : isSet(object.fingerprint_sha256)
+        ? globalThis.String(object.fingerprint_sha256)
+        : "",
+      notBefore: isSet(object.notBefore)
+        ? fromJsonTimestamp(object.notBefore)
+        : isSet(object.not_before)
+        ? fromJsonTimestamp(object.not_before)
+        : undefined,
+      notAfter: isSet(object.notAfter)
+        ? fromJsonTimestamp(object.notAfter)
+        : isSet(object.not_after)
+        ? fromJsonTimestamp(object.not_after)
+        : undefined,
+      selfSigned: isSet(object.selfSigned)
+        ? globalThis.Boolean(object.selfSigned)
+        : isSet(object.self_signed)
+        ? globalThis.Boolean(object.self_signed)
+        : false,
+      provider: isSet(object.provider) ? globalThis.String(object.provider) : "",
+      privateKey: isSet(object.privateKey)
+        ? globalThis.String(object.privateKey)
+        : isSet(object.private_key)
+        ? globalThis.String(object.private_key)
+        : "",
+      hasPrivateKey: isSet(object.hasPrivateKey)
+        ? globalThis.Boolean(object.hasPrivateKey)
+        : isSet(object.has_private_key)
+        ? globalThis.Boolean(object.has_private_key)
+        : false,
+    };
+  },
+
+  toJSON(message: CaCertificate): unknown {
+    const obj: any = {};
+    if (message.owner !== undefined) {
+      obj.owner = Owner.toJSON(message.owner);
+    }
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.description !== "") {
+      obj.description = message.description;
+    }
+    if (message.usage !== 0) {
+      obj.usage = caCertificateUsageToJSON(message.usage);
+    }
+    if (message.status !== 0) {
+      obj.status = statusToJSON(message.status);
+    }
+    if (message.pem !== "") {
+      obj.pem = message.pem;
+    }
+    if (message.subject !== "") {
+      obj.subject = message.subject;
+    }
+    if (message.issuer !== "") {
+      obj.issuer = message.issuer;
+    }
+    if (message.serialNumber !== "") {
+      obj.serialNumber = message.serialNumber;
+    }
+    if (message.fingerprintSha256 !== "") {
+      obj.fingerprintSha256 = message.fingerprintSha256;
+    }
+    if (message.notBefore !== undefined) {
+      obj.notBefore = message.notBefore.toISOString();
+    }
+    if (message.notAfter !== undefined) {
+      obj.notAfter = message.notAfter.toISOString();
+    }
+    if (message.selfSigned !== false) {
+      obj.selfSigned = message.selfSigned;
+    }
+    if (message.provider !== "") {
+      obj.provider = message.provider;
+    }
+    if (message.privateKey !== "") {
+      obj.privateKey = message.privateKey;
+    }
+    if (message.hasPrivateKey !== false) {
+      obj.hasPrivateKey = message.hasPrivateKey;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<CaCertificate>, I>>(base?: I): CaCertificate {
+    return CaCertificate.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CaCertificate>, I>>(object: I): CaCertificate {
+    const message = createBaseCaCertificate();
+    message.owner = (object.owner !== undefined && object.owner !== null) ? Owner.fromPartial(object.owner) : undefined;
+    message.id = object.id ?? "";
+    message.name = object.name ?? "";
+    message.description = object.description ?? "";
+    message.usage = object.usage ?? 0;
+    message.status = object.status ?? 0;
+    message.pem = object.pem ?? "";
+    message.subject = object.subject ?? "";
+    message.issuer = object.issuer ?? "";
+    message.serialNumber = object.serialNumber ?? "";
+    message.fingerprintSha256 = object.fingerprintSha256 ?? "";
+    message.notBefore = object.notBefore ?? undefined;
+    message.notAfter = object.notAfter ?? undefined;
+    message.selfSigned = object.selfSigned ?? false;
+    message.provider = object.provider ?? "";
+    message.privateKey = object.privateKey ?? "";
+    message.hasPrivateKey = object.hasPrivateKey ?? false;
+    return message;
+  },
+};
+
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
@@ -491,6 +954,28 @@ export type DeepPartial<T> = T extends Builtin ? T
 type KeysOfUnion<T> = T extends T ? keyof T : never;
 export type Exact<P, I extends P> = P extends Builtin ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
+
+function toTimestamp(date: Date): Timestamp {
+  const seconds = Math.trunc(date.getTime() / 1_000);
+  const nanos = (date.getTime() % 1_000) * 1_000_000;
+  return { seconds, nanos };
+}
+
+function fromTimestamp(t: Timestamp): Date {
+  let millis = (t.seconds || 0) * 1_000;
+  millis += (t.nanos || 0) / 1_000_000;
+  return new globalThis.Date(millis);
+}
+
+function fromJsonTimestamp(o: any): Date {
+  if (o instanceof globalThis.Date) {
+    return o;
+  } else if (typeof o === "string") {
+    return new globalThis.Date(o);
+  } else {
+    return fromTimestamp(Timestamp.fromJSON(o));
+  }
+}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

@@ -38,6 +38,29 @@ const (
 	Member_Roles             = "roles"
 )
 
+const (
+	CaCertificate_OwnerCreatedAt    = "owner_created_at"
+	CaCertificate_OwnerUpdatedAt    = "owner_updated_at"
+	CaCertificate_OwnerResourceId   = "owner_resource_id"
+	CaCertificate_OwnerTenantId     = "owner_tenant_id"
+	CaCertificate_Id                = "id"
+	CaCertificate_Name              = "name"
+	CaCertificate_Description       = "description"
+	CaCertificate_Usage             = "usage"
+	CaCertificate_Status            = "status"
+	CaCertificate_Pem               = "pem"
+	CaCertificate_Subject           = "subject"
+	CaCertificate_Issuer            = "issuer"
+	CaCertificate_SerialNumber      = "serial_number"
+	CaCertificate_FingerprintSha256 = "fingerprint_sha256"
+	CaCertificate_NotBefore         = "not_before"
+	CaCertificate_NotAfter          = "not_after"
+	CaCertificate_SelfSigned        = "self_signed"
+	CaCertificate_Provider          = "provider"
+	CaCertificate_PrivateKey        = "private_key"
+	CaCertificate_HasPrivateKey     = "has_private_key"
+)
+
 // ResourceColumns returns the columns of Resource, in the order ScanOneResource scans them.
 func ResourceColumns() []string {
 	return []string{
@@ -270,6 +293,136 @@ func ScanMember[R interface {
 	var ms []*Member
 	for rows.Next() {
 		m, err := ScanOneMember(rows)
+		if err != nil {
+			return nil, err
+		}
+		ms = append(ms, m)
+	}
+	return ms, rows.Err()
+}
+
+// CaCertificateColumns returns the columns of CaCertificate, in the order ScanOneCaCertificate scans them.
+func CaCertificateColumns() []string {
+	return []string{
+		CaCertificate_OwnerCreatedAt,
+		CaCertificate_OwnerUpdatedAt,
+		CaCertificate_OwnerResourceId,
+		CaCertificate_OwnerTenantId,
+		CaCertificate_Id,
+		CaCertificate_Name,
+		CaCertificate_Description,
+		CaCertificate_Usage,
+		CaCertificate_Status,
+		CaCertificate_Pem,
+		CaCertificate_Subject,
+		CaCertificate_Issuer,
+		CaCertificate_SerialNumber,
+		CaCertificate_FingerprintSha256,
+		CaCertificate_NotBefore,
+		CaCertificate_NotAfter,
+		CaCertificate_SelfSigned,
+		CaCertificate_Provider,
+		CaCertificate_PrivateKey,
+	}
+}
+
+// CaCertificateValues returns the values of m, in the order of CaCertificateColumns.
+func CaCertificateValues(m *CaCertificate) ([]any, error) {
+	var colOwnerCreatedAt any
+	if v := m.GetOwner().GetCreatedAt(); v != nil {
+		colOwnerCreatedAt = v.AsTime()
+	}
+	var colOwnerUpdatedAt any
+	if v := m.GetOwner().GetUpdatedAt(); v != nil {
+		colOwnerUpdatedAt = v.AsTime()
+	}
+	var colNotBefore any
+	if v := m.GetNotBefore(); v != nil {
+		colNotBefore = v.AsTime()
+	}
+	var colNotAfter any
+	if v := m.GetNotAfter(); v != nil {
+		colNotAfter = v.AsTime()
+	}
+	return []any{
+		colOwnerCreatedAt,
+		colOwnerUpdatedAt,
+		m.GetOwner().GetResourceId(),
+		m.GetOwner().GetTenantId(),
+		m.GetId(),
+		m.GetName(),
+		m.GetDescription(),
+		m.GetUsage(),
+		m.GetStatus(),
+		m.GetPem(),
+		m.GetSubject(),
+		m.GetIssuer(),
+		m.GetSerialNumber(),
+		m.GetFingerprintSha256(),
+		colNotBefore,
+		colNotAfter,
+		m.GetSelfSigned(),
+		m.GetProvider(),
+		m.GetPrivateKey(),
+	}, nil
+}
+
+// ScanOneCaCertificate scans row, holding the columns of CaCertificateColumns, into a CaCertificate.
+func ScanOneCaCertificate[R interface{ Scan(dest ...any) error }](row R) (*CaCertificate, error) {
+	m := &CaCertificate{Owner: &v1.Owner{}}
+	var (
+		colOwnerCreatedAt  time.Time
+		colOwnerUpdatedAt  time.Time
+		colOwnerResourceId *string
+		colOwnerTenantId   *string
+		colNotBefore       time.Time
+		colNotAfter        time.Time
+	)
+	if err := row.Scan(
+		&colOwnerCreatedAt,
+		&colOwnerUpdatedAt,
+		&colOwnerResourceId,
+		&colOwnerTenantId,
+		&m.Id,
+		&m.Name,
+		&m.Description,
+		&m.Usage,
+		&m.Status,
+		&m.Pem,
+		&m.Subject,
+		&m.Issuer,
+		&m.SerialNumber,
+		&m.FingerprintSha256,
+		&colNotBefore,
+		&colNotAfter,
+		&m.SelfSigned,
+		&m.Provider,
+		&m.PrivateKey,
+	); err != nil {
+		return nil, err
+	}
+	m.Owner.CreatedAt = timestamppb.New(colOwnerCreatedAt)
+	m.Owner.UpdatedAt = timestamppb.New(colOwnerUpdatedAt)
+	if colOwnerResourceId != nil {
+		m.Owner.ResourceId = *colOwnerResourceId
+	}
+	if colOwnerTenantId != nil {
+		m.Owner.TenantId = *colOwnerTenantId
+	}
+	m.NotBefore = timestamppb.New(colNotBefore)
+	m.NotAfter = timestamppb.New(colNotAfter)
+	return m, nil
+}
+
+// ScanCaCertificate scans each row of rows with ScanOneCaCertificate.
+func ScanCaCertificate[R interface {
+	Next() bool
+	Scan(dest ...any) error
+	Err() error
+}](rows R) ([]*CaCertificate, error) {
+	var ms []*CaCertificate
+	for rows.Next() {
+		m, err := ScanOneCaCertificate(rows)
 		if err != nil {
 			return nil, err
 		}

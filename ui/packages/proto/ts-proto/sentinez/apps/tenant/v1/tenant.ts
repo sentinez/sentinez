@@ -19,7 +19,15 @@ import {
   statusToJSON,
 } from "../../../types/v1/known";
 import { Pages } from "../../../types/v1/model";
-import { Member, Resource, Tenant } from "./model";
+import {
+  CaCertificate,
+  CaCertificateUsage,
+  caCertificateUsageFromJSON,
+  caCertificateUsageToJSON,
+  Member,
+  Resource,
+  Tenant,
+} from "./model";
 
 export const protobufPackage = "sentinez.apps.tenant.v1";
 
@@ -183,6 +191,57 @@ export interface ListTenantRequest {
 export interface ListTenantResponse {
   total: number;
   tenants: Tenant[];
+}
+
+export interface CreateCaCertificateRequest {
+  resourceId: string;
+  /**
+   * Named after the common name of each certificate when empty; numbered
+   * (" #1", " #2" ...) when the bundle holds several.
+   */
+  name: string;
+  description: string;
+  usage: CaCertificateUsage;
+  /** One or more PEM CERTIFICATE blocks, each a CA. */
+  pem: string;
+  /**
+   * PEM private key of the certificate. With it, pem must hold exactly
+   * one certificate, the one of the key.
+   */
+  privateKey: string;
+}
+
+export interface CreateCaCertificateResponse {
+  caCertificates: CaCertificate[];
+}
+
+export interface GetCaCertificateRequest {
+  id: string;
+}
+
+export interface GetCaCertificateResponse {
+  caCertificate?: CaCertificate | undefined;
+}
+
+export interface DeleteCaCertificateRequest {
+  id: string;
+}
+
+export interface DeleteCaCertificateResponse {
+}
+
+export interface ListCaCertificateRequest {
+  page?: Pages | undefined;
+  resourceIds: string[];
+  usage: CaCertificateUsage;
+  /** Lowercase hex SHA-256 of the DER bytes. */
+  fingerprintSha256: string;
+  provider: string;
+}
+
+export interface ListCaCertificateResponse {
+  total: number;
+  caCertificates: CaCertificate[];
 }
 
 function createBaseGetResourceRequest(): GetResourceRequest {
@@ -2858,6 +2917,727 @@ export const ListTenantResponse: MessageFns<ListTenantResponse> = {
     const message = createBaseListTenantResponse();
     message.total = object.total ?? 0;
     message.tenants = object.tenants?.map((e) => Tenant.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseCreateCaCertificateRequest(): CreateCaCertificateRequest {
+  return { resourceId: "", name: "", description: "", usage: 0, pem: "", privateKey: "" };
+}
+
+export const CreateCaCertificateRequest: MessageFns<CreateCaCertificateRequest> = {
+  encode(message: CreateCaCertificateRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.resourceId !== "") {
+      writer.uint32(10).string(message.resourceId);
+    }
+    if (message.name !== "") {
+      writer.uint32(18).string(message.name);
+    }
+    if (message.description !== "") {
+      writer.uint32(26).string(message.description);
+    }
+    if (message.usage !== 0) {
+      writer.uint32(32).int32(message.usage);
+    }
+    if (message.pem !== "") {
+      writer.uint32(42).string(message.pem);
+    }
+    if (message.privateKey !== "") {
+      writer.uint32(50).string(message.privateKey);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateCaCertificateRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseCreateCaCertificateRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.resourceId = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.name = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.description = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 32) {
+              break;
+            }
+
+            message.usage = reader.int32() as any;
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.pem = reader.string();
+            continue;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.privateKey = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): CreateCaCertificateRequest {
+    return {
+      resourceId: isSet(object.resourceId)
+        ? globalThis.String(object.resourceId)
+        : isSet(object.resource_id)
+        ? globalThis.String(object.resource_id)
+        : "",
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      description: isSet(object.description) ? globalThis.String(object.description) : "",
+      usage: isSet(object.usage) ? caCertificateUsageFromJSON(object.usage) : 0,
+      pem: isSet(object.pem) ? globalThis.String(object.pem) : "",
+      privateKey: isSet(object.privateKey)
+        ? globalThis.String(object.privateKey)
+        : isSet(object.private_key)
+        ? globalThis.String(object.private_key)
+        : "",
+    };
+  },
+
+  toJSON(message: CreateCaCertificateRequest): unknown {
+    const obj: any = {};
+    if (message.resourceId !== "") {
+      obj.resourceId = message.resourceId;
+    }
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.description !== "") {
+      obj.description = message.description;
+    }
+    if (message.usage !== 0) {
+      obj.usage = caCertificateUsageToJSON(message.usage);
+    }
+    if (message.pem !== "") {
+      obj.pem = message.pem;
+    }
+    if (message.privateKey !== "") {
+      obj.privateKey = message.privateKey;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<CreateCaCertificateRequest>, I>>(base?: I): CreateCaCertificateRequest {
+    return CreateCaCertificateRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CreateCaCertificateRequest>, I>>(object: I): CreateCaCertificateRequest {
+    const message = createBaseCreateCaCertificateRequest();
+    message.resourceId = object.resourceId ?? "";
+    message.name = object.name ?? "";
+    message.description = object.description ?? "";
+    message.usage = object.usage ?? 0;
+    message.pem = object.pem ?? "";
+    message.privateKey = object.privateKey ?? "";
+    return message;
+  },
+};
+
+function createBaseCreateCaCertificateResponse(): CreateCaCertificateResponse {
+  return { caCertificates: [] };
+}
+
+export const CreateCaCertificateResponse: MessageFns<CreateCaCertificateResponse> = {
+  encode(message: CreateCaCertificateResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.caCertificates) {
+      CaCertificate.encode(v!, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateCaCertificateResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseCreateCaCertificateResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.caCertificates.push(CaCertificate.decode(reader, reader.uint32()));
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): CreateCaCertificateResponse {
+    return {
+      caCertificates: globalThis.Array.isArray(object?.caCertificates)
+        ? object.caCertificates.map((e: any) => CaCertificate.fromJSON(e))
+        : globalThis.Array.isArray(object?.ca_certificates)
+        ? object.ca_certificates.map((e: any) => CaCertificate.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: CreateCaCertificateResponse): unknown {
+    const obj: any = {};
+    if (message.caCertificates?.length) {
+      obj.caCertificates = message.caCertificates.map((e) => CaCertificate.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<CreateCaCertificateResponse>, I>>(base?: I): CreateCaCertificateResponse {
+    return CreateCaCertificateResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<CreateCaCertificateResponse>, I>>(object: I): CreateCaCertificateResponse {
+    const message = createBaseCreateCaCertificateResponse();
+    message.caCertificates = object.caCertificates?.map((e) => CaCertificate.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseGetCaCertificateRequest(): GetCaCertificateRequest {
+  return { id: "" };
+}
+
+export const GetCaCertificateRequest: MessageFns<GetCaCertificateRequest> = {
+  encode(message: GetCaCertificateRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetCaCertificateRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetCaCertificateRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): GetCaCertificateRequest {
+    return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
+  },
+
+  toJSON(message: GetCaCertificateRequest): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetCaCertificateRequest>, I>>(base?: I): GetCaCertificateRequest {
+    return GetCaCertificateRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetCaCertificateRequest>, I>>(object: I): GetCaCertificateRequest {
+    const message = createBaseGetCaCertificateRequest();
+    message.id = object.id ?? "";
+    return message;
+  },
+};
+
+function createBaseGetCaCertificateResponse(): GetCaCertificateResponse {
+  return { caCertificate: undefined };
+}
+
+export const GetCaCertificateResponse: MessageFns<GetCaCertificateResponse> = {
+  encode(message: GetCaCertificateResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.caCertificate !== undefined) {
+      CaCertificate.encode(message.caCertificate, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetCaCertificateResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetCaCertificateResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.caCertificate = CaCertificate.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): GetCaCertificateResponse {
+    return {
+      caCertificate: isSet(object.caCertificate)
+        ? CaCertificate.fromJSON(object.caCertificate)
+        : isSet(object.ca_certificate)
+        ? CaCertificate.fromJSON(object.ca_certificate)
+        : undefined,
+    };
+  },
+
+  toJSON(message: GetCaCertificateResponse): unknown {
+    const obj: any = {};
+    if (message.caCertificate !== undefined) {
+      obj.caCertificate = CaCertificate.toJSON(message.caCertificate);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetCaCertificateResponse>, I>>(base?: I): GetCaCertificateResponse {
+    return GetCaCertificateResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetCaCertificateResponse>, I>>(object: I): GetCaCertificateResponse {
+    const message = createBaseGetCaCertificateResponse();
+    message.caCertificate = (object.caCertificate !== undefined && object.caCertificate !== null)
+      ? CaCertificate.fromPartial(object.caCertificate)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseDeleteCaCertificateRequest(): DeleteCaCertificateRequest {
+  return { id: "" };
+}
+
+export const DeleteCaCertificateRequest: MessageFns<DeleteCaCertificateRequest> = {
+  encode(message: DeleteCaCertificateRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): DeleteCaCertificateRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseDeleteCaCertificateRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): DeleteCaCertificateRequest {
+    return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
+  },
+
+  toJSON(message: DeleteCaCertificateRequest): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<DeleteCaCertificateRequest>, I>>(base?: I): DeleteCaCertificateRequest {
+    return DeleteCaCertificateRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<DeleteCaCertificateRequest>, I>>(object: I): DeleteCaCertificateRequest {
+    const message = createBaseDeleteCaCertificateRequest();
+    message.id = object.id ?? "";
+    return message;
+  },
+};
+
+function createBaseDeleteCaCertificateResponse(): DeleteCaCertificateResponse {
+  return {};
+}
+
+export const DeleteCaCertificateResponse: MessageFns<DeleteCaCertificateResponse> = {
+  encode(_: DeleteCaCertificateResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): DeleteCaCertificateResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseDeleteCaCertificateResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(_: any): DeleteCaCertificateResponse {
+    return {};
+  },
+
+  toJSON(_: DeleteCaCertificateResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<DeleteCaCertificateResponse>, I>>(base?: I): DeleteCaCertificateResponse {
+    return DeleteCaCertificateResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<DeleteCaCertificateResponse>, I>>(_: I): DeleteCaCertificateResponse {
+    const message = createBaseDeleteCaCertificateResponse();
+    return message;
+  },
+};
+
+function createBaseListCaCertificateRequest(): ListCaCertificateRequest {
+  return { page: undefined, resourceIds: [], usage: 0, fingerprintSha256: "", provider: "" };
+}
+
+export const ListCaCertificateRequest: MessageFns<ListCaCertificateRequest> = {
+  encode(message: ListCaCertificateRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.page !== undefined) {
+      Pages.encode(message.page, writer.uint32(10).fork()).join();
+    }
+    for (const v of message.resourceIds) {
+      writer.uint32(18).string(v!);
+    }
+    if (message.usage !== 0) {
+      writer.uint32(24).int32(message.usage);
+    }
+    if (message.fingerprintSha256 !== "") {
+      writer.uint32(34).string(message.fingerprintSha256);
+    }
+    if (message.provider !== "") {
+      writer.uint32(42).string(message.provider);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListCaCertificateRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseListCaCertificateRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.page = Pages.decode(reader, reader.uint32());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.resourceIds.push(reader.string());
+            continue;
+          }
+          case 3: {
+            if (tag !== 24) {
+              break;
+            }
+
+            message.usage = reader.int32() as any;
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.fingerprintSha256 = reader.string();
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.provider = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): ListCaCertificateRequest {
+    return {
+      page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined,
+      resourceIds: globalThis.Array.isArray(object?.resourceIds)
+        ? object.resourceIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.resource_ids)
+        ? object.resource_ids.map((e: any) => globalThis.String(e))
+        : [],
+      usage: isSet(object.usage) ? caCertificateUsageFromJSON(object.usage) : 0,
+      fingerprintSha256: isSet(object.fingerprintSha256)
+        ? globalThis.String(object.fingerprintSha256)
+        : isSet(object.fingerprint_sha256)
+        ? globalThis.String(object.fingerprint_sha256)
+        : "",
+      provider: isSet(object.provider) ? globalThis.String(object.provider) : "",
+    };
+  },
+
+  toJSON(message: ListCaCertificateRequest): unknown {
+    const obj: any = {};
+    if (message.page !== undefined) {
+      obj.page = Pages.toJSON(message.page);
+    }
+    if (message.resourceIds?.length) {
+      obj.resourceIds = message.resourceIds;
+    }
+    if (message.usage !== 0) {
+      obj.usage = caCertificateUsageToJSON(message.usage);
+    }
+    if (message.fingerprintSha256 !== "") {
+      obj.fingerprintSha256 = message.fingerprintSha256;
+    }
+    if (message.provider !== "") {
+      obj.provider = message.provider;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ListCaCertificateRequest>, I>>(base?: I): ListCaCertificateRequest {
+    return ListCaCertificateRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ListCaCertificateRequest>, I>>(object: I): ListCaCertificateRequest {
+    const message = createBaseListCaCertificateRequest();
+    message.page = (object.page !== undefined && object.page !== null) ? Pages.fromPartial(object.page) : undefined;
+    message.resourceIds = object.resourceIds?.map((e) => e) || [];
+    message.usage = object.usage ?? 0;
+    message.fingerprintSha256 = object.fingerprintSha256 ?? "";
+    message.provider = object.provider ?? "";
+    return message;
+  },
+};
+
+function createBaseListCaCertificateResponse(): ListCaCertificateResponse {
+  return { total: 0, caCertificates: [] };
+}
+
+export const ListCaCertificateResponse: MessageFns<ListCaCertificateResponse> = {
+  encode(message: ListCaCertificateResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.total !== 0) {
+      writer.uint32(8).int64(message.total);
+    }
+    for (const v of message.caCertificates) {
+      CaCertificate.encode(v!, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListCaCertificateResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseListCaCertificateResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.total = longToNumber(reader.int64());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.caCertificates.push(CaCertificate.decode(reader, reader.uint32()));
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): ListCaCertificateResponse {
+    return {
+      total: isSet(object.total) ? globalThis.Number(object.total) : 0,
+      caCertificates: globalThis.Array.isArray(object?.caCertificates)
+        ? object.caCertificates.map((e: any) => CaCertificate.fromJSON(e))
+        : globalThis.Array.isArray(object?.ca_certificates)
+        ? object.ca_certificates.map((e: any) => CaCertificate.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: ListCaCertificateResponse): unknown {
+    const obj: any = {};
+    if (message.total !== 0) {
+      obj.total = Math.round(message.total);
+    }
+    if (message.caCertificates?.length) {
+      obj.caCertificates = message.caCertificates.map((e) => CaCertificate.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ListCaCertificateResponse>, I>>(base?: I): ListCaCertificateResponse {
+    return ListCaCertificateResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ListCaCertificateResponse>, I>>(object: I): ListCaCertificateResponse {
+    const message = createBaseListCaCertificateResponse();
+    message.total = object.total ?? 0;
+    message.caCertificates = object.caCertificates?.map((e) => CaCertificate.fromPartial(e)) || [];
     return message;
   },
 };

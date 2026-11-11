@@ -207,6 +207,58 @@ service TenantService {
     };
   }
 
+  // Lists the CA certificates of resources, without their private keys.
+  rpc ListCaCertificate(ListCaCertificateRequest) returns (ListCaCertificateResponse) {
+    option (google.api.http) = {get: "/tenant/cacertificates"};
+
+    option (sentinez.types.v1.x_method) = {
+      control_planes: [
+        CONTROL_PLANE_PORTAL,
+        CONTROL_PLANE_ADMIN
+      ]
+    };
+  }
+
+  // Creates the CA certificates of a PEM bundle, one per certificate. A
+  // certificate is immutable: there is no update, delete and create again.
+  rpc CreateCaCertificate(CreateCaCertificateRequest) returns (CreateCaCertificateResponse) {
+    option (google.api.http) = {
+      post: "/tenant/cacertificate"
+      body: "*"
+    };
+
+    option (sentinez.types.v1.x_method) = {
+      control_planes: [
+        CONTROL_PLANE_PORTAL,
+        CONTROL_PLANE_ADMIN
+      ]
+    };
+  }
+
+  // Returns a CA certificate, without its private key.
+  rpc GetCaCertificate(GetCaCertificateRequest) returns (GetCaCertificateResponse) {
+    option (google.api.http) = {get: "/tenant/cacertificate"};
+
+    option (sentinez.types.v1.x_method) = {
+      control_planes: [
+        CONTROL_PLANE_PORTAL,
+        CONTROL_PLANE_ADMIN
+      ]
+    };
+  }
+
+  // Deletes a CA certificate.
+  rpc DeleteCaCertificate(DeleteCaCertificateRequest) returns (DeleteCaCertificateResponse) {
+    option (google.api.http) = {delete: "/tenant/cacertificate"};
+
+    option (sentinez.types.v1.x_method) = {
+      control_planes: [
+        CONTROL_PLANE_PORTAL,
+        CONTROL_PLANE_ADMIN
+      ]
+    };
+  }
+
   // Lists tenants.
   rpc ListTenant(ListTenantRequest) returns (ListTenantResponse) {
     option (google.api.http) = {get: "/tenant/tenants"};
@@ -530,4 +582,92 @@ message ListTenantRequest {
 message ListTenantResponse {
   int64 total = 1;
   repeated sentinez.apps.tenant.v1.Tenant tenants = 2;
+}
+
+message CreateCaCertificateRequest {
+  string resource_id = 1 [(buf.validate.field) = {
+    required: true
+    string: {prefix: "rsrc_"}
+  }];
+
+  // Named after the common name of each certificate when empty; numbered
+  // (" #1", " #2" ...) when the bundle holds several.
+  string name = 2 [(buf.validate.field).string.max_len = 120];
+  string description = 3 [(buf.validate.field).string.max_len = 255];
+
+  CaCertificateUsage usage = 4 [(buf.validate.field).enum = {
+    defined_only: true
+    not_in: [0]
+  }];
+
+  // One or more PEM CERTIFICATE blocks, each a CA.
+  string pem = 5 [(buf.validate.field) = {
+    required: true
+    string: {
+      contains: "-----BEGIN CERTIFICATE-----"
+      max_bytes: 262144
+    }
+  }];
+
+  // PEM private key of the certificate. With it, pem must hold exactly
+  // one certificate, the one of the key.
+  string private_key = 6 [(buf.validate.field) = {
+    ignore: IGNORE_IF_ZERO_VALUE
+    string: {
+      contains: "-----BEGIN "
+      max_bytes: 65536
+    }
+  }];
+}
+
+message CreateCaCertificateResponse {
+  repeated CaCertificate ca_certificates = 1;
+}
+
+message GetCaCertificateRequest {
+  string id = 1 [(buf.validate.field) = {
+    required: true
+    string: {prefix: "cacrt_"}
+  }];
+}
+
+message GetCaCertificateResponse {
+  CaCertificate ca_certificate = 1;
+}
+
+message DeleteCaCertificateRequest {
+  string id = 1 [(buf.validate.field) = {
+    required: true
+    string: {prefix: "cacrt_"}
+  }];
+}
+
+message DeleteCaCertificateResponse {}
+
+message ListCaCertificateRequest {
+  sentinez.types.v1.Pages page = 1;
+
+  repeated string resource_ids = 2 [(buf.validate.field) = {
+    repeated: {
+      unique: true
+      items: {
+        string: {prefix: "rsrc_"}
+      }
+    }
+  }];
+
+  CaCertificateUsage usage = 3 [(buf.validate.field).enum.defined_only = true];
+
+  // Lowercase hex SHA-256 of the DER bytes.
+  string fingerprint_sha256 = 4 [(buf.validate.field) = {
+    ignore: IGNORE_IF_ZERO_VALUE
+    string: {pattern: "^[0-9a-f]{64}$"}
+  }];
+
+  string provider = 5 [(buf.validate.field).string.max_len = 255];
+}
+
+message ListCaCertificateResponse {
+  int64 total = 1;
+  repeated CaCertificate ca_certificates = 2;
 }

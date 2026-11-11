@@ -99,6 +99,7 @@ Tên biến là các giá trị của enum `Senz` trong
 | `SENZ_HOSTNAME` | IAM | RP ID cho WebAuthn (`sentinez.vn`) |
 | `SENZ_ADDRESS` | tất cả | Địa chỉ listen; nếu rỗng mỗi service dùng hằng trong [internal/defaults](../../internal/defaults/defaults.go): edge `0.0.0.0:443` (TCP và UDP/HTTP/3), apiserver `0.0.0.0:9000`, realtime `0.0.0.0:7778`, dataplane và greeter `0.0.0.0:9001` |
 | `SENZ_SECRET_KEY` | IAM | Khoá HMAC ký JWT, **phải là base64** |
+| `SENZ_DATA_KEY` | apiserver | Khoá AES-256 (32 byte ngẫu nhiên, **base64**, `openssl rand -base64 32`) dùng để mã hoá PEM và private key của CA certificate trong database. Bắt buộc: apiserver không khởi động nếu thiếu. Mất hoặc đổi khoá thì các certificate đã lưu không đọc lại được |
 | `SENZ_CLIENT_ORIGIN` | IAM, apiserver | Origin của console: origin WebAuthn được phép và là origin duy nhất CORS cho phép. Nhiều giá trị: cách nhau bằng dấu phẩy |
 | `SENZ_POSTGRES_URI` | controlplane | DSN PostgreSQL (pgxpool) |
 | `SENZ_TIMESCALE_URI`, `SENZ_CLICKHOUSE_URI` | — | Khai báo nhưng chưa dùng |

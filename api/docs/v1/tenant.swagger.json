@@ -20,6 +20,178 @@
     "application/json"
   ],
   "paths": {
+    "/tenant/cacertificate": {
+      "get": {
+        "summary": "Returns a CA certificate, without its private key.",
+        "operationId": "TenantService_GetCaCertificate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetCaCertificateResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "TenantService"
+        ]
+      },
+      "delete": {
+        "summary": "Deletes a CA certificate.",
+        "operationId": "TenantService_DeleteCaCertificate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeleteCaCertificateResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "TenantService"
+        ]
+      },
+      "post": {
+        "summary": "Creates the CA certificates of a PEM bundle, one per certificate. A\ncertificate is immutable: there is no update, delete and create again.",
+        "operationId": "TenantService_CreateCaCertificate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateCaCertificateResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateCaCertificateRequest"
+            }
+          }
+        ],
+        "tags": [
+          "TenantService"
+        ]
+      }
+    },
+    "/tenant/cacertificates": {
+      "get": {
+        "summary": "Lists the CA certificates of resources, without their private keys.",
+        "operationId": "TenantService_ListCaCertificate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListCaCertificateResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page.index",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.total",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "resourceIds",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "usage",
+            "description": " - CA_CERTIFICATE_USAGE_UPSTREAM: Verify the certificates of upstream (origin) servers.\n - CA_CERTIFICATE_USAGE_CLIENT: Verify the client certificates of downstream connections (mTLS).",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "CA_CERTIFICATE_USAGE_UNSPECIFIED",
+              "CA_CERTIFICATE_USAGE_UPSTREAM",
+              "CA_CERTIFICATE_USAGE_CLIENT"
+            ],
+            "default": "CA_CERTIFICATE_USAGE_UNSPECIFIED"
+          },
+          {
+            "name": "fingerprintSha256",
+            "description": "Lowercase hex SHA-256 of the DER bytes.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "provider",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "TenantService"
+        ]
+      }
+    },
     "/tenant/member": {
       "get": {
         "summary": "Returns a tenant member.",
@@ -753,6 +925,123 @@
       ],
       "default": "BALANCE_STRATEGY_UNSPECIFIED"
     },
+    "v1CaCertificate": {
+      "type": "object",
+      "properties": {
+        "owner": {
+          "$ref": "#/definitions/v1Owner"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "usage": {
+          "$ref": "#/definitions/v1CaCertificateUsage",
+          "description": "What the edge trusts this CA for."
+        },
+        "status": {
+          "$ref": "#/definitions/typesv1Status",
+          "description": "Always STATUS_ACTIVE, set on create."
+        },
+        "pem": {
+          "type": "string",
+          "description": "PEM-encoded certificate: exactly one CERTIFICATE block, with\nBasicConstraints CA=true. The source of truth; every parsed field\nbelow is set from it by the service, never by the client. Stored\nencrypted."
+        },
+        "subject": {
+          "type": "string",
+          "description": "Subject and issuer distinguished names, in RFC 2253 form."
+        },
+        "issuer": {
+          "type": "string"
+        },
+        "serialNumber": {
+          "type": "string",
+          "description": "Serial number, as lowercase hex."
+        },
+        "fingerprintSha256": {
+          "type": "string",
+          "description": "SHA-256 of the DER bytes, as lowercase hex."
+        },
+        "notBefore": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "notAfter": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "selfSigned": {
+          "type": "boolean",
+          "description": "Whether subject and issuer are the same (a root CA)."
+        },
+        "provider": {
+          "type": "string",
+          "description": "Vendor of the CA: the first organization of the issuer, else its\ncommon name."
+        },
+        "privateKey": {
+          "type": "string",
+          "description": "PEM-encoded private key of the certificate, empty without one. Stored\nencrypted and never returned by the API."
+        },
+        "hasPrivateKey": {
+          "type": "boolean",
+          "description": "Whether the record holds a private key; set on read, not stored."
+        }
+      },
+      "description": "CaCertificate is one trusted CA certificate of a resource, with its\nprivate key when one was given. A bundle without a key is split into one\nrecord per certificate on import, so the parsed fields below describe\nexactly one certificate and the fingerprint is kept unique per resource.\nA record is immutable: it is only created, read and deleted."
+    },
+    "v1CaCertificateUsage": {
+      "type": "string",
+      "enum": [
+        "CA_CERTIFICATE_USAGE_UNSPECIFIED",
+        "CA_CERTIFICATE_USAGE_UPSTREAM",
+        "CA_CERTIFICATE_USAGE_CLIENT"
+      ],
+      "default": "CA_CERTIFICATE_USAGE_UNSPECIFIED",
+      "description": " - CA_CERTIFICATE_USAGE_UPSTREAM: Verify the certificates of upstream (origin) servers.\n - CA_CERTIFICATE_USAGE_CLIENT: Verify the client certificates of downstream connections (mTLS)."
+    },
+    "v1CreateCaCertificateRequest": {
+      "type": "object",
+      "properties": {
+        "resourceId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "description": "Named after the common name of each certificate when empty; numbered\n(\" #1\", \" #2\" ...) when the bundle holds several."
+        },
+        "description": {
+          "type": "string"
+        },
+        "usage": {
+          "$ref": "#/definitions/v1CaCertificateUsage"
+        },
+        "pem": {
+          "type": "string",
+          "description": "One or more PEM CERTIFICATE blocks, each a CA."
+        },
+        "privateKey": {
+          "type": "string",
+          "description": "PEM private key of the certificate. With it, pem must hold exactly\none certificate, the one of the key."
+        }
+      }
+    },
+    "v1CreateCaCertificateResponse": {
+      "type": "object",
+      "properties": {
+        "caCertificates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1CaCertificate"
+          }
+        }
+      }
+    },
     "v1CreateMemberRequest": {
       "type": "object",
       "properties": {
@@ -823,6 +1112,9 @@
         }
       }
     },
+    "v1DeleteCaCertificateResponse": {
+      "type": "object"
+    },
     "v1DeleteMemberResponse": {
       "type": "object"
     },
@@ -831,6 +1123,14 @@
     },
     "v1DeleteTenantResponse": {
       "type": "object"
+    },
+    "v1GetCaCertificateResponse": {
+      "type": "object",
+      "properties": {
+        "caCertificate": {
+          "$ref": "#/definitions/v1CaCertificate"
+        }
+      }
     },
     "v1GetMemberResponse": {
       "type": "object",
@@ -861,6 +1161,22 @@
       "properties": {
         "tenant": {
           "$ref": "#/definitions/v1Tenant"
+        }
+      }
+    },
+    "v1ListCaCertificateResponse": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "string",
+          "format": "int64"
+        },
+        "caCertificates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1CaCertificate"
+          }
         }
       }
     },
@@ -932,6 +1248,25 @@
           "items": {
             "$ref": "#/definitions/v1Role"
           }
+        }
+      }
+    },
+    "v1Owner": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "resourceId": {
+          "type": "string"
+        },
+        "tenantId": {
+          "type": "string"
         }
       }
     },

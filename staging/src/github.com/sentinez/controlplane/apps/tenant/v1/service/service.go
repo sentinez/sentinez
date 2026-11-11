@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 
+	cacertrepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/cacertificates"
 	memberrepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/members"
 	resourcerepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/resources"
 	tenantrepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/tenants"
@@ -37,12 +38,14 @@ func New(
 	resource resourcerepo.IResource,
 	member memberrepo.IMember,
 	tenant tenantrepo.ITenant,
+	cacert cacertrepo.ICaCertificate,
 ) *Service {
 	return &Service{
 		tx:       tx,
 		resource: resource,
 		member:   member,
 		tenant:   tenant,
+		cacert:   cacert,
 		authz:    authz.New(member, resource),
 	}
 }
@@ -52,6 +55,7 @@ type Service struct {
 	resource resourcerepo.IResource
 	member   memberrepo.IMember
 	tenant   tenantrepo.ITenant
+	cacert   cacertrepo.ICaCertificate
 	authz    *authz.Authorizer
 }
 
