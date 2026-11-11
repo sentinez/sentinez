@@ -22,7 +22,7 @@ import (
 
 func newStdConn(conn net.Conn) *StdConn {
 	return &StdConn{
-		Id:   newConnId(),
+		Id:   stdConnId(conn),
 		Conn: conn,
 	}
 }
