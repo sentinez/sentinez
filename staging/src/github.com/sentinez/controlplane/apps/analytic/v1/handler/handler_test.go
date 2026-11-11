@@ -21,10 +21,9 @@ import (
 	membermock "github.com/sentinez/controlplane/apps/tenant/v1/repos/members/mock"
 	resourcemock "github.com/sentinez/controlplane/apps/tenant/v1/repos/resources/mock"
 	"github.com/sentinez/controlplane/pkg/authz"
-	"github.com/sentinez/controlplane/pkg/headers"
+	"github.com/sentinez/controlplane/pkg/headers/headerstest"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -48,12 +47,7 @@ func noService(t *testing.T) *AnalyticHandler {
 func portal(t *testing.T) context.Context {
 	t.Helper()
 
-	return headers.WithAuth(t.Context(), &headers.Auth{
-		Context: &typepb.Context{
-			UserId:       "user_1",
-			ControlPlane: typepb.ControlPlane_CONTROL_PLANE_PORTAL,
-		},
-	})
+	return headerstest.User(t.Context(), "user_1")
 }
 
 func TestCallerWithoutResourcesSeesNothing(t *testing.T) {

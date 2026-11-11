@@ -23,6 +23,7 @@ import (
 	resourcerepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/resources"
 	tenantrepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/tenants"
 	tenantsvc "github.com/sentinez/controlplane/apps/tenant/v1/service"
+	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -59,4 +60,22 @@ func NewDefaultService(ctx context.Context,
 
 	tx := postgres.NewTX(conf)
 	return tenantsvc.New(tx, rscrepo, mbrrepo, tntrepo), nil
+}
+
+// NewAuthorizer returns the Authorizer that decides from the memberships and
+// the resources of the tenants, for the services that scope what they give
+// to the tenants of the caller.
+func NewAuthorizer(ctx context.Context,
+	conf *settingpb.Config) (*authz.Authorizer, error) {
+	members, err := memberrepo.New(ctx, conf)
+	if err != nil {
+		return nil, fmt.Errorf("member repo: %w", err)
+	}
+
+	resources, err := resourcerepo.New(ctx, conf)
+	if err != nil {
+		return nil, fmt.Errorf("resource repo: %w", err)
+	}
+
+	return authz.New(members, resources), nil
 }

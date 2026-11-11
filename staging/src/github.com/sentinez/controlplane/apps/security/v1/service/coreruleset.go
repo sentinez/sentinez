@@ -20,7 +20,6 @@ import (
 	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/pkg/szerror"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
-	"google.golang.org/protobuf/proto"
 )
 
 // mapCoreRuleset converts a DB CoreRuleset into an API CoreRuleset
@@ -69,12 +68,9 @@ func (srv *SecurityService) CreateCoreRuleset(ctx context.Context,
 func (srv *SecurityService) GetCoreRuleset(ctx context.Context,
 	req *securitypb.GetCoreRulesetRequest,
 ) (*securitypb.GetCoreRulesetResponse, error) {
-	dbCRS, err := srv.coreRulesetRepo.Get(ctx, req.GetId())
+	dbCRS, err := owned(ctx, srv, srv.coreRulesetRepo.Get, "core ruleset",
+		req.GetId(), authz.Read)
 	if err != nil {
-		return nil, found(err, "core ruleset", req.GetId())
-	}
-
-	if err = srv.requireOwner(ctx, dbCRS.GetOwner(), authz.Read); err != nil {
 		return nil, err
 	}
 
@@ -92,12 +88,9 @@ func (srv *SecurityService) UpdateCoreRuleset(ctx context.Context,
 		return nil, err
 	}
 
-	dbCRS, err := srv.coreRulesetRepo.Get(ctx, req.GetId())
+	dbCRS, err := owned(ctx, srv, srv.coreRulesetRepo.Get, "core ruleset",
+		req.GetId(), authz.Write)
 	if err != nil {
-		return nil, found(err, "core ruleset", req.GetId())
-	}
-
-	if err = srv.requireOwner(ctx, dbCRS.GetOwner(), authz.Write); err != nil {
 		return nil, err
 	}
 
@@ -117,12 +110,9 @@ func (srv *SecurityService) UpdateCoreRuleset(ctx context.Context,
 func (srv *SecurityService) DeleteCoreRuleset(ctx context.Context,
 	req *securitypb.DeleteCoreRulesetRequest,
 ) (*securitypb.DeleteCoreRulesetResponse, error) {
-	dbCRS, err := srv.coreRulesetRepo.Get(ctx, req.GetId())
+	_, err := owned(ctx, srv, srv.coreRulesetRepo.Get, "core ruleset",
+		req.GetId(), authz.Write)
 	if err != nil {
-		return nil, found(err, "core ruleset", req.GetId())
-	}
-
-	if err = srv.requireOwner(ctx, dbCRS.GetOwner(), authz.Write); err != nil {
 		return nil, err
 	}
 
@@ -135,17 +125,10 @@ func (srv *SecurityService) DeleteCoreRuleset(ctx context.Context,
 func (srv *SecurityService) ListCoreRulesets(ctx context.Context,
 	req *securitypb.ListCoreRulesetsRequest,
 ) (*securitypb.ListCoreRulesetsResponse, error) {
-	scope, err := srv.authz.ResourceIds(ctx, req.GetResourceIds())
-	if err != nil {
-		return nil, err
+	req, ok, err := authz.Scoped(ctx, srv.authz, req)
+	if err != nil || !ok {
+		return &securitypb.ListCoreRulesetsResponse{}, err
 	}
-
-	if scope.None {
-		return &securitypb.ListCoreRulesetsResponse{}, nil
-	}
-
-	req = proto.CloneOf(req)
-	req.ResourceIds = scope.Ids
 
 	dbCRSs, total, err := srv.coreRulesetRepo.List(ctx, req)
 	if err != nil {

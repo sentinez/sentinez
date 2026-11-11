@@ -80,7 +80,7 @@ func TestLogin(t *testing.T) {
 
 	szconfig.SetEnv(settingpb.Senz_SENZ_SECRET_KEY, secBase64)
 
-	svc := New(conf, txss, nil, userRepo, accountRepo, nil)
+	svc := New(conf, txss, nil, userRepo, accountRepo, nil, nil)
 
 	req := &iampb.LoginRequest{
 		EmailOrUsername: "admin",

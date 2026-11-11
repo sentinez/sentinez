@@ -21,6 +21,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/sentinez/controlplane/pkg/headers/headerstest"
+
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v2"
 	membermock "github.com/sentinez/controlplane/apps/tenant/v1/repos/members/mock"
@@ -69,24 +71,14 @@ func authContext(t *testing.T, userId string) context.Context {
 func asAdmin(t *testing.T) context.Context {
 	t.Helper()
 
-	return headers.WithAuth(t.Context(), &headers.Auth{
-		Context: &typepb.Context{
-			UserId:       "sentinez.admin",
-			ControlPlane: typepb.ControlPlane_CONTROL_PLANE_ADMIN,
-		},
-	})
+	return headerstest.Admin(t.Context())
 }
 
 // asUser returns a context of userId signed in to the portal.
 func asUser(t *testing.T, userId string) context.Context {
 	t.Helper()
 
-	return headers.WithAuth(t.Context(), &headers.Auth{
-		Context: &typepb.Context{
-			UserId:       userId,
-			ControlPlane: typepb.ControlPlane_CONTROL_PLANE_PORTAL,
-		},
-	})
+	return headerstest.User(t.Context(), userId)
 }
 
 // mockTx returns a Tx backed by pgxmock; the caller sets what must

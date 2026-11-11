@@ -23,26 +23,18 @@ import (
 	"github.com/sentinez/pkg/szerror"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"google.golang.org/protobuf/proto"
 )
 
 // ListMember implements tenantpb.TenantServiceServer.
 func (svc *Service) ListMember(ctx context.Context,
 	req *tenantpb.ListMemberRequest) (*tenantpb.ListMemberResponse, error) {
 
-	scope, err := svc.authz.TenantIds(ctx, req.GetTenantIds())
-	if err != nil {
-		return nil, err
+	req, ok, err := authz.ScopedTenants(ctx, svc.authz, req)
+	if err != nil || !ok {
+		return &tenantpb.ListMemberResponse{}, err
 	}
 
-	if scope.None {
-		return &tenantpb.ListMemberResponse{}, nil
-	}
-
-	scoped := proto.CloneOf(req)
-	scoped.TenantIds = scope.Ids
-
-	return svc.member.List(ctx, scoped)
+	return svc.member.List(ctx, req)
 }
 
 // GetMember implements tenantpb.TenantServiceServer.

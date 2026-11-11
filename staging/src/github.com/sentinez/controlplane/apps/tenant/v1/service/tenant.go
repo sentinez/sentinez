@@ -150,24 +150,21 @@ func (svc *Service) UpdateTenant(ctx context.Context,
 	req *tenantpb.UpdateTenantRequest,
 ) (*tenantpb.UpdateTenantResponse, error) {
 
-	err := svc.authz.RequireTenant(ctx, req.GetId(), authz.Manage)
-	if err != nil {
-		return nil, err
-	}
-
 	current, err := svc.getTenant(ctx, req.GetId())
 	if err != nil {
 		return nil, err
 	}
 
 	// the plan is what the tenant pays for: its admins do not pick it
+	least := authz.Manage
 	if plan := req.GetPlan(); plan != typepb.Plan_PLAN_UNSPECIFIED &&
 		plan != current.GetPlan() {
 
-		err = svc.authz.RequireTenant(ctx, req.GetId(), authz.Billing)
-		if err != nil {
-			return nil, err
-		}
+		least = authz.Billing
+	}
+
+	if err = svc.authz.RequireTenant(ctx, req.GetId(), least); err != nil {
+		return nil, err
 	}
 
 	err = svc.tenant.Update(ctx, &tenantpb.Tenant{

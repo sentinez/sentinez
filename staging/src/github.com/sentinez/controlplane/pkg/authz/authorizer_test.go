@@ -20,7 +20,7 @@ import (
 	"testing"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/sentinez/controlplane/pkg/headers"
+	"github.com/sentinez/controlplane/pkg/headers/headerstest"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
@@ -117,15 +117,11 @@ func newAuthorizer() (*Authorizer, *fakeMembers) {
 }
 
 func asUser(userId string) context.Context {
-	return headers.WithAuth(context.Background(), &headers.Auth{
-		Context: &typepb.Context{UserId: userId, ControlPlane: _portal},
-	})
+	return headerstest.User(context.Background(), userId)
 }
 
 func asAdmin() context.Context {
-	return headers.WithAuth(context.Background(), &headers.Auth{
-		Context: &typepb.Context{UserId: "root", ControlPlane: _admin},
-	})
+	return headerstest.Admin(context.Background())
 }
 
 func TestRank(t *testing.T) {
@@ -389,4 +385,42 @@ func TestScoped_NothingToSee(t *testing.T) {
 
 	require.NoError(t, err)
 	assert.False(t, ok)
+}
+
+func TestScopedTenants(t *testing.T) {
+	az, _ := newAuthorizer()
+	give := &tenantpb.ListMemberRequest{TenantIds: []string{"tnt_a", "tnt_c"}}
+
+	got, ok, err := ScopedTenants(asUser("user_1"), az, give)
+
+	require.NoError(t, err)
+	assert.True(t, ok)
+	assert.Equal(t, []string{"tnt_a"}, got.GetTenantIds())
+	assert.Equal(t, []string{"tnt_a", "tnt_c"}, give.GetTenantIds())
+}
+
+func TestRequireOwner(t *testing.T) {
+	tests := []struct {
+		name     string
+		giveCtx  context.Context
+		giveRsrc string
+		wantCode codes.Code
+	}{
+		{"leader writes", asUser("user_1"), "rsrc_a1", codes.OK},
+		{"outsider", asUser("user_1"), "rsrc_c1", codes.NotFound},
+		{"admin control plane", asAdmin(), "rsrc_c1", codes.OK},
+		{"admin control plane, resource gone", asAdmin(), "rsrc_x", codes.OK},
+		{"resource gone", asUser("user_1"), "rsrc_x", codes.NotFound},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			az, _ := newAuthorizer()
+
+			err := az.RequireOwner(tt.giveCtx,
+				&typepb.Owner{ResourceId: tt.giveRsrc}, Write)
+
+			assert.Equal(t, tt.wantCode, status.Code(err))
+		})
+	}
 }

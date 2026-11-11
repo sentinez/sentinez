@@ -21,8 +21,11 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
-// _resourceIds is the field of the requests that list by resource.
-const _resourceIds protoreflect.Name = "resource_ids"
+// The fields of the requests that list by resource or by tenant.
+const (
+	_resourceIds protoreflect.Name = "resource_ids"
+	_tenantIds   protoreflect.Name = "tenant_ids"
+)
 
 // ResourceScoped is a request that lists by resource: its resource_ids
 // field tells which ones, none meaning all.
@@ -31,28 +34,46 @@ type ResourceScoped interface {
 	GetResourceIds() []string
 }
 
+// TenantScoped is a request that lists by tenant: its tenant_ids field
+// tells which ones, none meaning all.
+type TenantScoped interface {
+	proto.Message
+	GetTenantIds() []string
+}
+
 // Scoped returns a copy of req limited to the resources the caller may see.
 // It returns false when the caller may see none: the call must then answer
 // empty without running, as a request without resource ids matches all.
 func Scoped[R ResourceScoped](ctx context.Context, a *Authorizer, req R,
 ) (R, bool, error) {
 	scope, err := a.ResourceIds(ctx, req.GetResourceIds())
+
+	return withIds(req, _resourceIds, scope, err)
+}
+
+// ScopedTenants is Scoped for the tenants of the caller.
+func ScopedTenants[R TenantScoped](ctx context.Context, a *Authorizer, req R,
+) (R, bool, error) {
+	scope, err := a.TenantIds(ctx, req.GetTenantIds())
+
+	return withIds(req, _tenantIds, scope, err)
+}
+
+func withIds[R proto.Message](req R, field protoreflect.Name, scope Scope,
+	err error) (R, bool, error) {
+
 	if err != nil || scope.None {
 		return req, false, err
 	}
 
 	scoped := proto.CloneOf(req)
-	setResourceIds(scoped, scope.Ids)
-
-	return scoped, true, nil
-}
-
-func setResourceIds(msg proto.Message, ids []string) {
-	m := msg.ProtoReflect()
-	list := m.Mutable(m.Descriptor().Fields().ByName(_resourceIds)).List()
+	m := scoped.ProtoReflect()
+	list := m.Mutable(m.Descriptor().Fields().ByName(field)).List()
 
 	list.Truncate(0)
-	for _, id := range ids {
+	for _, id := range scope.Ids {
 		list.Append(protoreflect.ValueOfString(id))
 	}
+
+	return scoped, true, nil
 }

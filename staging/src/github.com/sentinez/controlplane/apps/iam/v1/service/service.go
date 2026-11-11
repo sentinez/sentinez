@@ -50,6 +50,7 @@ func New(config *settingpb.Config,
 	users usersrepo.IUser,
 	account accrepos.IAccount,
 	members memberrepo.IMember,
+	az *authz.Authorizer,
 ) *IAMService {
 
 	wauth := passkey.NewWebAuthn(config)
@@ -60,7 +61,7 @@ func New(config *settingpb.Config,
 		users:    users,
 		accounts: account,
 		members:  members,
-		authz:    authz.New(members, nil),
+		authz:    az,
 		limits:   newSignInLimits(),
 		store:    store,
 		auth:     wauth,
@@ -554,12 +555,12 @@ func (srv *IAMService) visibleUsers(ctx context.Context,
 	}
 
 	scoped := proto.CloneOf(req)
-	if len(req.GetIds()) == 0 && len(req.GetEmails()) == 0 {
-		scoped.Ids = []string{auth.GetUserId()}
-		return scoped, true, nil
-	}
-
 	if len(req.GetIds()) == 0 {
+		// a lookup by email goes through, no filter lists only itself
+		if len(req.GetEmails()) == 0 {
+			scoped.Ids = []string{auth.GetUserId()}
+		}
+
 		return scoped, true, nil
 	}
 
@@ -568,8 +569,13 @@ func (srv *IAMService) visibleUsers(ctx context.Context,
 		return nil, false, err
 	}
 
+	visible := make(map[string]struct{}, len(coMembers))
+	for _, id := range coMembers {
+		visible[id] = struct{}{}
+	}
+
 	scoped.Ids = slices.DeleteFunc(slices.Clone(req.GetIds()),
-		func(id string) bool { return !slices.Contains(coMembers, id) })
+		func(id string) bool { _, ok := visible[id]; return !ok })
 
 	return scoped, len(scoped.GetIds()) != 0, nil
 }

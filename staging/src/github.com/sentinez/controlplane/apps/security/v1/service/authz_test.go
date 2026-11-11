@@ -22,7 +22,7 @@ import (
 	membermock "github.com/sentinez/controlplane/apps/tenant/v1/repos/members/mock"
 	resourcemock "github.com/sentinez/controlplane/apps/tenant/v1/repos/resources/mock"
 	"github.com/sentinez/controlplane/pkg/authz"
-	"github.com/sentinez/controlplane/pkg/headers"
+	"github.com/sentinez/controlplane/pkg/headers/headerstest"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	coreRulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
@@ -174,23 +174,13 @@ func newFixture(t *testing.T, role typepb.Role) *fixture {
 func portalUser(t *testing.T) context.Context {
 	t.Helper()
 
-	return headers.WithAuth(t.Context(), &headers.Auth{
-		Context: &typepb.Context{
-			UserId:       _userId,
-			ControlPlane: typepb.ControlPlane_CONTROL_PLANE_PORTAL,
-		},
-	})
+	return headerstest.User(t.Context(), _userId)
 }
 
 func adminUser(t *testing.T) context.Context {
 	t.Helper()
 
-	return headers.WithAuth(t.Context(), &headers.Auth{
-		Context: &typepb.Context{
-			UserId:       "sentinez.admin",
-			ControlPlane: typepb.ControlPlane_CONTROL_PLANE_ADMIN,
-		},
-	})
+	return headerstest.Admin(t.Context())
 }
 
 func secRuleOf(resourceId string) *securitypb.SecRule {

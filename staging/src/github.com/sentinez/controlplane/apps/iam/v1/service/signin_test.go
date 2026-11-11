@@ -55,7 +55,7 @@ func adminService(t *testing.T, password string) *IAMService {
 	return New(&settingpb.Config{Env: map[string]string{
 		settingpb.Senz_SENZ_ADMIN_USERNAME.String(): _adminName,
 		settingpb.Senz_SENZ_ADMIN_PASSWORD.String(): password,
-	}}, nil, nil, nil, nil, nil)
+	}}, nil, nil, nil, nil, nil, nil)
 }
 
 func loginAs(username, password string) *iampb.LoginRequest {
@@ -200,7 +200,7 @@ func TestLocalAccountsFailureCounts(t *testing.T) {
 		mock.Anything).Return((*accrepos.AccountX)(nil), assert.AnError)
 	secret := base64.StdEncoding.EncodeToString([]byte("congchualunglinh"))
 	szconfig.SetEnv(settingpb.Senz_SENZ_SECRET_KEY, secret)
-	svc := New(&settingpb.Config{}, nil, nil, nil, accounts, nil)
+	svc := New(&settingpb.Config{}, nil, nil, nil, accounts, nil, nil)
 
 	for range _accountFailures {
 		_, err := svc.Login(fromAddr(t, "10.0.0.1"),

@@ -28,7 +28,6 @@ import (
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
-	"google.golang.org/protobuf/proto"
 )
 
 var _ tenantpb.TenantServiceServer = (*Service)(nil)
@@ -197,17 +196,10 @@ func (svc *Service) ListResource(ctx context.Context,
 ) (*tenantpb.ListResourceResponse, error) {
 	szlog.Infof("tenant svc: req = %v", req)
 
-	scope, err := svc.authz.TenantIds(ctx, req.GetTenantIds())
-	if err != nil {
-		return nil, err
+	req, ok, err := authz.ScopedTenants(ctx, svc.authz, req)
+	if err != nil || !ok {
+		return &tenantpb.ListResourceResponse{}, err
 	}
 
-	if scope.None {
-		return &tenantpb.ListResourceResponse{}, nil
-	}
-
-	scoped := proto.CloneOf(req)
-	scoped.TenantIds = scope.Ids
-
-	return svc.resource.List(ctx, scoped)
+	return svc.resource.List(ctx, req)
 }

@@ -66,34 +66,45 @@ func memberships(t *testing.T, userId string, role typepb.Role,
 	return repo
 }
 
-func TestGetTenantOfOthers(t *testing.T) {
-	svc := New(nil, nil, memberships(t, "user_1", typepb.Role_ROLE_ADMIN),
-		tenantmock.NewMockITenant(t))
+func TestTenantCallsNeedARole(t *testing.T) {
+	tests := []struct {
+		name       string
+		giveRole   typepb.Role
+		giveTenant string
+		call       func(*Service, context.Context, string) error
+		wantCode   codes.Code
+	}{
+		{"get a tenant of others", typepb.Role_ROLE_ADMIN, _otherTenantId,
+			func(s *Service, c context.Context, id string) error {
+				_, err := s.GetTenant(c, &tenantpb.GetTenantRequest{Id: id})
+				return err
+			}, codes.NotFound},
+		{"a leader can not update", typepb.Role_ROLE_LEADER, _tenantId,
+			func(s *Service, c context.Context, id string) error {
+				_, err := s.UpdateTenant(c,
+					&tenantpb.UpdateTenantRequest{Id: id})
+				return err
+			}, codes.PermissionDenied},
+		{"a member can not delete", typepb.Role_ROLE_MEMBER, _tenantId,
+			func(s *Service, c context.Context, id string) error {
+				_, err := s.DeleteTenant(c,
+					&tenantpb.DeleteTenantRequest{Id: id})
+				return err
+			}, codes.PermissionDenied},
+	}
 
-	_, err := svc.GetTenant(asUser(t, "user_1"),
-		&tenantpb.GetTenantRequest{Id: _otherTenantId})
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tenants := tenantmock.NewMockITenant(t)
+			tenants.EXPECT().Get(mock.Anything, mock.Anything).
+				Return(&tenantpb.Tenant{Id: _tenantId}, nil).Maybe()
+			svc := New(nil, nil, memberships(t, "user_1", tt.giveRole), tenants)
 
-	assert.Equal(t, codes.NotFound, status.Code(err))
-}
+			err := tt.call(svc, asUser(t, "user_1"), tt.giveTenant)
 
-func TestUpdateTenantNeedsAdmin(t *testing.T) {
-	svc := New(nil, nil, memberships(t, "user_1", typepb.Role_ROLE_LEADER),
-		tenantmock.NewMockITenant(t))
-
-	_, err := svc.UpdateTenant(asUser(t, "user_1"),
-		&tenantpb.UpdateTenantRequest{Id: _tenantId})
-
-	assert.Equal(t, codes.PermissionDenied, status.Code(err))
-}
-
-func TestDeleteTenantNeedsAdmin(t *testing.T) {
-	svc := New(nil, nil, memberships(t, "user_1", typepb.Role_ROLE_MEMBER),
-		tenantmock.NewMockITenant(t))
-
-	_, err := svc.DeleteTenant(asUser(t, "user_1"),
-		&tenantpb.DeleteTenantRequest{Id: _tenantId})
-
-	assert.Equal(t, codes.PermissionDenied, status.Code(err))
+			assert.Equal(t, tt.wantCode, status.Code(err))
+		})
+	}
 }
 
 func TestListTenantIsScoped(t *testing.T) {

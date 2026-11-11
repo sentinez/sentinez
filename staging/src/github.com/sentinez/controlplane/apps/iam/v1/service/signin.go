@@ -119,24 +119,39 @@ func clientAddr(ctx context.Context) string {
 	return "unknown"
 }
 
+// limited runs call unless the client failed too often, and counts its
+// failure.
+func limited[Resp any](l *signInLimits, a attempt, call func() (Resp, error),
+) (Resp, error) {
+	var none Resp
+
+	if err := l.check(a); err != nil {
+		return none, err
+	}
+
+	resp, err := call()
+	if err != nil {
+		l.fail(a)
+		return none, err
+	}
+
+	return resp, nil
+}
+
 // Login signs the user in, unless the client failed too often.
 func (srv *IAMService) Login(ctx context.Context,
 	req *iampb.LoginRequest) (*iampb.LoginResponse, error) {
 
 	a := attemptOf(ctx, req.GetEmailOrUsername())
-	if err := srv.limits.check(a); err != nil {
-		return nil, err
+
+	resp, err := limited(srv.limits, a, func() (*iampb.LoginResponse, error) {
+		return srv.login(ctx, req)
+	})
+	if err == nil {
+		srv.limits.succeed(a)
 	}
 
-	resp, err := srv.login(ctx, req)
-	if err != nil {
-		srv.limits.fail(a)
-		return nil, err
-	}
-
-	srv.limits.succeed(a)
-
-	return resp, nil
+	return resp, err
 }
 
 // PasskeyLoginChallenge starts a passkey sign-in, unless the client failed
@@ -146,17 +161,11 @@ func (srv *IAMService) PasskeyLoginChallenge(ctx context.Context,
 	req *iampb.PasskeyLoginChallengeRequest,
 ) (*iampb.PasskeyLoginChallengeResponse, error) {
 	a := attemptOf(ctx, req.GetEmailOrUsername())
-	if err := srv.limits.check(a); err != nil {
-		return nil, err
-	}
 
-	resp, err := srv.passkeyLoginChallenge(ctx, req)
-	if err != nil {
-		srv.limits.fail(a)
-		return nil, err
-	}
-
-	return resp, nil
+	return limited(srv.limits, a,
+		func() (*iampb.PasskeyLoginChallengeResponse, error) {
+			return srv.passkeyLoginChallenge(ctx, req)
+		})
 }
 
 // PasskeyLoginVerify finishes a passkey sign-in, unless the client failed
@@ -165,15 +174,9 @@ func (srv *IAMService) PasskeyLoginVerify(ctx context.Context,
 	req *iampb.PasskeyLoginVerifyRequest,
 ) (*iampb.PasskeyLoginVerifyResponse, error) {
 	a := attemptOf(ctx, "")
-	if err := srv.limits.check(a); err != nil {
-		return nil, err
-	}
 
-	resp, err := srv.passkeyLoginVerify(ctx, req)
-	if err != nil {
-		srv.limits.fail(a)
-		return nil, err
-	}
-
-	return resp, nil
+	return limited(srv.limits, a,
+		func() (*iampb.PasskeyLoginVerifyResponse, error) {
+			return srv.passkeyLoginVerify(ctx, req)
+		})
 }

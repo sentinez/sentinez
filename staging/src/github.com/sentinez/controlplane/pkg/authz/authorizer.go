@@ -16,15 +16,15 @@ package authz
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"maps"
 	"slices"
 
 	"github.com/sentinez/controlplane/pkg/headers"
 	"github.com/sentinez/pkg/szerror"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 // The least role of a tenant for each kind of call.
@@ -105,6 +105,10 @@ func New(members MemberLister, resources ResourceReader) *Authorizer {
 	return &Authorizer{members: members, resources: resources}
 }
 
+// errNotMember is the caller outside a tenant. The public methods turn it
+// into the NotFound of what the caller asked for.
+var errNotMember = errors.New("not a member of the tenant")
+
 // RequireTenant fails unless the caller has at least role least in the
 // tenant. A caller outside the tenant gets NotFound, so that it learns
 // nothing of the tenant; one inside it without the role gets
@@ -112,20 +116,22 @@ func New(members MemberLister, resources ResourceReader) *Authorizer {
 func (a *Authorizer) RequireTenant(ctx context.Context, tenantId string,
 	least typepb.Role) error {
 
-	_, err := a.rankIn(ctx, tenantId, least)
+	auth, err := headers.GetAuth(ctx)
+	if err != nil {
+		return err
+	}
 
-	return err
+	if _, err = a.rankIn(ctx, auth, tenantId, least); err != nil {
+		return notFoundTenant(err, tenantId)
+	}
+
+	return nil
 }
 
 // rankIn is RequireTenant that also returns the rank of the caller in the
 // tenant; the admin control plane ranks above every role.
-func (a *Authorizer) rankIn(ctx context.Context, tenantId string,
-	least typepb.Role) (int, error) {
-
-	auth, err := headers.GetAuth(ctx)
-	if err != nil {
-		return 0, err
-	}
+func (a *Authorizer) rankIn(ctx context.Context, auth *headers.Auth,
+	tenantId string, least typepb.Role) (int, error) {
 
 	if auth.IsAdmin() {
 		return Rank(typepb.Role_ROLE_SUPER_ADMIN), nil
@@ -149,8 +155,8 @@ func (a *Authorizer) rankIn(ctx context.Context, tenantId string,
 	return rank, nil
 }
 
-// memberRank returns the highest rank of the user in the tenant, NotFound
-// for a user who is not a member.
+// memberRank returns the highest rank of the user in the tenant, or
+// errNotMember.
 func (a *Authorizer) memberRank(ctx context.Context, tenantId,
 	userId string) (int, error) {
 
@@ -163,7 +169,7 @@ func (a *Authorizer) memberRank(ctx context.Context, tenantId,
 	}
 
 	if len(resp.GetMembers()) == 0 {
-		return 0, szerror.StatusNotFoundF("tenant not found: id=%s", tenantId)
+		return 0, errNotMember
 	}
 
 	rank := 0
@@ -200,10 +206,35 @@ func (a *Authorizer) RequireResource(ctx context.Context, resourceId string,
 func (a *Authorizer) RequireResourceOf(ctx context.Context,
 	resource *tenantpb.Resource, least typepb.Role) error {
 
-	err := a.RequireTenant(ctx, resource.GetTenantId(), least)
-	if status.Code(err) == codes.NotFound {
+	auth, err := headers.GetAuth(ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = a.rankIn(ctx, auth, resource.GetTenantId(), least)
+	if errors.Is(err, errNotMember) {
 		return notFoundResource(resource.GetId())
 	}
+
+	return err
+}
+
+// RequireOwner fails unless the caller has at least role least in the
+// tenant of the resource of owner. The admin control plane passes even when
+// the resource is gone.
+func (a *Authorizer) RequireOwner(ctx context.Context, owner *typepb.Owner,
+	least typepb.Role) error {
+
+	auth, err := headers.GetAuth(ctx)
+	if err != nil {
+		return err
+	}
+
+	if auth.IsAdmin() {
+		return nil
+	}
+
+	_, err = a.RequireResource(ctx, owner.GetResourceId(), least)
 
 	return err
 }
@@ -214,14 +245,14 @@ func (a *Authorizer) RequireResourceOf(ctx context.Context,
 func (a *Authorizer) RequireGrant(ctx context.Context, tenantId string,
 	roles []typepb.Role) error {
 
-	rank, err := a.rankIn(ctx, tenantId, Manage)
+	auth, err := headers.GetAuth(ctx)
 	if err != nil {
 		return err
 	}
 
-	auth, err := headers.GetAuth(ctx)
+	rank, err := a.rankIn(ctx, auth, tenantId, Manage)
 	if err != nil {
-		return err
+		return notFoundTenant(err, tenantId)
 	}
 
 	for _, role := range roles {
@@ -303,11 +334,9 @@ func (a *Authorizer) CoMemberUserIds(ctx context.Context) ([]string, error) {
 		return nil, err
 	}
 
-	userIds := []string{userId}
-
 	tenantIds, err := a.tenantIdsOf(ctx, auth)
 	if err != nil || len(tenantIds) == 0 {
-		return userIds, err
+		return []string{userId}, err
 	}
 
 	resp, err := a.members.List(ctx,
@@ -316,13 +345,12 @@ func (a *Authorizer) CoMemberUserIds(ctx context.Context) ([]string, error) {
 		return nil, fmt.Errorf("member.List: %w", err)
 	}
 
+	userIds := map[string]struct{}{userId: {}}
 	for _, member := range resp.GetMembers() {
-		if !slices.Contains(userIds, member.GetUserId()) {
-			userIds = append(userIds, member.GetUserId())
-		}
+		userIds[member.GetUserId()] = struct{}{}
 	}
 
-	return userIds, nil
+	return slices.Collect(maps.Keys(userIds)), nil
 }
 
 func (a *Authorizer) tenantIdsOf(ctx context.Context, auth *headers.Auth,
@@ -361,9 +389,14 @@ func userIdOf(auth *headers.Auth) (string, error) {
 func narrow(requested, allowed []string) Scope {
 	ids := allowed
 	if len(requested) != 0 {
+		own := make(map[string]struct{}, len(allowed))
+		for _, id := range allowed {
+			own[id] = struct{}{}
+		}
+
 		ids = make([]string, 0, len(requested))
 		for _, id := range requested {
-			if slices.Contains(allowed, id) {
+			if _, ok := own[id]; ok {
 				ids = append(ids, id)
 			}
 		}
@@ -374,6 +407,14 @@ func narrow(requested, allowed []string) Scope {
 	}
 
 	return Scope{Ids: ids}
+}
+
+func notFoundTenant(err error, tenantId string) error {
+	if errors.Is(err, errNotMember) {
+		return szerror.StatusNotFoundF("tenant not found: id=%s", tenantId)
+	}
+
+	return err
 }
 
 func notFoundResource(id string) error {

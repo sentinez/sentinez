@@ -19,14 +19,16 @@ import (
 	"testing"
 
 	"github.com/pashagolub/pgxmock/v2"
+	accrepos "github.com/sentinez/controlplane/apps/iam/v1/repos/accounts"
 	accountmock "github.com/sentinez/controlplane/apps/iam/v1/repos/accounts/mock"
+	usersrepo "github.com/sentinez/controlplane/apps/iam/v1/repos/users"
 	usersmock "github.com/sentinez/controlplane/apps/iam/v1/repos/users/mock"
 	membermock "github.com/sentinez/controlplane/apps/tenant/v1/repos/members/mock"
-	"github.com/sentinez/controlplane/pkg/headers"
+	"github.com/sentinez/controlplane/pkg/authz"
+	"github.com/sentinez/controlplane/pkg/headers/headerstest"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -43,23 +45,13 @@ const (
 func callerCtx(t *testing.T) context.Context {
 	t.Helper()
 
-	return headers.WithAuth(t.Context(), &headers.Auth{
-		Context: &typepb.Context{
-			UserId:       _me,
-			ControlPlane: typepb.ControlPlane_CONTROL_PLANE_PORTAL,
-		},
-	})
+	return headerstest.User(t.Context(), _me)
 }
 
 func adminCtx(t *testing.T) context.Context {
 	t.Helper()
 
-	return headers.WithAuth(t.Context(), &headers.Auth{
-		Context: &typepb.Context{
-			UserId:       "sentinez.admin",
-			ControlPlane: typepb.ControlPlane_CONTROL_PLANE_ADMIN,
-		},
-	})
+	return headerstest.Admin(t.Context())
 }
 
 // tenantMembers answers the member lookups: _me and _coMember are in
@@ -95,6 +87,17 @@ func tenantMembers(t *testing.T) *membermock.MockIMember {
 	return repo
 }
 
+// serviceOf is a service of the tenants of tenantMembers.
+func serviceOf(t *testing.T, users usersrepo.IUser, accounts accrepos.IAccount,
+) *IAMService {
+	t.Helper()
+
+	members := tenantMembers(t)
+
+	return New(nil, nil, nil, users, accounts, members,
+		authz.New(members, nil))
+}
+
 func TestGetUserVisibility(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -115,7 +118,7 @@ func TestGetUserVisibility(t *testing.T) {
 			users := usersmock.NewMockIUser(t)
 			users.EXPECT().Get(mock.Anything, tt.giveId).
 				Return(&iampb.User{Id: tt.giveId}, nil).Maybe()
-			svc := New(nil, nil, nil, users, nil, tenantMembers(t))
+			svc := serviceOf(t, users, nil)
 
 			_, err := svc.GetUser(tt.giveCtx, &iampb.GetUserRequest{Id: tt.giveId})
 
@@ -163,7 +166,7 @@ func TestListUsersIsScoped(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			users, got := listedUsers(t)
-			svc := New(nil, nil, nil, users, nil, tenantMembers(t))
+			svc := serviceOf(t, users, nil)
 
 			_, err := svc.ListUsers(tt.giveCtx, tt.giveReq)
 
@@ -177,7 +180,7 @@ func TestListUsersIsScoped(t *testing.T) {
 
 func TestListUsersOfOthersRunsNoQuery(t *testing.T) {
 	users, got := listedUsers(t)
-	svc := New(nil, nil, nil, users, nil, tenantMembers(t))
+	svc := serviceOf(t, users, nil)
 
 	resp, err := svc.ListUsers(callerCtx(t),
 		&iampb.ListUsersRequest{Ids: []string{_stranger}})
@@ -189,7 +192,7 @@ func TestListUsersOfOthersRunsNoQuery(t *testing.T) {
 
 func TestListUsersLooksUpFewEmails(t *testing.T) {
 	users, _ := listedUsers(t)
-	svc := New(nil, nil, nil, users, nil, tenantMembers(t))
+	svc := serviceOf(t, users, nil)
 
 	_, err := svc.ListUsers(callerCtx(t), &iampb.ListUsersRequest{
 		Emails: []string{"a@x.io", "b@x.io", "c@x.io", "d@x.io", "e@x.io",
@@ -225,7 +228,7 @@ func TestListAccounts(t *testing.T) {
 					got = req
 					return &iampb.ListAccountsResponse{}, nil
 				}).Maybe()
-			svc := New(nil, nil, nil, nil, accounts, tenantMembers(t))
+			svc := serviceOf(t, nil, accounts)
 
 			_, err := svc.ListAccounts(tt.giveCtx,
 				&iampb.ListAccountsRequest{UserIds: tt.giveUserIds})
@@ -238,7 +241,7 @@ func TestListAccounts(t *testing.T) {
 }
 
 func TestDeleteUserWithoutId(t *testing.T) {
-	svc := New(nil, nil, nil, nil, nil, tenantMembers(t))
+	svc := serviceOf(t, nil, nil)
 
 	_, err := svc.DeleteUser(adminCtx(t), &iampb.DeleteUserRequest{})
 
@@ -262,7 +265,8 @@ func TestDeleteUserLeavesItsTenants(t *testing.T) {
 	users := usersmock.NewMockIUser(t)
 	users.EXPECT().WithTX(mock.Anything).Return(users)
 	users.EXPECT().Delete(mock.Anything, _coMember).Return(nil)
-	svc := New(nil, postgres.NewTXMock(tx), nil, users, accounts, members)
+	svc := New(nil, postgres.NewTXMock(tx), nil, users, accounts, members,
+		authz.New(members, nil))
 
 	_, err = svc.DeleteUser(adminCtx(t), &iampb.DeleteUserRequest{Id: _coMember})
 
