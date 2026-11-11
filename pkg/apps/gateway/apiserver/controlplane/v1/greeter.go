@@ -18,6 +18,7 @@ package controlplane
 import (
 	"context"
 
+	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/core/szgrpc/grpcgateway"
 	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/greeter/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -52,7 +53,7 @@ func (g *Greeter) Accept(ctx context.Context, server grpcgateway.Server) error {
 
 	// a local conn, unlike RegisterGreeterServiceHandlerServer, runs
 	// interceptors, so requests are validated at the gateway.
-	conn := grpcgateway.NewLocalConn()
+	conn := grpcgateway.NewLocalConn(authz.Unary())
 	greeterpb.RegisterGreeterServiceServer(conn, g.server)
 
 	return greeterpb.RegisterGreeterServiceHandlerClient(ctx,

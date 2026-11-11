@@ -44,6 +44,17 @@ func TestAllow(t *testing.T) {
 			wantError: false,
 		},
 		{
+			name: "Public method skips the console check",
+			method: &typepb.XMethod{
+				Public: true,
+				ControlPlanes: []typepb.ControlPlane{
+					typepb.ControlPlane_CONTROL_PLANE_ADMIN,
+				},
+			},
+			plane:     typepb.ControlPlane_CONTROL_PLANE_PORTAL,
+			wantError: false,
+		},
+		{
 			name:      "Empty consoles list",
 			method:    &typepb.XMethod{},
 			plane:     typepb.ControlPlane_CONTROL_PLANE_PORTAL,

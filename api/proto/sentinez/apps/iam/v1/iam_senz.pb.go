@@ -30,6 +30,14 @@ func GetMetaIamServiceKey() string {
 	return metadata_iam.GetServiceKey()
 }
 
+func GetIdentityAccessManagementServiceCreateUser() *v1.XMethod {
+	return &v1.XMethod{
+		ControlPlanes: []v1.ControlPlane{
+			v1.ControlPlane_CONTROL_PLANE_ADMIN,
+		},
+	}
+}
+
 func GetIdentityAccessManagementServiceListAccounts() *v1.XMethod {
 	return &v1.XMethod{
 		Ignore: true,
@@ -53,7 +61,7 @@ func GetIdentityAccessManagementServiceStatus() *v1.XMethod {
 
 func GetIdentityAccessManagementServiceCreateAccount() *v1.XMethod {
 	return &v1.XMethod{
-		Ignore: true,
+		Public: true,
 	}
 }
 
@@ -71,25 +79,27 @@ func GetIdentityAccessManagementServiceUpdateUser() *v1.XMethod {
 
 func GetIdentityAccessManagementServiceDeleteUser() *v1.XMethod {
 	return &v1.XMethod{
-		Ignore: true,
+		ControlPlanes: []v1.ControlPlane{
+			v1.ControlPlane_CONTROL_PLANE_ADMIN,
+		},
 	}
 }
 
 func GetIdentityAccessManagementServiceLogin() *v1.XMethod {
 	return &v1.XMethod{
-		Ignore: true,
+		Public: true,
 	}
 }
 
 func GetIdentityAccessManagementServicePasskeyRegisterChallenge() *v1.XMethod {
 	return &v1.XMethod{
-		Ignore: true,
+		Public: true,
 	}
 }
 
 func GetIdentityAccessManagementServicePasskeyRegisterVerify() *v1.XMethod {
 	return &v1.XMethod{
-		Ignore: true,
+		Public: true,
 	}
 }
 
@@ -101,12 +111,12 @@ func GetIdentityAccessManagementServicePasskeyLinkChallenge() *v1.XMethod {
 
 func GetIdentityAccessManagementServicePasskeyLoginChallenge() *v1.XMethod {
 	return &v1.XMethod{
-		Ignore: true,
+		Public: true,
 	}
 }
 
 func GetIdentityAccessManagementServicePasskeyLoginVerify() *v1.XMethod {
 	return &v1.XMethod{
-		Ignore: true,
+		Public: true,
 	}
 }

@@ -229,8 +229,8 @@ const file_sentinez_apps_greeter_v1_greeter_proto_rawDesc = "" +
 	"\amessage\x18\x01 \x01(\tR\amessage\"\x0f\n" +
 	"\rStatusRequest2\x8b\x02\n" +
 	"\x0eGreeterService\x12}\n" +
-	"\bSayHello\x12).sentinez.apps.greeter.v1.SayHelloRequest\x1a*.sentinez.apps.greeter.v1.SayHelloResponse\"\x1a\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x0e\x12\f/greeter/say\x12z\n" +
-	"\x06Status\x12'.sentinez.apps.greeter.v1.StatusRequest\x1a(.sentinez.apps.greeter.v1.StatusResponse\"\x1d\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x11\x12\x0f/greeter/statusB\xe8\x01\x92Ae\x12\x16\n" +
+	"\bSayHello\x12).sentinez.apps.greeter.v1.SayHelloRequest\x1a*.sentinez.apps.greeter.v1.SayHelloResponse\"\x1a\x8a\xb5\x18\x02\x18\x01\x82\xd3\xe4\x93\x02\x0e\x12\f/greeter/say\x12z\n" +
+	"\x06Status\x12'.sentinez.apps.greeter.v1.StatusRequest\x1a(.sentinez.apps.greeter.v1.StatusResponse\"\x1d\x8a\xb5\x18\x02\x18\x01\x82\xd3\xe4\x93\x02\x11\x12\x0f/greeter/statusB\xe8\x01\x92Ae\x12\x16\n" +
 	"\x0fGreeter Service2\x031.0*\x02\x01\x022\x10application/jsonZ#\n" +
 	"!\n" +
 	"\n" +

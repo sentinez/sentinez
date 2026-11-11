@@ -24,7 +24,7 @@ import (
 // Allow checks if the given console has access to the method.
 // The logic follows:
 //   - If method is nil, access is allowed.
-//   - If method.Ignore is true, access is allowed.
+//   - If method.Public or method.Ignore is true, access is allowed.
 //   - If method.Consoles is empty, access is allowed.
 //   - If user's console matches one of the allowed consoles, access is allowed.
 //   - Otherwise, access is denied.
@@ -33,7 +33,7 @@ func Allow(method *typepb.XMethod, console typepb.ControlPlane) error {
 		return nil
 	}
 
-	if method.Ignore {
+	if method.Public || method.Ignore {
 		return nil
 	}
 

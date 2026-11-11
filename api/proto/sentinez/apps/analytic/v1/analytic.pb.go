@@ -246,9 +246,9 @@ const file_sentinez_apps_analytic_v1_analytic_proto_rawDesc = "" +
 	"\n" +
 	"activities\x18\x01 \x03(\v2#.sentinez.apps.analytic.v1.ActivityR\n" +
 	"activities\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x03R\x05total2\xea\x0f\n" +
-	"\x0fAnalyticService\x12_\n" +
-	"\x06Status\x12(.sentinez.apps.analytic.v1.StatusRequest\x1a).sentinez.apps.analytic.v1.StatusResponse\"\x00\x12\x99\x01\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total2\xf0\x0f\n" +
+	"\x0fAnalyticService\x12e\n" +
+	"\x06Status\x12(.sentinez.apps.analytic.v1.StatusRequest\x1a).sentinez.apps.analytic.v1.StatusResponse\"\x06\x8a\xb5\x18\x02\x18\x01\x12\x99\x01\n" +
 	"\x0eListActivities\x120.sentinez.apps.analytic.v1.ListActivitiesRequest\x1a1.sentinez.apps.analytic.v1.ListActivitiesResponse\"\"\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x16\x12\x14/analytic/activities\x12\xb7\x01\n" +
 	"\x15ListHttpIngressEvents\x127.sentinez.apps.analytic.v1.ListHttpIngressEventsRequest\x1a8.sentinez.apps.analytic.v1.ListHttpIngressEventsResponse\"+\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x1f\x12\x1d/analytic/events/http-ingress\x12\xb3\x01\n" +
 	"\x14ListHttpEgressEvents\x126.sentinez.apps.analytic.v1.ListHttpEgressEventsRequest\x1a7.sentinez.apps.analytic.v1.ListHttpEgressEventsResponse\"*\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x1e\x12\x1c/analytic/events/http-egress\x12\xaf\x01\n" +

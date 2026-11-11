@@ -17,7 +17,6 @@ package tenanthandler
 import (
 	"context"
 
-	"github.com/sentinez/controlplane/pkg/headers"
 	"github.com/sentinez/pkg/szlog"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 )
@@ -28,10 +27,6 @@ func (t *Tenant) ListMember(ctx context.Context,
 
 	szlog.Debugf("[Tenant.ListMember] req = %v", req)
 
-	if err := headers.Allow(ctx, tenantpb.GetTenantServiceListMember()); err != nil {
-		return nil, err
-	}
-
 	return t.svc.ListMember(ctx, req)
 }
 
@@ -40,10 +35,6 @@ func (t *Tenant) GetMember(ctx context.Context,
 	req *tenantpb.GetMemberRequest) (*tenantpb.GetMemberResponse, error) {
 
 	szlog.Debugf("[Tenant.GetMember] req = %v", req)
-
-	if err := headers.Allow(ctx, tenantpb.GetTenantServiceGetMember()); err != nil {
-		return nil, err
-	}
 
 	return t.svc.GetMember(ctx, req)
 }
@@ -55,11 +46,6 @@ func (t *Tenant) CreateMember(ctx context.Context,
 
 	szlog.Debugf("[Tenant.CreateMember] req = %v", req)
 
-	err := headers.Allow(ctx, tenantpb.GetTenantServiceCreateMember())
-	if err != nil {
-		return nil, err
-	}
-
 	return t.svc.CreateMember(ctx, req)
 }
 
@@ -70,11 +56,6 @@ func (t *Tenant) UpdateMember(ctx context.Context,
 
 	szlog.Debugf("[Tenant.UpdateMember] req = %v", req)
 
-	err := headers.Allow(ctx, tenantpb.GetTenantServiceUpdateMember())
-	if err != nil {
-		return nil, err
-	}
-
 	return t.svc.UpdateMember(ctx, req)
 }
 
@@ -84,11 +65,6 @@ func (t *Tenant) DeleteMember(ctx context.Context,
 ) (*tenantpb.DeleteMemberResponse, error) {
 
 	szlog.Debugf("[Tenant.DeleteMember] req = %v", req)
-
-	err := headers.Allow(ctx, tenantpb.GetTenantServiceDeleteMember())
-	if err != nil {
-		return nil, err
-	}
 
 	return t.svc.DeleteMember(ctx, req)
 }

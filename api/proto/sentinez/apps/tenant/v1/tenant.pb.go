@@ -1774,7 +1774,7 @@ const file_sentinez_apps_tenant_v1_tenant_proto_rawDesc = "" +
 	"\x05total\x18\x01 \x01(\x03R\x05total\x129\n" +
 	"\atenants\x18\x02 \x03(\v2\x1f.sentinez.apps.tenant.v1.TenantR\atenants2\xa1\x13\n" +
 	"\rTenantService\x12w\n" +
-	"\x06Status\x12&.sentinez.apps.tenant.v1.StatusRequest\x1a'.sentinez.apps.tenant.v1.StatusResponse\"\x1c\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x10\x12\x0e/tenant/status\x12\x8e\x01\n" +
+	"\x06Status\x12&.sentinez.apps.tenant.v1.StatusRequest\x1a'.sentinez.apps.tenant.v1.StatusResponse\"\x1c\x8a\xb5\x18\x02\x18\x01\x82\xd3\xe4\x93\x02\x10\x12\x0e/tenant/status\x12\x8e\x01\n" +
 	"\fListResource\x12,.sentinez.apps.tenant.v1.ListResourceRequest\x1a-.sentinez.apps.tenant.v1.ListResourceResponse\"!\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x13\x12\x11/tenant/resources\x12\x96\x01\n" +
 	"\x0eCreateResource\x12..sentinez.apps.tenant.v1.CreateResourceRequest\x1a/.sentinez.apps.tenant.v1.CreateResourceResponse\"#\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/tenant/resource\x12\x96\x01\n" +
 	"\x0eUpdateResource\x12..sentinez.apps.tenant.v1.UpdateResourceRequest\x1a/.sentinez.apps.tenant.v1.UpdateResourceResponse\"#\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x15:\x01*\x1a\x10/tenant/resource\x12\x93\x01\n" +

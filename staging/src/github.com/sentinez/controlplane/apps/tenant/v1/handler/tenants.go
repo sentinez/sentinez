@@ -17,7 +17,6 @@ package tenanthandler
 import (
 	"context"
 
-	"github.com/sentinez/controlplane/pkg/headers"
 	"github.com/sentinez/pkg/szlog"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 )
@@ -29,11 +28,6 @@ func (t *Tenant) ListTenant(ctx context.Context,
 
 	szlog.Debugf("[Tenant.ListTenant] req = %v", req)
 
-	err := headers.Allow(ctx, tenantpb.GetTenantServiceListTenant())
-	if err != nil {
-		return nil, err
-	}
-
 	return t.svc.ListTenant(ctx, req)
 }
 
@@ -43,11 +37,6 @@ func (t *Tenant) GetTenant(ctx context.Context,
 ) (*tenantpb.GetTenantResponse, error) {
 
 	szlog.Debugf("[Tenant.GetTenant] req = %v", req)
-
-	err := headers.Allow(ctx, tenantpb.GetTenantServiceGetTenant())
-	if err != nil {
-		return nil, err
-	}
 
 	return t.svc.GetTenant(ctx, req)
 }
@@ -59,11 +48,6 @@ func (t *Tenant) CreateTenant(ctx context.Context,
 
 	szlog.Debugf("[Tenant.CreateTenant] req = %v", req)
 
-	err := headers.Allow(ctx, tenantpb.GetTenantServiceCreateTenant())
-	if err != nil {
-		return nil, err
-	}
-
 	return t.svc.CreateTenant(ctx, req)
 }
 
@@ -74,11 +58,6 @@ func (t *Tenant) UpdateTenant(ctx context.Context,
 
 	szlog.Debugf("[Tenant.UpdateTenant] req = %v", req)
 
-	err := headers.Allow(ctx, tenantpb.GetTenantServiceUpdateTenant())
-	if err != nil {
-		return nil, err
-	}
-
 	return t.svc.UpdateTenant(ctx, req)
 }
 
@@ -88,11 +67,6 @@ func (t *Tenant) DeleteTenant(ctx context.Context,
 ) (*tenantpb.DeleteTenantResponse, error) {
 
 	szlog.Debugf("[Tenant.DeleteTenant] req = %v", req)
-
-	err := headers.Allow(ctx, tenantpb.GetTenantServiceDeleteTenant())
-	if err != nil {
-		return nil, err
-	}
 
 	return t.svc.DeleteTenant(ctx, req)
 }

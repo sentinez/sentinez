@@ -94,12 +94,6 @@ func (iam *IdentityAccessManagement) ListAccounts(ctx context.Context,
 	request *iampb.ListAccountsRequest) (*iampb.ListAccountsResponse, error) {
 	szlog.Debugf("[IdentityAccessManagement.ListAccounts] req = %v", request)
 
-	err := headers.Allow(ctx,
-		iampb.GetIdentityAccessManagementServiceListUsers())
-	if err != nil {
-		return nil, err
-	}
-
 	resp, err := iam.service.ListAccounts(ctx, request)
 	if err != nil {
 		return nil, err
@@ -217,10 +211,13 @@ func (iam *IdentityAccessManagement) Status(ctx context.Context,
 		return nil, err
 	}
 
-	ss, _ := headers.GetAuth(ctx)
+	auth, err := headers.GetAuth(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	return &iampb.StatusResponse{
 		Msg:     "OK",
-		Context: ss.Context,
+		Context: auth.Context,
 	}, nil
 }

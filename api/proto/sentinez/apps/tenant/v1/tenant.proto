@@ -62,7 +62,7 @@ service TenantService {
   // Returns service health check status.
   rpc Status(StatusRequest) returns (StatusResponse) {
     option (google.api.http) = {get: "/tenant/status"};
-    option (sentinez.types.v1.x_method) = {ignore: true};
+    option (sentinez.types.v1.x_method) = {public: true};
   }
 
   // Lists tenant resources.

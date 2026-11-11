@@ -1503,27 +1503,27 @@ const file_sentinez_apps_iam_v1_iam_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x03R\x05total\"1\n" +
 	"\x11DeleteUserRequest\x12\x1c\n" +
 	"\x02id\x18\x01 \x01(\tB\f\xbaH\tr\a:\x05user_R\x02id\"\x14\n" +
-	"\x12DeleteUserResponse2\xc6\x0f\n" +
-	"\x1fIdentityAccessManagementService\x12a\n" +
+	"\x12DeleteUserResponse2\xce\x0f\n" +
+	"\x1fIdentityAccessManagementService\x12h\n" +
 	"\n" +
-	"CreateUser\x12'.sentinez.apps.iam.v1.CreateUserRequest\x1a(.sentinez.apps.iam.v1.CreateUserResponse\"\x00\x12\x82\x01\n" +
+	"CreateUser\x12'.sentinez.apps.iam.v1.CreateUserRequest\x1a(.sentinez.apps.iam.v1.CreateUserResponse\"\a\x8a\xb5\x18\x03\x12\x01\x02\x12\x82\x01\n" +
 	"\fListAccounts\x12).sentinez.apps.iam.v1.ListAccountsRequest\x1a*.sentinez.apps.iam.v1.ListAccountsResponse\"\x1b\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x0f\x12\r/iam/accounts\x12x\n" +
 	"\tListUsers\x12&.sentinez.apps.iam.v1.ListUsersRequest\x1a'.sentinez.apps.iam.v1.ListUsersResponse\"\x1a\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\f\x12\n" +
 	"/iam/users\x12n\n" +
 	"\x06Status\x12#.sentinez.apps.iam.v1.StatusRequest\x1a$.sentinez.apps.iam.v1.StatusResponse\"\x19\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\r\x12\v/iam/status\x12\x87\x01\n" +
-	"\rCreateAccount\x12*.sentinez.apps.iam.v1.CreateAccountRequest\x1a+.sentinez.apps.iam.v1.CreateAccountResponse\"\x1d\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x11:\x01*\"\f/iam/account\x12o\n" +
+	"\rCreateAccount\x12*.sentinez.apps.iam.v1.CreateAccountRequest\x1a+.sentinez.apps.iam.v1.CreateAccountResponse\"\x1d\x8a\xb5\x18\x02\x18\x01\x82\xd3\xe4\x93\x02\x11:\x01*\"\f/iam/account\x12o\n" +
 	"\aGetUser\x12$.sentinez.apps.iam.v1.GetUserRequest\x1a%.sentinez.apps.iam.v1.GetUserResponse\"\x17\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\v\x12\t/iam/user\x12{\n" +
 	"\n" +
-	"UpdateUser\x12'.sentinez.apps.iam.v1.UpdateUserRequest\x1a(.sentinez.apps.iam.v1.UpdateUserResponse\"\x1a\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x0e:\x01*\x1a\t/iam/user\x12}\n" +
+	"UpdateUser\x12'.sentinez.apps.iam.v1.UpdateUserRequest\x1a(.sentinez.apps.iam.v1.UpdateUserResponse\"\x1a\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x0e:\x01*\x1a\t/iam/user\x12~\n" +
 	"\n" +
-	"DeleteUser\x12'.sentinez.apps.iam.v1.DeleteUserRequest\x1a(.sentinez.apps.iam.v1.DeleteUserResponse\"\x1c\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x10*\x0e/iam/user/{id}\x12m\n" +
-	"\x05Login\x12\".sentinez.apps.iam.v1.LoginRequest\x1a#.sentinez.apps.iam.v1.LoginResponse\"\x1b\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x0f:\x01*\x1a\n" +
+	"DeleteUser\x12'.sentinez.apps.iam.v1.DeleteUserRequest\x1a(.sentinez.apps.iam.v1.DeleteUserResponse\"\x1d\x8a\xb5\x18\x03\x12\x01\x02\x82\xd3\xe4\x93\x02\x10*\x0e/iam/user/{id}\x12m\n" +
+	"\x05Login\x12\".sentinez.apps.iam.v1.LoginRequest\x1a#.sentinez.apps.iam.v1.LoginResponse\"\x1b\x8a\xb5\x18\x02\x18\x01\x82\xd3\xe4\x93\x02\x0f:\x01*\x1a\n" +
 	"/iam/login\x12\xb8\x01\n" +
-	"\x18PasskeyRegisterChallenge\x125.sentinez.apps.iam.v1.PasskeyRegisterChallengeRequest\x1a6.sentinez.apps.iam.v1.PasskeyRegisterChallengeResponse\"-\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02!\x12\x1f/iam/passkey/register/challenge\x12\xaf\x01\n" +
-	"\x15PasskeyRegisterVerify\x122.sentinez.apps.iam.v1.PasskeyRegisterVerifyRequest\x1a3.sentinez.apps.iam.v1.PasskeyRegisterVerifyResponse\"-\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/iam/passkey/register/verify\x12\xa8\x01\n" +
+	"\x18PasskeyRegisterChallenge\x125.sentinez.apps.iam.v1.PasskeyRegisterChallengeRequest\x1a6.sentinez.apps.iam.v1.PasskeyRegisterChallengeResponse\"-\x8a\xb5\x18\x02\x18\x01\x82\xd3\xe4\x93\x02!\x12\x1f/iam/passkey/register/challenge\x12\xaf\x01\n" +
+	"\x15PasskeyRegisterVerify\x122.sentinez.apps.iam.v1.PasskeyRegisterVerifyRequest\x1a3.sentinez.apps.iam.v1.PasskeyRegisterVerifyResponse\"-\x8a\xb5\x18\x02\x18\x01\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/iam/passkey/register/verify\x12\xa8\x01\n" +
 	"\x14PasskeyLinkChallenge\x121.sentinez.apps.iam.v1.PasskeyLinkChallengeRequest\x1a2.sentinez.apps.iam.v1.PasskeyLinkChallengeResponse\")\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x1d\x12\x1b/iam/passkey/link/challenge\x12\xac\x01\n" +
-	"\x15PasskeyLoginChallenge\x122.sentinez.apps.iam.v1.PasskeyLoginChallengeRequest\x1a3.sentinez.apps.iam.v1.PasskeyLoginChallengeResponse\"*\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x1e\x12\x1c/iam/passkey/login/challenge\x12\xa3\x01\n" +
-	"\x12PasskeyLoginVerify\x12/.sentinez.apps.iam.v1.PasskeyLoginVerifyRequest\x1a0.sentinez.apps.iam.v1.PasskeyLoginVerifyResponse\"*\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x1e:\x01*\x1a\x19/iam/passkey/login/verifyB\xd4\x01\x92Aa\x12\x12\n" +
+	"\x15PasskeyLoginChallenge\x122.sentinez.apps.iam.v1.PasskeyLoginChallengeRequest\x1a3.sentinez.apps.iam.v1.PasskeyLoginChallengeResponse\"*\x8a\xb5\x18\x02\x18\x01\x82\xd3\xe4\x93\x02\x1e\x12\x1c/iam/passkey/login/challenge\x12\xa3\x01\n" +
+	"\x12PasskeyLoginVerify\x12/.sentinez.apps.iam.v1.PasskeyLoginVerifyRequest\x1a0.sentinez.apps.iam.v1.PasskeyLoginVerifyResponse\"*\x8a\xb5\x18\x02\x18\x01\x82\xd3\xe4\x93\x02\x1e:\x01*\x1a\x19/iam/passkey/login/verifyB\xd4\x01\x92Aa\x12\x12\n" +
 	"\vIAM Service2\x031.0*\x02\x01\x022\x10application/jsonZ#\n" +
 	"!\n" +
 	"\n" +

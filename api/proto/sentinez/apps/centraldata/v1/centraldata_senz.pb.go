@@ -29,3 +29,9 @@ func GetMetaCentraldataServiceZone() v1.Zone {
 func GetMetaCentraldataServiceKey() string {
 	return metadata_centraldata.GetServiceKey()
 }
+
+func GetCentralDataServiceStatus() *v1.XMethod {
+	return &v1.XMethod{
+		Public: true,
+	}
+}

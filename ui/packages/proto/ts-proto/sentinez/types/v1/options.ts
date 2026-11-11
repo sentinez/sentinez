@@ -97,8 +97,14 @@ export interface XField {
 }
 
 export interface XMethod {
+  /** ignore skips the control plane check; a valid token is still required. */
   ignore: boolean;
   controlPlanes: ControlPlane[];
+  /**
+   * public lets the method be called without a token. Methods that do not
+   * set it require a valid token.
+   */
+  public: boolean;
 }
 
 function createBaseXMeta(): XMeta {
@@ -441,7 +447,7 @@ export const XField: MessageFns<XField> = {
 };
 
 function createBaseXMethod(): XMethod {
-  return { ignore: false, controlPlanes: [] };
+  return { ignore: false, controlPlanes: [], public: false };
 }
 
 export const XMethod: MessageFns<XMethod> = {
@@ -454,6 +460,9 @@ export const XMethod: MessageFns<XMethod> = {
       writer.int32(v);
     }
     writer.join();
+    if (message.public !== false) {
+      writer.uint32(24).bool(message.public);
+    }
     return writer;
   },
 
@@ -496,6 +505,14 @@ export const XMethod: MessageFns<XMethod> = {
 
             break;
           }
+          case 3: {
+            if (tag !== 24) {
+              break;
+            }
+
+            message.public = reader.bool();
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -516,6 +533,7 @@ export const XMethod: MessageFns<XMethod> = {
         : globalThis.Array.isArray(object?.control_planes)
         ? object.control_planes.map((e: any) => controlPlaneFromJSON(e))
         : [],
+      public: isSet(object.public) ? globalThis.Boolean(object.public) : false,
     };
   },
 
@@ -527,6 +545,9 @@ export const XMethod: MessageFns<XMethod> = {
     if (message.controlPlanes?.length) {
       obj.controlPlanes = message.controlPlanes.map((e) => controlPlaneToJSON(e));
     }
+    if (message.public !== false) {
+      obj.public = message.public;
+    }
     return obj;
   },
 
@@ -537,6 +558,7 @@ export const XMethod: MessageFns<XMethod> = {
     const message = createBaseXMethod();
     message.ignore = object.ignore ?? false;
     message.controlPlanes = object.controlPlanes?.map((e) => e) || [];
+    message.public = object.public ?? false;
     return message;
   },
 };

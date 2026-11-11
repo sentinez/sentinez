@@ -18,6 +18,7 @@ import (
 	"context"
 
 	analyticfac "github.com/sentinez/controlplane/apps/analytic/v1/factory"
+	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/core/szgrpc"
 	"github.com/sentinez/sentinez/api/client/local"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
@@ -38,7 +39,7 @@ func NewService(ctx context.Context,
 		return nil, err
 	}
 
-	return &Analytic{Server: szgrpc.New(), hdl: hdl}, nil
+	return &Analytic{Server: szgrpc.New(authz.ServerOption()), hdl: hdl}, nil
 }
 
 type Analytic struct {

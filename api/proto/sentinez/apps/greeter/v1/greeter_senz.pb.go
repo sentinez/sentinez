@@ -32,12 +32,12 @@ func GetMetaGreeterServiceKey() string {
 
 func GetGreeterServiceSayHello() *v1.XMethod {
 	return &v1.XMethod{
-		Ignore: true,
+		Public: true,
 	}
 }
 
 func GetGreeterServiceStatus() *v1.XMethod {
 	return &v1.XMethod{
-		Ignore: true,
+		Public: true,
 	}
 }

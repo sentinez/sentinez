@@ -28,7 +28,9 @@ option (sentinez.types.v1.x_meta) = {
 // CentralDataService handles data processing
 service CentralDataService {
   // Health check Service
-  rpc Status(StatusRequest) returns (StatusResponse) {}
+  rpc Status(StatusRequest) returns (StatusResponse) {
+    option (sentinez.types.v1.x_method) = {public: true};
+  }
 }
 
 message StatusRequest {}

@@ -26,25 +26,39 @@ import (
 
 const AuthHeader string = "Authorization"
 
+type authKey struct{}
+
 type Auth struct {
 	*typepb.Context
 }
 
+// Check reports whether the caller may use method. It fails with
+// PermissionDenied when the control plane of the caller is not allowed.
 func (a *Auth) Check(method *typepb.XMethod) error {
-	return szperms.Allow(method, a.GetControlPlane())
-}
-
-// Allow checks the bearer token of ctx against method.
-func Allow(ctx context.Context, method *typepb.XMethod) error {
-	auth, err := GetAuth(ctx)
-	if err != nil {
-		return err
+	if err := szperms.Allow(method, a.GetControlPlane()); err != nil {
+		return szerror.StatusForbiddenF("%v", err)
 	}
 
-	return auth.Check(method)
+	return nil
 }
 
+// IsAdmin reports whether the caller signed in to the admin control plane.
+func (a *Auth) IsAdmin() bool {
+	return a.GetControlPlane() == typepb.ControlPlane_CONTROL_PLANE_ADMIN
+}
+
+// WithAuth returns a context that carries auth for GetAuth.
+func WithAuth(ctx context.Context, auth *Auth) context.Context {
+	return context.WithValue(ctx, authKey{}, auth)
+}
+
+// GetAuth returns the caller of ctx: the one the authorization interceptor
+// verified, otherwise the one of the bearer token in the metadata.
 func GetAuth(ctx context.Context) (*Auth, error) {
+	if auth, ok := ctx.Value(authKey{}).(*Auth); ok {
+		return auth, nil
+	}
+
 	md, _ := metadata.FromIncomingContext(ctx)
 	accessToken := md.Get(AuthHeader)
 	if len(accessToken) == 0 {

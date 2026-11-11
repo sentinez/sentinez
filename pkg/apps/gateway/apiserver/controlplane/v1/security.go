@@ -17,6 +17,7 @@ package controlplane
 import (
 	"context"
 
+	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/core/szgrpc/grpcgateway"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -53,7 +54,7 @@ func (s *security) Accept(ctx context.Context,
 
 	// a local conn, unlike RegisterSecurityServiceHandlerServer, runs
 	// interceptors, so requests are validated at the gateway.
-	conn := grpcgateway.NewLocalConn()
+	conn := grpcgateway.NewLocalConn(authz.Unary())
 	securitypb.RegisterSecurityServiceServer(conn, s.server)
 
 	return securitypb.RegisterSecurityServiceHandlerClient(ctx,

@@ -27,7 +27,9 @@ option (sentinez.types.v1.x_meta) = {
 
 service CollectorService {
   // Health check Service
-  rpc Status(StatusRequest) returns (StatusResponse) {}
+  rpc Status(StatusRequest) returns (StatusResponse) {
+    option (sentinez.types.v1.x_method) = {public: true};
+  }
 }
 
 message StatusRequest {}

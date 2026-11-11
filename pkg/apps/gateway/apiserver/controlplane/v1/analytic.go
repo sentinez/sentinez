@@ -17,6 +17,7 @@ package controlplane
 import (
 	"context"
 
+	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/core/szgrpc/grpcgateway"
 	analyticpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -53,7 +54,7 @@ func (a *analytic) Accept(ctx context.Context,
 
 	// a local conn, unlike RegisterAnalyticServiceHandlerServer, runs
 	// interceptors, so requests are validated at the gateway.
-	conn := grpcgateway.NewLocalConn()
+	conn := grpcgateway.NewLocalConn(authz.Unary())
 	analyticpb.RegisterAnalyticServiceServer(conn, a.server)
 
 	return analyticpb.RegisterAnalyticServiceHandlerClient(ctx,

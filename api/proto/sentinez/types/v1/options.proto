@@ -81,6 +81,10 @@ enum ColumnCodec {
 }
 
 message XMethod {
+  // ignore skips the control plane check; a valid token is still required.
   bool ignore = 1;
   repeated ControlPlane control_planes = 2;
+  // public lets the method be called without a token. Methods that do not
+  // set it require a valid token.
+  bool public = 3;
 }

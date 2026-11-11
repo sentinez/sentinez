@@ -17,6 +17,7 @@ package greeter
 
 import (
 	greeterhdl "github.com/sentinez/controlplane/apps/greeter/v1/handler"
+	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/core/szgrpc"
 	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/greeter/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -24,7 +25,7 @@ import (
 
 func NewService(conf *settingpb.Config) *Greeter {
 	return &Greeter{
-		Server:  szgrpc.New(),
+		Server:  szgrpc.New(authz.ServerOption()),
 		handler: greeterhdl.New(),
 		conf:    conf,
 	}
