@@ -18,7 +18,12 @@ import (
 	"context"
 	"crypto/rand"
 	"crypto/tls"
+	"encoding/binary"
 	"encoding/hex"
+	"errors"
+	"net"
+
+	"github.com/sentinez/pkg/szlog"
 )
 
 type connIdKey struct{}
@@ -32,7 +37,8 @@ func ConnId(ctx context.Context) string {
 }
 
 // HelloConnId returns the id of the connection a TLS handshake runs on:
-// StdConn.Id for TCP, the context id for QUIC, or "" for neither.
+// StdConn.Id (the socket cookie) for TCP, the context id for QUIC, or ""
+// for neither.
 func HelloConnId(chi *tls.ClientHelloInfo) string {
 	if conn, ok := chi.Conn.(*StdConn); ok {
 		return conn.Id
@@ -43,6 +49,22 @@ func HelloConnId(chi *tls.ClientHelloInfo) string {
 
 func withConnId(ctx context.Context, id string) context.Context {
 	return context.WithValue(ctx, connIdKey{}, id)
+}
+
+// stdConnId returns the kernel socket cookie of a TCP conn as 16 hex
+// characters, or a random id when the cookie is unavailable. QUIC keeps
+// random ids: all its connections share one UDP socket, hence one cookie.
+func stdConnId(conn net.Conn) string {
+	cookie, err := sockCookie(conn)
+	if err != nil {
+		if !errors.Is(err, errors.ErrUnsupported) {
+			szlog.Debugf("network: conn id: %v", err)
+		}
+
+		return newConnId()
+	}
+
+	return hex.EncodeToString(binary.BigEndian.AppendUint64(nil, cookie))
 }
 
 func newConnId() string {

@@ -7,7 +7,7 @@ services:
   #     - "6379:6379"
   #   command: /bin/sh -c "redis-server --requirepass password"
   #   volumes:
-  #     - ./volume/redis:/data
+  #     - ./.volume/redis:/data
   #   networks:
   #     - sentinez-network
 
@@ -21,7 +21,7 @@ services:
     env_file:
       - timescale.env
     volumes:
-      - ./volume/timescale:/var/lib/postgresql/data
+      - ./.volume/timescale:/var/lib/postgresql/data
     networks:
       - sentinez-network
 
@@ -37,7 +37,7 @@ services:
   #     POSTGRES_PASSWORD: root
   #     POSTGRES_DB: sentinez
   #   volumes:
-  #     - ./volume/postgres:/var/lib/postgresql/data
+  #     - ./.volume/postgres:/var/lib/postgresql/data
   #   networks:
   #     - sentinez-network
 
@@ -56,7 +56,7 @@ services:
       agent -server -bootstrap-expect=1 -ui -client=0.0.0.0
       -node=sentinez-consul
     volumes:
-      - ./volume/consul:/consul/data
+      - ./.volume/consul:/consul/data
     networks:
       - sentinez-network
 
@@ -119,7 +119,7 @@ services:
     user: "0:0"
     entrypoint: ["chown", "-R", "1000:1000", "/var/lib/kafka/data"]
     volumes:
-      - ./volume_kafka_data:/var/lib/kafka/data
+      - ./.volume/kafka:/var/lib/kafka/data
 
   sentinez.kafka:
     image: apache/kafka:3.9.0
@@ -131,7 +131,7 @@ services:
     env_file:
       - kafka.env
     volumes:
-      - ./volume_kafka_data:/var/lib/kafka/data
+      - ./.volume/kafka:/var/lib/kafka/data
     depends_on:
       sentinez.kafka-perms:
         condition: service_completed_successfully
@@ -192,7 +192,7 @@ services:
       - sentinez-network
 
 volumes:
-  volume:
+  .volume:
 
 networks:
   sentinez-network:
