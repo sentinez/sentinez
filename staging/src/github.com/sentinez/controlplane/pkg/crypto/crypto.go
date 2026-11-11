@@ -18,6 +18,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/sentinez/pkg/szconfig"
@@ -32,6 +33,11 @@ const (
 	_bearer    = "Bearer "
 	_claimsKey = "auth"
 	_expKey    = "exp"
+
+	// _issuer signs the tokens, _audience is who they are for: a token the
+	// same secret signed for something else is refused.
+	_issuer   = "sentinez.iam"
+	_audience = "sentinez.controlplane"
 )
 
 func TokenGenerator(payload *typepb.Context) (string, error) {
@@ -49,6 +55,9 @@ func TokenGenerator(payload *typepb.Context) (string, error) {
 	claims := jwt.MapClaims{
 		_claimsKey: payload.String(),
 		_expKey:    payload.GetExpireAt().AsTime().UTC().Unix(),
+		"iss":      _issuer,
+		"aud":      _audience,
+		"iat":      time.Now().UTC().Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -99,19 +108,19 @@ func BearerTokenVerifier(bearerToken string) (*typepb.Context, bool) {
 }
 
 func parseJWT(token, secretBase64 string) (*jwt.Token, error) {
-	jwtToken, err := jwt.Parse(token, func(t *jwt.Token) (any, error) {
-		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil,
-				fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
-		}
-
+	jwtToken, err := jwt.Parse(token, func(*jwt.Token) (any, error) {
 		secret, err := base64.StdEncoding.DecodeString(secretBase64)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 
 		return secret, nil
-	})
+	},
+		jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}),
+		jwt.WithIssuer(_issuer),
+		jwt.WithAudience(_audience),
+		jwt.WithExpirationRequired(),
+	)
 	if err != nil {
 		szlog.Debugf("crypto: invalid token: %v", err)
 		return nil, err

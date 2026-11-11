@@ -35,7 +35,7 @@ import (
 )
 
 // PasskeyLoginVerify implements iampb.IdentityAccessManagementServiceServer.
-func (srv *IAMService) PasskeyLoginVerify(ctx context.Context,
+func (srv *IAMService) passkeyLoginVerify(ctx context.Context,
 	req *iampb.PasskeyLoginVerifyRequest,
 ) (*iampb.PasskeyLoginVerifyResponse, error) {
 
@@ -113,7 +113,7 @@ func (srv *IAMService) passkeyLoginResponse(ctx context.Context,
 }
 
 // PasskeyLoginChallenge implements iampb.IdentityAccessManagementServiceServer.
-func (srv *IAMService) PasskeyLoginChallenge(
+func (srv *IAMService) passkeyLoginChallenge(
 	ctx context.Context,
 	req *iampb.PasskeyLoginChallengeRequest,
 ) (*iampb.PasskeyLoginChallengeResponse, error) {

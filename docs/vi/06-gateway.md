@@ -8,7 +8,7 @@
 | [pkg/apps/gateway/apiserver/apiserver.go](../../pkg/apps/gateway/apiserver/apiserver.go) | `Server.Start/Shutdown`, `Visit`, `VisitToEndpoint` |
 | [pkg/apps/gateway/apiserver/initialize.go](../../pkg/apps/gateway/apiserver/initialize.go) | Middleware, Swagger, đăng ký service |
 | [pkg/apps/gateway/apiserver/controlplane/v1/](../../pkg/apps/gateway/apiserver/controlplane/v1/) | Registrar cho Analytic, Greeter, IAM, Security, Tenant |
-| [pkg/apps/gateway/apiserver/middleware/](../../pkg/apps/gateway/apiserver/middleware/) | `Logging`, `AllowCORS`, `SwaggerDefaultRoot`, `Injection` (SQLi/XSS), `Scope` |
+| [pkg/apps/gateway/apiserver/middleware/](../../pkg/apps/gateway/apiserver/middleware/) | `Logging`, `CORS`, `SwaggerDefaultRoot`, `Injection` (SQLi/XSS), `Scope` |
 | [pkg/apps/gateway/apiserver/handlers/openapi_swagger.go](../../pkg/apps/gateway/apiserver/handlers/openapi_swagger.go) | Phục vụ OpenAPI JSON + Swagger UI |
 | [core/szgrpc/grpcgateway/](../../staging/src/github.com/sentinez/core/szgrpc/grpcgateway/) | `XServer` (HTTP mux + runtime mux, HTTP/1.1/2 + HTTP/3), `ServiceRegistrar` |
 
@@ -16,7 +16,7 @@
 
 ```go
 srv.server.Use(middleware.Logging)
-srv.server.Use(middleware.AllowCORS)
+srv.server.Use(middleware.CORS(passkey.ClientOrigins(conf)))
 srv.server.Use(middleware.SwaggerDefaultRoot)
 srv.server.Use(middleware.Scope(
     middleware.Injection, "/iam", "/tenant", "/greeter", "/analytic",
@@ -57,7 +57,7 @@ chạy trong tiến trình apiserver và dùng chung pool PostgreSQL.
 ### Request pipeline HTTP
 
 ```
-http.Server.Handler = extendHeader( Logging( AllowCORS( httpMux ) ) )
+http.Server.Handler = extendHeader( Logging( CORS( httpMux ) ) )
 httpMux:
   /api/      → OpenAPI JSON (api/docs/v1, embed)
   /swagger   → 301 /swagger/
@@ -67,9 +67,12 @@ httpMux:
 
 - `Logging`: đọc toàn bộ body (để log khi lỗi), gọi handler, log debug nếu
   status ≥ 400, rồi ghi `httppb.IngressEvent` (kind `LOG_TYPE_HTTP_INGRESS`) qua `szlog`.
-- `AllowCORS`: phản chiếu `Origin` bất kỳ, `Allow-Credentials: true`, trả
-  `204` cho preflight với methods `GET, HEAD, POST, PUT, DELETE` và headers
-  `Content-Type, Accept, Authorization`.
+- `CORS(origins)`: chỉ `Origin` nằm trong `SENZ_CLIENT_ORIGIN` (một, hoặc
+  nhiều giá trị cách nhau bằng dấu phẩy) mới được phản chiếu cùng
+  `Allow-Credentials: true`; preflight của nó trả `204` với methods `GET,
+  HEAD, POST, PUT, DELETE` và headers `Content-Type, Accept, Authorization`.
+  Origin khác không có header CORS nào, và khi biến này không đặt thì mọi
+  origin đều không có.
 - Error handler của gateway map `szerror.ErrNotFound/ErrInvalidData/
   ErrUnimplemented` sang gRPC status tương ứng trước khi chuyển thành HTTP.
 

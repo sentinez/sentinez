@@ -101,7 +101,7 @@ They are loaded by `pkg/szconfig.LoadEnv` (using `godotenv`) and read with
 | `SENZ_HOSTNAME` | IAM | WebAuthn RP ID (`sentinez.vn`) |
 | `SENZ_ADDRESS` | all | Listen address; when empty each service falls back to its constant in [internal/defaults](../internal/defaults/defaults.go): edge `0.0.0.0:443` (TCP and UDP/HTTP/3), apiserver `0.0.0.0:9000`, realtime `0.0.0.0:7778`, dataplane and greeter `0.0.0.0:9001` |
 | `SENZ_SECRET_KEY` | IAM | HMAC key for signing JWTs, **must be base64** |
-| `SENZ_CLIENT_ORIGIN` | IAM | Allowed WebAuthn origin (console URL) |
+| `SENZ_CLIENT_ORIGIN` | IAM, apiserver | Origin of the console: the allowed WebAuthn origin and the only one allowed by CORS. Several: separate them with commas |
 | `SENZ_POSTGRES_URI` | control plane | PostgreSQL DSN (pgxpool) |
 | `SENZ_TIMESCALE_URI`, `SENZ_CLICKHOUSE_URI` | — | Declared but unused |
 | `SENZ_CONSUL_URI` | gateway, gRPC, edge | Consul for service discovery; on the edge, the zone leader election ([3.8](03-edge.md#zone-leader-election)), required when the edge is clustered |

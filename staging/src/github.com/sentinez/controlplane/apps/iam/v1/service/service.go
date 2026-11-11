@@ -16,6 +16,8 @@ package iamsvc
 
 import (
 	"context"
+	"crypto/sha256"
+	"crypto/subtle"
 	"errors"
 	"slices"
 	"strings"
@@ -59,6 +61,7 @@ func New(config *settingpb.Config,
 		accounts: account,
 		members:  members,
 		authz:    authz.New(members, nil),
+		limits:   newSignInLimits(),
 		store:    store,
 		auth:     wauth,
 	}
@@ -71,6 +74,7 @@ type IAMService struct {
 	accounts accrepos.IAccount
 	members  memberrepo.IMember
 	authz    *authz.Authorizer
+	limits   *signInLimits
 	store    passkey.Store
 	auth     *webauthn.WebAuthn
 }
@@ -299,7 +303,7 @@ func newAccessToken(user *iampb.User) (string, error) {
 func (srv *IAMService) loginAdmin(
 	req *iampb.LoginRequest) (*iampb.LoginResponse, error) {
 
-	if req.GetPassword() != srv.config.Get(settingpb.Senz_SENZ_ADMIN_PASSWORD) {
+	if !srv.isAdminPassword(req.GetPassword()) {
 		return nil, szerror.StatusUnauthorizedF(
 			"username, email or password is wrong!")
 	}
@@ -321,7 +325,8 @@ func (srv *IAMService) loginAdmin(
 	}, AccessToken: accessToken}, nil
 }
 
-func (srv *IAMService) Login(ctx context.Context,
+// login checks the credentials; Login limits how often it may fail.
+func (srv *IAMService) login(ctx context.Context,
 	req *iampb.LoginRequest) (*iampb.LoginResponse, error) {
 
 	if req.GetEmailOrUsername() ==
@@ -567,4 +572,19 @@ func (srv *IAMService) visibleUsers(ctx context.Context,
 		func(id string) bool { return !slices.Contains(coMembers, id) })
 
 	return scoped, len(scoped.GetIds()) != 0, nil
+}
+
+// isAdminPassword compares in constant time, and refuses when no admin
+// password is configured.
+func (srv *IAMService) isAdminPassword(password string) bool {
+	want := srv.config.Get(settingpb.Senz_SENZ_ADMIN_PASSWORD)
+	if want == "" {
+		return false
+	}
+
+	// hashing gives both sides the same length
+	got := sha256.Sum256([]byte(password))
+	wantSum := sha256.Sum256([]byte(want))
+
+	return subtle.ConstantTimeCompare(got[:], wantSum[:]) == 1
 }

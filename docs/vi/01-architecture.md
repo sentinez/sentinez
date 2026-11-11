@@ -148,9 +148,10 @@ Thư mục cấp root:
    `Authorization: Bearer <JWT>`.
 2. grpc-gateway `runtime.ServeMux` chuyển thành lời gọi gRPC **in-process**
    (`RegisterXxxHandlerServer`) tới handler của controlplane.
-3. Handler kiểm tra quyền (`headers.Allow`: `headers.GetAuth` +
-   `perms.Allow`) với một số RPC, rồi gọi service → repository →
-   PostgreSQL.
+3. Interceptor `authz.Unary` kiểm tra token và control plane của RPC (từ
+   chối mặc định), rồi handler gọi service → repository → PostgreSQL; service
+   kiểm tra vai trò của người gọi trong tenant (`authz.Authorizer`, xem
+   [07-controlplane.md](07-controlplane.md#72-xác-thực--phân-quyền)).
 
 Hiện tại **chưa có kênh đẩy cấu hình từ control plane xuống edge**: edge đọc
 `proxy.yaml` lúc khởi động; dữ liệu tenant/SecRule trong DB chỉ phục vụ
