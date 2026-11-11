@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package httpingresseventrepo stores the httppb.IngressEvent records consumed from
-// kafka (sztopic.EventHTTPIngress): one per request of the edge.
+// Package httpingresseventrepo stores the httppb.IngressEvent records
+// consumed from kafka (sztopic.EventHTTPIngress): one per request of the
+// edge.
 package httpingresseventrepo
 
 import (

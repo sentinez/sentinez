@@ -58,55 +58,59 @@ func TestEventPage(t *testing.T) {
 	}
 }
 
-func TestHistogramFilter(t *testing.T) {
-	now := time.Date(2026, 11, 9, 12, 0, 0, 0, time.UTC)
-	from := now.Add(-time.Hour)
-	res1h := typepb.HistogramResolution_HISTOGRAM_RESOLUTION_1_HOUR
-	int1m := typepb.HistogramInterval_HISTOGRAM_INTERVAL_1_MINUTE
-
+var (
+	_histNow  = time.Date(2026, 11, 9, 12, 0, 0, 0, time.UTC)
+	_histFrom = _histNow.Add(-time.Hour)
 	// the buckets end with the current one, of 12:00, so at 12:01
-	end := now.Add(time.Minute)
+	_histEnd = _histNow.Add(time.Minute)
+)
 
-	tests := []struct {
-		name       string
-		give       histogramRequest
-		want       *histogram.Filter
-		wantWindow histogram.Window
-	}{
-		{
-			name: "event histogram, from honoured",
-			give: &pb.GetEventHistogramRequest{
-				Resolution:  res1h,
-				ResourceIds: []string{"r1"},
-				From:        timestamppb.New(from),
-			},
-			want: &histogram.Filter{
-				Resolution:  res1h,
-				ResourceIds: []string{"r1"},
-				From:        from,
-				To:          end,
-			},
-			wantWindow: histogram.Window{
-				Interval: int1m, From: from, To: end,
-			},
-		},
-		{
-			name: "visitors, resolution picked",
-			give: &pb.ListVisitorsRequest{},
-			want: &histogram.Filter{
-				Resolution: res1h,
-				From:       end.Add(-time.Hour),
-				To:         end,
-			},
-			wantWindow: histogram.Window{
-				Interval: int1m, From: end.Add(-time.Hour), To: end,
-			},
-		},
-	}
+const (
+	_res1h = typepb.HistogramResolution_HISTOGRAM_RESOLUTION_1_HOUR
+	_int1m = typepb.HistogramInterval_HISTOGRAM_INTERVAL_1_MINUTE
+)
 
-	for _, tt := range tests {
+var _histogramCases = []struct {
+	name       string
+	give       histogramRequest
+	want       *histogram.Filter
+	wantWindow histogram.Window
+}{
+	{
+		name: "event histogram, from honoured",
+		give: &pb.GetEventHistogramRequest{
+			Resolution:  _res1h,
+			ResourceIds: []string{"r1"},
+			From:        timestamppb.New(_histFrom),
+		},
+		want: &histogram.Filter{
+			Resolution:  _res1h,
+			ResourceIds: []string{"r1"},
+			From:        _histFrom,
+			To:          _histEnd,
+		},
+		wantWindow: histogram.Window{
+			Interval: _int1m, From: _histFrom, To: _histEnd,
+		},
+	},
+	{
+		name: "visitors, resolution picked",
+		give: &pb.ListVisitorsRequest{},
+		want: &histogram.Filter{
+			Resolution: _res1h,
+			From:       _histEnd.Add(-time.Hour),
+			To:         _histEnd,
+		},
+		wantWindow: histogram.Window{
+			Interval: _int1m, From: _histEnd.Add(-time.Hour), To: _histEnd,
+		},
+	},
+}
+
+func TestHistogramFilter(t *testing.T) {
+	for _, tt := range _histogramCases {
 		t.Run(tt.name, func(t *testing.T) {
-			filter, window, err := histogramFilter(tt.give, now)
+			filter, window, err := histogramFilter(tt.give, _histNow)
 
 			require.NoError(t, err)
 			assert.Equal(t, tt.want, filter)

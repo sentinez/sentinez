@@ -95,7 +95,8 @@ func (srv *SecurityService) importSecRules(ctx context.Context,
 
 	models := make([]*securitypb.SecRule, 0, len(rules))
 	for _, rule := range rules {
-		models = append(models, secRuleFromEdge(owner, rule.GetIngressRuntime()))
+		models = append(models,
+			secRuleFromEdge(owner, rule.GetIngressRuntime()))
 	}
 
 	return upsertByName(ctx, stored, models,

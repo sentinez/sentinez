@@ -70,7 +70,8 @@ func TestQueryArrays(t *testing.T) {
 			"SELECT elements.field, COALESCE(elements.element, '') AS value, "+
 			"count(*) AS total FROM t CROSS JOIN LATERAL ("+
 			"SELECT 'rule_ids' AS field, element::TEXT AS element FROM "+
-			"(SELECT DISTINCT unnest(rule_ids) AS element) AS distinct_elements"+
+			"(SELECT DISTINCT unnest(rule_ids) AS element) "+
+			"AS distinct_elements"+
 			" UNION ALL "+
 			"SELECT 'tags' AS field, element::TEXT AS element FROM "+
 			"(SELECT DISTINCT unnest(tags) AS element) AS distinct_elements"+
@@ -89,10 +90,16 @@ func TestQueryRejectsFields(t *testing.T) {
 		{"none", nil, errNoFields},
 		{
 			"injection",
-			[]eventfilter.Field{{Name: "method'; DROP TABLE t", Expr: "method"}},
+			[]eventfilter.Field{
+				{Name: "method'; DROP TABLE t", Expr: "method"},
+			},
 			errFieldName,
 		},
-		{"quoted", []eventfilter.Field{{Name: "'method'", Expr: "method"}}, errFieldName},
+		{
+			"quoted",
+			[]eventfilter.Field{{Name: "'method'", Expr: "method"}},
+			errFieldName,
+		},
 	}
 
 	for _, tt := range tests {
@@ -114,8 +121,14 @@ func TestPick(t *testing.T) {
 		want []eventfilter.Field
 	}{
 		{"all", nil, fields},
-		{"in order", []string{"rule_ids", "method"}, []eventfilter.Field{_rules, _method}},
-		{"each once", []string{"action", "action"}, []eventfilter.Field{_action}},
+		{
+			"in order", []string{"rule_ids", "method"},
+			[]eventfilter.Field{_rules, _method},
+		},
+		{
+			"each once", []string{"action", "action"},
+			[]eventfilter.Field{_action},
+		},
 	}
 
 	for _, tt := range tests {

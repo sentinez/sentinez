@@ -564,9 +564,24 @@ func (srv *IAMService) visibleUsers(ctx context.Context,
 		return scoped, true, nil
 	}
 
-	coMembers, err := srv.authz.CoMemberUserIds(ctx)
+	ids, err := srv.coMemberIds(ctx, req.GetIds())
 	if err != nil {
 		return nil, false, err
+	}
+
+	scoped.Ids = ids
+
+	return scoped, len(ids) != 0, nil
+}
+
+// coMemberIds are the ids among ids of the users sharing a tenant with the
+// caller, itself included.
+func (srv *IAMService) coMemberIds(
+	ctx context.Context, ids []string) ([]string, error) {
+
+	coMembers, err := srv.authz.CoMemberUserIds(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	visible := make(map[string]struct{}, len(coMembers))
@@ -574,10 +589,8 @@ func (srv *IAMService) visibleUsers(ctx context.Context,
 		visible[id] = struct{}{}
 	}
 
-	scoped.Ids = slices.DeleteFunc(slices.Clone(req.GetIds()),
-		func(id string) bool { _, ok := visible[id]; return !ok })
-
-	return scoped, len(scoped.GetIds()) != 0, nil
+	return slices.DeleteFunc(slices.Clone(ids),
+		func(id string) bool { _, ok := visible[id]; return !ok }), nil
 }
 
 // isAdminPassword compares in constant time, and refuses when no admin

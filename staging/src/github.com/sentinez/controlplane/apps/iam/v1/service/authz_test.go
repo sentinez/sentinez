@@ -120,7 +120,8 @@ func TestGetUserVisibility(t *testing.T) {
 				Return(&iampb.User{Id: tt.giveId}, nil).Maybe()
 			svc := serviceOf(t, users, nil)
 
-			_, err := svc.GetUser(tt.giveCtx, &iampb.GetUserRequest{Id: tt.giveId})
+			_, err := svc.GetUser(tt.giveCtx,
+				&iampb.GetUserRequest{Id: tt.giveId})
 
 			assert.Equal(t, tt.wantCode, status.Code(err))
 		})
@@ -128,7 +129,9 @@ func TestGetUserVisibility(t *testing.T) {
 }
 
 // listedUsers makes the user repo record the request it gets.
-func listedUsers(t *testing.T) (*usersmock.MockIUser, *[]*iampb.ListUsersRequest) {
+func listedUsers(
+	t *testing.T,
+) (*usersmock.MockIUser, *[]*iampb.ListUsersRequest) {
 	t.Helper()
 
 	var got []*iampb.ListUsersRequest
@@ -268,7 +271,8 @@ func TestDeleteUserLeavesItsTenants(t *testing.T) {
 	svc := New(nil, postgres.NewTXMock(tx), nil, users, accounts, members,
 		authz.New(members, nil))
 
-	_, err = svc.DeleteUser(adminCtx(t), &iampb.DeleteUserRequest{Id: _coMember})
+	_, err = svc.DeleteUser(adminCtx(t),
+		&iampb.DeleteUserRequest{Id: _coMember})
 
 	require.NoError(t, err)
 }

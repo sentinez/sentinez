@@ -37,43 +37,45 @@ var _cols = Columns{
 	},
 }
 
+var (
+	_applyFrom = time.UnixMilli(1000)
+	_applyTo   = time.UnixMilli(2000)
+)
+
+var _applyCases = []struct {
+	name     string
+	give     *Filter
+	wantSQL  string
+	wantArgs []any
+}{
+	{
+		name:    "nil",
+		wantSQL: "SELECT id FROM t ORDER BY matched_time DESC",
+	},
+	{
+		name: "every field",
+		give: &Filter{
+			RequestIds:  []string{"req_1"},
+			ResourceIds: []string{"r1", "r2"},
+			From:        _applyFrom,
+			To:          _applyTo,
+			Page:        &typepb.Pages{Size: 10, Index: 3},
+		},
+		wantSQL: "SELECT id FROM t WHERE request_id IN (?) " +
+			"AND resource_id IN (?,?) " +
+			"AND matched_time >= ? AND matched_time < ? " +
+			"ORDER BY matched_time DESC LIMIT 10 OFFSET 20",
+		wantArgs: []any{"req_1", "r1", "r2", int64(1000), int64(2000)},
+	},
+	{
+		name:    "page without index",
+		give:    &Filter{Page: &typepb.Pages{Size: 10}},
+		wantSQL: "SELECT id FROM t ORDER BY matched_time DESC",
+	},
+}
+
 func TestApply(t *testing.T) {
-	from := time.UnixMilli(1000)
-	to := time.UnixMilli(2000)
-
-	tests := []struct {
-		name     string
-		give     *Filter
-		wantSQL  string
-		wantArgs []any
-	}{
-		{
-			name:    "nil",
-			wantSQL: "SELECT id FROM t ORDER BY matched_time DESC",
-		},
-		{
-			name: "every field",
-			give: &Filter{
-				RequestIds:  []string{"req_1"},
-				ResourceIds: []string{"r1", "r2"},
-				From:        from,
-				To:          to,
-				Page:        &typepb.Pages{Size: 10, Index: 3},
-			},
-			wantSQL: "SELECT id FROM t WHERE request_id IN (?) " +
-				"AND resource_id IN (?,?) " +
-				"AND matched_time >= ? AND matched_time < ? " +
-				"ORDER BY matched_time DESC LIMIT 10 OFFSET 20",
-			wantArgs: []any{"req_1", "r1", "r2", int64(1000), int64(2000)},
-		},
-		{
-			name:    "page without index",
-			give:    &Filter{Page: &typepb.Pages{Size: 10}},
-			wantSQL: "SELECT id FROM t ORDER BY matched_time DESC",
-		},
-	}
-
-	for _, tt := range tests {
+	for _, tt := range _applyCases {
 		t.Run(tt.name, func(t *testing.T) {
 			b, err := tt.give.Apply(sq.Select("id").From("t"), _cols)
 			require.NoError(t, err)
@@ -196,14 +198,14 @@ func TestCond(t *testing.T) {
 		assert.Equal(t, "(request_id IN (?) AND matched_time >= ?)", gotSQL)
 		assert.Equal(t, []any{"req_1", int64(1000)}, gotArgs)
 	})
+}
 
-	t.Run("invalid", func(t *testing.T) {
-		give := &Filter{Matches: []Match{{Field: "status", Value: "x"}}}
+func TestCondInvalid(t *testing.T) {
+	give := &Filter{Matches: []Match{{Field: "status", Value: "x"}}}
 
-		_, err := give.Cond(_cols)
+	_, err := give.Cond(_cols)
 
-		assert.ErrorIs(t, err, ErrInvalidValue)
-	})
+	assert.ErrorIs(t, err, ErrInvalidValue)
 }
 
 func TestWhereRejectsUnknownField(t *testing.T) {

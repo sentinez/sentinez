@@ -27,42 +27,44 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+var (
+	_latNow  = time.UnixMilli(10_000_000_000).UTC()
+	_latFrom = _latNow.Add(-time.Hour)
+	_latTo   = _latNow.Add(-time.Minute)
+)
+
+var _latencyCases = []struct {
+	name     string
+	give     *pb.EventSelection
+	wantFrom time.Time
+	wantTo   time.Time
+}{
+	{
+		name:     "unset: the last day up to now",
+		wantFrom: _latNow.Add(-_latencyRange),
+		wantTo:   _latNow,
+	},
+	{
+		name:     "to only: the day before it",
+		give:     &pb.EventSelection{To: timestamppb.New(_latTo)},
+		wantFrom: _latTo.Add(-_latencyRange),
+		wantTo:   _latTo,
+	},
+	{
+		name: "range",
+		give: &pb.EventSelection{
+			From: timestamppb.New(_latFrom),
+			To:   timestamppb.New(_latTo),
+		},
+		wantFrom: _latFrom,
+		wantTo:   _latTo,
+	},
+}
+
 func TestLatencyFilter(t *testing.T) {
-	now := time.UnixMilli(10_000_000_000).UTC()
-	from := now.Add(-time.Hour)
-	to := now.Add(-time.Minute)
-
-	tests := []struct {
-		name     string
-		give     *pb.EventSelection
-		wantFrom time.Time
-		wantTo   time.Time
-	}{
-		{
-			name:     "unset: the last day up to now",
-			wantFrom: now.Add(-_latencyRange),
-			wantTo:   now,
-		},
-		{
-			name:     "to only: the day before it",
-			give:     &pb.EventSelection{To: timestamppb.New(to)},
-			wantFrom: to.Add(-_latencyRange),
-			wantTo:   to,
-		},
-		{
-			name: "range",
-			give: &pb.EventSelection{
-				From: timestamppb.New(from),
-				To:   timestamppb.New(to),
-			},
-			wantFrom: from,
-			wantTo:   to,
-		},
-	}
-
-	for _, tt := range tests {
+	for _, tt := range _latencyCases {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := latencyFilter(tt.give, now)
+			got, err := latencyFilter(tt.give, _latNow)
 
 			require.NoError(t, err)
 			assert.Equal(t, tt.wantFrom, got.From)

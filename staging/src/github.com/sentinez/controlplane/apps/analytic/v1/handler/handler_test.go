@@ -50,48 +50,48 @@ func portal(t *testing.T) context.Context {
 	return headerstest.User(t.Context(), "user_1")
 }
 
-func TestCallerWithoutResourcesSeesNothing(t *testing.T) {
-	tests := []struct {
-		name string
-		call func(*AnalyticHandler, context.Context) error
-	}{
-		{"ingress events", func(h *AnalyticHandler, c context.Context) error {
-			_, err := h.ListHttpIngressEvents(c,
-				&pb.ListHttpIngressEventsRequest{})
-			return err
-		}},
-		{"egress events", func(h *AnalyticHandler, c context.Context) error {
-			_, err := h.ListHttpEgressEvents(c,
-				&pb.ListHttpEgressEventsRequest{})
-			return err
-		}},
-		{"sec rule events", func(h *AnalyticHandler, c context.Context) error {
-			_, err := h.ListSecRuleEvents(c, &pb.ListSecRuleEventsRequest{})
-			return err
-		}},
-		{"histogram", func(h *AnalyticHandler, c context.Context) error {
-			_, err := h.GetEventHistogram(c, &pb.GetEventHistogramRequest{})
-			return err
-		}},
-		{"top values", func(h *AnalyticHandler, c context.Context) error {
-			_, err := h.GetEventTopValues(c, &pb.GetEventTopValuesRequest{})
-			return err
-		}},
-		{"visitors", func(h *AnalyticHandler, c context.Context) error {
-			_, err := h.ListVisitors(c, &pb.ListVisitorsRequest{})
-			return err
-		}},
-		{"latency", func(h *AnalyticHandler, c context.Context) error {
-			_, err := h.GetEgressLatency(c, &pb.GetEgressLatencyRequest{})
-			return err
-		}},
-		{"activities", func(h *AnalyticHandler, c context.Context) error {
-			_, err := h.ListActivities(c, &pb.ListActivitiesRequest{})
-			return err
-		}},
-	}
+var _noResourceCalls = []struct {
+	name string
+	call func(*AnalyticHandler, context.Context) error
+}{
+	{"ingress events", func(h *AnalyticHandler, c context.Context) error {
+		_, err := h.ListHttpIngressEvents(c,
+			&pb.ListHttpIngressEventsRequest{})
+		return err
+	}},
+	{"egress events", func(h *AnalyticHandler, c context.Context) error {
+		_, err := h.ListHttpEgressEvents(c,
+			&pb.ListHttpEgressEventsRequest{})
+		return err
+	}},
+	{"sec rule events", func(h *AnalyticHandler, c context.Context) error {
+		_, err := h.ListSecRuleEvents(c, &pb.ListSecRuleEventsRequest{})
+		return err
+	}},
+	{"histogram", func(h *AnalyticHandler, c context.Context) error {
+		_, err := h.GetEventHistogram(c, &pb.GetEventHistogramRequest{})
+		return err
+	}},
+	{"top values", func(h *AnalyticHandler, c context.Context) error {
+		_, err := h.GetEventTopValues(c, &pb.GetEventTopValuesRequest{})
+		return err
+	}},
+	{"visitors", func(h *AnalyticHandler, c context.Context) error {
+		_, err := h.ListVisitors(c, &pb.ListVisitorsRequest{})
+		return err
+	}},
+	{"latency", func(h *AnalyticHandler, c context.Context) error {
+		_, err := h.GetEgressLatency(c, &pb.GetEgressLatencyRequest{})
+		return err
+	}},
+	{"activities", func(h *AnalyticHandler, c context.Context) error {
+		_, err := h.ListActivities(c, &pb.ListActivitiesRequest{})
+		return err
+	}},
+}
 
-	for _, tt := range tests {
+func TestCallerWithoutResourcesSeesNothing(t *testing.T) {
+	for _, tt := range _noResourceCalls {
 		t.Run(tt.name, func(t *testing.T) {
 			assert.NoError(t, tt.call(noService(t), portal(t)))
 		})

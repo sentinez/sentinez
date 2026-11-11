@@ -23,39 +23,40 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestListConditions(t *testing.T) {
-	tests := []struct {
-		name      string
-		give      *iampb.ListUsersRequest
-		wantQuery string
-		wantArgs  []any
-	}{
-		{
-			name:      "no filter",
-			give:      &iampb.ListUsersRequest{},
-			wantQuery: "SELECT * FROM users",
+var _listConditionCases = []struct {
+	name      string
+	give      *iampb.ListUsersRequest
+	wantQuery string
+	wantArgs  []any
+}{
+	{
+		name:      "no filter",
+		give:      &iampb.ListUsersRequest{},
+		wantQuery: "SELECT * FROM users",
+	},
+	{
+		// several ids must match any of them, not all at once
+		name: "ids",
+		give: &iampb.ListUsersRequest{Ids: []string{"a", "b"}},
+		wantQuery: "SELECT * FROM users WHERE " + iampb.User_Id +
+			" IN (?,?)",
+		wantArgs: []any{"a", "b"},
+	},
+	{
+		name: "ids and emails",
+		give: &iampb.ListUsersRequest{
+			Ids:    []string{"a"},
+			Emails: []string{"x@example.com", "y@example.com"},
 		},
-		{
-			// several ids must match any of them, not all at once
-			name:      "ids",
-			give:      &iampb.ListUsersRequest{Ids: []string{"a", "b"}},
-			wantQuery: "SELECT * FROM users WHERE " + iampb.User_Id + " IN (?,?)",
-			wantArgs:  []any{"a", "b"},
-		},
-		{
-			name: "ids and emails",
-			give: &iampb.ListUsersRequest{
-				Ids:    []string{"a"},
-				Emails: []string{"x@example.com", "y@example.com"},
-			},
-			wantQuery: "SELECT * FROM users WHERE " + iampb.User_Id +
-				" IN (?) AND " +
-				iampb.User_Email + " IN (?,?)",
-			wantArgs: []any{"a", "x@example.com", "y@example.com"},
-		},
-	}
+		wantQuery: "SELECT * FROM users WHERE " + iampb.User_Id +
+			" IN (?) AND " +
+			iampb.User_Email + " IN (?,?)",
+		wantArgs: []any{"a", "x@example.com", "y@example.com"},
+	},
+}
 
-	for _, tt := range tests {
+func TestListConditions(t *testing.T) {
+	for _, tt := range _listConditionCases {
 		t.Run(tt.name, func(t *testing.T) {
 			builder := sq.Select("*").From("users")
 			for _, cond := range listConditions(tt.give) {
