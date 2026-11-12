@@ -338,6 +338,37 @@ domain.
 Các RPC trên khai báo `control_planes: [PORTAL, ADMIN]`, và service kiểm tra
 vai trò của người gọi trong tenant (xem 7.2).
 
+### CA certificate
+
+Proto: [apps/tenant/v1](../../api/proto/sentinez/apps/tenant/v1/). Một
+`CaCertificate` là một chứng chỉ của resource, cùng các trường được parse từ
+PEM (`subject`, `issuer`, `provider`, `serial_number`, `fingerprint_sha256`,
+`not_before`, `not_after`, `self_signed`) và `usage`: `UPSTREAM` (kiểm tra các
+máy chủ origin), `CLIENT` (kiểm tra chứng chỉ client, mTLS) hoặc `SERVER`
+(chứng chỉ TLS mà edge trình ra: không cần là CA, và luôn có khoá riêng). Bản
+ghi bất biến: chỉ tạo, đọc và xoá, không cập nhật. PEM và khoá riêng được mã
+hoá bằng `SENZ_DATA_KEY` trong database, API không bao giờ trả khoá về
+(`has_private_key` cho biết có khoá hay không). Fingerprint là duy nhất trong
+một resource.
+
+| RPC | REST | Ghi chú |
+|---|---|---|
+| `CreateCaCertificate` | `POST /tenant/cacertificate` | `pem` chứa một hoặc nhiều chứng chỉ, mỗi chứng chỉ lưu thành một bản ghi |
+| `GetCaCertificate` | `GET /tenant/cacertificate` | Theo `id` (`cacrt_...`) |
+| `ListCaCertificate` | `GET /tenant/cacertificates` | Phân trang, giới hạn theo các resource của người gọi |
+| `DeleteCaCertificate` | `DELETE /tenant/cacertificate` | |
+
+`CreateCaCertificate` nhận:
+
+- Một bundle gồm số chứng chỉ bất kỳ. Mỗi chứng chỉ phải chưa hết hạn, phải là
+  CA (trừ khi usage là `SERVER`), và không được lặp. Chữ nằm giữa các khối PEM
+  bị từ chối.
+- Một khoá riêng, trong `private_key` hoặc là một khối của `pem` (tối đa một
+  khoá, tính cả hai nơi). Khoá được gắn vào chứng chỉ khớp với nó trong bundle,
+  nên có thể tải cả chain (leaf + intermediate) kèm khoá của leaf; khoá không
+  khớp chứng chỉ nào, hoặc được mã hoá bằng passphrase, bị từ chối. Usage
+  `SERVER` bắt buộc có khoá.
+
 ## 7.5 Security
 
 Proto: [apps/security/v1](../../api/proto/sentinez/apps/security/v1/). Bảng

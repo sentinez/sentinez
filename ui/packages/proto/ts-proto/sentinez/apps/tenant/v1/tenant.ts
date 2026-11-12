@@ -203,13 +203,15 @@ export interface CreateCaCertificateRequest {
   description: string;
   usage: CaCertificateUsage;
   /**
-   * One or more PEM CERTIFICATE blocks, each a CA; exactly one, which need
-   * not be a CA, for the usage SERVER.
+   * One or more PEM CERTIFICATE blocks, each a CA; for the usage SERVER they
+   * need not be CAs. Each is stored on its own. A PEM private key block may
+   * come in it too, as in a single pem file.
    */
   pem: string;
   /**
-   * PEM private key of the certificate. With it, pem must hold exactly
-   * one certificate, the one of the key. Required for the usage SERVER.
+   * PEM private key, kept with the one certificate of pem that it belongs to
+   * (the request is refused when it matches none, or holds more than one
+   * key). Required for the usage SERVER, here or in pem.
    */
   privateKey: string;
 }

@@ -1024,11 +1024,11 @@
         },
         "pem": {
           "type": "string",
-          "description": "One or more PEM CERTIFICATE blocks, each a CA; exactly one, which need\nnot be a CA, for the usage SERVER."
+          "description": "One or more PEM CERTIFICATE blocks, each a CA; for the usage SERVER they\nneed not be CAs. Each is stored on its own. A PEM private key block may\ncome in it too, as in a single pem file."
         },
         "privateKey": {
           "type": "string",
-          "description": "PEM private key of the certificate. With it, pem must hold exactly\none certificate, the one of the key. Required for the usage SERVER."
+          "description": "PEM private key, kept with the one certificate of pem that it belongs to\n(the request is refused when it matches none, or holds more than one\nkey). Required for the usage SERVER, here or in pem."
         }
       }
     },
