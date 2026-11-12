@@ -35,3 +35,11 @@ func GetCentralDataServiceStatus() *v1.XMethod {
 		Public: true,
 	}
 }
+
+func GetCentralDataServiceSync() *v1.XMethod {
+	return &v1.XMethod{
+		ControlPlanes: []v1.ControlPlane{
+			v1.ControlPlane_CONTROL_PLANE_SERVICE,
+		},
+	}
+}

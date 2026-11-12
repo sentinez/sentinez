@@ -49,6 +49,9 @@ enum ControlPlane {
   CONTROL_PLANE_UNSPECIFIED = 0;
   CONTROL_PLANE_PORTAL = 1;
   CONTROL_PLANE_ADMIN = 2;
+  // SERVICE is an internal service (eg the edge) calling another one; its
+  // tokens are signed with SENZ_SERVICE_KEY, never with SENZ_SECRET_KEY.
+  CONTROL_PLANE_SERVICE = 3;
 }
 
 enum Status {

@@ -152,6 +152,9 @@ const (
 	ControlPlane_CONTROL_PLANE_UNSPECIFIED ControlPlane = 0
 	ControlPlane_CONTROL_PLANE_PORTAL      ControlPlane = 1
 	ControlPlane_CONTROL_PLANE_ADMIN       ControlPlane = 2
+	// SERVICE is an internal service (eg the edge) calling another one; its
+	// tokens are signed with SENZ_SERVICE_KEY, never with SENZ_SECRET_KEY.
+	ControlPlane_CONTROL_PLANE_SERVICE ControlPlane = 3
 )
 
 // Enum value maps for ControlPlane.
@@ -160,11 +163,13 @@ var (
 		0: "CONTROL_PLANE_UNSPECIFIED",
 		1: "CONTROL_PLANE_PORTAL",
 		2: "CONTROL_PLANE_ADMIN",
+		3: "CONTROL_PLANE_SERVICE",
 	}
 	ControlPlane_value = map[string]int32{
 		"CONTROL_PLANE_UNSPECIFIED": 0,
 		"CONTROL_PLANE_PORTAL":      1,
 		"CONTROL_PLANE_ADMIN":       2,
+		"CONTROL_PLANE_SERVICE":     3,
 	}
 )
 
@@ -703,11 +708,12 @@ const file_sentinez_types_v1_known_proto_rawDesc = "" +
 	"\x12ZONE_DEMILITARIZED\x10\x01\x12\x11\n" +
 	"\rZONE_INTERNAL\x10\x02\x12\x14\n" +
 	"\x10ZONE_PRIVATE_API\x10\x03\x12\x13\n" +
-	"\x0fZONE_PUBLIC_API\x10\x04*`\n" +
+	"\x0fZONE_PUBLIC_API\x10\x04*{\n" +
 	"\fControlPlane\x12\x1d\n" +
 	"\x19CONTROL_PLANE_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14CONTROL_PLANE_PORTAL\x10\x01\x12\x17\n" +
-	"\x13CONTROL_PLANE_ADMIN\x10\x02*G\n" +
+	"\x13CONTROL_PLANE_ADMIN\x10\x02\x12\x19\n" +
+	"\x15CONTROL_PLANE_SERVICE\x10\x03*G\n" +
 	"\x06Status\x12\x16\n" +
 	"\x12STATUS_UNSPECIFIED\x10\x00\x12\x11\n" +
 	"\rSTATUS_ACTIVE\x10\x01\x12\x12\n" +
