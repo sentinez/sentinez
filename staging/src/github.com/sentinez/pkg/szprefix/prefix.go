@@ -46,10 +46,11 @@ const (
 	User    Prefix = "user" // user
 	Account Prefix = "acct" // login account of a user
 
-	// ── Tenant (tenants, tenant.members, tenant.resources) ──
-	Tenant         Prefix = "tnt"  // tenant / organization
-	Member         Prefix = "mem"  // membership (user ↔ tenant)
-	TenantResource Prefix = "rsrc" // resource owned by a tenant
+	// ── Tenant (tenants, tenant.members, .resources, .cacertificates) ──
+	Tenant         Prefix = "tnt"   // tenant / organization
+	Member         Prefix = "mem"   // membership (user ↔ tenant)
+	TenantResource Prefix = "rsrc"  // resource owned by a tenant
+	CaCertificate  Prefix = "cacrt" // CA certificate of a resource
 
 	// ── Security (security.secrules, .ratelimits, .corerulesets) ──
 	SecRule     Prefix = "srule" // WAF SecRule

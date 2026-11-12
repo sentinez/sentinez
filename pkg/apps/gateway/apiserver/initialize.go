@@ -35,25 +35,10 @@ import (
 func (srv *Server) Initialize(
 	ctx context.Context, conf *settingpb.Config) error {
 
-	flag := conf.GetFlag()
-
-	// load all middleware and handlers of api server
-	srv.server.Use(middleware.Logging)
-	origins := passkey.ClientOrigins(conf)
-	if len(origins) == 0 {
-		szlog.Warnf("no SENZ_CLIENT_ORIGIN: cross origin calls are refused")
-	}
-
-	srv.server.Use(middleware.CORS(origins))
-	srv.server.Use(middleware.SwaggerDefaultRoot)
-	// security is left out: SecRule payloads legitimately carry attack
-	// patterns and would be rejected.
-	srv.server.Use(middleware.Scope(
-		middleware.Injection, "/iam", "/tenant", "/greeter", "/analytic",
-	))
+	srv.useMiddleware(conf)
 
 	// register all custom handlers to the server
-	handlers.RegisterSwaggerRoutes(srv.server.HTTPMux(), flag)
+	handlers.RegisterSwaggerRoutes(srv.server.HTTPMux())
 
 	security, err := securityfac.NewDefaultService(ctx, conf)
 	if err != nil {
@@ -82,4 +67,22 @@ func (srv *Server) Initialize(
 		controlplane.NewSecurity(securityhdl.New(security)),
 		controlplane.NewTenant(tenanthdl.New(tenant)),
 	)
+}
+
+// useMiddleware loads the middleware of the api server.
+func (srv *Server) useMiddleware(conf *settingpb.Config) {
+	srv.server.Use(middleware.Logging)
+
+	origins := passkey.ClientOrigins(conf)
+	if len(origins) == 0 {
+		szlog.Warnf("no SENZ_CLIENT_ORIGIN: cross origin calls are refused")
+	}
+
+	srv.server.Use(middleware.CORS(origins))
+	srv.server.Use(middleware.SwaggerDefaultRoot)
+	// security is left out: SecRule payloads legitimately carry attack
+	// patterns and would be rejected.
+	srv.server.Use(middleware.Scope(
+		middleware.Injection, "/iam", "/tenant", "/greeter", "/analytic",
+	))
 }

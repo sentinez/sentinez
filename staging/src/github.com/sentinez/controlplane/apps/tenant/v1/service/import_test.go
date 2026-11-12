@@ -62,7 +62,7 @@ func TestImportServer(t *testing.T) {
 	resources.EXPECT().WithTX(mock.Anything).Return(resources)
 	resources.EXPECT().Upsert(mock.Anything, want).Return(nil)
 
-	err := New(tx, resources, nil, importTenants(t)).ImportServer(
+	err := New(tx, resources, nil, importTenants(t), nil).ImportServer(
 		t.Context(), _importTenant, _importServer)
 
 	require.NoError(t, err)
@@ -78,7 +78,7 @@ func TestImportServerRollsBackWhenResourceFails(t *testing.T) {
 	resources.EXPECT().Upsert(mock.Anything, mock.Anything).
 		Return(errors.New("insert resource"))
 
-	err := New(tx, resources, nil, importTenants(t)).ImportServer(
+	err := New(tx, resources, nil, importTenants(t), nil).ImportServer(
 		t.Context(), _importTenant, _importServer)
 
 	require.Error(t, err)
@@ -88,7 +88,7 @@ func TestImportServerRollsBackWhenResourceFails(t *testing.T) {
 func TestImportServerWithoutDomain(t *testing.T) {
 	srv := &edgepb.Server{Name: "badcheese", ResourceId: "rsrc_shop"}
 
-	err := New(nil, nil, nil, nil).ImportServer(
+	err := New(nil, nil, nil, nil, nil).ImportServer(
 		t.Context(), _importTenant, srv)
 
 	assert.ErrorIs(t, err, errNoDomain)

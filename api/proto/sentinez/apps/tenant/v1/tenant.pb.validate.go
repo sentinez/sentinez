@@ -2546,3 +2546,615 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ListTenantResponseValidationError{}
+
+// Validate checks the field values on CreateCaCertificateRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *CreateCaCertificateRequest) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for ResourceId
+
+	// no validation rules for Name
+
+	// no validation rules for Description
+
+	// no validation rules for Usage
+
+	// no validation rules for Pem
+
+	// no validation rules for PrivateKey
+
+	return nil
+}
+
+// CreateCaCertificateRequestValidationError is the validation error returned
+// by CreateCaCertificateRequest.Validate if the designated constraints aren't met.
+type CreateCaCertificateRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CreateCaCertificateRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CreateCaCertificateRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CreateCaCertificateRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CreateCaCertificateRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CreateCaCertificateRequestValidationError) ErrorName() string {
+	return "CreateCaCertificateRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CreateCaCertificateRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCreateCaCertificateRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CreateCaCertificateRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CreateCaCertificateRequestValidationError{}
+
+// Validate checks the field values on CreateCaCertificateResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *CreateCaCertificateResponse) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	for idx, item := range m.GetCaCertificates() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return CreateCaCertificateResponseValidationError{
+					field:  fmt.Sprintf("CaCertificates[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// CreateCaCertificateResponseValidationError is the validation error returned
+// by CreateCaCertificateResponse.Validate if the designated constraints
+// aren't met.
+type CreateCaCertificateResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CreateCaCertificateResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CreateCaCertificateResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CreateCaCertificateResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CreateCaCertificateResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CreateCaCertificateResponseValidationError) ErrorName() string {
+	return "CreateCaCertificateResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CreateCaCertificateResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCreateCaCertificateResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CreateCaCertificateResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CreateCaCertificateResponseValidationError{}
+
+// Validate checks the field values on GetCaCertificateRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *GetCaCertificateRequest) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Id
+
+	return nil
+}
+
+// GetCaCertificateRequestValidationError is the validation error returned by
+// GetCaCertificateRequest.Validate if the designated constraints aren't met.
+type GetCaCertificateRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetCaCertificateRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetCaCertificateRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetCaCertificateRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetCaCertificateRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetCaCertificateRequestValidationError) ErrorName() string {
+	return "GetCaCertificateRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetCaCertificateRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetCaCertificateRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetCaCertificateRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetCaCertificateRequestValidationError{}
+
+// Validate checks the field values on GetCaCertificateResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *GetCaCertificateResponse) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if v, ok := interface{}(m.GetCaCertificate()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetCaCertificateResponseValidationError{
+				field:  "CaCertificate",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	return nil
+}
+
+// GetCaCertificateResponseValidationError is the validation error returned by
+// GetCaCertificateResponse.Validate if the designated constraints aren't met.
+type GetCaCertificateResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetCaCertificateResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetCaCertificateResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetCaCertificateResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetCaCertificateResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetCaCertificateResponseValidationError) ErrorName() string {
+	return "GetCaCertificateResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetCaCertificateResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetCaCertificateResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetCaCertificateResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetCaCertificateResponseValidationError{}
+
+// Validate checks the field values on DeleteCaCertificateRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *DeleteCaCertificateRequest) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Id
+
+	return nil
+}
+
+// DeleteCaCertificateRequestValidationError is the validation error returned
+// by DeleteCaCertificateRequest.Validate if the designated constraints aren't met.
+type DeleteCaCertificateRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e DeleteCaCertificateRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e DeleteCaCertificateRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e DeleteCaCertificateRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e DeleteCaCertificateRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e DeleteCaCertificateRequestValidationError) ErrorName() string {
+	return "DeleteCaCertificateRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e DeleteCaCertificateRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sDeleteCaCertificateRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = DeleteCaCertificateRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = DeleteCaCertificateRequestValidationError{}
+
+// Validate checks the field values on DeleteCaCertificateResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *DeleteCaCertificateResponse) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	return nil
+}
+
+// DeleteCaCertificateResponseValidationError is the validation error returned
+// by DeleteCaCertificateResponse.Validate if the designated constraints
+// aren't met.
+type DeleteCaCertificateResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e DeleteCaCertificateResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e DeleteCaCertificateResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e DeleteCaCertificateResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e DeleteCaCertificateResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e DeleteCaCertificateResponseValidationError) ErrorName() string {
+	return "DeleteCaCertificateResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e DeleteCaCertificateResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sDeleteCaCertificateResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = DeleteCaCertificateResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = DeleteCaCertificateResponseValidationError{}
+
+// Validate checks the field values on ListCaCertificateRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *ListCaCertificateRequest) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if v, ok := interface{}(m.GetPage()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ListCaCertificateRequestValidationError{
+				field:  "Page",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Usage
+
+	// no validation rules for FingerprintSha256
+
+	// no validation rules for Provider
+
+	return nil
+}
+
+// ListCaCertificateRequestValidationError is the validation error returned by
+// ListCaCertificateRequest.Validate if the designated constraints aren't met.
+type ListCaCertificateRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListCaCertificateRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListCaCertificateRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListCaCertificateRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListCaCertificateRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListCaCertificateRequestValidationError) ErrorName() string {
+	return "ListCaCertificateRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListCaCertificateRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListCaCertificateRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListCaCertificateRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListCaCertificateRequestValidationError{}
+
+// Validate checks the field values on ListCaCertificateResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *ListCaCertificateResponse) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Total
+
+	for idx, item := range m.GetCaCertificates() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListCaCertificateResponseValidationError{
+					field:  fmt.Sprintf("CaCertificates[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ListCaCertificateResponseValidationError is the validation error returned by
+// ListCaCertificateResponse.Validate if the designated constraints aren't met.
+type ListCaCertificateResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListCaCertificateResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListCaCertificateResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListCaCertificateResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListCaCertificateResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListCaCertificateResponseValidationError) ErrorName() string {
+	return "ListCaCertificateResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListCaCertificateResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListCaCertificateResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListCaCertificateResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListCaCertificateResponseValidationError{}

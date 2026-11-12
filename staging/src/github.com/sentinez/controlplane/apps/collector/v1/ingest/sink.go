@@ -105,7 +105,8 @@ func newSink[E any, P event[E]](pool *pools.Pool[E, P],
 // _insertRows at a time; the events go back to the pool after.
 func (s *sink[E, P]) Insert(ctx context.Context, records []*kgo.Record) error {
 	b := s.decode(records)
-	defer b.Close()
+	// Close only gives the events back to their pool: it never fails
+	defer func() { _ = b.Close() }()
 
 	for chunk := range slices.Chunk(b.Items(), _insertRows) {
 		if err := s.create(ctx, chunk...); err != nil {

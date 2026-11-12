@@ -189,7 +189,9 @@ func (rsc *Resources) Delete(ctx context.Context, id string) error {
 }
 
 // listQ selects the page of resources matching the filters of req.
-func (rsc *Resources) listQ(req *tenantpb.ListResourceRequest) sq.SelectBuilder {
+func (rsc *Resources) listQ(
+	req *tenantpb.ListResourceRequest,
+) sq.SelectBuilder {
 	q := rsc.selectQ(req.GetPage())
 	if req.GetStatus() != typepb.Status_STATUS_UNSPECIFIED {
 		q = q.Where(sq.Eq{tenantpb.Resource_Status: req.GetStatus()})

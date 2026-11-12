@@ -92,10 +92,15 @@ func newSinks(ctx context.Context,
 	}
 
 	return map[sztopic.Topic]ingest.Sink{
-		sztopic.EventHTTPSecRule:   ingest.NewSecRuleEventSink(secRules.Create),
-		sztopic.EventHTTPRateLimit: ingest.NewSecRuleEventSink(rateLimits.Create),
-		sztopic.EventHTTPRulesets:  ingest.NewCoreRuleEventSink(coreRules.Create),
-		sztopic.EventHTTPIngress:   ingest.NewHttpIngressEventSink(ingress.Create),
-		sztopic.EventHTTPEgress:    ingest.NewHttpEgressEventSink(egress.Create),
+		sztopic.EventHTTPSecRule: ingest.NewSecRuleEventSink(
+			secRules.Create),
+		sztopic.EventHTTPRateLimit: ingest.NewSecRuleEventSink(
+			rateLimits.Create),
+		sztopic.EventHTTPRulesets: ingest.NewCoreRuleEventSink(
+			coreRules.Create),
+		sztopic.EventHTTPIngress: ingest.NewHttpIngressEventSink(
+			ingress.Create),
+		sztopic.EventHTTPEgress: ingest.NewHttpEgressEventSink(
+			egress.Create),
 	}, nil
 }

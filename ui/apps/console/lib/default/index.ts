@@ -15,6 +15,7 @@ import {
   Globe,
   Settings,
   BadgeCheck,
+  FileBadge,
   ArrowDownToLine,
   ArrowUpFromLine,
 } from 'lucide-react';
@@ -108,6 +109,11 @@ export const dashboard: {
           titleKey: 'resourceSetting',
           url: '/d/console/tenant/setting',
           icon: Settings,
+        },
+        {
+          titleKey: 'caCertificates',
+          url: '/d/console/tenant/ca-certificates',
+          icon: FileBadge,
         },
       ],
     },

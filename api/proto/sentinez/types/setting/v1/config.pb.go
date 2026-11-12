@@ -61,6 +61,9 @@ const (
 	Senz_SENZ_KAFKA_BROKERS Senz = 15
 	// zone the service is deployed in (eg ap-southeast-1a); prefixes generated ids
 	Senz_SENZ_ZONE Senz = 16
+	// AES-256 key (32 bytes, base64 encoded) the secrets stored in the
+	// database are encrypted with, eg the CA certificates and their keys
+	Senz_SENZ_DATA_KEY Senz = 17
 )
 
 // Enum value maps for Senz.
@@ -83,6 +86,7 @@ var (
 		14: "SENZ_OTLP_EXTERNAL_ENDPOINT",
 		15: "SENZ_KAFKA_BROKERS",
 		16: "SENZ_ZONE",
+		17: "SENZ_DATA_KEY",
 	}
 	Senz_value = map[string]int32{
 		"SENZ_UNSPECIFIED":            0,
@@ -102,6 +106,7 @@ var (
 		"SENZ_OTLP_EXTERNAL_ENDPOINT": 14,
 		"SENZ_KAFKA_BROKERS":          15,
 		"SENZ_ZONE":                   16,
+		"SENZ_DATA_KEY":               17,
 	}
 )
 
@@ -203,7 +208,7 @@ const file_sentinez_types_setting_v1_config_proto_rawDesc = "" +
 	"\x03env\x18\x03 \x03(\v2*.sentinez.types.setting.v1.Config.EnvEntryR\x03env\x1a6\n" +
 	"\bEnvEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01*\x9f\x03\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01*\xb2\x03\n" +
 	"\x04Senz\x12\x14\n" +
 	"\x10SENZ_UNSPECIFIED\x10\x00\x12\x11\n" +
 	"\rSENZ_HOSTNAME\x10\x01\x12\x10\n" +
@@ -222,7 +227,8 @@ const file_sentinez_types_setting_v1_config_proto_rawDesc = "" +
 	"\x1bSENZ_OTLP_INTERNAL_ENDPOINT\x10\r\x12\x1f\n" +
 	"\x1bSENZ_OTLP_EXTERNAL_ENDPOINT\x10\x0e\x12\x16\n" +
 	"\x12SENZ_KAFKA_BROKERS\x10\x0f\x12\r\n" +
-	"\tSENZ_ZONE\x10\x10BLZJgithub.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1;settingpbb\x06proto3"
+	"\tSENZ_ZONE\x10\x10\x12\x11\n" +
+	"\rSENZ_DATA_KEY\x10\x11BLZJgithub.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1;settingpbb\x06proto3"
 
 var (
 	file_sentinez_types_setting_v1_config_proto_rawDescOnce sync.Once

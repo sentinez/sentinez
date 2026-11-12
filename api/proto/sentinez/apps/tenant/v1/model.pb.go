@@ -26,6 +26,7 @@ import (
 	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -37,6 +38,62 @@ const (
 	// Verify that runtime/protoimpl is sufficiently up-to-date.
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
+
+type CaCertificateUsage int32
+
+const (
+	CaCertificateUsage_CA_CERTIFICATE_USAGE_UNSPECIFIED CaCertificateUsage = 0
+	// Verify the certificates of upstream (origin) servers.
+	CaCertificateUsage_CA_CERTIFICATE_USAGE_UPSTREAM CaCertificateUsage = 1
+	// Verify the client certificates of downstream connections (mTLS).
+	CaCertificateUsage_CA_CERTIFICATE_USAGE_CLIENT CaCertificateUsage = 2
+	// The TLS certificate the edge serves to its clients: not a CA, and always
+	// with its private key.
+	CaCertificateUsage_CA_CERTIFICATE_USAGE_SERVER CaCertificateUsage = 3
+)
+
+// Enum value maps for CaCertificateUsage.
+var (
+	CaCertificateUsage_name = map[int32]string{
+		0: "CA_CERTIFICATE_USAGE_UNSPECIFIED",
+		1: "CA_CERTIFICATE_USAGE_UPSTREAM",
+		2: "CA_CERTIFICATE_USAGE_CLIENT",
+		3: "CA_CERTIFICATE_USAGE_SERVER",
+	}
+	CaCertificateUsage_value = map[string]int32{
+		"CA_CERTIFICATE_USAGE_UNSPECIFIED": 0,
+		"CA_CERTIFICATE_USAGE_UPSTREAM":    1,
+		"CA_CERTIFICATE_USAGE_CLIENT":      2,
+		"CA_CERTIFICATE_USAGE_SERVER":      3,
+	}
+)
+
+func (x CaCertificateUsage) Enum() *CaCertificateUsage {
+	p := new(CaCertificateUsage)
+	*p = x
+	return p
+}
+
+func (x CaCertificateUsage) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (CaCertificateUsage) Descriptor() protoreflect.EnumDescriptor {
+	return file_sentinez_apps_tenant_v1_model_proto_enumTypes[0].Descriptor()
+}
+
+func (CaCertificateUsage) Type() protoreflect.EnumType {
+	return &file_sentinez_apps_tenant_v1_model_proto_enumTypes[0]
+}
+
+func (x CaCertificateUsage) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use CaCertificateUsage.Descriptor instead.
+func (CaCertificateUsage) EnumDescriptor() ([]byte, []int) {
+	return file_sentinez_apps_tenant_v1_model_proto_rawDescGZIP(), []int{0}
+}
 
 // Resource is a server of a tenant: its name, domain and routes are those
 // of server (server.name, server.resource_domain), its id is the
@@ -269,11 +326,204 @@ func (x *Member) GetRoles() []v1.Role {
 	return nil
 }
 
+// CaCertificate is one certificate of a resource: a trusted CA, or the TLS
+// certificate the edge serves (usage SERVER), with its private key when one
+// was given. A bundle without a key is split into one record per
+// certificate on import, so the parsed fields below describe exactly one
+// certificate and the fingerprint is kept unique per resource. A record is
+// immutable: it is only created, read and deleted.
+type CaCertificate struct {
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	Owner       *v1.Owner              `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
+	Id          string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	Name        string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Description string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
+	// What the edge trusts this CA for.
+	Usage CaCertificateUsage `protobuf:"varint,5,opt,name=usage,proto3,enum=sentinez.apps.tenant.v1.CaCertificateUsage" json:"usage,omitempty"`
+	// Always STATUS_ACTIVE, set on create.
+	Status v1.Status `protobuf:"varint,6,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`
+	// PEM-encoded certificate: exactly one CERTIFICATE block, with
+	// BasicConstraints CA=true unless the usage is SERVER. The source of truth; every parsed field
+	// below is set from it by the service, never by the client. Stored
+	// encrypted.
+	Pem string `protobuf:"bytes,7,opt,name=pem,proto3" json:"pem,omitempty"`
+	// Subject and issuer distinguished names, in RFC 2253 form.
+	Subject string `protobuf:"bytes,8,opt,name=subject,proto3" json:"subject,omitempty"`
+	Issuer  string `protobuf:"bytes,9,opt,name=issuer,proto3" json:"issuer,omitempty"`
+	// Serial number, as lowercase hex.
+	SerialNumber string `protobuf:"bytes,10,opt,name=serial_number,json=serialNumber,proto3" json:"serial_number,omitempty"`
+	// SHA-256 of the DER bytes, as lowercase hex.
+	FingerprintSha256 string                 `protobuf:"bytes,11,opt,name=fingerprint_sha256,json=fingerprintSha256,proto3" json:"fingerprint_sha256,omitempty"`
+	NotBefore         *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=not_before,json=notBefore,proto3" json:"not_before,omitempty"`
+	NotAfter          *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=not_after,json=notAfter,proto3" json:"not_after,omitempty"`
+	// Whether subject and issuer are the same (a root CA).
+	SelfSigned bool `protobuf:"varint,14,opt,name=self_signed,json=selfSigned,proto3" json:"self_signed,omitempty"`
+	// Vendor of the CA: the first organization of the issuer, else its
+	// common name.
+	Provider string `protobuf:"bytes,15,opt,name=provider,proto3" json:"provider,omitempty"`
+	// PEM-encoded private key of the certificate, empty without one. Stored
+	// encrypted and never returned by the API.
+	PrivateKey string `protobuf:"bytes,16,opt,name=private_key,json=privateKey,proto3" json:"private_key,omitempty"`
+	// Whether the record holds a private key; set on read, not stored.
+	HasPrivateKey bool `protobuf:"varint,17,opt,name=has_private_key,json=hasPrivateKey,proto3" json:"has_private_key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CaCertificate) Reset() {
+	*x = CaCertificate{}
+	mi := &file_sentinez_apps_tenant_v1_model_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CaCertificate) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CaCertificate) ProtoMessage() {}
+
+func (x *CaCertificate) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_apps_tenant_v1_model_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CaCertificate.ProtoReflect.Descriptor instead.
+func (*CaCertificate) Descriptor() ([]byte, []int) {
+	return file_sentinez_apps_tenant_v1_model_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *CaCertificate) GetOwner() *v1.Owner {
+	if x != nil {
+		return x.Owner
+	}
+	return nil
+}
+
+func (x *CaCertificate) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *CaCertificate) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CaCertificate) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *CaCertificate) GetUsage() CaCertificateUsage {
+	if x != nil {
+		return x.Usage
+	}
+	return CaCertificateUsage_CA_CERTIFICATE_USAGE_UNSPECIFIED
+}
+
+func (x *CaCertificate) GetStatus() v1.Status {
+	if x != nil {
+		return x.Status
+	}
+	return v1.Status(0)
+}
+
+func (x *CaCertificate) GetPem() string {
+	if x != nil {
+		return x.Pem
+	}
+	return ""
+}
+
+func (x *CaCertificate) GetSubject() string {
+	if x != nil {
+		return x.Subject
+	}
+	return ""
+}
+
+func (x *CaCertificate) GetIssuer() string {
+	if x != nil {
+		return x.Issuer
+	}
+	return ""
+}
+
+func (x *CaCertificate) GetSerialNumber() string {
+	if x != nil {
+		return x.SerialNumber
+	}
+	return ""
+}
+
+func (x *CaCertificate) GetFingerprintSha256() string {
+	if x != nil {
+		return x.FingerprintSha256
+	}
+	return ""
+}
+
+func (x *CaCertificate) GetNotBefore() *timestamppb.Timestamp {
+	if x != nil {
+		return x.NotBefore
+	}
+	return nil
+}
+
+func (x *CaCertificate) GetNotAfter() *timestamppb.Timestamp {
+	if x != nil {
+		return x.NotAfter
+	}
+	return nil
+}
+
+func (x *CaCertificate) GetSelfSigned() bool {
+	if x != nil {
+		return x.SelfSigned
+	}
+	return false
+}
+
+func (x *CaCertificate) GetProvider() string {
+	if x != nil {
+		return x.Provider
+	}
+	return ""
+}
+
+func (x *CaCertificate) GetPrivateKey() string {
+	if x != nil {
+		return x.PrivateKey
+	}
+	return ""
+}
+
+func (x *CaCertificate) GetHasPrivateKey() bool {
+	if x != nil {
+		return x.HasPrivateKey
+	}
+	return false
+}
+
 var File_sentinez_apps_tenant_v1_model_proto protoreflect.FileDescriptor
 
 const file_sentinez_apps_tenant_v1_model_proto_rawDesc = "" +
 	"\n" +
-	"#sentinez/apps/tenant/v1/model.proto\x12\x17sentinez.apps.tenant.v1\x1a\x1bbuf/validate/validate.proto\x1a\"sentinez/dmz/edge/v1/setting.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"\x9a\x02\n" +
+	"#sentinez/apps/tenant/v1/model.proto\x12\x17sentinez.apps.tenant.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\"sentinez/dmz/edge/v1/setting.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"\x9a\x02\n" +
 	"\bResource\x12?\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataB\x06\xca\xf0\x19\x02\b\x01R\bmetadata\x12\x1f\n" +
 	"\x02id\x18\x02 \x01(\tB\x0f\xbaH\f\xc8\x01\x01r\a:\x05rsrc_R\x02id\x121\n" +
@@ -291,7 +541,35 @@ const file_sentinez_apps_tenant_v1_model_proto_rawDesc = "" +
 	"\x02id\x18\x02 \x01(\tB\x0e\xbaH\v\xc8\x01\x01r\x06:\x04mem_R\x02id\x12(\n" +
 	"\auser_id\x18\x03 \x01(\tB\x0f\xbaH\f\xc8\x01\x01r\a:\x05user_R\x06userId\x12+\n" +
 	"\ttenant_id\x18\x04 \x01(\tB\x0e\xbaH\v\xc8\x01\x01r\x06:\x04tnt_R\btenantId\x127\n" +
-	"\x05roles\x18\x05 \x03(\x0e2\x17.sentinez.types.v1.RoleB\b\xbaH\x05\x92\x01\x02\x18\x01R\x05roles:\b\xca\xf3\x18\x04\b\x01\x18\x01BIZGgithub.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1;tenantpbb\x06proto3"
+	"\x05roles\x18\x05 \x03(\x0e2\x17.sentinez.types.v1.RoleB\b\xbaH\x05\x92\x01\x02\x18\x01R\x05roles:\b\xca\xf3\x18\x04\b\x01\x18\x01\"\xfa\x05\n" +
+	"\rCaCertificate\x126\n" +
+	"\x05owner\x18\x01 \x01(\v2\x18.sentinez.types.v1.OwnerB\x06\xca\xf0\x19\x02\b\x01R\x05owner\x12 \n" +
+	"\x02id\x18\x02 \x01(\tB\x10\xbaH\r\xc8\x01\x01r\b:\x06cacrt_R\x02id\x12\x1c\n" +
+	"\x04name\x18\x03 \x01(\tB\b\xbaH\x05r\x03\x18\x80\x01R\x04name\x12 \n" +
+	"\vdescription\x18\x04 \x01(\tR\vdescription\x12M\n" +
+	"\x05usage\x18\x05 \x01(\x0e2+.sentinez.apps.tenant.v1.CaCertificateUsageB\n" +
+	"\xbaH\a\x82\x01\x04\x10\x01 \x00R\x05usage\x121\n" +
+	"\x06status\x18\x06 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12;\n" +
+	"\x03pem\x18\a \x01(\tB)\xbaH&\xc8\x01\x01r!(\x80\x80\x04J\x1b-----BEGIN CERTIFICATE-----R\x03pem\x12\x18\n" +
+	"\asubject\x18\b \x01(\tR\asubject\x12\x16\n" +
+	"\x06issuer\x18\t \x01(\tR\x06issuer\x12#\n" +
+	"\rserial_number\x18\n" +
+	" \x01(\tR\fserialNumber\x12-\n" +
+	"\x12fingerprint_sha256\x18\v \x01(\tR\x11fingerprintSha256\x129\n" +
+	"\n" +
+	"not_before\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tnotBefore\x127\n" +
+	"\tnot_after\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\bnotAfter\x12\x1f\n" +
+	"\vself_signed\x18\x0e \x01(\bR\n" +
+	"selfSigned\x12\x1a\n" +
+	"\bprovider\x18\x0f \x01(\tR\bprovider\x12\x1f\n" +
+	"\vprivate_key\x18\x10 \x01(\tR\n" +
+	"privateKey\x12.\n" +
+	"\x0fhas_private_key\x18\x11 \x01(\bB\x06\xca\xf0\x19\x02\x10\x01R\rhasPrivateKey:\b\xca\xf3\x18\x04\b\x01\x18\x01*\x9f\x01\n" +
+	"\x12CaCertificateUsage\x12$\n" +
+	" CA_CERTIFICATE_USAGE_UNSPECIFIED\x10\x00\x12!\n" +
+	"\x1dCA_CERTIFICATE_USAGE_UPSTREAM\x10\x01\x12\x1f\n" +
+	"\x1bCA_CERTIFICATE_USAGE_CLIENT\x10\x02\x12\x1f\n" +
+	"\x1bCA_CERTIFICATE_USAGE_SERVER\x10\x03BIZGgithub.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1;tenantpbb\x06proto3"
 
 var (
 	file_sentinez_apps_tenant_v1_model_proto_rawDescOnce sync.Once
@@ -305,30 +583,40 @@ func file_sentinez_apps_tenant_v1_model_proto_rawDescGZIP() []byte {
 	return file_sentinez_apps_tenant_v1_model_proto_rawDescData
 }
 
-var file_sentinez_apps_tenant_v1_model_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_sentinez_apps_tenant_v1_model_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_sentinez_apps_tenant_v1_model_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_sentinez_apps_tenant_v1_model_proto_goTypes = []any{
-	(*Resource)(nil),    // 0: sentinez.apps.tenant.v1.Resource
-	(*Tenant)(nil),      // 1: sentinez.apps.tenant.v1.Tenant
-	(*Member)(nil),      // 2: sentinez.apps.tenant.v1.Member
-	(*v1.Metadata)(nil), // 3: sentinez.types.v1.Metadata
-	(*v11.Server)(nil),  // 4: sentinez.dmz.edge.v1.Server
-	(v1.Status)(0),      // 5: sentinez.types.v1.Status
-	(v1.Plan)(0),        // 6: sentinez.types.v1.Plan
-	(v1.Role)(0),        // 7: sentinez.types.v1.Role
+	(CaCertificateUsage)(0),       // 0: sentinez.apps.tenant.v1.CaCertificateUsage
+	(*Resource)(nil),              // 1: sentinez.apps.tenant.v1.Resource
+	(*Tenant)(nil),                // 2: sentinez.apps.tenant.v1.Tenant
+	(*Member)(nil),                // 3: sentinez.apps.tenant.v1.Member
+	(*CaCertificate)(nil),         // 4: sentinez.apps.tenant.v1.CaCertificate
+	(*v1.Metadata)(nil),           // 5: sentinez.types.v1.Metadata
+	(*v11.Server)(nil),            // 6: sentinez.dmz.edge.v1.Server
+	(v1.Status)(0),                // 7: sentinez.types.v1.Status
+	(v1.Plan)(0),                  // 8: sentinez.types.v1.Plan
+	(v1.Role)(0),                  // 9: sentinez.types.v1.Role
+	(*v1.Owner)(nil),              // 10: sentinez.types.v1.Owner
+	(*timestamppb.Timestamp)(nil), // 11: google.protobuf.Timestamp
 }
 var file_sentinez_apps_tenant_v1_model_proto_depIdxs = []int32{
-	3, // 0: sentinez.apps.tenant.v1.Resource.metadata:type_name -> sentinez.types.v1.Metadata
-	4, // 1: sentinez.apps.tenant.v1.Resource.server:type_name -> sentinez.dmz.edge.v1.Server
-	5, // 2: sentinez.apps.tenant.v1.Resource.status:type_name -> sentinez.types.v1.Status
-	3, // 3: sentinez.apps.tenant.v1.Tenant.metadata:type_name -> sentinez.types.v1.Metadata
-	6, // 4: sentinez.apps.tenant.v1.Tenant.plan:type_name -> sentinez.types.v1.Plan
-	3, // 5: sentinez.apps.tenant.v1.Member.metadata:type_name -> sentinez.types.v1.Metadata
-	7, // 6: sentinez.apps.tenant.v1.Member.roles:type_name -> sentinez.types.v1.Role
-	7, // [7:7] is the sub-list for method output_type
-	7, // [7:7] is the sub-list for method input_type
-	7, // [7:7] is the sub-list for extension type_name
-	7, // [7:7] is the sub-list for extension extendee
-	0, // [0:7] is the sub-list for field type_name
+	5,  // 0: sentinez.apps.tenant.v1.Resource.metadata:type_name -> sentinez.types.v1.Metadata
+	6,  // 1: sentinez.apps.tenant.v1.Resource.server:type_name -> sentinez.dmz.edge.v1.Server
+	7,  // 2: sentinez.apps.tenant.v1.Resource.status:type_name -> sentinez.types.v1.Status
+	5,  // 3: sentinez.apps.tenant.v1.Tenant.metadata:type_name -> sentinez.types.v1.Metadata
+	8,  // 4: sentinez.apps.tenant.v1.Tenant.plan:type_name -> sentinez.types.v1.Plan
+	5,  // 5: sentinez.apps.tenant.v1.Member.metadata:type_name -> sentinez.types.v1.Metadata
+	9,  // 6: sentinez.apps.tenant.v1.Member.roles:type_name -> sentinez.types.v1.Role
+	10, // 7: sentinez.apps.tenant.v1.CaCertificate.owner:type_name -> sentinez.types.v1.Owner
+	0,  // 8: sentinez.apps.tenant.v1.CaCertificate.usage:type_name -> sentinez.apps.tenant.v1.CaCertificateUsage
+	7,  // 9: sentinez.apps.tenant.v1.CaCertificate.status:type_name -> sentinez.types.v1.Status
+	11, // 10: sentinez.apps.tenant.v1.CaCertificate.not_before:type_name -> google.protobuf.Timestamp
+	11, // 11: sentinez.apps.tenant.v1.CaCertificate.not_after:type_name -> google.protobuf.Timestamp
+	12, // [12:12] is the sub-list for method output_type
+	12, // [12:12] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_apps_tenant_v1_model_proto_init() }
@@ -341,13 +629,14 @@ func file_sentinez_apps_tenant_v1_model_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_apps_tenant_v1_model_proto_rawDesc), len(file_sentinez_apps_tenant_v1_model_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   3,
+			NumEnums:      1,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_sentinez_apps_tenant_v1_model_proto_goTypes,
 		DependencyIndexes: file_sentinez_apps_tenant_v1_model_proto_depIdxs,
+		EnumInfos:         file_sentinez_apps_tenant_v1_model_proto_enumTypes,
 		MessageInfos:      file_sentinez_apps_tenant_v1_model_proto_msgTypes,
 	}.Build()
 	File_sentinez_apps_tenant_v1_model_proto = out.File

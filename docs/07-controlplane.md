@@ -347,6 +347,37 @@ server without one.
 These RPCs declare `control_planes: [PORTAL, ADMIN]`, and the service checks
 the role of the caller in the tenant (see 7.2).
 
+### CA certificates
+
+Protos: [apps/tenant/v1](../api/proto/sentinez/apps/tenant/v1/). A
+`CaCertificate` is one certificate of a resource, with what is parsed from its
+PEM (`subject`, `issuer`, `provider`, `serial_number`, `fingerprint_sha256`,
+`not_before`, `not_after`, `self_signed`) and its `usage`: `UPSTREAM` (verifies
+the origin servers), `CLIENT` (verifies the client certificates, mTLS) or
+`SERVER` (the TLS certificate the edge serves: it need not be a CA, and always
+has its private key). A record is immutable: created, read and deleted, never
+updated. The PEM and the private key are sealed with `SENZ_DATA_KEY` in the
+database, and the API never returns the key (`has_private_key` tells whether
+there is one). The fingerprint is unique per resource.
+
+| RPC | REST | Notes |
+|---|---|---|
+| `CreateCaCertificate` | `POST /tenant/cacertificate` | `pem` holds one or more certificates, each stored as its own record |
+| `GetCaCertificate` | `GET /tenant/cacertificate` | By `id` (`cacrt_...`) |
+| `ListCaCertificate` | `GET /tenant/cacertificates` | Paging, scoped to the resources of the caller |
+| `DeleteCaCertificate` | `DELETE /tenant/cacertificate` | |
+
+What `CreateCaCertificate` accepts:
+
+- A bundle of any number of certificates. Each must not have expired, must be a
+  CA (unless the usage is `SERVER`), and may not appear twice. Text between the
+  PEM blocks is refused.
+- A private key, in `private_key` or as a block of `pem` (one key at most, in
+  both together). It is attached to the certificate of the bundle that matches
+  it, so a full chain (leaf + intermediates) can be uploaded with the key of
+  its leaf; a key that matches none, or is encrypted with a passphrase, is
+  refused. The usage `SERVER` requires a key.
+
 ## 7.5 Security
 
 Protos: [apps/security/v1](../api/proto/sentinez/apps/security/v1/). Table

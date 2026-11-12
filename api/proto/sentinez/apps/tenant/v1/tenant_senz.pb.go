@@ -30,12 +30,6 @@ func GetMetaTenantServiceKey() string {
 	return metadata_tenant.GetServiceKey()
 }
 
-func GetTenantServiceStatus() *v1.XMethod {
-	return &v1.XMethod{
-		Public: true,
-	}
-}
-
 func GetTenantServiceListResource() *v1.XMethod {
 	return &v1.XMethod{
 		ControlPlanes: []v1.ControlPlane{
@@ -127,6 +121,42 @@ func GetTenantServiceDeleteMember() *v1.XMethod {
 }
 
 func GetTenantServiceGetMember() *v1.XMethod {
+	return &v1.XMethod{
+		ControlPlanes: []v1.ControlPlane{
+			v1.ControlPlane_CONTROL_PLANE_PORTAL,
+			v1.ControlPlane_CONTROL_PLANE_ADMIN,
+		},
+	}
+}
+
+func GetTenantServiceListCaCertificate() *v1.XMethod {
+	return &v1.XMethod{
+		ControlPlanes: []v1.ControlPlane{
+			v1.ControlPlane_CONTROL_PLANE_PORTAL,
+			v1.ControlPlane_CONTROL_PLANE_ADMIN,
+		},
+	}
+}
+
+func GetTenantServiceCreateCaCertificate() *v1.XMethod {
+	return &v1.XMethod{
+		ControlPlanes: []v1.ControlPlane{
+			v1.ControlPlane_CONTROL_PLANE_PORTAL,
+			v1.ControlPlane_CONTROL_PLANE_ADMIN,
+		},
+	}
+}
+
+func GetTenantServiceGetCaCertificate() *v1.XMethod {
+	return &v1.XMethod{
+		ControlPlanes: []v1.ControlPlane{
+			v1.ControlPlane_CONTROL_PLANE_PORTAL,
+			v1.ControlPlane_CONTROL_PLANE_ADMIN,
+		},
+	}
+}
+
+func GetTenantServiceDeleteCaCertificate() *v1.XMethod {
 	return &v1.XMethod{
 		ControlPlanes: []v1.ControlPlane{
 			v1.ControlPlane_CONTROL_PLANE_PORTAL,

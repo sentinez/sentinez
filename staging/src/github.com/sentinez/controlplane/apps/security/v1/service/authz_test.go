@@ -110,7 +110,9 @@ func ownedBy(resourceId string) *typepb.Owner {
 	return &typepb.Owner{ResourceId: resourceId, TenantId: _tenantId}
 }
 
-func newFixture(t *testing.T, role typepb.Role) *fixture {
+// fixtureMembers is the member repo where _userId has role in _tenantId.
+func fixtureMembers(
+	t *testing.T, role typepb.Role) *membermock.MockIMember {
 	t.Helper()
 
 	members := membermock.NewMockIMember(t)
@@ -132,6 +134,14 @@ func newFixture(t *testing.T, role typepb.Role) *fixture {
 			}, nil
 		}).Maybe()
 
+	return members
+}
+
+// fixtureResources is the resource repo of _resourceId, of _tenantId, and
+// _foreignId, of another tenant.
+func fixtureResources(t *testing.T) *resourcemock.MockIResource {
+	t.Helper()
+
 	resources := resourcemock.NewMockIResource(t)
 	resources.EXPECT().Get(mock.Anything, mock.Anything).RunAndReturn(
 		func(_ context.Context, id string) (*tenantpb.Resource, error) {
@@ -148,6 +158,15 @@ func newFixture(t *testing.T, role typepb.Role) *fixture {
 		&tenantpb.ListResourceResponse{
 			Resources: []*tenantpb.Resource{{Id: _resourceId}},
 		}, nil).Maybe()
+
+	return resources
+}
+
+func newFixture(t *testing.T, role typepb.Role) *fixture {
+	t.Helper()
+
+	members := fixtureMembers(t, role)
+	resources := fixtureResources(t)
 
 	f := &fixture{
 		rules: &authSecRules{rows: &rows[*securitypb.SecRule]{
@@ -189,78 +208,81 @@ func secRuleOf(resourceId string) *securitypb.SecRule {
 	}}
 }
 
+const (
+	_member = typepb.Role_ROLE_MEMBER
+	_leader = typepb.Role_ROLE_LEADER
+)
+
+var _secRuleAccess = []struct {
+	name     string
+	giveRole typepb.Role
+	call     func(*SecurityService, context.Context) error
+	wantCode codes.Code
+}{
+	{"member reads", _member, func(s *SecurityService, c context.Context,
+	) error {
+		_, err := s.GetSecRule(c,
+			&securitypb.GetSecRuleRequest{Id: _ruleId})
+		return err
+	}, codes.OK},
+	{"member can not create", _member, func(s *SecurityService,
+		c context.Context) error {
+		_, err := s.CreateSecRule(c, &securitypb.CreateSecRuleRequest{
+			SecRule: secRuleOf(_resourceId)})
+		return err
+	}, codes.PermissionDenied},
+	{"member can not update", _member, func(s *SecurityService,
+		c context.Context) error {
+		_, err := s.UpdateSecRule(c, &securitypb.UpdateSecRuleRequest{
+			Id: _ruleId, SecRule: &securitypb.SecRule{}})
+		return err
+	}, codes.PermissionDenied},
+	{"member can not delete", _member, func(s *SecurityService,
+		c context.Context) error {
+		_, err := s.DeleteSecRule(c,
+			&securitypb.DeleteSecRuleRequest{Id: _ruleId})
+		return err
+	}, codes.PermissionDenied},
+	{"leader creates", _leader, func(s *SecurityService,
+		c context.Context) error {
+		_, err := s.CreateSecRule(c, &securitypb.CreateSecRuleRequest{
+			SecRule: secRuleOf(_resourceId)})
+		return err
+	}, codes.OK},
+	{"leader deletes", _leader, func(s *SecurityService,
+		c context.Context) error {
+		_, err := s.DeleteSecRule(c,
+			&securitypb.DeleteSecRuleRequest{Id: _ruleId})
+		return err
+	}, codes.OK},
+	{"create on a foreign resource", _leader, func(s *SecurityService,
+		c context.Context) error {
+		_, err := s.CreateSecRule(c, &securitypb.CreateSecRuleRequest{
+			SecRule: secRuleOf(_foreignId)})
+		return err
+	}, codes.NotFound},
+	{"get a foreign rule", _leader, func(s *SecurityService,
+		c context.Context) error {
+		_, err := s.GetSecRule(c,
+			&securitypb.GetSecRuleRequest{Id: _foreignRul})
+		return err
+	}, codes.NotFound},
+	{"delete a foreign rule", _leader, func(s *SecurityService,
+		c context.Context) error {
+		_, err := s.DeleteSecRule(c,
+			&securitypb.DeleteSecRuleRequest{Id: _foreignRul})
+		return err
+	}, codes.NotFound},
+	{"update a missing rule", _leader, func(s *SecurityService,
+		c context.Context) error {
+		_, err := s.UpdateSecRule(c, &securitypb.UpdateSecRuleRequest{
+			Id: "rule_x", SecRule: &securitypb.SecRule{}})
+		return err
+	}, codes.NotFound},
+}
+
 func TestSecRuleAccess(t *testing.T) {
-	const member = typepb.Role_ROLE_MEMBER
-	const leader = typepb.Role_ROLE_LEADER
-
-	tests := []struct {
-		name     string
-		giveRole typepb.Role
-		call     func(*SecurityService, context.Context) error
-		wantCode codes.Code
-	}{
-		{"member reads", member, func(s *SecurityService, c context.Context,
-		) error {
-			_, err := s.GetSecRule(c, &securitypb.GetSecRuleRequest{Id: _ruleId})
-			return err
-		}, codes.OK},
-		{"member can not create", member, func(s *SecurityService,
-			c context.Context) error {
-			_, err := s.CreateSecRule(c, &securitypb.CreateSecRuleRequest{
-				SecRule: secRuleOf(_resourceId)})
-			return err
-		}, codes.PermissionDenied},
-		{"member can not update", member, func(s *SecurityService,
-			c context.Context) error {
-			_, err := s.UpdateSecRule(c, &securitypb.UpdateSecRuleRequest{
-				Id: _ruleId, SecRule: &securitypb.SecRule{}})
-			return err
-		}, codes.PermissionDenied},
-		{"member can not delete", member, func(s *SecurityService,
-			c context.Context) error {
-			_, err := s.DeleteSecRule(c,
-				&securitypb.DeleteSecRuleRequest{Id: _ruleId})
-			return err
-		}, codes.PermissionDenied},
-		{"leader creates", leader, func(s *SecurityService,
-			c context.Context) error {
-			_, err := s.CreateSecRule(c, &securitypb.CreateSecRuleRequest{
-				SecRule: secRuleOf(_resourceId)})
-			return err
-		}, codes.OK},
-		{"leader deletes", leader, func(s *SecurityService,
-			c context.Context) error {
-			_, err := s.DeleteSecRule(c,
-				&securitypb.DeleteSecRuleRequest{Id: _ruleId})
-			return err
-		}, codes.OK},
-		{"create on a foreign resource", leader, func(s *SecurityService,
-			c context.Context) error {
-			_, err := s.CreateSecRule(c, &securitypb.CreateSecRuleRequest{
-				SecRule: secRuleOf(_foreignId)})
-			return err
-		}, codes.NotFound},
-		{"get a foreign rule", leader, func(s *SecurityService,
-			c context.Context) error {
-			_, err := s.GetSecRule(c,
-				&securitypb.GetSecRuleRequest{Id: _foreignRul})
-			return err
-		}, codes.NotFound},
-		{"delete a foreign rule", leader, func(s *SecurityService,
-			c context.Context) error {
-			_, err := s.DeleteSecRule(c,
-				&securitypb.DeleteSecRuleRequest{Id: _foreignRul})
-			return err
-		}, codes.NotFound},
-		{"update a missing rule", leader, func(s *SecurityService,
-			c context.Context) error {
-			_, err := s.UpdateSecRule(c, &securitypb.UpdateSecRuleRequest{
-				Id: "rule_x", SecRule: &securitypb.SecRule{}})
-			return err
-		}, codes.NotFound},
-	}
-
-	for _, tt := range tests {
+	for _, tt := range _secRuleAccess {
 		t.Run(tt.name, func(t *testing.T) {
 			f := newFixture(t, tt.giveRole)
 
@@ -318,7 +340,8 @@ func TestListSecRulesOfOthersRunsNoQuery(t *testing.T) {
 func TestListSecRulesWithoutFilterIsScoped(t *testing.T) {
 	f := newFixture(t, typepb.Role_ROLE_MEMBER)
 
-	_, err := f.svc.ListSecRules(portalUser(t), &securitypb.ListSecRulesRequest{})
+	_, err := f.svc.ListSecRules(portalUser(t),
+		&securitypb.ListSecRulesRequest{})
 
 	require.NoError(t, err)
 	require.Len(t, f.rules.listed, 1)
@@ -328,86 +351,88 @@ func TestListSecRulesWithoutFilterIsScoped(t *testing.T) {
 func TestListSecRulesAsAdminIsNotScoped(t *testing.T) {
 	f := newFixture(t, typepb.Role_ROLE_MEMBER)
 
-	_, err := f.svc.ListSecRules(adminUser(t), &securitypb.ListSecRulesRequest{})
+	_, err := f.svc.ListSecRules(adminUser(t),
+		&securitypb.ListSecRulesRequest{})
 
 	require.NoError(t, err)
 	require.Len(t, f.rules.listed, 1)
 	assert.Empty(t, f.rules.listed[0].GetResourceIds())
 }
 
+func validLimit(resourceId string) *securitypb.RateLimit {
+	return &securitypb.RateLimit{
+		TimeWindow: "10s", MaxRequests: 5, Owner: ownedBy(resourceId),
+	}
+}
+
+func validCrs(resourceId string) *securitypb.CoreRuleset {
+	return &securitypb.CoreRuleset{
+		Content: &coreRulesetpb.CoreRuleset{}, Owner: ownedBy(resourceId),
+	}
+}
+
+var _limitAndCrsAccess = []struct {
+	name     string
+	giveRole typepb.Role
+	call     func(*SecurityService, context.Context) error
+	wantCode codes.Code
+}{
+	{"get a foreign rate limit", typepb.Role_ROLE_ADMIN,
+		func(s *SecurityService, c context.Context) error {
+			_, err := s.GetRateLimit(c,
+				&securitypb.GetRateLimitRequest{Id: _foreignRul})
+			return err
+		}, codes.NotFound},
+	{"delete a foreign rate limit", typepb.Role_ROLE_ADMIN,
+		func(s *SecurityService, c context.Context) error {
+			_, err := s.DeleteRateLimit(c,
+				&securitypb.DeleteRateLimitRequest{Id: _foreignRul})
+			return err
+		}, codes.NotFound},
+	{"member can not create a rate limit", typepb.Role_ROLE_MEMBER,
+		func(s *SecurityService, c context.Context) error {
+			_, err := s.CreateRateLimit(c,
+				&securitypb.CreateRateLimitRequest{
+					RateLimit: validLimit(_resourceId)})
+			return err
+		}, codes.PermissionDenied},
+	{"create a rate limit on a foreign resource", typepb.Role_ROLE_ADMIN,
+		func(s *SecurityService, c context.Context) error {
+			_, err := s.CreateRateLimit(c,
+				&securitypb.CreateRateLimitRequest{
+					RateLimit: validLimit(_foreignId)})
+			return err
+		}, codes.NotFound},
+	{"get a foreign core ruleset", typepb.Role_ROLE_ADMIN,
+		func(s *SecurityService, c context.Context) error {
+			_, err := s.GetCoreRuleset(c,
+				&securitypb.GetCoreRulesetRequest{Id: _foreignRul})
+			return err
+		}, codes.NotFound},
+	{"member can not delete a core ruleset", typepb.Role_ROLE_MEMBER,
+		func(s *SecurityService, c context.Context) error {
+			_, err := s.DeleteCoreRuleset(c,
+				&securitypb.DeleteCoreRulesetRequest{Id: _ruleId})
+			return err
+		}, codes.PermissionDenied},
+	{"create a core ruleset on a foreign resource", typepb.Role_ROLE_ADMIN,
+		func(s *SecurityService, c context.Context) error {
+			_, err := s.CreateCoreRuleset(c,
+				&securitypb.CreateCoreRulesetRequest{
+					CoreRuleset: validCrs(_foreignId)})
+			return err
+		}, codes.NotFound},
+	{"leader creates a core ruleset", typepb.Role_ROLE_LEADER,
+		func(s *SecurityService, c context.Context) error {
+			_, err := s.CreateCoreRuleset(c,
+				&securitypb.CreateCoreRulesetRequest{
+					CoreRuleset: validCrs(_resourceId)})
+			return err
+		}, codes.OK},
+}
+
 func TestRateLimitAndCoreRulesetAccess(t *testing.T) {
-	validLimit := func(resourceId string) *securitypb.RateLimit {
-		return &securitypb.RateLimit{
-			TimeWindow: "10s", MaxRequests: 5, Owner: ownedBy(resourceId),
-		}
-	}
-	validCrs := func(resourceId string) *securitypb.CoreRuleset {
-		return &securitypb.CoreRuleset{
-			Content: &coreRulesetpb.CoreRuleset{}, Owner: ownedBy(resourceId),
-		}
-	}
-
-	tests := []struct {
-		name     string
-		giveRole typepb.Role
-		call     func(*SecurityService, context.Context) error
-		wantCode codes.Code
-	}{
-		{"get a foreign rate limit", typepb.Role_ROLE_ADMIN,
-			func(s *SecurityService, c context.Context) error {
-				_, err := s.GetRateLimit(c,
-					&securitypb.GetRateLimitRequest{Id: _foreignRul})
-				return err
-			}, codes.NotFound},
-		{"delete a foreign rate limit", typepb.Role_ROLE_ADMIN,
-			func(s *SecurityService, c context.Context) error {
-				_, err := s.DeleteRateLimit(c,
-					&securitypb.DeleteRateLimitRequest{Id: _foreignRul})
-				return err
-			}, codes.NotFound},
-		{"member can not create a rate limit", typepb.Role_ROLE_MEMBER,
-			func(s *SecurityService, c context.Context) error {
-				_, err := s.CreateRateLimit(c,
-					&securitypb.CreateRateLimitRequest{
-						RateLimit: validLimit(_resourceId)})
-				return err
-			}, codes.PermissionDenied},
-		{"create a rate limit on a foreign resource", typepb.Role_ROLE_ADMIN,
-			func(s *SecurityService, c context.Context) error {
-				_, err := s.CreateRateLimit(c,
-					&securitypb.CreateRateLimitRequest{
-						RateLimit: validLimit(_foreignId)})
-				return err
-			}, codes.NotFound},
-		{"get a foreign core ruleset", typepb.Role_ROLE_ADMIN,
-			func(s *SecurityService, c context.Context) error {
-				_, err := s.GetCoreRuleset(c,
-					&securitypb.GetCoreRulesetRequest{Id: _foreignRul})
-				return err
-			}, codes.NotFound},
-		{"member can not delete a core ruleset", typepb.Role_ROLE_MEMBER,
-			func(s *SecurityService, c context.Context) error {
-				_, err := s.DeleteCoreRuleset(c,
-					&securitypb.DeleteCoreRulesetRequest{Id: _ruleId})
-				return err
-			}, codes.PermissionDenied},
-		{"create a core ruleset on a foreign resource", typepb.Role_ROLE_ADMIN,
-			func(s *SecurityService, c context.Context) error {
-				_, err := s.CreateCoreRuleset(c,
-					&securitypb.CreateCoreRulesetRequest{
-						CoreRuleset: validCrs(_foreignId)})
-				return err
-			}, codes.NotFound},
-		{"leader creates a core ruleset", typepb.Role_ROLE_LEADER,
-			func(s *SecurityService, c context.Context) error {
-				_, err := s.CreateCoreRuleset(c,
-					&securitypb.CreateCoreRulesetRequest{
-						CoreRuleset: validCrs(_resourceId)})
-				return err
-			}, codes.OK},
-	}
-
-	for _, tt := range tests {
+	for _, tt := range _limitAndCrsAccess {
 		t.Run(tt.name, func(t *testing.T) {
 			f := newFixture(t, tt.giveRole)
 

@@ -38,8 +38,8 @@ const (
 )
 
 const (
-	_retryMin = 500 * time.Millisecond
-	_retryMax = 30 * time.Second
+	_minBackoff = 500 * time.Millisecond
+	_maxBackoff = 30 * time.Second
 )
 
 var (
@@ -176,7 +176,7 @@ func consumerOpts(cfg ConsumerConfig) []kgo.Opt {
 // or ctx is done, then reports false.
 func handleRetry(ctx context.Context, handle BatchHandler,
 	records []*kgo.Record) bool {
-	backoff := _retryMin
+	backoff := _minBackoff
 	for {
 		err := handle(ctx, records)
 		if err == nil {
@@ -192,7 +192,7 @@ func handleRetry(ctx context.Context, handle BatchHandler,
 			return false
 		case <-timer.C:
 		}
-		backoff = min(2*backoff, _retryMax)
+		backoff = min(2*backoff, _maxBackoff)
 	}
 }
 

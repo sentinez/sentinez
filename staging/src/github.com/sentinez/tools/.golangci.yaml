@@ -46,8 +46,6 @@ linters:
   exclusions:
     generated: lax
     paths:
-      - apps/
-      - packages/
       - third_party$
       - builtin$
       - examples$
@@ -61,8 +59,6 @@ formatters:
   exclusions:
     generated: lax
     paths:
-      - apps/
-      - packages/
       - third_party$
       - builtin$
       - examples$

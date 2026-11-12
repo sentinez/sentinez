@@ -152,26 +152,47 @@ func (s *Server) Start() error {
 		return err
 	}
 
-	stdLis, err := network.StdListen(addr, network.WithTCP())
+	lis, err := listen(addr, tlsConf)
 	if err != nil {
 		return err
 	}
-	defer func() { _ = stdLis.Close() }()
-
-	quicLis, err := network.QuicListen(addr, network.WithTLSConfig(tlsConf))
-	if err != nil {
-		return err
-	}
-	defer func() { _ = quicLis.Close() }()
+	defer lis.close()
 
 	opts := []szhttp.ServerOption{
 		szhttp.WithCertificate(certFile, keyFile),
 		szhttp.WithTLSConfig(tlsConf),
-		szhttp.WithStdListener(stdLis),
-		szhttp.WithQuicListener(quicLis),
+		szhttp.WithStdListener(lis.std),
+		szhttp.WithQuicListener(lis.quic),
 	}
 
 	return s.server.ListenAndServe(addr, append(opts, engineOpts...)...)
+}
+
+// listeners the TCP and the QUIC listener of the same address.
+type listeners struct {
+	std  *network.StdListener
+	quic *network.QuicListener
+}
+
+func listen(addr string, tlsConf *tls.Config) (*listeners, error) {
+	std, err := network.StdListen(addr, network.WithTCP())
+	if err != nil {
+		return nil, err
+	}
+
+	quic, err := network.QuicListen(addr, network.WithTLSConfig(tlsConf))
+	if err != nil {
+		_ = std.Close()
+
+		return nil, err
+	}
+
+	return &listeners{std: std, quic: quic}, nil
+}
+
+func (l *listeners) close() {
+	_ = l.std.Close()
+	_ = l.quic.Close()
 }
 
 // newTLSConfig loads the certificate up front: the QUIC listener clones the

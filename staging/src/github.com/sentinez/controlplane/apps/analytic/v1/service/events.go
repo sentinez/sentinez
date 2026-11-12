@@ -30,7 +30,8 @@ import (
 
 // ListHttpIngressEvents implements pb.AnalyticServiceServer.
 func (srv *AnalyticService) ListHttpIngressEvents(ctx context.Context,
-	req *pb.ListHttpIngressEventsRequest) (*pb.ListHttpIngressEventsResponse, error) {
+	req *pb.ListHttpIngressEventsRequest,
+) (*pb.ListHttpIngressEventsResponse, error) {
 	events, err := listEvents(ctx, req, srv.events.HttpIngress.List)
 	if err != nil {
 		return nil, err
@@ -41,7 +42,8 @@ func (srv *AnalyticService) ListHttpIngressEvents(ctx context.Context,
 
 // ListHttpEgressEvents implements pb.AnalyticServiceServer.
 func (srv *AnalyticService) ListHttpEgressEvents(ctx context.Context,
-	req *pb.ListHttpEgressEventsRequest) (*pb.ListHttpEgressEventsResponse, error) {
+	req *pb.ListHttpEgressEventsRequest,
+) (*pb.ListHttpEgressEventsResponse, error) {
 	events, err := listEvents(ctx, req, srv.events.HttpEgress.List)
 	if err != nil {
 		return nil, err
@@ -63,7 +65,8 @@ func (srv *AnalyticService) ListSecRuleEvents(ctx context.Context,
 
 // ListRateLimitEvents implements pb.AnalyticServiceServer.
 func (srv *AnalyticService) ListRateLimitEvents(ctx context.Context,
-	req *pb.ListRateLimitEventsRequest) (*pb.ListRateLimitEventsResponse, error) {
+	req *pb.ListRateLimitEventsRequest,
+) (*pb.ListRateLimitEventsResponse, error) {
 	events, err := listEvents(ctx, req, srv.events.RateLimit.List)
 	if err != nil {
 		return nil, err

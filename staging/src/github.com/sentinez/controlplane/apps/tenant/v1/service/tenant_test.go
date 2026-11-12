@@ -125,7 +125,7 @@ func TestCreateTenant(t *testing.T) {
 		Roles:    []typepb.Role{typepb.Role_ROLE_ADMIN},
 	}).Return(&tenantpb.Member{}, nil)
 
-	resp, err := New(tx, nil, members, tenantRepo(t)).
+	resp, err := New(tx, nil, members, tenantRepo(t), nil).
 		CreateTenant(authContext(t, _userId), _createTenantReq)
 
 	require.NoError(t, err)
@@ -143,7 +143,7 @@ func TestCreateTenantRollsBackWhenMemberFails(t *testing.T) {
 	members.EXPECT().Create(mock.Anything, mock.Anything).
 		Return(nil, errors.New("insert member"))
 
-	_, err := New(tx, nil, members, tenantRepo(t)).
+	_, err := New(tx, nil, members, tenantRepo(t), nil).
 		CreateTenant(authContext(t, _userId), _createTenantReq)
 
 	require.Error(t, err)
@@ -151,7 +151,7 @@ func TestCreateTenantRollsBackWhenMemberFails(t *testing.T) {
 }
 
 func TestCreateTenantWithoutToken(t *testing.T) {
-	_, err := New(nil, nil, nil, nil).
+	_, err := New(nil, nil, nil, nil, nil).
 		CreateTenant(t.Context(), _createTenantReq)
 
 	assert.Equal(t, codes.Unauthenticated, status.Code(err))
@@ -163,7 +163,7 @@ func TestGetTenant(t *testing.T) {
 	repo := tenantmock.NewMockITenant(t)
 	repo.EXPECT().Get(mock.Anything, _tenantId).Return(want, nil)
 
-	resp, err := New(nil, nil, nil, repo).GetTenant(asAdmin(t),
+	resp, err := New(nil, nil, nil, repo, nil).GetTenant(asAdmin(t),
 		&tenantpb.GetTenantRequest{Id: _tenantId})
 
 	require.NoError(t, err)
@@ -175,7 +175,7 @@ func missingTenant(t *testing.T) *Service {
 	repo := tenantmock.NewMockITenant(t)
 	repo.EXPECT().Get(mock.Anything, _tenantId).Return(nil, pgx.ErrNoRows)
 
-	return New(nil, nil, nil, repo)
+	return New(nil, nil, nil, repo, nil)
 }
 
 func TestGetTenantNotFound(t *testing.T) {
@@ -209,7 +209,7 @@ func TestUpdateTenant(t *testing.T) {
 		Return(&tenantpb.Tenant{Id: _tenantId}, nil)
 	repo.EXPECT().Update(mock.Anything, want).Return(nil)
 
-	_, err := New(nil, nil, nil, repo).UpdateTenant(asAdmin(t),
+	_, err := New(nil, nil, nil, repo, nil).UpdateTenant(asAdmin(t),
 		&tenantpb.UpdateTenantRequest{
 			Id: _tenantId, Name: "acme", Plan: typepb.Plan_PLAN_PRO,
 		})
@@ -223,7 +223,7 @@ func TestDeleteTenant(t *testing.T) {
 		Return(&tenantpb.Tenant{Id: _tenantId}, nil)
 	repo.EXPECT().Delete(mock.Anything, _tenantId).Return(nil)
 
-	_, err := New(nil, nil, nil, repo).DeleteTenant(asAdmin(t),
+	_, err := New(nil, nil, nil, repo, nil).DeleteTenant(asAdmin(t),
 		&tenantpb.DeleteTenantRequest{Id: _tenantId})
 
 	require.NoError(t, err)
@@ -238,7 +238,7 @@ func TestListTenant(t *testing.T) {
 	repo := tenantmock.NewMockITenant(t)
 	repo.EXPECT().List(mock.Anything, req).Return(want, nil)
 
-	resp, err := New(nil, nil, nil, repo).ListTenant(asAdmin(t), req)
+	resp, err := New(nil, nil, nil, repo, nil).ListTenant(asAdmin(t), req)
 
 	require.NoError(t, err)
 	assert.Equal(t, want, resp)

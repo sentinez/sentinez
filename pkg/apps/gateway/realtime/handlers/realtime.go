@@ -18,6 +18,7 @@ package realtimehdl
 import (
 	"fmt"
 
+	"github.com/gorilla/websocket"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/pkg/bytesconv"
 	"github.com/sentinez/pkg/szerror"
@@ -51,6 +52,13 @@ func Handler(ctx szhttp.Context) error {
 	realtimemnt.Manager().AddClient(bytesconv.B2s(clientId), conn)
 	defer realtimemnt.Manager().RemoveClient(bytesconv.B2s(clientId))
 
+	readLoop(conn, clientId)
+
+	return nil
+}
+
+// readLoop broadcasts what the client sends, until its connection fails.
+func readLoop(conn *websocket.Conn, clientId []byte) {
 	for {
 		_, msg, err := conn.ReadMessage()
 		if err != nil {
@@ -63,6 +71,4 @@ func Handler(ctx szhttp.Context) error {
 		realtimemnt.Manager().
 			Broadcast(fmt.Appendf(nil, "From %s: %s", clientId, msg))
 	}
-
-	return nil
 }

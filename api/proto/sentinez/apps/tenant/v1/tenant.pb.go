@@ -1688,6 +1688,439 @@ func (x *ListTenantResponse) GetTenants() []*Tenant {
 	return nil
 }
 
+type CreateCaCertificateRequest struct {
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	ResourceId string                 `protobuf:"bytes,1,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
+	// Named after the common name of each certificate when empty; numbered
+	// (" #1", " #2" ...) when the bundle holds several.
+	Name        string             `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Description string             `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	Usage       CaCertificateUsage `protobuf:"varint,4,opt,name=usage,proto3,enum=sentinez.apps.tenant.v1.CaCertificateUsage" json:"usage,omitempty"`
+	// One or more PEM CERTIFICATE blocks, each a CA; for the usage SERVER they
+	// need not be CAs. Each is stored on its own. A PEM private key block may
+	// come in it too, as in a single pem file.
+	Pem string `protobuf:"bytes,5,opt,name=pem,proto3" json:"pem,omitempty"`
+	// PEM private key, kept with the one certificate of pem that it belongs to
+	// (the request is refused when it matches none, or holds more than one
+	// key). Required for the usage SERVER, here or in pem.
+	PrivateKey    string `protobuf:"bytes,6,opt,name=private_key,json=privateKey,proto3" json:"private_key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateCaCertificateRequest) Reset() {
+	*x = CreateCaCertificateRequest{}
+	mi := &file_sentinez_apps_tenant_v1_tenant_proto_msgTypes[34]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateCaCertificateRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateCaCertificateRequest) ProtoMessage() {}
+
+func (x *CreateCaCertificateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_apps_tenant_v1_tenant_proto_msgTypes[34]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateCaCertificateRequest.ProtoReflect.Descriptor instead.
+func (*CreateCaCertificateRequest) Descriptor() ([]byte, []int) {
+	return file_sentinez_apps_tenant_v1_tenant_proto_rawDescGZIP(), []int{34}
+}
+
+func (x *CreateCaCertificateRequest) GetResourceId() string {
+	if x != nil {
+		return x.ResourceId
+	}
+	return ""
+}
+
+func (x *CreateCaCertificateRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CreateCaCertificateRequest) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *CreateCaCertificateRequest) GetUsage() CaCertificateUsage {
+	if x != nil {
+		return x.Usage
+	}
+	return CaCertificateUsage_CA_CERTIFICATE_USAGE_UNSPECIFIED
+}
+
+func (x *CreateCaCertificateRequest) GetPem() string {
+	if x != nil {
+		return x.Pem
+	}
+	return ""
+}
+
+func (x *CreateCaCertificateRequest) GetPrivateKey() string {
+	if x != nil {
+		return x.PrivateKey
+	}
+	return ""
+}
+
+type CreateCaCertificateResponse struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	CaCertificates []*CaCertificate       `protobuf:"bytes,1,rep,name=ca_certificates,json=caCertificates,proto3" json:"ca_certificates,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *CreateCaCertificateResponse) Reset() {
+	*x = CreateCaCertificateResponse{}
+	mi := &file_sentinez_apps_tenant_v1_tenant_proto_msgTypes[35]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateCaCertificateResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateCaCertificateResponse) ProtoMessage() {}
+
+func (x *CreateCaCertificateResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_apps_tenant_v1_tenant_proto_msgTypes[35]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateCaCertificateResponse.ProtoReflect.Descriptor instead.
+func (*CreateCaCertificateResponse) Descriptor() ([]byte, []int) {
+	return file_sentinez_apps_tenant_v1_tenant_proto_rawDescGZIP(), []int{35}
+}
+
+func (x *CreateCaCertificateResponse) GetCaCertificates() []*CaCertificate {
+	if x != nil {
+		return x.CaCertificates
+	}
+	return nil
+}
+
+type GetCaCertificateRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetCaCertificateRequest) Reset() {
+	*x = GetCaCertificateRequest{}
+	mi := &file_sentinez_apps_tenant_v1_tenant_proto_msgTypes[36]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetCaCertificateRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetCaCertificateRequest) ProtoMessage() {}
+
+func (x *GetCaCertificateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_apps_tenant_v1_tenant_proto_msgTypes[36]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetCaCertificateRequest.ProtoReflect.Descriptor instead.
+func (*GetCaCertificateRequest) Descriptor() ([]byte, []int) {
+	return file_sentinez_apps_tenant_v1_tenant_proto_rawDescGZIP(), []int{36}
+}
+
+func (x *GetCaCertificateRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type GetCaCertificateResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	CaCertificate *CaCertificate         `protobuf:"bytes,1,opt,name=ca_certificate,json=caCertificate,proto3" json:"ca_certificate,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetCaCertificateResponse) Reset() {
+	*x = GetCaCertificateResponse{}
+	mi := &file_sentinez_apps_tenant_v1_tenant_proto_msgTypes[37]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetCaCertificateResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetCaCertificateResponse) ProtoMessage() {}
+
+func (x *GetCaCertificateResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_apps_tenant_v1_tenant_proto_msgTypes[37]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetCaCertificateResponse.ProtoReflect.Descriptor instead.
+func (*GetCaCertificateResponse) Descriptor() ([]byte, []int) {
+	return file_sentinez_apps_tenant_v1_tenant_proto_rawDescGZIP(), []int{37}
+}
+
+func (x *GetCaCertificateResponse) GetCaCertificate() *CaCertificate {
+	if x != nil {
+		return x.CaCertificate
+	}
+	return nil
+}
+
+type DeleteCaCertificateRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteCaCertificateRequest) Reset() {
+	*x = DeleteCaCertificateRequest{}
+	mi := &file_sentinez_apps_tenant_v1_tenant_proto_msgTypes[38]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteCaCertificateRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteCaCertificateRequest) ProtoMessage() {}
+
+func (x *DeleteCaCertificateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_apps_tenant_v1_tenant_proto_msgTypes[38]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteCaCertificateRequest.ProtoReflect.Descriptor instead.
+func (*DeleteCaCertificateRequest) Descriptor() ([]byte, []int) {
+	return file_sentinez_apps_tenant_v1_tenant_proto_rawDescGZIP(), []int{38}
+}
+
+func (x *DeleteCaCertificateRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type DeleteCaCertificateResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteCaCertificateResponse) Reset() {
+	*x = DeleteCaCertificateResponse{}
+	mi := &file_sentinez_apps_tenant_v1_tenant_proto_msgTypes[39]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteCaCertificateResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteCaCertificateResponse) ProtoMessage() {}
+
+func (x *DeleteCaCertificateResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_apps_tenant_v1_tenant_proto_msgTypes[39]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteCaCertificateResponse.ProtoReflect.Descriptor instead.
+func (*DeleteCaCertificateResponse) Descriptor() ([]byte, []int) {
+	return file_sentinez_apps_tenant_v1_tenant_proto_rawDescGZIP(), []int{39}
+}
+
+type ListCaCertificateRequest struct {
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	Page        *v11.Pages             `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
+	ResourceIds []string               `protobuf:"bytes,2,rep,name=resource_ids,json=resourceIds,proto3" json:"resource_ids,omitempty"`
+	Usage       CaCertificateUsage     `protobuf:"varint,3,opt,name=usage,proto3,enum=sentinez.apps.tenant.v1.CaCertificateUsage" json:"usage,omitempty"`
+	// Lowercase hex SHA-256 of the DER bytes.
+	FingerprintSha256 string `protobuf:"bytes,4,opt,name=fingerprint_sha256,json=fingerprintSha256,proto3" json:"fingerprint_sha256,omitempty"`
+	Provider          string `protobuf:"bytes,5,opt,name=provider,proto3" json:"provider,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *ListCaCertificateRequest) Reset() {
+	*x = ListCaCertificateRequest{}
+	mi := &file_sentinez_apps_tenant_v1_tenant_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListCaCertificateRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListCaCertificateRequest) ProtoMessage() {}
+
+func (x *ListCaCertificateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_apps_tenant_v1_tenant_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListCaCertificateRequest.ProtoReflect.Descriptor instead.
+func (*ListCaCertificateRequest) Descriptor() ([]byte, []int) {
+	return file_sentinez_apps_tenant_v1_tenant_proto_rawDescGZIP(), []int{40}
+}
+
+func (x *ListCaCertificateRequest) GetPage() *v11.Pages {
+	if x != nil {
+		return x.Page
+	}
+	return nil
+}
+
+func (x *ListCaCertificateRequest) GetResourceIds() []string {
+	if x != nil {
+		return x.ResourceIds
+	}
+	return nil
+}
+
+func (x *ListCaCertificateRequest) GetUsage() CaCertificateUsage {
+	if x != nil {
+		return x.Usage
+	}
+	return CaCertificateUsage_CA_CERTIFICATE_USAGE_UNSPECIFIED
+}
+
+func (x *ListCaCertificateRequest) GetFingerprintSha256() string {
+	if x != nil {
+		return x.FingerprintSha256
+	}
+	return ""
+}
+
+func (x *ListCaCertificateRequest) GetProvider() string {
+	if x != nil {
+		return x.Provider
+	}
+	return ""
+}
+
+type ListCaCertificateResponse struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Total          int64                  `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
+	CaCertificates []*CaCertificate       `protobuf:"bytes,2,rep,name=ca_certificates,json=caCertificates,proto3" json:"ca_certificates,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *ListCaCertificateResponse) Reset() {
+	*x = ListCaCertificateResponse{}
+	mi := &file_sentinez_apps_tenant_v1_tenant_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListCaCertificateResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListCaCertificateResponse) ProtoMessage() {}
+
+func (x *ListCaCertificateResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_apps_tenant_v1_tenant_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListCaCertificateResponse.ProtoReflect.Descriptor instead.
+func (*ListCaCertificateResponse) Descriptor() ([]byte, []int) {
+	return file_sentinez_apps_tenant_v1_tenant_proto_rawDescGZIP(), []int{41}
+}
+
+func (x *ListCaCertificateResponse) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+func (x *ListCaCertificateResponse) GetCaCertificates() []*CaCertificate {
+	if x != nil {
+		return x.CaCertificates
+	}
+	return nil
+}
+
 var File_sentinez_apps_tenant_v1_tenant_proto protoreflect.FileDescriptor
 
 const file_sentinez_apps_tenant_v1_tenant_proto_rawDesc = "" +
@@ -1781,7 +2214,35 @@ const file_sentinez_apps_tenant_v1_tenant_proto_rawDesc = "" +
 	"\x03ids\x18\x04 \x03(\tB\x12\xbaH\x0f\x92\x01\f\x18\x01\"\br\x06:\x04tnt_R\x03ids\"e\n" +
 	"\x12ListTenantResponse\x12\x14\n" +
 	"\x05total\x18\x01 \x01(\x03R\x05total\x129\n" +
-	"\atenants\x18\x02 \x03(\v2\x1f.sentinez.apps.tenant.v1.TenantR\atenants2\xa1\x13\n" +
+	"\atenants\x18\x02 \x03(\v2\x1f.sentinez.apps.tenant.v1.TenantR\atenants\"\xdf\x02\n" +
+	"\x1aCreateCaCertificateRequest\x120\n" +
+	"\vresource_id\x18\x01 \x01(\tB\x0f\xbaH\f\xc8\x01\x01r\a:\x05rsrc_R\n" +
+	"resourceId\x12\x1b\n" +
+	"\x04name\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x18xR\x04name\x12*\n" +
+	"\vdescription\x18\x03 \x01(\tB\b\xbaH\x05r\x03\x18\xff\x01R\vdescription\x12M\n" +
+	"\x05usage\x18\x04 \x01(\x0e2+.sentinez.apps.tenant.v1.CaCertificateUsageB\n" +
+	"\xbaH\a\x82\x01\x04\x10\x01 \x00R\x05usage\x12;\n" +
+	"\x03pem\x18\x05 \x01(\tB)\xbaH&\xc8\x01\x01r!(\x80\x80\x10J\x1b-----BEGIN CERTIFICATE-----R\x03pem\x12:\n" +
+	"\vprivate_key\x18\x06 \x01(\tB\x19\xbaH\x16\xd8\x01\x01r\x11(\x80\x80\x04J\v-----BEGIN R\n" +
+	"privateKey\"n\n" +
+	"\x1bCreateCaCertificateResponse\x12O\n" +
+	"\x0fca_certificates\x18\x01 \x03(\v2&.sentinez.apps.tenant.v1.CaCertificateR\x0ecaCertificates\";\n" +
+	"\x17GetCaCertificateRequest\x12 \n" +
+	"\x02id\x18\x01 \x01(\tB\x10\xbaH\r\xc8\x01\x01r\b:\x06cacrt_R\x02id\"i\n" +
+	"\x18GetCaCertificateResponse\x12M\n" +
+	"\x0eca_certificate\x18\x01 \x01(\v2&.sentinez.apps.tenant.v1.CaCertificateR\rcaCertificate\">\n" +
+	"\x1aDeleteCaCertificateRequest\x12 \n" +
+	"\x02id\x18\x01 \x01(\tB\x10\xbaH\r\xc8\x01\x01r\b:\x06cacrt_R\x02id\"\x1d\n" +
+	"\x1bDeleteCaCertificateResponse\"\xbc\x02\n" +
+	"\x18ListCaCertificateRequest\x12,\n" +
+	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x126\n" +
+	"\fresource_ids\x18\x02 \x03(\tB\x13\xbaH\x10\x92\x01\r\x18\x01\"\tr\a:\x05rsrc_R\vresourceIds\x12K\n" +
+	"\x05usage\x18\x03 \x01(\x0e2+.sentinez.apps.tenant.v1.CaCertificateUsageB\b\xbaH\x05\x82\x01\x02\x10\x01R\x05usage\x12G\n" +
+	"\x12fingerprint_sha256\x18\x04 \x01(\tB\x18\xbaH\x15\xd8\x01\x01r\x102\x0e^[0-9a-f]{64}$R\x11fingerprintSha256\x12$\n" +
+	"\bprovider\x18\x05 \x01(\tB\b\xbaH\x05r\x03\x18\xff\x01R\bprovider\"\x82\x01\n" +
+	"\x19ListCaCertificateResponse\x12\x14\n" +
+	"\x05total\x18\x01 \x01(\x03R\x05total\x12O\n" +
+	"\x0fca_certificates\x18\x02 \x03(\v2&.sentinez.apps.tenant.v1.CaCertificateR\x0ecaCertificates2\xbe\x18\n" +
 	"\rTenantService\x12w\n" +
 	"\x06Status\x12&.sentinez.apps.tenant.v1.StatusRequest\x1a'.sentinez.apps.tenant.v1.StatusResponse\"\x1c\x8a\xb5\x18\x02\x18\x01\x82\xd3\xe4\x93\x02\x10\x12\x0e/tenant/status\x12\x8e\x01\n" +
 	"\fListResource\x12,.sentinez.apps.tenant.v1.ListResourceRequest\x1a-.sentinez.apps.tenant.v1.ListResourceResponse\"!\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x13\x12\x11/tenant/resources\x12\x96\x01\n" +
@@ -1795,7 +2256,11 @@ const file_sentinez_apps_tenant_v1_tenant_proto_rawDesc = "" +
 	"\fCreateMember\x12,.sentinez.apps.tenant.v1.CreateMemberRequest\x1a-.sentinez.apps.tenant.v1.CreateMemberResponse\"!\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/tenant/member\x12\x8e\x01\n" +
 	"\fUpdateMember\x12,.sentinez.apps.tenant.v1.UpdateMemberRequest\x1a-.sentinez.apps.tenant.v1.UpdateMemberResponse\"!\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x13:\x01*\x1a\x0e/tenant/member\x12\x8b\x01\n" +
 	"\fDeleteMember\x12,.sentinez.apps.tenant.v1.DeleteMemberRequest\x1a-.sentinez.apps.tenant.v1.DeleteMemberResponse\"\x1e\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x10*\x0e/tenant/member\x12\x82\x01\n" +
-	"\tGetMember\x12).sentinez.apps.tenant.v1.GetMemberRequest\x1a*.sentinez.apps.tenant.v1.GetMemberResponse\"\x1e\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x10\x12\x0e/tenant/member\x12\x86\x01\n" +
+	"\tGetMember\x12).sentinez.apps.tenant.v1.GetMemberRequest\x1a*.sentinez.apps.tenant.v1.GetMemberResponse\"\x1e\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x10\x12\x0e/tenant/member\x12\xa2\x01\n" +
+	"\x11ListCaCertificate\x121.sentinez.apps.tenant.v1.ListCaCertificateRequest\x1a2.sentinez.apps.tenant.v1.ListCaCertificateResponse\"&\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x18\x12\x16/tenant/cacertificates\x12\xaa\x01\n" +
+	"\x13CreateCaCertificate\x123.sentinez.apps.tenant.v1.CreateCaCertificateRequest\x1a4.sentinez.apps.tenant.v1.CreateCaCertificateResponse\"(\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/tenant/cacertificate\x12\x9e\x01\n" +
+	"\x10GetCaCertificate\x120.sentinez.apps.tenant.v1.GetCaCertificateRequest\x1a1.sentinez.apps.tenant.v1.GetCaCertificateResponse\"%\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x17\x12\x15/tenant/cacertificate\x12\xa7\x01\n" +
+	"\x13DeleteCaCertificate\x123.sentinez.apps.tenant.v1.DeleteCaCertificateRequest\x1a4.sentinez.apps.tenant.v1.DeleteCaCertificateResponse\"%\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x17*\x15/tenant/cacertificate\x12\x86\x01\n" +
 	"\n" +
 	"ListTenant\x12*.sentinez.apps.tenant.v1.ListTenantRequest\x1a+.sentinez.apps.tenant.v1.ListTenantResponse\"\x1f\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x11\x12\x0f/tenant/tenants\x12\x8e\x01\n" +
 	"\fCreateTenant\x12,.sentinez.apps.tenant.v1.CreateTenantRequest\x1a-.sentinez.apps.tenant.v1.CreateTenantResponse\"!\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/tenant/tenant\x12\x8e\x01\n" +
@@ -1823,7 +2288,7 @@ func file_sentinez_apps_tenant_v1_tenant_proto_rawDescGZIP() []byte {
 	return file_sentinez_apps_tenant_v1_tenant_proto_rawDescData
 }
 
-var file_sentinez_apps_tenant_v1_tenant_proto_msgTypes = make([]protoimpl.MessageInfo, 34)
+var file_sentinez_apps_tenant_v1_tenant_proto_msgTypes = make([]protoimpl.MessageInfo, 42)
 var file_sentinez_apps_tenant_v1_tenant_proto_goTypes = []any{
 	(*GetResourceRequest)(nil),          // 0: sentinez.apps.tenant.v1.GetResourceRequest
 	(*GetResourceByDomainRequest)(nil),  // 1: sentinez.apps.tenant.v1.GetResourceByDomainRequest
@@ -1859,78 +2324,102 @@ var file_sentinez_apps_tenant_v1_tenant_proto_goTypes = []any{
 	(*CreateTenantResponse)(nil),        // 31: sentinez.apps.tenant.v1.CreateTenantResponse
 	(*ListTenantRequest)(nil),           // 32: sentinez.apps.tenant.v1.ListTenantRequest
 	(*ListTenantResponse)(nil),          // 33: sentinez.apps.tenant.v1.ListTenantResponse
-	(*Resource)(nil),                    // 34: sentinez.apps.tenant.v1.Resource
-	(*v1.Server)(nil),                   // 35: sentinez.dmz.edge.v1.Server
-	(v11.Status)(0),                     // 36: sentinez.types.v1.Status
-	(*v11.Pages)(nil),                   // 37: sentinez.types.v1.Pages
-	(*Member)(nil),                      // 38: sentinez.apps.tenant.v1.Member
-	(v11.Role)(0),                       // 39: sentinez.types.v1.Role
-	(*Tenant)(nil),                      // 40: sentinez.apps.tenant.v1.Tenant
-	(v11.Plan)(0),                       // 41: sentinez.types.v1.Plan
+	(*CreateCaCertificateRequest)(nil),  // 34: sentinez.apps.tenant.v1.CreateCaCertificateRequest
+	(*CreateCaCertificateResponse)(nil), // 35: sentinez.apps.tenant.v1.CreateCaCertificateResponse
+	(*GetCaCertificateRequest)(nil),     // 36: sentinez.apps.tenant.v1.GetCaCertificateRequest
+	(*GetCaCertificateResponse)(nil),    // 37: sentinez.apps.tenant.v1.GetCaCertificateResponse
+	(*DeleteCaCertificateRequest)(nil),  // 38: sentinez.apps.tenant.v1.DeleteCaCertificateRequest
+	(*DeleteCaCertificateResponse)(nil), // 39: sentinez.apps.tenant.v1.DeleteCaCertificateResponse
+	(*ListCaCertificateRequest)(nil),    // 40: sentinez.apps.tenant.v1.ListCaCertificateRequest
+	(*ListCaCertificateResponse)(nil),   // 41: sentinez.apps.tenant.v1.ListCaCertificateResponse
+	(*Resource)(nil),                    // 42: sentinez.apps.tenant.v1.Resource
+	(*v1.Server)(nil),                   // 43: sentinez.dmz.edge.v1.Server
+	(v11.Status)(0),                     // 44: sentinez.types.v1.Status
+	(*v11.Pages)(nil),                   // 45: sentinez.types.v1.Pages
+	(*Member)(nil),                      // 46: sentinez.apps.tenant.v1.Member
+	(v11.Role)(0),                       // 47: sentinez.types.v1.Role
+	(*Tenant)(nil),                      // 48: sentinez.apps.tenant.v1.Tenant
+	(v11.Plan)(0),                       // 49: sentinez.types.v1.Plan
+	(CaCertificateUsage)(0),             // 50: sentinez.apps.tenant.v1.CaCertificateUsage
+	(*CaCertificate)(nil),               // 51: sentinez.apps.tenant.v1.CaCertificate
 }
 var file_sentinez_apps_tenant_v1_tenant_proto_depIdxs = []int32{
-	34, // 0: sentinez.apps.tenant.v1.GetResourceByDomainResponse.resource:type_name -> sentinez.apps.tenant.v1.Resource
-	34, // 1: sentinez.apps.tenant.v1.GetResourceResponse.resource:type_name -> sentinez.apps.tenant.v1.Resource
-	35, // 2: sentinez.apps.tenant.v1.UpdateResourceRequest.server:type_name -> sentinez.dmz.edge.v1.Server
-	36, // 3: sentinez.apps.tenant.v1.UpdateResourceRequest.status:type_name -> sentinez.types.v1.Status
-	35, // 4: sentinez.apps.tenant.v1.CreateResourceRequest.server:type_name -> sentinez.dmz.edge.v1.Server
-	36, // 5: sentinez.apps.tenant.v1.CreateResourceRequest.status:type_name -> sentinez.types.v1.Status
-	34, // 6: sentinez.apps.tenant.v1.CreateResourceResponse.resource:type_name -> sentinez.apps.tenant.v1.Resource
-	37, // 7: sentinez.apps.tenant.v1.ListResourceRequest.page:type_name -> sentinez.types.v1.Pages
-	36, // 8: sentinez.apps.tenant.v1.ListResourceRequest.status:type_name -> sentinez.types.v1.Status
-	34, // 9: sentinez.apps.tenant.v1.ListResourceResponse.resources:type_name -> sentinez.apps.tenant.v1.Resource
-	38, // 10: sentinez.apps.tenant.v1.GetMemberResponse.member:type_name -> sentinez.apps.tenant.v1.Member
-	39, // 11: sentinez.apps.tenant.v1.UpdateMemberRequest.roles:type_name -> sentinez.types.v1.Role
-	39, // 12: sentinez.apps.tenant.v1.CreateMemberRequest.roles:type_name -> sentinez.types.v1.Role
-	38, // 13: sentinez.apps.tenant.v1.CreateMemberResponse.member:type_name -> sentinez.apps.tenant.v1.Member
-	37, // 14: sentinez.apps.tenant.v1.ListMemberRequest.page:type_name -> sentinez.types.v1.Pages
-	38, // 15: sentinez.apps.tenant.v1.ListMemberResponse.members:type_name -> sentinez.apps.tenant.v1.Member
-	40, // 16: sentinez.apps.tenant.v1.GetTenantResponse.tenant:type_name -> sentinez.apps.tenant.v1.Tenant
-	41, // 17: sentinez.apps.tenant.v1.UpdateTenantRequest.plan:type_name -> sentinez.types.v1.Plan
-	41, // 18: sentinez.apps.tenant.v1.CreateTenantRequest.plan:type_name -> sentinez.types.v1.Plan
-	40, // 19: sentinez.apps.tenant.v1.CreateTenantResponse.tenant:type_name -> sentinez.apps.tenant.v1.Tenant
-	37, // 20: sentinez.apps.tenant.v1.ListTenantRequest.page:type_name -> sentinez.types.v1.Pages
-	41, // 21: sentinez.apps.tenant.v1.ListTenantRequest.plan:type_name -> sentinez.types.v1.Plan
-	40, // 22: sentinez.apps.tenant.v1.ListTenantResponse.tenants:type_name -> sentinez.apps.tenant.v1.Tenant
-	13, // 23: sentinez.apps.tenant.v1.TenantService.Status:input_type -> sentinez.apps.tenant.v1.StatusRequest
-	10, // 24: sentinez.apps.tenant.v1.TenantService.ListResource:input_type -> sentinez.apps.tenant.v1.ListResourceRequest
-	8,  // 25: sentinez.apps.tenant.v1.TenantService.CreateResource:input_type -> sentinez.apps.tenant.v1.CreateResourceRequest
-	6,  // 26: sentinez.apps.tenant.v1.TenantService.UpdateResource:input_type -> sentinez.apps.tenant.v1.UpdateResourceRequest
-	4,  // 27: sentinez.apps.tenant.v1.TenantService.DeleteResource:input_type -> sentinez.apps.tenant.v1.DeleteResourceRequest
-	0,  // 28: sentinez.apps.tenant.v1.TenantService.GetResource:input_type -> sentinez.apps.tenant.v1.GetResourceRequest
-	1,  // 29: sentinez.apps.tenant.v1.TenantService.GetResourceByDomain:input_type -> sentinez.apps.tenant.v1.GetResourceByDomainRequest
-	22, // 30: sentinez.apps.tenant.v1.TenantService.ListMember:input_type -> sentinez.apps.tenant.v1.ListMemberRequest
-	20, // 31: sentinez.apps.tenant.v1.TenantService.CreateMember:input_type -> sentinez.apps.tenant.v1.CreateMemberRequest
-	18, // 32: sentinez.apps.tenant.v1.TenantService.UpdateMember:input_type -> sentinez.apps.tenant.v1.UpdateMemberRequest
-	16, // 33: sentinez.apps.tenant.v1.TenantService.DeleteMember:input_type -> sentinez.apps.tenant.v1.DeleteMemberRequest
-	14, // 34: sentinez.apps.tenant.v1.TenantService.GetMember:input_type -> sentinez.apps.tenant.v1.GetMemberRequest
-	32, // 35: sentinez.apps.tenant.v1.TenantService.ListTenant:input_type -> sentinez.apps.tenant.v1.ListTenantRequest
-	30, // 36: sentinez.apps.tenant.v1.TenantService.CreateTenant:input_type -> sentinez.apps.tenant.v1.CreateTenantRequest
-	28, // 37: sentinez.apps.tenant.v1.TenantService.UpdateTenant:input_type -> sentinez.apps.tenant.v1.UpdateTenantRequest
-	26, // 38: sentinez.apps.tenant.v1.TenantService.DeleteTenant:input_type -> sentinez.apps.tenant.v1.DeleteTenantRequest
-	24, // 39: sentinez.apps.tenant.v1.TenantService.GetTenant:input_type -> sentinez.apps.tenant.v1.GetTenantRequest
-	12, // 40: sentinez.apps.tenant.v1.TenantService.Status:output_type -> sentinez.apps.tenant.v1.StatusResponse
-	11, // 41: sentinez.apps.tenant.v1.TenantService.ListResource:output_type -> sentinez.apps.tenant.v1.ListResourceResponse
-	9,  // 42: sentinez.apps.tenant.v1.TenantService.CreateResource:output_type -> sentinez.apps.tenant.v1.CreateResourceResponse
-	7,  // 43: sentinez.apps.tenant.v1.TenantService.UpdateResource:output_type -> sentinez.apps.tenant.v1.UpdateResourceResponse
-	5,  // 44: sentinez.apps.tenant.v1.TenantService.DeleteResource:output_type -> sentinez.apps.tenant.v1.DeleteResourceResponse
-	3,  // 45: sentinez.apps.tenant.v1.TenantService.GetResource:output_type -> sentinez.apps.tenant.v1.GetResourceResponse
-	2,  // 46: sentinez.apps.tenant.v1.TenantService.GetResourceByDomain:output_type -> sentinez.apps.tenant.v1.GetResourceByDomainResponse
-	23, // 47: sentinez.apps.tenant.v1.TenantService.ListMember:output_type -> sentinez.apps.tenant.v1.ListMemberResponse
-	21, // 48: sentinez.apps.tenant.v1.TenantService.CreateMember:output_type -> sentinez.apps.tenant.v1.CreateMemberResponse
-	19, // 49: sentinez.apps.tenant.v1.TenantService.UpdateMember:output_type -> sentinez.apps.tenant.v1.UpdateMemberResponse
-	17, // 50: sentinez.apps.tenant.v1.TenantService.DeleteMember:output_type -> sentinez.apps.tenant.v1.DeleteMemberResponse
-	15, // 51: sentinez.apps.tenant.v1.TenantService.GetMember:output_type -> sentinez.apps.tenant.v1.GetMemberResponse
-	33, // 52: sentinez.apps.tenant.v1.TenantService.ListTenant:output_type -> sentinez.apps.tenant.v1.ListTenantResponse
-	31, // 53: sentinez.apps.tenant.v1.TenantService.CreateTenant:output_type -> sentinez.apps.tenant.v1.CreateTenantResponse
-	29, // 54: sentinez.apps.tenant.v1.TenantService.UpdateTenant:output_type -> sentinez.apps.tenant.v1.UpdateTenantResponse
-	27, // 55: sentinez.apps.tenant.v1.TenantService.DeleteTenant:output_type -> sentinez.apps.tenant.v1.DeleteTenantResponse
-	25, // 56: sentinez.apps.tenant.v1.TenantService.GetTenant:output_type -> sentinez.apps.tenant.v1.GetTenantResponse
-	40, // [40:57] is the sub-list for method output_type
-	23, // [23:40] is the sub-list for method input_type
-	23, // [23:23] is the sub-list for extension type_name
-	23, // [23:23] is the sub-list for extension extendee
-	0,  // [0:23] is the sub-list for field type_name
+	42, // 0: sentinez.apps.tenant.v1.GetResourceByDomainResponse.resource:type_name -> sentinez.apps.tenant.v1.Resource
+	42, // 1: sentinez.apps.tenant.v1.GetResourceResponse.resource:type_name -> sentinez.apps.tenant.v1.Resource
+	43, // 2: sentinez.apps.tenant.v1.UpdateResourceRequest.server:type_name -> sentinez.dmz.edge.v1.Server
+	44, // 3: sentinez.apps.tenant.v1.UpdateResourceRequest.status:type_name -> sentinez.types.v1.Status
+	43, // 4: sentinez.apps.tenant.v1.CreateResourceRequest.server:type_name -> sentinez.dmz.edge.v1.Server
+	44, // 5: sentinez.apps.tenant.v1.CreateResourceRequest.status:type_name -> sentinez.types.v1.Status
+	42, // 6: sentinez.apps.tenant.v1.CreateResourceResponse.resource:type_name -> sentinez.apps.tenant.v1.Resource
+	45, // 7: sentinez.apps.tenant.v1.ListResourceRequest.page:type_name -> sentinez.types.v1.Pages
+	44, // 8: sentinez.apps.tenant.v1.ListResourceRequest.status:type_name -> sentinez.types.v1.Status
+	42, // 9: sentinez.apps.tenant.v1.ListResourceResponse.resources:type_name -> sentinez.apps.tenant.v1.Resource
+	46, // 10: sentinez.apps.tenant.v1.GetMemberResponse.member:type_name -> sentinez.apps.tenant.v1.Member
+	47, // 11: sentinez.apps.tenant.v1.UpdateMemberRequest.roles:type_name -> sentinez.types.v1.Role
+	47, // 12: sentinez.apps.tenant.v1.CreateMemberRequest.roles:type_name -> sentinez.types.v1.Role
+	46, // 13: sentinez.apps.tenant.v1.CreateMemberResponse.member:type_name -> sentinez.apps.tenant.v1.Member
+	45, // 14: sentinez.apps.tenant.v1.ListMemberRequest.page:type_name -> sentinez.types.v1.Pages
+	46, // 15: sentinez.apps.tenant.v1.ListMemberResponse.members:type_name -> sentinez.apps.tenant.v1.Member
+	48, // 16: sentinez.apps.tenant.v1.GetTenantResponse.tenant:type_name -> sentinez.apps.tenant.v1.Tenant
+	49, // 17: sentinez.apps.tenant.v1.UpdateTenantRequest.plan:type_name -> sentinez.types.v1.Plan
+	49, // 18: sentinez.apps.tenant.v1.CreateTenantRequest.plan:type_name -> sentinez.types.v1.Plan
+	48, // 19: sentinez.apps.tenant.v1.CreateTenantResponse.tenant:type_name -> sentinez.apps.tenant.v1.Tenant
+	45, // 20: sentinez.apps.tenant.v1.ListTenantRequest.page:type_name -> sentinez.types.v1.Pages
+	49, // 21: sentinez.apps.tenant.v1.ListTenantRequest.plan:type_name -> sentinez.types.v1.Plan
+	48, // 22: sentinez.apps.tenant.v1.ListTenantResponse.tenants:type_name -> sentinez.apps.tenant.v1.Tenant
+	50, // 23: sentinez.apps.tenant.v1.CreateCaCertificateRequest.usage:type_name -> sentinez.apps.tenant.v1.CaCertificateUsage
+	51, // 24: sentinez.apps.tenant.v1.CreateCaCertificateResponse.ca_certificates:type_name -> sentinez.apps.tenant.v1.CaCertificate
+	51, // 25: sentinez.apps.tenant.v1.GetCaCertificateResponse.ca_certificate:type_name -> sentinez.apps.tenant.v1.CaCertificate
+	45, // 26: sentinez.apps.tenant.v1.ListCaCertificateRequest.page:type_name -> sentinez.types.v1.Pages
+	50, // 27: sentinez.apps.tenant.v1.ListCaCertificateRequest.usage:type_name -> sentinez.apps.tenant.v1.CaCertificateUsage
+	51, // 28: sentinez.apps.tenant.v1.ListCaCertificateResponse.ca_certificates:type_name -> sentinez.apps.tenant.v1.CaCertificate
+	13, // 29: sentinez.apps.tenant.v1.TenantService.Status:input_type -> sentinez.apps.tenant.v1.StatusRequest
+	10, // 30: sentinez.apps.tenant.v1.TenantService.ListResource:input_type -> sentinez.apps.tenant.v1.ListResourceRequest
+	8,  // 31: sentinez.apps.tenant.v1.TenantService.CreateResource:input_type -> sentinez.apps.tenant.v1.CreateResourceRequest
+	6,  // 32: sentinez.apps.tenant.v1.TenantService.UpdateResource:input_type -> sentinez.apps.tenant.v1.UpdateResourceRequest
+	4,  // 33: sentinez.apps.tenant.v1.TenantService.DeleteResource:input_type -> sentinez.apps.tenant.v1.DeleteResourceRequest
+	0,  // 34: sentinez.apps.tenant.v1.TenantService.GetResource:input_type -> sentinez.apps.tenant.v1.GetResourceRequest
+	1,  // 35: sentinez.apps.tenant.v1.TenantService.GetResourceByDomain:input_type -> sentinez.apps.tenant.v1.GetResourceByDomainRequest
+	22, // 36: sentinez.apps.tenant.v1.TenantService.ListMember:input_type -> sentinez.apps.tenant.v1.ListMemberRequest
+	20, // 37: sentinez.apps.tenant.v1.TenantService.CreateMember:input_type -> sentinez.apps.tenant.v1.CreateMemberRequest
+	18, // 38: sentinez.apps.tenant.v1.TenantService.UpdateMember:input_type -> sentinez.apps.tenant.v1.UpdateMemberRequest
+	16, // 39: sentinez.apps.tenant.v1.TenantService.DeleteMember:input_type -> sentinez.apps.tenant.v1.DeleteMemberRequest
+	14, // 40: sentinez.apps.tenant.v1.TenantService.GetMember:input_type -> sentinez.apps.tenant.v1.GetMemberRequest
+	40, // 41: sentinez.apps.tenant.v1.TenantService.ListCaCertificate:input_type -> sentinez.apps.tenant.v1.ListCaCertificateRequest
+	34, // 42: sentinez.apps.tenant.v1.TenantService.CreateCaCertificate:input_type -> sentinez.apps.tenant.v1.CreateCaCertificateRequest
+	36, // 43: sentinez.apps.tenant.v1.TenantService.GetCaCertificate:input_type -> sentinez.apps.tenant.v1.GetCaCertificateRequest
+	38, // 44: sentinez.apps.tenant.v1.TenantService.DeleteCaCertificate:input_type -> sentinez.apps.tenant.v1.DeleteCaCertificateRequest
+	32, // 45: sentinez.apps.tenant.v1.TenantService.ListTenant:input_type -> sentinez.apps.tenant.v1.ListTenantRequest
+	30, // 46: sentinez.apps.tenant.v1.TenantService.CreateTenant:input_type -> sentinez.apps.tenant.v1.CreateTenantRequest
+	28, // 47: sentinez.apps.tenant.v1.TenantService.UpdateTenant:input_type -> sentinez.apps.tenant.v1.UpdateTenantRequest
+	26, // 48: sentinez.apps.tenant.v1.TenantService.DeleteTenant:input_type -> sentinez.apps.tenant.v1.DeleteTenantRequest
+	24, // 49: sentinez.apps.tenant.v1.TenantService.GetTenant:input_type -> sentinez.apps.tenant.v1.GetTenantRequest
+	12, // 50: sentinez.apps.tenant.v1.TenantService.Status:output_type -> sentinez.apps.tenant.v1.StatusResponse
+	11, // 51: sentinez.apps.tenant.v1.TenantService.ListResource:output_type -> sentinez.apps.tenant.v1.ListResourceResponse
+	9,  // 52: sentinez.apps.tenant.v1.TenantService.CreateResource:output_type -> sentinez.apps.tenant.v1.CreateResourceResponse
+	7,  // 53: sentinez.apps.tenant.v1.TenantService.UpdateResource:output_type -> sentinez.apps.tenant.v1.UpdateResourceResponse
+	5,  // 54: sentinez.apps.tenant.v1.TenantService.DeleteResource:output_type -> sentinez.apps.tenant.v1.DeleteResourceResponse
+	3,  // 55: sentinez.apps.tenant.v1.TenantService.GetResource:output_type -> sentinez.apps.tenant.v1.GetResourceResponse
+	2,  // 56: sentinez.apps.tenant.v1.TenantService.GetResourceByDomain:output_type -> sentinez.apps.tenant.v1.GetResourceByDomainResponse
+	23, // 57: sentinez.apps.tenant.v1.TenantService.ListMember:output_type -> sentinez.apps.tenant.v1.ListMemberResponse
+	21, // 58: sentinez.apps.tenant.v1.TenantService.CreateMember:output_type -> sentinez.apps.tenant.v1.CreateMemberResponse
+	19, // 59: sentinez.apps.tenant.v1.TenantService.UpdateMember:output_type -> sentinez.apps.tenant.v1.UpdateMemberResponse
+	17, // 60: sentinez.apps.tenant.v1.TenantService.DeleteMember:output_type -> sentinez.apps.tenant.v1.DeleteMemberResponse
+	15, // 61: sentinez.apps.tenant.v1.TenantService.GetMember:output_type -> sentinez.apps.tenant.v1.GetMemberResponse
+	41, // 62: sentinez.apps.tenant.v1.TenantService.ListCaCertificate:output_type -> sentinez.apps.tenant.v1.ListCaCertificateResponse
+	35, // 63: sentinez.apps.tenant.v1.TenantService.CreateCaCertificate:output_type -> sentinez.apps.tenant.v1.CreateCaCertificateResponse
+	37, // 64: sentinez.apps.tenant.v1.TenantService.GetCaCertificate:output_type -> sentinez.apps.tenant.v1.GetCaCertificateResponse
+	39, // 65: sentinez.apps.tenant.v1.TenantService.DeleteCaCertificate:output_type -> sentinez.apps.tenant.v1.DeleteCaCertificateResponse
+	33, // 66: sentinez.apps.tenant.v1.TenantService.ListTenant:output_type -> sentinez.apps.tenant.v1.ListTenantResponse
+	31, // 67: sentinez.apps.tenant.v1.TenantService.CreateTenant:output_type -> sentinez.apps.tenant.v1.CreateTenantResponse
+	29, // 68: sentinez.apps.tenant.v1.TenantService.UpdateTenant:output_type -> sentinez.apps.tenant.v1.UpdateTenantResponse
+	27, // 69: sentinez.apps.tenant.v1.TenantService.DeleteTenant:output_type -> sentinez.apps.tenant.v1.DeleteTenantResponse
+	25, // 70: sentinez.apps.tenant.v1.TenantService.GetTenant:output_type -> sentinez.apps.tenant.v1.GetTenantResponse
+	50, // [50:71] is the sub-list for method output_type
+	29, // [29:50] is the sub-list for method input_type
+	29, // [29:29] is the sub-list for extension type_name
+	29, // [29:29] is the sub-list for extension extendee
+	0,  // [0:29] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_apps_tenant_v1_tenant_proto_init() }
@@ -1945,7 +2434,7 @@ func file_sentinez_apps_tenant_v1_tenant_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_apps_tenant_v1_tenant_proto_rawDesc), len(file_sentinez_apps_tenant_v1_tenant_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   34,
+			NumMessages:   42,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

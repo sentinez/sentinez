@@ -1,17 +1,29 @@
-import { Member, Resource, Tenant } from '@sentinez/proto/sentinez/apps/tenant/v1/model';
 import {
+  CaCertificate,
+  CaCertificateUsage,
+  Member,
+  Resource,
+  Tenant,
+} from '@sentinez/proto/sentinez/apps/tenant/v1/model';
+import {
+  CreateCaCertificateRequest,
+  CreateCaCertificateResponse,
   CreateMemberRequest,
   CreateMemberResponse,
   CreateResourceRequest,
   CreateResourceResponse,
   CreateTenantRequest,
   CreateTenantResponse,
+  DeleteCaCertificateRequest,
+  DeleteCaCertificateResponse,
   DeleteMemberRequest,
   DeleteMemberResponse,
   DeleteResourceRequest,
   DeleteResourceResponse,
   DeleteTenantRequest,
   DeleteTenantResponse,
+  GetCaCertificateRequest,
+  GetCaCertificateResponse,
   GetMemberRequest,
   GetMemberResponse,
   GetResourceByDomainRequest,
@@ -20,6 +32,8 @@ import {
   GetResourceResponse,
   GetTenantRequest,
   GetTenantResponse,
+  ListCaCertificateRequest,
+  ListCaCertificateResponse,
   ListMemberRequest,
   ListMemberResponse,
   ListResourceRequest,
@@ -582,5 +596,192 @@ export async function deleteTenant(
       signal: options?.signal,
     });
     return DeleteTenantResponse.fromJSON(resp.data ?? {});
+  });
+}
+
+// ─── CA certificates ─────────────────────────────────────────────────────────
+
+// A certificate is immutable: there is no update, delete it and create it again.
+
+const SAMPLE_CA_RESOURCE_ID = SAMPLE_RESOURCES[0]?.id ?? '';
+
+const sampleCa = (n: number, partial: Partial<CaCertificate>): CaCertificate =>
+  CaCertificate.fromPartial({
+    id: `cacrt_console-sample-${n}`,
+    owner: { resourceId: SAMPLE_CA_RESOURCE_ID, tenantId: SAMPLE_TENANT_ID },
+    status: Status.STATUS_ACTIVE,
+    usage: CaCertificateUsage.CA_CERTIFICATE_USAGE_UPSTREAM,
+    pem: '-----BEGIN CERTIFICATE-----\nMIIBsample\n-----END CERTIFICATE-----\n',
+    serialNumber: `0${n}a1`,
+    fingerprintSha256: `${n}`.repeat(64),
+    notBefore: new Date('2026-01-01T00:00:00Z'),
+    notAfter: new Date('2036-01-01T00:00:00Z'),
+    ...partial,
+  });
+
+export const SAMPLE_CA_CERTIFICATES: CaCertificate[] = [
+  sampleCa(1, {
+    name: 'Acme Root CA',
+    description: 'Root of the Acme private PKI',
+    provider: 'Acme Trust',
+    subject: 'CN=Acme Root CA,O=Acme Trust',
+    issuer: 'CN=Acme Root CA,O=Acme Trust',
+    selfSigned: true,
+    hasPrivateKey: true,
+  }),
+  sampleCa(2, {
+    name: 'Acme Issuing CA',
+    description: 'Signs the origin servers',
+    provider: 'Acme Trust',
+    subject: 'CN=Acme Issuing CA',
+    issuer: 'CN=Acme Root CA,O=Acme Trust',
+    usage: CaCertificateUsage.CA_CERTIFICATE_USAGE_CLIENT,
+  }),
+  sampleCa(3, {
+    name: 'Legacy CA',
+    description: 'Expired, kept to show the badge',
+    provider: 'Legacy PKI',
+    subject: 'CN=Legacy CA,O=Legacy PKI',
+    issuer: 'CN=Legacy CA,O=Legacy PKI',
+    selfSigned: true,
+    notBefore: new Date('2020-01-01T00:00:00Z'),
+    notAfter: new Date('2025-01-01T00:00:00Z'),
+  }),
+];
+
+let sampleCaStore: CaCertificate[] = [...SAMPLE_CA_CERTIFICATES];
+
+const CA_PEM_BLOCK = /-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/g;
+
+/** One sample record per certificate of the bundle; the sample does not parse the PEM */
+function sampleCaOf(req: CreateCaCertificateRequest): CaCertificate[] {
+  const blocks = req.pem.match(CA_PEM_BLOCK) ?? [req.pem];
+  const now = new Date();
+  const nextYear = new Date(now.getTime() + 365 * 24 * 3600 * 1000);
+
+  return blocks.map((pem, i) => {
+    const n = i + 1;
+    const id = crypto.randomUUID();
+    return CaCertificate.fromPartial({
+      id: `cacrt_${id}`,
+      owner: { resourceId: req.resourceId, tenantId: SAMPLE_TENANT_ID },
+      name: !req.name ? `Sample CA ${n}` : blocks.length > 1 ? `${req.name} #${n}` : req.name,
+      description: req.description,
+      usage: req.usage,
+      status: Status.STATUS_ACTIVE,
+      pem: `${pem.trim()}\n`,
+      subject: `CN=Sample CA ${n}`,
+      issuer: `CN=Sample CA ${n}`,
+      provider: 'Sample CA',
+      serialNumber: id.slice(0, 8),
+      fingerprintSha256: id.replaceAll('-', '').repeat(2),
+      notBefore: now,
+      notAfter: nextYear,
+      selfSigned: true,
+      hasPrivateKey: req.privateKey !== '',
+    });
+  });
+}
+
+function filterSampleCa(req: Partial<ListCaCertificateRequest>): CaCertificate[] {
+  return sampleCaStore.filter(
+    (c) =>
+      (!req.resourceIds?.length || req.resourceIds.includes(c.owner?.resourceId ?? '')) &&
+      (!req.usage || c.usage === req.usage) &&
+      (!req.fingerprintSha256 || c.fingerprintSha256 === req.fingerprintSha256) &&
+      (!req.provider || c.provider === req.provider),
+  );
+}
+
+/** The statuses with which the server turns a CA call down for a reason of its own */
+const CA_REFUSALS = new Set([400, 403, 404, 409, 422]);
+
+/**
+ * Like withFallback, but the sample answers only when the backend is out of
+ * reach: a refusal of the server (an expired certificate, one that exists
+ * already...) is thrown, or the page would report a success that never was.
+ */
+function caFallback<T>(label: string, fallback: () => T) {
+  return async (call: () => Promise<T>): Promise<T> => {
+    try {
+      return await call();
+    } catch (err: unknown) {
+      const status = axios.isAxiosError(err) ? err.response?.status : undefined;
+      const refused = status !== undefined && CA_REFUSALS.has(status);
+      if (!USE_SAMPLE || axios.isCancel(err) || refused) throw err;
+      console.warn(`[tenant] ${label} failed, using sample response:`, (err as Error)?.message);
+      return fallback();
+    }
+  };
+}
+
+// GET /tenant/cacertificates
+export async function listCaCertificates(
+  req: Partial<ListCaCertificateRequest> = {},
+  options?: ApiOptions,
+): Promise<ListCaCertificateResponse> {
+  return caFallback<ListCaCertificateResponse>('listCaCertificates', () => {
+    const certs = filterSampleCa(req);
+    return { total: certs.length, caCertificates: paginate(certs, req.page) };
+  })(async () => {
+    const resp = await axios.get(`${API_BASE_PATH}/tenant/cacertificates`, {
+      params: toQuery(ListCaCertificateRequest.toJSON(ListCaCertificateRequest.fromPartial(req))),
+      // repeated fields as ?resourceIds=a&resourceIds=b
+      paramsSerializer: { indexes: null },
+      signal: options?.signal,
+    });
+    return ListCaCertificateResponse.fromJSON(resp.data ?? {});
+  });
+}
+
+// POST /tenant/cacertificate
+export async function createCaCertificate(
+  req: CreateCaCertificateRequest,
+  options?: ApiOptions,
+): Promise<CreateCaCertificateResponse> {
+  return caFallback<CreateCaCertificateResponse>('createCaCertificate', () => {
+    const created = sampleCaOf(req);
+    sampleCaStore = [...sampleCaStore, ...created];
+    return { caCertificates: created };
+  })(async () => {
+    const resp = await axios.post(
+      `${API_BASE_PATH}/tenant/cacertificate`,
+      CreateCaCertificateRequest.toJSON(req),
+      { signal: options?.signal },
+    );
+    return CreateCaCertificateResponse.fromJSON(resp.data ?? {});
+  });
+}
+
+// GET /tenant/cacertificate?id=
+export async function getCaCertificate(
+  req: GetCaCertificateRequest,
+  options?: ApiOptions,
+): Promise<GetCaCertificateResponse> {
+  return caFallback<GetCaCertificateResponse>('getCaCertificate', () => ({
+    caCertificate: sampleCaStore.find((c) => c.id === req.id),
+  }))(async () => {
+    const resp = await axios.get(`${API_BASE_PATH}/tenant/cacertificate`, {
+      params: toQuery(GetCaCertificateRequest.toJSON(req)),
+      signal: options?.signal,
+    });
+    return GetCaCertificateResponse.fromJSON(resp.data ?? {});
+  });
+}
+
+// DELETE /tenant/cacertificate?id=
+export async function deleteCaCertificate(
+  req: DeleteCaCertificateRequest,
+  options?: ApiOptions,
+): Promise<DeleteCaCertificateResponse> {
+  return caFallback<DeleteCaCertificateResponse>('deleteCaCertificate', () => {
+    sampleCaStore = sampleCaStore.filter((c) => c.id !== req.id);
+    return {};
+  })(async () => {
+    const resp = await axios.delete(`${API_BASE_PATH}/tenant/cacertificate`, {
+      params: toQuery(DeleteCaCertificateRequest.toJSON(req)),
+      signal: options?.signal,
+    });
+    return DeleteCaCertificateResponse.fromJSON(resp.data ?? {});
   });
 }

@@ -290,7 +290,7 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
         collapsible="none"
         className={cn('flex-1', mobileTab === 'domain' ? 'flex w-full' : 'hidden md:flex')}
       >
-        <SidebarHeader className="gap-3.5 border-b p-4">
+        <SidebarHeader className="gap-3.5 border-b p-3">
           {isMobile && (
             <button
               type="button"
@@ -412,7 +412,7 @@ export function ConsoleSidebarInset({ children }: { children: ReactNode }) {
     <SidebarInset className="min-w-0">
       <div className="flex min-h-screen flex-col">
         <PreviewHeader username={user.name} />
-        <div className="bg-background sticky top-0 flex shrink-0 items-center gap-2 border-b p-2 z-2">
+        <div className="bg-background sticky top-0 flex shrink-0 items-center gap-2 border-b p-1 z-2">
           <SidebarTrigger className="-ml-1 cursor-pointer" />
           <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
           <Breadcrumb>
@@ -421,14 +421,14 @@ export function ConsoleSidebarInset({ children }: { children: ReactNode }) {
                 <Fragment key={index}>
                   <BreadcrumbItem
                     className={cn(
-                      'hidden md:block',
+                      'hidden md:block text-xs',
                       index === segments.length - 1 && 'text-black dark:text-white',
                     )}
                   >
                     {path === 'd' ? 'dashboard' : path}
                   </BreadcrumbItem>
                   {index < segments.length - 1 && (
-                    <BreadcrumbSeparator className="hidden md:block" />
+                    <BreadcrumbSeparator className="hidden md:block text-xs" />
                   )}
                 </Fragment>
               ))}

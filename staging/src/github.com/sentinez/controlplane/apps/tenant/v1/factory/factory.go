@@ -19,11 +19,13 @@ import (
 	"fmt"
 
 	tenanthandler "github.com/sentinez/controlplane/apps/tenant/v1/handler"
+	cacertrepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/cacertificates"
 	memberrepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/members"
 	resourcerepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/resources"
 	tenantrepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/tenants"
 	tenantsvc "github.com/sentinez/controlplane/apps/tenant/v1/service"
 	"github.com/sentinez/controlplane/pkg/authz"
+	"github.com/sentinez/controlplane/pkg/crypto"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -58,8 +60,18 @@ func NewDefaultService(ctx context.Context,
 		return nil, fmt.Errorf("tenant repo: %w", err)
 	}
 
+	sealer, err := crypto.NewSealerFromEnv()
+	if err != nil {
+		return nil, fmt.Errorf("data key: %w", err)
+	}
+
+	cacrepo, err := cacertrepo.New(ctx, conf, sealer)
+	if err != nil {
+		return nil, fmt.Errorf("ca certificate repo: %w", err)
+	}
+
 	tx := postgres.NewTX(conf)
-	return tenantsvc.New(tx, rscrepo, mbrrepo, tntrepo), nil
+	return tenantsvc.New(tx, rscrepo, mbrrepo, tntrepo, cacrepo), nil
 }
 
 // NewAuthorizer returns the Authorizer that decides from the memberships and

@@ -16,41 +16,19 @@
 package config
 
 import (
-	"sync"
-
-	"github.com/sentinez/pkg/szconfig"
 	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	"github.com/sentinez/sentinez/pkg/appconfig"
 	"github.com/sentinez/sentinez/pkg/apps/controlplane/centraldata/flags"
 )
 
-var (
-	_once    sync.Once
-	_appConf *settingpb.Config
-	_loadErr error
-)
+var _provider = appconfig.New(appconfig.Spec{
+	Meta:  centraldatapb.GetMetaCentraldata(),
+	Flags: flags.Parse,
+})
 
-// Config loads the centraldata config once and returns it.
+// Config loads the config once and returns it: the flags, and the env from
+// the environment and from Consul (see appconfig).
 func Config() (*settingpb.Config, error) {
-	_once.Do(func() { _appConf, _loadErr = load() })
-
-	return _appConf, _loadErr
-}
-
-func load() (*settingpb.Config, error) {
-	flag, err := flags.Parse()
-	if err != nil {
-		return nil, err
-	}
-
-	env, err := szconfig.LoadEnv(flag.GetEnvFile())
-	if err != nil {
-		return nil, err
-	}
-
-	return &settingpb.Config{
-		Meta: centraldatapb.GetMetaCentraldata(),
-		Flag: flag,
-		Env:  env,
-	}, nil
+	return _provider.Config()
 }

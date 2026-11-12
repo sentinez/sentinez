@@ -45,6 +45,10 @@ const (
 	TenantService_UpdateMember_FullMethodName        = "/sentinez.apps.tenant.v1.TenantService/UpdateMember"
 	TenantService_DeleteMember_FullMethodName        = "/sentinez.apps.tenant.v1.TenantService/DeleteMember"
 	TenantService_GetMember_FullMethodName           = "/sentinez.apps.tenant.v1.TenantService/GetMember"
+	TenantService_ListCaCertificate_FullMethodName   = "/sentinez.apps.tenant.v1.TenantService/ListCaCertificate"
+	TenantService_CreateCaCertificate_FullMethodName = "/sentinez.apps.tenant.v1.TenantService/CreateCaCertificate"
+	TenantService_GetCaCertificate_FullMethodName    = "/sentinez.apps.tenant.v1.TenantService/GetCaCertificate"
+	TenantService_DeleteCaCertificate_FullMethodName = "/sentinez.apps.tenant.v1.TenantService/DeleteCaCertificate"
 	TenantService_ListTenant_FullMethodName          = "/sentinez.apps.tenant.v1.TenantService/ListTenant"
 	TenantService_CreateTenant_FullMethodName        = "/sentinez.apps.tenant.v1.TenantService/CreateTenant"
 	TenantService_UpdateTenant_FullMethodName        = "/sentinez.apps.tenant.v1.TenantService/UpdateTenant"
@@ -80,6 +84,15 @@ type TenantServiceClient interface {
 	DeleteMember(ctx context.Context, in *DeleteMemberRequest, opts ...grpc.CallOption) (*DeleteMemberResponse, error)
 	// Returns a tenant member.
 	GetMember(ctx context.Context, in *GetMemberRequest, opts ...grpc.CallOption) (*GetMemberResponse, error)
+	// Lists the CA certificates of resources, without their private keys.
+	ListCaCertificate(ctx context.Context, in *ListCaCertificateRequest, opts ...grpc.CallOption) (*ListCaCertificateResponse, error)
+	// Creates the CA certificates of a PEM bundle, one per certificate. A
+	// certificate is immutable: there is no update, delete and create again.
+	CreateCaCertificate(ctx context.Context, in *CreateCaCertificateRequest, opts ...grpc.CallOption) (*CreateCaCertificateResponse, error)
+	// Returns a CA certificate, without its private key.
+	GetCaCertificate(ctx context.Context, in *GetCaCertificateRequest, opts ...grpc.CallOption) (*GetCaCertificateResponse, error)
+	// Deletes a CA certificate.
+	DeleteCaCertificate(ctx context.Context, in *DeleteCaCertificateRequest, opts ...grpc.CallOption) (*DeleteCaCertificateResponse, error)
 	// Lists tenants.
 	ListTenant(ctx context.Context, in *ListTenantRequest, opts ...grpc.CallOption) (*ListTenantResponse, error)
 	// Creates a new tenant.
@@ -220,6 +233,46 @@ func (c *tenantServiceClient) GetMember(ctx context.Context, in *GetMemberReques
 	return out, nil
 }
 
+func (c *tenantServiceClient) ListCaCertificate(ctx context.Context, in *ListCaCertificateRequest, opts ...grpc.CallOption) (*ListCaCertificateResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListCaCertificateResponse)
+	err := c.cc.Invoke(ctx, TenantService_ListCaCertificate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tenantServiceClient) CreateCaCertificate(ctx context.Context, in *CreateCaCertificateRequest, opts ...grpc.CallOption) (*CreateCaCertificateResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateCaCertificateResponse)
+	err := c.cc.Invoke(ctx, TenantService_CreateCaCertificate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tenantServiceClient) GetCaCertificate(ctx context.Context, in *GetCaCertificateRequest, opts ...grpc.CallOption) (*GetCaCertificateResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetCaCertificateResponse)
+	err := c.cc.Invoke(ctx, TenantService_GetCaCertificate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *tenantServiceClient) DeleteCaCertificate(ctx context.Context, in *DeleteCaCertificateRequest, opts ...grpc.CallOption) (*DeleteCaCertificateResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteCaCertificateResponse)
+	err := c.cc.Invoke(ctx, TenantService_DeleteCaCertificate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *tenantServiceClient) ListTenant(ctx context.Context, in *ListTenantRequest, opts ...grpc.CallOption) (*ListTenantResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListTenantResponse)
@@ -298,6 +351,15 @@ type TenantServiceServer interface {
 	DeleteMember(context.Context, *DeleteMemberRequest) (*DeleteMemberResponse, error)
 	// Returns a tenant member.
 	GetMember(context.Context, *GetMemberRequest) (*GetMemberResponse, error)
+	// Lists the CA certificates of resources, without their private keys.
+	ListCaCertificate(context.Context, *ListCaCertificateRequest) (*ListCaCertificateResponse, error)
+	// Creates the CA certificates of a PEM bundle, one per certificate. A
+	// certificate is immutable: there is no update, delete and create again.
+	CreateCaCertificate(context.Context, *CreateCaCertificateRequest) (*CreateCaCertificateResponse, error)
+	// Returns a CA certificate, without its private key.
+	GetCaCertificate(context.Context, *GetCaCertificateRequest) (*GetCaCertificateResponse, error)
+	// Deletes a CA certificate.
+	DeleteCaCertificate(context.Context, *DeleteCaCertificateRequest) (*DeleteCaCertificateResponse, error)
 	// Lists tenants.
 	ListTenant(context.Context, *ListTenantRequest) (*ListTenantResponse, error)
 	// Creates a new tenant.
@@ -352,6 +414,18 @@ func (UnimplementedTenantServiceServer) DeleteMember(context.Context, *DeleteMem
 }
 func (UnimplementedTenantServiceServer) GetMember(context.Context, *GetMemberRequest) (*GetMemberResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetMember not implemented")
+}
+func (UnimplementedTenantServiceServer) ListCaCertificate(context.Context, *ListCaCertificateRequest) (*ListCaCertificateResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListCaCertificate not implemented")
+}
+func (UnimplementedTenantServiceServer) CreateCaCertificate(context.Context, *CreateCaCertificateRequest) (*CreateCaCertificateResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateCaCertificate not implemented")
+}
+func (UnimplementedTenantServiceServer) GetCaCertificate(context.Context, *GetCaCertificateRequest) (*GetCaCertificateResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetCaCertificate not implemented")
+}
+func (UnimplementedTenantServiceServer) DeleteCaCertificate(context.Context, *DeleteCaCertificateRequest) (*DeleteCaCertificateResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteCaCertificate not implemented")
 }
 func (UnimplementedTenantServiceServer) ListTenant(context.Context, *ListTenantRequest) (*ListTenantResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListTenant not implemented")
@@ -604,6 +678,78 @@ func _TenantService_GetMember_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TenantService_ListCaCertificate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListCaCertificateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TenantServiceServer).ListCaCertificate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TenantService_ListCaCertificate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TenantServiceServer).ListCaCertificate(ctx, req.(*ListCaCertificateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TenantService_CreateCaCertificate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateCaCertificateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TenantServiceServer).CreateCaCertificate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TenantService_CreateCaCertificate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TenantServiceServer).CreateCaCertificate(ctx, req.(*CreateCaCertificateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TenantService_GetCaCertificate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCaCertificateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TenantServiceServer).GetCaCertificate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TenantService_GetCaCertificate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TenantServiceServer).GetCaCertificate(ctx, req.(*GetCaCertificateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TenantService_DeleteCaCertificate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteCaCertificateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TenantServiceServer).DeleteCaCertificate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TenantService_DeleteCaCertificate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TenantServiceServer).DeleteCaCertificate(ctx, req.(*DeleteCaCertificateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _TenantService_ListTenant_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListTenantRequest)
 	if err := dec(in); err != nil {
@@ -748,6 +894,22 @@ var TenantService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetMember",
 			Handler:    _TenantService_GetMember_Handler,
+		},
+		{
+			MethodName: "ListCaCertificate",
+			Handler:    _TenantService_ListCaCertificate_Handler,
+		},
+		{
+			MethodName: "CreateCaCertificate",
+			Handler:    _TenantService_CreateCaCertificate_Handler,
+		},
+		{
+			MethodName: "GetCaCertificate",
+			Handler:    _TenantService_GetCaCertificate_Handler,
+		},
+		{
+			MethodName: "DeleteCaCertificate",
+			Handler:    _TenantService_DeleteCaCertificate_Handler,
 		},
 		{
 			MethodName: "ListTenant",

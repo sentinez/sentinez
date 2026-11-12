@@ -23,6 +23,7 @@ import (
 	"github.com/sentinez/pkg/szflag"
 	"github.com/sentinez/sentinez/api/proto/sentinez/gateway/apiserver/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	"github.com/sentinez/sentinez/internal/defaults"
 	"github.com/spf13/pflag"
 )
 
@@ -32,7 +33,7 @@ var _onceAPIServer sync.Once
 func Parse() (*settingpb.Flag, error) {
 	_onceAPIServer.Do(func() {
 		szflag.Get().EnvFile = "./cmd/szapiserver/.env"
-		szflag.Get().ProxyConfig = "sentinez/proxy.yaml"
+		szflag.Get().ProxyConfig = defaults.ProxyConfigKey
 
 		pflag.StringVar(&szflag.Get().EnvFile, settingpb.XFlag_EnvFile,
 			szflag.Get().GetEnvFile(), "environment variable config file")

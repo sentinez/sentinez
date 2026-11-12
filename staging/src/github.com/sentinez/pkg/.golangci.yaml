@@ -44,14 +44,9 @@ linters:
         - name: unreachable-code
         - name: redefines-builtin-id
   exclusions:
-    generated: lax
     paths:
+      # fork of fasthttp: keeps its license header and generated tables
       - bytesconv/
-      - apps/
-      - packages/
-      - third_party$
-      - builtin$
-      - examples$
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0
@@ -59,11 +54,3 @@ formatters:
   enable:
     - gofmt
     - goimports
-  exclusions:
-    generated: lax
-    paths:
-      - apps/
-      - packages/
-      - third_party$
-      - builtin$
-      - examples$

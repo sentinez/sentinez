@@ -192,7 +192,9 @@ func (q *rankedQuery) ToSql() (string, []any, error) {
 // scalarCounts counts the values of fields, none Array, in one scan of
 // the rows of b, then the rows: one grouping set per field, then the one
 // of every row.
-func scalarCounts(b sq.SelectBuilder, fields []eventfilter.Field) sq.SelectBuilder {
+func scalarCounts(
+	b sq.SelectBuilder, fields []eventfilter.Field,
+) sq.SelectBuilder {
 	if len(fields) == 0 {
 		return b.Columns("'' AS field", "'' AS value", "count(*) AS total")
 	}
@@ -217,7 +219,9 @@ func scalarCounts(b sq.SelectBuilder, fields []eventfilter.Field) sq.SelectBuild
 
 // arrayCounts counts, in one scan of the rows of b, the rows holding each
 // distinct element of each of the Array fields.
-func arrayCounts(b sq.SelectBuilder, fields []eventfilter.Field) sq.SelectBuilder {
+func arrayCounts(
+	b sq.SelectBuilder, fields []eventfilter.Field,
+) sq.SelectBuilder {
 	elements := make([]string, 0, len(fields))
 	for _, field := range fields {
 		elements = append(elements, fmt.Sprintf("SELECT '%s' AS field, "+

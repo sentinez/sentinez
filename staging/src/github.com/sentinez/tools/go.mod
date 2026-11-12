@@ -9,7 +9,7 @@ replace (
 )
 
 require (
-	github.com/a-h/templ v0.3.1070
+	github.com/a-h/templ v0.3.1100
 	github.com/bufbuild/buf v1.66.1
 	github.com/cilium/ebpf v0.21.0
 	github.com/codesenberg/bombardier v1.2.6
@@ -52,7 +52,7 @@ require (
 	github.com/alecthomas/kingpin v2.2.6+incompatible // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 // indirect
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137 // indirect
-	github.com/andybalholm/brotli v1.2.6 // indirect
+	github.com/andybalholm/brotli v1.2.7 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/brunoga/deep v1.3.1 // indirect
 	github.com/bufbuild/protocompile v0.14.2-0.20260306221011-519528254156 // indirect

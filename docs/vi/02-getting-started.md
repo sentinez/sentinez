@@ -99,6 +99,7 @@ Tên biến là các giá trị của enum `Senz` trong
 | `SENZ_HOSTNAME` | IAM | RP ID cho WebAuthn (`sentinez.vn`) |
 | `SENZ_ADDRESS` | tất cả | Địa chỉ listen; nếu rỗng mỗi service dùng hằng trong [internal/defaults](../../internal/defaults/defaults.go): edge `0.0.0.0:443` (TCP và UDP/HTTP/3), apiserver `0.0.0.0:9000`, realtime `0.0.0.0:7778`, dataplane và greeter `0.0.0.0:9001` |
 | `SENZ_SECRET_KEY` | IAM | Khoá HMAC ký JWT, **phải là base64** |
+| `SENZ_DATA_KEY` | apiserver | Khoá AES-256 (32 byte ngẫu nhiên, **base64**, `openssl rand -base64 32`) dùng để mã hoá PEM và private key của CA certificate trong database. Bắt buộc: apiserver không khởi động nếu thiếu. Mất hoặc đổi khoá thì các certificate đã lưu không đọc lại được |
 | `SENZ_CLIENT_ORIGIN` | IAM, apiserver | Origin của console: origin WebAuthn được phép và là origin duy nhất CORS cho phép. Nhiều giá trị: cách nhau bằng dấu phẩy |
 | `SENZ_POSTGRES_URI` | controlplane | DSN PostgreSQL (pgxpool) |
 | `SENZ_TIMESCALE_URI`, `SENZ_CLICKHOUSE_URI` | — | Khai báo nhưng chưa dùng |
@@ -113,6 +114,48 @@ Tên biến là các giá trị của enum `Senz` trong
 
 Một số service (edge, dataplane, realtime) chỉ nạp danh sách biến cụ thể; các
 service khác nạp toàn bộ enum `Senz`.
+
+### Config từ Consul
+
+Khi có `SENZ_CONSUL_URI`, mọi service đọc thêm biến của mình từ Consul KV, một
+lần lúc khởi động (`pkg/appconfig`; service chỉ khai báo flags và danh sách key
+cần đọc trong `config/config.go`).
+
+| Key trên Consul | Dành cho |
+|---|---|
+| `sentinez/env/SENZ_KEY` | mọi service |
+| `sentinez/env/<service_key>/SENZ_KEY` | một service, ví dụ `sentinez/env/sentinez.dmz.edge.v1/SENZ_KAFKA_BROKERS` (`service_key` nằm trong proto của service, `x_meta`) |
+
+- **Thứ tự ưu tiên:** ENV (gồm cả `.env`) thắng, rồi tới key của service, rồi
+  tới key chung. Giá trị rỗng coi như chưa đặt.
+- **Chỉ ENV mới đặt được** `SENZ_CONSUL_URI`, `SENZ_ADDRESS`,
+  `SENZ_MEMBERSHIP_ADDRESS`, `SENZ_DISCOVERY_ADDRESS` và `SENZ_ZONE`: đó là cách
+  tới Consul, hoặc giá trị khác nhau theo từng instance. Key như vậy trên Consul
+  bị bỏ qua kèm cảnh báo, key lạ cũng vậy.
+- **Khi lỗi:** có `SENZ_CONSUL_URI` mà không tới được Consul thì service không
+  khởi động. Không có URI thì mọi thứ như cũ.
+- **Bí mật:** `SENZ_SECRET_KEY`, `SENZ_DATA_KEY`, `SENZ_ADMIN_PASSWORD` và
+  `SENZ_POSTGRES_URI` có thể để trên Consul, nhưng KV của Consul không mã hoá:
+  hãy bảo vệ bằng ACL của Consul. Đổi giá trị thì phải restart service.
+- **Edge:** đọc `proxy.yaml` từ key `sentinez/proxy.yaml` trên Consul (chính key
+  apiserver import, `make consul.proxy.put`); không có `SENZ_CONSUL_URI`, hoặc
+  thiếu key, thì đọc file của `--proxy_config`.
+
+Phần ENV dùng chung cho mọi service nằm ở
+[deploy/consul/shared.env.example](../../deploy/consul/shared.env.example); phần
+khác nhau giữa các instance (`SENZ_ADDRESS`, `SENZ_CONSUL_URI`, và với edge là
+`SENZ_ZONE`, `SENZ_MEMBERSHIP_ADDRESS`, `SENZ_DISCOVERY_ADDRESS`) vẫn để trong
+`cmd/<service>/.env` (xem `.env.example` của service).
+
+```sh
+cp deploy/consul/shared.env.example deploy/consul/shared.env   # git bỏ qua file này; chỉnh giá trị
+make consul.env.put                                            # một lần, cho mọi service
+make consul.env.put ENV_FILE=cmd/szedge/v1/.env SERVICE=sentinez.dmz.edge.v1  # một service
+```
+
+`hack/consul-env-put.sh` đẩy các dòng `SENZ_*` của file lên Consul (không in
+giá trị) và bỏ qua các key chỉ ENV mới được đặt. Sau đó xoá các key đã chuyển
+khỏi file `.env`.
 
 ## 2.4 Command-line flags
 

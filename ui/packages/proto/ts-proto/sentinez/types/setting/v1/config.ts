@@ -40,6 +40,11 @@ export enum Senz {
   SENZ_KAFKA_BROKERS = 15,
   /** SENZ_ZONE - zone the service is deployed in (eg ap-southeast-1a); prefixes generated ids */
   SENZ_ZONE = 16,
+  /**
+   * SENZ_DATA_KEY - AES-256 key (32 bytes, base64 encoded) the secrets stored in the
+   * database are encrypted with, eg the CA certificates and their keys
+   */
+  SENZ_DATA_KEY = 17,
   UNRECOGNIZED = -1,
 }
 
@@ -96,6 +101,9 @@ export function senzFromJSON(object: any): Senz {
     case 16:
     case "SENZ_ZONE":
       return Senz.SENZ_ZONE;
+    case 17:
+    case "SENZ_DATA_KEY":
+      return Senz.SENZ_DATA_KEY;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -139,6 +147,8 @@ export function senzToJSON(object: Senz): string {
       return "SENZ_KAFKA_BROKERS";
     case Senz.SENZ_ZONE:
       return "SENZ_ZONE";
+    case Senz.SENZ_DATA_KEY:
+      return "SENZ_DATA_KEY";
     case Senz.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";

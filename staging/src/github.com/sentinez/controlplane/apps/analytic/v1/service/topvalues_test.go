@@ -49,48 +49,52 @@ func TestTopLimit(t *testing.T) {
 	}
 }
 
+var (
+	_topNow  = time.UnixMilli(10_000_000).UTC()
+	_topFrom = _topNow.Add(-time.Minute)
+	_topTo   = _topNow.Add(-time.Second)
+)
+
+var _topFilterCases = []struct {
+	name string
+	give *pb.GetEventTopValuesRequest
+	want *eventfilter.Filter
+}{
+	{
+		name: "unbounded",
+		give: &pb.GetEventTopValuesRequest{},
+		want: &eventfilter.Filter{From: _topNow.Add(-_topRange)},
+	},
+	{
+		name: "to only",
+		give: &pb.GetEventTopValuesRequest{To: timestamppb.New(_topTo)},
+		want: &eventfilter.Filter{From: _topTo.Add(-_topRange), To: _topTo},
+	},
+	{
+		name: "range, requests and filters",
+		give: &pb.GetEventTopValuesRequest{
+			ResourceIds: []string{"r1"},
+			RequestIds:  []string{"req_1"},
+			Filters:     []string{"status:429"},
+			From:        timestamppb.New(_topFrom),
+			To:          timestamppb.New(_topTo),
+		},
+		want: &eventfilter.Filter{
+			RequestIds:  []string{"req_1"},
+			ResourceIds: []string{"r1"},
+			Matches: []eventfilter.Match{
+				{Field: "status", Value: "429"},
+			},
+			From: _topFrom,
+			To:   _topTo,
+		},
+	},
+}
+
 func TestTopFilter(t *testing.T) {
-	now := time.UnixMilli(10_000_000).UTC()
-	from := now.Add(-time.Minute)
-	to := now.Add(-time.Second)
-
-	tests := []struct {
-		name string
-		give *pb.GetEventTopValuesRequest
-		want *eventfilter.Filter
-	}{
-		{
-			name: "unbounded",
-			give: &pb.GetEventTopValuesRequest{},
-			want: &eventfilter.Filter{From: now.Add(-_topRange)},
-		},
-		{
-			name: "to only",
-			give: &pb.GetEventTopValuesRequest{To: timestamppb.New(to)},
-			want: &eventfilter.Filter{From: to.Add(-_topRange), To: to},
-		},
-		{
-			name: "range, requests and filters",
-			give: &pb.GetEventTopValuesRequest{
-				ResourceIds: []string{"r1"},
-				RequestIds:  []string{"req_1"},
-				Filters:     []string{"status:429"},
-				From:        timestamppb.New(from),
-				To:          timestamppb.New(to),
-			},
-			want: &eventfilter.Filter{
-				RequestIds:  []string{"req_1"},
-				ResourceIds: []string{"r1"},
-				Matches:     []eventfilter.Match{{Field: "status", Value: "429"}},
-				From:        from,
-				To:          to,
-			},
-		},
-	}
-
-	for _, tt := range tests {
+	for _, tt := range _topFilterCases {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := rangedFilter(tt.give, now, _topRange)
+			got, err := rangedFilter(tt.give, _topNow, _topRange)
 
 			require.NoError(t, err)
 			assert.Equal(t, tt.want, got)

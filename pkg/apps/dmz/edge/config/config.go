@@ -15,33 +15,16 @@
 package config
 
 import (
-	"sync"
-
-	"github.com/sentinez/pkg/szconfig"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	"github.com/sentinez/sentinez/pkg/appconfig"
 	edgeflags "github.com/sentinez/sentinez/pkg/apps/dmz/edge/flags"
 )
 
-var (
-	_once    sync.Once
-	_appConf *settingpb.Config
-	_loadErr error
-)
-
-func Config() (*settingpb.Config, error) {
-	_once.Do(func() { _appConf, _loadErr = load() })
-
-	return _appConf, _loadErr
-}
-
-func load() (*settingpb.Config, error) {
-	flag, err := edgeflags.Parse()
-	if err != nil {
-		return nil, err
-	}
-
-	env, err := szconfig.LoadEnv(flag.GetEnvFile(),
+var _provider = appconfig.New(appconfig.Spec{
+	Meta:  edgepb.GetMetaEdge(),
+	Flags: edgeflags.Parse,
+	Keys: []settingpb.Senz{
 		settingpb.Senz_SENZ_ADDRESS,
 		settingpb.Senz_SENZ_SECRET_KEY,
 		settingpb.Senz_SENZ_MEMBERSHIP_ADDRESS,
@@ -51,14 +34,11 @@ func load() (*settingpb.Config, error) {
 		settingpb.Senz_SENZ_KAFKA_BROKERS,
 		settingpb.Senz_SENZ_CONSUL_URI,
 		settingpb.Senz_SENZ_ZONE,
-	)
-	if err != nil {
-		return nil, err
-	}
+	},
+})
 
-	return &settingpb.Config{
-		Meta: edgepb.GetMetaEdge(),
-		Flag: flag,
-		Env:  env,
-	}, nil
+// Config loads the config once and returns it: the flags, and the env from
+// the environment and from Consul (see appconfig).
+func Config() (*settingpb.Config, error) {
+	return _provider.Config()
 }

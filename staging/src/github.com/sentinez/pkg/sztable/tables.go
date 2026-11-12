@@ -26,9 +26,10 @@ const (
 )
 
 const (
-	Tenants         Table = "tenants"
-	TenantResources Table = "tenant.resources"
-	TenantMembers   Table = "tenant.members"
+	Tenants              Table = "tenants"
+	TenantResources      Table = "tenant.resources"
+	TenantMembers        Table = "tenant.members"
+	TenantCaCertificates Table = "tenant.cacertificates"
 )
 
 const (

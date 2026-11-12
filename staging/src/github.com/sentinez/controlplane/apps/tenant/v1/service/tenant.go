@@ -49,7 +49,8 @@ func (svc *Service) ListTenant(ctx context.Context,
 func (svc *Service) GetTenant(ctx context.Context,
 	req *tenantpb.GetTenantRequest) (*tenantpb.GetTenantResponse, error) {
 
-	if err := svc.authz.RequireTenant(ctx, req.GetId(), authz.Read); err != nil {
+	err := svc.authz.RequireTenant(ctx, req.GetId(), authz.Read)
+	if err != nil {
 		return nil, err
 	}
 

@@ -44,6 +44,9 @@ enum Senz {
   SENZ_KAFKA_BROKERS = 15;
   // zone the service is deployed in (eg ap-southeast-1a); prefixes generated ids
   SENZ_ZONE = 16;
+  // AES-256 key (32 bytes, base64 encoded) the secrets stored in the
+  // database are encrypted with, eg the CA certificates and their keys
+  SENZ_DATA_KEY = 17;
 }
 
 message Config {
