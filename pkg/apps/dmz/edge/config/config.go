@@ -34,6 +34,12 @@ var _provider = appconfig.New(appconfig.Spec{
 		settingpb.Senz_SENZ_KAFKA_BROKERS,
 		settingpb.Senz_SENZ_CONSUL_URI,
 		settingpb.Senz_SENZ_ZONE,
+		// centraldata: the edge follows it when it holds a service token
+		settingpb.Senz_SENZ_SERVICE_TOKEN,
+		settingpb.Senz_SENZ_SYNC_KEY,
+		settingpb.Senz_SENZ_TLS_CA,
+		settingpb.Senz_SENZ_TLS_CERT,
+		settingpb.Senz_SENZ_TLS_KEY,
 	},
 })
 

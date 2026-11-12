@@ -153,3 +153,22 @@ func TestResourceDomain(t *testing.T) {
 		})
 	}
 }
+
+// A rule rebuilt from the database holds its runtime form only: normalizing
+// must not replace it with the nothing its absent ingress gives.
+func TestNormalizeKeepsRuntimeWithoutIngress(t *testing.T) {
+	runtime := &secrulepb.SecRule{Id: "r1", Name: "block"}
+	setting := &edgepb.Setting{Security: &edgepb.Security{
+		SecRules: []*edgepb.SecRule{{IngressRuntime: runtime}},
+		Limiters: []*edgepb.RateLimit{{IngressRuntime: runtime}},
+	}}
+
+	NormalizeEdgeSetting(setting)
+
+	assert.Same(t, runtime, setting.GetSecurity().GetSecRules()[0].
+		GetIngressRuntime())
+	assert.Same(t, runtime, setting.GetSecurity().GetLimiters()[0].
+		GetIngressRuntime())
+	assert.Equal(t, "5s",
+		setting.GetSecurity().GetLimiters()[0].GetTimeWindow())
+}

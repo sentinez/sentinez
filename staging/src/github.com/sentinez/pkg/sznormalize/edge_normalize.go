@@ -64,7 +64,10 @@ func toCDN(cdn *cdnpb.RuleLite) *cdnpb.Rule {
 
 func normalizeEdgeSecurity(edgeSec *edgepb.Security) {
 	for _, rule := range edgeSec.GetSecRules() {
-		rule.IngressRuntime = toSecRule(rule.GetIngress())
+		// a rule built from the database holds its runtime form only
+		if rule.GetIngress() != nil {
+			rule.IngressRuntime = toSecRule(rule.GetIngress())
+		}
 	}
 
 	for _, lim := range edgeSec.GetLimiters() {
@@ -73,7 +76,9 @@ func normalizeEdgeSecurity(edgeSec *edgepb.Security) {
 }
 
 func normalizeLimiter(lim *edgepb.RateLimit) {
-	lim.IngressRuntime = toSecRule(lim.GetIngress())
+	if lim.GetIngress() != nil {
+		lim.IngressRuntime = toSecRule(lim.GetIngress())
+	}
 
 	if lim.GetTimeWindow() == "" {
 		lim.TimeWindow = _defaultLimiterDuration

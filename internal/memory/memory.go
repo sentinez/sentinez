@@ -143,6 +143,15 @@ func (m *MemStore) ReverseProxy() *reverseproxy.ReverseProxy {
 	return m.reverseProxy
 }
 
+// Cluster the Olric cluster this edge belongs to.
+func (m *MemStore) Cluster() *cluster.Cluster {
+	if m == nil {
+		return nil
+	}
+
+	return _shared
+}
+
 func (m *MemStore) Limiter() *ratelimiter.Limiter {
 	if m == nil {
 		return nil

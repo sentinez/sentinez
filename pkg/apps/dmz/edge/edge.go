@@ -27,6 +27,7 @@ import (
 	"github.com/sentinez/pkg/szsdklog"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	"github.com/sentinez/sentinez/internal/centralsync"
 	"github.com/sentinez/sentinez/internal/defaults"
 	"github.com/sentinez/sentinez/internal/dmz/edge/engine"
 	"github.com/sentinez/sentinez/internal/dmz/edge/transport"
@@ -94,6 +95,7 @@ type Server struct {
 	memstore    *memory.MemStore
 	chain       *chains.Chain
 	logExporter *szsdklog.Exporter
+	follower    *centralsync.Follower
 }
 
 // Shutdown gracefully stops the Edge Server.
@@ -105,6 +107,10 @@ type Server struct {
 // during the service shutdown phase.
 func (s *Server) Shutdown(ctx context.Context) error {
 	szlog.Debugf("application is shutting down")
+	if s.follower != nil {
+		s.follower.Close()
+	}
+
 	err := s.memstore.Shutdown(ctx)
 
 	// stop serving first, so the logs of the last requests are flushed

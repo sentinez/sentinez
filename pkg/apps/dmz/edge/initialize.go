@@ -37,6 +37,8 @@ func (s *Server) initialize() error {
 		return fmt.Errorf("sync settings: %w", err)
 	}
 
+	s.followCentralData()
+
 	chain, err := http.NewHandler(s.memstore,
 		option.WithExporter(s.logExporter),
 		option.WithSecretKey(s.conf.Get(settingpb.Senz_SENZ_SECRET_KEY)),

@@ -167,3 +167,11 @@ func (m *MemStore) claim(ns, id string) (string, bool) {
 
 	return id, true
 }
+
+// take gives namespace to resource id, whoever held it.
+func (m *MemStore) take(ns, id string) {
+	m.ownersMu.Lock()
+	defer m.ownersMu.Unlock()
+
+	m.owners[ns] = id
+}
