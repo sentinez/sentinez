@@ -15,17 +15,25 @@
 package edgeyaml
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/goccy/go-yaml"
 	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/sentinez/api/client/consul"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	"github.com/sentinez/sentinez/internal/defaults"
 	"google.golang.org/protobuf/encoding/protojson"
 )
+
+// _consulTimeout bounds the read of the proxy config from Consul, which
+// runs before the edge starts.
+const _consulTimeout = 5 * time.Second
 
 var errMissingSetting = errors.New("missing 'setting' in configuration")
 
@@ -33,14 +41,62 @@ type Config struct {
 	Setting *edgepb.Setting `yaml:"setting"`
 }
 
-// LoadSetting reads the proxy config file named by the proxy_config flag.
+// rawGetter reads a value of the Consul KV.
+type rawGetter interface {
+	GetRaw(ctx context.Context, key string) ([]byte, error)
+}
+
+// LoadSetting reads the proxy config. With SENZ_CONSUL_URI it is the one at
+// the Consul key defaults.ProxyConfigKey, the very one the apiserver
+// imports; without the URI, or when Consul has no such key, it is the file
+// named by the proxy_config flag.
 func LoadSetting(appConf *settingpb.Config) (*edgepb.Setting, error) {
-	data, err := os.ReadFile(appConf.GetFlag().GetProxyConfig())
+	path := appConf.GetFlag().GetProxyConfig()
+
+	var data []byte
+	var err error
+
+	if uri := appConf.Get(settingpb.Senz_SENZ_CONSUL_URI); uri != "" {
+		data, err = readConsulProxy(uri, path)
+	} else {
+		data, err = os.ReadFile(path)
+	}
+
 	if err != nil {
 		return nil, fmt.Errorf("read proxy config: %w", err)
 	}
 
 	return Parse(data)
+}
+
+func readConsulProxy(uri, path string) ([]byte, error) {
+	client, err := consul.New(uri)
+	if err != nil {
+		return nil, fmt.Errorf("consul: %w", err)
+	}
+
+	return readProxy(client, path)
+}
+
+// readProxy reads the proxy config from Consul, or from the file at path
+// when Consul has no such key.
+func readProxy(getter rawGetter, path string) ([]byte, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), _consulTimeout)
+	defer cancel()
+
+	data, err := getter.GetRaw(ctx, defaults.ProxyConfigKey)
+	if errors.Is(err, consul.ErrKeyNotFound) {
+		szlog.Warnf("proxy config: no consul key %q, reading %s",
+			defaults.ProxyConfigKey, path)
+
+		return os.ReadFile(path)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("consul key %q: %w",
+			defaults.ProxyConfigKey, err)
+	}
+
+	return data, nil
 }
 
 // Parse decodes the 'setting' block of a proxy config (proxy.yaml).

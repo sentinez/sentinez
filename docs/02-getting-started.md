@@ -117,6 +117,49 @@ They are loaded by `pkg/szconfig.LoadEnv` (using `godotenv`) and read with
 Some services (edge, dataplane, realtime) load only a specific list of
 variables; the others load the whole `Senz` enum.
 
+### Config from Consul
+
+With `SENZ_CONSUL_URI` set, every service also reads its variables from the
+Consul KV, once, when it starts (`pkg/appconfig`; a service only declares its
+flags and the keys it reads in its `config/config.go`).
+
+| Consul key | For |
+|---|---|
+| `sentinez/env/SENZ_KEY` | every service |
+| `sentinez/env/<service_key>/SENZ_KEY` | one service, e.g. `sentinez/env/sentinez.dmz.edge.v1/SENZ_KAFKA_BROKERS` (`service_key` is in the service proto, `x_meta`) |
+
+- **Precedence:** the environment (`.env` included) wins, then the key of the
+  service, then the shared key. An empty value counts as not set.
+- **Only the environment** sets `SENZ_CONSUL_URI`, `SENZ_ADDRESS`,
+  `SENZ_MEMBERSHIP_ADDRESS`, `SENZ_DISCOVERY_ADDRESS` and `SENZ_ZONE`: they are
+  how Consul is reached, or differ from one instance to the next. Such a key in
+  Consul is ignored with a warning, as is an unknown key.
+- **Failure:** with `SENZ_CONSUL_URI` set and Consul unreachable, the service
+  does not start. Without the URI nothing changes.
+- **Secrets:** `SENZ_SECRET_KEY`, `SENZ_DATA_KEY`, `SENZ_ADMIN_PASSWORD` and
+  `SENZ_POSTGRES_URI` can live in Consul too, but its KV is not encrypted:
+  protect them with the ACLs of Consul. Changing a value takes a restart.
+- **Edge:** it reads `proxy.yaml` from the Consul key `sentinez/proxy.yaml`
+  (the one the apiserver imports, `make consul.proxy.put`); without
+  `SENZ_CONSUL_URI`, or when the key is missing, it reads the file of
+  `--proxy_config`.
+
+The env shared by all the services is in
+[deploy/consul/shared.env.example](../deploy/consul/shared.env.example); what
+differs from one instance to the next (`SENZ_ADDRESS`, `SENZ_CONSUL_URI`, and
+for the edge `SENZ_ZONE`, `SENZ_MEMBERSHIP_ADDRESS`, `SENZ_DISCOVERY_ADDRESS`)
+stays in `cmd/<service>/.env` (see its `.env.example`).
+
+```sh
+cp deploy/consul/shared.env.example deploy/consul/shared.env   # ignored by git; edit it
+make consul.env.put                                            # once, for every service
+make consul.env.put ENV_FILE=cmd/szedge/v1/.env SERVICE=sentinez.dmz.edge.v1  # one service
+```
+
+`hack/consul-env-put.sh` puts the `SENZ_*` lines of the file (never printing
+the values) and skips the keys that only the environment may set. Then remove
+the moved keys from the `.env` files.
+
 ## 2.4 Command-line flags
 
 Defined in

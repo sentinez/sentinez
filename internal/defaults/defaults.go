@@ -29,6 +29,10 @@ const (
 	CentralDataAddress = "0.0.0.0:9003"
 )
 
+// ProxyConfigKey is the Consul key of the proxy.yaml that the apiserver
+// imports and that the edge serves when Consul is configured.
+const ProxyConfigKey = "sentinez/proxy.yaml"
+
 // Ids of the requests whose setting does not declare metadata.tenantId /
 // server.resourceId, or that match no setting: the request context starts
 // with them. A setting with the default tenant id is not synced.

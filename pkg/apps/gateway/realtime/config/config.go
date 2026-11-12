@@ -15,45 +15,25 @@
 package config
 
 import (
-	"sync"
-
-	"github.com/sentinez/pkg/szconfig"
 	realtimepb "github.com/sentinez/sentinez/api/proto/sentinez/gateway/realtime/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	"github.com/sentinez/sentinez/pkg/appconfig"
 	"github.com/sentinez/sentinez/pkg/apps/gateway/realtime/flags"
 )
 
-var (
-	_once    sync.Once
-	_appConf *settingpb.Config
-	_loadErr error
-)
-
-func Config() (*settingpb.Config, error) {
-	_once.Do(func() { _appConf, _loadErr = load() })
-
-	return _appConf, _loadErr
-}
-
-func load() (*settingpb.Config, error) {
-	flag, err := flags.Parse()
-	if err != nil {
-		return nil, err
-	}
-
-	env, err := szconfig.LoadEnv(flag.GetEnvFile(),
+var _provider = appconfig.New(appconfig.Spec{
+	Meta:  realtimepb.GetMetaRealtime(),
+	Flags: flags.Parse,
+	Keys: []settingpb.Senz{
 		settingpb.Senz_SENZ_HOSTNAME,
 		settingpb.Senz_SENZ_ADDRESS,
 		settingpb.Senz_SENZ_SECRET_KEY,
 		settingpb.Senz_SENZ_OTLP_INTERNAL_ENDPOINT,
-	)
-	if err != nil {
-		return nil, err
-	}
+	},
+})
 
-	return &settingpb.Config{
-		Meta: realtimepb.GetMetaRealtime(),
-		Flag: flag,
-		Env:  env,
-	}, nil
+// Config loads the config once and returns it: the flags, and the env from
+// the environment and from Consul (see appconfig).
+func Config() (*settingpb.Config, error) {
+	return _provider.Config()
 }
