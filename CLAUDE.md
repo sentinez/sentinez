@@ -21,7 +21,7 @@ This is a **multi-module monorepo** using `replace` directives in the root [go.m
 | ↳ `contrib/httphz` | HTTP helpers |
 | ↳ `tools` | Code gen / rule parser tooling |
 | `ui/` | pnpm + turbo workspace: `apps/{console,web,template}`, `packages/{ui,proto,eslint-config,tsconfig}` |
-| `deploy/` | caddy, nginx, docker, monitoring configs, `ruleroot` (CRS rules) |
+| `deploy/` | caddy, nginx, docker, monitoring configs, `ruleroot` (CRS rules), `hosts` (the local domain names, for /etc/hosts) |
 | `_submodules/` | git submodules: coreruleset, googleapis, grpc-gateway, opentelemetry-proto, protovalidate (`git submodule update --init --recursive`) |
 | `hack/` | Dev scripts (lint, proto lint, gobump, timescale up/down, mkcert, rule parsing, gitlab sync) |
 

@@ -37,6 +37,7 @@ with `SENTINEZ_OUT=...`, change the image tag with `TAG=...`.
 
 ```sh
 make compose.up            # postgres:16 (5432), consul (8500), apiserver, edge
+sudo tee -a /etc/hosts < deploy/hosts  # once: the domain names the configs use
 bash hack/timescale-up.sh  # start only sentinez.timescale (TimescaleDB) and sentinez.consul
 ```
 
@@ -45,8 +46,8 @@ bash hack/timescale-up.sh  # start only sentinez.timescale (TimescaleDB) and sen
 ```sh
 cp cmd/szapiserver/.env.example cmd/szapiserver/.env   # then edit the values
 make sz.apiserver.run
-# REST:    http://localhost:8080/...
-# Swagger: http://localhost:8080/swagger/
+# REST:    http://sentinez.gateway.apiserver:8080/...
+# Swagger: http://sentinez.gateway.apiserver:8080/swagger/
 ```
 
 On startup the repositories create their own tables (`CREATE TABLE IF NOT
@@ -57,7 +58,7 @@ migrations.
 
 ```sh
 ./hack/mkcert-local.sh     # creates a *.sentinez.vn cert (see note below)
-# /etc/hosts: 127.0.0.1 example.sentinez.vn sentinez.vn
+# /etc/hosts: the names of deploy/hosts (sentinez.vn, example.sentinez.vn)
 make sz.edge.run
 ```
 
@@ -87,7 +88,7 @@ cd ui && pnpm install && pnpm dev   # turbo dev for console/web
 ```
 
 The console calls `/api`, which its Next.js server forwards to
-`API_BASE_PATH` (server-only, default `http://localhost:8080`).
+`API_BASE_PATH` (server-only, default `http://sentinez.gateway.apiserver:8080`).
 
 ## 2.3 Environment variables
 

@@ -27,10 +27,9 @@ of project
 ./hack/mkcert-local.sh
 ```
 
-Add host to `/etc/hosts` if you on Linux
+Add the domain names of `deploy/hosts` to `/etc/hosts` if you on Linux
 ```
-127.0.0.1 example.sentinez.vn
-127.0.0.1 sentinez.vn
+sudo tee -a /etc/hosts < deploy/hosts
 ```
 
 If you have not install `mkcert`, please install it.

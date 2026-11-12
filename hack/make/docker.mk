@@ -4,7 +4,7 @@ SZ_COMPOSE := $(SZ_ROOT)/deploy/docker/docker-compose.yaml
 
 # proxy.yaml the apiserver imports from Consul at startup, under the key
 # of its --proxy_config flag.
-CONSUL_ADDR ?= http://localhost:8500
+CONSUL_ADDR ?= http://sentinez.consul:8500
 CONSUL_PROXY_KEY ?= sentinez/proxy.yaml
 CONSUL_PROXY_FILE ?= $(SZ_ROOT)/cmd/szedge/v1/proxy.yaml
 

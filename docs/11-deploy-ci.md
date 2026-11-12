@@ -44,6 +44,7 @@ zone leader election ([3.8](03-edge.md#zone-leader-election)).
 | Directory | Contents |
 |---|---|
 | `caddy/` | `Caddyfile`: `localhost { reverse_proxy localhost:7777 }` + compose |
+| `hosts` | The domain names of the local setup (`sudo tee -a /etc/hosts < deploy/hosts`) |
 | `nginx/` | `nginx.conf` + `conf/` |
 | `monitoring/` | Prometheus (`prometheus/prometheus.yml`), Grafana, dashboard `sentinez-edge-cluster-grafana.json` |
 | `configs/{dev,prod,sandbox}` | Per-environment configs |

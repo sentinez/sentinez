@@ -1,0 +1,40 @@
+# The domain names of the local development setup: every service the
+# configs (.env, deploy/consul/shared.env, proxy.yaml, the console) reach
+# runs on this machine, under the names below. The infrastructure names are
+# the container names of deploy/docker/docker-compose.yaml, so the same
+# address works on the host and inside the compose network.
+#
+# Add them once:
+#
+#   sudo tee -a /etc/hosts < deploy/hosts
+#
+# The dataplane runs in the `gateway` netns (hack/net/dev), where 127.0.0.1
+# is the netns itself; `ip netns exec` reads /etc/netns/<ns>/hosts instead:
+#
+#   sudo mkdir -p /etc/netns/gateway
+#   sed 's/^127\.0\.0\.1/192.168.100.1/' deploy/hosts \
+#     | sudo tee /etc/netns/gateway/hosts
+#
+# The console stays on http://localhost:3000: the browsers only allow the
+# passkeys (WebAuthn) over plain http on localhost.
+
+# Infrastructure (make compose.up).
+127.0.0.1 sentinez.timescale                 # Postgres + TimescaleDB :5432
+127.0.0.1 sentinez.consul                    # Consul :8500
+127.0.0.1 sentinez.kafka                     # Kafka, host listener :9094
+127.0.0.1 sentinez.clickhouse                # ClickHouse :9000
+127.0.0.1 sentinez.telemetry.otel-collector  # OTLP gRPC :4317
+127.0.0.1 sentinez.telemetry.kafka-ui        # Kafka UI :8088
+
+# Services (make sz.<svc>.run).
+127.0.0.1 sentinez.gateway.apiserver         # REST + Swagger :8080
+127.0.0.1 sentinez.gateway.realtime          # :7778
+127.0.0.1 sentinez.apps.greeter              # gRPC :9001
+127.0.0.1 sentinez.apps.collector            # gRPC :9002
+127.0.0.1 sentinez.apps.centraldata          # gRPC, mTLS :9003
+127.0.0.1 sentinez.dmz.edge                  # HTTPS :7443, pprof :6060
+
+# Edge: the upstream of the /local example of cmd/szedge/v1/proxy.yaml, and
+# the domains it serves.
+127.0.0.1 sentinez.upstream
+127.0.0.1 sentinez.vn example.sentinez.vn
