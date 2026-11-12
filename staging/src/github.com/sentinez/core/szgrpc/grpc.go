@@ -122,11 +122,13 @@ func (s *Server) BufServe(bufLis *bufconn.Listener) error {
 // New returns a new service registrar.
 // opts are the gRPC server options. A panic of a handler fails the call, and
 // requests are validated against their buf.validate rules, before any
-// interceptor given in opts runs.
+// interceptor given in opts runs. A panic of a streaming handler fails the
+// call too; the requests of a stream are not validated.
 func New(opts ...grpc.ServerOption) *Server {
 	opts = append([]grpc.ServerOption{
 		grpc.ChainUnaryInterceptor(
 			recovery.Unary(), validate.UnaryServerInterceptor()),
+		grpc.ChainStreamInterceptor(recovery.Stream()),
 	}, opts...)
 
 	return &Server{server: grpc.NewServer(opts...)}

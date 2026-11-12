@@ -46,3 +46,21 @@ func Unary() grpc.UnaryServerInterceptor {
 		return handler(ctx, req)
 	}
 }
+
+// Stream is Unary for the streaming calls.
+func Stream() grpc.StreamServerInterceptor {
+	return func(srv any, ss grpc.ServerStream, info *grpc.StreamServerInfo,
+		handler grpc.StreamHandler) (err error) {
+
+		defer func() {
+			if r := recover(); r != nil {
+				szlog.Errorf("panic in %s: %v\n%s",
+					info.FullMethod, r, debug.Stack())
+
+				err = status.Error(codes.Internal, "internal error")
+			}
+		}()
+
+		return handler(srv, ss)
+	}
+}

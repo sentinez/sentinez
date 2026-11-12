@@ -33,7 +33,7 @@ type Collector struct {
 // NewService creates the collector gRPC server.
 func NewService(conf *settingpb.Config) *Collector {
 	return &Collector{
-		Server:  szgrpc.New(authz.ServerOption()),
+		Server:  szgrpc.New(authz.ServerOptions()...),
 		handler: collectorfac.NewDefaultHandler(conf),
 		conf:    conf,
 	}

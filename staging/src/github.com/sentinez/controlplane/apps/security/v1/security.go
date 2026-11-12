@@ -44,7 +44,7 @@ func NewService(
 	}
 
 	return &Security{
-		Server: szgrpc.New(authz.ServerOption()),
+		Server: szgrpc.New(authz.ServerOptions()...),
 		hdl:    hdl,
 	}, nil
 }

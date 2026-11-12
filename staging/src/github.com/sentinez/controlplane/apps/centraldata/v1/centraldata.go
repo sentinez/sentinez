@@ -38,7 +38,7 @@ func NewService(conf *settingpb.Config) (*CentralData, error) {
 	}
 
 	return &CentralData{
-		Server: szgrpc.New(authz.ServerOption()),
+		Server: szgrpc.New(authz.ServerOptions()...),
 		hdl:    hdl,
 		conf:   conf,
 	}, nil

@@ -51,3 +51,27 @@ func TestUnary_Pass(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "ok", resp)
 }
+
+func stream(handler grpc.StreamHandler) error {
+	info := &grpc.StreamServerInfo{FullMethod: "/svc.Service/Stream"}
+
+	return Stream()(nil, nil, info, handler)
+}
+
+func TestStream_Panic(t *testing.T) {
+	var auth *struct{ Name string }
+
+	err := stream(func(any, grpc.ServerStream) error {
+		_ = auth.Name // nil dereference
+		return nil
+	})
+
+	assert.Equal(t, codes.Internal, status.Code(err))
+	assert.NotContains(t, err.Error(), "nil pointer")
+}
+
+func TestStream_Pass(t *testing.T) {
+	err := stream(func(any, grpc.ServerStream) error { return nil })
+
+	require.NoError(t, err)
+}
