@@ -120,9 +120,9 @@ xây trên `postgres.Open`: dùng chung pool và tham gia được transaction c
 
 | Gói | Chức năng |
 |---|---|
-| `crypto` | `TokenGenerator(*typepb.Context)` ký JWT HS256 với secret = base64-decode(`SENZ_SECRET_KEY`); claim `auth` = `Context.String()` (prototext), `exp`, `iat`, `iss` = `sentinez.iam`, `aud` = `sentinez.controlplane`. `BearerTokenVerifier` bỏ tiền tố `Bearer `, kiểm tra HMAC (chỉ HS256), hạn dùng (bắt buộc), issuer và audience, rồi parse lại `Context`. `HashPassword`/`CheckPasswordHash` dùng bcrypt |
-| `headers` | `GetAuth(ctx)` trả người gọi mà interceptor `authz` đã xác thực, nếu không thì đọc và verify metadata `Authorization` → `Auth{*typepb.Context}`; `Auth.Check(method)` gọi `perms.Allow` (lỗi `PermissionDenied`); `Auth.IsAdmin()`; `WithAuth(ctx, auth)` |
-| `authz` | `Unary()` / `ServerOption()`: interceptor từ chối mặc định (xem dưới); `Authorizer`: người gọi được làm gì trong các tenant; `Scoped`: giới hạn request list theo resource của người gọi |
+| `crypto` | `TokenGenerator(*typepb.Context)` ký JWT HS256 với secret = base64-decode(`SENZ_SECRET_KEY`); claim `auth` = `Context.String()` (prototext), `exp`, `iat`, `iss` = `sentinez.iam`, `aud` = `sentinez.controlplane`. `BearerTokenVerifier` bỏ tiền tố `Bearer `, kiểm tra HMAC (chỉ HS256), hạn dùng (bắt buộc), issuer và audience, rồi parse lại `Context`. `ServiceTokenGenerator(name, ttl)` / `ServiceTokenVerifier` làm điều tương tự cho token service (control plane `SERVICE`), với `SENZ_SERVICE_KEY` và `iss` = `aud` = `sentinez.service`, nên không loại nào dùng thay được loại kia. `HashPassword`/`CheckPasswordHash` dùng bcrypt |
+| `headers` | `GetAuth(ctx)` trả người gọi mà interceptor `authz` đã xác thực, nếu không thì đọc và verify metadata `Authorization` (token user, nếu không thì token service) → `Auth{*typepb.Context}`; `Auth.Check(method)` gọi `perms.Allow` (lỗi `PermissionDenied`); `Auth.IsAdmin()`; `Auth.IsService()`; `WithAuth(ctx, auth)` |
+| `authz` | `Unary()` / `Stream()`, cài cùng nhau bằng `ServerOptions()`: các interceptor từ chối mặc định (xem dưới); `Authorizer`: người gọi được làm gì trong các tenant; `Scoped`: giới hạn request list theo resource của người gọi |
 | `loginlimit` | `Limiter`: chặn một key sau N lần đăng nhập thất bại trong một cửa sổ; IAM dùng |
 | `passkey` | `NewWebAuthn(conf)` (RP = `core.Name`, RPID = `SENZ_HOSTNAME`, origins = `ClientOrigins(conf)`, tức `SENZ_CLIENT_ORIGIN` cách nhau bằng dấu phẩy); `Store` in-memory (session WebAuthn + `Registration` đang chờ, xem 7.3) |
 
@@ -131,8 +131,10 @@ sau 1 giờ.
 
 Phân quyền có hai lớp.
 
-**1. Theo từng call: control plane (`PORTAL` / `ADMIN`).** `authz.Unary()`
-được cài trên mọi gRPC server của control plane và trên local conn của
+**1. Theo từng call: control plane (`PORTAL` / `ADMIN` / `SERVICE`).**
+`authz.Unary()` và `authz.Stream()` (stream được kiểm tra một lần, lúc mở)
+được cài trên mọi gRPC server của control plane bằng
+`szgrpc.New(authz.ServerOptions()...)`, `authz.Unary()` trên local conn của
 gateway, và từ chối mặc định:
 
 - Mỗi RPC có thể khai báo `option (sentinez.types.v1.x_method) = {public |
@@ -145,8 +147,13 @@ gateway, và từ chối mặc định:
 - Các RPC public: `Login`, `CreateAccount`, các RPC passkey register/login
   và các RPC `Status`/`SayHello`. `CreateUser` và `DeleteUser` chỉ cho
   control plane `ADMIN`.
+- Token service (`SERVICE`) chỉ mở được các method liệt kê
+  `CONTROL_PLANE_SERVICE` (hiện là `Sync` của centraldata), không bao giờ mở
+  method có danh sách rỗng. Trên kết nối có client certificate đã verify,
+  tên trong token phải trùng CN của certificate.
 - `szgrpc.New` và `grpcgateway.NewLocalConn` đặt `recovery.Unary()` đầu
-  chuỗi: panic của handler làm call lỗi `Internal` thay vì dừng process.
+  chuỗi (và `szgrpc.New` thêm `recovery.Stream()`): panic của handler làm call
+  lỗi `Internal` thay vì dừng process.
 
 **2. Theo từng tenant: vai trò của người gọi.** Token không chứa tenant hay
 vai trò. `authz.Authorizer` đọc membership (`tenant.members`) của người gọi
@@ -385,8 +392,8 @@ action JSONB`).
 | `Status` | `GET /security/status` |
 
 Service kiểm tra `sec_rule` bắt buộc khi tạo/sửa; `UpdateSecRule` đọc bản
-ghi, ghi đè các trường từ request rồi gọi repo `Update`. Rule lưu ở đây
-**chưa được đẩy xuống edge**.
+ghi, ghi đè các trường từ request rồi gọi repo `Update`. Rule lưu ở đây tới
+edge qua centraldata (xem [CentralData](#centraldata-đồng-bộ-các-bảng-xuống-edge)).
 
 ## 7.6 Analytic, Greeter, CentralData
 
@@ -394,8 +401,61 @@ ghi, ghi đè các trường từ request rồi gọi repo `Update`. Rule lưu �
 |---|---|
 | Analytic | `ListActivities` (`GET /analytic/activities`, cần token) trên bảng `analytic.activities` (`id, resource_id, unique_visitor INTEGER[]`), cùng các API đọc event của edge và histogram của chúng (xem [Analytic: đọc event](#analytic-đọc-event)). Chạy trong tiến trình apiserver |
 | Greeter | Service mẫu: `SayHello` (`GET /greeter/say?name=`) trả lời kèm thời gian; `Status`. Có binary riêng `szgreeter` và cũng chạy in-process trong apiserver |
-| CentralData | Chỉ có `Status`; binary `szcentraldata` chưa có `main` |
+| CentralData | `Status`, và `Sync`: stream nạp các bảng cho edge, xem dưới. Binary `szcentraldata` |
 | Collector | `Status`, cùng phần thu nạp event của edge từ Kafka (bên dưới). Binary `szcollector` |
+
+### CentralData: đồng bộ các bảng xuống edge
+
+`szcentraldata` giữ các bảng trong `SENZ_SYNC_TABLES` (mặc định:
+`security.secrules`, `security.ratelimits`, `security.corerulesets`,
+`tenant.resources`, `tenant.cacertificates`) trong go-memdb, và các edge đi
+theo nó:
+
+```
+postgres ──trigger: pg_notify(id)──► centraldata ──Olric pub/sub──► mọi edge
+                                         ▲                              │
+                                         └──── Sync (gRPC stream) ◄─────┘ lúc boot
+```
+
+- **Phát hiện thay đổi.** Khi khởi động, `postgres.NewNotifying` tạo từng
+  bảng và một trigger `AFTER INSERT OR UPDATE OR DELETE` gọi `pg_notify` với
+  id của row. `Syncer`
+  ([service/syncer.go](../../staging/src/github.com/sentinez/controlplane/apps/centraldata/v1/service/syncer.go))
+  `LISTEN` trước rồi mới nạp các bảng, nên không thay đổi nào lọt vào giữa.
+  Với mỗi notification nó đọc lại row và áp dụng (hoặc xoá khi row không
+  còn). Mỗi phút nó so các bảng với bộ nhớ để bắt notification postgres làm
+  rơi. Mất kết nối thì nạp lại các bảng và bắt đầu epoch mới.
+- **Version.** Mỗi lần ghi vào bộ nhớ tăng version; một `Change` mang
+  `(table, op, id, row, version, epoch)`. `epoch` đổi khi lịch sử không còn
+  liền mạch.
+- **Edge boot: `Sync`**, RPC stream duy nhất. Nó gửi mọi row dưới dạng
+  `Change`, rồi một `Snapshot{version, epoch}`. Các row là của version đó:
+  edge áp các thay đổi được publish sau nó.
+- **Live: Olric.** Centraldata publish mỗi `Change` trong một `Envelope` ký
+  HMAC-SHA256 bằng `SENZ_SYNC_KEY`, trên channel
+  `sentinez.centraldata.changes` của cluster edge (`SENZ_OLRIC_ADDRESSES`,
+  qua Olric cluster client: nó không là member). Pub/sub là at-most-once, nên
+  edge ([internal/centralsync](../../internal/centralsync/follower.go))
+  subscribe trước khi gọi `Sync`, bỏ những gì không ký bằng key hoặc không
+  nằm sau snapshot, và nạp lại khi version bị hụt, epoch đổi, hoặc mỗi 5
+  phút.
+- **Trên edge**, `memory.CentralSink` giữ các row và dựng lại
+  `edgepb.Setting` của mỗi resource có row thay đổi (server của resource,
+  rule, limiter và core ruleset), trên nền setting đã nạp cho domain đó, nên
+  CDN của file được giữ. Setting từ các bảng chiếm domain của setting từ
+  file. Không có `SENZ_SERVICE_TOKEN` thì edge không theo centraldata; nếu
+  không tới được centraldata, edge chạy bằng file và cluster, và thử lại nền.
+- **Tin cậy.** `Sync` chỉ mở cho `CONTROL_PLANE_SERVICE`. Edge gọi qua mTLS
+  (certificate của CA nội bộ, `hack/mkcert-internal.sh`) với token service
+  (`go run ./cmd/szservicetoken -name <CN của certificate>`) ký bằng
+  `SENZ_SERVICE_KEY`, chỉ centraldata giữ: edge giữ token, không giữ key.
+  Tên trong token phải là CN của certificate của kết nối. Token service không
+  mở method nào không liệt kê control plane service, và token user không bao
+  giờ mở được `Sync`.
+- **CA certificate** đi đúng như bảng lưu: pem và private key vẫn được seal
+  bằng `SENZ_DATA_KEY`, thứ centraldata không bao giờ đọc. Edge giữ chúng ở
+  dạng seal (`CentralSink.CaCertificates`) cho tới ngày dùng tới. Ai
+  subscribe được channel Olric của edge cũng chỉ thấy bản đã seal.
 
 ### Collector: thu nạp event của edge
 

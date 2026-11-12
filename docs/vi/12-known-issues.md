@@ -39,8 +39,11 @@ xoá mục tương ứng.
   tạo các topic event với 3 partition và tắt tự tạo topic, nên
   `DefaultTopicPartitions` (6) của producer không bao giờ có tác dụng trong
   môi trường đó.
-- `szcentraldata`: `main()` rỗng. Discovery Consul (`WithDiscorvery`,
-  `VisitToEndpoint`) có code nhưng chưa bật.
+- Đồng bộ `szcentraldata`: edge nạp các bảng thành `edgepb.Setting` dựng
+  lại từ row, chỉ giữ loại action của rule (không giữ `params`) và không có
+  gì về CDN: CDN của file được giữ. CA certificate tới được edge (đã seal)
+  nhưng edge chưa dùng tới. Edge chiếm namespace của setting từ file khi các
+  bảng có cùng domain.
 - Leader theo zone mới chỉ ghi zone status
   (`sentinez/dmz/edge/zone/<zone>/status`); `Elector.Publish` và
   `leader.All` đã sẵn cho các bản ghi zone-wide khác nhưng chưa có bản ghi

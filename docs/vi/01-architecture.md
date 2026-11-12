@@ -49,9 +49,9 @@ cảnh báo chưa đảm bảo tương thích ngược trước v1.0.0.
 | `szedge/v1` | [cmd/szedge/v1/main.go](../../cmd/szedge/v1/main.go) | `edge.Server` | Edge proxy HTTPS (TLS 1.3, HTTP/2) chạy chain bảo mật |
 | `szdataplane/v1` | [cmd/szdataplane/v1/main.go](../../cmd/szdataplane/v1/main.go) | `dataplane.Server` | Gắn chương trình XDP vào `veth0`, mở gRPC server |
 | `szgreeter/v1` | [cmd/szgreeter/v1/main.go](../../cmd/szgreeter/v1/main.go) | `greeter.Greeter` | Service gRPC mẫu (SayHello/Status) |
-| `szcentraldata/v1` | [cmd/szcentraldata/v1/main.go](../../cmd/szcentraldata/v1/main.go) | — | `main()` rỗng, chưa triển khai |
+| `szcentraldata/v1` | [cmd/szcentraldata/v1/main.go](../../cmd/szcentraldata/v1/main.go) | `centraldata.CentralData` | Giữ các bảng được đồng bộ trong bộ nhớ, phục vụ edge (stream `Sync`) và publish thay đổi lên Olric ([7.6](07-controlplane.md#centraldata-đồng-bộ-các-bảng-xuống-edge)) |
 
-Mọi binary (trừ `szcentraldata`) đều theo một khuôn:
+Mọi binary đều theo một khuôn:
 
 ```go
 func main() {

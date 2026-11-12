@@ -122,9 +122,9 @@ of `postgres.WithTx`. It needs TimescaleDB (`SENZ_POSTGRES_URI` on the
 
 | Package | Purpose |
 |---|---|
-| `crypto` | `TokenGenerator(*typepb.Context)` signs an HS256 JWT with secret = base64-decode(`SENZ_SECRET_KEY`); claim `auth` = `Context.String()` (prototext), `exp`, `iat`, `iss` = `sentinez.iam`, `aud` = `sentinez.controlplane`. `BearerTokenVerifier` strips the `Bearer ` prefix and verifies the HMAC (HS256 only), the expiry (required), the issuer and the audience, then parses the `Context` back. `HashPassword`/`CheckPasswordHash` use bcrypt |
-| `headers` | `GetAuth(ctx)` returns the caller the `authz` interceptor verified, else reads and verifies the `Authorization` metadata → `Auth{*typepb.Context}`; `Auth.Check(method)` calls `perms.Allow` (fails with `PermissionDenied`); `Auth.IsAdmin()`; `WithAuth(ctx, auth)` |
-| `authz` | `Unary()` / `ServerOption()`: the deny-by-default interceptor (see below); `Authorizer`: what a caller may do in the tenants; `Scoped`: limits a list request to the resources of the caller |
+| `crypto` | `TokenGenerator(*typepb.Context)` signs an HS256 JWT with secret = base64-decode(`SENZ_SECRET_KEY`); claim `auth` = `Context.String()` (prototext), `exp`, `iat`, `iss` = `sentinez.iam`, `aud` = `sentinez.controlplane`. `BearerTokenVerifier` strips the `Bearer ` prefix and verifies the HMAC (HS256 only), the expiry (required), the issuer and the audience, then parses the `Context` back. `ServiceTokenGenerator(name, ttl)` / `ServiceTokenVerifier` do the same for the service tokens (control plane `SERVICE`), with `SENZ_SERVICE_KEY` and `iss` = `aud` = `sentinez.service`, so neither kind passes for the other. `HashPassword`/`CheckPasswordHash` use bcrypt |
+| `headers` | `GetAuth(ctx)` returns the caller the `authz` interceptor verified, else reads and verifies the `Authorization` metadata (a user token, else a service token) → `Auth{*typepb.Context}`; `Auth.Check(method)` calls `perms.Allow` (fails with `PermissionDenied`); `Auth.IsAdmin()`; `Auth.IsService()`; `WithAuth(ctx, auth)` |
+| `authz` | `Unary()` / `Stream()`, installed together by `ServerOptions()`: the deny-by-default interceptors (see below); `Authorizer`: what a caller may do in the tenants; `Scoped`: limits a list request to the resources of the caller |
 | `loginlimit` | `Limiter`: blocks a key after N failed sign-ins in a window; used by IAM |
 | `passkey` | `NewWebAuthn(conf)` (RP = `core.Name`, RPID = `SENZ_HOSTNAME`, origins = `ClientOrigins(conf)`, the comma-separated `SENZ_CLIENT_ORIGIN`); in-memory `Store` (WebAuthn sessions + pending `Registration`s, see 7.3) |
 
@@ -133,9 +133,11 @@ after 1 hour.
 
 Authorization has two layers.
 
-**1. Per call: the control plane (`PORTAL` / `ADMIN`).** `authz.Unary()` is
-installed on every control-plane gRPC server and on the gateway's local
-conns, and denies by default:
+**1. Per call: the control plane (`PORTAL` / `ADMIN` / `SERVICE`).**
+`authz.Unary()` and `authz.Stream()` (a stream is checked once, when it
+opens) are installed on every control-plane gRPC server by
+`szgrpc.New(authz.ServerOptions()...)`, `authz.Unary()` on the gateway's local
+conns, and deny by default:
 
 - Each RPC may declare `option (sentinez.types.v1.x_method) = {public |
   ignore | control_planes: [...]}`; codegen produces `Get<Service><Method>()`.
@@ -147,9 +149,13 @@ conns, and denies by default:
 - The public RPCs are `Login`, `CreateAccount`, the passkey register/login
   RPCs and the `Status`/`SayHello` ones. `CreateUser` and `DeleteUser` are
   `ADMIN` only.
-- `szgrpc.New` and `grpcgateway.NewLocalConn` put `recovery.Unary()` first:
-  a panic of a handler fails the call with `Internal` instead of stopping
-  the process.
+- A service token (`SERVICE`) opens only the methods that list
+  `CONTROL_PLANE_SERVICE` (today centraldata's `Sync`), never one with an
+  empty list. On a connection with a verified client certificate, its name
+  must be the CN of the certificate.
+- `szgrpc.New` and `grpcgateway.NewLocalConn` put `recovery.Unary()` first
+  (and `szgrpc.New` `recovery.Stream()`): a panic of a handler fails the call
+  with `Internal` instead of stopping the process.
 
 **2. Per tenant: the roles of the caller.** The token holds no tenant and no
 role. `authz.Authorizer` reads the memberships (`tenant.members`) of the
@@ -395,7 +401,7 @@ action JSONB`).
 
 The service requires `sec_rule` on create/update; `UpdateSecRule` loads the
 record, overwrites fields from the request and calls the repo's `Update`.
-Rules stored here are **not pushed to the edge yet**.
+Rules stored here reach the edges through [centraldata](#centraldata-sync-of-the-tables-to-the-edges).
 
 ## 7.6 Analytic, Greeter, CentralData
 
@@ -403,8 +409,64 @@ Rules stored here are **not pushed to the edge yet**.
 |---|---|
 | Analytic | `ListActivities` (`GET /analytic/activities`, requires a token) over table `analytic.activities` (`id, resource_id, unique_visitor INTEGER[]`), and the reads of the edge events and their histograms (see [Analytic: event reads](#analytic-event-reads)). Runs in-process in the apiserver |
 | Greeter | Sample service: `SayHello` (`GET /greeter/say?name=`) replies with the current time; `Status`. Has its own `szgreeter` binary and also runs in-process in the apiserver |
-| CentralData | Only `Status`; the `szcentraldata` binary has no `main` body |
+| CentralData | `Status`, and `Sync`: the stream that loads the edges with the tables, below. Binary `szcentraldata` |
 | Collector | `Status`, plus the ingest of the edge events from Kafka (below). Binary `szcollector` |
+
+### CentralData: sync of the tables to the edges
+
+`szcentraldata` keeps the tables of `SENZ_SYNC_TABLES` (default:
+`security.secrules`, `security.ratelimits`, `security.corerulesets`,
+`tenant.resources`, `tenant.cacertificates`) in go-memdb, and the edges
+follow it:
+
+```
+postgres ──trigger: pg_notify(id)──► centraldata ──Olric pub/sub──► every edge
+                                         ▲                              │
+                                         └──── Sync (gRPC stream) ◄─────┘ at boot
+```
+
+- **Detecting the changes.** On start, `postgres.NewNotifying` creates each
+  table and an `AFTER INSERT OR UPDATE OR DELETE` trigger calling `pg_notify`
+  with the id of the row. The `Syncer`
+  ([service/syncer.go](../staging/src/github.com/sentinez/controlplane/apps/centraldata/v1/service/syncer.go))
+  `LISTEN`s first, then loads the tables, so no change falls in between. For
+  each notification it reads the row again and applies it (or removes it when
+  it is gone). Every minute it compares the tables with the memory, to catch
+  a notification postgres dropped. After a lost connection it reloads the
+  tables and starts a new epoch.
+- **Versions.** Every write to the memory bumps a version; a `Change` carries
+  `(table, op, id, row, version, epoch)`. The `epoch` changes when the
+  history is no longer continuous.
+- **Boot of an edge: `Sync`**, the one RPC of the stream. It sends every row
+  as a `Change`, then a `Snapshot{version, epoch}`. The rows are those of that
+  version: the edge applies the published changes after it.
+- **Live: Olric.** Centraldata publishes each `Change`, in an `Envelope`
+  signed (HMAC-SHA256) with `SENZ_SYNC_KEY`, on the channel
+  `sentinez.centraldata.changes` of the edge cluster
+  (`SENZ_OLRIC_ADDRESSES`, through an Olric cluster client: it is not a
+  member). Pub/sub is at-most-once, so the edge
+  ([internal/centralsync](../internal/centralsync/follower.go)) subscribes
+  before it calls `Sync`, drops what is not signed with the key or is not
+  after the snapshot, and loads again on a gap in the versions, a new epoch,
+  or every 5 minutes.
+- **On the edge**, `memory.CentralSink` keeps the rows and rebuilds the
+  `edgepb.Setting` of each resource whose rows change (the server of the
+  resource, its rules, limiters and core ruleset), on top of the setting
+  already loaded for its domain, so the CDN of the file stays. The setting of
+  the tables takes the domain from the one of the file. Without
+  `SENZ_SERVICE_TOKEN` the edge does not follow centraldata, and if it cannot
+  reach it, it serves with the file and the cluster, and keeps trying.
+- **Trust.** `Sync` is open to `CONTROL_PLANE_SERVICE` only. The edge calls it
+  over mTLS (certificates of an internal CA, `hack/mkcert-internal.sh`) with a
+  service token (`go run ./cmd/szservicetoken -name <CN of its certificate>`)
+  signed with `SENZ_SERVICE_KEY`, which only centraldata holds: the edge holds
+  the token, not the key. The token's name must be the CN of the certificate
+  of the connection. A service token opens no method that does not list the
+  service control plane, and a user token never opens `Sync`.
+- **CA certificates** travel as the table holds them: the pem and the private
+  key stay sealed with `SENZ_DATA_KEY`, which centraldata never reads. The
+  edge keeps them sealed (`CentralSink.CaCertificates`) for the day it uses
+  them. Anyone who can subscribe to the edge's Olric channel sees them sealed.
 
 ### Collector: edge event ingest
 
