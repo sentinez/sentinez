@@ -17,7 +17,10 @@
 package memrepo
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
+	"sync"
 
 	"github.com/hashicorp/go-memdb"
 	"github.com/sentinez/controlplane/pkg/schema"
@@ -28,8 +31,16 @@ import (
 
 // Memory the in-memory store, safe for concurrent use: go-memdb serves
 // reads from immutable snapshots and serializes the writes.
+//
+// Every write bumps a version, so a reader of Snapshot knows which
+// changes the rows it holds already include.
 type Memory struct {
 	db *memdb.MemDB
+
+	// mu orders a write with its version bump, and Snapshot with both.
+	mu      sync.Mutex
+	version uint64
+	epoch   string
 }
 
 // New creates the Memory with a table per schema of schema.All.
@@ -44,15 +55,56 @@ func New() (*Memory, error) {
 		return nil, fmt.Errorf("new memdb: %w", err)
 	}
 
-	return &Memory{db: db}, nil
+	return &Memory{db: db, epoch: newEpoch()}, nil
+}
+
+// Epoch identifies the content lineage of the versions: Reset changes
+// it, and the versions of two epochs are not comparable.
+func (m *Memory) Epoch() string {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	return m.epoch
+}
+
+// Version the number of writes since the last Reset.
+func (m *Memory) Version() uint64 {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	return m.version
+}
+
+// Reset starts a new epoch at version 0, the rows are kept: the caller
+// reloads them.
+func (m *Memory) Reset() string {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	m.epoch, m.version = newEpoch(), 0
+
+	return m.epoch
 }
 
 // Upsert inserts the rows into table, replacing those of the same id,
 // all or none. A row is a pointer to the model of the table, ex:
 // *tenantpb.Tenant for sztable.Tenants.
 func (m *Memory) Upsert(table sztable.Table, rows ...any) error {
+	_, err := m.UpsertAt(table, rows...)
+
+	return err
+}
+
+// UpsertAt is Upsert returning the version of the write; the current
+// one when there are no rows.
+func (m *Memory) UpsertAt(
+	table sztable.Table, rows ...any) (uint64, error) {
+
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
 	if len(rows) == 0 {
-		return nil
+		return m.version, nil
 	}
 
 	name := table.String()
@@ -61,32 +113,72 @@ func (m *Memory) Upsert(table sztable.Table, rows ...any) error {
 
 	for _, row := range rows {
 		if err := txn.Insert(name, row); err != nil {
-			return fmt.Errorf("upsert %s: %w", table, err)
+			return 0, fmt.Errorf("upsert %s: %w", table, err)
 		}
 	}
 
 	txn.Commit()
+	m.version++
 
-	return nil
+	return m.version, nil
 }
 
 // Delete removes the row of id from table.
 func (m *Memory) Delete(table sztable.Table, id string) error {
+	_, err := m.DeleteAt(table, id)
+
+	return err
+}
+
+// DeleteAt is Delete returning the version of the write.
+func (m *Memory) DeleteAt(table sztable.Table, id string) (uint64, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
 	txn := m.db.Txn(true)
 	defer txn.Abort()
 
 	row, err := first(txn, table, id)
 	if err != nil {
-		return fmt.Errorf("delete: %w", err)
+		return 0, fmt.Errorf("delete: %w", err)
 	}
 
 	if err := txn.Delete(table.String(), row); err != nil {
-		return fmt.Errorf("delete %s: %w", table, err)
+		return 0, fmt.Errorf("delete %s: %w", table, err)
 	}
 
 	txn.Commit()
+	m.version++
 
-	return nil
+	return m.version, nil
+}
+
+// Snapshot calls fn for every row of tables, ordered by table then id,
+// from one consistent view, and returns the version and epoch of that
+// view. A change published with a greater version in the same epoch is
+// not in the rows fn saw.
+func (m *Memory) Snapshot(tables []sztable.Table,
+	fn func(table sztable.Table, row any) error) (uint64, string, error) {
+
+	m.mu.Lock()
+	txn := m.db.Txn(false)
+	version, epoch := m.version, m.epoch
+	m.mu.Unlock()
+
+	for _, table := range tables {
+		it, err := txn.Get(table.String(), dbx.MemIdIndex)
+		if err != nil {
+			return 0, "", fmt.Errorf("snapshot %s: %w", table, err)
+		}
+
+		for raw := it.Next(); raw != nil; raw = it.Next() {
+			if err := fn(table, raw); err != nil {
+				return 0, "", err
+			}
+		}
+	}
+
+	return version, epoch, nil
 }
 
 // Get the row of id in table, as a *T.
@@ -141,4 +233,12 @@ func as[T any](table sztable.Table, raw any) (*T, error) {
 	}
 
 	return row, nil
+}
+
+// newEpoch a random identifier of a content lineage.
+func newEpoch() string {
+	var b [8]byte
+	_, _ = rand.Read(b[:])
+
+	return hex.EncodeToString(b[:])
 }

@@ -26,6 +26,7 @@ func All() []dbx.Schema {
 		Tenants(),
 		TenantMembers(),
 		TenantResources(),
+		TenantCaCertificates(),
 		SecuritySecRules(),
 		SecurityRateLimits(),
 		SecurityCoreRulesets(),

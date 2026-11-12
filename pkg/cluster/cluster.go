@@ -85,13 +85,9 @@ func newCluster(appConf *settingpb.Config) (*Cluster, error) {
 		done:  make(chan struct{}),
 	}
 
-	db, err := olric.New(newConfig(appConf, c.markReady))
-	if err != nil {
-		return nil, fmt.Errorf("cluster: new olric: %w", err)
+	if err := c.open(newConfig(appConf, c.markReady)); err != nil {
+		return nil, err
 	}
-
-	c.db = db
-	c.client = db.NewEmbeddedClient()
 
 	return c, nil
 }
@@ -99,11 +95,27 @@ func newCluster(appConf *settingpb.Config) (*Cluster, error) {
 type Cluster struct {
 	db     *olric.Olric
 	client *olric.EmbeddedClient
+	// addr is the Olric address of this node, its name in the cluster
+	addr string
 	// node names this process in the cluster
 	node      string
 	ready     chan struct{}
 	readyOnce sync.Once
 	done      chan struct{}
+}
+
+// open creates the Olric node of conf.
+func (c *Cluster) open(conf *config.Config) error {
+	db, err := olric.New(conf)
+	if err != nil {
+		return fmt.Errorf("cluster: new olric: %w", err)
+	}
+
+	// olric.New names the node after its bind address.
+	c.db, c.client = db, db.NewEmbeddedClient()
+	c.addr = conf.MemberlistConfig.Name
+
+	return nil
 }
 
 // Ready is closed once the node accepts connections.

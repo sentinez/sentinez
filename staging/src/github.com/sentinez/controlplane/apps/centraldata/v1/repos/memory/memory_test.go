@@ -100,3 +100,56 @@ func TestListDelete(t *testing.T) {
 	require.Len(t, rows, 1)
 	assert.Equal(t, "1", rows[0].GetId())
 }
+
+func TestWritesBumpVersion(t *testing.T) {
+	m := newMemory(t)
+
+	up, err := m.UpsertAt(sztable.Tenants, &tenantpb.Tenant{Id: "tn-1"})
+	require.NoError(t, err)
+	del, err := m.DeleteAt(sztable.Tenants, "tn-1")
+	require.NoError(t, err)
+
+	assert.Equal(t, uint64(1), up)
+	assert.Equal(t, uint64(2), del)
+	assert.Equal(t, uint64(2), m.Version())
+}
+
+func TestFailedDeleteKeepsVersion(t *testing.T) {
+	m := newMemory(t)
+
+	_, err := m.DeleteAt(sztable.Tenants, "x")
+
+	require.ErrorIs(t, err, szerror.ErrNotFound)
+	assert.Zero(t, m.Version())
+}
+
+func TestResetChangesEpoch(t *testing.T) {
+	m := newMemory(t)
+	before := m.Epoch()
+	require.NoError(t, m.Upsert(sztable.Tenants, &tenantpb.Tenant{Id: "a"}))
+
+	after := m.Reset()
+
+	assert.NotEqual(t, before, after)
+	assert.Equal(t, after, m.Epoch())
+	assert.Zero(t, m.Version())
+}
+
+func TestSnapshot(t *testing.T) {
+	m := newMemory(t)
+	require.NoError(t, m.Upsert(sztable.Tenants,
+		&tenantpb.Tenant{Id: "b"}, &tenantpb.Tenant{Id: "a"}))
+
+	var ids []string
+	version, epoch, err := m.Snapshot([]sztable.Table{sztable.Tenants},
+		func(_ sztable.Table, row any) error {
+			ids = append(ids, row.(*tenantpb.Tenant).GetId())
+
+			return nil
+		})
+
+	require.NoError(t, err)
+	assert.Equal(t, []string{"a", "b"}, ids)
+	assert.Equal(t, uint64(1), version)
+	assert.Equal(t, m.Epoch(), epoch)
+}

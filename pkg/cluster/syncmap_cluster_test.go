@@ -23,7 +23,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/olric-data/olric"
 	"github.com/olric-data/olric/config"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	"github.com/stretchr/testify/assert"
@@ -64,9 +63,7 @@ func startNode(t *testing.T, node, peer string) (*Cluster, string) {
 		conf.Peers = []string{peer}
 	}
 
-	db, err := olric.New(conf)
-	require.NoError(t, err)
-	c.db, c.client = db, db.NewEmbeddedClient()
+	require.NoError(t, c.open(conf))
 	c.Start()
 	t.Cleanup(func() { _ = c.Shutdown(context.Background()) })
 

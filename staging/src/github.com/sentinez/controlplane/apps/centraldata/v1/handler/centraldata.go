@@ -22,6 +22,7 @@ import (
 	centraldatasvc "github.com/sentinez/controlplane/apps/centraldata/v1/service"
 	"github.com/sentinez/pkg/szlog"
 	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
+	"google.golang.org/grpc"
 )
 
 var _ centraldatapb.CentralDataServiceServer = (*CentralDataHandler)(nil)
@@ -46,4 +47,13 @@ func (hdl *CentralDataHandler) Status(ctx context.Context,
 	szlog.Debugf("centraldata.Status: req = %v", req)
 
 	return hdl.service.Status(ctx, req)
+}
+
+// Sync streams the synced tables, see CentralDataService.Sync.
+func (hdl *CentralDataHandler) Sync(req *centraldatapb.SyncRequest,
+	stream grpc.ServerStreamingServer[centraldatapb.SyncResponse],
+) error {
+	szlog.Debugf("centraldata.Sync: tables = %v", req.GetTables())
+
+	return hdl.service.Sync(stream.Context(), req, stream.Send)
 }
