@@ -30,107 +30,107 @@ const (
 	_giveXSS  = `<script>alert(1)</script>`
 )
 
+var _injectionTests = []struct {
+	name            string
+	giveMethod      string
+	giveTarget      string
+	giveBody        string
+	giveContentType string
+	giveHeader      http.Header
+	wantCode        int
+}{
+	{
+		name:       "clean get",
+		giveMethod: http.MethodGet,
+		giveTarget: "/v1/security/secrules?page=1&search=admin",
+		wantCode:   http.StatusOK,
+	},
+	{
+		name:            "clean json body",
+		giveMethod:      http.MethodPost,
+		giveTarget:      "/v1/iam/login",
+		giveBody:        `{"email":"a@b.co","tags":["x","y"],"n":1}`,
+		giveContentType: "application/json",
+		wantCode:        http.StatusOK,
+	},
+	{
+		name:       "sqli in path",
+		giveMethod: http.MethodGet,
+		giveTarget: "/v1/users/1%27%20OR%20%271%27%3D%271%27%20--%20",
+		wantCode:   http.StatusForbidden,
+	},
+	{
+		name:       "xss in path",
+		giveMethod: http.MethodGet,
+		giveTarget: "/v1/users/%3Cscript%3Ealert(1)%3C%2Fscript%3E",
+		wantCode:   http.StatusForbidden,
+	},
+	{
+		name:       "sqli in query",
+		giveMethod: http.MethodGet,
+		giveTarget: "/v1/users?id=1%27%20OR%20%271%27%3D%271%27%20--%20",
+		wantCode:   http.StatusForbidden,
+	},
+	{
+		name:       "xss in query",
+		giveMethod: http.MethodGet,
+		giveTarget: "/v1/users?q=%3Cscript%3Ealert(1)%3C%2Fscript%3E",
+		wantCode:   http.StatusForbidden,
+	},
+	{
+		name:       "xss in user agent",
+		giveMethod: http.MethodGet,
+		giveTarget: "/v1/users",
+		giveHeader: http.Header{"User-Agent": {_giveXSS}},
+		wantCode:   http.StatusForbidden,
+	},
+	{
+		name:       "sqli in cookie",
+		giveMethod: http.MethodGet,
+		giveTarget: "/v1/users",
+		giveHeader: http.Header{
+			"Cookie": {"sid=1%27 OR 1=1; theme=" + _giveSQLi},
+		},
+		wantCode: http.StatusForbidden,
+	},
+	{
+		name:            "sqli in nested json body",
+		giveMethod:      http.MethodPost,
+		giveTarget:      "/v1/users",
+		giveBody:        `{"user":{"names":["ok","` + _giveSQLi + `"]}}`,
+		giveContentType: "application/json",
+		wantCode:        http.StatusForbidden,
+	},
+	{
+		name:            "xss in json body",
+		giveMethod:      http.MethodPost,
+		giveTarget:      "/v1/users",
+		giveBody:        `{"name":"<script>alert(1)<\/script>"}`,
+		giveContentType: "application/json; charset=utf-8",
+		wantCode:        http.StatusForbidden,
+	},
+	{
+		name:            "sqli in form body",
+		giveMethod:      http.MethodPost,
+		giveTarget:      "/v1/users",
+		giveBody:        "name=1%27+OR+%271%27%3D%271%27+--+",
+		giveContentType: "application/x-www-form-urlencoded",
+		wantCode:        http.StatusForbidden,
+	},
+	{
+		name:            "xss in raw body",
+		giveMethod:      http.MethodPost,
+		giveTarget:      "/v1/users",
+		giveBody:        _giveXSS,
+		giveContentType: "text/plain",
+		wantCode:        http.StatusForbidden,
+	},
+}
+
 func TestInjection(t *testing.T) {
 	t.Parallel()
 
-	tests := []struct {
-		name            string
-		giveMethod      string
-		giveTarget      string
-		giveBody        string
-		giveContentType string
-		giveHeader      http.Header
-		wantCode        int
-	}{
-		{
-			name:       "clean get",
-			giveMethod: http.MethodGet,
-			giveTarget: "/v1/security/secrules?page=1&search=admin",
-			wantCode:   http.StatusOK,
-		},
-		{
-			name:            "clean json body",
-			giveMethod:      http.MethodPost,
-			giveTarget:      "/v1/iam/login",
-			giveBody:        `{"email":"a@b.co","tags":["x","y"],"n":1}`,
-			giveContentType: "application/json",
-			wantCode:        http.StatusOK,
-		},
-		{
-			name:       "sqli in path",
-			giveMethod: http.MethodGet,
-			giveTarget: "/v1/users/1%27%20OR%20%271%27%3D%271%27%20--%20",
-			wantCode:   http.StatusForbidden,
-		},
-		{
-			name:       "xss in path",
-			giveMethod: http.MethodGet,
-			giveTarget: "/v1/users/%3Cscript%3Ealert(1)%3C%2Fscript%3E",
-			wantCode:   http.StatusForbidden,
-		},
-		{
-			name:       "sqli in query",
-			giveMethod: http.MethodGet,
-			giveTarget: "/v1/users?id=1%27%20OR%20%271%27%3D%271%27%20--%20",
-			wantCode:   http.StatusForbidden,
-		},
-		{
-			name:       "xss in query",
-			giveMethod: http.MethodGet,
-			giveTarget: "/v1/users?q=%3Cscript%3Ealert(1)%3C%2Fscript%3E",
-			wantCode:   http.StatusForbidden,
-		},
-		{
-			name:       "xss in user agent",
-			giveMethod: http.MethodGet,
-			giveTarget: "/v1/users",
-			giveHeader: http.Header{"User-Agent": {_giveXSS}},
-			wantCode:   http.StatusForbidden,
-		},
-		{
-			name:       "sqli in cookie",
-			giveMethod: http.MethodGet,
-			giveTarget: "/v1/users",
-			giveHeader: http.Header{
-				"Cookie": {"sid=1%27 OR 1=1; theme=" + _giveSQLi},
-			},
-			wantCode: http.StatusForbidden,
-		},
-		{
-			name:            "sqli in nested json body",
-			giveMethod:      http.MethodPost,
-			giveTarget:      "/v1/users",
-			giveBody:        `{"user":{"names":["ok","` + _giveSQLi + `"]}}`,
-			giveContentType: "application/json",
-			wantCode:        http.StatusForbidden,
-		},
-		{
-			name:            "xss in json body",
-			giveMethod:      http.MethodPost,
-			giveTarget:      "/v1/users",
-			giveBody:        `{"name":"<script>alert(1)<\/script>"}`,
-			giveContentType: "application/json; charset=utf-8",
-			wantCode:        http.StatusForbidden,
-		},
-		{
-			name:            "sqli in form body",
-			giveMethod:      http.MethodPost,
-			giveTarget:      "/v1/users",
-			giveBody:        "name=1%27+OR+%271%27%3D%271%27+--+",
-			giveContentType: "application/x-www-form-urlencoded",
-			wantCode:        http.StatusForbidden,
-		},
-		{
-			name:            "xss in raw body",
-			giveMethod:      http.MethodPost,
-			giveTarget:      "/v1/users",
-			giveBody:        _giveXSS,
-			giveContentType: "text/plain",
-			wantCode:        http.StatusForbidden,
-		},
-	}
-
-	for _, tt := range tests {
+	for _, tt := range _injectionTests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

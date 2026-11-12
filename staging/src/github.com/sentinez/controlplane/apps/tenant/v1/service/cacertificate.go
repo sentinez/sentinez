@@ -172,18 +172,26 @@ func newCaCertificates(req *tenantpb.CreateCaCertificateRequest,
 	}
 
 	for i, cert := range certs {
-		cert.Name = caCertificateName(
-			req.GetName(), cert.GetName(), i, len(certs))
-		cert.Description = req.GetDescription()
-		cert.Usage = req.GetUsage()
-		cert.Status = typepb.Status_STATUS_ACTIVE
-		cert.Owner = &typepb.Owner{
-			ResourceId: resource.GetId(),
-			TenantId:   resource.GetTenantId(),
-		}
+		fillCaCertificate(cert, req, resource, i, len(certs))
 	}
 
 	return certs, nil
+}
+
+// fillCaCertificate sets what the request and the owner give to the i-th of
+// n parsed certificates.
+func fillCaCertificate(cert *tenantpb.CaCertificate,
+	req *tenantpb.CreateCaCertificateRequest, resource *tenantpb.Resource,
+	i, n int,
+) {
+	cert.Name = caCertificateName(req.GetName(), cert.GetName(), i, n)
+	cert.Description = req.GetDescription()
+	cert.Usage = req.GetUsage()
+	cert.Status = typepb.Status_STATUS_ACTIVE
+	cert.Owner = &typepb.Owner{
+		ResourceId: resource.GetId(),
+		TenantId:   resource.GetTenantId(),
+	}
 }
 
 // caCertificateName is the name of the i-th of n certificates: the one given

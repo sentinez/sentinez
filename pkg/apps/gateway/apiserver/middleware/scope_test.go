@@ -22,49 +22,49 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const _scopeQuery = "?q=%3Cscript%3Ealert(1)%3C%2Fscript%3E"
+
+var _scopeTests = []struct {
+	name       string
+	giveTarget string
+	wantCode   int
+}{
+	{
+		name:       "scoped module root",
+		giveTarget: "/iam" + _scopeQuery,
+		wantCode:   http.StatusForbidden,
+	},
+	{
+		name:       "scoped module route",
+		giveTarget: "/iam/users" + _scopeQuery,
+		wantCode:   http.StatusForbidden,
+	},
+	{
+		name:       "second scoped module",
+		giveTarget: "/tenant/resources" + _scopeQuery,
+		wantCode:   http.StatusForbidden,
+	},
+	{
+		name:       "clean request in scope",
+		giveTarget: "/iam/users?q=admin",
+		wantCode:   http.StatusOK,
+	},
+	{
+		name:       "module out of scope",
+		giveTarget: "/security/secrules" + _scopeQuery,
+		wantCode:   http.StatusOK,
+	},
+	{
+		name:       "prefix is not a full segment",
+		giveTarget: "/iamx/users" + _scopeQuery,
+		wantCode:   http.StatusOK,
+	},
+}
+
 func TestScope(t *testing.T) {
 	t.Parallel()
 
-	const query = "?q=%3Cscript%3Ealert(1)%3C%2Fscript%3E"
-
-	tests := []struct {
-		name       string
-		giveTarget string
-		wantCode   int
-	}{
-		{
-			name:       "scoped module root",
-			giveTarget: "/iam" + query,
-			wantCode:   http.StatusForbidden,
-		},
-		{
-			name:       "scoped module route",
-			giveTarget: "/iam/users" + query,
-			wantCode:   http.StatusForbidden,
-		},
-		{
-			name:       "second scoped module",
-			giveTarget: "/tenant/resources" + query,
-			wantCode:   http.StatusForbidden,
-		},
-		{
-			name:       "clean request in scope",
-			giveTarget: "/iam/users?q=admin",
-			wantCode:   http.StatusOK,
-		},
-		{
-			name:       "module out of scope",
-			giveTarget: "/security/secrules" + query,
-			wantCode:   http.StatusOK,
-		},
-		{
-			name:       "prefix is not a full segment",
-			giveTarget: "/iamx/users" + query,
-			wantCode:   http.StatusOK,
-		},
-	}
-
-	for _, tt := range tests {
+	for _, tt := range _scopeTests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

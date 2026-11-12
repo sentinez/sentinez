@@ -94,7 +94,6 @@ func storeProxy(ctx context.Context, data []byte,
 		return err
 	}
 	sznormalize.NormalizeEdgeSetting(setting)
-
 	srv := setting.GetServer()
 	if srv == nil {
 		return errNoServer

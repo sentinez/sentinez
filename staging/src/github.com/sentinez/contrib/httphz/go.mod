@@ -9,7 +9,7 @@ replace (
 )
 
 require (
-	github.com/a-h/templ v0.3.1070
+	github.com/a-h/templ v0.3.1100
 	github.com/cloudwego/gopkg v0.2.0
 	github.com/cloudwego/hertz v0.10.5
 	github.com/hertz-contrib/http2 v0.1.8
