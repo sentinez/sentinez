@@ -29,6 +29,11 @@ export enum CaCertificateUsage {
   CA_CERTIFICATE_USAGE_UPSTREAM = 1,
   /** CA_CERTIFICATE_USAGE_CLIENT - Verify the client certificates of downstream connections (mTLS). */
   CA_CERTIFICATE_USAGE_CLIENT = 2,
+  /**
+   * CA_CERTIFICATE_USAGE_SERVER - The TLS certificate the edge serves to its clients: not a CA, and always
+   * with its private key.
+   */
+  CA_CERTIFICATE_USAGE_SERVER = 3,
   UNRECOGNIZED = -1,
 }
 
@@ -43,6 +48,9 @@ export function caCertificateUsageFromJSON(object: any): CaCertificateUsage {
     case 2:
     case "CA_CERTIFICATE_USAGE_CLIENT":
       return CaCertificateUsage.CA_CERTIFICATE_USAGE_CLIENT;
+    case 3:
+    case "CA_CERTIFICATE_USAGE_SERVER":
+      return CaCertificateUsage.CA_CERTIFICATE_USAGE_SERVER;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -58,6 +66,8 @@ export function caCertificateUsageToJSON(object: CaCertificateUsage): string {
       return "CA_CERTIFICATE_USAGE_UPSTREAM";
     case CaCertificateUsage.CA_CERTIFICATE_USAGE_CLIENT:
       return "CA_CERTIFICATE_USAGE_CLIENT";
+    case CaCertificateUsage.CA_CERTIFICATE_USAGE_SERVER:
+      return "CA_CERTIFICATE_USAGE_SERVER";
     case CaCertificateUsage.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
@@ -94,11 +104,12 @@ export interface Member {
 }
 
 /**
- * CaCertificate is one trusted CA certificate of a resource, with its
- * private key when one was given. A bundle without a key is split into one
- * record per certificate on import, so the parsed fields below describe
- * exactly one certificate and the fingerprint is kept unique per resource.
- * A record is immutable: it is only created, read and deleted.
+ * CaCertificate is one certificate of a resource: a trusted CA, or the TLS
+ * certificate the edge serves (usage SERVER), with its private key when one
+ * was given. A bundle without a key is split into one record per
+ * certificate on import, so the parsed fields below describe exactly one
+ * certificate and the fingerprint is kept unique per resource. A record is
+ * immutable: it is only created, read and deleted.
  */
 export interface CaCertificate {
   owner?: Owner | undefined;
@@ -111,7 +122,7 @@ export interface CaCertificate {
   status: Status;
   /**
    * PEM-encoded certificate: exactly one CERTIFICATE block, with
-   * BasicConstraints CA=true. The source of truth; every parsed field
+   * BasicConstraints CA=true unless the usage is SERVER. The source of truth; every parsed field
    * below is set from it by the service, never by the client. Stored
    * encrypted.
    */

@@ -33,8 +33,8 @@ export function PageLayoutHeader({ children, title, subtitle }: PageLayoutHeader
       </Button>
       <div className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-x-4 gap-y-2 px-1 py-2 sm:p-3">
         <div className="flex min-w-0 flex-col">
-          <h1 className="truncate text-base font-semibold tracking-tight sm:text-lg">{title}</h1>
-          <p className="line-clamp-2 text-sm text-muted-foreground sm:text-base sm:text-balance">
+          <h1 className="truncate text-base font-semibold tracking-tight">{title}</h1>
+          <p className="line-clamp-2 text-sm text-muted-foreground sm:text-balance">
             {subtitle}
           </p>
         </div>

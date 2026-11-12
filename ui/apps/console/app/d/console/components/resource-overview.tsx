@@ -28,36 +28,56 @@ export function ResourceOverview({ resource }: { resource: Resource }) {
   const eventsId = resource.server?.resourceId;
 
   return (
+    <OverviewCard>
+      <OverviewField label={t('name')}>{resource.server?.name}</OverviewField>
+      <OverviewField label={t('domain')}>{resource.server?.resourceDomain}</OverviewField>
+      <OverviewField label={t('status')}>
+        <BadgeStatus status={status} value={status} />
+      </OverviewField>
+      <OverviewField label={t('updatedAt')}>{formatDate(resource.metadata?.updatedAt)}</OverviewField>
+      <OverviewField label={t('id')} mono>
+        {resource.id}
+      </OverviewField>
+      <OverviewField label={t('tenantId')} mono>
+        {resource.tenantId}
+      </OverviewField>
+      {eventsId && eventsId !== resource.id && (
+        <OverviewField label={t('eventsResourceId')} mono>
+          {eventsId}
+        </OverviewField>
+      )}
+      <OverviewField label={t('createdAt')}>{formatDate(resource.metadata?.createdAt)}</OverviewField>
+    </OverviewCard>
+  );
+}
+
+/** A card of short label / value fields, in a grid of up to four columns */
+export function OverviewCard({ children }: { children: ReactNode }) {
+  return (
     <Card className="py-4">
       <CardContent className="px-4">
         <dl className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Field label={t('name')}>{resource.server?.name}</Field>
-          <Field label={t('domain')}>{resource.server?.resourceDomain}</Field>
-          <Field label={t('status')}>
-            <BadgeStatus status={status} value={status} />
-          </Field>
-          <Field label={t('updatedAt')}>{formatDate(resource.metadata?.updatedAt)}</Field>
-          <Field label={t('id')} mono>
-            {resource.id}
-          </Field>
-          <Field label={t('tenantId')} mono>
-            {resource.tenantId}
-          </Field>
-          {eventsId && eventsId !== resource.id && (
-            <Field label={t('eventsResourceId')} mono>
-              {eventsId}
-            </Field>
-          )}
-          <Field label={t('createdAt')}>{formatDate(resource.metadata?.createdAt)}</Field>
+          {children}
         </dl>
       </CardContent>
     </Card>
   );
 }
 
-function Field({ label, mono, children }: { label: string; mono?: boolean; children: ReactNode }) {
+/** One field of an OverviewCard; `className` is for a field that spans columns */
+export function OverviewField({
+  label,
+  mono,
+  className,
+  children,
+}: {
+  label: string;
+  mono?: boolean;
+  className?: string;
+  children: ReactNode;
+}) {
   return (
-    <div className="min-w-0">
+    <div className={cn('min-w-0', className)}>
       <dt className="text-xs text-muted-foreground">{label}</dt>
       <dd className={cn('text-sm', mono ? 'font-mono break-all' : 'break-words')}>{children}</dd>
     </div>

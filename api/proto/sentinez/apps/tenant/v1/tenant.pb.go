@@ -1696,10 +1696,11 @@ type CreateCaCertificateRequest struct {
 	Name        string             `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Description string             `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
 	Usage       CaCertificateUsage `protobuf:"varint,4,opt,name=usage,proto3,enum=sentinez.apps.tenant.v1.CaCertificateUsage" json:"usage,omitempty"`
-	// One or more PEM CERTIFICATE blocks, each a CA.
+	// One or more PEM CERTIFICATE blocks, each a CA; exactly one, which need
+	// not be a CA, for the usage SERVER.
 	Pem string `protobuf:"bytes,5,opt,name=pem,proto3" json:"pem,omitempty"`
 	// PEM private key of the certificate. With it, pem must hold exactly
-	// one certificate, the one of the key.
+	// one certificate, the one of the key. Required for the usage SERVER.
 	PrivateKey    string `protobuf:"bytes,6,opt,name=private_key,json=privateKey,proto3" json:"private_key,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

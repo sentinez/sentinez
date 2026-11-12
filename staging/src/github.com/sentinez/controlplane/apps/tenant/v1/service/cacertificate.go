@@ -16,7 +16,9 @@ package tenantsvc
 
 import (
 	"context"
+	"encoding/pem"
 	"fmt"
+	"strings"
 	"time"
 
 	cacertrepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/cacertificates"
@@ -102,18 +104,70 @@ func (svc *Service) ListCaCertificate(ctx context.Context,
 	return resp, nil
 }
 
+// _usageServer is the usage of the TLS certificate the edge serves.
+const _usageServer = tenantpb.CaCertificateUsage_CA_CERTIFICATE_USAGE_SERVER
+
+// errServerNeedsKey a certificate to serve, stored without its private key.
+var errServerNeedsKey = szerror.StatusInvalidArgumentF(
+	"a server certificate needs its private_key")
+
+// errKeyCount a request with more than one private key.
+var errKeyCount = szerror.StatusInvalidArgumentF(
+	"the request holds more than one PEM private key")
+
+// splitRequestKey is the certificates of the request, and its private key, if
+// any: in private_key, or in the pem itself as in a single pem file.
+func splitRequestKey(
+	req *tenantpb.CreateCaCertificateRequest,
+) (string, *pem.Block, error) {
+
+	bundle, keys := splitPrivateKeys(req.GetPem())
+
+	if field := req.GetPrivateKey(); strings.TrimSpace(field) != "" {
+		_, fieldKeys := splitPrivateKeys(field)
+		if len(fieldKeys) == 0 {
+			return "", nil, szerror.StatusInvalidArgumentF(
+				"private_key holds no PEM private key")
+		}
+
+		keys = append(keys, fieldKeys...)
+	}
+
+	switch len(keys) {
+	case 0:
+		return bundle, nil, nil
+	case 1:
+		return bundle, keys[0], nil
+	}
+
+	return "", nil, errKeyCount
+}
+
 // newCaCertificates is the records to store for the request, owned by
 // resource.
 func newCaCertificates(req *tenantpb.CreateCaCertificateRequest,
 	resource *tenantpb.Resource, now time.Time,
 ) ([]*tenantpb.CaCertificate, error) {
 
-	certs, err := parseCaBundle(req.GetPem(), now)
+	// the certificate the edge serves is not a CA, and is of no use without
+	// its key
+	server := req.GetUsage() == _usageServer
+
+	bundle, key, err := splitRequestKey(req)
 	if err != nil {
 		return nil, err
 	}
 
-	if err = attachPrivateKey(certs, req.GetPrivateKey()); err != nil {
+	if server && key == nil {
+		return nil, errServerNeedsKey
+	}
+
+	certs, err := parseCaBundle(bundle, now, server)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = attachPrivateKey(certs, key); err != nil {
 		return nil, err
 	}
 

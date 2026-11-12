@@ -122,7 +122,7 @@ func rootNamed(t *testing.T, org, cn string) *testCa {
 func TestParseCaBundleRoot(t *testing.T) {
 	ca := rootNamed(t, "Acme Trust", "Acme Root CA")
 
-	certs, err := parseCaBundle("\n"+ca.certPEM+"\n", _now)
+	certs, err := parseCaBundle("\n"+ca.certPEM+"\n", _now, false)
 
 	require.NoError(t, err)
 	require.Len(t, certs, 1)
@@ -144,7 +144,7 @@ func TestParseCaBundleRoot(t *testing.T) {
 func TestParseCaBundleProviderFallsBackToIssuerName(t *testing.T) {
 	ca := rootNamed(t, "", "Lone Root")
 
-	certs, err := parseCaBundle(ca.certPEM, _now)
+	certs, err := parseCaBundle(ca.certPEM, _now, false)
 
 	require.NoError(t, err)
 	assert.Equal(t, "Lone Root", certs[0].GetProvider())
@@ -157,7 +157,7 @@ func TestParseCaBundleSplitsTheBundle(t *testing.T) {
 		parent:  root,
 	})
 
-	certs, err := parseCaBundle(root.certPEM+inter.certPEM, _now)
+	certs, err := parseCaBundle(root.certPEM+inter.certPEM, _now, false)
 
 	require.NoError(t, err)
 	require.Len(t, certs, 2)
@@ -168,6 +168,25 @@ func TestParseCaBundleSplitsTheBundle(t *testing.T) {
 	assert.Equal(t, "Acme Trust", certs[1].GetProvider())
 	assert.NotEqual(t,
 		certs[0].GetFingerprintSha256(), certs[1].GetFingerprintSha256())
+}
+
+func leafNamed(t *testing.T, cn string) *testCa {
+	t.Helper()
+
+	return newTestCa(t, caOptions{
+		subject: pkix.Name{CommonName: cn}, notCa: true,
+	})
+}
+
+func TestParseCaBundleLeafWhenAllowed(t *testing.T) {
+	leaf := leafNamed(t, "www.example.com")
+
+	certs, err := parseCaBundle(leaf.certPEM, _now, true)
+
+	require.NoError(t, err)
+	require.Len(t, certs, 1)
+	assert.Equal(t, "www.example.com", certs[0].GetName())
+	assert.False(t, certs[0].GetSelfSigned())
 }
 
 type bundleCase struct {
@@ -209,7 +228,7 @@ func invalidBundles(t *testing.T) []bundleCase {
 func TestParseCaBundleInvalid(t *testing.T) {
 	for _, tt := range invalidBundles(t) {
 		t.Run(tt.name, func(t *testing.T) {
-			certs, err := parseCaBundle(tt.giveBundle, _now)
+			certs, err := parseCaBundle(tt.giveBundle, _now, false)
 
 			assert.Empty(t, certs)
 			assert.Equal(t, codes.InvalidArgument, status.Code(err))
@@ -219,10 +238,10 @@ func TestParseCaBundleInvalid(t *testing.T) {
 
 func TestAttachPrivateKey(t *testing.T) {
 	ca := rootNamed(t, "Acme Trust", "Acme Root CA")
-	certs, err := parseCaBundle(ca.certPEM, _now)
+	certs, err := parseCaBundle(ca.certPEM, _now, false)
 	require.NoError(t, err)
 
-	err = attachPrivateKey(certs, "  "+ca.keyPEM+"\n")
+	err = attachPrivateKey(certs, keyBlock(t, ca.keyPEM))
 
 	require.NoError(t, err)
 	assert.Equal(t, ca.keyPEM, certs[0].GetPrivateKey())
@@ -230,10 +249,10 @@ func TestAttachPrivateKey(t *testing.T) {
 
 func TestAttachPrivateKeyWithoutKey(t *testing.T) {
 	ca := rootNamed(t, "Acme Trust", "Acme Root CA")
-	certs, err := parseCaBundle(ca.certPEM, _now)
+	certs, err := parseCaBundle(ca.certPEM, _now, false)
 	require.NoError(t, err)
 
-	err = attachPrivateKey(certs, "")
+	err = attachPrivateKey(certs, nil)
 
 	require.NoError(t, err)
 	assert.Empty(t, certs[0].GetPrivateKey())
@@ -246,9 +265,9 @@ func TestAttachPrivateKeyInvalid(t *testing.T) {
 		subject: pkix.Name{CommonName: "Acme Issuing CA"},
 		parent:  ca,
 	})
-	one, err := parseCaBundle(ca.certPEM, _now)
+	one, err := parseCaBundle(ca.certPEM, _now, false)
 	require.NoError(t, err)
-	two, err := parseCaBundle(ca.certPEM+inter.certPEM, _now)
+	two, err := parseCaBundle(ca.certPEM+inter.certPEM, _now, false)
 	require.NoError(t, err)
 
 	tests := []struct {
@@ -257,14 +276,12 @@ func TestAttachPrivateKeyInvalid(t *testing.T) {
 		giveKey   string
 	}{
 		{"the key of another certificate", one, other.keyPEM},
-		{"a bundle of two", two, ca.keyPEM},
-		{"a certificate instead of a key", one, ca.certPEM},
-		{"text", one, "hello"},
+		{"a bundle without its key", two, other.keyPEM},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := attachPrivateKey(tt.giveCerts, tt.giveKey)
+			err := attachPrivateKey(tt.giveCerts, keyBlock(t, tt.giveKey))
 
 			require.Error(t, err)
 			assert.Equal(t, codes.InvalidArgument, status.Code(err))
@@ -272,4 +289,45 @@ func TestAttachPrivateKeyInvalid(t *testing.T) {
 			assert.Empty(t, tt.giveCerts[0].GetPrivateKey())
 		})
 	}
+}
+
+func TestAttachPrivateKeyToTheMatchingCertificateOfABundle(t *testing.T) {
+	ca := rootNamed(t, "Acme Trust", "Acme Root CA")
+	inter := newTestCa(t, caOptions{
+		subject: pkix.Name{CommonName: "Acme Issuing CA"},
+		parent:  ca,
+	})
+	certs, err := parseCaBundle(ca.certPEM+inter.certPEM, _now, false)
+	require.NoError(t, err)
+
+	require.NoError(t, attachPrivateKey(certs, keyBlock(t, inter.keyPEM)))
+
+	assert.Empty(t, certs[0].GetPrivateKey())
+	assert.NotEmpty(t, certs[1].GetPrivateKey())
+}
+
+func TestSplitPrivateKeys(t *testing.T) {
+	ca := rootNamed(t, "Acme Trust", "Acme Root CA")
+	inter := newTestCa(t, caOptions{
+		subject: pkix.Name{CommonName: "Acme Issuing CA"},
+		parent:  ca,
+	})
+
+	rest, keys := splitPrivateKeys(inter.certPEM + inter.keyPEM + ca.certPEM)
+
+	certs, err := parseCaBundle(rest, _now, false)
+	require.NoError(t, err)
+	assert.Len(t, certs, 2)
+	require.Len(t, keys, 1)
+	assert.Contains(t, keys[0].Type, "PRIVATE KEY")
+}
+
+// keyBlock is the first PEM block of text.
+func keyBlock(t *testing.T, text string) *pem.Block {
+	t.Helper()
+
+	block, _ := pem.Decode([]byte(text))
+	require.NotNil(t, block)
+
+	return block
 }

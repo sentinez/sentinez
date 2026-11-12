@@ -41,10 +41,10 @@ var errNoCertificate = szerror.StatusInvalidArgumentF(
 
 // parseCaBundle returns one CaCertificate per certificate of bundle, with
 // the fields parsed from it (the pem normalized to that one certificate).
-// Every certificate must be a CA that has not expired, and the bundle holds
-// nothing else, nor the same certificate twice.
-func parseCaBundle(
-	bundle string, now time.Time) ([]*tenantpb.CaCertificate, error) {
+// Every certificate must have not expired, and be a CA unless allowLeaf; the
+// bundle holds nothing else, nor the same certificate twice.
+func parseCaBundle(bundle string, now time.Time, allowLeaf bool,
+) ([]*tenantpb.CaCertificate, error) {
 
 	var certs []*tenantpb.CaCertificate
 
@@ -59,7 +59,7 @@ func parseCaBundle(
 				"pem holds data that is not a certificate")
 		}
 
-		cert, err := parseCaBlock(block, now)
+		cert, err := parseCaBlock(block, now, allowLeaf)
 		if err != nil {
 			return nil, err
 		}
@@ -82,8 +82,8 @@ func parseCaBundle(
 	return certs, nil
 }
 
-func parseCaBlock(
-	block *pem.Block, now time.Time) (*tenantpb.CaCertificate, error) {
+func parseCaBlock(block *pem.Block, now time.Time, allowLeaf bool,
+) (*tenantpb.CaCertificate, error) {
 
 	if block.Type != _pemCertificate {
 		return nil, szerror.StatusInvalidArgumentF(
@@ -96,7 +96,7 @@ func parseCaBlock(
 			"certificate is malformed: %v", err)
 	}
 
-	if !cert.BasicConstraintsValid || !cert.IsCA {
+	if !allowLeaf && (!cert.BasicConstraintsValid || !cert.IsCA) {
 		return nil, szerror.StatusInvalidArgumentF(
 			"%q is not a CA certificate", cert.Subject.String())
 	}
@@ -152,59 +152,62 @@ func isSelfSigned(cert *x509.Certificate) bool {
 		cert.CheckSignatureFrom(cert) == nil
 }
 
-// attachPrivateKey sets the private key of certs, which must be the one of
-// the only certificate. Without key it does nothing. The key is stored as
-// one normalized PEM block, and no error carries its content.
+// attachPrivateKey sets the private key of the one certificate of certs that
+// it belongs to. Without key it does nothing. The key is stored as one
+// normalized PEM block, and no error carries its content.
 func attachPrivateKey(
-	certs []*tenantpb.CaCertificate, keyPEM string) error {
+	certs []*tenantpb.CaCertificate, key *pem.Block) error {
 
-	if strings.TrimSpace(keyPEM) == "" {
+	if key == nil {
 		return nil
 	}
 
-	if len(certs) != 1 {
-		return szerror.StatusInvalidArgumentF(
-			"a private key needs exactly one certificate, got %d",
-			len(certs))
-	}
-
-	block := privateKeyBlock(keyPEM)
-	if block == nil {
-		return szerror.StatusInvalidArgumentF(
-			"private_key holds no PEM private key")
-	}
-
 	normalized := pem.EncodeToMemory(&pem.Block{
-		Type: block.Type, Bytes: block.Bytes,
+		Type: key.Type, Bytes: key.Bytes,
 	})
 
-	// it also refuses a key that is encrypted with a passphrase
-	_, err := tls.X509KeyPair([]byte(certs[0].GetPem()), normalized)
-	if err != nil {
-		return szerror.StatusInvalidArgumentF(
-			"private_key is not usable or does not match the certificate")
+	// tls.X509KeyPair also refuses a key encrypted with a passphrase
+	for _, cert := range certs {
+		_, err := tls.X509KeyPair([]byte(cert.GetPem()), normalized)
+		if err == nil {
+			cert.PrivateKey = string(normalized)
+
+			return nil
+		}
 	}
 
-	certs[0].PrivateKey = string(normalized)
-
-	return nil
+	return szerror.StatusInvalidArgumentF(
+		"private_key is not usable or matches no certificate")
 }
 
-// privateKeyBlock is the first PEM private key block of keyPEM, or nil.
-func privateKeyBlock(keyPEM string) *pem.Block {
+// splitPrivateKeys splits the PEM private key blocks off text: it returns
+// the rest of text, and the key blocks in order.
+func splitPrivateKeys(text string) (string, []*pem.Block) {
+	var (
+		rest strings.Builder
+		keys []*pem.Block
+	)
+
 	// pem.Decode finds a block only at the start of a line
-	rest := []byte(strings.TrimSpace(keyPEM))
+	data := []byte(strings.TrimSpace(text))
 
-	for {
-		var block *pem.Block
-
-		block, rest = pem.Decode(rest)
+	for len(data) != 0 {
+		block, next := pem.Decode(data)
 		if block == nil {
-			return nil
+			rest.Write(data)
+
+			break
 		}
 
 		if strings.HasSuffix(block.Type, _keyBlockSuffix) {
-			return block
+			keys = append(keys, block)
+		} else {
+			rest.Write(data[:len(data)-len(next)])
+			rest.WriteByte('\n')
 		}
+
+		data = bytes.TrimSpace(next)
 	}
+
+	return rest.String(), keys
 }

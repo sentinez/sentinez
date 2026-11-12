@@ -163,6 +163,56 @@ func TestCreateCaCertificateGivesTheKeyToTheRepoOnly(t *testing.T) {
 	assert.True(t, resp.GetCaCertificates()[0].GetHasPrivateKey())
 }
 
+func TestCreateServerCertificateNeedsTheKey(t *testing.T) {
+	leaf := leafNamed(t, "www.example.com")
+	// no transaction, no repo call: nothing is stored
+	svc := caService(t, typepb.Role_ROLE_LEADER, _tenantId, nil,
+		cacertmock.NewMockICaCertificate(t))
+
+	_, err := svc.CreateCaCertificate(asUser(t, "user_1"),
+		&tenantpb.CreateCaCertificateRequest{
+			ResourceId: _resourceId, Pem: leaf.certPEM,
+			Usage: _usageServer,
+		})
+
+	assert.Equal(t, codes.InvalidArgument, status.Code(err))
+}
+
+func TestCreateServerCertificateIsNotACa(t *testing.T) {
+	leaf := leafNamed(t, "www.example.com")
+	tx, conn := mockTx(t)
+	conn.ExpectCommit()
+	repo := cacertmock.NewMockICaCertificate(t)
+	createsEach(repo)
+
+	resp, err := caService(t, typepb.Role_ROLE_LEADER, _tenantId, tx, repo).
+		CreateCaCertificate(asUser(t, "user_1"),
+			&tenantpb.CreateCaCertificateRequest{
+				ResourceId: _resourceId, Pem: leaf.certPEM,
+				PrivateKey: leaf.keyPEM,
+				Usage:      _usageServer,
+			})
+
+	require.NoError(t, err)
+	require.Len(t, resp.GetCaCertificates(), 1)
+	assert.Equal(t, "www.example.com", resp.GetCaCertificates()[0].GetName())
+	assert.NoError(t, conn.ExpectationsWereMet())
+}
+
+func TestCreateLeafCertificateIsRefusedWithoutServerUsage(t *testing.T) {
+	leaf := leafNamed(t, "www.example.com")
+	svc := caService(t, typepb.Role_ROLE_LEADER, _tenantId, nil,
+		cacertmock.NewMockICaCertificate(t))
+
+	_, err := svc.CreateCaCertificate(asUser(t, "user_1"),
+		&tenantpb.CreateCaCertificateRequest{
+			ResourceId: _resourceId, Pem: leaf.certPEM, PrivateKey: leaf.keyPEM,
+			Usage: tenantpb.CaCertificateUsage_CA_CERTIFICATE_USAGE_UPSTREAM,
+		})
+
+	assert.Equal(t, codes.InvalidArgument, status.Code(err))
+}
+
 func TestCreateCaCertificateInvalidInput(t *testing.T) {
 	root := rootNamed(t, "Acme Trust", "Acme Root CA")
 	other := rootNamed(t, "Other", "Other Root CA")
@@ -176,9 +226,12 @@ func TestCreateCaCertificateInvalidInput(t *testing.T) {
 		giveKey string
 	}{
 		{"not a certificate", root.keyPEM, ""},
-		{"a key and a bundle of two", root.certPEM + inter.certPEM,
-			root.keyPEM},
+		{"a bundle of two and a key of another", root.certPEM + inter.certPEM,
+			other.keyPEM},
 		{"a key of another certificate", root.certPEM, other.keyPEM},
+		{"a private_key that is not a key", root.certPEM, root.certPEM},
+		{"a key in both fields", root.certPEM + root.keyPEM, root.keyPEM},
+		{"two keys", root.certPEM + root.keyPEM + other.keyPEM, ""},
 	}
 
 	for _, tt := range tests {

@@ -47,6 +47,9 @@ const (
 	CaCertificateUsage_CA_CERTIFICATE_USAGE_UPSTREAM CaCertificateUsage = 1
 	// Verify the client certificates of downstream connections (mTLS).
 	CaCertificateUsage_CA_CERTIFICATE_USAGE_CLIENT CaCertificateUsage = 2
+	// The TLS certificate the edge serves to its clients: not a CA, and always
+	// with its private key.
+	CaCertificateUsage_CA_CERTIFICATE_USAGE_SERVER CaCertificateUsage = 3
 )
 
 // Enum value maps for CaCertificateUsage.
@@ -55,11 +58,13 @@ var (
 		0: "CA_CERTIFICATE_USAGE_UNSPECIFIED",
 		1: "CA_CERTIFICATE_USAGE_UPSTREAM",
 		2: "CA_CERTIFICATE_USAGE_CLIENT",
+		3: "CA_CERTIFICATE_USAGE_SERVER",
 	}
 	CaCertificateUsage_value = map[string]int32{
 		"CA_CERTIFICATE_USAGE_UNSPECIFIED": 0,
 		"CA_CERTIFICATE_USAGE_UPSTREAM":    1,
 		"CA_CERTIFICATE_USAGE_CLIENT":      2,
+		"CA_CERTIFICATE_USAGE_SERVER":      3,
 	}
 )
 
@@ -321,11 +326,12 @@ func (x *Member) GetRoles() []v1.Role {
 	return nil
 }
 
-// CaCertificate is one trusted CA certificate of a resource, with its
-// private key when one was given. A bundle without a key is split into one
-// record per certificate on import, so the parsed fields below describe
-// exactly one certificate and the fingerprint is kept unique per resource.
-// A record is immutable: it is only created, read and deleted.
+// CaCertificate is one certificate of a resource: a trusted CA, or the TLS
+// certificate the edge serves (usage SERVER), with its private key when one
+// was given. A bundle without a key is split into one record per
+// certificate on import, so the parsed fields below describe exactly one
+// certificate and the fingerprint is kept unique per resource. A record is
+// immutable: it is only created, read and deleted.
 type CaCertificate struct {
 	state       protoimpl.MessageState `protogen:"open.v1"`
 	Owner       *v1.Owner              `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
@@ -337,7 +343,7 @@ type CaCertificate struct {
 	// Always STATUS_ACTIVE, set on create.
 	Status v1.Status `protobuf:"varint,6,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`
 	// PEM-encoded certificate: exactly one CERTIFICATE block, with
-	// BasicConstraints CA=true. The source of truth; every parsed field
+	// BasicConstraints CA=true unless the usage is SERVER. The source of truth; every parsed field
 	// below is set from it by the service, never by the client. Stored
 	// encrypted.
 	Pem string `protobuf:"bytes,7,opt,name=pem,proto3" json:"pem,omitempty"`
@@ -558,11 +564,12 @@ const file_sentinez_apps_tenant_v1_model_proto_rawDesc = "" +
 	"\bprovider\x18\x0f \x01(\tR\bprovider\x12\x1f\n" +
 	"\vprivate_key\x18\x10 \x01(\tR\n" +
 	"privateKey\x12.\n" +
-	"\x0fhas_private_key\x18\x11 \x01(\bB\x06\xca\xf0\x19\x02\x10\x01R\rhasPrivateKey:\b\xca\xf3\x18\x04\b\x01\x18\x01*~\n" +
+	"\x0fhas_private_key\x18\x11 \x01(\bB\x06\xca\xf0\x19\x02\x10\x01R\rhasPrivateKey:\b\xca\xf3\x18\x04\b\x01\x18\x01*\x9f\x01\n" +
 	"\x12CaCertificateUsage\x12$\n" +
 	" CA_CERTIFICATE_USAGE_UNSPECIFIED\x10\x00\x12!\n" +
 	"\x1dCA_CERTIFICATE_USAGE_UPSTREAM\x10\x01\x12\x1f\n" +
-	"\x1bCA_CERTIFICATE_USAGE_CLIENT\x10\x02BIZGgithub.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1;tenantpbb\x06proto3"
+	"\x1bCA_CERTIFICATE_USAGE_CLIENT\x10\x02\x12\x1f\n" +
+	"\x1bCA_CERTIFICATE_USAGE_SERVER\x10\x03BIZGgithub.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1;tenantpbb\x06proto3"
 
 var (
 	file_sentinez_apps_tenant_v1_model_proto_rawDescOnce sync.Once
