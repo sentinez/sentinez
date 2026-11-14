@@ -200,6 +200,20 @@ These win over the upstream guide wherever they differ:
   - a single goroutine: a `done := make(chan struct{})` it closes with `defer close(done)`, then `<-done`.
 - **No goroutines in `init()`.** A package that needs a background goroutine exposes an object managing its lifetime, with a `Close`/`Stop`/`Shutdown` method that signals it to stop and waits for it to exit.
 
+### Debug Logging
+
+*Project rule.* Logs go through `github.com/sentinez/pkg/szlog`.
+
+- **Costly debug output is a lazy `fmt.Stringer`.** `szlog.Debugf` only formats when the debug level is on, but its arguments are always evaluated: pass a value whose `String()` builds the text (a diff, a dump), not a string built before the call.
+  ```go
+  // nothing is marshaled or diffed unless debug is on
+  szlog.Debugf("centraldata: diff %s %s\n%v", table, id,
+      szprotobuf.Diff{Old: old, New: row})
+  ```
+- **Show how a proto message changed with `szprotobuf.Diff{Old, New}`**: a `git diff`-like colored line diff of the prototext (`Old` nil = created, `New` nil = deleted). Do not write another diff.
+- **Colors (`szcolor`) only in debug output** meant for the terminal: they end up as escape codes in files and OTLP.
+- **Write the pieces in a `strings.Builder`**, not their concatenation: `b.WriteString(a); b.WriteString(c)` rather than `b.WriteString(a + c)` (the linter flags it).
+
 ---
 
 ## Performance

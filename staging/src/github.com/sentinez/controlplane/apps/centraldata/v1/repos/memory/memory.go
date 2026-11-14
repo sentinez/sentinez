@@ -191,6 +191,12 @@ func Get[T any](m *Memory, table sztable.Table, id string) (*T, error) {
 	return as[T](table, raw)
 }
 
+// Row the row of id in table whatever its type, szerror.ErrNotFound when
+// there is none.
+func (m *Memory) Row(table sztable.Table, id string) (any, error) {
+	return first(m.db.Txn(false), table, id)
+}
+
 // List the rows of table ordered by id, as *T.
 func List[T any](m *Memory, table sztable.Table) ([]*T, error) {
 	it, err := m.db.Txn(false).Get(table.String(), dbx.MemIdIndex)

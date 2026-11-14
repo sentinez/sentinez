@@ -24,8 +24,10 @@ import (
 
 	memrepo "github.com/sentinez/controlplane/apps/centraldata/v1/repos/memory"
 	pgrepo "github.com/sentinez/controlplane/apps/centraldata/v1/repos/postgres"
+	"github.com/sentinez/pkg/szcolor"
 	"github.com/sentinez/pkg/szerror"
 	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/szprotobuf"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	"github.com/sentinez/pkg/sztable"
 	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
@@ -243,6 +245,8 @@ func (s *Syncer) diff(ctx context.Context, table pgrepo.Table,
 		delete(held, id)
 
 		if !ok || !proto.Equal(old, row) {
+			debugDiff(table.Name(), id, old, row)
+
 			changed = append(changed, row)
 		}
 	}
@@ -251,13 +255,22 @@ func (s *Syncer) diff(ctx context.Context, table pgrepo.Table,
 		return err
 	}
 
-	for id := range held {
+	for id, old := range held {
+		debugDiff(table.Name(), id, old, nil)
+
 		if err := s.remove(ctx, table.Name(), id, publish); err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+// debugDiff logs a row that differs from the memory (old is nil when the row
+// is new, row is nil when it was deleted), as a colored line diff like git's.
+func debugDiff(table sztable.Table, id string, old, row proto.Message) {
+	szlog.Debugf("centraldata: diff %v",
+		rowDiff{table: table, id: id, old: old, row: row})
 }
 
 // held the rows of the memory by id.
@@ -287,14 +300,19 @@ func (s *Syncer) handle(ctx context.Context, change postgres.Change) {
 		return
 	}
 
+	szlog.Debugf("centraldata: trigger %s %s %s",
+		change.Op, change.Table, change.Id)
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	row, err := table.Get(ctx, change.Id)
 	switch {
 	case errors.Is(err, szerror.ErrNotFound):
+		s.debugChange(table.Name(), change.Id, nil)
 		err = s.remove(ctx, table.Name(), change.Id, true /* publish */)
 	case err == nil:
+		s.debugChange(table.Name(), change.Id, row)
 		err = s.upsert(ctx, table.Name(), []proto.Message{row},
 			true /* publish */)
 	}
@@ -303,6 +321,15 @@ func (s *Syncer) handle(ctx context.Context, change postgres.Change) {
 		szlog.Errorf("centraldata: apply %s %s: %v",
 			table.Name(), change.Id, err)
 	}
+}
+
+// debugChange logs the row held by the memory against the one the database
+// has now (nil when it was deleted).
+func (s *Syncer) debugChange(table sztable.Table, id string,
+	row proto.Message) {
+
+	szlog.Debugf("centraldata: diff %v",
+		rowDiff{memory: s.memory, table: table, id: id, row: row})
 }
 
 func (s *Syncer) table(relation string) (pgrepo.Table, bool) {
@@ -401,6 +428,28 @@ func sleep(ctx context.Context, d time.Duration) {
 	case <-ctx.Done():
 	case <-t.C:
 	}
+}
+
+// rowDiff formats a row against the one the memory holds, old, or the one
+// it holds now when memory is set. Nothing is read or formatted until
+// String is called, so it costs nothing when the debug level is off.
+type rowDiff struct {
+	memory   *memrepo.Memory
+	table    sztable.Table
+	id       string
+	old, row proto.Message
+}
+
+func (d rowDiff) String() string {
+	old := d.old
+	if d.memory != nil {
+		if raw, err := d.memory.Row(d.table, d.id); err == nil {
+			old, _ = raw.(proto.Message)
+		}
+	}
+
+	return szcolor.Yellow.Add(d.table.String()) + " " + d.id + "\n" +
+		szprotobuf.Diff{Old: old, New: d.row}.String()
 }
 
 // closedSubscription ends the listen loop once ctx is done.
