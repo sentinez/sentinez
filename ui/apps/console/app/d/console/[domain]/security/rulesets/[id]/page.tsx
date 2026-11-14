@@ -87,9 +87,7 @@ export default function EditRulesetPage({ params }: { params: Promise<{ id: stri
         </div>
       </PageLayoutHeader>
       <PageLayoutContent>
-        <div className="max-w-3xl mx-auto py-4">
-          <CoreRulesetFields value={form} onChange={patchForm} idPrefix="edit" />
-        </div>
+        <CoreRulesetFields value={form} onChange={patchForm} idPrefix="edit" />
       </PageLayoutContent>
     </PageLayout>
   );

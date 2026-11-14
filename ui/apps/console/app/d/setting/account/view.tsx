@@ -181,50 +181,48 @@ export default function View() {
     <PageLayout>
       <PageLayoutHeader title={t('accountTitle')} subtitle={t('accountSubtitle')} />
       <PageLayoutContent>
-        <div className="mx-auto grid w-full max-w-3xl gap-6 py-4">
-          <Card>
-            <CardHeader className="border-b">
-              <CardTitle className="flex items-center gap-2">
-                <ShieldCheck className="text-primary size-5" aria-hidden />
-                {t('passportTitle')}
-              </CardTitle>
-              <CardDescription>Sentinéz</CardDescription>
-              {id && (
-                <CardAction>
-                  <Badge variant="outline" className="font-mono">
-                    {passportNumberOf(id)}
-                  </Badge>
-                </CardAction>
-              )}
-            </CardHeader>
-            <CardContent className="grid gap-6 sm:grid-cols-[8rem_minmax(0,1fr)]">
-              <Avatar className="h-40 w-32 justify-self-center rounded-md border">
-                <AvatarImage src={local.avatar || undefined} alt="" className="object-cover" />
-                <AvatarFallback className="rounded-md text-4xl">
-                  {(name || email).charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <dl className="grid content-start gap-4 sm:grid-cols-2">
-                <Field label={t('fullName')} className="sm:col-span-2">
-                  <NameRow userId={id} name={name} onSaved={onNameSaved} />
-                </Field>
-                <Field label={t('email')}>{email || na}</Field>
-                <Field label={t('controlPlane')}>{controlPlane}</Field>
-                <Field label={t('createdAt')}>{dateOf(createdAt)}</Field>
-                <Field label={t('updatedAt')}>{dateOf(updatedAt)}</Field>
-                <Field label={t('userId')} mono className="sm:col-span-2">
-                  {id || na}
-                </Field>
-              </dl>
-            </CardContent>
-            <CardFooter className="bg-muted/50 overflow-x-auto border-t">
-              <pre className="text-muted-foreground font-mono text-xs leading-relaxed tracking-widest">
-                {mrzLinesOf({ name, id, issuedAt: createdAt, updatedAt }).join('\n')}
-              </pre>
-            </CardFooter>
-          </Card>
-          <AccountsCard userId={id} />
-        </div>
+        <Card>
+          <CardHeader className="border-b">
+            <CardTitle className="flex items-center gap-2">
+              <ShieldCheck className="text-primary size-5" aria-hidden />
+              {t('passportTitle')}
+            </CardTitle>
+            <CardDescription>Sentinéz</CardDescription>
+            {id && (
+              <CardAction>
+                <Badge variant="outline" className="font-mono">
+                  {passportNumberOf(id)}
+                </Badge>
+              </CardAction>
+            )}
+          </CardHeader>
+          <CardContent className="grid gap-6 sm:grid-cols-[8rem_minmax(0,1fr)]">
+            <Avatar className="h-40 w-32 justify-self-center rounded-md border">
+              <AvatarImage src={local.avatar || undefined} alt="" className="object-cover" />
+              <AvatarFallback className="rounded-md text-4xl">
+                {(name || email).charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <dl className="grid content-start gap-4 sm:grid-cols-2">
+              <Field label={t('fullName')} className="sm:col-span-2">
+                <NameRow userId={id} name={name} onSaved={onNameSaved} />
+              </Field>
+              <Field label={t('email')}>{email || na}</Field>
+              <Field label={t('controlPlane')}>{controlPlane}</Field>
+              <Field label={t('createdAt')}>{dateOf(createdAt)}</Field>
+              <Field label={t('updatedAt')}>{dateOf(updatedAt)}</Field>
+              <Field label={t('userId')} mono className="sm:col-span-2">
+                {id || na}
+              </Field>
+            </dl>
+          </CardContent>
+          <CardFooter className="bg-muted/50 overflow-x-auto border-t">
+            <pre className="text-muted-foreground font-mono text-xs leading-relaxed tracking-widest">
+              {mrzLinesOf({ name, id, issuedAt: createdAt, updatedAt }).join('\n')}
+            </pre>
+          </CardFooter>
+        </Card>
+        <AccountsCard userId={id} />
       </PageLayoutContent>
     </PageLayout>
   );

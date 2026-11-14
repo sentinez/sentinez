@@ -68,9 +68,7 @@ export default function InviteMemberPage() {
         </div>
       </PageLayoutHeader>
       <PageLayoutContent>
-        <div className="max-w-3xl mx-auto py-4">
-          <MemberFields value={form} onChange={patchForm} idPrefix="invite" />
-        </div>
+        <MemberFields value={form} onChange={patchForm} idPrefix="invite" />
       </PageLayoutContent>
     </PageLayout>
   );

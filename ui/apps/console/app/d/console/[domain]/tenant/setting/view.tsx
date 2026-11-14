@@ -44,7 +44,7 @@ export function SettingView() {
   }
 
   return (
-    <div className="flex flex-col gap-4 w-full max-w-6xl p-4 animate-in fade-in duration-500">
+    <div className="flex flex-col gap-4 animate-in fade-in duration-500">
       <ResourceOverview resource={resource} />
       {/* Keyed by the update time: a saved setting starts again from the stored one */}
       <RoutingCard

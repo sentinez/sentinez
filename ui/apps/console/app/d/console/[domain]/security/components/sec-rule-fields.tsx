@@ -24,6 +24,7 @@ import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 import { ACTIONS_WITHOUT_VALUE, SelectOption } from '@/lib/type/security';
 import { useSecurityOptions } from '@/hooks/use-security-options';
 import { QueryBuilder, createEmptyExpression } from './query-builder';
+import { FieldGrid } from '@/components/field-grid';
 
 export interface ParamRow {
   key: string;
@@ -262,7 +263,7 @@ export function SecRuleFields({ value, onChange, idPrefix = 'rule', actionOption
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <FieldGrid>
         <OptionSelect
           label={t('status')}
           value={value.status}
@@ -275,34 +276,23 @@ export function SecRuleFields({ value, onChange, idPrefix = 'rule', actionOption
           options={priorityOptions}
           onChange={(priority) => onChange({ priority })}
         />
-      </div>
+      </FieldGrid>
 
       <div className="grid gap-2 mt-2">
         <Label>{t('conditionLogic')}</Label>
-        <div className="-mx-1">
-          <QueryBuilder value={value.expr} onValueChange={(expr) => onChange({ expr })} />
-        </div>
+        <QueryBuilder value={value.expr} onValueChange={(expr) => onChange({ expr })} />
       </div>
 
-      <OptionSelect
-        label={t('action')}
-        value={value.action}
-        options={actionOptions ?? options.actionTypeOptions}
-        onChange={(action) => onChange({ action, actionParams: [] })}
-      />
+      <FieldGrid>
+        <OptionSelect
+          label={t('action')}
+          value={value.action}
+          options={actionOptions ?? options.actionTypeOptions}
+          onChange={(action) => onChange({ action, actionParams: [] })}
+        />
 
-      {needsValue &&
-        (isMap ? (
-          <KeyValueRows
-            idPrefix={idPrefix}
-            rows={value.actionParams}
-            onChange={(actionParams) => onChange({ actionParams })}
-            keyLabel={isHeader ? t('headerName') : t('tagKey')}
-            keyPlaceholder={isHeader ? 'X-Custom-Header' : 'tag-key'}
-            valuePlaceholder={isHeader ? t('headerValuePlaceholder') : t('tagValuePlaceholder')}
-          />
-        ) : (
-          <div className="grid gap-2">
+        {needsValue && !isMap && (
+          <div className="grid gap-2 content-start">
             <Label htmlFor={`${idPrefix}-action-value`}>{t('actionValue')}</Label>
             <Input
               id={`${idPrefix}-action-value`}
@@ -317,7 +307,19 @@ export function SecRuleFields({ value, onChange, idPrefix = 'rule', actionOption
               }
             />
           </div>
-        ))}
+        )}
+      </FieldGrid>
+
+      {needsValue && isMap && (
+        <KeyValueRows
+          idPrefix={idPrefix}
+          rows={value.actionParams}
+          onChange={(actionParams) => onChange({ actionParams })}
+          keyLabel={isHeader ? t('headerName') : t('tagKey')}
+          keyPlaceholder={isHeader ? 'X-Custom-Header' : 'tag-key'}
+          valuePlaceholder={isHeader ? t('headerValuePlaceholder') : t('tagValuePlaceholder')}
+        />
+      )}
     </div>
   );
 }

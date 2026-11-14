@@ -16,6 +16,7 @@ import {
   secRuleOf,
   validateSecRuleForm,
 } from './sec-rule-fields';
+import { FieldGrid } from '@/components/field-grid';
 
 export interface RateLimitFormValue extends SecRuleFormValue {
   /** Go duration string, e.g. "10s" */
@@ -106,7 +107,7 @@ export function RateLimitFields({ value, onChange, idPrefix = 'ratelimit' }: Pro
       <div className="grid gap-2 mt-2">
         <Label>{t('rateLimit')}</Label>
         <p className="text-sm text-muted-foreground">{t('rateLimitHint')}</p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <FieldGrid cols={3}>
           <div className="grid gap-2 content-start">
             <Label htmlFor={`${idPrefix}-max-requests`}>{t('maxRequests')}</Label>
             <Input
@@ -143,7 +144,7 @@ export function RateLimitFields({ value, onChange, idPrefix = 'ratelimit' }: Pro
             />
             <p className="text-sm text-muted-foreground">{t('blockTimeoutHint')}</p>
           </div>
-        </div>
+        </FieldGrid>
       </div>
     </div>
   );

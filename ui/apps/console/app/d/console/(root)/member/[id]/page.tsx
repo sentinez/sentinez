@@ -100,18 +100,16 @@ export default function EditMemberPage() {
         </div>
       </PageLayoutHeader>
       <PageLayoutContent>
-        <div className="max-w-3xl mx-auto py-4">
-          <div className="flex items-center gap-4 mb-6">
-            <MemberAvatar name={profile.name} seed={profile.seed} className="h-16 w-16" />
-            <div className="grid min-w-0">
-              <span className="truncate text-lg font-semibold">{profile.name}</span>
-              {profile.email && (
-                <span className="truncate text-sm text-muted-foreground">{profile.email}</span>
-              )}
-            </div>
+        <div className="flex items-center gap-4">
+          <MemberAvatar name={profile.name} seed={profile.seed} className="h-16 w-16" />
+          <div className="grid min-w-0">
+            <span className="truncate text-lg font-semibold">{profile.name}</span>
+            {profile.email && (
+              <span className="truncate text-sm text-muted-foreground">{profile.email}</span>
+            )}
           </div>
-          <MemberFields value={form} onChange={patchForm} idPrefix="edit" emailReadOnly />
         </div>
+        <MemberFields value={form} onChange={patchForm} idPrefix="edit" emailReadOnly />
       </PageLayoutContent>
     </PageLayout>
   );

@@ -24,6 +24,7 @@ import {
   headerLinesOf,
   protocolOf,
 } from '@/lib/type/edge';
+import { FieldGrid } from '@/components/field-grid';
 
 export interface LocationFormValue {
   location: string;
@@ -166,7 +167,7 @@ function LocationFields({
       <legend className="sr-only">{t('locationN', { n: index + 1 })}</legend>
 
       <div className="flex items-end gap-2">
-        <div className="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-2">
+        <FieldGrid className="flex-1 gap-3">
           <div className="grid gap-1.5 content-start">
             <Label htmlFor={`${idPrefix}-path`}>{t('location')}</Label>
             <Input
@@ -191,7 +192,7 @@ function LocationFields({
               onChange={(e) => onChange({ proxyRewrite: e.target.value })}
             />
           </div>
-        </div>
+        </FieldGrid>
         <Button
           type="button"
           variant="ghost"

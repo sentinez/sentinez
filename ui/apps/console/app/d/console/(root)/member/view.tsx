@@ -50,7 +50,12 @@ import { TableSkeletonRows } from '@/components/table-skeleton';
 import { RefreshButton } from '@/components/refresh-button';
 import { usePagedList } from '@/hooks/use-paged-list';
 import { useTenantId } from '@/hooks/use-tenant-id';
-import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
+import {
+  PageLayout,
+  PageLayoutContent,
+  PageLayoutHeader,
+  PageLayoutToolbar,
+} from '@/components/page-layout';
 import { FixedTable } from '@/components/fixed-table';
 import { useCallback, useMemo, useState } from 'react';
 import { MemberAvatar, roleLabel } from './components';
@@ -257,14 +262,14 @@ export default function View() {
 
       <PageLayoutContent>
         <div className="w-full">
-          <div className="flex items-center py-4">
+          <PageLayoutToolbar>
             <Input
               placeholder={tc('filterNames')}
               value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
               onChange={(event) => table.getColumn('name')?.setFilterValue(event.target.value)}
               className="max-w-sm"
             />
-            <RefreshButton className="ml-2" loading={loading} onRefresh={refresh} />
+            <RefreshButton loading={loading} onRefresh={refresh} />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="ml-auto">
@@ -289,7 +294,7 @@ export default function View() {
                   })}
               </DropdownMenuContent>
             </DropdownMenu>
-          </div>
+          </PageLayoutToolbar>
           <div className="overflow-hidden rounded-md">
             <FixedTable table={table}>
               <TableHeader>

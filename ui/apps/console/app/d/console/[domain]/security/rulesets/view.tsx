@@ -56,7 +56,12 @@ import { RefreshButton } from '@/components/refresh-button';
 import { usePagedList } from '@/hooks/use-paged-list';
 import { useResourceId } from '@/hooks/use-resource-id';
 import { useSecurityOptions } from '@/hooks/use-security-options';
-import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
+import {
+  PageLayout,
+  PageLayoutContent,
+  PageLayoutHeader,
+  PageLayoutToolbar,
+} from '@/components/page-layout';
 import { FixedTable } from '@/components/fixed-table';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -289,7 +294,7 @@ export default function View() {
 
       <PageLayoutContent>
         <div className="w-full">
-          <div className="flex items-center gap-2 pt-4 pb-2">
+          <PageLayoutToolbar className="pb-2">
             <Input
               aria-label={tc('filterNames')}
               placeholder={tc('filterNames')}
@@ -322,8 +327,8 @@ export default function View() {
                   })}
               </DropdownMenuContent>
             </DropdownMenu>
-          </div>
-          <div className="flex flex-wrap items-center gap-2 pb-4">
+          </PageLayoutToolbar>
+          <PageLayoutToolbar className="flex-wrap">
             <Select value={String(mode)} onValueChange={(v) => setMode(Number(v) as EngineMode)}>
               <SelectTrigger className="w-44" aria-label={t('mode')}>
                 <SelectValue />
@@ -354,7 +359,7 @@ export default function View() {
                 ))}
               </SelectContent>
             </Select>
-          </div>
+          </PageLayoutToolbar>
           <div className="overflow-hidden rounded-md">
             <FixedTable table={table}>
               <TableHeader>

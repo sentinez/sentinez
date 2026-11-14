@@ -58,9 +58,7 @@ export default function CreateResourcePage() {
         </div>
       </PageLayoutHeader>
       <PageLayoutContent>
-        <div className="max-w-3xl mx-auto py-4">
-          <ResourceFields value={form} onChange={patchForm} idPrefix="create" />
-        </div>
+        <ResourceFields value={form} onChange={patchForm} idPrefix="create" />
       </PageLayoutContent>
     </PageLayout>
   );

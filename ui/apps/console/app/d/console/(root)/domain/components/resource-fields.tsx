@@ -24,6 +24,7 @@ import {
   UPSTREAM_RE,
   protocolOf,
 } from '@/lib/type/edge';
+import { FieldGrid } from '@/components/field-grid';
 
 export interface OriginRow {
   server: string;
@@ -254,7 +255,7 @@ export function ResourceFields({ value, onChange, idPrefix = 'resource' }: Props
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <FieldGrid>
         <div className="grid gap-2 content-start">
           <Label htmlFor={`${idPrefix}-name`}>{t('name')}</Label>
           <Input
@@ -278,16 +279,16 @@ export function ResourceFields({ value, onChange, idPrefix = 'resource' }: Props
           />
           <p className="text-sm text-muted-foreground">{t('domainHint')}</p>
         </div>
-      </div>
+      </FieldGrid>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <FieldGrid>
         <OptionSelect
           label={t('status')}
           value={value.status}
           options={statusOptions(t, ts)}
           onChange={(status) => onChange({ status })}
         />
-      </div>
+      </FieldGrid>
 
       <div className="grid gap-2 mt-2">
         <Label>{t('origin')}</Label>

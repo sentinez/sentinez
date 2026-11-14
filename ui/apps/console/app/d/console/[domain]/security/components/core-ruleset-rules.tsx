@@ -26,6 +26,7 @@ import { QueryBuilder, QueryBuilderEditor } from './query-builder';
 import { RuleCatalog, RulePicker } from './rule-picker';
 import { OptionSelect } from './sec-rule-fields';
 import { TagPicker } from './tag-picker';
+import { FieldGrid } from '@/components/field-grid';
 
 /** A labelled switch with a hint, laid out as one row */
 export function SwitchField({
@@ -176,11 +177,9 @@ function ScopeField({
         onChange={(checked) => onChange({ scoped: checked })}
       />
       {scoped && (
-        <div className="-mx-1">
-          <QueryBuilder value={expr} onValueChange={(next) => onChange({ expr: next })}>
-            <QueryBuilderEditor />
-          </QueryBuilder>
-        </div>
+        <QueryBuilder value={expr} onValueChange={(next) => onChange({ expr: next })}>
+          <QueryBuilderEditor />
+        </QueryBuilder>
       )}
     </div>
   );
@@ -360,7 +359,7 @@ export function OverridesEditor({
           title={t('overrideN', { n: i + 1 })}
           onRemove={() => onChange(removeAt(value, i))}
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <FieldGrid>
             <RuleIdField
               id={`${idPrefix}-${i}-rule`}
               value={override.id}
@@ -374,7 +373,7 @@ export function OverridesEditor({
               options={ruleStateOptions}
               onChange={(state) => onChange(patchAt(value, i, { state }))}
             />
-          </div>
+          </FieldGrid>
           <ScopeField
             id={`${idPrefix}-${i}-scoped`}
             scoped={override.scoped}

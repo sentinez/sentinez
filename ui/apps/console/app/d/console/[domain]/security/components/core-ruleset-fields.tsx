@@ -21,6 +21,7 @@ import { CoreRulesetFormValue } from './core-ruleset-form';
 import { ExclusionsEditor, OverridesEditor, SwitchField } from './core-ruleset-rules';
 import { useRuleInfos } from './rule-picker';
 import { OptionSelect } from './sec-rule-fields';
+import { FieldGrid } from '@/components/field-grid';
 
 const PARANOIA_LEVELS = [1, 2, 3, 4];
 
@@ -241,7 +242,7 @@ export function CoreRulesetFields({ value, onChange, idPrefix = 'ruleset' }: Pro
           onChange={(e) => onChange({ description: e.target.value })}
         />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <FieldGrid>
         <OptionSelect
           label={t('status')}
           value={value.status}
@@ -254,7 +255,7 @@ export function CoreRulesetFields({ value, onChange, idPrefix = 'ruleset' }: Pro
           options={options.engineModeOptions}
           onChange={(mode) => onChange({ mode })}
         />
-      </div>
+      </FieldGrid>
 
       <Section title={t('engine')} hint={t('engineHint')}>
         <OptionSelect
@@ -263,7 +264,7 @@ export function CoreRulesetFields({ value, onChange, idPrefix = 'ruleset' }: Pro
           options={options.crsVersionOptions}
           onChange={(version) => onChange({ version })}
         />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <FieldGrid>
           <OptionSelect
             label={t('paranoiaLevel')}
             value={value.paranoiaLevel}
@@ -276,8 +277,8 @@ export function CoreRulesetFields({ value, onChange, idPrefix = 'ruleset' }: Pro
             options={levelOptions(t('detectionSame'), t('detectionParanoiaHint'))}
             onChange={(detectionParanoiaLevel) => onChange({ detectionParanoiaLevel })}
           />
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        </FieldGrid>
+        <FieldGrid>
           <CountField
             id={`${idPrefix}-inbound`}
             label={t('inboundThreshold')}
@@ -292,7 +293,7 @@ export function CoreRulesetFields({ value, onChange, idPrefix = 'ruleset' }: Pro
             value={value.outboundThreshold}
             onChange={(outboundThreshold) => onChange({ outboundThreshold })}
           />
-        </div>
+        </FieldGrid>
         <SwitchField
           id={`${idPrefix}-early-blocking`}
           label={t('earlyBlocking')}
@@ -344,7 +345,7 @@ export function CoreRulesetFields({ value, onChange, idPrefix = 'ruleset' }: Pro
           value={value.bodyLimitBytes}
           onChange={(bodyLimitBytes) => onChange({ bodyLimitBytes })}
         />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <FieldGrid>
           <MethodSelect
             id={`${idPrefix}-methods`}
             label={t('allowedMethods')}
@@ -361,7 +362,7 @@ export function CoreRulesetFields({ value, onChange, idPrefix = 'ruleset' }: Pro
             value={value.allowedContentTypes}
             onChange={(allowedContentTypes) => onChange({ allowedContentTypes })}
           />
-        </div>
+        </FieldGrid>
       </Section>
 
       <Section title={t('exclusions')} hint={t('exclusionsHint')}>

@@ -38,7 +38,7 @@ export default function EditSecRulePage({ params }: { params: Promise<{ id: stri
         setId(id);
         const { secRule } = await getSecRule({ id });
         if (secRule) setForm(secRuleFormOf(secRule));
-      } catch (err: any) {
+      } catch {
         toast.error(t('loadDetailFailed'));
       } finally {
         setLoading(false);
@@ -60,7 +60,7 @@ export default function EditSecRulePage({ params }: { params: Promise<{ id: stri
       await updateSecRule({ id, secRule: secRuleOf(form, id), updateMask: UPDATE_MASK });
       toast.success(t('updated'));
       router.back();
-    } catch (err: any) {
+    } catch {
       toast.error(t('saveFailed'));
     } finally {
       setSaving(false);
@@ -84,9 +84,7 @@ export default function EditSecRulePage({ params }: { params: Promise<{ id: stri
         </div>
       </PageLayoutHeader>
       <PageLayoutContent>
-        <div className="max-w-3xl mx-auto py-4">
-          <SecRuleFields value={form} onChange={patchForm} idPrefix="edit" />
-        </div>
+        <SecRuleFields value={form} onChange={patchForm} idPrefix="edit" />
       </PageLayoutContent>
     </PageLayout>
   );
