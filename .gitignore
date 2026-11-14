@@ -80,7 +80,9 @@ next-env.d.ts
 # local volume
 .volume/
 
+# IDE and editor
 .vscode/
+.idea/
 
 _audit
 # Enterprise features: the private repository is checked out in scale/
