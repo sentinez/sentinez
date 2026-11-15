@@ -104,6 +104,16 @@ func (m *Setting) Validate() error {
 		}
 	}
 
+	if v, ok := interface{}(m.GetTls()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return SettingValidationError{
+				field:  "Tls",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -160,6 +170,156 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = SettingValidationError{}
+
+// Validate checks the field values on Tls with the rules defined in the proto
+// definition for this message. If any rules are violated, an error is returned.
+func (m *Tls) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	for idx, item := range m.GetCertificates() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return TlsValidationError{
+					field:  fmt.Sprintf("Certificates[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// TlsValidationError is the validation error returned by Tls.Validate if the
+// designated constraints aren't met.
+type TlsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e TlsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e TlsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e TlsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e TlsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e TlsValidationError) ErrorName() string { return "TlsValidationError" }
+
+// Error satisfies the builtin error interface
+func (e TlsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sTls.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = TlsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = TlsValidationError{}
+
+// Validate checks the field values on Certificate with the rules defined in
+// the proto definition for this message. If any rules are violated, an error
+// is returned.
+func (m *Certificate) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Id
+
+	// no validation rules for Pem
+
+	// no validation rules for PrivateKey
+
+	return nil
+}
+
+// CertificateValidationError is the validation error returned by
+// Certificate.Validate if the designated constraints aren't met.
+type CertificateValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CertificateValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CertificateValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CertificateValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CertificateValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CertificateValidationError) ErrorName() string { return "CertificateValidationError" }
+
+// Error satisfies the builtin error interface
+func (e CertificateValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCertificate.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CertificateValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CertificateValidationError{}
 
 // Validate checks the field values on Metadata with the rules defined in the
 // proto definition for this message. If any rules are violated, an error is returned.

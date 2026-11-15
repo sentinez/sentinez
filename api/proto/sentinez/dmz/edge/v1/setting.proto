@@ -32,6 +32,24 @@ message Setting {
   TrafficControl traffic_control = 4; // @gotags: yaml:"traffic_control"
   Personal personal = 5; // @gotags: yaml:"personal"
   Delivery delivery = 6; // @gotags: yaml:"delivery"
+
+  // Certificates the edge serves for server.resource_domain, from the CA
+  // certificates of usage SERVER of the resource; never read from a file.
+  Tls tls = 7; // @gotags: yaml:"-"
+}
+
+// Tls the certificates the edge serves for the domain of a setting.
+message Tls {
+  repeated Certificate certificates = 1;
+}
+
+// Certificate one certificate and its private key, if any, both sealed
+// with SENZ_DATA_KEY and bound to id: the cluster never holds them in
+// clear, each edge opens them with its own key.
+message Certificate {
+  string id = 1;
+  string pem = 2;
+  string private_key = 3;
 }
 
 // Metadata identifies the setting in the logs of the edge.

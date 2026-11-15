@@ -108,7 +108,30 @@ export interface Setting {
     | Personal
     | undefined;
   /** @gotags: yaml:"delivery" */
-  delivery?: Delivery | undefined;
+  delivery?:
+    | Delivery
+    | undefined;
+  /**
+   * Certificates the edge serves for server.resource_domain, from the CA
+   * certificates of usage SERVER of the resource; never read from a file.
+   */
+  tls?: Tls | undefined;
+}
+
+/** Tls the certificates the edge serves for the domain of a setting. */
+export interface Tls {
+  certificates: Certificate[];
+}
+
+/**
+ * Certificate one certificate and its private key, if any, both sealed
+ * with SENZ_DATA_KEY and bound to id: the cluster never holds them in
+ * clear, each edge opens them with its own key.
+ */
+export interface Certificate {
+  id: string;
+  pem: string;
+  privateKey: string;
 }
 
 /** Metadata identifies the setting in the logs of the edge. */
@@ -230,6 +253,7 @@ function createBaseSetting(): Setting {
     trafficControl: undefined,
     personal: undefined,
     delivery: undefined,
+    tls: undefined,
   };
 }
 
@@ -252,6 +276,9 @@ export const Setting: MessageFns<Setting> = {
     }
     if (message.delivery !== undefined) {
       Delivery.encode(message.delivery, writer.uint32(50).fork()).join();
+    }
+    if (message.tls !== undefined) {
+      Tls.encode(message.tls, writer.uint32(58).fork()).join();
     }
     return writer;
   },
@@ -317,6 +344,14 @@ export const Setting: MessageFns<Setting> = {
             message.delivery = Delivery.decode(reader, reader.uint32());
             continue;
           }
+          case 7: {
+            if (tag !== 58) {
+              break;
+            }
+
+            message.tls = Tls.decode(reader, reader.uint32());
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -341,6 +376,7 @@ export const Setting: MessageFns<Setting> = {
         : undefined,
       personal: isSet(object.personal) ? Personal.fromJSON(object.personal) : undefined,
       delivery: isSet(object.delivery) ? Delivery.fromJSON(object.delivery) : undefined,
+      tls: isSet(object.tls) ? Tls.fromJSON(object.tls) : undefined,
     };
   },
 
@@ -363,6 +399,9 @@ export const Setting: MessageFns<Setting> = {
     }
     if (message.delivery !== undefined) {
       obj.delivery = Delivery.toJSON(message.delivery);
+    }
+    if (message.tls !== undefined) {
+      obj.tls = Tls.toJSON(message.tls);
     }
     return obj;
   },
@@ -390,6 +429,183 @@ export const Setting: MessageFns<Setting> = {
     message.delivery = (object.delivery !== undefined && object.delivery !== null)
       ? Delivery.fromPartial(object.delivery)
       : undefined;
+    message.tls = (object.tls !== undefined && object.tls !== null) ? Tls.fromPartial(object.tls) : undefined;
+    return message;
+  },
+};
+
+function createBaseTls(): Tls {
+  return { certificates: [] };
+}
+
+export const Tls: MessageFns<Tls> = {
+  encode(message: Tls, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.certificates) {
+      Certificate.encode(v!, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Tls {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseTls();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.certificates.push(Certificate.decode(reader, reader.uint32()));
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): Tls {
+    return {
+      certificates: globalThis.Array.isArray(object?.certificates)
+        ? object.certificates.map((e: any) => Certificate.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: Tls): unknown {
+    const obj: any = {};
+    if (message.certificates?.length) {
+      obj.certificates = message.certificates.map((e) => Certificate.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Tls>, I>>(base?: I): Tls {
+    return Tls.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Tls>, I>>(object: I): Tls {
+    const message = createBaseTls();
+    message.certificates = object.certificates?.map((e) => Certificate.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseCertificate(): Certificate {
+  return { id: "", pem: "", privateKey: "" };
+}
+
+export const Certificate: MessageFns<Certificate> = {
+  encode(message: Certificate, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.pem !== "") {
+      writer.uint32(18).string(message.pem);
+    }
+    if (message.privateKey !== "") {
+      writer.uint32(26).string(message.privateKey);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Certificate {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseCertificate();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.pem = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.privateKey = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): Certificate {
+    return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      pem: isSet(object.pem) ? globalThis.String(object.pem) : "",
+      privateKey: isSet(object.privateKey)
+        ? globalThis.String(object.privateKey)
+        : isSet(object.private_key)
+        ? globalThis.String(object.private_key)
+        : "",
+    };
+  },
+
+  toJSON(message: Certificate): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.pem !== "") {
+      obj.pem = message.pem;
+    }
+    if (message.privateKey !== "") {
+      obj.privateKey = message.privateKey;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Certificate>, I>>(base?: I): Certificate {
+    return Certificate.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Certificate>, I>>(object: I): Certificate {
+    const message = createBaseCertificate();
+    message.id = object.id ?? "";
+    message.pem = object.pem ?? "";
+    message.privateKey = object.privateKey ?? "";
     return message;
   },
 };
