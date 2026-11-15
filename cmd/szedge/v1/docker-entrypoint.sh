@@ -15,8 +15,9 @@
 # limitations under the License.
 
 
+# LOG_LEVEL: debug, info (default), warn or error
 ./senz \
-    --log_level info  \
+    --log_level "${LOG_LEVEL:-info}" \
     --mode prod \
     --proxy_config ./proxy.yaml \
     --env_file "" \

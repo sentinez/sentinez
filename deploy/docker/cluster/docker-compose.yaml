@@ -1,52 +1,99 @@
+# A cluster of 3 edges in zone HAN, its leader elected through Consul, and
+# 2 more Consul servers joining sentinez.consul (make compose.edge.up). The
+# setup, the ports and the failover tests: docs/03-edge.md, "Deploy".
+
+x-consul: &consul
+  image: hashicorp/consul:latest
+  restart: on-failure:3
+  # leave_on_terminate has no flag: a server keeps its Raft seat on SIGTERM
+  # by default, which would leave sentinez.consul without a quorum
+  command:
+    - agent
+    - -server
+    - -client=0.0.0.0
+    - -retry-join=sentinez.consul
+    - -hcl=leave_on_terminate = true
+  networks:
+    - sentinez-network
+
+x-edge: &edge
+  image: sentinez/edge:latest
+  restart: on-failure:3
+  # public resolvers for the upstreams, see deploy/docker/docker-compose.yaml
+  dns:
+    - 8.8.8.8
+    - 1.1.1.1
+  networks:
+    - sentinez-network
+  env_file:
+    - ../../../cmd/szedge/v1/.env
+    - ../edge.env # later files win: in-network hosts
+
+x-edge-env: &edge-env
+  # the debug logs of the sync: what the leader loads from centraldata,
+  # what the others sync from it (docker-entrypoint.sh)
+  LOG_LEVEL: debug
+  SENZ_DISCOVERY_ADDRESS: 0.0.0.0:7777
+  SENZ_ZONE: HAN
+
 services:
-  # dev-mode single server: run 3 or 5 Consul servers in production, so
-  # the leader lock survives the loss of one.
-  sentinez.consul:
-    image: hashicorp/consul:1.20
-    container_name: sentinez.consul
-    command: agent -dev -client=0.0.0.0
-    networks:
-      - sentinez-net
-    ports:
-      - "8500:8500"
+  sentinez.consul.02:
+    <<: *consul
+    hostname: sentinez.consul.02
+    container_name: sentinez.consul.02
+    volumes:
+      - ./.volume/consul.02:/consul/data
+
+  sentinez.consul.03:
+    <<: *consul
+    hostname: sentinez.consul.03
+    container_name: sentinez.consul.03
+    volumes:
+      - ./.volume/consul.03:/consul/data
 
   sentinez.dmz.edge.01:
-    image: sentinez/edge:latest
+    <<: *edge
+    hostname: sentinez.dmz.edge.01
     container_name: sentinez.dmz.edge.01
-    env_file:
-      - ../../../cmd/szedge/v1/.env
     environment:
-      - SENZ_MEMBERSHIP_ADDRESS=sentinez.dmz.edge.02:7777
-      - SENZ_DISCOVERY_ADDRESS=0.0.0.0:7777
-      - SENZ_CONSUL_URI=sentinez.consul:8500
-      - SENZ_ZONE=SGN
-    depends_on:
-      - sentinez.consul
-    networks:
-      - sentinez-net
+      <<: *edge-env
+      SENZ_CONSUL_URI: http://sentinez.consul:8500
+      # Olric retries the join 10 times, 1s apart: time enough for edge.02
+      SENZ_MEMBERSHIP_ADDRESS: sentinez.dmz.edge.02:7777
     ports:
-      - "7443:7443"
-      - "7443:7443/udp"
+      - "7444:7443"
+      - "7444:7443/udp"
 
   sentinez.dmz.edge.02:
-    image: sentinez/edge:latest
+    <<: *edge
+    hostname: sentinez.dmz.edge.02
     container_name: sentinez.dmz.edge.02
-    env_file:
-      - ../../../cmd/szedge/v1/.env
     environment:
-      - SENZ_MEMBERSHIP_ADDRESS=sentinez.dmz.edge.01:7777
-      - SENZ_DISCOVERY_ADDRESS=0.0.0.0:7777
-      - SENZ_CONSUL_URI=sentinez.consul:8500
-      - SENZ_ZONE=SGN
+      <<: *edge-env
+      SENZ_CONSUL_URI: http://sentinez.consul.02:8500
+      SENZ_MEMBERSHIP_ADDRESS: sentinez.dmz.edge.01:7777
     depends_on:
-      - sentinez.consul
+      - sentinez.consul.02
       - sentinez.dmz.edge.01
-    networks:
-      - sentinez-net
     ports:
-      - "8443:8443"
-      - "8443:8443/udp"
+      - "7445:7443"
+      - "7445:7443/udp"
+
+  sentinez.dmz.edge.03:
+    <<: *edge
+    hostname: sentinez.dmz.edge.03
+    container_name: sentinez.dmz.edge.03
+    environment:
+      <<: *edge-env
+      SENZ_CONSUL_URI: http://sentinez.consul.03:8500
+      SENZ_MEMBERSHIP_ADDRESS: sentinez.dmz.edge.01:7777
+    depends_on:
+      - sentinez.consul.03
+      - sentinez.dmz.edge.01
+    ports:
+      - "7446:7443"
+      - "7446:7443/udp"
 
 networks:
-  sentinez-net:
-    driver: bridge
+  sentinez-network:
+    external: true

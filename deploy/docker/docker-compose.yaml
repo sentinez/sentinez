@@ -191,6 +191,32 @@ services:
     networks:
       - sentinez-network
 
+  # Publishes the changes of the synced tables to the edges of
+  # deploy/docker/cluster through their Olric servers, and serves their
+  # leader's Sync (make sz.centraldata.image.build). Olric refuses a client
+  # before those edges listen: it restarts until they do, so run
+  # make compose.edge.up. Do not run make sz.centraldata.run beside it: both
+  # would register the same service in Consul.
+  sentinez.apps.centraldata:
+    image: sentinez/centraldata:latest
+    hostname: sentinez.apps.centraldata
+    container_name: sentinez.apps.centraldata
+    restart: unless-stopped
+    # no .env inside the image: the env comes from env_file/environment
+    command: ["main", "--env_file="]
+    ports:
+      - "9003:9003" # gRPC
+    env_file:
+      - ../../cmd/szcentraldata/v1/.env
+      - centraldata.env # later files win: in-network hosts
+    depends_on:
+      sentinez.timescale:
+        condition: service_started
+      sentinez.consul:
+        condition: service_started
+    networks:
+      - sentinez-network
+
 volumes:
   .volume:
 

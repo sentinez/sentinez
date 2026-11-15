@@ -9,6 +9,8 @@ CONSUL_PROXY_KEY ?= sentinez/proxy.yaml
 CONSUL_PROXY_FILE ?= $(SZ_ROOT)/cmd/szedge/v1/proxy.yaml
 
 .PHONY: image.clear compose.up compose.down consul.proxy.put consul.env.put
+.PHONY: compose.edge.up compose.edge.down compose.edge.leader
+.PHONY: compose.edge.consul
 
 image.clear:
 	@docker rmi hashicorp/consul
@@ -20,6 +22,34 @@ compose.up:
 
 compose.down:
 	@cd $(SZ_ROOT) && docker compose -f $(SZ_COMPOSE) down
+
+# A cluster of 3 edges electing the leader of their zone through Consul
+# (deploy/docker/cluster). Starts the Consul and the Kafka of $(SZ_COMPOSE)
+# first, and its centraldata, which publishes to the edges, last; the
+# images come from make sz.edge.image.build sz.centraldata.image.build.
+SZ_EDGE_COMPOSE := $(SZ_ROOT)/deploy/docker/cluster/docker-compose.yaml
+SZ_EDGE_ZONE ?= han
+
+compose.edge.up:
+	@cd $(SZ_ROOT) && docker compose -f $(SZ_COMPOSE) up -d \
+		sentinez.consul sentinez.kafka-init
+	@cd $(SZ_ROOT) && docker compose -f $(SZ_EDGE_COMPOSE) up -d
+	@cd $(SZ_ROOT) && docker compose -f $(SZ_COMPOSE) up -d \
+		sentinez.apps.centraldata
+
+compose.edge.down:
+	@cd $(SZ_ROOT) && docker compose -f $(SZ_EDGE_COMPOSE) down
+
+# The node holding the lock of the zone, and the status it last wrote.
+compose.edge.leader:
+	@echo "lock:   $$(curl -sSf \
+		'$(CONSUL_ADDR)/v1/kv/sentinez/dmz/edge/leader/$(SZ_EDGE_ZONE)?raw')"
+	@echo "status: $$(curl -sSf \
+		'$(CONSUL_ADDR)/v1/kv/sentinez/dmz/edge/zone/$(SZ_EDGE_ZONE)/status?raw')"
+
+# The Raft peers of the Consul servers, and which of them leads.
+compose.edge.consul:
+	@docker exec sentinez.consul consul operator raft list-peers
 
 consul.proxy.put:
 	@curl -sSf -X PUT --data-binary @$(CONSUL_PROXY_FILE) \
