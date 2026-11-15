@@ -18,6 +18,7 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 
 	"crypto/x509/pkix"
 
@@ -50,7 +51,11 @@ func caService(t *testing.T, role typepb.Role, resourceTenant string,
 		&tenantpb.Resource{Id: _resourceId, TenantId: resourceTenant},
 		nil).Maybe()
 
-	return New(tx, resources, memberships(t, "user_1", role), nil, certs)
+	svc := New(tx, resources, memberships(t, "user_1", role), nil, certs)
+	// the test certificates are valid around _now, not the wall clock
+	svc.now = func() time.Time { return _now }
+
+	return svc
 }
 
 // storedCa is a certificate of _resourceId, as the repo reads it: it never
