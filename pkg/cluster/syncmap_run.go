@@ -82,15 +82,9 @@ func (m *SyncMap[T, PT]) connect(ctx context.Context) (*remote, error) {
 		return nil, fmt.Errorf("sync %s: dmap: %w", m.name, err)
 	}
 
-	ps, err := m.cluster.client.NewPubSub()
+	ps, sub, err := m.cluster.subscribe(ctx, m.channel())
 	if err != nil {
-		return nil, fmt.Errorf("sync %s: pubsub: %w", m.name, err)
-	}
-
-	sub := ps.Subscribe(ctx, m.channel())
-	if _, err := sub.Receive(ctx); err != nil {
-		_ = sub.Close()
-		return nil, fmt.Errorf("sync %s: subscribe: %w", m.name, err)
+		return nil, fmt.Errorf("sync %s: %w", m.name, err)
 	}
 
 	return &remote{dmap: dm, pubsub: ps, sub: sub}, nil

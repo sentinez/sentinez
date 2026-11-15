@@ -63,9 +63,7 @@ export default function CreateCaCertificatePage() {
         </div>
       </PageLayoutHeader>
       <PageLayoutContent>
-        <div className="max-w-3xl mx-auto py-4">
-          <CaCertificateFields value={form} onChange={patchForm} />
-        </div>
+        <CaCertificateFields value={form} onChange={patchForm} />
       </PageLayoutContent>
     </PageLayout>
   );

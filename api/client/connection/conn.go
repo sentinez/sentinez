@@ -46,3 +46,32 @@ func BufConn(bufLis *bufconn.Listener) (*grpc.ClientConn, error) {
 
 	return conn, err
 }
+
+// ConnWith is Conn with the dial options opts instead of the plaintext
+// credentials, ex: TLS.DialOptions and WithBearer.
+func ConnWith(addr string, opts ...grpc.DialOption) (*grpc.ClientConn, error) {
+	opts = append([]grpc.DialOption{
+		grpc.WithChainUnaryInterceptor(validate.UnaryClientInterceptor()),
+	}, opts...)
+
+	return grpc.NewClient(addr, opts...)
+}
+
+// WithBearer sends token as the Authorization header of every call. The
+// token travels only over a secure transport unless secure is false, which
+// is for the local plaintext development.
+func WithBearer(token string, secure bool /* requireTLS */) grpc.DialOption {
+	return grpc.WithPerRPCCredentials(bearer{token: token, secure: secure})
+}
+
+type bearer struct {
+	token  string
+	secure bool
+}
+
+func (b bearer) GetRequestMetadata(context.Context, ...string,
+) (map[string]string, error) {
+	return map[string]string{"authorization": "Bearer " + b.token}, nil
+}
+
+func (b bearer) RequireTransportSecurity() bool { return b.secure }

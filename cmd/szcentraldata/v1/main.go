@@ -25,6 +25,7 @@ import (
 	"github.com/sentinez/pkg/szlog"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
+	centraldatapub "github.com/sentinez/sentinez/pkg/apps/controlplane/centraldata"
 	"github.com/sentinez/sentinez/pkg/apps/controlplane/centraldata/config"
 )
 
@@ -44,7 +45,11 @@ func run() error {
 }
 
 func app(c *szrunner.Context[centraldata.CentralData]) {
-	c.Inject(centraldata.NewService)
+	c.Inject(centraldatapub.NewPublisher, centraldata.NewService)
+
+	c.OnStart(func(ctx context.Context, server *centraldata.CentralData) error {
+		return server.StartSync(ctx)
+	})
 
 	c.Serve(func(_ context.Context, server *centraldata.CentralData) error {
 		conf, err := config.Config()

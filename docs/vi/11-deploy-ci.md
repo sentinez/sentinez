@@ -43,6 +43,7 @@ leader theo zone ([3.8](03-edge.md#bầu-leader-theo-zone)).
 | Thư mục | Nội dung |
 |---|---|
 | `caddy/` | `Caddyfile`: `localhost { reverse_proxy localhost:7777 }` + compose |
+| `hosts` | Các domain của môi trường local (`sudo tee -a /etc/hosts < deploy/hosts`) |
 | `nginx/` | `nginx.conf` + `conf/` |
 | `monitoring/` | Prometheus (`prometheus/prometheus.yml`), Grafana, dashboard `sentinez-edge-cluster-grafana.json` |
 | `configs/{dev,prod,sandbox}` | Cấu hình theo môi trường |

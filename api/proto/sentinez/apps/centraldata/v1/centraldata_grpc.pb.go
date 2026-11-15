@@ -34,6 +34,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	CentralDataService_Status_FullMethodName = "/sentinez.apps.centraldata.v1.CentralDataService/Status"
+	CentralDataService_Sync_FullMethodName   = "/sentinez.apps.centraldata.v1.CentralDataService/Sync"
 )
 
 // CentralDataServiceClient is the client API for CentralDataService service.
@@ -44,6 +45,9 @@ const (
 type CentralDataServiceClient interface {
 	// Health check Service
 	Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error)
+	// Sync streams the rows of the synced tables, then a Snapshot marking
+	// the end of the stream; the changes after it come on the Olric channel.
+	Sync(ctx context.Context, in *SyncRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[SyncResponse], error)
 }
 
 type centralDataServiceClient struct {
@@ -64,6 +68,25 @@ func (c *centralDataServiceClient) Status(ctx context.Context, in *StatusRequest
 	return out, nil
 }
 
+func (c *centralDataServiceClient) Sync(ctx context.Context, in *SyncRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[SyncResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &CentralDataService_ServiceDesc.Streams[0], CentralDataService_Sync_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[SyncRequest, SyncResponse]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type CentralDataService_SyncClient = grpc.ServerStreamingClient[SyncResponse]
+
 // CentralDataServiceServer is the server API for CentralDataService service.
 // All implementations should embed UnimplementedCentralDataServiceServer
 // for forward compatibility.
@@ -72,6 +95,9 @@ func (c *centralDataServiceClient) Status(ctx context.Context, in *StatusRequest
 type CentralDataServiceServer interface {
 	// Health check Service
 	Status(context.Context, *StatusRequest) (*StatusResponse, error)
+	// Sync streams the rows of the synced tables, then a Snapshot marking
+	// the end of the stream; the changes after it come on the Olric channel.
+	Sync(*SyncRequest, grpc.ServerStreamingServer[SyncResponse]) error
 }
 
 // UnimplementedCentralDataServiceServer should be embedded to have
@@ -83,6 +109,9 @@ type UnimplementedCentralDataServiceServer struct{}
 
 func (UnimplementedCentralDataServiceServer) Status(context.Context, *StatusRequest) (*StatusResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Status not implemented")
+}
+func (UnimplementedCentralDataServiceServer) Sync(*SyncRequest, grpc.ServerStreamingServer[SyncResponse]) error {
+	return status.Error(codes.Unimplemented, "method Sync not implemented")
 }
 func (UnimplementedCentralDataServiceServer) testEmbeddedByValue() {}
 
@@ -122,6 +151,17 @@ func _CentralDataService_Status_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CentralDataService_Sync_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(SyncRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(CentralDataServiceServer).Sync(m, &grpc.GenericServerStream[SyncRequest, SyncResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type CentralDataService_SyncServer = grpc.ServerStreamingServer[SyncResponse]
+
 // CentralDataService_ServiceDesc is the grpc.ServiceDesc for CentralDataService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,6 +174,12 @@ var CentralDataService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _CentralDataService_Status_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "Sync",
+			Handler:       _CentralDataService_Sync_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "sentinez/apps/centraldata/v1/centraldata.proto",
 }

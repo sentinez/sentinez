@@ -39,7 +39,9 @@ func NewService(ctx context.Context,
 		return nil, err
 	}
 
-	return &Analytic{Server: szgrpc.New(authz.ServerOption()), hdl: hdl}, nil
+	server := szgrpc.New(authz.ServerOptions()...)
+
+	return &Analytic{Server: server, hdl: hdl}, nil
 }
 
 type Analytic struct {

@@ -19,10 +19,15 @@ import (
 	"github.com/sentinez/sentinez/api/client/discovery"
 	"github.com/sentinez/sentinez/api/client/local"
 	"github.com/sentinez/sentinez/api/client/options"
+	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/greeter/v1"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
+	"google.golang.org/grpc"
 )
+
+// _centralDataName the name in the certificate of centraldata.
+const _centralDataName = "centraldata"
 
 func NewIAM(opt *options.Options,
 ) (iampb.IdentityAccessManagementServiceClient, error) {
@@ -39,6 +44,41 @@ func NewIAM(opt *options.Options,
 	}
 
 	return iampb.NewIdentityAccessManagementServiceClient(conn), nil
+}
+
+// NewCentralData returns the client of centraldata found in consul, and the
+// connection to close. tls and token are those of the internal mTLS and of
+// the service token; without TLS the call is plaintext.
+func NewCentralData(opt *options.Options, tls connection.TLS, token string,
+) (centraldatapb.CentralDataServiceClient, *grpc.ClientConn, error) {
+
+	srv, err := discovery.GetDiscovery(opt).
+		Discover(centraldatapb.GetMetaCentraldataServiceKey())
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return DialCentralData(srv.Address, tls, token)
+}
+
+// DialCentralData is NewCentralData for a known address. The server
+// certificate is verified against the name "centraldata".
+func DialCentralData(addr string, tls connection.TLS, token string,
+) (centraldatapb.CentralDataServiceClient, *grpc.ClientConn, error) {
+
+	opts, err := tls.DialOptions(_centralDataName)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	opts = append(opts, connection.WithBearer(token, tls.Enabled()))
+
+	conn, err := connection.ConnWith(addr, opts...)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return centraldatapb.NewCentralDataServiceClient(conn), conn, nil
 }
 
 func NewLocalIAM(hdl iampb.IdentityAccessManagementServiceServer,

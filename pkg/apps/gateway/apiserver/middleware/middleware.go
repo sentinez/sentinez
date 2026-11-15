@@ -56,10 +56,12 @@ func Logging(h http.Handler) http.Handler {
 		h.ServeHTTP(lw, clonedR)
 
 		if lw.statusCode >= 400 {
-			szlog.Debugf("%s %v code=%+v body=%+v", szcolor.Blue.Add(r.Method),
-				szcolor.Green.Add(r.URL.Path),
-				szcolor.Status(lw.statusCode),
-				string(body))
+			szlog.Debugf("%v", failedRequest{
+				method: r.Method,
+				path:   r.URL.Path,
+				status: lw.statusCode,
+				body:   body,
+			})
 		}
 
 		event := ingress.Acquire()
@@ -132,4 +134,17 @@ func preflightHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 
 	grpclog.Infof("Preflight request for %s", r.URL.Path)
+}
+
+// failedRequest a request answered with an error status, colored only when
+// it is formatted.
+type failedRequest struct {
+	method, path string
+	status       int
+	body         []byte
+}
+
+func (f failedRequest) String() string {
+	return fmt.Sprintf("%s %s code=%s body=%s", szcolor.Blue.Add(f.method),
+		szcolor.Green.Add(f.path), szcolor.Status(f.status), f.body)
 }

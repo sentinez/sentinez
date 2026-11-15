@@ -70,7 +70,7 @@ setting:
       - location: /local
         proxyRewrite: /
         proxyPass:
-          - server: 127.0.0.1
+          - server: sentinez.upstream
             protocol: PROXY_PROTOCOL_HTTP
 
       # Example 2:

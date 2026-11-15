@@ -20,8 +20,11 @@ import (
 	"strings"
 
 	"github.com/sentinez/controlplane/pkg/headers"
+	"github.com/sentinez/pkg/szerror"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/peer"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/reflect/protoregistry"
@@ -69,7 +72,9 @@ func authorize(ctx context.Context,
 		return ctx, err
 	}
 
-	return headers.WithAuth(ctx, auth), nil
+	ctx = headers.WithAuth(ctx, auth)
+
+	return ctx, bindCertificate(ctx)
 }
 
 // methodOf returns the x_method option of the gRPC method fullMethod
@@ -94,7 +99,69 @@ func methodOf(fullMethod string) *typepb.XMethod {
 	return method
 }
 
-// ServerOption returns the gRPC server option that installs [Unary].
-func ServerOption() grpc.ServerOption {
-	return grpc.ChainUnaryInterceptor(Unary())
+// Stream is [Unary] for the streaming calls: the same rules, applied once
+// when the stream opens, and the caller is on the context of the stream.
+func Stream() grpc.StreamServerInterceptor {
+	return func(srv any, ss grpc.ServerStream, info *grpc.StreamServerInfo,
+		handler grpc.StreamHandler) error {
+
+		ctx, err := authorize(ss.Context(), info.FullMethod)
+		if err != nil {
+			return err
+		}
+
+		return handler(srv, &authStream{ServerStream: ss, ctx: ctx})
+	}
+}
+
+// authStream is a stream whose context carries the caller.
+type authStream struct {
+	grpc.ServerStream
+	ctx context.Context
+}
+
+func (s *authStream) Context() context.Context { return s.ctx }
+
+// ServerOptions returns the gRPC server options that install [Unary] and
+// [Stream].
+func ServerOptions() []grpc.ServerOption {
+	return []grpc.ServerOption{
+		grpc.ChainUnaryInterceptor(Unary()),
+		grpc.ChainStreamInterceptor(Stream()),
+	}
+}
+
+// bindCertificate fails when a service token travels on a connection whose
+// verified client certificate is of another service: a token stolen from
+// one service is of no use with the certificate of another. The check is
+// skipped on a connection without a client certificate (plaintext).
+func bindCertificate(ctx context.Context) error {
+	auth, err := headers.GetAuth(ctx)
+	if err != nil || !auth.IsService() {
+		return nil
+	}
+
+	cn, ok := peerCommonName(ctx)
+	if !ok || cn == auth.GetName() {
+		return nil
+	}
+
+	return szerror.StatusForbiddenF(
+		"service token of %q on the certificate of %q", auth.GetName(), cn)
+}
+
+// peerCommonName the common name of the verified client certificate.
+func peerCommonName(ctx context.Context) (string, bool) {
+	p, ok := peer.FromContext(ctx)
+	if !ok {
+		return "", false
+	}
+
+	info, ok := p.AuthInfo.(credentials.TLSInfo)
+	if !ok || len(info.State.VerifiedChains) == 0 ||
+		len(info.State.VerifiedChains[0]) == 0 {
+		return "", false
+	}
+
+	return info.State.VerifiedChains[0][0].Subject.CommonName, true
 }

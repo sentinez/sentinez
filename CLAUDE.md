@@ -21,7 +21,7 @@ This is a **multi-module monorepo** using `replace` directives in the root [go.m
 | ↳ `contrib/httphz` | HTTP helpers |
 | ↳ `tools` | Code gen / rule parser tooling |
 | `ui/` | pnpm + turbo workspace: `apps/{console,web,template}`, `packages/{ui,proto,eslint-config,tsconfig}` |
-| `deploy/` | caddy, nginx, docker, monitoring configs, `ruleroot` (CRS rules) |
+| `deploy/` | caddy, nginx, docker, monitoring configs, `ruleroot` (CRS rules), `hosts` (the local domain names, for /etc/hosts) |
 | `_submodules/` | git submodules: coreruleset, googleapis, grpc-gateway, opentelemetry-proto, protovalidate (`git submodule update --init --recursive`) |
 | `hack/` | Dev scripts (lint, proto lint, gobump, timescale up/down, mkcert, rule parsing, gitlab sync) |
 
@@ -62,7 +62,7 @@ Other tooling: `mockery` for mocks, `templ generate` for templ templates, `buf` 
 
 Full rules live in [hack/.agent/skills/go-style-guide/SKILL.md](hack/.agent/skills/go-style-guide/SKILL.md) (based on the Uber Go Style Guide); read it before writing or reviewing Go. Scaffolding skills are alongside it in `hack/.agent/skills/` (`create-service`, `create-handler`, `create-module`, `create-repo`, `create-factory`). Key points:
 
-**Enforced by `.golangci.yaml`** (this wins over the skill's softer 99-char limit): `lll` 80 columns (tab = 4), `funlen` 35 lines per function, plus errcheck, govet, misspell, revive (context-as-argument, error-naming, error-strings, indent-error-flow, superfluous-else, unused-parameter, receiver-naming, etc.), staticcheck; formatted with gofmt + goimports.
+**Enforced by `.golangci.yaml`** (this wins over the skill's softer 99-char limit): `lll` 80 columns (tab = 4), `funlen` 35 lines per function, plus errcheck, govet, misspell, revive (context-as-argument, error-naming, error-strings, indent-error-flow, superfluous-else, unused-parameter, receiver-naming, etc.), staticcheck, and the project ruleguard rules of `hack/lint/rules.go` via gocritic (no costly call in a `szlog.Debug*` argument: pass a `fmt.Stringer` or use `szlog.DebugFn`; `szcolor` only in debug logs; no `WriteString(a + b)`); formatted with gofmt + goimports. Each module keeps the rules' dsl in its go.mod through `internal/ruleguard/deps.go` (root: the rules file itself).
 
 **Interfaces / types**
 - Never use pointers to interfaces; assert compliance with `var _ I = (*T)(nil)`.

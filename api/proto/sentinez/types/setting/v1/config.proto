@@ -47,6 +47,26 @@ enum Senz {
   // AES-256 key (32 bytes, base64 encoded) the secrets stored in the
   // database are encrypted with, eg the CA certificates and their keys
   SENZ_DATA_KEY = 17;
+  // HMAC key (base64 encoded) the service tokens are signed and verified
+  // with; held by the verifying services only, never by the edge
+  SENZ_SERVICE_KEY = 18;
+  // service token the edge presents to centraldata, signed with
+  // SENZ_SERVICE_KEY
+  SENZ_SERVICE_TOKEN = 19;
+  // internal mTLS: PEM files of the internal CA, and of the certificate and
+  // key of this service
+  SENZ_TLS_CA = 20;
+  SENZ_TLS_CERT = 21;
+  SENZ_TLS_KEY = 22;
+  // Olric addresses (comma-separated) of the edge cluster centraldata
+  // publishes the changes to
+  SENZ_OLRIC_ADDRESSES = 23;
+  // tables (comma-separated) centraldata syncs to the edge; the default
+  // set when empty
+  SENZ_SYNC_TABLES = 24;
+  // HMAC key (base64 encoded) the changes centraldata publishes to the
+  // edges are signed and verified with; held by centraldata and the edges
+  SENZ_SYNC_KEY = 25;
 }
 
 message Config {

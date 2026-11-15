@@ -64,7 +64,10 @@ func toCDN(cdn *cdnpb.RuleLite) *cdnpb.Rule {
 
 func normalizeEdgeSecurity(edgeSec *edgepb.Security) {
 	for _, rule := range edgeSec.GetSecRules() {
-		rule.IngressRuntime = toSecRule(rule.GetIngress())
+		// a rule built from the database holds its runtime form only
+		if rule.GetIngress() != nil {
+			rule.IngressRuntime = toSecRule(rule.GetIngress())
+		}
 	}
 
 	for _, lim := range edgeSec.GetLimiters() {
@@ -73,7 +76,9 @@ func normalizeEdgeSecurity(edgeSec *edgepb.Security) {
 }
 
 func normalizeLimiter(lim *edgepb.RateLimit) {
-	lim.IngressRuntime = toSecRule(lim.GetIngress())
+	if lim.GetIngress() != nil {
+		lim.IngressRuntime = toSecRule(lim.GetIngress())
+	}
 
 	if lim.GetTimeWindow() == "" {
 		lim.TimeWindow = _defaultLimiterDuration
@@ -89,13 +94,14 @@ func toSecRule(rgLite *secrulepb.SecRuleLite) *secrulepb.SecRule {
 		return nil
 	}
 
-	szlog.Debugf("Expr: %v", toExpr(rgLite.GetExpr()))
+	expr := toExpr(rgLite.GetExpr())
+	szlog.Debugf("Expr: %v", expr)
 
 	return &secrulepb.SecRule{
 		Id:          szrand.NewUUID(szprefix.SecRule),
 		Name:        rgLite.GetName(),
 		Description: rgLite.GetDescription(),
-		Expr:        toExpr(rgLite.GetExpr()),
+		Expr:        expr,
 		Action:      rgLite.GetAction(),
 		Status:      toStatus(rgLite.GetStatus()),
 	}

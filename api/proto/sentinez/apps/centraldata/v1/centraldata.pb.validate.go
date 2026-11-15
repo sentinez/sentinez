@@ -164,3 +164,381 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = StatusResponseValidationError{}
+
+// Validate checks the field values on SyncRequest with the rules defined in
+// the proto definition for this message. If any rules are violated, an error
+// is returned.
+func (m *SyncRequest) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	return nil
+}
+
+// SyncRequestValidationError is the validation error returned by
+// SyncRequest.Validate if the designated constraints aren't met.
+type SyncRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SyncRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SyncRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SyncRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SyncRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SyncRequestValidationError) ErrorName() string { return "SyncRequestValidationError" }
+
+// Error satisfies the builtin error interface
+func (e SyncRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSyncRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SyncRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SyncRequestValidationError{}
+
+// Validate checks the field values on SyncResponse with the rules defined in
+// the proto definition for this message. If any rules are violated, an error
+// is returned.
+func (m *SyncResponse) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	switch m.Kind.(type) {
+
+	case *SyncResponse_Row:
+
+		if v, ok := interface{}(m.GetRow()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return SyncResponseValidationError{
+					field:  "Row",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *SyncResponse_Done:
+
+		if v, ok := interface{}(m.GetDone()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return SyncResponseValidationError{
+					field:  "Done",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// SyncResponseValidationError is the validation error returned by
+// SyncResponse.Validate if the designated constraints aren't met.
+type SyncResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SyncResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SyncResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SyncResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SyncResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SyncResponseValidationError) ErrorName() string { return "SyncResponseValidationError" }
+
+// Error satisfies the builtin error interface
+func (e SyncResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSyncResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SyncResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SyncResponseValidationError{}
+
+// Validate checks the field values on Snapshot with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *Snapshot) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Version
+
+	// no validation rules for Epoch
+
+	return nil
+}
+
+// SnapshotValidationError is the validation error returned by
+// Snapshot.Validate if the designated constraints aren't met.
+type SnapshotValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SnapshotValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SnapshotValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SnapshotValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SnapshotValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SnapshotValidationError) ErrorName() string { return "SnapshotValidationError" }
+
+// Error satisfies the builtin error interface
+func (e SnapshotValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSnapshot.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SnapshotValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SnapshotValidationError{}
+
+// Validate checks the field values on Change with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *Change) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Table
+
+	// no validation rules for Op
+
+	// no validation rules for Id
+
+	if v, ok := interface{}(m.GetRow()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ChangeValidationError{
+				field:  "Row",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Version
+
+	// no validation rules for Epoch
+
+	return nil
+}
+
+// ChangeValidationError is the validation error returned by Change.Validate if
+// the designated constraints aren't met.
+type ChangeValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ChangeValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ChangeValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ChangeValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ChangeValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ChangeValidationError) ErrorName() string { return "ChangeValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ChangeValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sChange.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ChangeValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ChangeValidationError{}
+
+// Validate checks the field values on Envelope with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *Envelope) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Change
+
+	// no validation rules for Mac
+
+	return nil
+}
+
+// EnvelopeValidationError is the validation error returned by
+// Envelope.Validate if the designated constraints aren't met.
+type EnvelopeValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e EnvelopeValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e EnvelopeValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e EnvelopeValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e EnvelopeValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e EnvelopeValidationError) ErrorName() string { return "EnvelopeValidationError" }
+
+// Error satisfies the builtin error interface
+func (e EnvelopeValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sEnvelope.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = EnvelopeValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = EnvelopeValidationError{}

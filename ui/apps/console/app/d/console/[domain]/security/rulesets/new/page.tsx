@@ -61,9 +61,7 @@ export default function CreateRulesetPage() {
         </div>
       </PageLayoutHeader>
       <PageLayoutContent>
-        <div className="max-w-3xl mx-auto py-4">
-          <CoreRulesetFields value={form} onChange={patchForm} idPrefix="create" />
-        </div>
+        <CoreRulesetFields value={form} onChange={patchForm} idPrefix="create" />
       </PageLayoutContent>
     </PageLayout>
   );

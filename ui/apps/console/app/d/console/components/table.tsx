@@ -48,6 +48,7 @@ import { statusToJSON } from '@sentinez/proto/sentinez/types/v1/known';
 import { listResources } from '@/lib/api/tenant';
 import { VISITORS_RESOLUTION, getUniqueVisitorHistogram } from '@/lib/api/analytic';
 import axios from 'axios';
+import { PageLayoutToolbar } from '@/components/page-layout';
 
 // "STATUS_ACTIVE" -> "active"
 const enumLabel = (v: string, prefix: string) => v.replace(prefix, '').toLowerCase();
@@ -208,14 +209,14 @@ export function ResourceTable() {
 
   return (
     <div className="w-full">
-      <div className="flex items-center py-4">
+      <PageLayoutToolbar>
         <Input
           placeholder={tc('filterNames')}
           value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
           onChange={(event) => table.getColumn('name')?.setFilterValue(event.target.value)}
           className="max-w-sm"
         />
-        <RefreshButton className="ml-2" loading={loading} onRefresh={refresh} />
+        <RefreshButton loading={loading} onRefresh={refresh} />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
@@ -240,7 +241,7 @@ export function ResourceTable() {
               })}
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>
+      </PageLayoutToolbar>
       <div className="overflow-hidden rounded-md">
         <Table className="table-fixed w-full">
           <TableHeader>

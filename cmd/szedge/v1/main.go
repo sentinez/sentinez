@@ -43,7 +43,6 @@ func run() error {
 	return r.Run(context.Background(),
 		szrunner.NewApp(server.Edge),
 		szrunner.NewApp(server.GRPC),
-		szrunner.NewApp(server.Leader),
 		szrunner.NewApp(server.Pprof),
 	)
 }

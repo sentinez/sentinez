@@ -61,9 +61,7 @@ export default function CreateRateLimitPage() {
         </div>
       </PageLayoutHeader>
       <PageLayoutContent>
-        <div className="max-w-3xl mx-auto py-4">
-          <RateLimitFields value={form} onChange={patchForm} idPrefix="create" />
-        </div>
+        <RateLimitFields value={form} onChange={patchForm} idPrefix="create" />
       </PageLayoutContent>
     </PageLayout>
   );

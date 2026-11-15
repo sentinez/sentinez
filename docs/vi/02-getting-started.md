@@ -37,6 +37,7 @@ bằng `SENTINEZ_OUT=...`, đổi tag image bằng `TAG=...`.
 
 ```sh
 make compose.up            # postgres:16 (5432), consul (8500), apiserver, edge
+sudo tee -a /etc/hosts < deploy/hosts  # một lần: các domain mà config dùng
 bash hack/timescale-up.sh  # chỉ bật sentinez.timescale (TimescaleDB) và sentinez.consul
 ```
 
@@ -45,8 +46,8 @@ bash hack/timescale-up.sh  # chỉ bật sentinez.timescale (TimescaleDB) và se
 ```sh
 cp cmd/szapiserver/.env.example cmd/szapiserver/.env   # chỉnh lại giá trị
 make sz.apiserver.run
-# REST:    http://localhost:8080/...
-# Swagger: http://localhost:8080/swagger/
+# REST:    http://sentinez.gateway.apiserver:8080/...
+# Swagger: http://sentinez.gateway.apiserver:8080/swagger/
 ```
 
 Khi khởi động, các repository tự tạo bảng (`CREATE TABLE IF NOT EXISTS` +
@@ -56,7 +57,7 @@ Khi khởi động, các repository tự tạo bảng (`CREATE TABLE IF NOT EXIS
 
 ```sh
 ./hack/mkcert-local.sh     # tạo cert *.sentinez.vn (xem lưu ý dưới)
-# /etc/hosts: 127.0.0.1 example.sentinez.vn sentinez.vn
+# /etc/hosts: the names of deploy/hosts (sentinez.vn, example.sentinez.vn)
 make sz.edge.run
 ```
 
@@ -85,7 +86,7 @@ cd ui && pnpm install && pnpm dev   # turbo dev cho console/web
 ```
 
 Console gọi `/api`, server Next.js chuyển tiếp tới `API_BASE_PATH`
-(chỉ có ở server, mặc định `http://localhost:8080`).
+(chỉ có ở server, mặc định `http://sentinez.gateway.apiserver:8080`).
 
 ## 2.3 Biến môi trường
 

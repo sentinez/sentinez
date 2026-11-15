@@ -95,6 +95,35 @@ func mustMarshal(t *testing.T, m proto.Message) []byte {
 	return raw
 }
 
+func TestSyncMapOrigin(t *testing.T) {
+	m := newLocalSyncMap("edge-a")
+	require.NoError(t, m.Store(context.Background(), "mine",
+		&edgepb.Server{Name: "v1"}))
+	m.apply("theirs", entry[edgepb.Server]{
+		record: record{version: 1, origin: "edge-b"},
+		value:  &edgepb.Server{Name: "v1"},
+	})
+
+	tests := []struct {
+		giveKey   string
+		wantNode  string
+		wantLocal bool
+	}{
+		{giveKey: "mine", wantNode: "edge-a", wantLocal: true},
+		{giveKey: "theirs", wantNode: "edge-b", wantLocal: false},
+		{giveKey: "none", wantNode: "", wantLocal: false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.giveKey, func(t *testing.T) {
+			node, local := m.Origin(tt.giveKey)
+
+			assert.Equal(t, tt.wantNode, node)
+			assert.Equal(t, tt.wantLocal, local)
+		})
+	}
+}
+
 func TestSyncMapOnChange(t *testing.T) {
 	ctx := context.Background()
 	m := newLocalSyncMap("edge-a")

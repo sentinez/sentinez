@@ -12,21 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package server
+package edge
 
 import (
 	"context"
+	"testing"
 
-	"github.com/sentinez/core/szrunner"
 	"github.com/sentinez/sentinez/pkg/cluster/leader"
+	"github.com/stretchr/testify/assert"
 )
 
-// Leader campaigns for the leadership of the edge zone and, while it
-// leads, keeps the zone Status in Consul (leader.PublishStatus).
-func Leader(c *szrunner.Context[leader.Elector]) {
-	c.Inject(leader.New)
+// Once the server shuts down, Lead returns without campaigning: the nil
+// elector would panic otherwise.
+func TestLeadAfterShutdownDoesNotCampaign(t *testing.T) {
+	s := &Server{}
+	s.endLead()
 
-	c.Serve(func(ctx context.Context, e *leader.Elector) error {
-		return e.Run(ctx, e.PublishStatus())
-	})
+	assert.NoError(t, s.Lead(context.Background()))
+}
+
+// A term that ends before the edge synced its map follows nothing: the
+// nil memstore would panic otherwise.
+func TestFollowCentralDataWaitsForTheSync(t *testing.T) {
+	s := &Server{synced: make(chan struct{})}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	assert.NoError(t, s.followCentralData(ctx, leader.Term{}))
 }

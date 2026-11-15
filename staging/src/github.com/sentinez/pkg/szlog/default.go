@@ -47,6 +47,20 @@ func Debugf(template string, message ...any) {
 	}
 }
 
+// DebugFn logs the message fn returns, calling fn only when the debug level
+// is on: the way to log what is costly to build (a diff, a dump).
+func DebugFn(fn func() string) {
+	if v(LevelDebug) {
+		_console.Debug(fn())
+	}
+}
+
+// Enabled reports whether the messages of level ll are logged, to skip the
+// work of a block of logs when they are not.
+func Enabled(ll Level) bool {
+	return v(ll)
+}
+
 // Error logs an error message.
 func Error(message ...any) {
 	if v(LevelError) {

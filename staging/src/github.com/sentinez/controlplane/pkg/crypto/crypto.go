@@ -41,73 +41,77 @@ const (
 )
 
 func TokenGenerator(payload *typepb.Context) (string, error) {
-
 	sec := szconfig.GetEnv(settingpb.Senz_SENZ_SECRET_KEY)
 	if sec == "" {
 		return "", fmt.Errorf("crypto: secret key is empty")
 	}
 
-	secret, err := base64.StdEncoding.DecodeString(sec)
+	return signToken(sec, payload, payload.GetExpireAt().AsTime(),
+		_issuer, _audience)
+}
+
+func BearerTokenVerifier(bearerToken string) (*typepb.Context, bool) {
+	sec := szconfig.GetEnv(settingpb.Senz_SENZ_SECRET_KEY)
+	if sec == "" {
+		return nil, false
+	}
+
+	return verifyToken(bearerToken, sec, _issuer, _audience)
+}
+
+// signToken signs payload, valid until exp, with the base64 secret.
+func signToken(secretBase64 string, payload *typepb.Context, exp time.Time,
+	issuer, audience string) (string, error) {
+
+	secret, err := base64.StdEncoding.DecodeString(secretBase64)
 	if err != nil {
 		return "", err
 	}
 
 	claims := jwt.MapClaims{
 		_claimsKey: payload.String(),
-		_expKey:    payload.GetExpireAt().AsTime().UTC().Unix(),
-		"iss":      _issuer,
-		"aud":      _audience,
+		_expKey:    exp.UTC().Unix(),
+		"iss":      issuer,
+		"aud":      audience,
 		"iat":      time.Now().UTC().Unix(),
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(secret)
-	if err != nil {
-		return "", err
-	}
-
-	return tokenString, err
+	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).
+		SignedString(secret)
 }
 
-func BearerTokenVerifier(bearerToken string) (*typepb.Context, bool) {
-
-	sec := szconfig.GetEnv(settingpb.Senz_SENZ_SECRET_KEY)
-	if sec == "" {
-		return nil, false
-	}
+// verifyToken returns the payload of a bearer token signed with the base64
+// secret for issuer and audience.
+func verifyToken(bearerToken, secretBase64, issuer, audience string,
+) (*typepb.Context, bool) {
 
 	token := strings.TrimPrefix(bearerToken, _bearer)
-	jwtToken, err := parseJWT(token, sec)
+	jwtToken, err := parseJWT(token, secretBase64, issuer, audience)
 	if err != nil {
-		szlog.Debugf("crypto: invalid token: %v", err)
 		return nil, false
 	}
 
-	if claims, ok := jwtToken.Claims.(jwt.MapClaims); ok && jwtToken.Valid {
-		auth, ok := claims[_claimsKey]
-		if !ok {
-			return nil, false
-		}
-
-		text, ok := auth.(string)
-		if !ok {
-			return nil, false
-		}
-
-		var resp typepb.Context
-		err = prototext.Unmarshal([]byte(text), &resp)
-		if err != nil {
-			szlog.Debugf("crypto: error when get claims: %v", err)
-			return nil, false
-		}
-
-		return &resp, true
+	claims, ok := jwtToken.Claims.(jwt.MapClaims)
+	if !ok || !jwtToken.Valid {
+		return nil, false
 	}
 
-	return nil, false
+	text, ok := claims[_claimsKey].(string)
+	if !ok {
+		return nil, false
+	}
+
+	var resp typepb.Context
+	if err := prototext.Unmarshal([]byte(text), &resp); err != nil {
+		szlog.Debugf("crypto: error when get claims: %v", err)
+		return nil, false
+	}
+
+	return &resp, true
 }
 
-func parseJWT(token, secretBase64 string) (*jwt.Token, error) {
+func parseJWT(token, secretBase64, issuer, audience string,
+) (*jwt.Token, error) {
 	jwtToken, err := jwt.Parse(token, func(*jwt.Token) (any, error) {
 		secret, err := base64.StdEncoding.DecodeString(secretBase64)
 		if err != nil {
@@ -117,8 +121,8 @@ func parseJWT(token, secretBase64 string) (*jwt.Token, error) {
 		return secret, nil
 	},
 		jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}),
-		jwt.WithIssuer(_issuer),
-		jwt.WithAudience(_audience),
+		jwt.WithIssuer(issuer),
+		jwt.WithAudience(audience),
 		jwt.WithExpirationRequired(),
 	)
 	if err != nil {

@@ -50,9 +50,9 @@ README warns that backward compatibility is not guaranteed before v1.0.0.
 | `szedge/v1` | [cmd/szedge/v1/main.go](../cmd/szedge/v1/main.go) | `edge.Server` | HTTPS edge proxy (TLS 1.3, HTTP/2) running the security chain |
 | `szdataplane/v1` | [cmd/szdataplane/v1/main.go](../cmd/szdataplane/v1/main.go) | `dataplane.Server` | Attaches the XDP program to `veth0`, opens a gRPC server |
 | `szgreeter/v1` | [cmd/szgreeter/v1/main.go](../cmd/szgreeter/v1/main.go) | `greeter.Greeter` | Sample gRPC service (SayHello/Status) |
-| `szcentraldata/v1` | [cmd/szcentraldata/v1/main.go](../cmd/szcentraldata/v1/main.go) | — | Empty `main()`, not implemented yet |
+| `szcentraldata/v1` | [cmd/szcentraldata/v1/main.go](../cmd/szcentraldata/v1/main.go) | `centraldata.CentralData` | Keeps the synced tables in memory, serves them to the edges (`Sync` stream) and publishes their changes on Olric ([7.6](07-controlplane.md#centraldata-sync-of-the-tables-to-the-edges)) |
 
-Every binary (except `szcentraldata`) follows the same pattern:
+Every binary follows the same pattern:
 
 ```go
 func main() {

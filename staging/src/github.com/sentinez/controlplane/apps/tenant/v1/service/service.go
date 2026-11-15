@@ -17,6 +17,7 @@ package tenantsvc
 import (
 	"context"
 	"fmt"
+	"time"
 
 	cacertrepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/cacertificates"
 	memberrepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/members"
@@ -47,6 +48,7 @@ func New(
 		tenant:   tenant,
 		cacert:   cacert,
 		authz:    authz.New(member, resource),
+		now:      time.Now,
 	}
 }
 
@@ -57,6 +59,8 @@ type Service struct {
 	tenant   tenantrepo.ITenant
 	cacert   cacertrepo.ICaCertificate
 	authz    *authz.Authorizer
+	// now is the clock the certificates are checked against
+	now func() time.Time
 }
 
 // GetResourceByDomain implements [tenantpb.TenantServiceServer].

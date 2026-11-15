@@ -108,6 +108,18 @@ func (m *SyncMap[T, PT]) Load(key string) (PT, bool) {
 	return v, v != nil
 }
 
+// Origin returns the node that wrote the current value of key, and whether
+// it is this node; "" when the key was never written. In an OnChange it is
+// the node of the change.
+func (m *SyncMap[T, PT]) Origin(key string) (string, bool) {
+	e, ok := m.local.Load(key)
+	if !ok {
+		return "", false
+	}
+
+	return e.origin, e.origin == m.cluster.node
+}
+
 // Range calls fn for each value on this node until it returns false.
 func (m *SyncMap[T, PT]) Range(fn func(key string, value PT) bool) {
 	m.local.Range(func(key string, e entry[T]) bool {

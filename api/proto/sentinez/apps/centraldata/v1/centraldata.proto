@@ -16,6 +16,7 @@ syntax = "proto3";
 
 package sentinez.apps.centraldata.v1;
 
+import "google/protobuf/any.proto";
 import "sentinez/types/v1/options.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1;centraldatapb";
@@ -31,10 +32,61 @@ service CentralDataService {
   rpc Status(StatusRequest) returns (StatusResponse) {
     option (sentinez.types.v1.x_method) = {public: true};
   }
+
+  // Sync streams the rows of the synced tables, then a Snapshot marking
+  // the end of the stream; the changes after it come on the Olric channel.
+  rpc Sync(SyncRequest) returns (stream SyncResponse) {
+    option (sentinez.types.v1.x_method) = {
+      control_planes: [CONTROL_PLANE_SERVICE]
+    };
+  }
 }
 
 message StatusRequest {}
 
 message StatusResponse {
   string msg = 1;
+}
+
+message SyncRequest {
+  // Tables to stream; all the synced tables when empty.
+  repeated string tables = 1;
+}
+
+message SyncResponse {
+  oneof kind {
+    Change row = 1;
+    Snapshot done = 2;
+  }
+}
+
+// Snapshot is the last message of the stream: the state of the rows
+// streamed before it.
+message Snapshot {
+  uint64 version = 1;
+  string epoch = 2;
+}
+
+// Change is a row of the stream and the payload of the Olric channel.
+message Change {
+  enum Op {
+    OP_UNSPECIFIED = 0; // with an empty table: the edge must sync again
+    OP_UPSERT = 1;
+    OP_DELETE = 2;
+  }
+
+  string table = 1;
+  Op op = 2;
+  string id = 3;
+  google.protobuf.Any row = 4;
+  uint64 version = 5;
+  string epoch = 6;
+}
+
+// Envelope is what centraldata publishes on the Olric channel: a Change as
+// marshaled, and its HMAC-SHA256 under SENZ_SYNC_KEY, as the channel does
+// not authenticate who publishes.
+message Envelope {
+  bytes change = 1;
+  bytes mac = 2;
 }

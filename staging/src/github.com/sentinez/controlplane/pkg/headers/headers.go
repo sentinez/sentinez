@@ -16,6 +16,7 @@ package headers
 
 import (
 	"context"
+	"slices"
 
 	"github.com/sentinez/controlplane/pkg/crypto"
 	"github.com/sentinez/pkg/szerror"
@@ -34,7 +35,16 @@ type Auth struct {
 
 // Check reports whether the caller may use method. It fails with
 // PermissionDenied when the control plane of the caller is not allowed.
+//
+// A service is stricter than a user: it may call only the methods that list
+// the service control plane, never one open to every control plane.
 func (a *Auth) Check(method *typepb.XMethod) error {
+	if a.IsService() && !slices.Contains(
+		method.GetControlPlanes(), typepb.ControlPlane_CONTROL_PLANE_SERVICE,
+	) && !method.GetPublic() {
+		return szerror.StatusForbiddenF("access denied: service not allowed")
+	}
+
 	if err := szperms.Allow(method, a.GetControlPlane()); err != nil {
 		return szerror.StatusForbiddenF("%v", err)
 	}
@@ -45,6 +55,11 @@ func (a *Auth) Check(method *typepb.XMethod) error {
 // IsAdmin reports whether the caller signed in to the admin control plane.
 func (a *Auth) IsAdmin() bool {
 	return a.GetControlPlane() == typepb.ControlPlane_CONTROL_PLANE_ADMIN
+}
+
+// IsService reports whether the caller is an internal service.
+func (a *Auth) IsService() bool {
+	return a.GetControlPlane() == typepb.ControlPlane_CONTROL_PLANE_SERVICE
 }
 
 // WithAuth returns a context that carries auth for GetAuth.
@@ -65,10 +80,13 @@ func GetAuth(ctx context.Context) (*Auth, error) {
 		return nil, szerror.StatusUnauthorizedF("Invalid Access Token")
 	}
 
-	pl, ok := crypto.BearerTokenVerifier(accessToken[0])
-	if !ok {
-		return nil, szerror.StatusUnauthorizedF("Invalid Access Token")
+	if pl, ok := crypto.BearerTokenVerifier(accessToken[0]); ok {
+		return &Auth{Context: pl}, nil
 	}
 
-	return &Auth{Context: pl}, nil
+	if pl, ok := crypto.ServiceTokenVerifier(accessToken[0]); ok {
+		return &Auth{Context: pl}, nil
+	}
+
+	return nil, szerror.StatusUnauthorizedF("Invalid Access Token")
 }

@@ -44,32 +44,30 @@ export default function View() {
         </Button>
       </PageLayoutHeader>
       <PageLayoutContent>
-        <div className="mx-auto w-full max-w-3xl py-4">
-          {tenant ? (
-            <InfoCard
-              title={
-                <div className="flex items-center gap-2">
-                  <span className="truncate">{tenant.name || tenant.id}</span>
-                  <Badge variant="secondary">{planLabel(tenant.plan)}</Badge>
-                </div>
-              }
-              description={tenant.description || undefined}
-            >
-              <InfoRow label={tt('name')}>{tenant.name || na}</InfoRow>
-              <InfoRow label={tt('description')}>{tenant.description || na}</InfoRow>
-              <InfoRow label={tt('plan')}>{planLabel(tenant.plan)}</InfoRow>
-              <InfoRow label={t('tenantId')} mono>
-                {tenant.id}
-              </InfoRow>
-              <InfoRow label={t('createdAt')}>{dateOf(tenant.metadata?.createdAt)}</InfoRow>
-              <InfoRow label={t('updatedAt')}>{dateOf(tenant.metadata?.updatedAt)}</InfoRow>
-            </InfoCard>
-          ) : (
-            <p className="text-muted-foreground py-10 text-center text-sm">
-              {tenantId ? t('tenantNotFound') : t('noTenant')}
-            </p>
-          )}
-        </div>
+        {tenant ? (
+          <InfoCard
+            title={
+              <div className="flex items-center gap-2">
+                <span className="truncate">{tenant.name || tenant.id}</span>
+                <Badge variant="secondary">{planLabel(tenant.plan)}</Badge>
+              </div>
+            }
+            description={tenant.description || undefined}
+          >
+            <InfoRow label={tt('name')}>{tenant.name || na}</InfoRow>
+            <InfoRow label={tt('description')}>{tenant.description || na}</InfoRow>
+            <InfoRow label={tt('plan')}>{planLabel(tenant.plan)}</InfoRow>
+            <InfoRow label={t('tenantId')} mono>
+              {tenant.id}
+            </InfoRow>
+            <InfoRow label={t('createdAt')}>{dateOf(tenant.metadata?.createdAt)}</InfoRow>
+            <InfoRow label={t('updatedAt')}>{dateOf(tenant.metadata?.updatedAt)}</InfoRow>
+          </InfoCard>
+        ) : (
+          <p className="text-muted-foreground py-10 text-center text-sm">
+            {tenantId ? t('tenantNotFound') : t('noTenant')}
+          </p>
+        )}
       </PageLayoutContent>
     </PageLayout>
   );

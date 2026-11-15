@@ -24,6 +24,7 @@ import (
 	_ "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	anypb "google.golang.org/protobuf/types/known/anypb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -35,6 +36,55 @@ const (
 	// Verify that runtime/protoimpl is sufficiently up-to-date.
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
+
+type Change_Op int32
+
+const (
+	Change_OP_UNSPECIFIED Change_Op = 0 // with an empty table: the edge must sync again
+	Change_OP_UPSERT      Change_Op = 1
+	Change_OP_DELETE      Change_Op = 2
+)
+
+// Enum value maps for Change_Op.
+var (
+	Change_Op_name = map[int32]string{
+		0: "OP_UNSPECIFIED",
+		1: "OP_UPSERT",
+		2: "OP_DELETE",
+	}
+	Change_Op_value = map[string]int32{
+		"OP_UNSPECIFIED": 0,
+		"OP_UPSERT":      1,
+		"OP_DELETE":      2,
+	}
+)
+
+func (x Change_Op) Enum() *Change_Op {
+	p := new(Change_Op)
+	*p = x
+	return p
+}
+
+func (x Change_Op) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Change_Op) Descriptor() protoreflect.EnumDescriptor {
+	return file_sentinez_apps_centraldata_v1_centraldata_proto_enumTypes[0].Descriptor()
+}
+
+func (Change_Op) Type() protoreflect.EnumType {
+	return &file_sentinez_apps_centraldata_v1_centraldata_proto_enumTypes[0]
+}
+
+func (x Change_Op) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Change_Op.Descriptor instead.
+func (Change_Op) EnumDescriptor() ([]byte, []int) {
+	return file_sentinez_apps_centraldata_v1_centraldata_proto_rawDescGZIP(), []int{5, 0}
+}
 
 type StatusRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -116,16 +166,361 @@ func (x *StatusResponse) GetMsg() string {
 	return ""
 }
 
+type SyncRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Tables to stream; all the synced tables when empty.
+	Tables        []string `protobuf:"bytes,1,rep,name=tables,proto3" json:"tables,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SyncRequest) Reset() {
+	*x = SyncRequest{}
+	mi := &file_sentinez_apps_centraldata_v1_centraldata_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SyncRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SyncRequest) ProtoMessage() {}
+
+func (x *SyncRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_apps_centraldata_v1_centraldata_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SyncRequest.ProtoReflect.Descriptor instead.
+func (*SyncRequest) Descriptor() ([]byte, []int) {
+	return file_sentinez_apps_centraldata_v1_centraldata_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *SyncRequest) GetTables() []string {
+	if x != nil {
+		return x.Tables
+	}
+	return nil
+}
+
+type SyncResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Kind:
+	//
+	//	*SyncResponse_Row
+	//	*SyncResponse_Done
+	Kind          isSyncResponse_Kind `protobuf_oneof:"kind"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SyncResponse) Reset() {
+	*x = SyncResponse{}
+	mi := &file_sentinez_apps_centraldata_v1_centraldata_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SyncResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SyncResponse) ProtoMessage() {}
+
+func (x *SyncResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_apps_centraldata_v1_centraldata_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SyncResponse.ProtoReflect.Descriptor instead.
+func (*SyncResponse) Descriptor() ([]byte, []int) {
+	return file_sentinez_apps_centraldata_v1_centraldata_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *SyncResponse) GetKind() isSyncResponse_Kind {
+	if x != nil {
+		return x.Kind
+	}
+	return nil
+}
+
+func (x *SyncResponse) GetRow() *Change {
+	if x != nil {
+		if x, ok := x.Kind.(*SyncResponse_Row); ok {
+			return x.Row
+		}
+	}
+	return nil
+}
+
+func (x *SyncResponse) GetDone() *Snapshot {
+	if x != nil {
+		if x, ok := x.Kind.(*SyncResponse_Done); ok {
+			return x.Done
+		}
+	}
+	return nil
+}
+
+type isSyncResponse_Kind interface {
+	isSyncResponse_Kind()
+}
+
+type SyncResponse_Row struct {
+	Row *Change `protobuf:"bytes,1,opt,name=row,proto3,oneof"`
+}
+
+type SyncResponse_Done struct {
+	Done *Snapshot `protobuf:"bytes,2,opt,name=done,proto3,oneof"`
+}
+
+func (*SyncResponse_Row) isSyncResponse_Kind() {}
+
+func (*SyncResponse_Done) isSyncResponse_Kind() {}
+
+// Snapshot is the last message of the stream: the state of the rows
+// streamed before it.
+type Snapshot struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Version       uint64                 `protobuf:"varint,1,opt,name=version,proto3" json:"version,omitempty"`
+	Epoch         string                 `protobuf:"bytes,2,opt,name=epoch,proto3" json:"epoch,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Snapshot) Reset() {
+	*x = Snapshot{}
+	mi := &file_sentinez_apps_centraldata_v1_centraldata_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Snapshot) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Snapshot) ProtoMessage() {}
+
+func (x *Snapshot) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_apps_centraldata_v1_centraldata_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Snapshot.ProtoReflect.Descriptor instead.
+func (*Snapshot) Descriptor() ([]byte, []int) {
+	return file_sentinez_apps_centraldata_v1_centraldata_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *Snapshot) GetVersion() uint64 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
+}
+
+func (x *Snapshot) GetEpoch() string {
+	if x != nil {
+		return x.Epoch
+	}
+	return ""
+}
+
+// Change is a row of the stream and the payload of the Olric channel.
+type Change struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Table         string                 `protobuf:"bytes,1,opt,name=table,proto3" json:"table,omitempty"`
+	Op            Change_Op              `protobuf:"varint,2,opt,name=op,proto3,enum=sentinez.apps.centraldata.v1.Change_Op" json:"op,omitempty"`
+	Id            string                 `protobuf:"bytes,3,opt,name=id,proto3" json:"id,omitempty"`
+	Row           *anypb.Any             `protobuf:"bytes,4,opt,name=row,proto3" json:"row,omitempty"`
+	Version       uint64                 `protobuf:"varint,5,opt,name=version,proto3" json:"version,omitempty"`
+	Epoch         string                 `protobuf:"bytes,6,opt,name=epoch,proto3" json:"epoch,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Change) Reset() {
+	*x = Change{}
+	mi := &file_sentinez_apps_centraldata_v1_centraldata_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Change) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Change) ProtoMessage() {}
+
+func (x *Change) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_apps_centraldata_v1_centraldata_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Change.ProtoReflect.Descriptor instead.
+func (*Change) Descriptor() ([]byte, []int) {
+	return file_sentinez_apps_centraldata_v1_centraldata_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *Change) GetTable() string {
+	if x != nil {
+		return x.Table
+	}
+	return ""
+}
+
+func (x *Change) GetOp() Change_Op {
+	if x != nil {
+		return x.Op
+	}
+	return Change_OP_UNSPECIFIED
+}
+
+func (x *Change) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Change) GetRow() *anypb.Any {
+	if x != nil {
+		return x.Row
+	}
+	return nil
+}
+
+func (x *Change) GetVersion() uint64 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
+}
+
+func (x *Change) GetEpoch() string {
+	if x != nil {
+		return x.Epoch
+	}
+	return ""
+}
+
+// Envelope is what centraldata publishes on the Olric channel: a Change as
+// marshaled, and its HMAC-SHA256 under SENZ_SYNC_KEY, as the channel does
+// not authenticate who publishes.
+type Envelope struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Change        []byte                 `protobuf:"bytes,1,opt,name=change,proto3" json:"change,omitempty"`
+	Mac           []byte                 `protobuf:"bytes,2,opt,name=mac,proto3" json:"mac,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Envelope) Reset() {
+	*x = Envelope{}
+	mi := &file_sentinez_apps_centraldata_v1_centraldata_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Envelope) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Envelope) ProtoMessage() {}
+
+func (x *Envelope) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_apps_centraldata_v1_centraldata_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Envelope.ProtoReflect.Descriptor instead.
+func (*Envelope) Descriptor() ([]byte, []int) {
+	return file_sentinez_apps_centraldata_v1_centraldata_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *Envelope) GetChange() []byte {
+	if x != nil {
+		return x.Change
+	}
+	return nil
+}
+
+func (x *Envelope) GetMac() []byte {
+	if x != nil {
+		return x.Mac
+	}
+	return nil
+}
+
 var File_sentinez_apps_centraldata_v1_centraldata_proto protoreflect.FileDescriptor
 
 const file_sentinez_apps_centraldata_v1_centraldata_proto_rawDesc = "" +
 	"\n" +
-	".sentinez/apps/centraldata/v1/centraldata.proto\x12\x1csentinez.apps.centraldata.v1\x1a\x1fsentinez/types/v1/options.proto\"\x0f\n" +
+	".sentinez/apps/centraldata/v1/centraldata.proto\x12\x1csentinez.apps.centraldata.v1\x1a\x19google/protobuf/any.proto\x1a\x1fsentinez/types/v1/options.proto\"\x0f\n" +
 	"\rStatusRequest\"\"\n" +
 	"\x0eStatusResponse\x12\x10\n" +
-	"\x03msg\x18\x01 \x01(\tR\x03msg2\x81\x01\n" +
+	"\x03msg\x18\x01 \x01(\tR\x03msg\"%\n" +
+	"\vSyncRequest\x12\x16\n" +
+	"\x06tables\x18\x01 \x03(\tR\x06tables\"\x8e\x01\n" +
+	"\fSyncResponse\x128\n" +
+	"\x03row\x18\x01 \x01(\v2$.sentinez.apps.centraldata.v1.ChangeH\x00R\x03row\x12<\n" +
+	"\x04done\x18\x02 \x01(\v2&.sentinez.apps.centraldata.v1.SnapshotH\x00R\x04doneB\x06\n" +
+	"\x04kind\":\n" +
+	"\bSnapshot\x12\x18\n" +
+	"\aversion\x18\x01 \x01(\x04R\aversion\x12\x14\n" +
+	"\x05epoch\x18\x02 \x01(\tR\x05epoch\"\xf7\x01\n" +
+	"\x06Change\x12\x14\n" +
+	"\x05table\x18\x01 \x01(\tR\x05table\x127\n" +
+	"\x02op\x18\x02 \x01(\x0e2'.sentinez.apps.centraldata.v1.Change.OpR\x02op\x12\x0e\n" +
+	"\x02id\x18\x03 \x01(\tR\x02id\x12&\n" +
+	"\x03row\x18\x04 \x01(\v2\x14.google.protobuf.AnyR\x03row\x12\x18\n" +
+	"\aversion\x18\x05 \x01(\x04R\aversion\x12\x14\n" +
+	"\x05epoch\x18\x06 \x01(\tR\x05epoch\"6\n" +
+	"\x02Op\x12\x12\n" +
+	"\x0eOP_UNSPECIFIED\x10\x00\x12\r\n" +
+	"\tOP_UPSERT\x10\x01\x12\r\n" +
+	"\tOP_DELETE\x10\x02\"4\n" +
+	"\bEnvelope\x12\x16\n" +
+	"\x06change\x18\x01 \x01(\fR\x06change\x12\x10\n" +
+	"\x03mac\x18\x02 \x01(\fR\x03mac2\xeb\x01\n" +
 	"\x12CentralDataService\x12k\n" +
-	"\x06Status\x12+.sentinez.apps.centraldata.v1.StatusRequest\x1a,.sentinez.apps.centraldata.v1.StatusResponse\"\x06\x8a\xb5\x18\x02\x18\x01B\x90\x01\x8a\xb2\x199\n" +
+	"\x06Status\x12+.sentinez.apps.centraldata.v1.StatusRequest\x1a,.sentinez.apps.centraldata.v1.StatusResponse\"\x06\x8a\xb5\x18\x02\x18\x01\x12h\n" +
+	"\x04Sync\x12).sentinez.apps.centraldata.v1.SyncRequest\x1a*.sentinez.apps.centraldata.v1.SyncResponse\"\a\x8a\xb5\x18\x03\x12\x01\x030\x01B\x90\x01\x8a\xb2\x199\n" +
 	"\x17SENTINEZ // CENTRALDATA\x10\x02\x1a\x1csentinez.apps.centraldata.v1ZQgithub.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1;centraldatapbb\x06proto3"
 
 var (
@@ -140,19 +535,33 @@ func file_sentinez_apps_centraldata_v1_centraldata_proto_rawDescGZIP() []byte {
 	return file_sentinez_apps_centraldata_v1_centraldata_proto_rawDescData
 }
 
-var file_sentinez_apps_centraldata_v1_centraldata_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_sentinez_apps_centraldata_v1_centraldata_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_sentinez_apps_centraldata_v1_centraldata_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_sentinez_apps_centraldata_v1_centraldata_proto_goTypes = []any{
-	(*StatusRequest)(nil),  // 0: sentinez.apps.centraldata.v1.StatusRequest
-	(*StatusResponse)(nil), // 1: sentinez.apps.centraldata.v1.StatusResponse
+	(Change_Op)(0),         // 0: sentinez.apps.centraldata.v1.Change.Op
+	(*StatusRequest)(nil),  // 1: sentinez.apps.centraldata.v1.StatusRequest
+	(*StatusResponse)(nil), // 2: sentinez.apps.centraldata.v1.StatusResponse
+	(*SyncRequest)(nil),    // 3: sentinez.apps.centraldata.v1.SyncRequest
+	(*SyncResponse)(nil),   // 4: sentinez.apps.centraldata.v1.SyncResponse
+	(*Snapshot)(nil),       // 5: sentinez.apps.centraldata.v1.Snapshot
+	(*Change)(nil),         // 6: sentinez.apps.centraldata.v1.Change
+	(*Envelope)(nil),       // 7: sentinez.apps.centraldata.v1.Envelope
+	(*anypb.Any)(nil),      // 8: google.protobuf.Any
 }
 var file_sentinez_apps_centraldata_v1_centraldata_proto_depIdxs = []int32{
-	0, // 0: sentinez.apps.centraldata.v1.CentralDataService.Status:input_type -> sentinez.apps.centraldata.v1.StatusRequest
-	1, // 1: sentinez.apps.centraldata.v1.CentralDataService.Status:output_type -> sentinez.apps.centraldata.v1.StatusResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	6, // 0: sentinez.apps.centraldata.v1.SyncResponse.row:type_name -> sentinez.apps.centraldata.v1.Change
+	5, // 1: sentinez.apps.centraldata.v1.SyncResponse.done:type_name -> sentinez.apps.centraldata.v1.Snapshot
+	0, // 2: sentinez.apps.centraldata.v1.Change.op:type_name -> sentinez.apps.centraldata.v1.Change.Op
+	8, // 3: sentinez.apps.centraldata.v1.Change.row:type_name -> google.protobuf.Any
+	1, // 4: sentinez.apps.centraldata.v1.CentralDataService.Status:input_type -> sentinez.apps.centraldata.v1.StatusRequest
+	3, // 5: sentinez.apps.centraldata.v1.CentralDataService.Sync:input_type -> sentinez.apps.centraldata.v1.SyncRequest
+	2, // 6: sentinez.apps.centraldata.v1.CentralDataService.Status:output_type -> sentinez.apps.centraldata.v1.StatusResponse
+	4, // 7: sentinez.apps.centraldata.v1.CentralDataService.Sync:output_type -> sentinez.apps.centraldata.v1.SyncResponse
+	6, // [6:8] is the sub-list for method output_type
+	4, // [4:6] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_apps_centraldata_v1_centraldata_proto_init() }
@@ -160,18 +569,23 @@ func file_sentinez_apps_centraldata_v1_centraldata_proto_init() {
 	if File_sentinez_apps_centraldata_v1_centraldata_proto != nil {
 		return
 	}
+	file_sentinez_apps_centraldata_v1_centraldata_proto_msgTypes[3].OneofWrappers = []any{
+		(*SyncResponse_Row)(nil),
+		(*SyncResponse_Done)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_apps_centraldata_v1_centraldata_proto_rawDesc), len(file_sentinez_apps_centraldata_v1_centraldata_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   2,
+			NumEnums:      1,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_sentinez_apps_centraldata_v1_centraldata_proto_goTypes,
 		DependencyIndexes: file_sentinez_apps_centraldata_v1_centraldata_proto_depIdxs,
+		EnumInfos:         file_sentinez_apps_centraldata_v1_centraldata_proto_enumTypes,
 		MessageInfos:      file_sentinez_apps_centraldata_v1_centraldata_proto_msgTypes,
 	}.Build()
 	File_sentinez_apps_centraldata_v1_centraldata_proto = out.File

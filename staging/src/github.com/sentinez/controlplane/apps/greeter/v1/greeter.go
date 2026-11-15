@@ -25,7 +25,7 @@ import (
 
 func NewService(conf *settingpb.Config) *Greeter {
 	return &Greeter{
-		Server:  szgrpc.New(authz.ServerOption()),
+		Server:  szgrpc.New(authz.ServerOptions()...),
 		handler: greeterhdl.New(),
 		conf:    conf,
 	}

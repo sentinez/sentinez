@@ -67,7 +67,8 @@ func NewMemStore(conf *settingpb.Config) (*MemStore, error) {
 	_shared.Start()
 
 	_store = &MemStore{
-		synced:       newSettingSync(shared),
+		synced:       newSettingSync(shared, _settingsMap),
+		central:      newSettingSync(shared, _centralMap),
 		owners:       make(map[string]string),
 		setting:      settings.New(),
 		limiter:      ratelimiter.New(),
@@ -85,7 +86,10 @@ type MemStore struct {
 	// synced holds the settings of every edge of the cluster, by
 	// resource id; each change rebuilds the stores below (sync.go)
 	synced *settingSync
-	server szhttp.Server
+	// central holds the settings built from centraldata, by resource id;
+	// the leader writes it through CentralSink (central.go)
+	central *settingSync
+	server  szhttp.Server
 	// owners maps a namespace to the resource id that holds it
 	ownersMu sync.Mutex
 	owners   map[string]string
@@ -106,6 +110,10 @@ func (m *MemStore) Shutdown(ctx context.Context) error {
 
 	if err := m.synced.Close(); err != nil {
 		szlog.Warnf("edge: close settings sync: %v", err)
+	}
+
+	if err := m.central.Close(); err != nil {
+		szlog.Warnf("edge: close centraldata sync: %v", err)
 	}
 
 	return _shared.Shutdown(ctx)
@@ -141,6 +149,15 @@ func (m *MemStore) ReverseProxy() *reverseproxy.ReverseProxy {
 	}
 
 	return m.reverseProxy
+}
+
+// Cluster the Olric cluster this edge belongs to.
+func (m *MemStore) Cluster() *cluster.Cluster {
+	if m == nil {
+		return nil
+	}
+
+	return _shared
 }
 
 func (m *MemStore) Limiter() *ratelimiter.Limiter {

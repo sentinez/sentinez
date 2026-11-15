@@ -21,7 +21,7 @@
 #
 #   consul-env-put.sh ENV_FILE [SERVICE_KEY]
 #
-# CONSUL_ADDR is the address of Consul (default http://localhost:8500). The
+# CONSUL_ADDR is the address of Consul (default http://sentinez.consul:8500). The
 # values are never printed. The keys that only the environment may set are
 # skipped: they are ignored in Consul anyway.
 
@@ -38,7 +38,7 @@ error_exit() {
 
 env_file="${1:-}"
 service="${2:-}"
-consul_addr="${CONSUL_ADDR:-http://localhost:8500}"
+consul_addr="${CONSUL_ADDR:-http://sentinez.consul:8500}"
 
 [ -n "$env_file" ] || error_exit "usage: $0 ENV_FILE [SERVICE_KEY]"
 [ -f "$env_file" ] || error_exit "no such env file: $env_file"

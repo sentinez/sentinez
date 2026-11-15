@@ -64,6 +64,26 @@ const (
 	// AES-256 key (32 bytes, base64 encoded) the secrets stored in the
 	// database are encrypted with, eg the CA certificates and their keys
 	Senz_SENZ_DATA_KEY Senz = 17
+	// HMAC key (base64 encoded) the service tokens are signed and verified
+	// with; held by the verifying services only, never by the edge
+	Senz_SENZ_SERVICE_KEY Senz = 18
+	// service token the edge presents to centraldata, signed with
+	// SENZ_SERVICE_KEY
+	Senz_SENZ_SERVICE_TOKEN Senz = 19
+	// internal mTLS: PEM files of the internal CA, and of the certificate and
+	// key of this service
+	Senz_SENZ_TLS_CA   Senz = 20
+	Senz_SENZ_TLS_CERT Senz = 21
+	Senz_SENZ_TLS_KEY  Senz = 22
+	// Olric addresses (comma-separated) of the edge cluster centraldata
+	// publishes the changes to
+	Senz_SENZ_OLRIC_ADDRESSES Senz = 23
+	// tables (comma-separated) centraldata syncs to the edge; the default
+	// set when empty
+	Senz_SENZ_SYNC_TABLES Senz = 24
+	// HMAC key (base64 encoded) the changes centraldata publishes to the
+	// edges are signed and verified with; held by centraldata and the edges
+	Senz_SENZ_SYNC_KEY Senz = 25
 )
 
 // Enum value maps for Senz.
@@ -87,6 +107,14 @@ var (
 		15: "SENZ_KAFKA_BROKERS",
 		16: "SENZ_ZONE",
 		17: "SENZ_DATA_KEY",
+		18: "SENZ_SERVICE_KEY",
+		19: "SENZ_SERVICE_TOKEN",
+		20: "SENZ_TLS_CA",
+		21: "SENZ_TLS_CERT",
+		22: "SENZ_TLS_KEY",
+		23: "SENZ_OLRIC_ADDRESSES",
+		24: "SENZ_SYNC_TABLES",
+		25: "SENZ_SYNC_KEY",
 	}
 	Senz_value = map[string]int32{
 		"SENZ_UNSPECIFIED":            0,
@@ -107,6 +135,14 @@ var (
 		"SENZ_KAFKA_BROKERS":          15,
 		"SENZ_ZONE":                   16,
 		"SENZ_DATA_KEY":               17,
+		"SENZ_SERVICE_KEY":            18,
+		"SENZ_SERVICE_TOKEN":          19,
+		"SENZ_TLS_CA":                 20,
+		"SENZ_TLS_CERT":               21,
+		"SENZ_TLS_KEY":                22,
+		"SENZ_OLRIC_ADDRESSES":        23,
+		"SENZ_SYNC_TABLES":            24,
+		"SENZ_SYNC_KEY":               25,
 	}
 )
 
@@ -208,7 +244,7 @@ const file_sentinez_types_setting_v1_config_proto_rawDesc = "" +
 	"\x03env\x18\x03 \x03(\v2*.sentinez.types.setting.v1.Config.EnvEntryR\x03env\x1a6\n" +
 	"\bEnvEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01*\xb2\x03\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01*\xd9\x04\n" +
 	"\x04Senz\x12\x14\n" +
 	"\x10SENZ_UNSPECIFIED\x10\x00\x12\x11\n" +
 	"\rSENZ_HOSTNAME\x10\x01\x12\x10\n" +
@@ -228,7 +264,15 @@ const file_sentinez_types_setting_v1_config_proto_rawDesc = "" +
 	"\x1bSENZ_OTLP_EXTERNAL_ENDPOINT\x10\x0e\x12\x16\n" +
 	"\x12SENZ_KAFKA_BROKERS\x10\x0f\x12\r\n" +
 	"\tSENZ_ZONE\x10\x10\x12\x11\n" +
-	"\rSENZ_DATA_KEY\x10\x11BLZJgithub.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1;settingpbb\x06proto3"
+	"\rSENZ_DATA_KEY\x10\x11\x12\x14\n" +
+	"\x10SENZ_SERVICE_KEY\x10\x12\x12\x16\n" +
+	"\x12SENZ_SERVICE_TOKEN\x10\x13\x12\x0f\n" +
+	"\vSENZ_TLS_CA\x10\x14\x12\x11\n" +
+	"\rSENZ_TLS_CERT\x10\x15\x12\x10\n" +
+	"\fSENZ_TLS_KEY\x10\x16\x12\x18\n" +
+	"\x14SENZ_OLRIC_ADDRESSES\x10\x17\x12\x14\n" +
+	"\x10SENZ_SYNC_TABLES\x10\x18\x12\x11\n" +
+	"\rSENZ_SYNC_KEY\x10\x19BLZJgithub.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1;settingpbb\x06proto3"
 
 var (
 	file_sentinez_types_setting_v1_config_proto_rawDescOnce sync.Once

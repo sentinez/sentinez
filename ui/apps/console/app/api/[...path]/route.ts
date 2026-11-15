@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 
 // Server-only upstream API (not exposed to the browser).
-const API_BASE_PATH = (process.env.API_BASE_PATH || 'http://localhost:8080').replace(/\/+$/, '');
+const API_BASE_PATH = (process.env.API_BASE_PATH || 'http://sentinez.gateway.apiserver:8080').replace(/\/+$/, '');
 
 export const dynamic = 'force-dynamic';
 

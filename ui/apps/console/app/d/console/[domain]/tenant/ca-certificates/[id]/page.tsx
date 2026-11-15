@@ -107,7 +107,7 @@ export default function CaCertificatePage({ params }: { params: Promise<{ id: st
           <p className="py-10 text-center text-muted-foreground">{t('loadDetailFailed')}</p>
         )}
         {cert && (
-          <div className="mx-auto grid w-full max-w-6xl gap-6 py-4">
+          <>
             <SummaryCard cert={cert} now={now} />
 
             <div className="grid gap-6 lg:grid-cols-2">
@@ -174,7 +174,7 @@ export default function CaCertificatePage({ params }: { params: Promise<{ id: st
                 </pre>
               </CardContent>
             </Card>
-          </div>
+          </>
         )}
       </PageLayoutContent>
 

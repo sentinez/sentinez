@@ -20,6 +20,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"sync"
 
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/chains"
@@ -32,6 +33,7 @@ import (
 	"github.com/sentinez/sentinez/internal/dmz/edge/transport"
 	"github.com/sentinez/sentinez/internal/memory"
 	edgeyaml "github.com/sentinez/sentinez/pkg/apps/dmz/edge/yaml"
+	"github.com/sentinez/sentinez/pkg/cluster/leader"
 	"github.com/sentinez/sentinez/pkg/network"
 )
 
@@ -50,13 +52,14 @@ import (
 // The Edge Server is responsible for handling all external HTTP traffic
 //
 // Parameters:
-//   - server: The HTTP DMZ server implementation handling request I/O.
-//   - setting: The loaded proxy configuration for routing and filtering.
+//   - conf: The configuration of the edge.
+//   - elector: Campaigns for the leadership of the zone (Lead).
 //
 // Returns:
 //   - *Server: A new Edge Server instance ready to be started.
 //   - error: error when create server
-func NewServer(conf *settingpb.Config) (*Server, error) {
+func NewServer(conf *settingpb.Config, elector *leader.Elector,
+) (*Server, error) {
 
 	localSetting, err := edgeyaml.LoadSetting(conf)
 	if err != nil {
@@ -78,6 +81,8 @@ func NewServer(conf *settingpb.Config) (*Server, error) {
 		memstore:    mem,
 		conf:        conf,
 		logExporter: logExporter,
+		elector:     elector,
+		synced:      make(chan struct{}),
 	}, nil
 }
 
@@ -94,6 +99,14 @@ type Server struct {
 	memstore    *memory.MemStore
 	chain       *chains.Chain
 	logExporter *szsdklog.Exporter
+	elector     *leader.Elector
+	// synced is closed once the memstore synced with the cluster
+	synced chan struct{}
+
+	// leading counts the running Lead; leadClosed stops new ones
+	leadMu     sync.Mutex
+	leadClosed bool
+	leading    sync.WaitGroup
 }
 
 // Shutdown gracefully stops the Edge Server.
@@ -105,6 +118,8 @@ type Server struct {
 // during the service shutdown phase.
 func (s *Server) Shutdown(ctx context.Context) error {
 	szlog.Debugf("application is shutting down")
+	s.endLead()
+
 	err := s.memstore.Shutdown(ctx)
 
 	// stop serving first, so the logs of the last requests are flushed

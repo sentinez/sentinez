@@ -18,7 +18,6 @@ import (
 	"context"
 	"crypto/tls"
 	"net"
-	"reflect"
 
 	"github.com/quic-go/quic-go"
 	netstd "github.com/sentinez/contrib/httphz/net/std"
@@ -31,21 +30,19 @@ import (
 func OnHertzConnect(ctx context.Context, conn net.Conn) context.Context {
 	netTlsConn, ok := conn.(*netstd.TLSConn)
 	if !ok {
-		szlog.Debugf("transport: type: %s", reflect.TypeOf(conn).String())
+		szlog.Debugf("transport: type: %T", conn)
 		return ctx
 	}
 
 	tlsConn, ok := netTlsConn.Unwrap().(*tls.Conn)
 	if !ok {
-		szlog.Debugf("transport: type: %s",
-			reflect.TypeOf(netTlsConn.Conn.Unwrap()).String())
+		szlog.Debugf("transport: type: %T", netTlsConn.Unwrap())
 		return ctx
 	}
 
 	netConn, ok := tlsConn.NetConn().(*network.StdConn)
 	if !ok {
-		szlog.Debugf("transport: type: %s",
-			reflect.TypeOf(tlsConn.NetConn()).String())
+		szlog.Debugf("transport: type: %T", tlsConn.NetConn())
 		return ctx
 	}
 
@@ -60,14 +57,13 @@ func OnHertzConnect(ctx context.Context, conn net.Conn) context.Context {
 func OnStandardConnect(ctx context.Context, conn net.Conn) context.Context {
 	tlsConn, ok := conn.(*tls.Conn)
 	if !ok {
-		szlog.Debugf("transport: type: %s", reflect.TypeOf(conn).String())
+		szlog.Debugf("transport: type: %T", conn)
 		return ctx
 	}
 
 	netConn, ok := tlsConn.NetConn().(*network.StdConn)
 	if !ok {
-		szlog.Debugf("transport: type: %s",
-			reflect.TypeOf(tlsConn.NetConn()).String())
+		szlog.Debugf("transport: type: %T", tlsConn.NetConn())
 		return ctx
 	}
 

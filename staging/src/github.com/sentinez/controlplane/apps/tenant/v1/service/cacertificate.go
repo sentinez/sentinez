@@ -41,7 +41,7 @@ func (svc *Service) CreateCaCertificate(ctx context.Context,
 		return nil, err
 	}
 
-	certs, err := newCaCertificates(req, resource, time.Now())
+	certs, err := newCaCertificates(req, resource, svc.now())
 	if err != nil {
 		return nil, err
 	}

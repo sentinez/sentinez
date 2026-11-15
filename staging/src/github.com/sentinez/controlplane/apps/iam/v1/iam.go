@@ -35,7 +35,7 @@ func GetListener() *bufconn.Listener {
 
 func NewService(ctx context.Context, appConf *settingpb.Config) *IAM {
 	return &IAM{
-		Server: szgrpc.New(authz.ServerOption()),
+		Server: szgrpc.New(authz.ServerOptions()...),
 		hdl:    iamfac.NewDefaultHandler(ctx, appConf),
 	}
 }
