@@ -108,7 +108,16 @@ func (s *stage) traceStatus(ctx szhttp.Context, begin time.Time) {
 		return
 	}
 
-	szlog.Debugf("tracer: request %s stage %q status %d after %s: %s%s",
-		ctx.RequestId(), s.name, status, time.Since(begin),
-		ctx.Host(), ctx.URI())
+	szlog.Debugf("tracer: request %s stage %q status %d after %s: %v",
+		ctx.RequestId(), s.name, status, time.Since(begin), requestURL{ctx})
+}
+
+// requestURL the host and URI of a request, read only when it is formatted:
+// both are copied out of the request.
+type requestURL struct {
+	ctx szhttp.Context
+}
+
+func (u requestURL) String() string {
+	return string(u.ctx.Host()) + string(u.ctx.URI())
 }

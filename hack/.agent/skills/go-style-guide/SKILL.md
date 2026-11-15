@@ -202,7 +202,12 @@ These win over the upstream guide wherever they differ:
 
 ### Debug Logging
 
-*Project rule.* Logs go through `github.com/sentinez/pkg/szlog`.
+*Project rule, enforced by the ruleguard rules of [hack/lint/rules.go](../../../lint/rules.go) (gocritic in every module's `.golangci.yaml`).* Logs go through `github.com/sentinez/pkg/szlog`.
+
+- **An argument of `szlog.Debug`/`Debugf` calls nothing** but getters (`Get*`, `RequestId`, `Unwrap`, `NetConn`, `Path`), `len`, `cap` and `time.Since`; the lint fails otherwise. For the rest:
+  - a value with a `String()` method, formatted with `%v`/`%s` (`%T` for a type);
+  - `szlog.DebugFn(func() string { ... })`, called only when the debug level is on;
+  - `if szlog.Enabled(szlog.LevelDebug) { ... }` around a block of debug work.
 
 - **Costly debug output is a lazy `fmt.Stringer`.** `szlog.Debugf` only formats when the debug level is on, but its arguments are always evaluated: pass a value whose `String()` builds the text (a diff, a dump), not a string built before the call.
   ```go

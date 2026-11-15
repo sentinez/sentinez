@@ -16,6 +16,7 @@ require (
 	github.com/favadi/protoc-go-inject-tag v1.4.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.30.0
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10
+	github.com/quasilyte/go-ruleguard/dsl v0.3.23
 	github.com/sentinez/core v0.0.0-00010101000000-000000000000
 	github.com/sentinez/sentinez/api v0.0.0
 	github.com/sqlc-dev/sqlc v1.31.1

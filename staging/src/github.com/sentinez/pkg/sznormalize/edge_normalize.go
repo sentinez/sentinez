@@ -94,13 +94,14 @@ func toSecRule(rgLite *secrulepb.SecRuleLite) *secrulepb.SecRule {
 		return nil
 	}
 
-	szlog.Debugf("Expr: %v", toExpr(rgLite.GetExpr()))
+	expr := toExpr(rgLite.GetExpr())
+	szlog.Debugf("Expr: %v", expr)
 
 	return &secrulepb.SecRule{
 		Id:          szrand.NewUUID(szprefix.SecRule),
 		Name:        rgLite.GetName(),
 		Description: rgLite.GetDescription(),
-		Expr:        toExpr(rgLite.GetExpr()),
+		Expr:        expr,
 		Action:      rgLite.GetAction(),
 		Status:      toStatus(rgLite.GetStatus()),
 	}

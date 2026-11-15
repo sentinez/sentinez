@@ -523,12 +523,15 @@ func messageLiteral(
 	g *protogen.GeneratedFile, ident protogen.GoIdent, nodes []*parentNode,
 ) string {
 	var b strings.Builder
-	b.WriteString("&" + g.QualifiedGoIdent(ident) + "{")
+	b.WriteByte('&')
+	b.WriteString(g.QualifiedGoIdent(ident))
+	b.WriteByte('{')
 	for i, node := range nodes {
 		if i > 0 {
 			b.WriteString(", ")
 		}
-		b.WriteString(node.field.GoName + ": ")
+		b.WriteString(node.field.GoName)
+		b.WriteString(": ")
 		b.WriteString(
 			messageLiteral(g, node.field.Message.GoIdent, node.children))
 	}

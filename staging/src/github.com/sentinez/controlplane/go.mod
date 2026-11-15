@@ -15,6 +15,7 @@ require (
 	github.com/hashicorp/go-memdb v1.3.5
 	github.com/jackc/pgx/v5 v5.10.0
 	github.com/pashagolub/pgxmock/v2 v2.12.0
+	github.com/quasilyte/go-ruleguard/dsl v0.3.23
 	github.com/sentinez/core v0.0.0-20260513071300-d9570928a8b6
 	github.com/sentinez/pkg v0.0.0-20260320080007-e18dc9bbf0a7
 	github.com/sentinez/sentinez/api v0.0.0

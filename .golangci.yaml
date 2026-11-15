@@ -6,12 +6,22 @@ linters:
   enable:
     - errcheck
     - funlen
+    - gocritic
     - govet
     - lll
     - misspell
     - revive
     - staticcheck
   settings:
+    gocritic:
+      # only the project rules: see hack/lint/rules.go
+      disable-all: true
+      enabled-checks:
+        - ruleguard
+      settings:
+        ruleguard:
+          rules: ${base-path}/hack/lint/rules.go
+          failOn: all
     lll:
       line-length: 80
       tab-width: 4
