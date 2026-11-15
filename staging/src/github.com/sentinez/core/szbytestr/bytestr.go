@@ -30,6 +30,7 @@ var (
 	NotFound            = []byte("Not found")
 	TooManyRequests     = []byte("Too many requests")
 	BadRequest          = []byte("Bad request")
+	MisdirectedRequest  = []byte("Misdirected request")
 	HitCache            = []byte("HIT")
 	MethodNotAllowed    = []byte(httpconst.ValueMethodNotAllowed)
 )

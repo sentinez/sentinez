@@ -393,6 +393,15 @@ func (c *Context) TLS() bool {
 	return c.Scheme() == httpconst.SchemeSecure
 }
 
+// ServerName implements szhttp.Context.
+func (c *Context) ServerName() string {
+	if c.req.TLS == nil {
+		return ""
+	}
+
+	return c.req.TLS.ServerName
+}
+
 // URI implements szhttp.Context.
 func (c *Context) URI() []byte {
 	return []byte(c.req.URL.String())

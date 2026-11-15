@@ -32,6 +32,14 @@ func Forbidden(ctx Context) error {
 		szbytestr.AccessDenied)
 }
 
+// MisdirectedRequest answers 421: the connection was not made for the host
+// of the request (RFC 9110, 15.5.20), so the client retries it on a new
+// one, made for that host.
+func MisdirectedRequest(ctx Context) error {
+	return ctx.String(http.StatusMisdirectedRequest,
+		szbytestr.MisdirectedRequest)
+}
+
 func BadRequest(ctx Context) error {
 	return renderPage(ctx, http.StatusBadRequest, render.BadRequest,
 		szbytestr.BadRequest)

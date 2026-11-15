@@ -219,12 +219,13 @@ func newTLSConfig(certFile, keyFile string,
 	getCert func(*tls.ClientHelloInfo) (*tls.Certificate, error),
 ) (*tls.Config, error) {
 	conf := &tls.Config{
-		GetConfigForClient: transport.TLSConfig,
-		GetCertificate:     getCert,
-		MinVersion:         tls.VersionTLS13,
+		GetCertificate: getCert,
+		MinVersion:     tls.VersionTLS13,
 	}
 
 	if certFile == "" || keyFile == "" {
+		conf.GetConfigForClient = configForClient(conf, getCert)
+
 		return conf, nil
 	}
 
@@ -233,9 +234,35 @@ func newTLSConfig(certFile, keyFile string,
 		return nil, fmt.Errorf("load certificate: %w", err)
 	}
 
+	// every domain has a certificate then, the one of the files
 	conf.Certificates = []tls.Certificate{cert}
+	conf.GetConfigForClient = transport.TLSConfig
 
 	return conf, nil
+}
+
+// configForClient fingerprints the client (transport.TLSConfig), and
+// refuses to resume a session for a domain getCert no longer has a
+// certificate for: a resumed handshake picks no certificate, so a client
+// holding a session ticket would still reach a domain whose certificate
+// was removed. Its full handshake then fails with unrecognized_name.
+func configForClient(conf *tls.Config,
+	getCert func(*tls.ClientHelloInfo) (*tls.Certificate, error),
+) func(*tls.ClientHelloInfo) (*tls.Config, error) {
+	noResume := conf.Clone()
+	noResume.SessionTicketsDisabled = true
+
+	return func(chi *tls.ClientHelloInfo) (*tls.Config, error) {
+		if _, err := transport.TLSConfig(chi); err != nil {
+			return nil, err
+		}
+
+		if cert, err := getCert(chi); err == nil && cert != nil {
+			return nil, nil
+		}
+
+		return noResume, nil
+	}
 }
 
 func newServer(

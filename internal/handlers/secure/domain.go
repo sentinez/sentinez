@@ -57,6 +57,10 @@ func (d *DomainBased) Handle(
 		bytesconv.B2s(szhttp.StripPort(ctx.Host())),
 	)
 
+	if misdirected(ctx, ns) {
+		return szhttp.MisdirectedRequest(ctx)
+	}
+
 	st, err := d.settings.Load(ns)
 	if err != nil {
 		return szhttp.Forbidden(ctx)
@@ -68,4 +72,15 @@ func (d *DomainBased) Handle(
 	ctx.SetResourceId(st.GetServer().GetResourceId())
 
 	return next.Handle(ctx)
+}
+
+// misdirected reports whether the request came on a TLS conn made for
+// another domain than its host ns. A browser reuses the conn of a domain
+// for any other its certificate covers (HTTP/2 and HTTP/3 connection
+// coalescing): a wildcard certificate of one domain would then serve the
+// domains without one, or with another. 421 makes it open a conn for ns.
+func misdirected(ctx szhttp.Context, ns string) bool {
+	sni := ctx.ServerName()
+
+	return sni != "" && sznormalize.ResourceDomain(sni) != ns
 }
