@@ -153,3 +153,51 @@ func TestShareDefaultTenantIdStaysLocal(t *testing.T) {
 	_, ok := m.synced.Load(defaults.TenantId)
 	assert.False(t, ok)
 }
+
+func TestCentralReleaseRestoresFileSetting(t *testing.T) {
+	tests := []struct {
+		name      string
+		giveShare *edgepb.Setting
+		giveNext  *edgepb.Setting // centraldata's next setting of rsrc_1
+		wantOwner string
+	}{
+		{"local, deleted", newSetting("", "rel-local"), nil, ""},
+		{"synced, deleted", newSetting("tnt_1", "rel-synced"), nil, "tnt_1"},
+		{
+			"local, renamed", newSetting("", "rel-renamed"),
+			newSetting("tnt_1", "rel-renamed-new"), "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
+			ns := tt.giveShare.GetServer().GetResourceDomain()
+			m := newSyncStore()
+			m.share(ctx, tt.giveShare)
+			require.NoError(t, m.central.Store(ctx, "rsrc_1",
+				newSetting("tnt_1", ns)))
+			require.Equal(t, "rsrc_1", m.owners[ns], "centraldata outranks")
+
+			if tt.giveNext == nil {
+				require.NoError(t, m.central.Delete(ctx, "rsrc_1"))
+			} else {
+				require.NoError(t, m.central.Store(ctx, "rsrc_1", tt.giveNext))
+			}
+
+			assert.True(t, loadedNs(m, ns))
+			assert.Equal(t, tt.wantOwner, m.owners[ns])
+		})
+	}
+}
+
+func TestCentralReleaseWithoutFileSetting(t *testing.T) {
+	ctx := context.Background()
+	m := newSyncStore()
+	require.NoError(t, m.central.Store(ctx, "rsrc_1",
+		newSetting("tnt_1", "rel-none")))
+
+	require.NoError(t, m.central.Delete(ctx, "rsrc_1"))
+
+	assert.False(t, loadedNs(m, "rel-none"))
+}

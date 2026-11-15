@@ -80,6 +80,7 @@ func (m *MemStore) share(ctx context.Context, s *edgepb.Setting) {
 	if id == "" || id == defaults.TenantId {
 		szlog.Warnf("edge: setting %q has no tenant id of its own, "+
 			"not synced", namespace(s))
+		m.locals.Store(namespace(s), s)
 		m.load("", s)
 
 		return
@@ -102,13 +103,16 @@ func (m *MemStore) applySetting(id string, prev, next *edgepb.Setting) {
 
 // applyCentral rebuilds the stores of the setting centraldata holds for
 // resource id: like applySetting, but it outranks the setting of the
-// file that holds the namespace.
+// file that holds the namespace, and gives the namespace back to it once
+// centraldata releases it.
 func (m *MemStore) applyCentral(id string, prev, next *edgepb.Setting) {
 	if szlog.Enabled(szlog.LevelDebug) {
 		m.debugCentral(id, prev, next)
 	}
 
-	m.unloadMoved(id, prev, next)
+	if ns := m.unloadMoved(id, prev, next); ns != "" {
+		m.restore(ns)
+	}
 
 	if next == nil {
 		return
@@ -144,15 +148,41 @@ func (m *MemStore) debugCentral(id string, prev, next *edgepb.Setting) {
 }
 
 // unloadMoved unloads the namespace of prev when next removes or renames
-// it.
-func (m *MemStore) unloadMoved(id string, prev, next *edgepb.Setting) {
+// it, and returns it if id held it.
+func (m *MemStore) unloadMoved(id string, prev, next *edgepb.Setting,
+) string {
 	if prev == nil {
+		return ""
+	}
+
+	old := namespace(prev)
+	if (next != nil && namespace(next) == old) || !m.unload(id, old) {
+		return ""
+	}
+
+	return old
+}
+
+// restore loads the setting of the file that holds namespace ns, this
+// edge's own or a synced one, if any.
+func (m *MemStore) restore(ns string) {
+	if s, ok := m.locals.Load(ns); ok {
+		m.load("", s)
+		szlog.Infof("edge: %s loaded back from the local setting", ns)
+
 		return
 	}
 
-	if old := namespace(prev); next == nil || namespace(next) != old {
-		m.unload(id, old)
-	}
+	m.synced.Range(func(id string, s *edgepb.Setting) bool {
+		if namespace(s) != ns {
+			return true
+		}
+
+		m.load(id, s)
+		szlog.Infof("edge: %s loaded back from the setting of %s", ns, id)
+
+		return false
+	})
 }
 
 // load normalizes a copy of s and rebuilds the stores of its namespace,
@@ -193,14 +223,14 @@ func (m *MemStore) load(id string, s *edgepb.Setting) {
 	}
 }
 
-// unload removes namespace from the stores if resource id holds it. The
-// reverse proxies stay: they are keyed by upstream, shared between
-// namespaces.
-func (m *MemStore) unload(id, ns string) {
+// unload removes namespace from the stores if resource id holds it, and
+// reports whether it did. The reverse proxies stay: they are keyed by
+// upstream, shared between namespaces.
+func (m *MemStore) unload(id, ns string) bool {
 	m.ownersMu.Lock()
 	if m.owners[ns] != id {
 		m.ownersMu.Unlock()
-		return
+		return false
 	}
 
 	delete(m.owners, ns)
@@ -213,6 +243,8 @@ func (m *MemStore) unload(id, ns string) {
 	m.limiter.Delete(ns)
 	m.rulesets.Delete(ns)
 	m.certificates.Delete(ns)
+
+	return true
 }
 
 // namespace of the raw (not normalized) s: the resource domain of its

@@ -27,6 +27,7 @@ import (
 	"github.com/sentinez/core/szlimiter"
 	"github.com/sentinez/core/szrule"
 	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/szsync"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -84,6 +85,7 @@ func newMemStore(shared *cluster.Cluster, sealer *crypto.Sealer,
 		synced:       newSettingSync(shared, _settingsMap),
 		central:      newSettingSync(shared, _centralMap),
 		owners:       make(map[string]string),
+		locals:       szsync.NewMap[string, *edgepb.Setting](),
 		setting:      settings.New(),
 		limiter:      ratelimiter.New(),
 		reverseProxy: reverseproxy.New(),
@@ -107,6 +109,9 @@ type MemStore struct {
 	// owners maps a namespace to the resource id that holds it
 	ownersMu sync.Mutex
 	owners   map[string]string
+	// locals the settings of this edge's file that are not synced, by
+	// namespace: loaded back when centraldata releases the namespace
+	locals *szsync.Map[string, *edgepb.Setting]
 
 	setting      *settings.Setting
 	limiter      *ratelimiter.Limiter
