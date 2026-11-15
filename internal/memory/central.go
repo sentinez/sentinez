@@ -129,28 +129,6 @@ func (c *CentralSink) Apply(change *centraldatapb.Change) error {
 	return nil
 }
 
-// CaCertificates the certificates of the resource, as the table holds them:
-// the pem and the private key are still sealed with SENZ_DATA_KEY.
-func (c *CentralSink) CaCertificates(resourceId string,
-) []*tenantpb.CaCertificate {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	var certs []*tenantpb.CaCertificate
-	for _, msg := range c.rows[sztable.TenantCaCertificates] {
-		if cert, ok := msg.(*tenantpb.CaCertificate); ok &&
-			cert.GetOwner().GetResourceId() == resourceId {
-			certs = append(certs, proto.CloneOf(cert))
-		}
-	}
-
-	slices.SortFunc(certs, func(a, b *tenantpb.CaCertificate) int {
-		return cmp.Compare(a.GetId(), b.GetId())
-	})
-
-	return certs
-}
-
 func put(r rows, table sztable.Table, id string, msg proto.Message) {
 	if r[table] == nil {
 		r[table] = make(map[string]proto.Message)
@@ -265,8 +243,35 @@ func (c *CentralSink) setting(res *tenantpb.Resource) *edgepb.Setting {
 	st.Metadata.TenantId = cmp.Or(res.GetTenantId(), st.Metadata.TenantId)
 	st.Server = server
 	st.Security = c.security(res.GetId(), st.GetSecurity())
+	st.Tls = c.tls(res.GetId())
 
 	return st
+}
+
+// tls the certificates the edge serves for resource id: those of usage
+// SERVER, still sealed, by id. The ones without a private key are the
+// chain of the others.
+func (c *CentralSink) tls(id string) *edgepb.Tls {
+	var certs []*edgepb.Certificate
+	for _, msg := range c.sorted(sztable.TenantCaCertificates, id) {
+		row, ok := msg.(*tenantpb.CaCertificate)
+		if !ok || row.GetUsage() !=
+			tenantpb.CaCertificateUsage_CA_CERTIFICATE_USAGE_SERVER {
+			continue
+		}
+
+		certs = append(certs, &edgepb.Certificate{
+			Id:         row.GetId(),
+			Pem:        row.GetPem(),
+			PrivateKey: row.GetPrivateKey(),
+		})
+	}
+
+	if len(certs) == 0 {
+		return nil
+	}
+
+	return &edgepb.Tls{Certificates: certs}
 }
 
 // security the security of resource id from its rows; the core ruleset of

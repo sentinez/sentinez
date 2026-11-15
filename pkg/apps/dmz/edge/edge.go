@@ -162,7 +162,8 @@ func (s *Server) Start() error {
 		keyFile  = s.conf.GetFlag().GetCertKeyFile()
 	)
 
-	tlsConf, err := newTLSConfig(certFile, keyFile)
+	tlsConf, err := newTLSConfig(certFile, keyFile,
+		s.memstore.Certificates().GetCertificate)
 	if err != nil {
 		return err
 	}
@@ -210,11 +211,16 @@ func (l *listeners) close() {
 	_ = l.quic.Close()
 }
 
-// newTLSConfig loads the certificate up front: the QUIC listener clones the
-// config when it is created, so certificates added later are never served.
-func newTLSConfig(certFile, keyFile string) (*tls.Config, error) {
+// newTLSConfig serves the certificate getCert gives for the domain the
+// client names, else the one of the files. The files are loaded up front:
+// the QUIC listener clones the config when it is created, so only getCert,
+// called on each handshake, can serve certificates added later.
+func newTLSConfig(certFile, keyFile string,
+	getCert func(*tls.ClientHelloInfo) (*tls.Certificate, error),
+) (*tls.Config, error) {
 	conf := &tls.Config{
 		GetConfigForClient: transport.TLSConfig,
+		GetCertificate:     getCert,
 		MinVersion:         tls.VersionTLS13,
 	}
 

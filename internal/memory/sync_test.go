@@ -20,11 +20,6 @@ import (
 
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
-	"github.com/sentinez/sentinez/internal/memory/cdnrules"
-	"github.com/sentinez/sentinez/internal/memory/ratelimiter"
-	"github.com/sentinez/sentinez/internal/memory/routes"
-	"github.com/sentinez/sentinez/internal/memory/secrules"
-	"github.com/sentinez/sentinez/internal/memory/settings"
 	"github.com/sentinez/sentinez/pkg/cluster"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -33,16 +28,7 @@ import (
 // newSyncStore is a MemStore whose synced map is not started: its writes
 // apply locally, which runs the same change hook as a synced write.
 func newSyncStore() *MemStore {
-	m := &MemStore{
-		synced:   newSettingSync(&cluster.Cluster{}, _settingsMap),
-		central:  newSettingSync(&cluster.Cluster{}, _centralMap),
-		owners:   make(map[string]string),
-		setting:  settings.New(),
-		limiter:  ratelimiter.New(),
-		route:    routes.New(),
-		secRule:  secrules.New(),
-		cdnRules: cdnrules.New(),
-	}
+	m := newMemStore(&cluster.Cluster{}, nil)
 	m.synced.OnChange(m.applySetting)
 	m.central.OnChange(m.applyCentral)
 

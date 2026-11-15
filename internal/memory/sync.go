@@ -186,6 +186,7 @@ func (m *MemStore) load(id string, s *edgepb.Setting) {
 		m.LoadSecRule(st),
 		m.LoadRateLimiter(st),
 		m.LoadRulesets(st),
+		m.LoadCertificate(st),
 	)
 	if err != nil {
 		szlog.Errorf("edge: load '%s': %v", ns, err)
@@ -211,6 +212,7 @@ func (m *MemStore) unload(id, ns string) {
 	m.secRule.Delete(ns)
 	m.limiter.Delete(ns)
 	m.rulesets.Delete(ns)
+	m.certificates.Delete(ns)
 }
 
 // namespace of the raw (not normalized) s: the resource domain of its

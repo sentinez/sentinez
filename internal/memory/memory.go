@@ -22,6 +22,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/sentinez/controlplane/pkg/crypto"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szlimiter"
 	"github.com/sentinez/core/szrule"
@@ -31,6 +32,7 @@ import (
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/memory/cdnrules"
+	"github.com/sentinez/sentinez/internal/memory/certificates"
 	"github.com/sentinez/sentinez/internal/memory/ratelimiter"
 	"github.com/sentinez/sentinez/internal/memory/reverseproxy"
 	"github.com/sentinez/sentinez/internal/memory/routes"
@@ -56,6 +58,11 @@ func NewMemStore(conf *settingpb.Config) (*MemStore, error) {
 		return _store, nil
 	}
 
+	sealer, err := newSealer(conf)
+	if err != nil {
+		return nil, err
+	}
+
 	shared, err := cluster.NewCluster(conf)
 	if err != nil {
 		return nil, err
@@ -66,7 +73,14 @@ func NewMemStore(conf *settingpb.Config) (*MemStore, error) {
 
 	_shared.Start()
 
-	_store = &MemStore{
+	_store = newMemStore(shared, sealer)
+
+	return _store, nil
+}
+
+func newMemStore(shared *cluster.Cluster, sealer *crypto.Sealer,
+) *MemStore {
+	return &MemStore{
 		synced:       newSettingSync(shared, _settingsMap),
 		central:      newSettingSync(shared, _centralMap),
 		owners:       make(map[string]string),
@@ -77,9 +91,9 @@ func NewMemStore(conf *settingpb.Config) (*MemStore, error) {
 		secRule:      secrules.New(),
 		rulesets:     rulesets.New(),
 		cdnRules:     cdnrules.New(),
+		certificates: certificates.New(),
+		sealer:       sealer,
 	}
-
-	return _store, nil
 }
 
 type MemStore struct {
@@ -101,6 +115,10 @@ type MemStore struct {
 	secRule      *secrules.SecRule
 	rulesets     *rulesets.Rulesets
 	cdnRules     *cdnrules.Rule
+	certificates *certificates.Certificates
+	// sealer opens the certificates of the settings; nil without
+	// SENZ_DATA_KEY
+	sealer *crypto.Sealer
 }
 
 func (m *MemStore) Shutdown(ctx context.Context) error {
@@ -174,6 +192,15 @@ func (m *MemStore) Setting() *settings.Setting {
 	}
 
 	return m.setting
+}
+
+// Certificates the certificates the edge serves, by domain.
+func (m *MemStore) Certificates() *certificates.Certificates {
+	if m == nil {
+		return nil
+	}
+
+	return m.certificates
 }
 
 func (m *MemStore) CDNRules() *cdnrules.Rule {
