@@ -40,6 +40,8 @@ var _provider = appconfig.New(appconfig.Spec{
 		settingpb.Senz_SENZ_TLS_CA,
 		settingpb.Senz_SENZ_TLS_CERT,
 		settingpb.Senz_SENZ_TLS_KEY,
+		// opens the certificates centraldata gives the edge to serve
+		settingpb.Senz_SENZ_DATA_KEY,
 	},
 })
 
