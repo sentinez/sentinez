@@ -35,6 +35,7 @@ import (
 	"github.com/sentinez/sentinez/api/client"
 	"github.com/sentinez/sentinez/api/client/connection"
 	"github.com/sentinez/sentinez/api/client/connection/connectiontest"
+	"github.com/sentinez/sentinez/api/client/identity"
 	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -72,7 +73,7 @@ func startCentral(t *testing.T) *central {
 		&securitypb.SecRule{Id: "srule_2", Name: "two"}))
 
 	ca := connectiontest.NewCA(t)
-	creds, err := ca.Issue(t, "centraldata").ServerCredentials()
+	creds, err := ca.Issue(t, identity.CentralData).ServerCredentials()
 	require.NoError(t, err)
 
 	service := centraldatasvc.New(nil, memory, sztable.SecuritySecRules)

@@ -22,6 +22,7 @@ import (
 
 	"github.com/sentinez/sentinez/api/client/connection"
 	"github.com/sentinez/sentinez/api/client/connection/connectiontest"
+	"github.com/sentinez/sentinez/api/client/identity"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -72,13 +73,13 @@ func check(addr string, client connection.TLS) error {
 
 func TestMutualTLS(t *testing.T) {
 	ca := connectiontest.NewCA(t)
-	addr := serve(t, ca.Issue(t, "centraldata"))
+	addr := serve(t, ca.Issue(t, identity.CentralData))
 
 	require.NoError(t, check(addr, ca.Issue(t, "edge-1")))
 }
 
 func TestMutualTLS_ClientOfAnotherCA(t *testing.T) {
-	addr := serve(t, connectiontest.NewCA(t).Issue(t, "centraldata"))
+	addr := serve(t, connectiontest.NewCA(t).Issue(t, identity.CentralData))
 	other := connectiontest.NewCA(t).Issue(t, "edge-1")
 
 	// The server certificate is also unknown to the client's CA.
@@ -87,14 +88,14 @@ func TestMutualTLS_ClientOfAnotherCA(t *testing.T) {
 
 func TestMutualTLS_ServerOfAnotherCA(t *testing.T) {
 	ca := connectiontest.NewCA(t)
-	addr := serve(t, connectiontest.NewCA(t).Issue(t, "centraldata"))
+	addr := serve(t, connectiontest.NewCA(t).Issue(t, identity.CentralData))
 
 	assert.Error(t, check(addr, ca.Issue(t, "edge-1")))
 }
 
 func TestMutualTLS_PlaintextClient(t *testing.T) {
 	ca := connectiontest.NewCA(t)
-	addr := serve(t, ca.Issue(t, "centraldata"))
+	addr := serve(t, ca.Issue(t, identity.CentralData))
 
 	assert.Error(t, check(addr, connection.TLS{}))
 }

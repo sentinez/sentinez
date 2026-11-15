@@ -17,6 +17,7 @@ package client
 import (
 	"github.com/sentinez/sentinez/api/client/connection"
 	"github.com/sentinez/sentinez/api/client/discovery"
+	"github.com/sentinez/sentinez/api/client/identity"
 	"github.com/sentinez/sentinez/api/client/local"
 	"github.com/sentinez/sentinez/api/client/options"
 	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
@@ -25,9 +26,6 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	"google.golang.org/grpc"
 )
-
-// _centralDataName the name in the certificate of centraldata.
-const _centralDataName = "centraldata"
 
 func NewIAM(opt *options.Options,
 ) (iampb.IdentityAccessManagementServiceClient, error) {
@@ -62,11 +60,11 @@ func NewCentralData(opt *options.Options, tls connection.TLS, token string,
 }
 
 // DialCentralData is NewCentralData for a known address. The server
-// certificate is verified against the name "centraldata".
+// certificate is verified against identity.CentralData.
 func DialCentralData(addr string, tls connection.TLS, token string,
 ) (centraldatapb.CentralDataServiceClient, *grpc.ClientConn, error) {
 
-	opts, err := tls.DialOptions(_centralDataName)
+	opts, err := tls.DialOptions(identity.CentralData)
 	if err != nil {
 		return nil, nil, err
 	}
