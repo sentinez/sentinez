@@ -416,13 +416,15 @@ Rules stored here reach the edges through [centraldata](#centraldata-sync-of-the
 
 `szcentraldata` keeps the tables of `SENZ_SYNC_TABLES` (default:
 `security.secrules`, `security.ratelimits`, `security.corerulesets`,
-`tenant.resources`, `tenant.cacertificates`) in go-memdb, and the edges
-follow it:
+`tenant.resources`, `tenant.cacertificates`) in go-memdb, and the leader
+edge of each zone follows it for the others:
 
 ```
-postgres ──trigger: pg_notify(id)──► centraldata ──Olric pub/sub──► every edge
+postgres ──trigger: pg_notify(id)──► centraldata ──Olric pub/sub──► leader edge
                                          ▲                              │
-                                         └──── Sync (gRPC stream) ◄─────┘ at boot
+                                         └──── Sync (gRPC stream) ◄─────┤ when elected
+                                                                        ▼
+                                      every edge ◄── SyncMap sentinez.dmz.edge.central
 ```
 
 - **Detecting the changes.** On start, `postgres.NewNotifying` creates each
@@ -433,11 +435,13 @@ postgres ──trigger: pg_notify(id)──► centraldata ──Olric pub/sub�
   each notification it reads the row again and applies it (or removes it when
   it is gone). Every minute it compares the tables with the memory, to catch
   a notification postgres dropped. After a lost connection it reloads the
-  tables and starts a new epoch.
+  tables and starts a new epoch. Each load logs its progress table by
+  table (`centraldata: load <table> i/n: rows, upserted, deleted in ...`);
+  a reconcile logs only the tables it changed.
 - **Versions.** Every write to the memory bumps a version; a `Change` carries
   `(table, op, id, row, version, epoch)`. The `epoch` changes when the
   history is no longer continuous.
-- **Boot of an edge: `Sync`**, the one RPC of the stream. It sends every row
+- **Elected leader: `Sync`**, the one RPC of the stream. It sends every row
   as a `Change`, then a `Snapshot{version, epoch}`. The rows are those of that
   version: the edge applies the published changes after it.
 - **Live: Olric.** Centraldata publishes each `Change`, in an `Envelope`
@@ -449,13 +453,39 @@ postgres ──trigger: pg_notify(id)──► centraldata ──Olric pub/sub�
   before it calls `Sync`, drops what is not signed with the key or is not
   after the snapshot, and loads again on a gap in the versions, a new epoch,
   or every 5 minutes.
-- **On the edge**, `memory.CentralSink` keeps the rows and rebuilds the
-  `edgepb.Setting` of each resource whose rows change (the server of the
-  resource, its rules, limiters and core ruleset), on top of the setting
-  already loaded for its domain, so the CDN of the file stays. The setting of
-  the tables takes the domain from the one of the file. Without
-  `SENZ_SERVICE_TOKEN` the edge does not follow centraldata, and if it cannot
-  reach it, it serves with the file and the cluster, and keeps trying.
+- **Only the leader follows.** The follower runs in a `leader.Task` of the
+  zone leader ([03-edge.md](03-edge.md), `Server.Lead`) and stops with the
+  term, so centraldata serves one `Sync` per zone, not one per edge. Its
+  `memory.CentralSink` keeps the rows and rebuilds the `edgepb.Setting` of
+  each resource whose rows change (the server of the resource, its rules,
+  limiters and core ruleset), on top of the setting already loaded for its
+  domain, so the CDN of the file stays. It writes the setting to the
+  `SyncMap` `sentinez.dmz.edge.central`, by resource id (unchanged settings
+  are not written again), and every edge, the leader too, loads what the map
+  holds (`MemStore.applyCentral`); the setting of the tables takes the domain
+  from the one of the file. The map lives in the Olric DMap, so an edge that
+  boots while no edge leads loads the last settings written. A new leader
+  starts with an empty sink: its first load removes from the map what the
+  snapshot lacks, the resources deleted while the zone had no leader. A
+  deposed leader may write until it notices the lost lock (the Consul
+  session TTL); it writes what centraldata held, and the next leader's load
+  corrects it. Without `SENZ_SERVICE_TOKEN` the leader does not follow
+  centraldata, and if it cannot reach it, the edges serve with the file and
+  the cluster, and it keeps trying. A resync rebuilds only the resources
+  whose rows changed, and those the map holds but the snapshot no longer
+  has; the writes of one rebuild share a 30s timeout, past which they apply
+  on the leader only and the reconcile of the map shares them.
+- **Latency.** A change reaches the leader through Olric pub/sub, then the
+  other edges through the `SyncMap` (a DMap `Put`, then a publish): a few
+  milliseconds, plus the rebuild of the stores on each edge. A message
+  lost between the leader and an edge is repaired by the reconcile of the
+  map, within 30s; one lost between centraldata and the leader by the
+  next change (a gap of versions) or the resync, within 5 minutes.
+- **Debug logs** (`edge: centraldata: ...`): the leader logs what it loads
+  (`loaded N rows`, `received <op> <table> <id>, version`) and what it
+  writes (`rebuild resource` / `remove resource`); every edge logs each
+  change of the map, `written here as the leader` or `synced from the
+  leader <node>` (`SyncMap.Origin`).
 - **Trust.** `Sync` is open to `CONTROL_PLANE_SERVICE` only. The edge calls it
   over mTLS (certificates of an internal CA, `hack/mkcert-internal.sh`) with a
   service token (`go run ./cmd/szservicetoken -name <CN of its certificate>`)

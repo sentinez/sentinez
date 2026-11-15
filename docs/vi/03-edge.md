@@ -418,6 +418,9 @@ fencing.
 `OnChange(fn(key, prev, next))` báo mỗi lần một key đổi giá trị trên node,
 dù do ghi tại đó, nhận về hay đối soát; `prev`/`next` là `nil` khi key chưa
 có hoặc không còn giá trị. Các lần gọi tuần tự theo đúng thứ tự áp dụng.
+Bên trong `fn`, `Origin(key)` trả về node đã ghi thay đổi và đó có phải
+chính node này không (log debug của map centraldata phân biệt "written here
+as the leader" với "synced from the leader <node>").
 
 ### Setting giữa các edge
 
@@ -461,10 +464,10 @@ lock của Consul, được Consul ghi qua Raft log.
 
 | Cấu hình | Hành vi |
 |---|---|
-| `SENZ_CONSUL_URI` + `SENZ_ZONE` | Tranh lock trên key Consul `sentinez/dmz/edge/leader/<zone>`; zone được lowercase giống tiền tố id của `szrand`, nên `SGN` và `sgn` dùng chung một key |
+| `conf.Clustered()` + `SENZ_CONSUL_URI` + `SENZ_ZONE` | Tranh lock trên key Consul `sentinez/dmz/edge/leader/<zone>`; zone được lowercase giống tiền tố id của `szrand`, nên `SGN` và `sgn` dùng chung một key |
 | `conf.Clustered()` mà thiếu `SENZ_CONSUL_URI` | Khởi động thất bại (`errNoConsul`): cluster không bao giờ chạy mà không có bầu chọn |
-| `SENZ_CONSUL_URI` mà thiếu `SENZ_ZONE` | Khởi động thất bại (`errNoZone`) |
-| Không có cả hai | Standalone: node làm leader ngay (term 1) và không bao giờ mất |
+| `conf.Clustered()` mà thiếu `SENZ_ZONE` | Khởi động thất bại (`errNoZone`) |
+| Không cluster | Standalone, có Consul hay không: node làm leader ngay (term 1) và không bao giờ mất. Việc nó làm khi là leader (centraldata ghi vào Olric riêng của nó) không tới edge nào khác, nên nó không bao giờ giành lock zone của một cluster |
 
 `conf.Clustered()` ([config.go](../../api/proto/sentinez/types/setting/v1/config.go))
 trả về true khi có cả `SENZ_MEMBERSHIP_ADDRESS` và `SENZ_DISCOVERY_ADDRESS`;
@@ -535,19 +538,39 @@ Bản ghi `status`:
 
 Ghi bị fence (`ErrFenced`) thì kết thúc term: đã có leader mới hơn ghi bản
 ghi, nên node nhả lock rồi tranh cử lại. Lỗi khác (không kết nối được
-Consul) được log và thử lại ở tick sau. Edge standalone không có Consul nên
-`PublishStatus` trả `nil`, node chỉ giữ quyền leader.
+Consul) được log và thử lại ở tick sau. Edge standalone không ghi `status`
+(`PublishStatus` trả `nil`): node chỉ giữ quyền leader.
 
-**Wiring.** [cmd/szedge/v1/server/leader.go](../../cmd/szedge/v1/server/leader.go)
-chạy elector như một szrunner app riêng (`Inject(leader.New)`,
-`Serve(e.Run(ctx, e.PublishStatus()))`). Mỗi app có container fx riêng, nên app
-`edgeServer`/`grpcServer` không truy cập được `Elector`; việc cần làm cho cả
-zone phải đặt trong `Task`.
+**Wiring.** App `Edge` của [cmd/szedge/v1/server/server.go](../../cmd/szedge/v1/server/server.go)
+inject `Elector` vào `edge.Server` (`Inject(edge.NewServer, leader.New)`) và
+serve `Server.Lead` song song `Server.Start`: các task của leader cần store
+của edge, thứ mà container fx của app khác không với tới. `Lead` chạy
+`leader.All(e.PublishStatus(), followCentralData)`: chỉ leader theo
+centraldata ([07-controlplane.md](07-controlplane.md)), và follower của nó
+dừng khi hết term. `Shutdown` chờ `Lead` xong rồi mới đóng cluster.
 
 **Deploy.** [deploy/docker/cluster/docker-compose.yaml](../../deploy/docker/cluster/docker-compose.yaml)
-chạy hai edge trong zone `SGN` cùng một Consul ở dev mode. Production cần 3
-hoặc 5 server Consul: nếu Consul không đạt quorum thì không zone nào bầu
-được leader.
+chạy ba edge trong zone `HAN` (cổng host 7444–7446) và hai server Consul
+join vào `sentinez.consul` của compose chính: ba server, một quorum Raft,
+mỗi edge hỏi một server riêng, cùng centraldata mà leader theo
+(`sentinez.apps.centraldata` của compose chính,
+`deploy/docker/centraldata.env`: nó đăng ký `sentinez.apps.centraldata:9003`
+và publish tới Olric server của các edge).
+`make sz.edge.image.build sz.centraldata.image.build`, rồi
+`make compose.edge.up`. `make compose.edge.leader` in ra node đang giữ lock
+và `status` của zone, `make compose.edge.consul` in các peer Raft; dừng edge
+đang lead thì edge khác lên leader khi session hết hạn, kill một server
+Consul thì lock vẫn giữ. Nếu Consul không đạt quorum thì không zone nào bầu
+được leader. Các edge gossip trên `:7777` và join qua một seed
+(`SENZ_MEMBERSHIP_ADDRESS`); Olric server của chúng nghe trên `:3320`. Edge
+đơn `sentinez.dmz.edge` của compose chính không cluster nên không tranh cử,
+dù ở zone nào. Hai server
+Consul rời Raft khi bị dừng (`leave_on_terminate`), nên sau
+`make compose.edge.down` thì `sentinez.consul` lại một mình làm leader; kill
+cả hai thì nó mất quorum tới khi chúng chạy lại. Các edge chạy với
+`LOG_LEVEL: debug` ([docker-entrypoint.sh](../../cmd/szedge/v1/docker-entrypoint.sh)
+đọc biến này, mặc định `info`), để thấy quá trình sync:
+`docker logs sentinez.dmz.edge.02 2>&1 | grep "edge: centraldata"`.
 
 ## 3.9 gRPC EdgeService
 

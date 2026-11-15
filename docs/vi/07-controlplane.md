@@ -408,13 +408,15 @@ edge qua centraldata (xem [CentralData](#centraldata-đồng-bộ-các-bảng-xu
 
 `szcentraldata` giữ các bảng trong `SENZ_SYNC_TABLES` (mặc định:
 `security.secrules`, `security.ratelimits`, `security.corerulesets`,
-`tenant.resources`, `tenant.cacertificates`) trong go-memdb, và các edge đi
-theo nó:
+`tenant.resources`, `tenant.cacertificates`) trong go-memdb, và edge leader
+của mỗi zone đi theo nó thay cho các edge khác:
 
 ```
-postgres ──trigger: pg_notify(id)──► centraldata ──Olric pub/sub──► mọi edge
+postgres ──trigger: pg_notify(id)──► centraldata ──Olric pub/sub──► edge leader
                                          ▲                              │
-                                         └──── Sync (gRPC stream) ◄─────┘ lúc boot
+                                         └──── Sync (gRPC stream) ◄─────┤ khi được bầu
+                                                                        ▼
+                                        mọi edge ◄── SyncMap sentinez.dmz.edge.central
 ```
 
 - **Phát hiện thay đổi.** Khi khởi động, `postgres.NewNotifying` tạo từng
@@ -424,11 +426,13 @@ postgres ──trigger: pg_notify(id)──► centraldata ──Olric pub/sub�
   `LISTEN` trước rồi mới nạp các bảng, nên không thay đổi nào lọt vào giữa.
   Với mỗi notification nó đọc lại row và áp dụng (hoặc xoá khi row không
   còn). Mỗi phút nó so các bảng với bộ nhớ để bắt notification postgres làm
-  rơi. Mất kết nối thì nạp lại các bảng và bắt đầu epoch mới.
+  rơi. Mất kết nối thì nạp lại các bảng và bắt đầu epoch mới. Mỗi lần nạp
+  log tiến độ từng bảng (`centraldata: load <table> i/n: rows, upserted,
+  deleted in ...`); lần đối soát chỉ log các bảng có thay đổi.
 - **Version.** Mỗi lần ghi vào bộ nhớ tăng version; một `Change` mang
   `(table, op, id, row, version, epoch)`. `epoch` đổi khi lịch sử không còn
   liền mạch.
-- **Edge boot: `Sync`**, RPC stream duy nhất. Nó gửi mọi row dưới dạng
+- **Leader được bầu: `Sync`**, RPC stream duy nhất. Nó gửi mọi row dưới dạng
   `Change`, rồi một `Snapshot{version, epoch}`. Các row là của version đó:
   edge áp các thay đổi được publish sau nó.
 - **Live: Olric.** Centraldata publish mỗi `Change` trong một `Envelope` ký
@@ -439,12 +443,38 @@ postgres ──trigger: pg_notify(id)──► centraldata ──Olric pub/sub�
   subscribe trước khi gọi `Sync`, bỏ những gì không ký bằng key hoặc không
   nằm sau snapshot, và nạp lại khi version bị hụt, epoch đổi, hoặc mỗi 5
   phút.
-- **Trên edge**, `memory.CentralSink` giữ các row và dựng lại
-  `edgepb.Setting` của mỗi resource có row thay đổi (server của resource,
-  rule, limiter và core ruleset), trên nền setting đã nạp cho domain đó, nên
-  CDN của file được giữ. Setting từ các bảng chiếm domain của setting từ
-  file. Không có `SENZ_SERVICE_TOKEN` thì edge không theo centraldata; nếu
-  không tới được centraldata, edge chạy bằng file và cluster, và thử lại nền.
+- **Chỉ leader theo centraldata.** Follower chạy trong một `leader.Task`
+  của leader zone ([03-edge.md](03-edge.md), `Server.Lead`) và dừng khi hết
+  term, nên centraldata chỉ phục vụ một `Sync` mỗi zone thay vì mỗi edge.
+  `memory.CentralSink` của nó giữ các row và dựng lại `edgepb.Setting` của
+  mỗi resource có row thay đổi (server của resource, rule, limiter và core
+  ruleset), trên nền setting đã nạp cho domain đó, nên CDN của file được
+  giữ. Nó ghi setting vào `SyncMap` `sentinez.dmz.edge.central` theo
+  resource id (setting không đổi thì không ghi lại), và mọi edge, kể cả
+  leader, nạp những gì map giữ (`MemStore.applyCentral`); setting từ các
+  bảng chiếm domain của setting từ file. Map nằm trong DMap của Olric, nên
+  edge khởi động lúc chưa có leader vẫn nạp được setting ghi gần nhất.
+  Leader mới bắt đầu với sink rỗng: lần nạp đầu xoá khỏi map những gì
+  snapshot không có, tức các resource bị xoá trong lúc zone không có leader.
+  Leader đã bị hạ vẫn có thể ghi cho tới khi nhận ra mất lock (TTL session
+  Consul); nó ghi đúng những gì centraldata giữ, và lần nạp của leader kế
+  tiếp sẽ sửa lại. Không có `SENZ_SERVICE_TOKEN` thì leader không theo
+  centraldata; nếu không tới được centraldata, các edge chạy bằng file và
+  cluster, và leader thử lại nền. Lần resync chỉ dựng lại các resource có
+  row thay đổi, và những resource map còn giữ mà snapshot không còn; các lần
+  ghi của một lượt dựng lại dùng chung timeout 30s, quá hạn thì chỉ áp trên
+  leader và lần đối soát của map sẽ chia sẻ sau.
+- **Độ trễ.** Thay đổi tới leader qua Olric pub/sub, rồi tới các edge khác
+  qua `SyncMap` (một lần `Put` vào DMap, rồi publish): vài mili-giây, cộng
+  thời gian dựng lại store trên mỗi edge. Tin mất giữa leader và một edge
+  được lần đối soát của map sửa, trong vòng 30s; tin mất giữa centraldata
+  và leader được sửa ở thay đổi kế tiếp (hụt version) hoặc lần resync,
+  trong vòng 5 phút.
+- **Log debug** (`edge: centraldata: ...`): leader log những gì nó nạp
+  (`loaded N rows`, `received <op> <table> <id>, version`) và những gì nó
+  ghi (`rebuild resource` / `remove resource`); mọi edge log từng thay đổi
+  của map, `written here as the leader` hoặc `synced from the leader <node>`
+  (`SyncMap.Origin`).
 - **Tin cậy.** `Sync` chỉ mở cho `CONTROL_PLANE_SERVICE`. Edge gọi qua mTLS
   (certificate của CA nội bộ, `hack/mkcert-internal.sh`) với token service
   (`go run ./cmd/szservicetoken -name <CN của certificate>`) ký bằng

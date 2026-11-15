@@ -429,7 +429,9 @@ to Consul with fencing.
 `OnChange(fn(key, prev, next))` reports each change of a key on the node,
 whether written there, received or reconciled; `prev`/`next` is `nil` when
 the key had or has no value. Calls are serialized in the order changes
-apply.
+apply. Inside `fn`, `Origin(key)` returns the node that wrote the change
+and whether it is this one (the debug logs of the centraldata map tell
+"written here as the leader" from "synced from the leader <node>").
 
 ### Settings between edges
 
@@ -473,10 +475,10 @@ Consul serves from its Raft log.
 
 | Configuration | Behavior |
 |---|---|
-| `SENZ_CONSUL_URI` + `SENZ_ZONE` | Campaigns on the Consul key `sentinez/dmz/edge/leader/<zone>`; the zone is lowercased like the `szrand` id prefix, so `SGN` and `sgn` share one key |
+| `conf.Clustered()` + `SENZ_CONSUL_URI` + `SENZ_ZONE` | Campaigns on the Consul key `sentinez/dmz/edge/leader/<zone>`; the zone is lowercased like the `szrand` id prefix, so `SGN` and `sgn` share one key |
 | `conf.Clustered()` without `SENZ_CONSUL_URI` | Startup fails (`errNoConsul`): a cluster never runs without an election |
-| `SENZ_CONSUL_URI` without `SENZ_ZONE` | Startup fails (`errNoZone`) |
-| Neither | Standalone: the node leads at once (term 1) and never loses |
+| `conf.Clustered()` without `SENZ_ZONE` | Startup fails (`errNoZone`) |
+| Not clustered | Standalone, Consul or not: the node leads at once (term 1) and never loses. What it does as the leader (the centraldata it writes to its own Olric) reaches no other edge, so it never takes the lock of a zone from a cluster |
 
 `conf.Clustered()` ([config.go](../api/proto/sentinez/types/setting/v1/config.go))
 is true when both `SENZ_MEMBERSHIP_ADDRESS` and `SENZ_DISCOVERY_ADDRESS` are
@@ -550,17 +552,40 @@ The `status` record:
 
 A fenced write (`ErrFenced`) ends the term: a newer leader wrote the record,
 so the node gives up the lock and campaigns again. Other errors (Consul
-unreachable) are logged and retried at the next tick. A standalone edge has
-no Consul, so `PublishStatus` returns `nil` and it only leads.
+unreachable) are logged and retried at the next tick. A standalone edge
+writes no `status` (`PublishStatus` returns `nil`): it only leads.
 
-**Wiring.** [cmd/szedge/v1/server/leader.go](../cmd/szedge/v1/server/leader.go)
-runs it as its own szrunner app (`Inject(leader.New)`,
-`Serve(e.Run(ctx, e.PublishStatus()))`). Each app has its own fx container, so the `Elector` is not reachable
-from the `edgeServer`/`grpcServer` apps; zone-wide work goes in the `Task`.
+**Wiring.** The `Edge` app of [cmd/szedge/v1/server/server.go](../cmd/szedge/v1/server/server.go)
+injects the `Elector` into `edge.Server` (`Inject(edge.NewServer, leader.New)`)
+and serves `Server.Lead` beside `Server.Start`: the tasks of the leader need
+the stores of the edge, which another app's fx container cannot reach.
+`Lead` runs `leader.All(e.PublishStatus(), followCentralData)`: only the
+leader follows centraldata ([07-controlplane.md](07-controlplane.md)), and
+its follower stops with the term. `Shutdown` waits for `Lead` before it
+closes the cluster.
 
 **Deploy.** [deploy/docker/cluster/docker-compose.yaml](../deploy/docker/cluster/docker-compose.yaml)
-runs two edges in zone `SGN` with a dev-mode Consul. Run 3 or 5 Consul
-servers in production: without a Consul quorum no zone can elect a leader.
+runs three edges in zone `HAN` (host ports 7444–7446) and two Consul
+servers that join the `sentinez.consul` of the main compose: three servers,
+one Raft quorum, each edge asking its own, and the centraldata the leader
+follows (`sentinez.apps.centraldata` of the main compose,
+`deploy/docker/centraldata.env`: it registers
+`sentinez.apps.centraldata:9003` and publishes to the Olric servers of the
+edges). `make sz.edge.image.build sz.centraldata.image.build`, then
+`make compose.edge.up`. `make compose.edge.leader` prints the lock holder
+and the zone `status`, `make compose.edge.consul` the Raft peers; stop the
+leading edge and another one leads once its session expires, kill one
+Consul server and the lock still holds. Without a Consul quorum no zone can
+elect a leader. The edges gossip on `:7777` and join through one seed
+(`SENZ_MEMBERSHIP_ADDRESS`); their Olric servers listen on `:3320`. The
+lone `sentinez.dmz.edge` of the main compose is not clustered, so it does
+not campaign, whatever its zone. The two
+Consul servers leave the Raft when stopped (`leave_on_terminate`), so after
+`make compose.edge.down` `sentinez.consul` leads alone again; killing both
+leaves it without a quorum until they are back. The edges run with
+`LOG_LEVEL: debug` ([docker-entrypoint.sh](../cmd/szedge/v1/docker-entrypoint.sh)
+reads it, `info` by default), which shows the sync:
+`docker logs sentinez.dmz.edge.02 2>&1 | grep "edge: centraldata"`.
 
 ## 3.9 EdgeService gRPC
 
