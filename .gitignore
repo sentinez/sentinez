@@ -44,6 +44,8 @@ node_modules
 *.pem
 .turbo/
 *.key
+# the internal CA and certificates (make sz.centraldata.cert)
+/deploy/certs/
 
 # debug
 npm-debug.log*

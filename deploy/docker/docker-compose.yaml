@@ -103,6 +103,13 @@ services:
     env_file:
       - ../../cmd/szedge/v1/.env
       - edge.env # later files win: in-network hosts
+    # the internal mTLS (make sz.centraldata.cert sz.edge.cert), the files
+    # of SENZ_TLS_* of edge.env and centraldata.env: only the CA and its own
+    # pair, never ca-key.pem
+    volumes:
+      - ../certs/internal/ca.pem:/etc/senz/internal/ca.pem:ro
+      - ../certs/internal/sentinez.dmz.edge.pem:/etc/senz/internal/sentinez.dmz.edge.pem:ro
+      - ../certs/internal/sentinez.dmz.edge-key.pem:/etc/senz/internal/sentinez.dmz.edge-key.pem:ro
     depends_on:
       sentinez.kafka-init:
         condition: service_completed_successfully
@@ -212,6 +219,11 @@ services:
     env_file:
       - ../../cmd/szcentraldata/v1/.env
       - centraldata.env # later files win: in-network hosts
+    # the internal mTLS, as for sentinez.dmz.edge
+    volumes:
+      - ../certs/internal/ca.pem:/etc/senz/internal/ca.pem:ro
+      - ../certs/internal/sentinez.apps.centraldata.pem:/etc/senz/internal/sentinez.apps.centraldata.pem:ro
+      - ../certs/internal/sentinez.apps.centraldata-key.pem:/etc/senz/internal/sentinez.apps.centraldata-key.pem:ro
     depends_on:
       sentinez.timescale:
         condition: service_started

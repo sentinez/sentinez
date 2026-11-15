@@ -3,7 +3,7 @@
 # builds the enterprise features of scale/ in (hack/make/scale.mk).
 SZEDGE_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 
-.PHONY: sz.edge.build sz.edge.run sz.edge.image.build
+.PHONY: sz.edge.build sz.edge.run sz.edge.image.build sz.edge.cert
 
 sz.edge.build: SENTINEZ_OUT ?= edge
 sz.edge.build:
@@ -23,3 +23,9 @@ sz.edge.image.build: TAG ?= sentinez/edge
 sz.edge.image.build:
 	@docker buildx build --build-arg SZ_GOTAGS="$(SZ_GOTAGS)" \
 		-f $(SZEDGE_DIR)/v1/Dockerfile -t $(TAG):latest $(SZEDGE_DIR)/../..
+
+# Issues $(SZ_EDGE_CERT_NAME).pem and its key in $(SZ_INTERNAL_CERT_DIR),
+# signed by the CA there (make sz.centraldata.cert creates it if none).
+sz.edge.cert:
+	@$(SZ_ROOT)/hack/mkcert-internal.sh $(SZ_INTERNAL_CERT_DIR) \
+		$(SZ_EDGE_CERT_NAME)

@@ -28,6 +28,12 @@ x-edge: &edge
   env_file:
     - ../../../cmd/szedge/v1/.env
     - ../edge.env # later files win: in-network hosts
+  # the internal mTLS (make sz.centraldata.cert sz.edge.cert), the files of
+  # SENZ_TLS_* of ../edge.env: only the CA and its own pair
+  volumes:
+    - ../../certs/internal/ca.pem:/etc/senz/internal/ca.pem:ro
+    - ../../certs/internal/sentinez.dmz.edge.pem:/etc/senz/internal/sentinez.dmz.edge.pem:ro
+    - ../../certs/internal/sentinez.dmz.edge-key.pem:/etc/senz/internal/sentinez.dmz.edge-key.pem:ro
 
 x-edge-env: &edge-env
   # the debug logs of the sync: what the leader loads from centraldata,
