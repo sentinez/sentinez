@@ -213,29 +213,40 @@ func (s *Syncer) sync(ctx context.Context, publish bool) error {
 	return s.syncLocked(ctx, publish)
 }
 
+// syncLocked logs its progress table by table: every table when it loads
+// them (publish false), only those that changed when it reconciles.
 func (s *Syncer) syncLocked(ctx context.Context, publish bool) error {
-	for _, table := range s.tables {
+	for i, table := range s.tables {
+		begin := time.Now()
+
 		rows, err := table.List(ctx)
 		if err != nil {
 			return err
 		}
 
-		if err := s.diff(ctx, table, rows, publish); err != nil {
+		upserted, deleted, err := s.diff(ctx, table, rows, publish)
+		if err != nil {
 			return err
 		}
+
+		tableSync{
+			table: table.Name(), index: i + 1, total: len(s.tables),
+			rows: len(rows), upserted: upserted, deleted: deleted,
+			took: time.Since(begin),
+		}.log(publish)
 	}
 
 	return nil
 }
 
 // diff upserts the rows the memory lacks or holds different, and deletes
-// those the database no longer has.
+// those the database no longer has; it returns how many of each.
 func (s *Syncer) diff(ctx context.Context, table pgrepo.Table,
-	rows []proto.Message, publish bool) error {
+	rows []proto.Message, publish bool) (int, int, error) {
 
 	held, err := s.held(table.Name())
 	if err != nil {
-		return err
+		return 0, 0, err
 	}
 
 	var changed []proto.Message
@@ -252,18 +263,44 @@ func (s *Syncer) diff(ctx context.Context, table pgrepo.Table,
 	}
 
 	if err := s.upsert(ctx, table.Name(), changed, publish); err != nil {
-		return err
+		return 0, 0, err
 	}
 
 	for id, old := range held {
 		debugDiff(table.Name(), id, old, nil)
 
 		if err := s.remove(ctx, table.Name(), id, publish); err != nil {
-			return err
+			return 0, 0, err
 		}
 	}
 
-	return nil
+	return len(changed), len(held), nil
+}
+
+// tableSync what the sync of a table read and changed in the memory.
+type tableSync struct {
+	table             sztable.Table
+	index, total      int
+	rows              int
+	upserted, deleted int
+	took              time.Duration
+}
+
+// log the progress of a load (publish false), or of a reconcile when it
+// changed something: a reconcile that finds nothing stays quiet.
+func (t tableSync) log(publish bool) {
+	if !publish {
+		szlog.Infof("centraldata: load %s %d/%d: %d rows, "+
+			"%d upserted, %d deleted in %s", t.table, t.index, t.total,
+			t.rows, t.upserted, t.deleted, t.took)
+
+		return
+	}
+
+	if t.upserted+t.deleted > 0 {
+		szlog.Infof("centraldata: reconcile %s: %d upserted, "+
+			"%d deleted in %s", t.table, t.upserted, t.deleted, t.took)
+	}
 }
 
 // debugDiff logs a row that differs from the memory (old is nil when the row
