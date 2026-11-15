@@ -18,7 +18,7 @@ x-consul: &consul
 
 x-edge: &edge
   image: sentinez/edge:latest
-  restart: on-failure:3
+  restart: on-failure
   # public resolvers for the upstreams, see deploy/docker/docker-compose.yaml
   dns:
     - 8.8.8.8

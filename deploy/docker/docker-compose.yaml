@@ -87,7 +87,7 @@ services:
     image: sentinez/edge:latest
     hostname: sentinez.dmz.edge
     container_name: sentinez.dmz.edge
-    restart: on-failure:3
+    restart: on-failure
     ports:
       - "7443:7443" # HTTPS connection
       - "7443:7443/udp"
@@ -175,7 +175,7 @@ services:
     image: sentinez/collector:latest
     hostname: sentinez.apps.collector
     container_name: sentinez.apps.collector
-    restart: on-failure:3
+    restart: on-failure
     # no .env inside the image: the env comes from env_file/environment
     command: ["main", "--env_file="]
     ports:
@@ -201,7 +201,10 @@ services:
     image: sentinez/centraldata:latest
     hostname: sentinez.apps.centraldata
     container_name: sentinez.apps.centraldata
-    restart: on-failure:3
+    # no retry cap: it fails until the edges listen, and Consul until it
+    # has a leader; on-failure, unlike unless-stopped, never starts it at
+    # boot
+    restart: on-failure
     # no .env inside the image: the env comes from env_file/environment
     command: ["main", "--env_file="]
     ports:
