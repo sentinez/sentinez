@@ -14,7 +14,7 @@ services:
   #   image: otel/opentelemetry-collector-contrib:0.115.1
   #   container_name: sentinez.telemetry.otel-collector
   #   hostname: sentinez.telemetry.otel-collector
-  #   restart: unless-stopped
+  #   restart: on-failure:3
 
   #   command:
   #     - --config=/etc/otelcol-contrib/config.yaml
@@ -34,7 +34,7 @@ services:
   sentinez.telemetry.kafka-ui:
     image: ghcr.io/kafbat/kafka-ui:v1.4.2
     container_name: sentinez.telemetry.kafka-ui
-    restart: unless-stopped
+    restart: on-failure:3
 
     ports:
       - "8088:8080"

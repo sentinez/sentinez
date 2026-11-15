@@ -125,7 +125,7 @@ services:
     image: apache/kafka:3.9.0
     container_name: sentinez.kafka
     hostname: sentinez.kafka
-    restart: unless-stopped
+    restart: on-failure:3
     ports:
       - "9094:9094" # clients on the host
     env_file:
@@ -201,7 +201,7 @@ services:
     image: sentinez/centraldata:latest
     hostname: sentinez.apps.centraldata
     container_name: sentinez.apps.centraldata
-    restart: unless-stopped
+    restart: on-failure:3
     # no .env inside the image: the env comes from env_file/environment
     command: ["main", "--env_file="]
     ports:
