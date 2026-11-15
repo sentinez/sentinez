@@ -68,7 +68,7 @@ func (s *Server) ListenAndServe(
 
 	s.onAcceptConn()
 
-	if s.opt.CertFile != "" && s.opt.CertKeyFile != "" {
+	if s.opt.HasCertificate() {
 		s.core.IdleTimeout = 120 * time.Second
 		s.core.ReadTimeout = 15 * time.Second
 		s.core.WriteTimeout = 15 * time.Second

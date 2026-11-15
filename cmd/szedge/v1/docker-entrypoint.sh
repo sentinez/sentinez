@@ -21,6 +21,6 @@
     --mode prod \
     --proxy_config ./proxy.yaml \
     --env_file "" \
-	--cert_file /etc/senz/ssl/certs/is.s6z.io.vn.cert \
-    --cert_key_file /etc/senz/ssl/private/is.s6z.io.vn.key \
     --engine quic
+	# --cert_file /etc/senz/ssl/certs/is.s6z.io.vn.cert \
+    # --cert_key_file /etc/senz/ssl/private/is.s6z.io.vn.key \

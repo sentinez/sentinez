@@ -45,6 +45,17 @@ func NewOption(opts ...ServerOption) *Option {
 	return &option
 }
 
+// HasCertificate reports whether there is a certificate to serve over TLS:
+// the files, or those the TLS config gives by itself (GetCertificate).
+func (o *Option) HasCertificate() bool {
+	if o.CertFile != "" && o.CertKeyFile != "" {
+		return true
+	}
+
+	return o.TLSConfig != nil && (len(o.TLSConfig.Certificates) != 0 ||
+		o.TLSConfig.GetCertificate != nil)
+}
+
 type ServerOption func(opt *Option)
 
 func WithCertificate(certFile, certKeyFile string) ServerOption {

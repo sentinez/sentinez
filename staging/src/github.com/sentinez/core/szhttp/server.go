@@ -54,7 +54,7 @@ func (s *server) Handle(fn RequestHandler) {
 func (s *server) ListenAndServe(addr string, opts ...ServerOption) error {
 	option := NewOption(opts...)
 
-	if option.CertFile != "" && option.CertKeyFile != "" {
+	if option.HasCertificate() {
 		host, port, _ := net.SplitHostPort(addr)
 		console.INFO(s.meta.GetServiceName(), s.meta.GetServiceKey(),
 			fmt.Sprintf("https[%s] running on %s:%s", s.engine, host, port))

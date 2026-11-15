@@ -174,8 +174,8 @@ validated with protovalidate.
 | `--log_level` | `debug` | `debug\|info\|warn\|error` | all |
 | `--env_file` | per service | — | all (`""` = don't read a file) |
 | `--proxy_config` | `./proxy.yaml` | — | edge |
-| `--cert_file` | `./_wildcard.sentinez.vn+1.pem` (edge), `""` (apiserver) | — | edge, apiserver (with a certificate the apiserver serves HTTPS and HTTP/3) |
-| `--cert_key_file` | `./_wildcard.sentinez.vn+1-key.pem` (edge), `""` (apiserver) | — | edge, apiserver |
+| `--cert_file` | `""` | — | edge, apiserver (with a certificate the apiserver serves HTTPS and HTTP/3; without one the edge serves only the certificates of centraldata) |
+| `--cert_key_file` | `""` | — | edge, apiserver |
 | `--engine` | `quic` | `std\|hertz\|quic` | edge (HTTP server, see [03-edge.md](03-edge.md#310-choosing-the-engine)) |
 
 `--mode` also sets the DB table prefix (`dev_sentinez_iam_users`, ...) and
