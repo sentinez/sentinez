@@ -16,9 +16,11 @@ package memory
 
 import (
 	"cmp"
+	"context"
 	"fmt"
 	"slices"
 	"sync"
+	"time"
 
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/sztable"
@@ -35,22 +37,28 @@ import (
 // rows the rows of the synced tables, by table then id.
 type rows map[sztable.Table]map[string]proto.Message
 
-// CentralSink applies the tables centraldata syncs to the stores of the
-// edge: it holds the rows, and rebuilds the setting of every resource whose
-// rows change. The setting of a resource that is already loaded, by the
-// proxy.yaml for instance, is the base the rows are applied to, so what the
-// tables do not hold (the CDN) stays.
+// _centralWriteTimeout bounds the writes of one rebuild to the cluster:
+// past it the rest apply here only, and the reconcile of the map shares
+// them.
+const _centralWriteTimeout = 30 * time.Second
+
+// CentralSink applies the tables centraldata syncs to the edges: it holds
+// the rows, and rebuilds the setting of every resource whose rows change
+// into the synced map of centraldata, which every edge loads
+// (MemStore.applyCentral). Only the leader of the zone runs one. The
+// setting of a resource that is already loaded, by the proxy.yaml for
+// instance, is the base the rows are applied to, so what the tables do not
+// hold (the CDN) stays.
 type CentralSink struct {
 	m *MemStore
 
-	mu    sync.Mutex
-	rows  rows
-	built map[string]string // resource id -> the namespace it loaded
+	mu   sync.Mutex
+	rows rows
 }
 
 // CentralSink returns the sink of the tables of centraldata.
 func (m *MemStore) CentralSink() *CentralSink {
-	return &CentralSink{m: m, rows: make(rows), built: make(map[string]string)}
+	return &CentralSink{m: m, rows: make(rows)}
 }
 
 // Replace implements centralsync.Sink.
@@ -70,6 +78,19 @@ func (c *CentralSink) Replace(changes []*centraldatapb.Change) error {
 	defer c.mu.Unlock()
 
 	dirty := diff(c.rows, next)
+	// the map may hold resources this sink never saw: those a former
+	// leader wrote and that were deleted while the zone had none
+	c.m.central.Range(func(id string, _ *edgepb.Setting) bool {
+		if _, live := liveResource(next, id); !live {
+			dirty[id] = struct{}{}
+		}
+
+		return true
+	})
+
+	szlog.Debugf("edge: centraldata: loaded %d rows, %d resources to "+
+		"rebuild", len(changes), len(dirty))
+
 	c.rows = next
 	c.rebuild(dirty)
 
@@ -79,6 +100,9 @@ func (c *CentralSink) Replace(changes []*centraldatapb.Change) error {
 // Apply implements centralsync.Sink.
 func (c *CentralSink) Apply(change *centraldatapb.Change) error {
 	table, id := sztable.Table(change.GetTable()), change.GetId()
+	szlog.Debugf("edge: centraldata: received %s %s %s, version %d",
+		change.GetOp(), change.GetTable(), change.GetId(),
+		change.GetVersion())
 
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -176,41 +200,51 @@ func resourceOf(msg proto.Message) string {
 	return ""
 }
 
+// rebuild never fails: a write the cluster missed is applied here, and
+// the next reconcile of the map shares it.
 func (c *CentralSink) rebuild(dirty map[string]struct{}) {
+	ctx, cancel := context.WithTimeout(context.Background(),
+		_centralWriteTimeout)
+	defer cancel()
+
 	for id := range dirty {
 		if id == "" {
 			continue
 		}
 
-		c.rebuildOne(id)
+		if err := c.rebuildOne(ctx, id); err != nil {
+			szlog.Warnf("edge: centraldata: resource %s: %v", id, err)
+		}
 	}
 }
 
-// rebuildOne reloads the stores of resource id from its rows, or unloads
-// them when the resource is gone.
-func (c *CentralSink) rebuildOne(id string) {
-	res, ok := c.rows[sztable.TenantResources][id].(*tenantpb.Resource)
-	if !ok || res.GetServer().GetResourceDomain() == "" {
-		if ns, held := c.built[id]; held {
-			c.m.unload(id, ns)
-			delete(c.built, id)
-		}
+// rebuildOne writes the setting of resource id from its rows, or removes
+// it when the resource is gone. The map skips a setting it holds
+// unchanged, so the edges rebuild only what changed.
+func (c *CentralSink) rebuildOne(ctx context.Context, id string) error {
+	if res, live := liveResource(c.rows, id); live {
+		// the map skips it when unchanged: no edge logs it then
+		szlog.Debugf("edge: centraldata: rebuild resource %s (%s) for the "+
+			"cluster", id, res.GetServer().GetResourceDomain())
 
-		return
+		return c.m.central.Store(ctx, id, c.setting(res))
 	}
 
-	setting := c.setting(res)
-	ns := namespace(setting)
+	if _, held := c.m.central.Load(id); held {
+		szlog.Debugf("edge: centraldata: remove resource %s from the "+
+			"cluster", id)
 
-	if old, held := c.built[id]; held && old != ns {
-		c.m.unload(id, old)
+		return c.m.central.Delete(ctx, id)
 	}
 
-	// the settings of centraldata outrank those of the file
-	c.m.take(ns, id)
-	c.m.load(id, setting)
-	c.built[id] = ns
-	szlog.Infof("edge: resource %s loaded from centraldata (%s)", id, ns)
+	return nil
+}
+
+// liveResource the resource id of r, when it has a domain to serve.
+func liveResource(r rows, id string) (*tenantpb.Resource, bool) {
+	res, ok := r[sztable.TenantResources][id].(*tenantpb.Resource)
+
+	return res, ok && res.GetServer().GetResourceDomain() != ""
 }
 
 // setting the setting of res: the one loaded for its namespace, if any,

@@ -39,22 +39,24 @@ var (
 )
 
 // New returns the Elector of the zone of conf. A clustered edge is
-// elected through a Consul lock on its zone; a lone edge without
-// SENZ_CONSUL_URI always leads.
+// elected through a Consul lock on its zone; a lone edge always leads,
+// Consul or not: what its leader does (the centraldata it writes to its
+// Olric) reaches no other edge, so it must not take the lock of the zone
+// from a cluster.
 func New(conf *settingpb.Config) (*Elector, error) {
 	node, err := cluster.NodeId()
 	if err != nil {
 		return nil, err
 	}
 
+	if !conf.Clustered() {
+		szlog.Infof("leader: %s is not clustered, it leads alone", node)
+		return newElector(&standalone{node: node}), nil
+	}
+
 	uri := conf.Get(settingpb.Senz_SENZ_CONSUL_URI)
 	if uri == "" {
-		if conf.Clustered() {
-			return nil, errNoConsul
-		}
-
-		szlog.Warnf("leader: no SENZ_CONSUL_URI, %s leads alone", node)
-		return newElector(&standalone{node: node}), nil
+		return nil, errNoConsul
 	}
 
 	// lowercased like the zone prefix of szrand ids, so SGN and sgn

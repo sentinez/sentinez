@@ -17,6 +17,7 @@ package memory
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/pkg/szlog"
@@ -27,29 +28,42 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-// _settingsMap names the synced map of the edge settings.
-const _settingsMap = "sentinez.dmz.edge.settings"
+const (
+	// _settingsMap names the synced map of the edge settings.
+	_settingsMap = "sentinez.dmz.edge.settings"
+	// _centralMap names the synced map of the settings built from the
+	// tables of centraldata, by resource id: only the leader of the zone
+	// follows centraldata and writes it (CentralSink), every edge loads it.
+	_centralMap = "sentinez.dmz.edge.central"
+)
 
 // settingSync holds the raw settings of every edge, by tenant id.
 type settingSync = cluster.SyncMap[edgepb.Setting, *edgepb.Setting]
 
-func newSettingSync(c *cluster.Cluster) *settingSync {
-	return cluster.NewSyncMap[edgepb.Setting](c, _settingsMap)
+// newSettingSync the synced map of settings name of c.
+func newSettingSync(c *cluster.Cluster, name string) *settingSync {
+	return cluster.NewSyncMap[edgepb.Setting](c, name)
 }
 
 // Sync loads the settings of the cluster and shares local with it, then
 // keeps the hot-path stores in step: every setting a node stores, here
 // or on another edge, is rebuilt here. A setting is synced by its
 // metadata.tenant_id; one without, or with the default one, stays on
-// this edge only.
+// this edge only. The settings of centraldata are loaded the same way,
+// from the map the leader writes.
 func (m *MemStore) Sync(
 	ctx context.Context, server szhttp.Server, local ...*edgepb.Setting,
 ) error {
 	m.server = server
 	m.synced.OnChange(m.applySetting)
+	m.central.OnChange(m.applyCentral)
 
 	if err := m.synced.Start(ctx); err != nil {
 		return err
+	}
+
+	if err := m.central.Start(ctx); err != nil {
+		return fmt.Errorf("centraldata: %w", err)
 	}
 
 	for _, s := range local {
@@ -79,14 +93,65 @@ func (m *MemStore) share(ctx context.Context, s *edgepb.Setting) {
 // applySetting rebuilds the stores of the setting of resource id when
 // it changes: a removed or renamed namespace is unloaded first.
 func (m *MemStore) applySetting(id string, prev, next *edgepb.Setting) {
-	if prev != nil {
-		if old := namespace(prev); next == nil || namespace(next) != old {
-			m.unload(id, old)
-		}
-	}
+	m.unloadMoved(id, prev, next)
 
 	if next != nil {
 		m.load(id, next)
+	}
+}
+
+// applyCentral rebuilds the stores of the setting centraldata holds for
+// resource id: like applySetting, but it outranks the setting of the
+// file that holds the namespace.
+func (m *MemStore) applyCentral(id string, prev, next *edgepb.Setting) {
+	if szlog.Enabled(szlog.LevelDebug) {
+		m.debugCentral(id, prev, next)
+	}
+
+	m.unloadMoved(id, prev, next)
+
+	if next == nil {
+		return
+	}
+
+	ns := namespace(next)
+	m.take(ns, id)
+	m.load(id, next)
+	szlog.Infof("edge: resource %s loaded from centraldata (%s)", id, ns)
+}
+
+// debugCentral logs a change of the map of centraldata and the node that
+// wrote it: this edge when it leads, else the leader it synced it from.
+func (m *MemStore) debugCentral(id string, prev, next *edgepb.Setting) {
+	op, ns := "updated", namespace(next)
+	switch {
+	case prev == nil:
+		op = "added"
+	case next == nil:
+		op, ns = "removed", namespace(prev)
+	}
+
+	node, local := m.central.Origin(id)
+	if local {
+		szlog.Debugf("edge: centraldata: %s resource %s (%s), written "+
+			"here as the leader", op, id, ns)
+
+		return
+	}
+
+	szlog.Debugf("edge: centraldata: %s resource %s (%s), synced from "+
+		"the leader %s", op, id, ns, node)
+}
+
+// unloadMoved unloads the namespace of prev when next removes or renames
+// it.
+func (m *MemStore) unloadMoved(id string, prev, next *edgepb.Setting) {
+	if prev == nil {
+		return
+	}
+
+	if old := namespace(prev); next == nil || namespace(next) != old {
+		m.unload(id, old)
 	}
 }
 

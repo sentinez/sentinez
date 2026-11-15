@@ -34,7 +34,8 @@ import (
 // apply locally, which runs the same change hook as a synced write.
 func newSyncStore() *MemStore {
 	m := &MemStore{
-		synced:   newSettingSync(&cluster.Cluster{}),
+		synced:   newSettingSync(&cluster.Cluster{}, _settingsMap),
+		central:  newSettingSync(&cluster.Cluster{}, _centralMap),
 		owners:   make(map[string]string),
 		setting:  settings.New(),
 		limiter:  ratelimiter.New(),
@@ -43,6 +44,7 @@ func newSyncStore() *MemStore {
 		cdnRules: cdnrules.New(),
 	}
 	m.synced.OnChange(m.applySetting)
+	m.central.OnChange(m.applyCentral)
 
 	return m
 }

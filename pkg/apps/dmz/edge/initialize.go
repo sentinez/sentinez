@@ -37,7 +37,7 @@ func (s *Server) initialize() error {
 		return fmt.Errorf("sync settings: %w", err)
 	}
 
-	s.followCentralData()
+	close(s.synced)
 
 	chain, err := http.NewHandler(s.memstore,
 		option.WithExporter(s.logExporter),

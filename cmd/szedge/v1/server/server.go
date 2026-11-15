@@ -19,13 +19,22 @@ import (
 
 	"github.com/sentinez/core/szrunner"
 	"github.com/sentinez/sentinez/pkg/apps/dmz/edge"
+	"github.com/sentinez/sentinez/pkg/cluster/leader"
 )
 
+// Edge serves the traffic and campaigns for the leadership of the zone:
+// the leader keeps the zone Status in Consul and follows centraldata for
+// the cluster (edge.Server.Lead). The elector lives in this app, as the
+// tasks of the leader need the stores of the edge.
 func Edge(c *szrunner.Context[edge.Server]) {
-	c.Inject(edge.NewServer)
+	c.Inject(edge.NewServer, leader.New)
 
 	c.Serve(func(_ context.Context, server *edge.Server) error {
 		return server.Start()
+	})
+
+	c.Serve(func(ctx context.Context, server *edge.Server) error {
+		return server.Lead(ctx)
 	})
 
 	c.OnStop(func(ctx context.Context, server *edge.Server) error {

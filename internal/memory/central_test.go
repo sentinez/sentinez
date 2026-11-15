@@ -173,6 +173,55 @@ func TestReplaceRemovesWhatTheNewSnapshotLacks(t *testing.T) {
 	assert.Empty(t, ruleIds(m, "central-lack.example"))
 }
 
+// A new leader starts with a sink of its own: it removes what a former
+// leader wrote and its first snapshot lacks.
+func TestReplaceRemovesWhatAFormerLeaderWrote(t *testing.T) {
+	m := newSyncStore()
+	require.NoError(t, m.CentralSink().Replace([]*centraldatapb.Change{
+		resourceRow(t, "rsrc_1", "tnt_1", "central-former.example"),
+	}))
+	require.True(t, loadedNs(m, "central-former.example"))
+
+	require.NoError(t, m.CentralSink().Replace(nil))
+
+	assert.False(t, loadedNs(m, "central-former.example"))
+	_, held := m.central.Load("rsrc_1")
+	assert.False(t, held, "the map no longer holds it")
+}
+
+// A resync that finds the same rows rebuilds nothing.
+func TestReplaceSameSnapshotRebuildsNothing(t *testing.T) {
+	m := newSyncStore()
+	sink := m.CentralSink()
+	snapshot := []*centraldatapb.Change{
+		resourceRow(t, "rsrc_1", "tnt_1", "central-same.example"),
+		ruleRow(t, "srule_1", "rsrc_1", typepb.Status_STATUS_ACTIVE),
+	}
+	require.NoError(t, sink.Replace(snapshot))
+	before, err := m.setting.Load("central-same.example")
+	require.NoError(t, err)
+
+	require.NoError(t, sink.Replace(snapshot))
+
+	after, err := m.setting.Load("central-same.example")
+	require.NoError(t, err)
+	assert.Same(t, before, after)
+}
+
+// What the leader writes in the map is what every edge loads.
+func TestCentralSinkWritesTheSyncedMap(t *testing.T) {
+	m := newSyncStore()
+
+	require.NoError(t, m.CentralSink().Replace([]*centraldatapb.Change{
+		resourceRow(t, "rsrc_1", "tnt_1", "central-map.example"),
+	}))
+
+	st, held := m.central.Load("rsrc_1")
+	require.True(t, held)
+	assert.Equal(t, "central-map.example",
+		st.GetServer().GetResourceDomain())
+}
+
 func TestMovingTheDomainUnloadsTheOldOne(t *testing.T) {
 	m := newSyncStore()
 	sink := m.CentralSink()

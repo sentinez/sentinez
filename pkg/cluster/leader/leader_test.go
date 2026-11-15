@@ -17,6 +17,7 @@ package leader
 import (
 	"context"
 	"errors"
+	"maps"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -187,38 +188,76 @@ func TestElectorKeepsLeadingAfterTaskDone(t *testing.T) {
 	assert.False(t, first.released.Load())
 }
 
-func TestNew(t *testing.T) {
+// clusteredEnv the env of a clustered edge, with extra.
+func clusteredEnv(extra map[string]string) map[string]string {
+	env := map[string]string{
+		"SENZ_MEMBERSHIP_ADDRESS": "edge-02:7777",
+		"SENZ_DISCOVERY_ADDRESS":  "0.0.0.0:7777",
+	}
+	maps.Copy(env, extra)
+
+	return env
+}
+
+func TestNewFails(t *testing.T) {
 	tests := []struct {
 		name    string
 		giveEnv map[string]string
 		wantErr error
 	}{
-		{name: "standalone"},
 		{
-			name: "clustered without consul",
-			giveEnv: map[string]string{
-				"SENZ_MEMBERSHIP_ADDRESS": "edge-02:7777",
-				"SENZ_DISCOVERY_ADDRESS":  "0.0.0.0:7777",
-			},
+			name:    "clustered without consul",
+			giveEnv: clusteredEnv(nil),
 			wantErr: errNoConsul,
 		},
 		{
-			name:    "consul without zone",
-			giveEnv: map[string]string{"SENZ_CONSUL_URI": "consul:8500"},
+			name: "clustered without zone",
+			giveEnv: clusteredEnv(map[string]string{
+				"SENZ_CONSUL_URI": "consul:8500",
+			}),
 			wantErr: errNoZone,
-		},
-		{
-			name: "consul",
-			giveEnv: map[string]string{
-				"SENZ_CONSUL_URI": "consul:8500", "SENZ_ZONE": "SGN",
-			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := New(&settingpb.Config{Env: tt.giveEnv})
+
 			assert.ErrorIs(t, err, tt.wantErr)
+		})
+	}
+}
+
+// Only a clustered edge campaigns: a lone one leads alone, Consul or not.
+func TestNewBackend(t *testing.T) {
+	tests := []struct {
+		name           string
+		giveEnv        map[string]string
+		wantStandalone bool
+	}{
+		{name: "lone edge", wantStandalone: true},
+		{
+			name: "lone edge with consul",
+			giveEnv: map[string]string{
+				"SENZ_CONSUL_URI": "consul:8500", "SENZ_ZONE": "SGN",
+			},
+			wantStandalone: true,
+		},
+		{
+			name: "clustered",
+			giveEnv: clusteredEnv(map[string]string{
+				"SENZ_CONSUL_URI": "consul:8500", "SENZ_ZONE": "SGN",
+			}),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			e, err := New(&settingpb.Config{Env: tt.giveEnv})
+			require.NoError(t, err)
+
+			_, standalone := e.backend.(*standalone)
+			assert.Equal(t, tt.wantStandalone, standalone)
 		})
 	}
 }

@@ -18,7 +18,6 @@ import (
 	"context"
 	"errors"
 	"io"
-	"time"
 
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szsign"
@@ -28,41 +27,85 @@ import (
 	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/centralsync"
+	"github.com/sentinez/sentinez/pkg/cluster/leader"
 )
-
-// _centralTimeout bounds the wait for the first load of the tables of
-// centraldata: past it the edge serves with what it has, and the load goes
-// on in the background.
-const _centralTimeout = 10 * time.Second
 
 // errCentralConfig the edge holds a service token but cannot use it.
 var errCentralConfig = errors.New("centraldata sync is not configured")
 
-// followCentralData loads the tables of centraldata into the edge and keeps
-// them current, when the edge holds a service token (SENZ_SERVICE_TOKEN).
-// It never fails the edge: the file and the settings of the cluster serve
-// meanwhile.
-func (s *Server) followCentralData() {
-	if s.conf.Get(settingpb.Senz_SENZ_SERVICE_TOKEN) == "" {
-		return
+// Lead campaigns for the leadership of the zone until ctx ends. The leader
+// keeps the zone Status in Consul and, when the edge holds a service token
+// (SENZ_SERVICE_TOKEN), follows centraldata for the whole cluster: it
+// writes the settings of the tables to the synced map every edge loads.
+func (s *Server) Lead(ctx context.Context) error {
+	if !s.beginLead() {
+		return nil
+	}
+	defer s.leading.Done()
+
+	var follow leader.Task
+	if s.conf.Get(settingpb.Senz_SENZ_SERVICE_TOKEN) != "" {
+		follow = s.followCentralData
+	}
+
+	return s.elector.Run(ctx, leader.All(s.elector.PublishStatus(), follow))
+}
+
+// beginLead counts a running Lead, unless the server is shutting down.
+func (s *Server) beginLead() bool {
+	s.leadMu.Lock()
+	defer s.leadMu.Unlock()
+
+	if s.leadClosed {
+		return false
+	}
+
+	s.leading.Add(1)
+
+	return true
+}
+
+// endLead stops new Leads and waits for the running one, so nothing
+// writes the cluster once it stops.
+func (s *Server) endLead() {
+	s.leadMu.Lock()
+	s.leadClosed = true
+	s.leadMu.Unlock()
+
+	s.leading.Wait()
+}
+
+// followCentralData is the leader.Task that loads the tables of centraldata
+// and keeps them current, until the term ends. It never ends the term: a
+// configuration error does not mend by campaigning again, and the settings
+// already in the cluster serve meanwhile.
+func (s *Server) followCentralData(ctx context.Context, term leader.Term,
+) error {
+	// the map is written once the edge synced it
+	select {
+	case <-s.synced:
+	case <-ctx.Done():
+		return nil
 	}
 
 	follower, err := s.newFollower()
 	if err != nil {
 		szlog.Errorf("edge: centraldata: %v", err)
 
-		return
+		return nil
+	}
+	defer follower.Close()
+
+	szlog.Infof("edge: centraldata: followed by %s, term %d",
+		term.Node, term.Index)
+
+	// Start returns once the tables are loaded, or when the term ends; the
+	// follower logs its retries meanwhile
+	if err := follower.Start(ctx); err == nil {
+		<-ctx.Done()
 	}
 
-	s.follower = follower
-
-	ctx, cancel := context.WithTimeout(context.Background(),
-		_centralTimeout)
-	defer cancel()
-
-	if err := follower.Start(ctx); err != nil {
-		szlog.Warnf("edge: centraldata: %v, serving without it for now", err)
-	}
+	return nil
 }
 
 func (s *Server) newFollower() (*centralsync.Follower, error) {
