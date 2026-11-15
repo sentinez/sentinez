@@ -36,7 +36,7 @@ func OnHertzConnect(ctx context.Context, conn net.Conn) context.Context {
 
 	tlsConn, ok := netTlsConn.Unwrap().(*tls.Conn)
 	if !ok {
-		szlog.Debugf("transport: type: %T", netTlsConn.Conn.Unwrap())
+		szlog.Debugf("transport: type: %T", netTlsConn.Unwrap())
 		return ctx
 	}
 
