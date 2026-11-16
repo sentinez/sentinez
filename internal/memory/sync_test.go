@@ -38,7 +38,9 @@ func newSyncStore() *MemStore {
 func newSetting(id, ns string) *edgepb.Setting {
 	return &edgepb.Setting{
 		Metadata: &edgepb.Metadata{TenantId: id},
-		Server:   &edgepb.Server{ResourceDomain: ns},
+		Ingress: &edgepb.Ingress{
+			Resource: &edgepb.Resource{Domain: ns},
+		},
 	}
 }
 
@@ -172,7 +174,7 @@ func TestCentralReleaseRestoresFileSetting(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := context.Background()
-			ns := tt.giveShare.GetServer().GetResourceDomain()
+			ns := tt.giveShare.GetIngress().GetResource().GetDomain()
 			m := newSyncStore()
 			m.share(ctx, tt.giveShare)
 			require.NoError(t, m.central.Store(ctx, "rsrc_1",

@@ -39,7 +39,7 @@ var _marshalContent = protojson.MarshalOptions{UseProtoNames: true}
 // nolint
 type ICoreRuleset interface {
 	Create(ctx context.Context, model *securitypb.CoreRuleset) (*securitypb.CoreRuleset, error)
-	Update(ctx context.Context, model *securitypb.CoreRuleset) error
+	Update(ctx context.Context, model *securitypb.CoreRuleset, paths []string) error
 	Get(ctx context.Context, id string) (*securitypb.CoreRuleset, error)
 	Delete(ctx context.Context, id string) error
 
@@ -132,21 +132,13 @@ func (r *CoreRuleset) total(
 
 func (r *CoreRuleset) Create(ctx context.Context,
 	model *securitypb.CoreRuleset) (*securitypb.CoreRuleset, error) {
-	content, err := marshalContent(model.GetContent())
+	model.Id = szrand.NewUUID(szprefix.CoreRuleset)
+	row, err := coreRulesetRow(model)
 	if err != nil {
 		return nil, err
 	}
 
-	model.Id = szrand.NewUUID(szprefix.CoreRuleset)
-	owner := model.GetOwner()
-	query := postgres.InsertBuilder(r.storage, postgres.M{
-		securitypb.CoreRuleset_Id:              model.GetId(),
-		securitypb.CoreRuleset_Name:            model.GetName(),
-		securitypb.CoreRuleset_Description:     model.GetDescription(),
-		securitypb.CoreRuleset_Content:         content,
-		securitypb.CoreRuleset_OwnerResourceId: owner.GetResourceId(),
-		securitypb.CoreRuleset_OwnerTenantId:   owner.GetTenantId(),
-	})
+	query := postgres.InsertBuilder(r.storage, row)
 
 	if _, err := r.storage.Insert(ctx, query); err != nil {
 		return nil, err
@@ -168,24 +160,40 @@ func (r *CoreRuleset) Get(
 	return r.storage.Select(ctx, builder, securitypb.ScanOneCoreRuleset)
 }
 
-func (r *CoreRuleset) Update(
-	ctx context.Context,
-	model *securitypb.CoreRuleset,
-) error {
-	content, err := marshalContent(model.GetContent())
+// Update writes the columns of the fields of model paths names, as
+// szprotobuf.ApplyMask returns them; a path of no column is skipped.
+func (r *CoreRuleset) Update(ctx context.Context,
+	model *securitypb.CoreRuleset, paths []string) error {
+
+	row, err := coreRulesetRow(model)
 	if err != nil {
 		return err
 	}
 
 	query := postgres.UpdateBuilder(r.storage, model.GetId()).
-		SetMap(sq.Eq{
-			securitypb.CoreRuleset_Name:        model.GetName(),
-			securitypb.CoreRuleset_Description: model.GetDescription(),
-			securitypb.CoreRuleset_Content:     content,
-		})
+		SetMap(row.Only(paths))
 
 	_, err = r.storage.Exec(ctx, query)
 	return err
+}
+
+// coreRulesetRow the stored columns of model.
+func coreRulesetRow(model *securitypb.CoreRuleset) (postgres.M, error) {
+	content, err := marshalContent(model.GetContent())
+	if err != nil {
+		return nil, err
+	}
+
+	owner := model.GetOwner()
+
+	return postgres.M{
+		securitypb.CoreRuleset_Id:              model.GetId(),
+		securitypb.CoreRuleset_Name:            model.GetName(),
+		securitypb.CoreRuleset_Description:     model.GetDescription(),
+		securitypb.CoreRuleset_Content:         content,
+		securitypb.CoreRuleset_OwnerResourceId: owner.GetResourceId(),
+		securitypb.CoreRuleset_OwnerTenantId:   owner.GetTenantId(),
+	}, nil
 }
 
 func (r *CoreRuleset) selectQuery(page *typepb.Pages) sq.SelectBuilder {

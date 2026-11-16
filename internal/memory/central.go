@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/sznormalize"
 	"github.com/sentinez/pkg/sztable"
 	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
@@ -203,7 +204,7 @@ func (c *CentralSink) rebuildOne(ctx context.Context, id string) error {
 	if res, live := liveResource(c.rows, id); live {
 		// the map skips it when unchanged: no edge logs it then
 		szlog.Debugf("edge: centraldata: rebuild resource %s (%s) for the "+
-			"cluster", id, res.GetServer().GetResourceDomain())
+			"cluster", id, res.GetDomain())
 
 		return c.m.central.Store(ctx, id, c.setting(res))
 	}
@@ -222,28 +223,18 @@ func (c *CentralSink) rebuildOne(ctx context.Context, id string) error {
 func liveResource(r rows, id string) (*tenantpb.Resource, bool) {
 	res, ok := r[sztable.TenantResources][id].(*tenantpb.Resource)
 
-	return res, ok && res.GetServer().GetResourceDomain() != ""
+	return res, ok && res.GetDomain() != ""
 }
 
 // setting the setting of res: the one loaded for its namespace, if any,
-// with the server and the security of the rows.
+// with the resource, the certificates and the security of the rows.
 func (c *CentralSink) setting(res *tenantpb.Resource) *edgepb.Setting {
-	server := proto.CloneOf(res.GetServer())
-	st := &edgepb.Setting{}
+	// none loaded: the setting is res alone
+	cur, _ := c.m.setting.Load(sznormalize.ResourceDomain(res.GetDomain()))
 
-	if cur, err := c.m.setting.Load(
-		namespace(&edgepb.Setting{Server: server})); err == nil {
-		st = proto.CloneOf(cur)
-	}
-
-	if st.Metadata == nil {
-		st.Metadata = &edgepb.Metadata{}
-	}
-
-	st.Metadata.TenantId = cmp.Or(res.GetTenantId(), st.Metadata.TenantId)
-	st.Server = server
+	st := sznormalize.EdgeSetting(res, cur)
+	st.Ingress.Tls = c.tls(res.GetId())
 	st.Security = c.security(res.GetId(), st.GetSecurity())
-	st.Tls = c.tls(res.GetId())
 
 	return st
 }
@@ -282,7 +273,7 @@ func (c *CentralSink) security(id string, base *edgepb.Security,
 
 	for _, msg := range c.sorted(sztable.SecuritySecRules, id) {
 		sec.SecRules = append(sec.SecRules, &edgepb.SecRule{
-			IngressRuntime: secRuleOf(msg.(*securitypb.SecRule)),
+			Ingress: secRuleOf(msg.(*securitypb.SecRule)),
 		})
 	}
 
@@ -351,10 +342,10 @@ func secRuleOf(row securityRow) *secrulepb.SecRule {
 
 func rateLimitOf(row *securitypb.RateLimit) *edgepb.RateLimit {
 	return &edgepb.RateLimit{
-		IngressRuntime: secRuleOf(row),
-		TimeWindow:     row.GetTimeWindow(),
-		MaxRequests:    row.GetMaxRequests(),
-		Timeout:        row.GetTimeout(),
+		Ingress:     secRuleOf(row),
+		TimeWindow:  row.GetTimeWindow(),
+		MaxRequests: row.GetMaxRequests(),
+		Timeout:     row.GetTimeout(),
 	}
 }
 

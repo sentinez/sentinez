@@ -6,7 +6,7 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Action, Expression, ExpressionLite } from "../../rule/v1/rule";
+import { Action, Expression } from "../../rule/v1/rule";
 import { Status, statusFromJSON, statusToJSON } from "../../v1/known";
 
 export const protobufPackage = "sentinez.types.secrule.v1";
@@ -20,15 +20,6 @@ export interface SecRule {
   status: Status;
   priority: number;
   exprPreview: string;
-}
-
-export interface SecRuleLite {
-  id: string;
-  name: string;
-  description: string;
-  expr?: ExpressionLite | undefined;
-  action?: Action | undefined;
-  status: string;
 }
 
 function createBaseSecRule(): SecRule {
@@ -225,159 +216,6 @@ export const SecRule: MessageFns<SecRule> = {
     message.status = object.status ?? 0;
     message.priority = object.priority ?? 0;
     message.exprPreview = object.exprPreview ?? "";
-    return message;
-  },
-};
-
-function createBaseSecRuleLite(): SecRuleLite {
-  return { id: "", name: "", description: "", expr: undefined, action: undefined, status: "" };
-}
-
-export const SecRuleLite: MessageFns<SecRuleLite> = {
-  encode(message: SecRuleLite, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== "") {
-      writer.uint32(10).string(message.id);
-    }
-    if (message.name !== "") {
-      writer.uint32(18).string(message.name);
-    }
-    if (message.description !== "") {
-      writer.uint32(26).string(message.description);
-    }
-    if (message.expr !== undefined) {
-      ExpressionLite.encode(message.expr, writer.uint32(34).fork()).join();
-    }
-    if (message.action !== undefined) {
-      Action.encode(message.action, writer.uint32(42).fork()).join();
-    }
-    if (message.status !== "") {
-      writer.uint32(50).string(message.status);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): SecRuleLite {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
-    if (previousRecursionDepth >= 100) {
-      throw new globalThis.Error("protobuf decode recursion limit exceeded");
-    }
-    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
-    try {
-      const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseSecRuleLite();
-      while (reader.pos < end) {
-        const tag = reader.uint32();
-        switch (tag >>> 3) {
-          case 1: {
-            if (tag !== 10) {
-              break;
-            }
-
-            message.id = reader.string();
-            continue;
-          }
-          case 2: {
-            if (tag !== 18) {
-              break;
-            }
-
-            message.name = reader.string();
-            continue;
-          }
-          case 3: {
-            if (tag !== 26) {
-              break;
-            }
-
-            message.description = reader.string();
-            continue;
-          }
-          case 4: {
-            if (tag !== 34) {
-              break;
-            }
-
-            message.expr = ExpressionLite.decode(reader, reader.uint32());
-            continue;
-          }
-          case 5: {
-            if (tag !== 42) {
-              break;
-            }
-
-            message.action = Action.decode(reader, reader.uint32());
-            continue;
-          }
-          case 6: {
-            if (tag !== 50) {
-              break;
-            }
-
-            message.status = reader.string();
-            continue;
-          }
-        }
-        if ((tag & 7) === 4 || tag === 0) {
-          break;
-        }
-        reader.skip(tag & 7);
-      }
-      return message;
-    } finally {
-      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
-    }
-  },
-
-  fromJSON(object: any): SecRuleLite {
-    return {
-      id: isSet(object.id) ? globalThis.String(object.id) : "",
-      name: isSet(object.name) ? globalThis.String(object.name) : "",
-      description: isSet(object.description) ? globalThis.String(object.description) : "",
-      expr: isSet(object.expr) ? ExpressionLite.fromJSON(object.expr) : undefined,
-      action: isSet(object.action) ? Action.fromJSON(object.action) : undefined,
-      status: isSet(object.status) ? globalThis.String(object.status) : "",
-    };
-  },
-
-  toJSON(message: SecRuleLite): unknown {
-    const obj: any = {};
-    if (message.id !== "") {
-      obj.id = message.id;
-    }
-    if (message.name !== "") {
-      obj.name = message.name;
-    }
-    if (message.description !== "") {
-      obj.description = message.description;
-    }
-    if (message.expr !== undefined) {
-      obj.expr = ExpressionLite.toJSON(message.expr);
-    }
-    if (message.action !== undefined) {
-      obj.action = Action.toJSON(message.action);
-    }
-    if (message.status !== "") {
-      obj.status = message.status;
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<SecRuleLite>, I>>(base?: I): SecRuleLite {
-    return SecRuleLite.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<SecRuleLite>, I>>(object: I): SecRuleLite {
-    const message = createBaseSecRuleLite();
-    message.id = object.id ?? "";
-    message.name = object.name ?? "";
-    message.description = object.description ?? "";
-    message.expr = (object.expr !== undefined && object.expr !== null)
-      ? ExpressionLite.fromPartial(object.expr)
-      : undefined;
-    message.action = (object.action !== undefined && object.action !== null)
-      ? Action.fromPartial(object.action)
-      : undefined;
-    message.status = object.status ?? "";
     return message;
   },
 };

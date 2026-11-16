@@ -35,17 +35,6 @@ message Rule {
   string expr_preview = 10;
 }
 
-message RuleLite {
-  string id = 1;
-  string name = 2;
-  string description = 3;
-  sentinez.types.rule.v1.ExpressionLite expr = 4;
-
-  string status = 6;
-  int32 priority = 7;
-}
-
 message CDN {
-  Rule rule_runtime = 1;
-  RuleLite rule = 2; // @gotags: yaml:"rule"
+  Rule rule = 1; // @gotags: yaml:"rule"
 }

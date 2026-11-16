@@ -33,7 +33,8 @@ var (
 )
 
 // DomainBased resolves the namespace of the request: its host, the
-// resource domain of the server of a setting (server.resourceDomain).
+// resource domain of the server of a setting
+// (ingress.resource.domain).
 type DomainBased struct {
 	settings *settings.Setting
 }
@@ -69,7 +70,7 @@ func (d *DomainBased) Handle(
 	xctx.Namespace = ns
 	// the ids the next stages fill into their logs
 	ctx.SetTenantId(st.GetMetadata().GetTenantId())
-	ctx.SetResourceId(st.GetServer().GetResourceId())
+	ctx.SetResourceId(st.GetIngress().GetResource().GetId())
 
 	return next.Handle(ctx)
 }

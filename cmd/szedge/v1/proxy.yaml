@@ -38,64 +38,65 @@ setting:
     plan: PLAN_PRO
 
   # ----------------------------------------------------------
-  # SERVER — ROUTING CONFIGURATION
+  # INGRESS — ROUTING CONFIGURATION
   # ----------------------------------------------------------
   # Defines where incoming requests are forwarded to
   # and how URLs are rewritten before reaching the origin server.
   # ----------------------------------------------------------
-  server:
-    name: badcheese # Display name of the server
-    # Domain the server is served at (required): the namespace of this
-    # setting, the edge serves the requests whose Host is this domain
-    # with it. szapiserver stores it as the domain of the resource.
-    resourceDomain: badcheese.is.s6z.io.vn
-    # Id of the upstream servers below, filled into the logs of the
-    # requests as resource_id. Default: rsrc_default
-    resourceId: rsrc_default
-    locations:
-      - location: / # URL prefix to match incoming requests
-        proxyRewrite: / # (Optional) rewrite prefix before forwarding
-        proxyPass: # Destination origin upstream(s)
-          - server: finorio.demo.nextjstemplates.com
-            protocol: PROXY_PROTOCOL_HTTPS
-        balanceStrategy: BALANCE_STRATEGY_ROUND_ROBIN
-        proxySetHeaders:
-          Host: $host
-          X-Real-IP: $remote_addr
-          X-Forwarded-For: $proxy_add_x_forwarded_for
-          X-Forwarded-Proto: $scheme
-          X-Forwarded-Host: $host
+  ingress:
+    resource:
+      name: badcheese # Display name of the resource
+      # Domain the resource is served at (required): the namespace of this
+      # setting, the edge serves the requests whose Host is this domain
+      # with it. szapiserver stores it as the domain of the resource.
+      domain: badcheese.is.s6z.io.vn
+      # Id of the resource, filled into the logs of its requests as
+      # resource_id. Default: rsrc_default
+      id: rsrc_default
+      locations:
+        - location: / # URL prefix to match incoming requests
+          proxyRewrite: / # (Optional) rewrite prefix before forwarding
+          proxyPass: # Destination origin upstream(s)
+            - server: finorio.demo.nextjstemplates.com
+              protocol: PROXY_PROTOCOL_HTTPS
+          balanceStrategy: BALANCE_STRATEGY_ROUND_ROBIN
+          proxySetHeaders:
+            Host: $host
+            X-Real-IP: $remote_addr
+            X-Forwarded-For: $proxy_add_x_forwarded_for
+            X-Forwarded-Proto: $scheme
+            X-Forwarded-Host: $host
 
-      # Example 1:
-      - location: /local
-        proxyRewrite: /
-        proxyPass:
-          - server: sentinez.upstream
-            protocol: PROXY_PROTOCOL_HTTP
+        # Example 1:
+        - location: /local
+          proxyRewrite: /
+          proxyPass:
+            - server: sentinez.upstream
+              protocol: PROXY_PROTOCOL_HTTP
 
-      # Example 2:
-      - location: /api
-        proxyRewrite: /
-        proxyPass:
-          - server: finorio.demo.nextjstemplates.com
-            protocol: PROXY_PROTOCOL_HTTPS
-        proxySetHeaders:
-          X-Original-Path: $request_uri
-          X-Forwarded-Prefix: /api
+        # Example 2:
+        - location: /api
+          proxyRewrite: /
+          proxyPass:
+            - server: finorio.demo.nextjstemplates.com
+              protocol: PROXY_PROTOCOL_HTTPS
+          proxySetHeaders:
+            X-Original-Path: $request_uri
+            X-Forwarded-Prefix: /api
 
-    # --------------------------------------------------------
-    # EXAMPLE: NEWS NAMESPACE
-    # --------------------------------------------------------
-    # name: news
-    # resourceDomain: news.is.s6z.io.vn
-    # listen:
-    #   - 80
-    # locations:
-    #   - location: /
-    #     proxyPass:
-    #       - server: badcheese.com
-    #         protocol: 1
-    # --------------------------------------------------------
+      # --------------------------------------------------------
+      # EXAMPLE: NEWS NAMESPACE
+      # --------------------------------------------------------
+      # name: news
+      # domain: news.is.s6z.io.vn
+      # listen:
+      #   - 80
+      # locations:
+      #   - location: /
+      #     proxyPass:
+      #       - server: badcheese.com
+      #         protocol: 1
+      # --------------------------------------------------------
 
   # ----------------------------------------------------------
   # SECURITY — WAF, RATE LIMIT, BOT DEFENSE

@@ -40,8 +40,8 @@ func newSealer(conf *settingpb.Config) (*crypto.Sealer, error) {
 // LoadCertificate stores the certificate s serves for its domain; a
 // setting without one, or whose certificates fail, drops the previous one.
 func (m *MemStore) LoadCertificate(s *edgepb.Setting) error {
-	ns := s.GetServer().GetResourceDomain()
-	certs := s.GetTls().GetCertificates()
+	ns := s.GetIngress().GetResource().GetDomain()
+	certs := s.GetIngress().GetTls().GetCertificates()
 	if len(certs) == 0 {
 		m.certificates.Delete(ns)
 		return nil

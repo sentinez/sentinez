@@ -21,6 +21,7 @@ import (
 	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/controlplane/pkg/headers"
 	"github.com/sentinez/pkg/szerror"
+	"github.com/sentinez/pkg/szprotobuf"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"google.golang.org/protobuf/proto"
@@ -146,21 +147,34 @@ func (svc *Service) createTenantWithOwner(ctx context.Context,
 	return tenant, nil
 }
 
+// _tenantUpdatable the fields of a tenant UpdateTenant writes.
+var _tenantUpdatable = []string{
+	tenantpb.Tenant_Name, tenantpb.Tenant_Description, tenantpb.Tenant_Plan,
+}
+
+// errNoPlan a tenant updated without a plan.
+var errNoPlan = szerror.StatusInvalidArgumentF("tenant.plan is required")
+
 // UpdateTenant implements tenantpb.TenantServiceServer.
 func (svc *Service) UpdateTenant(ctx context.Context,
 	req *tenantpb.UpdateTenantRequest,
 ) (*tenantpb.UpdateTenantResponse, error) {
 
-	current, err := svc.getTenant(ctx, req.GetId())
+	tenant, err := svc.getTenant(ctx, req.GetId())
+	if err != nil {
+		return nil, err
+	}
+
+	plan := tenant.GetPlan()
+	paths, err := szprotobuf.ApplyMask(tenant, req.GetTenant(),
+		req.GetUpdateMask(), _tenantUpdatable...)
 	if err != nil {
 		return nil, err
 	}
 
 	// the plan is what the tenant pays for: its admins do not pick it
 	least := authz.Manage
-	if plan := req.GetPlan(); plan != typepb.Plan_PLAN_UNSPECIFIED &&
-		plan != current.GetPlan() {
-
+	if tenant.GetPlan() != plan {
 		least = authz.Billing
 	}
 
@@ -168,13 +182,11 @@ func (svc *Service) UpdateTenant(ctx context.Context,
 		return nil, err
 	}
 
-	err = svc.tenant.Update(ctx, &tenantpb.Tenant{
-		Id:          req.GetId(),
-		Name:        req.GetName(),
-		Description: req.GetDescription(),
-		Plan:        req.GetPlan(),
-	})
-	if err != nil {
+	if tenant.GetPlan() == typepb.Plan_PLAN_UNSPECIFIED {
+		return nil, errNoPlan
+	}
+
+	if err = svc.tenant.Update(ctx, tenant, paths); err != nil {
 		return nil, fmt.Errorf("tenant.Update: %w", err)
 	}
 

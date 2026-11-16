@@ -329,24 +329,24 @@ given the email as user handle, so their authenticators only work with
 ## 7.4 Tenant
 
 Protos: [apps/tenant/v1](../api/proto/sentinez/apps/tenant/v1/). A
-`Resource` is `id, tenant_id, server, status`: `server` is the
-`edgepb.Server` of the resource, the only place its name
-(`server.name`) and domain (`server.resource_domain`) live, and
-`server.resource_id` is always the resource `id`. Table
-`tenant.resources` (`id, tenant_id, server BYTEA, server_name,
-server_resource_domain, status`): `server` is stored as binary protobuf,
-`server_name`/`server_resource_domain` are derived from it on every write
-(`schema.ResourceServerName`/`ResourceServerDomain`) to filter by. The
+`Resource` is `id, tenant_id, name, domain, locations, status`, stored in
+table `tenant.resources` with one column each (`locations` as JSONB, the
+`edgepb.Location`s of the domain). `CreateResource` carries an
+`edgepb.Resource` (`resource`), turned into these fields by
+`sznormalize.TenantResource`; `UpdateResource` carries a `Resource` and an
+`update_mask` (see [Updates](#updates-and-their-update_mask));
+the edge gets its setting back with `sznormalize.EdgeSetting` /
+`EdgeResource`, whose `id` is always the resource `id`. The
 service lower-cases the domain as the edge matches it, and refuses a
-server without one.
+resource without one.
 
 | RPC | REST | Notes |
 |---|---|---|
-| `ListResource` | `GET /tenant/resources` | Filters `status`, `resource_name` (`server.name`), `resource_domain` (`server.resource_domain`), `tenant_ids` |
-| `CreateResource` | `POST /tenant/resource` | `server` with `resource_domain` required |
-| `UpdateResource` | `PUT /tenant/resource` | Sets `status`; a `server` replaces the stored one |
+| `ListResource` | `GET /tenant/resources` | Filters `status`, `resource_name` (`name`), `resource_domain` (`domain`), `tenant_ids` |
+| `CreateResource` | `POST /tenant/resource` | `resource` with `domain` required |
+| `UpdateResource` | `PUT /tenant/resource` | Writes the fields of `resource` its `update_mask` names, among `name`, `domain`, `locations`, `status` |
 | `DeleteResource` | `DELETE /tenant/resource` | |
-| `GetResource` | `GET /tenant/resource` | `default=true` → the server without its locations |
+| `GetResource` | `GET /tenant/resource` | `default=true` → the resource without its locations |
 | `GetResourceByDomain` | `GET /tenant/resource/{resource_domain}` | Returns the first record matching the domain |
 | `Status` | `GET /tenant/status` | |
 
@@ -400,8 +400,29 @@ action JSONB`).
 | `Status` | `GET /security/status` |
 
 The service requires `sec_rule` on create/update; `UpdateSecRule` loads the
-record, overwrites fields from the request and calls the repo's `Update`.
-Rules stored here reach the edges through [centraldata](#centraldata-sync-of-the-tables-to-the-edges).
+record and writes the fields its `update_mask` names (see
+[Updates](#updates-and-their-update_mask)). Rules stored here reach the edges through [centraldata](#centraldata-sync-of-the-tables-to-the-edges).
+
+### Updates and their update_mask
+
+`UpdateResource`, `UpdateTenant`, `UpdateSecRule`, `UpdateRateLimit` and
+`UpdateCoreRuleset` take the model (`resource`, `tenant`, `sec_rule`, ...)
+and a `google.protobuf.FieldMask` `update_mask`, read as AIP-134 reads it:
+
+- no path: the fields set in the model (an implied mask)
+- `*`: every updatable field
+- otherwise its paths; a field it names but the model leaves unset is
+  cleared, and a path that is not an updatable field is `InvalidArgument`
+
+In the JSON body the mask is a string of lowerCamelCase names:
+`"updateMask": "name,timeWindow"`. The service reads the stored row,
+copies the masked fields onto it with `szprotobuf.ApplyMask`, checks the
+result (the domain of a resource and the plan of a tenant are required,
+a rate limit and a core ruleset are validated whole), and the repo's
+`Update(ctx, model, paths)` writes only the columns of those paths
+(`postgres.M.Only`). Each service lists its updatable fields; ids, owners
+and tenants never change. `UpdateMember` and `UpdateUser` set their one
+field (`roles`, `full_name`) and take no mask.
 
 ## 7.6 Analytic, Greeter, CentralData
 

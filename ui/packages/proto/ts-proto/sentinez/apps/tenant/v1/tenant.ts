@@ -6,7 +6,8 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Server } from "../../../dmz/edge/v1/setting";
+import { FieldMask } from "../../../../google/protobuf/field_mask";
+import { Resource as Resource1 } from "../../../dmz/edge/v1/setting";
 import {
   Plan,
   planFromJSON,
@@ -57,17 +58,27 @@ export interface DeleteResourceResponse {
 
 export interface UpdateResourceRequest {
   id: string;
-  /** Replaces the stored server when set. */
-  server?: Server | undefined;
-  status: Status;
+  /**
+   * The fields to write, those update_mask names; its id and tenant_id
+   * are ignored.
+   */
+  resource?:
+    | Resource
+    | undefined;
+  /**
+   * Fields of resource to update, among name, domain, locations and
+   * status ("*" for all of them); without one, those set in resource. A
+   * named field unset in resource is cleared, but the domain is required.
+   */
+  updateMask?: string[] | undefined;
 }
 
 export interface UpdateResourceResponse {
 }
 
 export interface CreateResourceRequest {
-  /** server.resource_domain is required. */
-  server?: Server | undefined;
+  /** resource.domain is required. */
+  resource?: Resource1 | undefined;
   status: Status;
   tenantId: string;
 }
@@ -79,9 +90,9 @@ export interface CreateResourceResponse {
 export interface ListResourceRequest {
   page?: Pages | undefined;
   status: Status;
-  /** server.name */
+  /** resource.name */
   resourceName: string;
-  /** server.resource_domain */
+  /** resource.domain */
   resourceDomain: string;
   tenantIds: string[];
 }
@@ -160,11 +171,16 @@ export interface DeleteTenantResponse {
 
 export interface UpdateTenantRequest {
   id: string;
-  plan: Plan;
-  /** name is left unchanged when empty. */
-  name: string;
-  /** description is left unchanged when empty. */
-  description: string;
+  /** The fields to write, those update_mask names; its id is ignored. */
+  tenant?:
+    | Tenant
+    | undefined;
+  /**
+   * Fields of tenant to update, among name, description and plan ("*"
+   * for all of them); without one, those set in tenant. A named field
+   * unset in tenant is cleared, but the plan is required.
+   */
+  updateMask?: string[] | undefined;
 }
 
 export interface UpdateTenantResponse {
@@ -665,7 +681,7 @@ export const DeleteResourceResponse: MessageFns<DeleteResourceResponse> = {
 };
 
 function createBaseUpdateResourceRequest(): UpdateResourceRequest {
-  return { id: "", server: undefined, status: 0 };
+  return { id: "", resource: undefined, updateMask: undefined };
 }
 
 export const UpdateResourceRequest: MessageFns<UpdateResourceRequest> = {
@@ -673,11 +689,11 @@ export const UpdateResourceRequest: MessageFns<UpdateResourceRequest> = {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
-    if (message.server !== undefined) {
-      Server.encode(message.server, writer.uint32(18).fork()).join();
+    if (message.resource !== undefined) {
+      Resource.encode(message.resource, writer.uint32(18).fork()).join();
     }
-    if (message.status !== 0) {
-      writer.uint32(24).int32(message.status);
+    if (message.updateMask !== undefined) {
+      FieldMask.encode(FieldMask.wrap(message.updateMask), writer.uint32(26).fork()).join();
     }
     return writer;
   },
@@ -708,15 +724,15 @@ export const UpdateResourceRequest: MessageFns<UpdateResourceRequest> = {
               break;
             }
 
-            message.server = Server.decode(reader, reader.uint32());
+            message.resource = Resource.decode(reader, reader.uint32());
             continue;
           }
           case 3: {
-            if (tag !== 24) {
+            if (tag !== 26) {
               break;
             }
 
-            message.status = reader.int32() as any;
+            message.updateMask = FieldMask.unwrap(FieldMask.decode(reader, reader.uint32()));
             continue;
           }
         }
@@ -734,8 +750,12 @@ export const UpdateResourceRequest: MessageFns<UpdateResourceRequest> = {
   fromJSON(object: any): UpdateResourceRequest {
     return {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
-      server: isSet(object.server) ? Server.fromJSON(object.server) : undefined,
-      status: isSet(object.status) ? statusFromJSON(object.status) : 0,
+      resource: isSet(object.resource) ? Resource.fromJSON(object.resource) : undefined,
+      updateMask: isSet(object.updateMask)
+        ? FieldMask.unwrap(FieldMask.fromJSON(object.updateMask))
+        : isSet(object.update_mask)
+        ? FieldMask.unwrap(FieldMask.fromJSON(object.update_mask))
+        : undefined,
     };
   },
 
@@ -744,11 +764,11 @@ export const UpdateResourceRequest: MessageFns<UpdateResourceRequest> = {
     if (message.id !== "") {
       obj.id = message.id;
     }
-    if (message.server !== undefined) {
-      obj.server = Server.toJSON(message.server);
+    if (message.resource !== undefined) {
+      obj.resource = Resource.toJSON(message.resource);
     }
-    if (message.status !== 0) {
-      obj.status = statusToJSON(message.status);
+    if (message.updateMask !== undefined) {
+      obj.updateMask = FieldMask.toJSON(FieldMask.wrap(message.updateMask));
     }
     return obj;
   },
@@ -759,10 +779,10 @@ export const UpdateResourceRequest: MessageFns<UpdateResourceRequest> = {
   fromPartial<I extends Exact<DeepPartial<UpdateResourceRequest>, I>>(object: I): UpdateResourceRequest {
     const message = createBaseUpdateResourceRequest();
     message.id = object.id ?? "";
-    message.server = (object.server !== undefined && object.server !== null)
-      ? Server.fromPartial(object.server)
+    message.resource = (object.resource !== undefined && object.resource !== null)
+      ? Resource.fromPartial(object.resource)
       : undefined;
-    message.status = object.status ?? 0;
+    message.updateMask = object.updateMask ?? undefined;
     return message;
   },
 };
@@ -820,13 +840,13 @@ export const UpdateResourceResponse: MessageFns<UpdateResourceResponse> = {
 };
 
 function createBaseCreateResourceRequest(): CreateResourceRequest {
-  return { server: undefined, status: 0, tenantId: "" };
+  return { resource: undefined, status: 0, tenantId: "" };
 }
 
 export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
   encode(message: CreateResourceRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.server !== undefined) {
-      Server.encode(message.server, writer.uint32(10).fork()).join();
+    if (message.resource !== undefined) {
+      Resource1.encode(message.resource, writer.uint32(10).fork()).join();
     }
     if (message.status !== 0) {
       writer.uint32(16).int32(message.status);
@@ -855,7 +875,7 @@ export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
               break;
             }
 
-            message.server = Server.decode(reader, reader.uint32());
+            message.resource = Resource1.decode(reader, reader.uint32());
             continue;
           }
           case 2: {
@@ -888,7 +908,7 @@ export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
 
   fromJSON(object: any): CreateResourceRequest {
     return {
-      server: isSet(object.server) ? Server.fromJSON(object.server) : undefined,
+      resource: isSet(object.resource) ? Resource1.fromJSON(object.resource) : undefined,
       status: isSet(object.status) ? statusFromJSON(object.status) : 0,
       tenantId: isSet(object.tenantId)
         ? globalThis.String(object.tenantId)
@@ -900,8 +920,8 @@ export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
 
   toJSON(message: CreateResourceRequest): unknown {
     const obj: any = {};
-    if (message.server !== undefined) {
-      obj.server = Server.toJSON(message.server);
+    if (message.resource !== undefined) {
+      obj.resource = Resource1.toJSON(message.resource);
     }
     if (message.status !== 0) {
       obj.status = statusToJSON(message.status);
@@ -917,8 +937,8 @@ export const CreateResourceRequest: MessageFns<CreateResourceRequest> = {
   },
   fromPartial<I extends Exact<DeepPartial<CreateResourceRequest>, I>>(object: I): CreateResourceRequest {
     const message = createBaseCreateResourceRequest();
-    message.server = (object.server !== undefined && object.server !== null)
-      ? Server.fromPartial(object.server)
+    message.resource = (object.resource !== undefined && object.resource !== null)
+      ? Resource1.fromPartial(object.resource)
       : undefined;
     message.status = object.status ?? 0;
     message.tenantId = object.tenantId ?? "";
@@ -2386,7 +2406,7 @@ export const DeleteTenantResponse: MessageFns<DeleteTenantResponse> = {
 };
 
 function createBaseUpdateTenantRequest(): UpdateTenantRequest {
-  return { id: "", plan: 0, name: "", description: "" };
+  return { id: "", tenant: undefined, updateMask: undefined };
 }
 
 export const UpdateTenantRequest: MessageFns<UpdateTenantRequest> = {
@@ -2394,14 +2414,11 @@ export const UpdateTenantRequest: MessageFns<UpdateTenantRequest> = {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
-    if (message.plan !== 0) {
-      writer.uint32(16).int32(message.plan);
+    if (message.tenant !== undefined) {
+      Tenant.encode(message.tenant, writer.uint32(18).fork()).join();
     }
-    if (message.name !== "") {
-      writer.uint32(26).string(message.name);
-    }
-    if (message.description !== "") {
-      writer.uint32(34).string(message.description);
+    if (message.updateMask !== undefined) {
+      FieldMask.encode(FieldMask.wrap(message.updateMask), writer.uint32(26).fork()).join();
     }
     return writer;
   },
@@ -2428,11 +2445,11 @@ export const UpdateTenantRequest: MessageFns<UpdateTenantRequest> = {
             continue;
           }
           case 2: {
-            if (tag !== 16) {
+            if (tag !== 18) {
               break;
             }
 
-            message.plan = reader.int32() as any;
+            message.tenant = Tenant.decode(reader, reader.uint32());
             continue;
           }
           case 3: {
@@ -2440,15 +2457,7 @@ export const UpdateTenantRequest: MessageFns<UpdateTenantRequest> = {
               break;
             }
 
-            message.name = reader.string();
-            continue;
-          }
-          case 4: {
-            if (tag !== 34) {
-              break;
-            }
-
-            message.description = reader.string();
+            message.updateMask = FieldMask.unwrap(FieldMask.decode(reader, reader.uint32()));
             continue;
           }
         }
@@ -2466,9 +2475,12 @@ export const UpdateTenantRequest: MessageFns<UpdateTenantRequest> = {
   fromJSON(object: any): UpdateTenantRequest {
     return {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
-      plan: isSet(object.plan) ? planFromJSON(object.plan) : 0,
-      name: isSet(object.name) ? globalThis.String(object.name) : "",
-      description: isSet(object.description) ? globalThis.String(object.description) : "",
+      tenant: isSet(object.tenant) ? Tenant.fromJSON(object.tenant) : undefined,
+      updateMask: isSet(object.updateMask)
+        ? FieldMask.unwrap(FieldMask.fromJSON(object.updateMask))
+        : isSet(object.update_mask)
+        ? FieldMask.unwrap(FieldMask.fromJSON(object.update_mask))
+        : undefined,
     };
   },
 
@@ -2477,14 +2489,11 @@ export const UpdateTenantRequest: MessageFns<UpdateTenantRequest> = {
     if (message.id !== "") {
       obj.id = message.id;
     }
-    if (message.plan !== 0) {
-      obj.plan = planToJSON(message.plan);
+    if (message.tenant !== undefined) {
+      obj.tenant = Tenant.toJSON(message.tenant);
     }
-    if (message.name !== "") {
-      obj.name = message.name;
-    }
-    if (message.description !== "") {
-      obj.description = message.description;
+    if (message.updateMask !== undefined) {
+      obj.updateMask = FieldMask.toJSON(FieldMask.wrap(message.updateMask));
     }
     return obj;
   },
@@ -2495,9 +2504,10 @@ export const UpdateTenantRequest: MessageFns<UpdateTenantRequest> = {
   fromPartial<I extends Exact<DeepPartial<UpdateTenantRequest>, I>>(object: I): UpdateTenantRequest {
     const message = createBaseUpdateTenantRequest();
     message.id = object.id ?? "";
-    message.plan = object.plan ?? 0;
-    message.name = object.name ?? "";
-    message.description = object.description ?? "";
+    message.tenant = (object.tenant !== undefined && object.tenant !== null)
+      ? Tenant.fromPartial(object.tenant)
+      : undefined;
+    message.updateMask = object.updateMask ?? undefined;
     return message;
   },
 };

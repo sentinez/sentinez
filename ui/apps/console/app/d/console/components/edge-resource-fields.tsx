@@ -11,7 +11,7 @@ import {
   BalanceStrategy,
   ProxyProtocol,
   type Location,
-  type Server,
+  type Resource as EdgeResource,
 } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
 import { OptionSelect, OriginRows, type OriginRow } from '@/app/d/console/(root)/domain/components';
 import {
@@ -37,7 +37,7 @@ export interface LocationFormValue {
   headers: string;
 }
 
-export interface ServerFormValue {
+export interface EdgeResourceFormValue {
   name: string;
   locations: LocationFormValue[];
 }
@@ -67,11 +67,11 @@ function locationFormOf(l: Location): LocationFormValue {
   };
 }
 
-/** Server (API) -> form value */
-export function serverFormOf(server?: Server): ServerFormValue {
+/** edge Resource (API) -> form value */
+export function edgeResourceFormOf(resource?: EdgeResource): EdgeResourceFormValue {
   return {
-    name: server?.name ?? '',
-    locations: (server?.locations ?? []).map(locationFormOf),
+    name: resource?.name ?? '',
+    locations: (resource?.locations ?? []).map(locationFormOf),
   };
 }
 
@@ -94,14 +94,14 @@ function locationOf(f: LocationFormValue): Location {
 }
 
 /**
- * Form value -> Server (API). The ids and the domain are the stored
- * server's: they are not edited here.
+ * Form value -> edge Resource (API). The ids and the domain are the stored
+ * resource's: they are not edited here.
  */
-export function serverOf(f: ServerFormValue, stored?: Server): Server {
+export function edgeResourceOfForm(f: EdgeResourceFormValue, stored?: EdgeResource): EdgeResource {
   return {
     name: f.name.trim(),
-    resourceId: stored?.resourceId ?? '',
-    resourceDomain: stored?.resourceDomain ?? '',
+    id: stored?.id ?? '',
+    domain: stored?.domain ?? '',
     locations: f.locations.map(locationOf),
   };
 }
@@ -133,7 +133,10 @@ function validateLocation(l: LocationFormValue, t: ValidationTranslator): string
 }
 
 /** Returns an error message, or null when the form is valid */
-export function validateServerForm(f: ServerFormValue, t: ValidationTranslator): string | null {
+export function validateEdgeResourceForm(
+  f: EdgeResourceFormValue,
+  t: ValidationTranslator,
+): string | null {
   if (!NAME_RE.test(f.name.trim())) return t('resourceName');
   const seen = new Set<string>();
   for (const l of f.locations) {
@@ -243,12 +246,12 @@ function LocationFields({
 }
 
 interface Props {
-  value: ServerFormValue;
-  onChange: (patch: Partial<ServerFormValue>) => void;
+  value: EdgeResourceFormValue;
+  onChange: (patch: Partial<EdgeResourceFormValue>) => void;
 }
 
-/** The fields of the edge Server of a resource: its name and locations */
-export function ServerFields({ value, onChange }: Props) {
+/** The fields of the edge Resource of a resource: its name and locations */
+export function EdgeResourceFields({ value, onChange }: Props) {
   const t = useTranslations('ResourceSetting');
   const patchLocation = (i: number, patch: Partial<LocationFormValue>) =>
     onChange({ locations: value.locations.map((l, j) => (j === i ? { ...l, ...patch } : l)) });
@@ -256,9 +259,9 @@ export function ServerFields({ value, onChange }: Props) {
   return (
     <div className="flex flex-col gap-3">
       <div className="grid gap-1.5 sm:w-1/2">
-        <Label htmlFor="server-name">{t('serverName')}</Label>
+        <Label htmlFor="resource-name">{t('resourceName')}</Label>
         <Input
-          id="server-name"
+          id="resource-name"
           placeholder="my_site"
           spellCheck={false}
           autoComplete="off"

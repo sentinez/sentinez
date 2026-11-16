@@ -31,6 +31,19 @@ import (
 
 type M map[string]any
 
+// Only the columns of m among names, as an update writes the fields its
+// mask names (see szprotobuf.ApplyMask); a name m lacks is skipped.
+func (m M) Only(names []string) M {
+	out := make(M, len(names))
+	for _, name := range names {
+		if v, ok := m[name]; ok {
+			out[name] = v
+		}
+	}
+
+	return out
+}
+
 type Client interface {
 	Exec(ctx context.Context, sql string,
 		args ...any) (pgconn.CommandTag, error)

@@ -76,10 +76,10 @@ export function createEmptyResourceForm(): ResourceFormValue {
 
 /** Resource (API) -> form value */
 export function resourceFormOf(r: Resource): ResourceFormValue {
-  const loc = r.server?.locations?.[0];
+  const loc = r.locations?.[0];
   return {
-    resourceName: r.server?.name ?? '',
-    resourceDomain: r.server?.resourceDomain ?? '',
+    resourceName: r.name ?? '',
+    resourceDomain: r.domain ?? '',
     status: r.status || Status.STATUS_ACTIVE,
     location: loc?.location || '/',
     origins: (loc?.proxyPass ?? []).map((u) => ({
@@ -95,12 +95,12 @@ export function resourceOf(f: ResourceFormValue, tenantId: string): CreateResour
   return {
     status: f.status,
     tenantId,
-    server: {
+    resource: {
       name: f.resourceName.trim(),
       // the edge serves the requests of this domain with it
-      resourceDomain: f.resourceDomain.trim().toLowerCase(),
+      domain: f.resourceDomain.trim().toLowerCase(),
       // assigned by the API
-      resourceId: '',
+      id: '',
       locations:
         origins.length === 0
           ? []

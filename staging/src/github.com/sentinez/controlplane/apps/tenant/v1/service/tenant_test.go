@@ -207,14 +207,72 @@ func TestUpdateTenant(t *testing.T) {
 	repo := tenantmock.NewMockITenant(t)
 	repo.EXPECT().Get(mock.Anything, _tenantId).
 		Return(&tenantpb.Tenant{Id: _tenantId}, nil)
-	repo.EXPECT().Update(mock.Anything, want).Return(nil)
+	repo.EXPECT().Update(mock.Anything, want,
+		[]string{tenantpb.Tenant_Name, tenantpb.Tenant_Plan}).Return(nil)
 
+	// no mask: the fields set in tenant
 	_, err := New(nil, nil, nil, repo, nil).UpdateTenant(asAdmin(t),
 		&tenantpb.UpdateTenantRequest{
-			Id: _tenantId, Name: "acme", Plan: typepb.Plan_PLAN_PRO,
+			Id: _tenantId,
+			Tenant: &tenantpb.Tenant{
+				Name: "acme", Plan: typepb.Plan_PLAN_PRO,
+			},
 		})
 
 	require.NoError(t, err)
+}
+
+func TestUpdateTenantMaskClears(t *testing.T) {
+	want := &tenantpb.Tenant{
+		Id: _tenantId, Name: "acme", Plan: typepb.Plan_PLAN_FREE,
+	}
+
+	repo := tenantmock.NewMockITenant(t)
+	repo.EXPECT().Get(mock.Anything, _tenantId).
+		Return(&tenantpb.Tenant{
+			Id: _tenantId, Description: "old", Plan: typepb.Plan_PLAN_FREE,
+		}, nil)
+	repo.EXPECT().Update(mock.Anything, want, []string{
+		tenantpb.Tenant_Description, tenantpb.Tenant_Name,
+	}).Return(nil)
+
+	_, err := New(nil, nil, nil, repo, nil).UpdateTenant(asAdmin(t),
+		&tenantpb.UpdateTenantRequest{
+			Id:         _tenantId,
+			Tenant:     &tenantpb.Tenant{Name: "acme"},
+			UpdateMask: maskOf(tenantpb.Tenant_Name, "description"),
+		})
+
+	require.NoError(t, err)
+}
+
+func TestUpdateTenantInvalidMask(t *testing.T) {
+	tests := []struct {
+		name      string
+		givePaths []string
+	}{
+		{"field not updatable", []string{tenantpb.Tenant_Id}},
+		{"plan cleared", []string{tenantpb.Tenant_Plan}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			repo := tenantmock.NewMockITenant(t)
+			repo.EXPECT().Get(mock.Anything, _tenantId).
+				Return(&tenantpb.Tenant{
+					Id: _tenantId, Plan: typepb.Plan_PLAN_FREE,
+				}, nil)
+
+			_, err := New(nil, nil, nil, repo, nil).UpdateTenant(
+				asAdmin(t), &tenantpb.UpdateTenantRequest{
+					Id:         _tenantId,
+					Tenant:     &tenantpb.Tenant{Id: "tnt_other"},
+					UpdateMask: maskOf(tt.givePaths...),
+				})
+
+			assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		})
+	}
 }
 
 func TestDeleteTenant(t *testing.T) {

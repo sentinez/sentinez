@@ -28,6 +28,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	fieldmaskpb "google.golang.org/protobuf/types/known/fieldmaskpb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -307,9 +308,13 @@ func (*DeleteResourceResponse) Descriptor() ([]byte, []int) {
 type UpdateResourceRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// Replaces the stored server when set.
-	Server        *v1.Server `protobuf:"bytes,2,opt,name=server,proto3" json:"server,omitempty"`
-	Status        v11.Status `protobuf:"varint,3,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`
+	// The fields to write, those update_mask names; its id and tenant_id
+	// are ignored.
+	Resource *Resource `protobuf:"bytes,2,opt,name=resource,proto3" json:"resource,omitempty"`
+	// Fields of resource to update, among name, domain, locations and
+	// status ("*" for all of them); without one, those set in resource. A
+	// named field unset in resource is cleared, but the domain is required.
+	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,3,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -351,18 +356,18 @@ func (x *UpdateResourceRequest) GetId() string {
 	return ""
 }
 
-func (x *UpdateResourceRequest) GetServer() *v1.Server {
+func (x *UpdateResourceRequest) GetResource() *Resource {
 	if x != nil {
-		return x.Server
+		return x.Resource
 	}
 	return nil
 }
 
-func (x *UpdateResourceRequest) GetStatus() v11.Status {
+func (x *UpdateResourceRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	if x != nil {
-		return x.Status
+		return x.UpdateMask
 	}
-	return v11.Status(0)
+	return nil
 }
 
 type UpdateResourceResponse struct {
@@ -403,10 +408,10 @@ func (*UpdateResourceResponse) Descriptor() ([]byte, []int) {
 
 type CreateResourceRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// server.resource_domain is required.
-	Server        *v1.Server `protobuf:"bytes,1,opt,name=server,proto3" json:"server,omitempty"`
-	Status        v11.Status `protobuf:"varint,2,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`
-	TenantId      string     `protobuf:"bytes,3,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	// resource.domain is required.
+	Resource      *v1.Resource `protobuf:"bytes,1,opt,name=resource,proto3" json:"resource,omitempty"`
+	Status        v11.Status   `protobuf:"varint,2,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`
+	TenantId      string       `protobuf:"bytes,3,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -441,9 +446,9 @@ func (*CreateResourceRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_tenant_v1_tenant_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *CreateResourceRequest) GetServer() *v1.Server {
+func (x *CreateResourceRequest) GetResource() *v1.Resource {
 	if x != nil {
-		return x.Server
+		return x.Resource
 	}
 	return nil
 }
@@ -510,9 +515,9 @@ type ListResourceRequest struct {
 	state  protoimpl.MessageState `protogen:"open.v1"`
 	Page   *v11.Pages             `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
 	Status v11.Status             `protobuf:"varint,2,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`
-	// server.name
+	// resource.name
 	ResourceName string `protobuf:"bytes,4,opt,name=resource_name,json=resourceName,proto3" json:"resource_name,omitempty"`
-	// server.resource_domain
+	// resource.domain
 	ResourceDomain string   `protobuf:"bytes,5,opt,name=resource_domain,json=resourceDomain,proto3" json:"resource_domain,omitempty"`
 	TenantIds      []string `protobuf:"bytes,6,rep,name=tenant_ids,json=tenantIds,proto3" json:"tenant_ids,omitempty"`
 	unknownFields  protoimpl.UnknownFields
@@ -1360,11 +1365,12 @@ func (*DeleteTenantResponse) Descriptor() ([]byte, []int) {
 type UpdateTenantRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Plan  v11.Plan               `protobuf:"varint,2,opt,name=plan,proto3,enum=sentinez.types.v1.Plan" json:"plan,omitempty"`
-	// name is left unchanged when empty.
-	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	// description is left unchanged when empty.
-	Description   string `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
+	// The fields to write, those update_mask names; its id is ignored.
+	Tenant *Tenant `protobuf:"bytes,2,opt,name=tenant,proto3" json:"tenant,omitempty"`
+	// Fields of tenant to update, among name, description and plan ("*"
+	// for all of them); without one, those set in tenant. A named field
+	// unset in tenant is cleared, but the plan is required.
+	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,3,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1406,25 +1412,18 @@ func (x *UpdateTenantRequest) GetId() string {
 	return ""
 }
 
-func (x *UpdateTenantRequest) GetPlan() v11.Plan {
+func (x *UpdateTenantRequest) GetTenant() *Tenant {
 	if x != nil {
-		return x.Plan
+		return x.Tenant
 	}
-	return v11.Plan(0)
+	return nil
 }
 
-func (x *UpdateTenantRequest) GetName() string {
+func (x *UpdateTenantRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	if x != nil {
-		return x.Name
+		return x.UpdateMask
 	}
-	return ""
-}
-
-func (x *UpdateTenantRequest) GetDescription() string {
-	if x != nil {
-		return x.Description
-	}
-	return ""
+	return nil
 }
 
 type UpdateTenantResponse struct {
@@ -2125,7 +2124,7 @@ var File_sentinez_apps_tenant_v1_tenant_proto protoreflect.FileDescriptor
 
 const file_sentinez_apps_tenant_v1_tenant_proto_rawDesc = "" +
 	"\n" +
-	"$sentinez/apps/tenant/v1/tenant.proto\x12\x17sentinez.apps.tenant.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a#sentinez/apps/tenant/v1/model.proto\x1a\"sentinez/dmz/edge/v1/setting.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"O\n" +
+	"$sentinez/apps/tenant/v1/tenant.proto\x12\x17sentinez.apps.tenant.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a google/protobuf/field_mask.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a#sentinez/apps/tenant/v1/model.proto\x1a\"sentinez/dmz/edge/v1/setting.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"O\n" +
 	"\x12GetResourceRequest\x12\x1f\n" +
 	"\x02id\x18\x01 \x01(\tB\x0f\xbaH\f\xd8\x01\x01r\a:\x05rsrc_R\x02id\x12\x18\n" +
 	"\adefault\x18\x02 \x01(\bR\adefault\"\x8e\x01\n" +
@@ -2137,14 +2136,15 @@ const file_sentinez_apps_tenant_v1_tenant_proto_rawDesc = "" +
 	"\bresource\x18\x01 \x01(\v2!.sentinez.apps.tenant.v1.ResourceR\bresource\"8\n" +
 	"\x15DeleteResourceRequest\x12\x1f\n" +
 	"\x02id\x18\x01 \x01(\tB\x0f\xbaH\f\xc8\x01\x01r\a:\x05rsrc_R\x02id\"\x18\n" +
-	"\x16DeleteResourceResponse\"\xa1\x01\n" +
+	"\x16DeleteResourceResponse\"\xbc\x01\n" +
 	"\x15UpdateResourceRequest\x12\x1f\n" +
-	"\x02id\x18\x01 \x01(\tB\x0f\xbaH\f\xc8\x01\x01r\a:\x05rsrc_R\x02id\x124\n" +
-	"\x06server\x18\x02 \x01(\v2\x1c.sentinez.dmz.edge.v1.ServerR\x06server\x121\n" +
-	"\x06status\x18\x03 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\"\x18\n" +
-	"\x16UpdateResourceResponse\"\xb5\x01\n" +
-	"\x15CreateResourceRequest\x12<\n" +
-	"\x06server\x18\x01 \x01(\v2\x1c.sentinez.dmz.edge.v1.ServerB\x06\xbaH\x03\xc8\x01\x01R\x06server\x121\n" +
+	"\x02id\x18\x01 \x01(\tB\x0f\xbaH\f\xc8\x01\x01r\a:\x05rsrc_R\x02id\x12E\n" +
+	"\bresource\x18\x02 \x01(\v2!.sentinez.apps.tenant.v1.ResourceB\x06\xbaH\x03\xc8\x01\x01R\bresource\x12;\n" +
+	"\vupdate_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	"updateMask\"\x18\n" +
+	"\x16UpdateResourceResponse\"\xbb\x01\n" +
+	"\x15CreateResourceRequest\x12B\n" +
+	"\bresource\x18\x01 \x01(\v2\x1e.sentinez.dmz.edge.v1.ResourceB\x06\xbaH\x03\xc8\x01\x01R\bresource\x121\n" +
 	"\x06status\x18\x02 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12+\n" +
 	"\ttenant_id\x18\x03 \x01(\tB\x0e\xbaH\v\xc8\x01\x01r\x06:\x04tnt_R\btenantId\"W\n" +
 	"\x16CreateResourceResponse\x12=\n" +
@@ -2193,12 +2193,12 @@ const file_sentinez_apps_tenant_v1_tenant_proto_rawDesc = "" +
 	"\x06tenant\x18\x01 \x01(\v2\x1f.sentinez.apps.tenant.v1.TenantR\x06tenant\"5\n" +
 	"\x13DeleteTenantRequest\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xbaH\v\xc8\x01\x01r\x06:\x04tnt_R\x02id\"\x16\n" +
-	"\x14DeleteTenantResponse\"\xb8\x01\n" +
+	"\x14DeleteTenantResponse\"\xb3\x01\n" +
 	"\x13UpdateTenantRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\tB\x0e\xbaH\v\xc8\x01\x01r\x06:\x04tnt_R\x02id\x128\n" +
-	"\x04plan\x18\x02 \x01(\x0e2\x17.sentinez.types.v1.PlanB\v\xbaH\b\xc8\x01\x01\x82\x01\x02\x10\x01R\x04plan\x12\x1b\n" +
-	"\x04name\x18\x03 \x01(\tB\a\xbaH\x04r\x02\x18@R\x04name\x12*\n" +
-	"\vdescription\x18\x04 \x01(\tB\b\xbaH\x05r\x03\x18\xff\x01R\vdescription\"\x16\n" +
+	"\x02id\x18\x01 \x01(\tB\x0e\xbaH\v\xc8\x01\x01r\x06:\x04tnt_R\x02id\x12?\n" +
+	"\x06tenant\x18\x02 \x01(\v2\x1f.sentinez.apps.tenant.v1.TenantB\x06\xbaH\x03\xc8\x01\x01R\x06tenant\x12;\n" +
+	"\vupdate_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
+	"updateMask\"\x16\n" +
 	"\x14UpdateTenantResponse\"\x9b\x01\n" +
 	"\x13CreateTenantRequest\x128\n" +
 	"\x04plan\x18\x01 \x01(\x0e2\x17.sentinez.types.v1.PlanB\v\xbaH\b\xc8\x01\x01\x82\x01\x02\x10\x01R\x04plan\x12\x1e\n" +
@@ -2333,93 +2333,95 @@ var file_sentinez_apps_tenant_v1_tenant_proto_goTypes = []any{
 	(*ListCaCertificateRequest)(nil),    // 40: sentinez.apps.tenant.v1.ListCaCertificateRequest
 	(*ListCaCertificateResponse)(nil),   // 41: sentinez.apps.tenant.v1.ListCaCertificateResponse
 	(*Resource)(nil),                    // 42: sentinez.apps.tenant.v1.Resource
-	(*v1.Server)(nil),                   // 43: sentinez.dmz.edge.v1.Server
-	(v11.Status)(0),                     // 44: sentinez.types.v1.Status
-	(*v11.Pages)(nil),                   // 45: sentinez.types.v1.Pages
-	(*Member)(nil),                      // 46: sentinez.apps.tenant.v1.Member
-	(v11.Role)(0),                       // 47: sentinez.types.v1.Role
-	(*Tenant)(nil),                      // 48: sentinez.apps.tenant.v1.Tenant
-	(v11.Plan)(0),                       // 49: sentinez.types.v1.Plan
-	(CaCertificateUsage)(0),             // 50: sentinez.apps.tenant.v1.CaCertificateUsage
-	(*CaCertificate)(nil),               // 51: sentinez.apps.tenant.v1.CaCertificate
+	(*fieldmaskpb.FieldMask)(nil),       // 43: google.protobuf.FieldMask
+	(*v1.Resource)(nil),                 // 44: sentinez.dmz.edge.v1.Resource
+	(v11.Status)(0),                     // 45: sentinez.types.v1.Status
+	(*v11.Pages)(nil),                   // 46: sentinez.types.v1.Pages
+	(*Member)(nil),                      // 47: sentinez.apps.tenant.v1.Member
+	(v11.Role)(0),                       // 48: sentinez.types.v1.Role
+	(*Tenant)(nil),                      // 49: sentinez.apps.tenant.v1.Tenant
+	(v11.Plan)(0),                       // 50: sentinez.types.v1.Plan
+	(CaCertificateUsage)(0),             // 51: sentinez.apps.tenant.v1.CaCertificateUsage
+	(*CaCertificate)(nil),               // 52: sentinez.apps.tenant.v1.CaCertificate
 }
 var file_sentinez_apps_tenant_v1_tenant_proto_depIdxs = []int32{
 	42, // 0: sentinez.apps.tenant.v1.GetResourceByDomainResponse.resource:type_name -> sentinez.apps.tenant.v1.Resource
 	42, // 1: sentinez.apps.tenant.v1.GetResourceResponse.resource:type_name -> sentinez.apps.tenant.v1.Resource
-	43, // 2: sentinez.apps.tenant.v1.UpdateResourceRequest.server:type_name -> sentinez.dmz.edge.v1.Server
-	44, // 3: sentinez.apps.tenant.v1.UpdateResourceRequest.status:type_name -> sentinez.types.v1.Status
-	43, // 4: sentinez.apps.tenant.v1.CreateResourceRequest.server:type_name -> sentinez.dmz.edge.v1.Server
-	44, // 5: sentinez.apps.tenant.v1.CreateResourceRequest.status:type_name -> sentinez.types.v1.Status
+	42, // 2: sentinez.apps.tenant.v1.UpdateResourceRequest.resource:type_name -> sentinez.apps.tenant.v1.Resource
+	43, // 3: sentinez.apps.tenant.v1.UpdateResourceRequest.update_mask:type_name -> google.protobuf.FieldMask
+	44, // 4: sentinez.apps.tenant.v1.CreateResourceRequest.resource:type_name -> sentinez.dmz.edge.v1.Resource
+	45, // 5: sentinez.apps.tenant.v1.CreateResourceRequest.status:type_name -> sentinez.types.v1.Status
 	42, // 6: sentinez.apps.tenant.v1.CreateResourceResponse.resource:type_name -> sentinez.apps.tenant.v1.Resource
-	45, // 7: sentinez.apps.tenant.v1.ListResourceRequest.page:type_name -> sentinez.types.v1.Pages
-	44, // 8: sentinez.apps.tenant.v1.ListResourceRequest.status:type_name -> sentinez.types.v1.Status
+	46, // 7: sentinez.apps.tenant.v1.ListResourceRequest.page:type_name -> sentinez.types.v1.Pages
+	45, // 8: sentinez.apps.tenant.v1.ListResourceRequest.status:type_name -> sentinez.types.v1.Status
 	42, // 9: sentinez.apps.tenant.v1.ListResourceResponse.resources:type_name -> sentinez.apps.tenant.v1.Resource
-	46, // 10: sentinez.apps.tenant.v1.GetMemberResponse.member:type_name -> sentinez.apps.tenant.v1.Member
-	47, // 11: sentinez.apps.tenant.v1.UpdateMemberRequest.roles:type_name -> sentinez.types.v1.Role
-	47, // 12: sentinez.apps.tenant.v1.CreateMemberRequest.roles:type_name -> sentinez.types.v1.Role
-	46, // 13: sentinez.apps.tenant.v1.CreateMemberResponse.member:type_name -> sentinez.apps.tenant.v1.Member
-	45, // 14: sentinez.apps.tenant.v1.ListMemberRequest.page:type_name -> sentinez.types.v1.Pages
-	46, // 15: sentinez.apps.tenant.v1.ListMemberResponse.members:type_name -> sentinez.apps.tenant.v1.Member
-	48, // 16: sentinez.apps.tenant.v1.GetTenantResponse.tenant:type_name -> sentinez.apps.tenant.v1.Tenant
-	49, // 17: sentinez.apps.tenant.v1.UpdateTenantRequest.plan:type_name -> sentinez.types.v1.Plan
-	49, // 18: sentinez.apps.tenant.v1.CreateTenantRequest.plan:type_name -> sentinez.types.v1.Plan
-	48, // 19: sentinez.apps.tenant.v1.CreateTenantResponse.tenant:type_name -> sentinez.apps.tenant.v1.Tenant
-	45, // 20: sentinez.apps.tenant.v1.ListTenantRequest.page:type_name -> sentinez.types.v1.Pages
-	49, // 21: sentinez.apps.tenant.v1.ListTenantRequest.plan:type_name -> sentinez.types.v1.Plan
-	48, // 22: sentinez.apps.tenant.v1.ListTenantResponse.tenants:type_name -> sentinez.apps.tenant.v1.Tenant
-	50, // 23: sentinez.apps.tenant.v1.CreateCaCertificateRequest.usage:type_name -> sentinez.apps.tenant.v1.CaCertificateUsage
-	51, // 24: sentinez.apps.tenant.v1.CreateCaCertificateResponse.ca_certificates:type_name -> sentinez.apps.tenant.v1.CaCertificate
-	51, // 25: sentinez.apps.tenant.v1.GetCaCertificateResponse.ca_certificate:type_name -> sentinez.apps.tenant.v1.CaCertificate
-	45, // 26: sentinez.apps.tenant.v1.ListCaCertificateRequest.page:type_name -> sentinez.types.v1.Pages
-	50, // 27: sentinez.apps.tenant.v1.ListCaCertificateRequest.usage:type_name -> sentinez.apps.tenant.v1.CaCertificateUsage
-	51, // 28: sentinez.apps.tenant.v1.ListCaCertificateResponse.ca_certificates:type_name -> sentinez.apps.tenant.v1.CaCertificate
-	13, // 29: sentinez.apps.tenant.v1.TenantService.Status:input_type -> sentinez.apps.tenant.v1.StatusRequest
-	10, // 30: sentinez.apps.tenant.v1.TenantService.ListResource:input_type -> sentinez.apps.tenant.v1.ListResourceRequest
-	8,  // 31: sentinez.apps.tenant.v1.TenantService.CreateResource:input_type -> sentinez.apps.tenant.v1.CreateResourceRequest
-	6,  // 32: sentinez.apps.tenant.v1.TenantService.UpdateResource:input_type -> sentinez.apps.tenant.v1.UpdateResourceRequest
-	4,  // 33: sentinez.apps.tenant.v1.TenantService.DeleteResource:input_type -> sentinez.apps.tenant.v1.DeleteResourceRequest
-	0,  // 34: sentinez.apps.tenant.v1.TenantService.GetResource:input_type -> sentinez.apps.tenant.v1.GetResourceRequest
-	1,  // 35: sentinez.apps.tenant.v1.TenantService.GetResourceByDomain:input_type -> sentinez.apps.tenant.v1.GetResourceByDomainRequest
-	22, // 36: sentinez.apps.tenant.v1.TenantService.ListMember:input_type -> sentinez.apps.tenant.v1.ListMemberRequest
-	20, // 37: sentinez.apps.tenant.v1.TenantService.CreateMember:input_type -> sentinez.apps.tenant.v1.CreateMemberRequest
-	18, // 38: sentinez.apps.tenant.v1.TenantService.UpdateMember:input_type -> sentinez.apps.tenant.v1.UpdateMemberRequest
-	16, // 39: sentinez.apps.tenant.v1.TenantService.DeleteMember:input_type -> sentinez.apps.tenant.v1.DeleteMemberRequest
-	14, // 40: sentinez.apps.tenant.v1.TenantService.GetMember:input_type -> sentinez.apps.tenant.v1.GetMemberRequest
-	40, // 41: sentinez.apps.tenant.v1.TenantService.ListCaCertificate:input_type -> sentinez.apps.tenant.v1.ListCaCertificateRequest
-	34, // 42: sentinez.apps.tenant.v1.TenantService.CreateCaCertificate:input_type -> sentinez.apps.tenant.v1.CreateCaCertificateRequest
-	36, // 43: sentinez.apps.tenant.v1.TenantService.GetCaCertificate:input_type -> sentinez.apps.tenant.v1.GetCaCertificateRequest
-	38, // 44: sentinez.apps.tenant.v1.TenantService.DeleteCaCertificate:input_type -> sentinez.apps.tenant.v1.DeleteCaCertificateRequest
-	32, // 45: sentinez.apps.tenant.v1.TenantService.ListTenant:input_type -> sentinez.apps.tenant.v1.ListTenantRequest
-	30, // 46: sentinez.apps.tenant.v1.TenantService.CreateTenant:input_type -> sentinez.apps.tenant.v1.CreateTenantRequest
-	28, // 47: sentinez.apps.tenant.v1.TenantService.UpdateTenant:input_type -> sentinez.apps.tenant.v1.UpdateTenantRequest
-	26, // 48: sentinez.apps.tenant.v1.TenantService.DeleteTenant:input_type -> sentinez.apps.tenant.v1.DeleteTenantRequest
-	24, // 49: sentinez.apps.tenant.v1.TenantService.GetTenant:input_type -> sentinez.apps.tenant.v1.GetTenantRequest
-	12, // 50: sentinez.apps.tenant.v1.TenantService.Status:output_type -> sentinez.apps.tenant.v1.StatusResponse
-	11, // 51: sentinez.apps.tenant.v1.TenantService.ListResource:output_type -> sentinez.apps.tenant.v1.ListResourceResponse
-	9,  // 52: sentinez.apps.tenant.v1.TenantService.CreateResource:output_type -> sentinez.apps.tenant.v1.CreateResourceResponse
-	7,  // 53: sentinez.apps.tenant.v1.TenantService.UpdateResource:output_type -> sentinez.apps.tenant.v1.UpdateResourceResponse
-	5,  // 54: sentinez.apps.tenant.v1.TenantService.DeleteResource:output_type -> sentinez.apps.tenant.v1.DeleteResourceResponse
-	3,  // 55: sentinez.apps.tenant.v1.TenantService.GetResource:output_type -> sentinez.apps.tenant.v1.GetResourceResponse
-	2,  // 56: sentinez.apps.tenant.v1.TenantService.GetResourceByDomain:output_type -> sentinez.apps.tenant.v1.GetResourceByDomainResponse
-	23, // 57: sentinez.apps.tenant.v1.TenantService.ListMember:output_type -> sentinez.apps.tenant.v1.ListMemberResponse
-	21, // 58: sentinez.apps.tenant.v1.TenantService.CreateMember:output_type -> sentinez.apps.tenant.v1.CreateMemberResponse
-	19, // 59: sentinez.apps.tenant.v1.TenantService.UpdateMember:output_type -> sentinez.apps.tenant.v1.UpdateMemberResponse
-	17, // 60: sentinez.apps.tenant.v1.TenantService.DeleteMember:output_type -> sentinez.apps.tenant.v1.DeleteMemberResponse
-	15, // 61: sentinez.apps.tenant.v1.TenantService.GetMember:output_type -> sentinez.apps.tenant.v1.GetMemberResponse
-	41, // 62: sentinez.apps.tenant.v1.TenantService.ListCaCertificate:output_type -> sentinez.apps.tenant.v1.ListCaCertificateResponse
-	35, // 63: sentinez.apps.tenant.v1.TenantService.CreateCaCertificate:output_type -> sentinez.apps.tenant.v1.CreateCaCertificateResponse
-	37, // 64: sentinez.apps.tenant.v1.TenantService.GetCaCertificate:output_type -> sentinez.apps.tenant.v1.GetCaCertificateResponse
-	39, // 65: sentinez.apps.tenant.v1.TenantService.DeleteCaCertificate:output_type -> sentinez.apps.tenant.v1.DeleteCaCertificateResponse
-	33, // 66: sentinez.apps.tenant.v1.TenantService.ListTenant:output_type -> sentinez.apps.tenant.v1.ListTenantResponse
-	31, // 67: sentinez.apps.tenant.v1.TenantService.CreateTenant:output_type -> sentinez.apps.tenant.v1.CreateTenantResponse
-	29, // 68: sentinez.apps.tenant.v1.TenantService.UpdateTenant:output_type -> sentinez.apps.tenant.v1.UpdateTenantResponse
-	27, // 69: sentinez.apps.tenant.v1.TenantService.DeleteTenant:output_type -> sentinez.apps.tenant.v1.DeleteTenantResponse
-	25, // 70: sentinez.apps.tenant.v1.TenantService.GetTenant:output_type -> sentinez.apps.tenant.v1.GetTenantResponse
-	50, // [50:71] is the sub-list for method output_type
-	29, // [29:50] is the sub-list for method input_type
-	29, // [29:29] is the sub-list for extension type_name
-	29, // [29:29] is the sub-list for extension extendee
-	0,  // [0:29] is the sub-list for field type_name
+	47, // 10: sentinez.apps.tenant.v1.GetMemberResponse.member:type_name -> sentinez.apps.tenant.v1.Member
+	48, // 11: sentinez.apps.tenant.v1.UpdateMemberRequest.roles:type_name -> sentinez.types.v1.Role
+	48, // 12: sentinez.apps.tenant.v1.CreateMemberRequest.roles:type_name -> sentinez.types.v1.Role
+	47, // 13: sentinez.apps.tenant.v1.CreateMemberResponse.member:type_name -> sentinez.apps.tenant.v1.Member
+	46, // 14: sentinez.apps.tenant.v1.ListMemberRequest.page:type_name -> sentinez.types.v1.Pages
+	47, // 15: sentinez.apps.tenant.v1.ListMemberResponse.members:type_name -> sentinez.apps.tenant.v1.Member
+	49, // 16: sentinez.apps.tenant.v1.GetTenantResponse.tenant:type_name -> sentinez.apps.tenant.v1.Tenant
+	49, // 17: sentinez.apps.tenant.v1.UpdateTenantRequest.tenant:type_name -> sentinez.apps.tenant.v1.Tenant
+	43, // 18: sentinez.apps.tenant.v1.UpdateTenantRequest.update_mask:type_name -> google.protobuf.FieldMask
+	50, // 19: sentinez.apps.tenant.v1.CreateTenantRequest.plan:type_name -> sentinez.types.v1.Plan
+	49, // 20: sentinez.apps.tenant.v1.CreateTenantResponse.tenant:type_name -> sentinez.apps.tenant.v1.Tenant
+	46, // 21: sentinez.apps.tenant.v1.ListTenantRequest.page:type_name -> sentinez.types.v1.Pages
+	50, // 22: sentinez.apps.tenant.v1.ListTenantRequest.plan:type_name -> sentinez.types.v1.Plan
+	49, // 23: sentinez.apps.tenant.v1.ListTenantResponse.tenants:type_name -> sentinez.apps.tenant.v1.Tenant
+	51, // 24: sentinez.apps.tenant.v1.CreateCaCertificateRequest.usage:type_name -> sentinez.apps.tenant.v1.CaCertificateUsage
+	52, // 25: sentinez.apps.tenant.v1.CreateCaCertificateResponse.ca_certificates:type_name -> sentinez.apps.tenant.v1.CaCertificate
+	52, // 26: sentinez.apps.tenant.v1.GetCaCertificateResponse.ca_certificate:type_name -> sentinez.apps.tenant.v1.CaCertificate
+	46, // 27: sentinez.apps.tenant.v1.ListCaCertificateRequest.page:type_name -> sentinez.types.v1.Pages
+	51, // 28: sentinez.apps.tenant.v1.ListCaCertificateRequest.usage:type_name -> sentinez.apps.tenant.v1.CaCertificateUsage
+	52, // 29: sentinez.apps.tenant.v1.ListCaCertificateResponse.ca_certificates:type_name -> sentinez.apps.tenant.v1.CaCertificate
+	13, // 30: sentinez.apps.tenant.v1.TenantService.Status:input_type -> sentinez.apps.tenant.v1.StatusRequest
+	10, // 31: sentinez.apps.tenant.v1.TenantService.ListResource:input_type -> sentinez.apps.tenant.v1.ListResourceRequest
+	8,  // 32: sentinez.apps.tenant.v1.TenantService.CreateResource:input_type -> sentinez.apps.tenant.v1.CreateResourceRequest
+	6,  // 33: sentinez.apps.tenant.v1.TenantService.UpdateResource:input_type -> sentinez.apps.tenant.v1.UpdateResourceRequest
+	4,  // 34: sentinez.apps.tenant.v1.TenantService.DeleteResource:input_type -> sentinez.apps.tenant.v1.DeleteResourceRequest
+	0,  // 35: sentinez.apps.tenant.v1.TenantService.GetResource:input_type -> sentinez.apps.tenant.v1.GetResourceRequest
+	1,  // 36: sentinez.apps.tenant.v1.TenantService.GetResourceByDomain:input_type -> sentinez.apps.tenant.v1.GetResourceByDomainRequest
+	22, // 37: sentinez.apps.tenant.v1.TenantService.ListMember:input_type -> sentinez.apps.tenant.v1.ListMemberRequest
+	20, // 38: sentinez.apps.tenant.v1.TenantService.CreateMember:input_type -> sentinez.apps.tenant.v1.CreateMemberRequest
+	18, // 39: sentinez.apps.tenant.v1.TenantService.UpdateMember:input_type -> sentinez.apps.tenant.v1.UpdateMemberRequest
+	16, // 40: sentinez.apps.tenant.v1.TenantService.DeleteMember:input_type -> sentinez.apps.tenant.v1.DeleteMemberRequest
+	14, // 41: sentinez.apps.tenant.v1.TenantService.GetMember:input_type -> sentinez.apps.tenant.v1.GetMemberRequest
+	40, // 42: sentinez.apps.tenant.v1.TenantService.ListCaCertificate:input_type -> sentinez.apps.tenant.v1.ListCaCertificateRequest
+	34, // 43: sentinez.apps.tenant.v1.TenantService.CreateCaCertificate:input_type -> sentinez.apps.tenant.v1.CreateCaCertificateRequest
+	36, // 44: sentinez.apps.tenant.v1.TenantService.GetCaCertificate:input_type -> sentinez.apps.tenant.v1.GetCaCertificateRequest
+	38, // 45: sentinez.apps.tenant.v1.TenantService.DeleteCaCertificate:input_type -> sentinez.apps.tenant.v1.DeleteCaCertificateRequest
+	32, // 46: sentinez.apps.tenant.v1.TenantService.ListTenant:input_type -> sentinez.apps.tenant.v1.ListTenantRequest
+	30, // 47: sentinez.apps.tenant.v1.TenantService.CreateTenant:input_type -> sentinez.apps.tenant.v1.CreateTenantRequest
+	28, // 48: sentinez.apps.tenant.v1.TenantService.UpdateTenant:input_type -> sentinez.apps.tenant.v1.UpdateTenantRequest
+	26, // 49: sentinez.apps.tenant.v1.TenantService.DeleteTenant:input_type -> sentinez.apps.tenant.v1.DeleteTenantRequest
+	24, // 50: sentinez.apps.tenant.v1.TenantService.GetTenant:input_type -> sentinez.apps.tenant.v1.GetTenantRequest
+	12, // 51: sentinez.apps.tenant.v1.TenantService.Status:output_type -> sentinez.apps.tenant.v1.StatusResponse
+	11, // 52: sentinez.apps.tenant.v1.TenantService.ListResource:output_type -> sentinez.apps.tenant.v1.ListResourceResponse
+	9,  // 53: sentinez.apps.tenant.v1.TenantService.CreateResource:output_type -> sentinez.apps.tenant.v1.CreateResourceResponse
+	7,  // 54: sentinez.apps.tenant.v1.TenantService.UpdateResource:output_type -> sentinez.apps.tenant.v1.UpdateResourceResponse
+	5,  // 55: sentinez.apps.tenant.v1.TenantService.DeleteResource:output_type -> sentinez.apps.tenant.v1.DeleteResourceResponse
+	3,  // 56: sentinez.apps.tenant.v1.TenantService.GetResource:output_type -> sentinez.apps.tenant.v1.GetResourceResponse
+	2,  // 57: sentinez.apps.tenant.v1.TenantService.GetResourceByDomain:output_type -> sentinez.apps.tenant.v1.GetResourceByDomainResponse
+	23, // 58: sentinez.apps.tenant.v1.TenantService.ListMember:output_type -> sentinez.apps.tenant.v1.ListMemberResponse
+	21, // 59: sentinez.apps.tenant.v1.TenantService.CreateMember:output_type -> sentinez.apps.tenant.v1.CreateMemberResponse
+	19, // 60: sentinez.apps.tenant.v1.TenantService.UpdateMember:output_type -> sentinez.apps.tenant.v1.UpdateMemberResponse
+	17, // 61: sentinez.apps.tenant.v1.TenantService.DeleteMember:output_type -> sentinez.apps.tenant.v1.DeleteMemberResponse
+	15, // 62: sentinez.apps.tenant.v1.TenantService.GetMember:output_type -> sentinez.apps.tenant.v1.GetMemberResponse
+	41, // 63: sentinez.apps.tenant.v1.TenantService.ListCaCertificate:output_type -> sentinez.apps.tenant.v1.ListCaCertificateResponse
+	35, // 64: sentinez.apps.tenant.v1.TenantService.CreateCaCertificate:output_type -> sentinez.apps.tenant.v1.CreateCaCertificateResponse
+	37, // 65: sentinez.apps.tenant.v1.TenantService.GetCaCertificate:output_type -> sentinez.apps.tenant.v1.GetCaCertificateResponse
+	39, // 66: sentinez.apps.tenant.v1.TenantService.DeleteCaCertificate:output_type -> sentinez.apps.tenant.v1.DeleteCaCertificateResponse
+	33, // 67: sentinez.apps.tenant.v1.TenantService.ListTenant:output_type -> sentinez.apps.tenant.v1.ListTenantResponse
+	31, // 68: sentinez.apps.tenant.v1.TenantService.CreateTenant:output_type -> sentinez.apps.tenant.v1.CreateTenantResponse
+	29, // 69: sentinez.apps.tenant.v1.TenantService.UpdateTenant:output_type -> sentinez.apps.tenant.v1.UpdateTenantResponse
+	27, // 70: sentinez.apps.tenant.v1.TenantService.DeleteTenant:output_type -> sentinez.apps.tenant.v1.DeleteTenantResponse
+	25, // 71: sentinez.apps.tenant.v1.TenantService.GetTenant:output_type -> sentinez.apps.tenant.v1.GetTenantResponse
+	51, // [51:72] is the sub-list for method output_type
+	30, // [30:51] is the sub-list for method input_type
+	30, // [30:30] is the sub-list for extension type_name
+	30, // [30:30] is the sub-list for extension extendee
+	0,  // [0:30] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_apps_tenant_v1_tenant_proto_init() }

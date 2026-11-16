@@ -23,23 +23,20 @@ import (
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
 
-// ImportServer stores the server of a proxy.yaml: tenant, whose name and
+// ImportResource stores the resource of a proxy.yaml: tenant, whose name and
 // plan are updated when it exists, and the resource of srv under its
 // resource id, replaced so that importing again updates it. The resource
-// is served at srv.resource_domain, errNoDomain without one.
-func (svc *Service) ImportServer(ctx context.Context, tenant *tenantpb.Tenant,
-	srv *edgepb.Server) error {
+// is served at srv.domain, errNoDomain without one.
+func (svc *Service) ImportResource(ctx context.Context, tenant *tenantpb.Tenant,
+	srv *edgepb.Resource) error {
 
-	if err := normalizeServer(srv); err != nil {
+	rsrc, err := resourceOf(srv)
+	if err != nil {
 		return err
 	}
 
-	rsrc := &tenantpb.Resource{
-		Id:       srv.GetResourceId(),
-		TenantId: tenant.GetId(),
-		Server:   srv,
-		Status:   typepb.Status_STATUS_ACTIVE,
-	}
+	rsrc.TenantId = tenant.GetId()
+	rsrc.Status = typepb.Status_STATUS_ACTIVE
 
 	txss, err := svc.tx.Begin(ctx)
 	if err != nil {

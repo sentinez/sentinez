@@ -54,10 +54,10 @@ func (m *Setting) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetServer()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetIngress()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return SettingValidationError{
-				field:  "Server",
+				field:  "Ingress",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -98,16 +98,6 @@ func (m *Setting) Validate() error {
 		if err := v.Validate(); err != nil {
 			return SettingValidationError{
 				field:  "Delivery",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if v, ok := interface{}(m.GetTls()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return SettingValidationError{
-				field:  "Tls",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -170,6 +160,90 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = SettingValidationError{}
+
+// Validate checks the field values on Ingress with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *Ingress) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if v, ok := interface{}(m.GetResource()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return IngressValidationError{
+				field:  "Resource",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetTls()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return IngressValidationError{
+				field:  "Tls",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	return nil
+}
+
+// IngressValidationError is the validation error returned by Ingress.Validate
+// if the designated constraints aren't met.
+type IngressValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e IngressValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e IngressValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e IngressValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e IngressValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e IngressValidationError) ErrorName() string { return "IngressValidationError" }
+
+// Error satisfies the builtin error interface
+func (e IngressValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sIngress.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = IngressValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = IngressValidationError{}
 
 // Validate checks the field values on Tls with the rules defined in the proto
 // definition for this message. If any rules are violated, an error is returned.
@@ -391,12 +465,14 @@ var _ interface {
 	ErrorName() string
 } = MetadataValidationError{}
 
-// Validate checks the field values on Server with the rules defined in the
+// Validate checks the field values on Resource with the rules defined in the
 // proto definition for this message. If any rules are violated, an error is returned.
-func (m *Server) Validate() error {
+func (m *Resource) Validate() error {
 	if m == nil {
 		return nil
 	}
+
+	// no validation rules for Id
 
 	// no validation rules for Name
 
@@ -405,7 +481,7 @@ func (m *Server) Validate() error {
 
 		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return ServerValidationError{
+				return ResourceValidationError{
 					field:  fmt.Sprintf("Locations[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -415,16 +491,14 @@ func (m *Server) Validate() error {
 
 	}
 
-	// no validation rules for ResourceId
-
-	// no validation rules for ResourceDomain
+	// no validation rules for Domain
 
 	return nil
 }
 
-// ServerValidationError is the validation error returned by Server.Validate if
-// the designated constraints aren't met.
-type ServerValidationError struct {
+// ResourceValidationError is the validation error returned by
+// Resource.Validate if the designated constraints aren't met.
+type ResourceValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -432,22 +506,22 @@ type ServerValidationError struct {
 }
 
 // Field function returns field value.
-func (e ServerValidationError) Field() string { return e.field }
+func (e ResourceValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ServerValidationError) Reason() string { return e.reason }
+func (e ResourceValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ServerValidationError) Cause() error { return e.cause }
+func (e ResourceValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ServerValidationError) Key() bool { return e.key }
+func (e ResourceValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ServerValidationError) ErrorName() string { return "ServerValidationError" }
+func (e ResourceValidationError) ErrorName() string { return "ResourceValidationError" }
 
 // Error satisfies the builtin error interface
-func (e ServerValidationError) Error() string {
+func (e ResourceValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -459,14 +533,14 @@ func (e ServerValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sServer.%s: %s%s",
+		"invalid %sResource.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ServerValidationError{}
+var _ error = ResourceValidationError{}
 
 var _ interface {
 	Field() string
@@ -474,7 +548,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ServerValidationError{}
+} = ResourceValidationError{}
 
 // Validate checks the field values on Location with the rules defined in the
 // proto definition for this message. If any rules are violated, an error is returned.
@@ -684,16 +758,6 @@ func (m *SecRule) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetIngressRuntime()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return SecRuleValidationError{
-				field:  "IngressRuntime",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
 	return nil
 }
 
@@ -762,16 +826,6 @@ func (m *RateLimit) Validate() error {
 		if err := v.Validate(); err != nil {
 			return RateLimitValidationError{
 				field:  "Ingress",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if v, ok := interface{}(m.GetIngressRuntime()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return RateLimitValidationError{
-				field:  "IngressRuntime",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}

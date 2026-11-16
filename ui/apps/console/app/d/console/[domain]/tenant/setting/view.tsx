@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { PencilIcon } from 'lucide-react';
 
@@ -15,20 +15,20 @@ import {
   CardTitle,
 } from '@sentinez/ui/components/card';
 import IsLoading from '@sentinez/ui/components/common/loading';
-import type { Resource } from '@sentinez/proto/sentinez/apps/tenant/v1/model';
-import { updateResource } from '@/lib/api/tenant';
+import { Resource } from '@sentinez/proto/sentinez/apps/tenant/v1/model';
+import { edgeResourceOf, updateResource } from '@/lib/api/tenant';
 import { toast } from '@/lib/toast';
 import { ResourceOverview } from '../../../components/resource-overview';
 import { ResourceUnavailable } from '../../../components/resource-unavailable';
 import { ResourceRouting } from '../../../components/resource-routing';
 import { ResourceSettingJson } from '../../../components/resource-setting-json';
 import {
-  ServerFields,
-  serverFormOf,
-  serverOf,
-  validateServerForm,
-  type ServerFormValue,
-} from '../../../components/server-fields';
+  EdgeResourceFields,
+  edgeResourceFormOf,
+  edgeResourceOfForm,
+  validateEdgeResourceForm,
+  type EdgeResourceFormValue,
+} from '../../../components/edge-resource-fields';
 import { useResource } from '../../resource-context';
 
 /** The edge setting of the domain: its overview, then its routing, shown or edited in place */
@@ -56,17 +56,18 @@ export function SettingView() {
   );
 }
 
-/** The locations of the resource; Edit swaps them for the form changing the whole Server */
+/** The locations of the resource; Edit swaps them for the form changing the whole resource */
 function RoutingCard({ resource, onSaved }: { resource: Resource; onSaved: () => Promise<void> }) {
   const t = useTranslations('ResourceSetting');
   const tc = useTranslations('Common');
   const tv = useTranslations('Validation');
-  const [form, setForm] = useState<ServerFormValue | null>(null);
+  const [form, setForm] = useState<EdgeResourceFormValue | null>(null);
   const [saving, setSaving] = useState(false);
-  const locations = resource.server?.locations ?? [];
+  const locations = resource.locations ?? [];
+  const edge = useMemo(() => edgeResourceOf(resource), [resource]);
 
-  const save = async (value: ServerFormValue) => {
-    const invalid = validateServerForm(value, tv);
+  const save = async (value: EdgeResourceFormValue) => {
+    const invalid = validateEdgeResourceForm(value, tv);
     if (invalid) {
       toast.error(invalid);
       return;
@@ -74,11 +75,12 @@ function RoutingCard({ resource, onSaved }: { resource: Resource; onSaved: () =>
 
     setSaving(true);
     try {
-      // UpdateResource replaces both the server and the status
+      // The form edits the name and the routes, not the domain
+      const { name, locations } = edgeResourceOfForm(value, edge);
       await updateResource({
         id: resource.id,
-        server: serverOf(value, resource.server),
-        status: resource.status,
+        resource: Resource.fromPartial({ name, locations }),
+        updateMask: ['name', 'locations'],
       });
       toast.success(t('saved'));
       await onSaved();
@@ -102,7 +104,7 @@ function RoutingCard({ resource, onSaved }: { resource: Resource; onSaved: () =>
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => setForm(serverFormOf(resource.server))}
+              onClick={() => setForm(edgeResourceFormOf(edge))}
             >
               <PencilIcon className="w-4 h-4" />
               {t('edit')}
@@ -112,14 +114,14 @@ function RoutingCard({ resource, onSaved }: { resource: Resource; onSaved: () =>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         {form ? (
-          <ServerFields
+          <EdgeResourceFields
             value={form}
             onChange={(patch) => setForm((f) => f && { ...f, ...patch })}
           />
         ) : (
           <>
             <ResourceRouting locations={locations} />
-            <ResourceSettingJson server={resource.server} />
+            <ResourceSettingJson resource={edge} />
           </>
         )}
       </CardContent>

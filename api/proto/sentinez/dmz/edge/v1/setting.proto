@@ -27,15 +27,22 @@ option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1
 // Setting edge setting per user
 message Setting {
   Metadata metadata = 1; // @gotags: yaml:"metadata"
-  Server server = 2; // @gotags: yaml:"server"
+  Ingress ingress = 2; // @gotags: yaml:"ingress"
   Security security = 3; // @gotags: yaml:"security"
   TrafficControl traffic_control = 4; // @gotags: yaml:"traffic_control"
   Personal personal = 5; // @gotags: yaml:"personal"
   Delivery delivery = 6; // @gotags: yaml:"delivery"
+}
 
-  // Certificates the edge serves for server.resource_domain, from the CA
+// Ingress is where a request enters the edge and how it reaches the
+// origin: the resource (domain, locations and upstreams) and the
+// certificates it is served with.
+message Ingress {
+  Resource resource = 1; // @gotags: yaml:"resource"
+
+  // Certificates the edge serves for resource.domain, from the CA
   // certificates of usage SERVER of the resource; never read from a file.
-  Tls tls = 7; // @gotags: yaml:"-"
+  Tls tls = 2; // @gotags: yaml:"-"
 }
 
 // Tls the certificates the edge serves for the domain of a setting.
@@ -66,25 +73,25 @@ message Metadata {
   sentinez.types.v1.Plan plan = 4; // @gotags: yaml:"plan"
 }
 
-// Server defines where the request goes and how the edge processes it:
-message Server {
-  string name = 1 [(buf.validate.field) = {
+// Resource defines where the request goes and how the edge processes it:
+message Resource {
+  // Id of the resource, filled into the events of its requests;
+  // "rsrc_default" when empty.
+  string id = 1; // @gotags: yaml:"id"
+
+  string name = 2 [(buf.validate.field) = {
     string: {pattern: "^[a-zA-Z0-9-]+"}
   }]; // @gotags: yaml:"name"
 
-  repeated Location locations = 2; // @gotags: yaml:"locations"
+  repeated Location locations = 3; // @gotags: yaml:"locations"
 
-  // Id of the upstream servers of the locations, filled into the events
-  // of the requests; "rsrc_default" when empty.
-  string resource_id = 3; // @gotags: yaml:"resourceId"
-
-  // Domain the server is served at, the namespace of the setting: the
+  // Domain the resource is served at, the namespace of the setting: the
   // edge keys its stores by it and matches the request host against it,
   // the apiserver stores it as the domain of the resource. Required.
-  string resource_domain = 4 [(buf.validate.field) = {
+  string domain = 4 [(buf.validate.field) = {
     ignore: IGNORE_IF_ZERO_VALUE
     string: {pattern: "^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,63}$"}
-  }]; // @gotags: yaml:"resourceDomain"
+  }]; // @gotags: yaml:"domain"
 }
 
 message Location {
@@ -109,13 +116,11 @@ message Security {
 }
 
 message SecRule {
-  sentinez.types.secrule.v1.SecRuleLite ingress = 1; // @gotags: yaml:"ingress"
-  sentinez.types.secrule.v1.SecRule ingress_runtime = 2; // @gotags: yaml:"-"
+  sentinez.types.secrule.v1.SecRule ingress = 1; // @gotags: yaml:"ingress"
 }
 
 message RateLimit {
-  sentinez.types.secrule.v1.SecRuleLite ingress = 1; // @gotags: yaml:"ingress"
-  sentinez.types.secrule.v1.SecRule ingress_runtime = 2; // @gotags: yaml:"-"
+  sentinez.types.secrule.v1.SecRule ingress = 1; // @gotags: yaml:"ingress"
 
   string time_window = 11 [(buf.validate.field) = {
     string: {pattern: "^-?(?:\\d+(?:\\.\\d+)?(?:ns|us|µs|ms|s|m|h))+$"}

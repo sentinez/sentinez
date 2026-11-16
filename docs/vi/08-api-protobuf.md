@@ -21,7 +21,7 @@ api/proto/sentinez/
     ├── v1/                  # known.proto (enum), model.proto (Pages, Metadata), options.proto
     ├── setting/v1/          # Config, Flag, enum Senz (biến môi trường)
     ├── rule/v1/             # Expression, Condition, Operator, Action
-    ├── secrule/v1/          # SecRule runtime/Lite, Event WAF
+    ├── secrule/v1/          # SecRule runtime, Event WAF
     ├── cdn/v1/              # CDN rule
     ├── coreruleset/v1/      # CoreRulesets (đầu ra rule parser)
     ├── net/v1/              # Transport (conn_id, SNI)

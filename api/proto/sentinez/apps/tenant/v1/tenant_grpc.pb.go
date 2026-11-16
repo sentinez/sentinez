@@ -68,7 +68,7 @@ type TenantServiceClient interface {
 	ListResource(ctx context.Context, in *ListResourceRequest, opts ...grpc.CallOption) (*ListResourceResponse, error)
 	// Creates a new tenant resource.
 	CreateResource(ctx context.Context, in *CreateResourceRequest, opts ...grpc.CallOption) (*CreateResourceResponse, error)
-	// Updates an existing tenant resource.
+	// Updates the fields of a tenant resource its update_mask names.
 	UpdateResource(ctx context.Context, in *UpdateResourceRequest, opts ...grpc.CallOption) (*UpdateResourceResponse, error)
 	// Deletes a tenant resource.
 	DeleteResource(ctx context.Context, in *DeleteResourceRequest, opts ...grpc.CallOption) (*DeleteResourceResponse, error)
@@ -97,7 +97,7 @@ type TenantServiceClient interface {
 	ListTenant(ctx context.Context, in *ListTenantRequest, opts ...grpc.CallOption) (*ListTenantResponse, error)
 	// Creates a new tenant.
 	CreateTenant(ctx context.Context, in *CreateTenantRequest, opts ...grpc.CallOption) (*CreateTenantResponse, error)
-	// Updates the plan of a tenant.
+	// Updates the fields of a tenant its update_mask names.
 	UpdateTenant(ctx context.Context, in *UpdateTenantRequest, opts ...grpc.CallOption) (*UpdateTenantResponse, error)
 	// Deletes a tenant.
 	DeleteTenant(ctx context.Context, in *DeleteTenantRequest, opts ...grpc.CallOption) (*DeleteTenantResponse, error)
@@ -335,7 +335,7 @@ type TenantServiceServer interface {
 	ListResource(context.Context, *ListResourceRequest) (*ListResourceResponse, error)
 	// Creates a new tenant resource.
 	CreateResource(context.Context, *CreateResourceRequest) (*CreateResourceResponse, error)
-	// Updates an existing tenant resource.
+	// Updates the fields of a tenant resource its update_mask names.
 	UpdateResource(context.Context, *UpdateResourceRequest) (*UpdateResourceResponse, error)
 	// Deletes a tenant resource.
 	DeleteResource(context.Context, *DeleteResourceRequest) (*DeleteResourceResponse, error)
@@ -364,7 +364,7 @@ type TenantServiceServer interface {
 	ListTenant(context.Context, *ListTenantRequest) (*ListTenantResponse, error)
 	// Creates a new tenant.
 	CreateTenant(context.Context, *CreateTenantRequest) (*CreateTenantResponse, error)
-	// Updates the plan of a tenant.
+	// Updates the fields of a tenant its update_mask names.
 	UpdateTenant(context.Context, *UpdateTenantRequest) (*UpdateTenantResponse, error)
 	// Deletes a tenant.
 	DeleteTenant(context.Context, *DeleteTenantRequest) (*DeleteTenantResponse, error)

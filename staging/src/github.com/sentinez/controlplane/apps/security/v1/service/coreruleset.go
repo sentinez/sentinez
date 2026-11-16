@@ -19,6 +19,7 @@ import (
 
 	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/pkg/szerror"
+	"github.com/sentinez/pkg/szprotobuf"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 )
 
@@ -79,13 +80,20 @@ func (srv *SecurityService) GetCoreRuleset(ctx context.Context,
 	}, nil
 }
 
-// UpdateCoreRuleset updates an existing OWASP CRS configuration
+// _coreRulesetUpdatable the fields of a core ruleset an update writes.
+var _coreRulesetUpdatable = []string{
+	securitypb.CoreRuleset_Name, securitypb.CoreRuleset_Description,
+	securitypb.CoreRuleset_Content,
+}
+
+// UpdateCoreRuleset updates the fields of an OWASP CRS configuration its
+// update_mask names; the configuration they make must be valid.
 func (srv *SecurityService) UpdateCoreRuleset(ctx context.Context,
 	req *securitypb.UpdateCoreRulesetRequest,
 ) (*securitypb.UpdateCoreRulesetResponse, error) {
-	crs := req.GetCoreRuleset()
-	if err := validateCoreRuleset(crs); err != nil {
-		return nil, err
+	if req.GetCoreRuleset() == nil {
+		return nil, szerror.StatusInvalidArgumentF(
+			"core_ruleset is required")
 	}
 
 	dbCRS, err := owned(ctx, srv, srv.coreRulesetRepo.Get, "core ruleset",
@@ -94,11 +102,17 @@ func (srv *SecurityService) UpdateCoreRuleset(ctx context.Context,
 		return nil, err
 	}
 
-	dbCRS.Name = crs.GetName()
-	dbCRS.Description = crs.GetDescription()
-	dbCRS.Content = crs.GetContent()
+	paths, err := szprotobuf.ApplyMask(dbCRS, req.GetCoreRuleset(),
+		req.GetUpdateMask(), _coreRulesetUpdatable...)
+	if err != nil {
+		return nil, err
+	}
 
-	if err := srv.coreRulesetRepo.Update(ctx, dbCRS); err != nil {
+	if err = validateCoreRuleset(dbCRS); err != nil {
+		return nil, err
+	}
+
+	if err = srv.coreRulesetRepo.Update(ctx, dbCRS, paths); err != nil {
 		return nil, err
 	}
 

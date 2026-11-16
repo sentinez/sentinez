@@ -60,9 +60,9 @@ Notes:
   the string sources (`PATH`, `BODY`, `HOST`, `METHOD`, `JA4`, a `HEADER`
   or `QUERY` value). A side that is not a number never matches.
 - Unknown sources never match (`bypass = false`).
-- In YAML, `value` is always a string (Lite form), so list operators
-  (`IN`/`NOT_IN`) are only usable when building an `Expression` directly
-  (e.g. via the API).
+- In YAML, a scalar `value` is matched as a string (numbers and bools are
+  converted by `NormalizeEdgeSetting`); the list operators (`IN`/`NOT_IN`)
+  take a YAML list, e.g. `value: [GET, HEAD]`.
 
 ## 4.3 SecRule
 
@@ -127,12 +127,12 @@ There are three SecRule shapes in the protos:
 | Type | Used in |
 |---|---|
 | `apps.security.v1.SecRule` | API/DB model (control plane), with `metadata`, `action` as a string + `action_value` |
-| `types.secrule.v1.SecRule` / `SecRuleLite` | Edge runtime / YAML input form |
-| `dmz.edge.v1.SecRule` | Wrapper inside `Setting`: `{ingress: Lite, ingress_runtime: Runtime}` |
+| `types.secrule.v1.SecRule` | Edge runtime and YAML input form |
+| `dmz.edge.v1.SecRule` | Wrapper inside `Setting`: `{ingress: SecRule}` |
 
 ## 4.4 CDN rules
 
-`types.cdn.v1.CDN{rule: RuleLite, rule_runtime: Rule}` lives in
+`types.cdn.v1.CDN{rule: Rule}` lives in
 `setting.delivery.cdn`. As for SecRules, each namespace keeps a **chain**
 of CDN rules
 ([internal/memory/cdnrules](../internal/memory/cdnrules/cdnrules.go)): only

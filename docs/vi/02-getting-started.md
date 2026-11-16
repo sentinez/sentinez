@@ -64,8 +64,8 @@ make sz.edge.run
 `make sz.edge.run` truyền `--cert_file`, `--cert_key_file`,
 `--proxy_config=./cmd/szedge/v1/proxy.yaml`, `--env_file`, `--engine=quic`.
 Request được phục vụ
-bằng cấu hình có `server.resourceDomain` trùng host của nó (bỏ port): request
-tới `badcheese.is.s6z.io.vn` dùng `resourceDomain: badcheese.is.s6z.io.vn`. Edge còn mở pprof ở `:6060`.
+bằng cấu hình có `ingress.resource.domain` trùng host của nó (bỏ port): request
+tới `badcheese.is.s6z.io.vn` dùng `domain: badcheese.is.s6z.io.vn`. Edge còn mở pprof ở `:6060`.
 
 > `hack/mkcert-local.sh` đặt cert vào `cmd/szedge/v1/`; truyền chúng qua
 > `--cert_file`/`--cert_key_file`.

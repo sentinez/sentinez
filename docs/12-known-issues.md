@@ -50,7 +50,7 @@ Remove an entry once it is fixed.
   (`sentinez/dmz/edge/zone/<zone>/status`); `Elector.Publish` and
   `leader.All` are ready for more zone-wide records, but none exists yet.
   Nothing reads the status either.
-- Unloading a namespace (deleted resource, changed `server.resourceDomain`) keeps
+- Unloading a namespace (deleted resource, changed `ingress.resource.domain`) keeps
   its reverse proxies: they are keyed by upstream and shared between
   namespaces, with no reference count.
 - Waiting room (`ROM`), `pkg/szqueue`, `pkg/sztopic`, `pkg/szstorage/{keyval,

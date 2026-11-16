@@ -192,10 +192,10 @@ func (m *MemStore) load(id string, s *edgepb.Setting) {
 	sznormalize.NormalizeEdgeSetting(st)
 
 	// the stores key st by it too
-	ns := st.GetServer().GetResourceDomain()
+	ns := st.GetIngress().GetResource().GetDomain()
 	if ns == "" {
-		szlog.Errorf("edge: setting of %s has no server.resourceDomain, "+
-			"not loaded", id)
+		szlog.Errorf("edge: setting of %s has no "+
+			"ingress.resource.domain, not loaded", id)
 
 		return
 	}
@@ -247,10 +247,10 @@ func (m *MemStore) unload(id, ns string) bool {
 	return true
 }
 
-// namespace of the raw (not normalized) s: the resource domain of its
-// server, as sznormalize.NormalizeEdgeSetting normalizes it.
+// namespace of the raw (not normalized) s: the domain of its resource,
+// as sznormalize.NormalizeEdgeSetting normalizes it.
 func namespace(s *edgepb.Setting) string {
-	return sznormalize.ResourceDomain(s.GetServer().GetResourceDomain())
+	return sznormalize.ResourceDomain(s.GetIngress().GetResource().GetDomain())
 }
 
 // claim gives namespace to resource id, unless another one holds it.

@@ -218,9 +218,12 @@ func (x *GetSecRuleResponse) GetSecRule() *SecRule {
 }
 
 type UpdateSecRuleRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	SecRule       *SecRule               `protobuf:"bytes,2,opt,name=sec_rule,json=secRule,proto3" json:"sec_rule,omitempty"`
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Id      string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	SecRule *SecRule               `protobuf:"bytes,2,opt,name=sec_rule,json=secRule,proto3" json:"sec_rule,omitempty"`
+	// Fields of sec_rule to update, among name, description, expr, status,
+	// priority and action ("*" for all of them); without one, those set in
+	// sec_rule. A named field unset in sec_rule is cleared.
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,3,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -691,9 +694,13 @@ func (x *GetRateLimitResponse) GetRateLimit() *RateLimit {
 }
 
 type UpdateRateLimitRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	RateLimit     *RateLimit             `protobuf:"bytes,2,opt,name=rate_limit,json=rateLimit,proto3" json:"rate_limit,omitempty"`
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Id        string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	RateLimit *RateLimit             `protobuf:"bytes,2,opt,name=rate_limit,json=rateLimit,proto3" json:"rate_limit,omitempty"`
+	// Fields of rate_limit to update, among name, description, expr,
+	// status, priority, action, time_window, max_requests and timeout ("*"
+	// for all of them); without one, those set in rate_limit. A named field
+	// unset in rate_limit is cleared.
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,3,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1164,9 +1171,12 @@ func (x *GetCoreRulesetResponse) GetCoreRuleset() *CoreRuleset {
 }
 
 type UpdateCoreRulesetRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	CoreRuleset   *CoreRuleset           `protobuf:"bytes,2,opt,name=core_ruleset,json=coreRuleset,proto3" json:"core_ruleset,omitempty"`
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	Id          string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	CoreRuleset *CoreRuleset           `protobuf:"bytes,2,opt,name=core_ruleset,json=coreRuleset,proto3" json:"core_ruleset,omitempty"`
+	// Fields of core_ruleset to update, among name, description and
+	// content ("*" for all of them); without one, those set in core_ruleset.
+	// A named field unset in core_ruleset is cleared.
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,3,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

@@ -130,7 +130,7 @@ func sealed(t *testing.T, sealer *crypto.Sealer, id string,
 func tlsSetting(ns string, certs ...*edgepb.Certificate) *edgepb.Setting {
 	st := newSetting("tnt_1", ns)
 	if len(certs) > 0 {
-		st.Tls = &edgepb.Tls{Certificates: certs}
+		st.Ingress.Tls = &edgepb.Tls{Certificates: certs}
 	}
 
 	return st
@@ -261,7 +261,7 @@ func TestCentralSettingCarriesServerCertificates(t *testing.T) {
 
 	st, ok := m.central.Load("rsrc_1")
 	require.True(t, ok)
-	certs := st.GetTls().GetCertificates()
+	certs := st.GetIngress().GetTls().GetCertificates()
 	require.Len(t, certs, 2)
 	assert.Equal(t, "cacrt_a", certs[0].GetId())
 	assert.Equal(t, "v1:pem-cacrt_a", certs[0].GetPem(), "still sealed")

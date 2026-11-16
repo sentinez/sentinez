@@ -65,8 +65,8 @@ make sz.edge.run
 `make sz.edge.run` passes `--cert_file`, `--cert_key_file`,
 `--proxy_config=./cmd/szedge/v1/proxy.yaml`, `--env_file` and
 `--engine=quic`. A request is served with the config whose
-`server.resourceDomain` is its host (port stripped): a request to
-`badcheese.is.s6z.io.vn` uses `resourceDomain: badcheese.is.s6z.io.vn`.
+`ingress.resource.domain` is its host (port stripped): a request to
+`badcheese.is.s6z.io.vn` uses `domain: badcheese.is.s6z.io.vn`.
 The edge also opens pprof on `:6060`.
 
 > `hack/mkcert-local.sh` puts the certs in `cmd/szedge/v1/`; pass them with

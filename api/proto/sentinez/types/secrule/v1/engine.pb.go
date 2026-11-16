@@ -137,90 +137,6 @@ func (x *SecRule) GetExprPreview() string {
 	return ""
 }
 
-type SecRuleLite struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	Expr          *v1.ExpressionLite     `protobuf:"bytes,4,opt,name=expr,proto3" json:"expr,omitempty"`
-	Action        *v1.Action             `protobuf:"bytes,5,opt,name=action,proto3" json:"action,omitempty"`
-	Status        string                 `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SecRuleLite) Reset() {
-	*x = SecRuleLite{}
-	mi := &file_sentinez_types_secrule_v1_engine_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SecRuleLite) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SecRuleLite) ProtoMessage() {}
-
-func (x *SecRuleLite) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_types_secrule_v1_engine_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SecRuleLite.ProtoReflect.Descriptor instead.
-func (*SecRuleLite) Descriptor() ([]byte, []int) {
-	return file_sentinez_types_secrule_v1_engine_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *SecRuleLite) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-func (x *SecRuleLite) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *SecRuleLite) GetDescription() string {
-	if x != nil {
-		return x.Description
-	}
-	return ""
-}
-
-func (x *SecRuleLite) GetExpr() *v1.ExpressionLite {
-	if x != nil {
-		return x.Expr
-	}
-	return nil
-}
-
-func (x *SecRuleLite) GetAction() *v1.Action {
-	if x != nil {
-		return x.Action
-	}
-	return nil
-}
-
-func (x *SecRuleLite) GetStatus() string {
-	if x != nil {
-		return x.Status
-	}
-	return ""
-}
-
 var File_sentinez_types_secrule_v1_engine_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_secrule_v1_engine_proto_rawDesc = "" +
@@ -234,14 +150,7 @@ const file_sentinez_types_secrule_v1_engine_proto_rawDesc = "" +
 	"\x06action\x18\x05 \x01(\v2\x1e.sentinez.types.rule.v1.ActionR\x06action\x121\n" +
 	"\x06status\x18\x06 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12\x1a\n" +
 	"\bpriority\x18\a \x01(\x05R\bpriority\x12!\n" +
-	"\fexpr_preview\x18\b \x01(\tR\vexprPreview\"\xdf\x01\n" +
-	"\vSecRuleLite\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
-	"\vdescription\x18\x03 \x01(\tR\vdescription\x12:\n" +
-	"\x04expr\x18\x04 \x01(\v2&.sentinez.types.rule.v1.ExpressionLiteR\x04expr\x126\n" +
-	"\x06action\x18\x05 \x01(\v2\x1e.sentinez.types.rule.v1.ActionR\x06action\x12\x16\n" +
-	"\x06status\x18\x06 \x01(\tR\x06statusBLZJgithub.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1;secrulepbb\x06proto3"
+	"\fexpr_preview\x18\b \x01(\tR\vexprPreviewBLZJgithub.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1;secrulepbb\x06proto3"
 
 var (
 	file_sentinez_types_secrule_v1_engine_proto_rawDescOnce sync.Once
@@ -255,26 +164,22 @@ func file_sentinez_types_secrule_v1_engine_proto_rawDescGZIP() []byte {
 	return file_sentinez_types_secrule_v1_engine_proto_rawDescData
 }
 
-var file_sentinez_types_secrule_v1_engine_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_sentinez_types_secrule_v1_engine_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_sentinez_types_secrule_v1_engine_proto_goTypes = []any{
-	(*SecRule)(nil),           // 0: sentinez.types.secrule.v1.SecRule
-	(*SecRuleLite)(nil),       // 1: sentinez.types.secrule.v1.SecRuleLite
-	(*v1.Expression)(nil),     // 2: sentinez.types.rule.v1.Expression
-	(*v1.Action)(nil),         // 3: sentinez.types.rule.v1.Action
-	(v11.Status)(0),           // 4: sentinez.types.v1.Status
-	(*v1.ExpressionLite)(nil), // 5: sentinez.types.rule.v1.ExpressionLite
+	(*SecRule)(nil),       // 0: sentinez.types.secrule.v1.SecRule
+	(*v1.Expression)(nil), // 1: sentinez.types.rule.v1.Expression
+	(*v1.Action)(nil),     // 2: sentinez.types.rule.v1.Action
+	(v11.Status)(0),       // 3: sentinez.types.v1.Status
 }
 var file_sentinez_types_secrule_v1_engine_proto_depIdxs = []int32{
-	2, // 0: sentinez.types.secrule.v1.SecRule.expr:type_name -> sentinez.types.rule.v1.Expression
-	3, // 1: sentinez.types.secrule.v1.SecRule.action:type_name -> sentinez.types.rule.v1.Action
-	4, // 2: sentinez.types.secrule.v1.SecRule.status:type_name -> sentinez.types.v1.Status
-	5, // 3: sentinez.types.secrule.v1.SecRuleLite.expr:type_name -> sentinez.types.rule.v1.ExpressionLite
-	3, // 4: sentinez.types.secrule.v1.SecRuleLite.action:type_name -> sentinez.types.rule.v1.Action
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	1, // 0: sentinez.types.secrule.v1.SecRule.expr:type_name -> sentinez.types.rule.v1.Expression
+	2, // 1: sentinez.types.secrule.v1.SecRule.action:type_name -> sentinez.types.rule.v1.Action
+	3, // 2: sentinez.types.secrule.v1.SecRule.status:type_name -> sentinez.types.v1.Status
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_types_secrule_v1_engine_proto_init() }
@@ -288,7 +193,7 @@ func file_sentinez_types_secrule_v1_engine_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_types_secrule_v1_engine_proto_rawDesc), len(file_sentinez_types_secrule_v1_engine_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -29,9 +29,9 @@ import (
 )
 
 var (
-	_importServer = &edgepb.Server{
-		Name: "badcheese", ResourceId: "rsrc_shop",
-		ResourceDomain: "badcheese.s6z.io.vn",
+	_importServer = &edgepb.Resource{
+		Name: "badcheese", Id: "rsrc_shop",
+		Domain: "badcheese.s6z.io.vn",
 	}
 	_importTenant = &tenantpb.Tenant{
 		Id: _tenantId, Name: "admin", Plan: typepb.Plan_PLAN_PRO,
@@ -49,27 +49,27 @@ func importTenants(t *testing.T) *tenantmock.MockITenant {
 	return repo
 }
 
-func TestImportServer(t *testing.T) {
+func TestImportResource(t *testing.T) {
 	tx, conn := mockTx(t)
 	conn.ExpectCommit()
 
 	want := &tenantpb.Resource{
 		Id: "rsrc_shop", TenantId: _tenantId,
-		Server: _importServer,
+		Name: "badcheese", Domain: "badcheese.s6z.io.vn",
 		Status: typepb.Status_STATUS_ACTIVE,
 	}
 	resources := resourcemock.NewMockIResource(t)
 	resources.EXPECT().WithTX(mock.Anything).Return(resources)
 	resources.EXPECT().Upsert(mock.Anything, want).Return(nil)
 
-	err := New(tx, resources, nil, importTenants(t), nil).ImportServer(
+	err := New(tx, resources, nil, importTenants(t), nil).ImportResource(
 		t.Context(), _importTenant, _importServer)
 
 	require.NoError(t, err)
 	assert.NoError(t, conn.ExpectationsWereMet())
 }
 
-func TestImportServerRollsBackWhenResourceFails(t *testing.T) {
+func TestImportResourceRollsBackWhenResourceFails(t *testing.T) {
 	tx, conn := mockTx(t)
 	conn.ExpectRollback()
 
@@ -78,17 +78,17 @@ func TestImportServerRollsBackWhenResourceFails(t *testing.T) {
 	resources.EXPECT().Upsert(mock.Anything, mock.Anything).
 		Return(errors.New("insert resource"))
 
-	err := New(tx, resources, nil, importTenants(t), nil).ImportServer(
+	err := New(tx, resources, nil, importTenants(t), nil).ImportResource(
 		t.Context(), _importTenant, _importServer)
 
 	require.Error(t, err)
 	assert.NoError(t, conn.ExpectationsWereMet())
 }
 
-func TestImportServerWithoutDomain(t *testing.T) {
-	srv := &edgepb.Server{Name: "badcheese", ResourceId: "rsrc_shop"}
+func TestImportResourceWithoutDomain(t *testing.T) {
+	srv := &edgepb.Resource{Name: "badcheese", Id: "rsrc_shop"}
 
-	err := New(nil, nil, nil, nil, nil).ImportServer(
+	err := New(nil, nil, nil, nil, nil).ImportResource(
 		t.Context(), _importTenant, srv)
 
 	assert.ErrorIs(t, err, errNoDomain)

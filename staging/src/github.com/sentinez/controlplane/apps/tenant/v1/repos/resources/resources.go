@@ -20,12 +20,10 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/controlplane/pkg/schema"
 	"github.com/sentinez/pkg/szprefix"
-	"github.com/sentinez/pkg/szprotobuf/protox"
 	"github.com/sentinez/pkg/szrand"
 	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
-	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
@@ -49,7 +47,7 @@ type IResource interface {
 	List(ctx context.Context, req *tenantpb.ListResourceRequest) (*tenantpb.ListResourceResponse, error)
 	Create(ctx context.Context, rs *tenantpb.Resource) (*tenantpb.Resource, error)
 	Upsert(ctx context.Context, rs *tenantpb.Resource) error
-	Update(ctx context.Context, rs *tenantpb.Resource) error
+	Update(ctx context.Context, rs *tenantpb.Resource, paths []string) error
 	Get(ctx context.Context, id string) (*tenantpb.Resource, error)
 	Delete(ctx context.Context, id string) error
 
@@ -90,12 +88,9 @@ func (rsc *Resources) WithTX(tx *postgres.TxSession) IResource {
 // Upsert inserts rs under its own id, or replaces the stored row when the
 // id exists.
 func (rsc *Resources) Upsert(ctx context.Context, rs *tenantpb.Resource) error {
-	row, err := resourceRow(rs)
-	if err != nil {
-		return err
-	}
+	_, err := rsc.storage.Insert(ctx,
+		postgres.UpsertBuilder(rsc.storage, resourceRow(rs)))
 
-	_, err = rsc.storage.Insert(ctx, postgres.UpsertBuilder(rsc.storage, row))
 	return err
 }
 
@@ -104,12 +99,8 @@ func (rsc *Resources) Create(
 
 	rs.Id = szrand.NewUUID(szprefix.TenantResource)
 
-	row, err := resourceRow(rs)
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = rsc.storage.Insert(ctx, postgres.InsertBuilder(rsc.storage, row))
+	_, err := rsc.storage.Insert(ctx,
+		postgres.InsertBuilder(rsc.storage, resourceRow(rs)))
 	if err != nil {
 		return nil, err
 	}
@@ -117,60 +108,25 @@ func (rsc *Resources) Create(
 	return rs, nil
 }
 
-// resourceRow is the stored columns of rs, whose server is stored under
-// the id of rs.
-func resourceRow(rs *tenantpb.Resource) (postgres.M, error) {
-	if rs.GetServer() != nil {
-		rs.Server.ResourceId = rs.GetId()
-	}
-
-	row, err := serverColumns(rs.GetServer())
-	if err != nil {
-		return nil, err
-	}
-
-	row[tenantpb.Resource_Id] = rs.GetId()
-	row[tenantpb.Resource_TenantId] = rs.GetTenantId()
-	row[tenantpb.Resource_Status] = rs.GetStatus()
-
-	return row, nil
-}
-
-// serverColumns is the stored server column and the columns derived from
-// it, written together so that they never disagree.
-func serverColumns(srv *edgepb.Server) (postgres.M, error) {
-	st, err := protox.Marshal(srv)
-	if err != nil {
-		return nil, err
-	}
-
+// resourceRow is the stored columns of rs.
+func resourceRow(rs *tenantpb.Resource) postgres.M {
 	return postgres.M{
-		tenantpb.Resource_Server:    st,
-		schema.ResourceServerName:   srv.GetName(),
-		schema.ResourceServerDomain: srv.GetResourceDomain(),
-	}, nil
+		tenantpb.Resource_Id:        rs.GetId(),
+		tenantpb.Resource_TenantId:  rs.GetTenantId(),
+		tenantpb.Resource_Name:      rs.GetName(),
+		tenantpb.Resource_Domain:    rs.GetDomain(),
+		tenantpb.Resource_Locations: rs.GetLocations(),
+		tenantpb.Resource_Status:    rs.GetStatus(),
+	}
 }
 
-// Update sets the status of rs unless unspecified, and replaces the
-// stored server with the one of rs when set.
-func (rsc *Resources) Update(
-	ctx context.Context, rs *tenantpb.Resource) error {
+// Update writes the columns of the fields of rs paths names, as
+// szprotobuf.ApplyMask returns them; a path of no column is skipped.
+func (rsc *Resources) Update(ctx context.Context, rs *tenantpb.Resource,
+	paths []string) error {
 
-	q := postgres.UpdateBuilder(rsc.storage, rs.GetId())
-	if rs.GetStatus() != typepb.Status_STATUS_UNSPECIFIED {
-		q = q.Set(tenantpb.Resource_Status, rs.GetStatus())
-	}
-
-	if rs.GetServer() != nil {
-		rs.Server.ResourceId = rs.GetId()
-
-		cols, err := serverColumns(rs.GetServer())
-		if err != nil {
-			return err
-		}
-
-		q = q.SetMap(cols)
-	}
+	q := postgres.UpdateBuilder(rsc.storage, rs.GetId()).
+		SetMap(resourceRow(rs).Only(paths))
 
 	_, err := rsc.storage.Exec(ctx, q)
 
@@ -199,11 +155,11 @@ func (rsc *Resources) listQ(
 
 	if len(req.GetResourceDomain()) != 0 {
 		q = q.Where(
-			sq.Eq{schema.ResourceServerDomain: req.GetResourceDomain()})
+			sq.Eq{tenantpb.Resource_Domain: req.GetResourceDomain()})
 	}
 
 	if len(req.GetResourceName()) != 0 {
-		q = q.Where(sq.Eq{schema.ResourceServerName: req.GetResourceName()})
+		q = q.Where(sq.Eq{tenantpb.Resource_Name: req.GetResourceName()})
 	}
 
 	if len(req.GetTenantIds()) != 0 {

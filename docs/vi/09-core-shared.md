@@ -68,7 +68,7 @@ type một topic, xem `pkg/szkafka`), nếu không thì qua provider OTLP riêng
 |---|---|
 | `core` | Hằng `Name` (`sentinez/1.0`, dùng làm header `Server`), `Code` (`SENZ`), `Version`, prefix request ID, `EnvPattern` |
 | `core/szcontext` | `WithTransportValue` / `GetTransport` cho `netpb.Transport` |
-| `pkg/sznormalize` | `NormalizeEdgeSetting` (Lite → runtime) |
+| `pkg/sznormalize` | `NormalizeEdgeSetting` (giá trị mặc định của edge setting), `EdgeSetting`/`EdgeResource`/`TenantResource` (resource của tenant ↔ edge setting) |
 | `core/internal/console` | Banner ASCII (`go-figure`) in một lần khi service chạy |
 | `core/internal/render` | Template `templ` cho trang 400/403/404/429/500 |
 | `pkg/szstorage/cache/mem` | Cache generic dựa trên `patrickmn/go-cache` |

@@ -53,7 +53,7 @@ func resourceRow(t *testing.T, id, tenant,
 	return upsertOf(t, sztable.TenantResources, id, &tenantpb.Resource{
 		Id:       id,
 		TenantId: tenant,
-		Server:   &edgepb.Server{ResourceId: id, ResourceDomain: domain},
+		Domain:   domain,
 	})
 }
 
@@ -219,7 +219,7 @@ func TestCentralSinkWritesTheSyncedMap(t *testing.T) {
 	st, held := m.central.Load("rsrc_1")
 	require.True(t, held)
 	assert.Equal(t, "central-map.example",
-		st.GetServer().GetResourceDomain())
+		st.GetIngress().GetResource().GetDomain())
 }
 
 func TestMovingTheDomainUnloadsTheOldOne(t *testing.T) {

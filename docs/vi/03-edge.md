@@ -34,7 +34,7 @@ main: run() → runner.Run(ctx, NewApp(edgeServer), NewApp(grpcServer), NewApp(l
      └─ Serve(e.Run(ctx, e.PublishStatus()))  // leader theo zone, xem 3.8
 
 edge.NewServer(conf)
- ├─ edgeyaml.LoadSetting(conf)              // setting *Lite thô của proxy.yaml
+ ├─ edgeyaml.LoadSetting(conf)              // setting thô của proxy.yaml
  ├─ memory.NewMemStore(conf)                // singleton; cluster.NewCluster + SyncMap setting
  └─ switch conf.Flag.Engine                 // --engine
      hertz → engine.Hertz(conf)            → httphz.NewServer + WithOnStdConnect(OnHertzConnect)
@@ -175,7 +175,7 @@ gây lỗi; tên stage là hằng exported (vd `secure.WAFId`). Panic của plug
 |---|---|---|---|
 | 0 | `TRC` | `trace.Tracer` | Sinh request ID `senz:req:<xid>` nếu context chưa có |
 | 1 | `LOG` | `logging.Logging` | Gọi `next` trước, sau đó log `httppb.IngressEvent` (JSON, kind `LOG_TYPE_HTTP_INGRESS`, chiều ingress) và, nếu `ROU` đã proxy request, một `httppb.EgressEvent` cho chặng proxy → upstream origin (kind `LOG_TYPE_HTTP_EGRESS`: upstream, status của origin, content type/length, latency, cùng các header do edge thiết lập gửi tới upstream qua `szhttp.SetUpstreamHeader`, được sắp xếp theo tên và lược bỏ header nhạy cảm) |
-| 2 | `DMA` | `secure.DomainBased` | Host (bỏ port, chữ thường) là namespace: phải là `server.resourceDomain` của một setting đã nạp. Sai → `403`. Gán `X().Namespace` và tenant/resource id của setting |
+| 2 | `DMA` | `secure.DomainBased` | Host (bỏ port, chữ thường) là namespace: phải là `ingress.resource.domain` của một setting đã nạp. Sai → `403`. Gán `X().Namespace` và tenant/resource id của setting |
 | 3 | `PUB` | `cdn.Public` | Phục vụ ảnh embed trong binary dưới `/cdn/sentinez/public/`; nạp ảnh lỗi lúc provision thì edge không khởi động |
 | 4 | `CDN` | `cdn.Cache` | Nếu có CDN rule active cho namespace và expression khớp: tra cache theo key `method+scheme+host+path+query+Accept-Encoding`; hit → trả response với `X-Cache: HIT`; miss → chạy tiếp và lưu response cache được (TTL 1h, xem [04-rule-engine.md](04-rule-engine.md#44-cdn-rules)) |
 | 5 | `LMT` | `secure.Limiter` | với mỗi limiter có `ingress.expr` (bắt buộc) khớp, theo priority như `RUL`: `limiter.Allow(IP)`; vượt → `429` |
@@ -201,19 +201,20 @@ Ví dụ đầy đủ: [cmd/szedge/v1/proxy.yaml](../../cmd/szedge/v1/proxy.yaml
 setting:
   metadata:
     tenantId: tnt_acme           # id of this proxy.yaml (default tnt_default, then not synced)
-  server:
-    name: badcheese              # tên hiển thị
-    resourceDomain: badcheese.is.s6z.io.vn # namespace = host của request (bắt buộc)
-    resourceId: rsrc_shop        # id of the upstream servers (default rsrc_default)
-    locations:
-      - location: /api           # prefix khớp
-        proxyRewrite: /          # thay prefix trước khi forward (mặc định = location)
-        proxyPass:
-          - server: api.example.com
-            protocol: PROXY_PROTOCOL_HTTPS   # hoặc PROXY_PROTOCOL_HTTP
-        balanceStrategy: BALANCE_STRATEGY_ROUND_ROBIN
-        proxySetHeaders:
-          X-Real-IP: $remote_addr
+  ingress:
+    resource:
+      name: badcheese              # tên hiển thị
+      domain: badcheese.is.s6z.io.vn # namespace = host của request (bắt buộc)
+      id: rsrc_shop                # id của resource (mặc định rsrc_default)
+      locations:
+        - location: /api           # prefix khớp
+          proxyRewrite: /          # thay prefix trước khi forward (mặc định = location)
+          proxyPass:
+            - server: api.example.com
+              protocol: PROXY_PROTOCOL_HTTPS   # hoặc PROXY_PROTOCOL_HTTP
+          balanceStrategy: BALANCE_STRATEGY_ROUND_ROBIN
+          proxySetHeaders:
+            X-Real-IP: $remote_addr
   security:
     core_ruleset:                # OWASP CRS, mỗi namespace một cấu hình
       status: STATUS_ACTIVE
@@ -248,7 +249,7 @@ setting:
           state: RULE_STATE_DETECTION_ONLY  # chỉ log, không tính điểm
         - id: 942130
           state: RULE_STATE_ENABLED         # ép bật dù trên paranoiaLevel
-    sec_rules:                   # SecRule (dạng Lite)
+    sec_rules:                   # SecRule
       - ingress:
           name: "Block /block"
           status: STATUS_ACTIVE
@@ -295,11 +296,10 @@ Ghi chú:
 - `overrides[].state`: `RULE_STATE_DISABLED` có thể giới hạn theo `location`;
   `RULE_STATE_DETECTION_ONLY` và `RULE_STATE_ENABLED` luôn áp dụng cho cả
   namespace.
-- Phần "Lite" (`SecRuleLite`, `cdn.RuleLite`, `ExpressionLite`) dùng chuỗi
-  cho `source/operator/status/value`. `NormalizeEdgeSetting` chuyển sang bản
-  runtime (`SecRule`, `cdn.Rule`, `Expression`) với enum thật, `value` thành
-  `structpb.Value` dạng string, và sinh ID `srule_<uuid>` /
-  `cond_<nanoid>`.
+- Rule được viết thẳng bằng type runtime (`SecRule`, `cdn.Rule`,
+  `Expression`): `source/operator/status` nhận tên enum, tên lạ làm parse
+  lỗi. `NormalizeEdgeSetting` đổi `value` dạng số và bool thành chuỗi, và
+  sinh ID còn thiếu `srule_<uuid>` / `cond_<nanoid>`.
 - Biến hỗ trợ trong `proxySetHeaders`
   ([core/szhttp/variable](../../staging/src/github.com/sentinez/core/szhttp/variable/variable.go)):
   `$host`, `$remote_addr`, `$scheme`, `$request_uri`,
@@ -350,7 +350,7 @@ Reverse proxy được tạo một lần cho mỗi `upstream.server` trong
 ## 3.7 Memory store
 
 `memory.MemStore` (singleton) gom các kho theo **namespace**
-(`server.resourceDomain`, chữ thường, bỏ dấu chấm cuối):
+(`ingress.resource.domain`, chữ thường, bỏ dấu chấm cuối):
 
 | Kho | Kiểu | Nội dung |
 |---|---|---|
@@ -443,7 +443,7 @@ transport, limiter kèm bộ đếm). Vì vậy các edge đồng bộ **nguồn
   edge dựng lại nó.
 - Mỗi lần thay đổi (`OnChange`), node normalize một bản sao
   (`sznormalize.NormalizeEdgeSetting`) rồi dựng lại store của namespace
-  (`server.resourceDomain`) mà request vẫn dùng để định tuyến. Namespace đổi tên hoặc
+  (`ingress.resource.domain`) mà request vẫn dùng để định tuyến. Namespace đổi tên hoặc
   resource bị xoá thì được gỡ trước.
 - Một namespace thuộc về một resource: resource thứ hai nhận cùng namespace
   sẽ không được nạp (có log), và không gỡ được namespace đó.

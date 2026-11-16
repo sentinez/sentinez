@@ -18,6 +18,7 @@ package sentinez.apps.tenant.v1;
 
 import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
+import "google/protobuf/field_mask.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "sentinez/apps/tenant/v1/model.proto";
 import "sentinez/dmz/edge/v1/setting.proto";
@@ -92,7 +93,7 @@ service TenantService {
     };
   }
 
-  // Updates an existing tenant resource.
+  // Updates the fields of a tenant resource its update_mask names.
   rpc UpdateResource(UpdateResourceRequest) returns (UpdateResourceResponse) {
     option (google.api.http) = {
       put: "/tenant/resource"
@@ -286,7 +287,7 @@ service TenantService {
     };
   }
 
-  // Updates the plan of a tenant.
+  // Updates the fields of a tenant its update_mask names.
   rpc UpdateTenant(UpdateTenantRequest) returns (UpdateTenantResponse) {
     option (google.api.http) = {
       put: "/tenant/tenant"
@@ -360,16 +361,20 @@ message UpdateResourceRequest {
     required: true
     string: {prefix: "rsrc_"}
   }];
-  // Replaces the stored server when set.
-  sentinez.dmz.edge.v1.Server server = 2;
-  sentinez.types.v1.Status status = 3;
+  // The fields to write, those update_mask names; its id and tenant_id
+  // are ignored.
+  sentinez.apps.tenant.v1.Resource resource = 2 [(buf.validate.field).required = true];
+  // Fields of resource to update, among name, domain, locations and
+  // status ("*" for all of them); without one, those set in resource. A
+  // named field unset in resource is cleared, but the domain is required.
+  google.protobuf.FieldMask update_mask = 3;
 }
 
 message UpdateResourceResponse {}
 
 message CreateResourceRequest {
-  // server.resource_domain is required.
-  sentinez.dmz.edge.v1.Server server = 1 [(buf.validate.field).required = true];
+  // resource.domain is required.
+  sentinez.dmz.edge.v1.Resource resource = 1 [(buf.validate.field).required = true];
   sentinez.types.v1.Status status = 2;
 
   string tenant_id = 3 [(buf.validate.field) = {
@@ -386,13 +391,13 @@ message ListResourceRequest {
   sentinez.types.v1.Pages page = 1;
   sentinez.types.v1.Status status = 2;
 
-  // server.name
+  // resource.name
   string resource_name = 4 [(buf.validate.field) = {
     ignore: IGNORE_IF_ZERO_VALUE
     string: {pattern: "^[a-zA-Z0-9-]+"}
   }];
 
-  // server.resource_domain
+  // resource.domain
   string resource_domain = 5 [(buf.validate.field) = {
     ignore: IGNORE_IF_ZERO_VALUE
     string: {pattern: "^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,63}$"}
@@ -535,14 +540,12 @@ message UpdateTenantRequest {
     required: true
     string: {prefix: "tnt_"}
   }];
-  sentinez.types.v1.Plan plan = 2 [(buf.validate.field) = {
-    required: true
-    enum: {defined_only: true}
-  }];
-  // name is left unchanged when empty.
-  string name = 3 [(buf.validate.field).string.max_len = 64];
-  // description is left unchanged when empty.
-  string description = 4 [(buf.validate.field).string.max_len = 255];
+  // The fields to write, those update_mask names; its id is ignored.
+  sentinez.apps.tenant.v1.Tenant tenant = 2 [(buf.validate.field).required = true];
+  // Fields of tenant to update, among name, description and plan ("*"
+  // for all of them); without one, those set in tenant. A named field
+  // unset in tenant is cleared, but the plan is required.
+  google.protobuf.FieldMask update_mask = 3;
 }
 
 message UpdateTenantResponse {}
