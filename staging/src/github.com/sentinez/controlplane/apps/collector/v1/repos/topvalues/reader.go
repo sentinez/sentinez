@@ -17,11 +17,9 @@ package topvalues
 import (
 	"context"
 
-	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventfilter"
 	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
-	"github.com/sentinez/pkg/sztable"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
 
@@ -46,7 +44,7 @@ type Reader struct {
 // Open returns the Reader of the event table, which must exist (synced by
 // its repo), filtered on cols, counting their Fields (in their order when
 // the names are empty).
-func Open(ctx context.Context, conf *settingpb.Config, table sztable.Table,
+func Open(ctx context.Context, conf *settingpb.Config, table dbx.Table,
 	cols eventfilter.Columns) (*Reader, error) {
 	db, err := postgres.Open[Row](ctx, conf,
 		dbx.Schema{Table: table}, postgres.NoSync)
@@ -65,7 +63,7 @@ func (r *Reader) TopValues(ctx context.Context, filter *eventfilter.Filter,
 		return nil, err
 	}
 
-	b, err := filter.Where(sq.Select().From(r.db.Table()), r.cols)
+	b, err := filter.Where(postgres.SelectBuilder(r.db, nil), r.cols)
 	if err != nil {
 		return nil, err
 	}

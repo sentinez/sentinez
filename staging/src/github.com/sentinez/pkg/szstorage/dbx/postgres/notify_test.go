@@ -19,6 +19,8 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/sentinez/pkg/szstorage/dbx"
+
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -61,8 +63,8 @@ func TestNotifyChange(t *testing.T) {
 func TestNotifyChangeRejectsInjection(t *testing.T) {
 	tests := []struct {
 		name        string
-		giveTable   string
-		giveChannel string
+		giveTable   dbx.Table
+		giveChannel Channel
 	}{
 		{"table", "t; DROP TABLE users", "ch"},
 		{"channel", "t", "ch'); DROP TABLE users; --"},

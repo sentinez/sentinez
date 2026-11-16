@@ -19,8 +19,9 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/sentinez/pkg/szstorage/dbx"
+
 	"github.com/sentinez/pkg/szerror"
-	"github.com/sentinez/pkg/sztable"
 	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
@@ -39,7 +40,7 @@ func (srv *CentralDataService) Sync(ctx context.Context,
 	}
 
 	version, epoch, err := srv.memory.Snapshot(tables,
-		func(table sztable.Table, row any) error {
+		func(table dbx.Table, row any) error {
 			if err := ctx.Err(); err != nil {
 				return err
 			}
@@ -59,15 +60,15 @@ func (srv *CentralDataService) Sync(ctx context.Context,
 
 // requested the tables of names, all those synced when none is named.
 func (srv *CentralDataService) requested(
-	names []string) ([]sztable.Table, error) {
+	names []string) ([]dbx.Table, error) {
 
 	if len(names) == 0 {
 		return srv.tables, nil
 	}
 
-	tables := make([]sztable.Table, 0, len(names))
+	tables := make([]dbx.Table, 0, len(names))
 	for _, name := range names {
-		table := sztable.Table(name)
+		table := dbx.Table(name)
 		if !slices.Contains(srv.tables, table) {
 			return nil, szerror.StatusInvalidArgumentF(
 				"table %q is not synced", name)
@@ -79,7 +80,7 @@ func (srv *CentralDataService) requested(
 	return tables, nil
 }
 
-func sendRow(table sztable.Table, row any,
+func sendRow(table dbx.Table, row any,
 	send func(*centraldatapb.SyncResponse) error) error {
 
 	msg, ok := row.(proto.Message)
@@ -98,7 +99,7 @@ func sendRow(table sztable.Table, row any,
 }
 
 // upsertChange the UPSERT of row, without version nor epoch.
-func upsertChange(table sztable.Table,
+func upsertChange(table dbx.Table,
 	row proto.Message) (*centraldatapb.Change, error) {
 
 	packed, err := anypb.New(row)

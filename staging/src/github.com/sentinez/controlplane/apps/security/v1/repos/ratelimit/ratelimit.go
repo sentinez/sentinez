@@ -112,7 +112,7 @@ func (r *RateLimit) total(
 	ctx context.Context, req *securitypb.ListRateLimitsRequest,
 ) (int64, error) {
 	builder := buildListQuery(
-		sq.Select("COUNT(*)").From(r.storage.Table()), req)
+		postgres.CountBuilder(r.storage), req)
 
 	var total int64
 	if err := r.storage.Query(ctx, builder, &total); err != nil {

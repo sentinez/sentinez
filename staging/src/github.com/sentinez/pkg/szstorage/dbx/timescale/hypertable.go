@@ -20,6 +20,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sentinez/pkg/szstorage/dbx"
+
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	"github.com/sentinez/pkg/szstorage/dbx/stmt"
 )
@@ -69,7 +71,7 @@ const (
 // syncHypertable runs the statements of hypertableStmts in one round
 // trip, as a single implicit transaction.
 func syncHypertable(ctx context.Context, client postgres.Client,
-	tableName string, ht Hypertable) error {
+	tableName dbx.Table, ht Hypertable) error {
 
 	stmts := hypertableStmts(tableName, ht)
 
@@ -85,7 +87,7 @@ func syncHypertable(ctx context.Context, client postgres.Client,
 // hypertableStmts the statements creating, or migrating, the hypertable
 // tableName described by ht, normalized: its table and columns, then the
 // hypertable, then its key and indexes, then its retention policy.
-func hypertableStmts(tableName string, ht Hypertable) []string {
+func hypertableStmts(tableName dbx.Table, ht Hypertable) []string {
 	stmts := make([]string, 0, 10+len(ht.Schema.Columns)+
 		len(ht.Schema.Indexes))
 	stmts = append(stmts,
@@ -113,7 +115,7 @@ func hypertableStmts(tableName string, ht Hypertable) []string {
 
 // chunkStmts turns tableName into a hypertable chunked by the time
 // column of ht, with its now function when it is a millisTime one.
-func chunkStmts(tableName string, ht Hypertable) []string {
+func chunkStmts(tableName dbx.Table, ht Hypertable) []string {
 	chunk := ht.kind.interval(ht.ChunkInterval)
 	stmts := []string{
 		fmt.Sprintf(_createHypertableStmt,
@@ -133,7 +135,7 @@ func chunkStmts(tableName string, ht Hypertable) []string {
 
 // retentionStmts sets the retention policy of the hypertable, or the
 // continuous aggregate, name: none when retention is zero.
-func retentionStmts(name string, retention time.Duration,
+func retentionStmts(name dbx.Table, retention time.Duration,
 	kind timeKind) []string {
 
 	stmts := []string{fmt.Sprintf(_removeRetentionStmt, name)}

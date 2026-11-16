@@ -25,7 +25,6 @@ import (
 	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	"github.com/sentinez/pkg/szstorage/dbx/query"
-	"github.com/sentinez/pkg/sztable"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
 
@@ -75,7 +74,7 @@ var errBucket = errors.New("view bucket: must be positive")
 // GroupBy, Aggregates) needs a new Name, or the view dropped; RealTime,
 // Refresh and Retention apply on every sync.
 type ViewSchema struct {
-	Name   sztable.Table
+	Name   dbx.Table
 	Source Hypertable
 	// Bucket the time range of a bucket, BucketColumn its start.
 	Bucket time.Duration
@@ -139,7 +138,7 @@ func NewView[T any](ctx context.Context, conf *settingpb.Config,
 
 	db, err := postgres.Open[T](ctx, conf, dbx.Schema{Table: schema.Name},
 		func(ctx context.Context, client postgres.Client,
-			viewName string) error {
+			viewName dbx.Table) error {
 			return syncView(ctx, client, viewName, sourceName, schema)
 		})
 	if err != nil {
@@ -150,7 +149,7 @@ func NewView[T any](ctx context.Context, conf *settingpb.Config,
 }
 
 // Table the name of the view.
-func (v *View[T]) Table() string {
+func (v *View[T]) Table() dbx.Table {
 	return v.db.Table()
 }
 
@@ -177,10 +176,11 @@ func (v *View[T]) Refresh(ctx context.Context, from, to time.Time) error {
 // was created. The view is created, and refreshed, alone: TimescaleDB
 // refuses to inside a transaction.
 func syncView(ctx context.Context, client postgres.Client,
-	viewName, sourceName string, schema ViewSchema) error {
+	viewName, sourceName dbx.Table, schema ViewSchema) error {
 
 	var exists bool
-	err := client.QueryRow(ctx, _viewExistsStmt, viewName).Scan(&exists)
+	err := client.QueryRow(ctx, _viewExistsStmt, viewName.String()).
+		Scan(&exists)
 	if err != nil {
 		return fmt.Errorf("view %s exists: %w", viewName, err)
 	}
@@ -208,7 +208,7 @@ func syncView(ctx context.Context, client postgres.Client,
 // Refresh.EndOffset: the refresh policy only covers its recent ones, the
 // older rows of the source would never be.
 func backfillView(ctx context.Context, client postgres.Client,
-	viewName string, schema ViewSchema) error {
+	viewName dbx.Table, schema ViewSchema) error {
 
 	to := time.Now().Add(-schema.Refresh.EndOffset)
 	refresh := fmt.Sprintf(_refreshStmt, viewName, "NULL",
@@ -222,7 +222,9 @@ func backfillView(ctx context.Context, client postgres.Client,
 
 // createViewStmt selects the bucket, the GroupBy columns then the
 // Aggregates of schema from sourceName.
-func createViewStmt(viewName, sourceName string, schema ViewSchema) string {
+func createViewStmt(viewName, sourceName dbx.Table,
+	schema ViewSchema) string {
+
 	bucket := schema.Source.TimeBucket(schema.Bucket) +
 		" AS " + BucketColumn
 
@@ -244,7 +246,7 @@ func createViewStmt(viewName, sourceName string, schema ViewSchema) string {
 
 // viewPolicyStmts sets the real time mode of the view, then its refresh
 // and retention policies.
-func viewPolicyStmts(viewName string, schema ViewSchema) []string {
+func viewPolicyStmts(viewName dbx.Table, schema ViewSchema) []string {
 	kind := schema.Source.kind
 	stmts := []string{
 		fmt.Sprintf(_setRealTimeStmt, viewName, !schema.RealTime),
@@ -256,7 +258,7 @@ func viewPolicyStmts(viewName string, schema ViewSchema) []string {
 
 // refreshStmts sets the refresh policy of the view: none when its
 // Schedule is zero.
-func refreshStmts(viewName string, policy RefreshPolicy,
+func refreshStmts(viewName dbx.Table, policy RefreshPolicy,
 	kind timeKind) []string {
 
 	stmts := []string{fmt.Sprintf(_removeRefreshStmt, viewName)}

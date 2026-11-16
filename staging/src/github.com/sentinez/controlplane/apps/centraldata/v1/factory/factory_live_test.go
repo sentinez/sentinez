@@ -87,7 +87,7 @@ func startLive(t *testing.T) *liveEnv {
 
 	conn, err := pgx.Connect(ctx, uri)
 	require.NoError(t, err)
-	drop := "DROP TABLE IF EXISTS " + relation
+	drop := "DROP TABLE IF EXISTS " + relation.String()
 	_, err = conn.Exec(ctx, drop)
 	require.NoError(t, err)
 
@@ -104,7 +104,7 @@ func startLive(t *testing.T) *liveEnv {
 		_ = conn.Close(ctx)
 	})
 
-	return &liveEnv{conn: conn, relation: relation, service: service,
+	return &liveEnv{conn: conn, relation: relation.String(), service: service,
 		pub: pub}
 }
 

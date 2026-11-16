@@ -27,15 +27,15 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szsync"
+	"github.com/sentinez/sentinez/pkg/cluster/channel"
 	"google.golang.org/protobuf/proto"
 )
 
 var errSyncStarted = errors.New("cluster: sync map already started")
 
 const (
-	_syncChannelPrefix = "sentinez.sync."
-	_syncInterval      = 30 * time.Second
-	_tombstoneTTL      = 24 * time.Hour
+	_syncInterval = 30 * time.Second
+	_tombstoneTTL = 24 * time.Hour
 )
 
 // protoPtr is *T when *T is a proto message.
@@ -173,7 +173,7 @@ func (m *SyncMap[T, PT]) write(
 	}
 
 	msg := encodeMessage(key, e.record)
-	if _, err := r.pubsub.Publish(ctx, m.channel(), msg); err != nil {
+	if _, err := r.pubsub.Publish(ctx, m.channel().String(), msg); err != nil {
 		szlog.Warnf("sync %s: publish %s: %v", m.name, key, err)
 	}
 
@@ -243,6 +243,6 @@ func (m *SyncMap[T, PT]) decode(r record) (entry[T], error) {
 	return e, nil
 }
 
-func (m *SyncMap[T, PT]) channel() string {
-	return _syncChannelPrefix + m.name
+func (m *SyncMap[T, PT]) channel() channel.Channel {
+	return channel.Sync(m.name)
 }

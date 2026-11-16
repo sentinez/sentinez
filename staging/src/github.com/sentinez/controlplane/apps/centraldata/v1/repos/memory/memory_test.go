@@ -17,6 +17,8 @@ package memrepo
 import (
 	"testing"
 
+	"github.com/sentinez/pkg/szstorage/dbx"
+
 	"github.com/sentinez/controlplane/pkg/schema"
 	"github.com/sentinez/pkg/szerror"
 	"github.com/sentinez/pkg/sztable"
@@ -141,8 +143,8 @@ func TestSnapshot(t *testing.T) {
 		&tenantpb.Tenant{Id: "b"}, &tenantpb.Tenant{Id: "a"}))
 
 	var ids []string
-	version, epoch, err := m.Snapshot([]sztable.Table{sztable.Tenants},
-		func(_ sztable.Table, row any) error {
+	version, epoch, err := m.Snapshot([]dbx.Table{sztable.Tenants},
+		func(_ dbx.Table, row any) error {
 			ids = append(ids, row.(*tenantpb.Tenant).GetId())
 
 			return nil

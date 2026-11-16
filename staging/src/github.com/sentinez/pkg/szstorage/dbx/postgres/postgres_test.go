@@ -29,7 +29,7 @@ type fakeTable struct {
 	dbx.Database[struct{}]
 }
 
-func (fakeTable) Table() string { return "items" }
+func (fakeTable) Table() dbx.Table { return "items" }
 
 func (fakeTable) UpdatedAt() string { return dbx.DefaultUpdatedAt }
 

@@ -25,7 +25,7 @@ import (
 // createIndexTest a case of TestCreateIndex.
 type createIndexTest struct {
 	name      string
-	giveTable string
+	giveTable dbx.Table
 	give      dbx.Index
 	want      string
 }
@@ -73,7 +73,7 @@ func createIndexTests() []createIndexTest {
 func TestAddColumn(t *testing.T) {
 	tests := []struct {
 		name      string
-		giveTable string
+		giveTable dbx.Table
 		give      dbx.Column
 		want      string
 	}{

@@ -119,7 +119,7 @@ func (m *Members) List(ctx context.Context,
 func (m *Members) total(
 	ctx context.Context, conds []sq.Sqlizer,
 ) (int64, error) {
-	builder := sq.Select("COUNT(*)").From(m.storage.Table())
+	builder := postgres.CountBuilder(m.storage)
 	for _, cond := range conds {
 		builder = builder.Where(cond)
 	}

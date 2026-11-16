@@ -14,39 +14,35 @@
 
 package sztable
 
-type Table string
-
-func (t Table) String() string {
-	return string(t)
-}
+import "github.com/sentinez/pkg/szstorage/dbx"
 
 const (
-	IAMUsers    Table = "iam.users"
-	IAMAccounts Table = "iam.accounts"
+	IAMUsers    dbx.Table = "iam.users"
+	IAMAccounts dbx.Table = "iam.accounts"
 )
 
 const (
-	Tenants              Table = "tenants"
-	TenantResources      Table = "tenant.resources"
-	TenantMembers        Table = "tenant.members"
-	TenantCaCertificates Table = "tenant.cacertificates"
+	Tenants              dbx.Table = "tenants"
+	TenantResources      dbx.Table = "tenant.resources"
+	TenantMembers        dbx.Table = "tenant.members"
+	TenantCaCertificates dbx.Table = "tenant.cacertificates"
 )
 
 const (
-	AnalyticActivities   Table = "analytic.activities"
-	AnalyticSecRules     Table = "analytic.secrules"
-	AnalyticCoreRulesets Table = "analytic.corerulesets"
-	AnalyticRateLimiter  Table = "analytic.ratelimiters"
+	AnalyticActivities   dbx.Table = "analytic.activities"
+	AnalyticSecRules     dbx.Table = "analytic.secrules"
+	AnalyticCoreRulesets dbx.Table = "analytic.corerulesets"
+	AnalyticRateLimiter  dbx.Table = "analytic.ratelimiters"
 
-	AnalyticSecRulesEvent     Table = "analytic.secrules.events"
-	AnalyticCoreRulesetsEvent Table = "analytic.corerulesets.events"
-	AnalyticRateLimiterEvent  Table = "analytic.ratelimiters.events"
-	AnalyticHttpIngressEvent  Table = "analytic.httpingress.events"
-	AnalyticHttpEgressEvent   Table = "analytic.httpegress.events"
+	AnalyticSecRulesEvent     dbx.Table = "analytic.secrules.events"
+	AnalyticCoreRulesetsEvent dbx.Table = "analytic.corerulesets.events"
+	AnalyticRateLimiterEvent  dbx.Table = "analytic.ratelimiters.events"
+	AnalyticHttpIngressEvent  dbx.Table = "analytic.httpingress.events"
+	AnalyticHttpEgressEvent   dbx.Table = "analytic.httpegress.events"
 )
 
 const (
-	SecuritySecRules     Table = "security.secrules"
-	SecurityRateLimits   Table = "security.ratelimits"
-	SecurityCoreRulesets Table = "security.corerulesets"
+	SecuritySecRules     dbx.Table = "security.secrules"
+	SecurityRateLimits   dbx.Table = "security.ratelimits"
+	SecurityCoreRulesets dbx.Table = "security.corerulesets"
 )

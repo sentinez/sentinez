@@ -1,7 +1,4 @@
-import { Button } from '@sentinez/ui/components/button';
-import { MoveLeft } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link';
 
 export default function NotFound() {
   return (

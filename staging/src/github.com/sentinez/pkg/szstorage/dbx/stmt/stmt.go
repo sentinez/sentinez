@@ -44,27 +44,29 @@ const (
 )
 
 // CreateTable creates tableName of schema, id its primary key.
-func CreateTable(tableName string, schema dbx.Schema) string {
+func CreateTable(tableName dbx.Table, schema dbx.Schema) string {
 	return createTable(tableName, "PRIMARY KEY", schema)
 }
 
 // CreateKeylessTable creates tableName like CreateTable, without primary
 // key: a hypertable, whose unique keys must hold its time column.
-func CreateKeylessTable(tableName string, schema dbx.Schema) string {
+func CreateKeylessTable(tableName dbx.Table, schema dbx.Schema) string {
 	return createTable(tableName, "NOT NULL", schema)
 }
 
-func createTable(tableName, idConstraint string, schema dbx.Schema) string {
+func createTable(tableName dbx.Table, idConstraint string,
+	schema dbx.Schema) string {
+
 	return fmt.Sprintf(_createSchemaStmt, tableName, idConstraint,
 		schema.CreatedAtColumn(), schema.UpdatedAtColumn())
 }
 
-func AddColumn(tableName string, column dbx.Column) string {
+func AddColumn(tableName dbx.Table, column dbx.Column) string {
 	return fmt.Sprintf(_addColumnStmt, tableName, column.Name, column.Type)
 }
 
 // CreateIndex creates the index of tableName, named after its columns.
-func CreateIndex(tableName string, index dbx.Index) string {
+func CreateIndex(tableName dbx.Table, index dbx.Index) string {
 	method := string(index.Method)
 	columns := index.ColumnNames()
 

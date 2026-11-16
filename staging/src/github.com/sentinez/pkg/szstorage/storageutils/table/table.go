@@ -19,6 +19,8 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/sentinez/pkg/szstorage/dbx"
+
 	"github.com/sentinez/core"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
@@ -28,12 +30,12 @@ import (
 var _envRe = regexp.MustCompile(
 	`^(dev|sandbox|prod)_sentinez_[a-z]+(_[a-z0-9]+)*$`)
 
-func NewTable(appConf *settingpb.Config, tableName string) string {
-	tableName = fmt.Sprintf("%s.%s.%s",
-		appConf.GetFlag().GetEnvMode(), core.BaseName, tableName)
-	return strings.ReplaceAll(tableName, ".", "_")
+func NewTable(appConf *settingpb.Config, name dbx.Table) dbx.Table {
+	tableName := fmt.Sprintf("%s.%s.%s",
+		appConf.GetFlag().GetEnvMode(), core.BaseName, name)
+	return dbx.Table(strings.ReplaceAll(tableName, ".", "_"))
 }
 
-func IsValidTableName(tableName string) bool {
-	return _envRe.MatchString(tableName)
+func IsValidTableName(tableName dbx.Table) bool {
+	return _envRe.MatchString(tableName.String())
 }

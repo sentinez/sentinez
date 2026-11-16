@@ -22,12 +22,13 @@ import (
 	"github.com/redis/go-redis/v9"
 	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	"github.com/sentinez/sentinez/pkg/cluster"
+	"github.com/sentinez/sentinez/pkg/cluster/channel"
 )
 
 // Subscriber opens the subscription to the Olric channel of centraldata;
 // *cluster.Cluster is one.
 type Subscriber interface {
-	Subscribe(ctx context.Context, channel string) (*redis.PubSub, error)
+	Subscribe(ctx context.Context, ch channel.Channel) (*redis.PubSub, error)
 }
 
 var _ Subscriber = (*cluster.Cluster)(nil)
@@ -50,7 +51,7 @@ type source struct {
 
 func (s *source) Subscribe(ctx context.Context,
 ) (<-chan *redis.Message, io.Closer, error) {
-	sub, err := s.cluster.Subscribe(ctx, cluster.CentralDataChannel)
+	sub, err := s.cluster.Subscribe(ctx, channel.CentralData)
 	if err != nil {
 		return nil, nil, err
 	}

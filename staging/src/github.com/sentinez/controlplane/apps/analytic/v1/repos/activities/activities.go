@@ -120,7 +120,7 @@ func (a *Activities) total(
 	ctx context.Context, req *analyticpb.ListActivitiesRequest,
 ) (int64, error) {
 	builder := buildListQuery(
-		sq.Select("COUNT(*)").From(a.storage.Table()), req)
+		postgres.CountBuilder(a.storage), req)
 
 	var total int64
 	if err := a.storage.Query(ctx, builder, &total); err != nil {

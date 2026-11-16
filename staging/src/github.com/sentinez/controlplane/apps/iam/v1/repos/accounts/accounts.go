@@ -176,7 +176,7 @@ func (acc *Accounts) GetByUserId(ctx context.Context,
 func (acc *Accounts) DeleteByUserId(
 	ctx context.Context, userId string) error {
 
-	query := sq.Delete(acc.storage.Table()).
+	query := sq.Delete(acc.storage.Table().String()).
 		Where(sq.Eq{iampb.Account_UserId: userId})
 
 	_, err := acc.storage.Exec(ctx, query)

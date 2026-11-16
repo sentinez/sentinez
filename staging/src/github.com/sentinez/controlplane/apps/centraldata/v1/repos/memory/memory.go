@@ -26,7 +26,6 @@ import (
 	"github.com/sentinez/controlplane/pkg/schema"
 	"github.com/sentinez/pkg/szerror"
 	"github.com/sentinez/pkg/szstorage/dbx"
-	"github.com/sentinez/pkg/sztable"
 )
 
 // Memory the in-memory store, safe for concurrent use: go-memdb serves
@@ -89,7 +88,7 @@ func (m *Memory) Reset() string {
 // Upsert inserts the rows into table, replacing those of the same id,
 // all or none. A row is a pointer to the model of the table, ex:
 // *tenantpb.Tenant for sztable.Tenants.
-func (m *Memory) Upsert(table sztable.Table, rows ...any) error {
+func (m *Memory) Upsert(table dbx.Table, rows ...any) error {
 	_, err := m.UpsertAt(table, rows...)
 
 	return err
@@ -98,7 +97,7 @@ func (m *Memory) Upsert(table sztable.Table, rows ...any) error {
 // UpsertAt is Upsert returning the version of the write; the current
 // one when there are no rows.
 func (m *Memory) UpsertAt(
-	table sztable.Table, rows ...any) (uint64, error) {
+	table dbx.Table, rows ...any) (uint64, error) {
 
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -124,14 +123,14 @@ func (m *Memory) UpsertAt(
 }
 
 // Delete removes the row of id from table.
-func (m *Memory) Delete(table sztable.Table, id string) error {
+func (m *Memory) Delete(table dbx.Table, id string) error {
 	_, err := m.DeleteAt(table, id)
 
 	return err
 }
 
 // DeleteAt is Delete returning the version of the write.
-func (m *Memory) DeleteAt(table sztable.Table, id string) (uint64, error) {
+func (m *Memory) DeleteAt(table dbx.Table, id string) (uint64, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -157,8 +156,8 @@ func (m *Memory) DeleteAt(table sztable.Table, id string) (uint64, error) {
 // from one consistent view, and returns the version and epoch of that
 // view. A change published with a greater version in the same epoch is
 // not in the rows fn saw.
-func (m *Memory) Snapshot(tables []sztable.Table,
-	fn func(table sztable.Table, row any) error) (uint64, string, error) {
+func (m *Memory) Snapshot(tables []dbx.Table,
+	fn func(table dbx.Table, row any) error) (uint64, string, error) {
 
 	m.mu.Lock()
 	txn := m.db.Txn(false)
@@ -182,7 +181,7 @@ func (m *Memory) Snapshot(tables []sztable.Table,
 }
 
 // Get the row of id in table, as a *T.
-func Get[T any](m *Memory, table sztable.Table, id string) (*T, error) {
+func Get[T any](m *Memory, table dbx.Table, id string) (*T, error) {
 	raw, err := first(m.db.Txn(false), table, id)
 	if err != nil {
 		return nil, fmt.Errorf("get: %w", err)
@@ -193,12 +192,12 @@ func Get[T any](m *Memory, table sztable.Table, id string) (*T, error) {
 
 // Row the row of id in table whatever its type, szerror.ErrNotFound when
 // there is none.
-func (m *Memory) Row(table sztable.Table, id string) (any, error) {
+func (m *Memory) Row(table dbx.Table, id string) (any, error) {
 	return first(m.db.Txn(false), table, id)
 }
 
 // List the rows of table ordered by id, as *T.
-func List[T any](m *Memory, table sztable.Table) ([]*T, error) {
+func List[T any](m *Memory, table dbx.Table) ([]*T, error) {
 	it, err := m.db.Txn(false).Get(table.String(), dbx.MemIdIndex)
 	if err != nil {
 		return nil, fmt.Errorf("list %s: %w", table, err)
@@ -218,7 +217,7 @@ func List[T any](m *Memory, table sztable.Table) ([]*T, error) {
 }
 
 // first the row of id in table, szerror.ErrNotFound when there is none.
-func first(txn *memdb.Txn, table sztable.Table, id string) (any, error) {
+func first(txn *memdb.Txn, table dbx.Table, id string) (any, error) {
 	row, err := txn.First(table.String(), dbx.MemIdIndex, id)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", table, err)
@@ -232,7 +231,7 @@ func first(txn *memdb.Txn, table sztable.Table, id string) (any, error) {
 }
 
 // as asserts raw, a row of table, is a *T.
-func as[T any](table sztable.Table, raw any) (*T, error) {
+func as[T any](table dbx.Table, raw any) (*T, error) {
 	row, ok := raw.(*T)
 	if !ok {
 		return nil, fmt.Errorf("%s holds %T, not %T", table, raw, row)

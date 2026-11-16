@@ -18,6 +18,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/sentinez/pkg/szstorage/dbx"
+
 	sq "github.com/Masterminds/squirrel"
 	"github.com/sentinez/pkg/szstorage/dbx/timescale"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -93,7 +95,7 @@ func (v *Values) Distinct(ctx context.Context,
 
 // valuesQuery sums the totals of the view per bucket, resource and value
 // of column, the most frequent value first.
-func valuesQuery(view, column string, filter *Filter,
+func valuesQuery(view dbx.Table, column string, filter *Filter,
 	w window) sq.SelectBuilder {
 
 	return pointsQuery(view, column, filter, w).
@@ -102,7 +104,7 @@ func valuesQuery(view, column string, filter *Filter,
 
 // distinctQuery counts the distinct values of column per bucket and
 // resource of the view: over the tenants, a value of several counted once.
-func distinctQuery(view, column string, filter *Filter,
+func distinctQuery(view dbx.Table, column string, filter *Filter,
 	w window) sq.SelectBuilder {
 
 	return bucketQuery(viewSource(view), "",

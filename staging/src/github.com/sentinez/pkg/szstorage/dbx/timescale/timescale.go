@@ -68,7 +68,7 @@ func New[T any](ctx context.Context, conf *settingpb.Config,
 
 	return postgres.Open[T](ctx, conf, ht.Schema,
 		func(ctx context.Context, client postgres.Client,
-			tableName string) error {
+			tableName dbx.Table) error {
 			return syncHypertable(ctx, client, tableName, ht)
 		})
 }

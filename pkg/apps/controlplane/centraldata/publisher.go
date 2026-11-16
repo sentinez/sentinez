@@ -25,6 +25,7 @@ import (
 	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/pkg/cluster"
+	"github.com/sentinez/sentinez/pkg/cluster/channel"
 )
 
 // errNoSyncKey the edges would refuse what is published without a key, and
@@ -81,7 +82,7 @@ func (p *signedPublisher) Publish(ctx context.Context,
 		return err
 	}
 
-	return p.pub.Publish(ctx, cluster.CentralDataChannel, data)
+	return p.pub.Publish(ctx, channel.CentralData, data)
 }
 
 // nopPublisher publishes nothing.
