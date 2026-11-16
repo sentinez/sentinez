@@ -24,6 +24,7 @@ import (
 	memrepo "github.com/sentinez/controlplane/apps/centraldata/v1/repos/memory"
 	pgrepo "github.com/sentinez/controlplane/apps/centraldata/v1/repos/postgres"
 	"github.com/sentinez/pkg/szerror"
+	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	"github.com/sentinez/pkg/sztable"
 	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
@@ -68,8 +69,8 @@ func (t *fakeTable) drop(id string) {
 	delete(t.rows, id)
 }
 
-func (t *fakeTable) Name() sztable.Table { return _table }
-func (t *fakeTable) Relation() string    { return _relation }
+func (t *fakeTable) Name() dbx.Table  { return _table }
+func (t *fakeTable) Relation() string { return _relation }
 
 func (t *fakeTable) List(context.Context) ([]proto.Message, error) {
 	t.mu.Lock()

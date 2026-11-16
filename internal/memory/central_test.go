@@ -17,6 +17,8 @@ package memory
 import (
 	"testing"
 
+	"github.com/sentinez/pkg/szstorage/dbx"
+
 	"github.com/sentinez/pkg/sztable"
 	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
@@ -31,7 +33,7 @@ import (
 	"google.golang.org/protobuf/types/known/anypb"
 )
 
-func upsertOf(t *testing.T, table sztable.Table, id string,
+func upsertOf(t *testing.T, table dbx.Table, id string,
 	msg proto.Message) *centraldatapb.Change {
 	t.Helper()
 

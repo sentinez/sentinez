@@ -79,10 +79,15 @@ func LimitOffset(builder squirrel.SelectBuilder,
 		Offset(uint64(query.GetOffset(index, size)))
 }
 
+// CountBuilder counts the rows of the table of db.
+func CountBuilder[T any](db dbx.Database[T]) squirrel.SelectBuilder {
+	return squirrel.Select("COUNT(*)").From(db.Table().String())
+}
+
 func SelectBuilder[T any](db dbx.Database[T],
 	page *typepb.Pages, columns ...string) squirrel.SelectBuilder {
 
-	builder := squirrel.Select(columns...).From(db.Table())
+	builder := squirrel.Select(columns...).From(db.Table().String())
 	if page == nil {
 		return builder
 	}
@@ -104,7 +109,7 @@ func InsertBuilder[T any](db dbx.Database[T], mapp M) squirrel.InsertBuilder {
 func InsertRowsBuilder[T, R any](db dbx.Database[T], columns []string,
 	rows []R, valuesOf func(R) ([]any, error)) (squirrel.InsertBuilder, error) {
 
-	builder := squirrel.Insert(db.Table()).
+	builder := squirrel.Insert(db.Table().String()).
 		Columns(columns...).
 		PlaceholderFormat(squirrel.Dollar)
 	for _, row := range rows {
@@ -148,7 +153,7 @@ func insertBuilder[T any](db dbx.Database[T], mapp M,
 		values = append(values, textValue(mapp[column]))
 	}
 
-	return squirrel.Insert(db.Table()).
+	return squirrel.Insert(db.Table().String()).
 		Columns(columns...).
 		Values(values...).
 		PlaceholderFormat(squirrel.Dollar)
@@ -157,7 +162,7 @@ func insertBuilder[T any](db dbx.Database[T], mapp M,
 func UpdateBuilder[T any](
 	db dbx.Database[T], id string) squirrel.UpdateBuilder {
 
-	return squirrel.Update(db.Table()).
+	return squirrel.Update(db.Table().String()).
 		Set(db.UpdatedAt(), time.Now().UTC()).
 		Where(squirrel.Eq{"id": id})
 }

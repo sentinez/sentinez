@@ -103,7 +103,7 @@ func (r *Reader[T]) WithTx(tx *postgres.TxSession) *Reader[T] {
 
 // Select selects the columns of an event from the table.
 func (r *Reader[T]) Select() sq.SelectBuilder {
-	return sq.Select(r.spec.Select...).From(r.db.Table())
+	return postgres.SelectBuilder(r.db, nil, r.spec.Select...)
 }
 
 // Create inserts the events, which have ids, in one statement; an event

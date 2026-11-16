@@ -29,7 +29,6 @@ import (
 	"github.com/sentinez/pkg/szstorage/dbx/query"
 	"github.com/sentinez/pkg/szstorage/storageutils"
 	"github.com/sentinez/pkg/szstorage/storageutils/table"
-	"github.com/sentinez/pkg/sztable"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
@@ -44,10 +43,10 @@ var (
 )
 
 // SyncFn creates or migrates the relation tableName through client.
-type SyncFn func(ctx context.Context, client Client, tableName string) error
+type SyncFn func(ctx context.Context, client Client, table dbx.Table) error
 
 // NoSync the SyncFn of a relation synced already, by its own repo.
-func NoSync(context.Context, Client, string) error {
+func NoSync(context.Context, Client, dbx.Table) error {
 	return nil
 }
 
@@ -57,8 +56,8 @@ func New[T any](ctx context.Context, conf *settingpb.Config,
 	schema dbx.Schema) (dbx.Database[T], error) {
 
 	return Open[T](ctx, conf, schema,
-		func(ctx context.Context, client Client, tableName string) error {
-			return syncSchema(ctx, client, tableName, schema)
+		func(ctx context.Context, client Client, table dbx.Table) error {
+			return syncSchema(ctx, client, table, schema)
 		})
 }
 
@@ -93,8 +92,9 @@ func Open[T any](ctx context.Context, conf *settingpb.Config,
 
 // TableName the name of the relation name in the database of conf: the
 // one Open gives its Database.
-func TableName(conf *settingpb.Config, name sztable.Table) (string, error) {
-	tableName := table.NewTable(conf, name.String())
+func TableName(conf *settingpb.Config,
+	name dbx.Table) (dbx.Table, error) {
+	tableName := table.NewTable(conf, name)
 	if !table.IsValidTableName(tableName) {
 		return "", fmt.Errorf("invalid table name: %s", tableName)
 	}
@@ -104,14 +104,14 @@ func TableName(conf *settingpb.Config, name sztable.Table) (string, error) {
 
 type postgres[T any] struct {
 	client    Client
-	tableName string
+	tableName dbx.Table
 	createdAt string
 	updatedAt string
 	tx        bool
 }
 
 // Table implements dbx.Database.
-func (p *postgres[T]) Table() string {
+func (p *postgres[T]) Table() dbx.Table {
 	return p.tableName
 }
 
@@ -129,7 +129,7 @@ func (p *postgres[T]) UpdatedAt() string {
 func (p *postgres[T]) Total(ctx context.Context) (int64, error) {
 	var total int64
 
-	q := sq.Select("COUNT(*) AS count").From(p.tableName)
+	q := CountBuilder[T](p)
 	if err := p.Query(ctx, q, &total); err != nil {
 		return -1, err
 	}
@@ -162,7 +162,8 @@ func (p *postgres[T]) Select(ctx context.Context,
 
 // Delete implements dbx.Database.
 func (p *postgres[T]) Delete(ctx context.Context, id string) error {
-	_, err := p.Exec(ctx, sq.Delete(p.tableName).Where(sq.Eq{"id": id}))
+	_, err := p.Exec(ctx,
+		sq.Delete(p.tableName.String()).Where(sq.Eq{"id": id}))
 	return err
 }
 

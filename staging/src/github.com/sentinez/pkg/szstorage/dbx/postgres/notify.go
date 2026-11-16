@@ -26,6 +26,13 @@ import (
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
 
+// Channel is the name of a LISTEN/NOTIFY channel.
+type Channel string
+
+func (ch Channel) String() string {
+	return string(ch)
+}
+
 // NotifyFunction the trigger function of NotifyChange.
 const NotifyFunction = "sz_notify_change"
 
@@ -46,10 +53,10 @@ type Change struct {
 // the payload holds the id only, as a notification is limited to 8000
 // bytes: the listener reads the row back.
 func NotifyChange(ctx context.Context, client Client,
-	tableName, channel string) error {
+	tableName dbx.Table, channel Channel) error {
 
-	if !_identifier.MatchString(tableName) ||
-		!_identifier.MatchString(channel) {
+	if !_identifier.MatchString(tableName.String()) ||
+		!_identifier.MatchString(channel.String()) {
 		return fmt.Errorf("notify %s: invalid name or channel %q",
 			tableName, channel)
 	}
@@ -64,8 +71,9 @@ func NotifyChange(ctx context.Context, client Client,
 	return nil
 }
 
-func notifyStmts(tableName, channel string) []string {
-	trigger := strings.ReplaceAll(tableName, ".", "_") + "_notify"
+func notifyStmts(tableName dbx.Table, channel Channel) []string {
+	table := tableName.String()
+	trigger := strings.ReplaceAll(table, ".", "_") + "_notify"
 
 	return []string{
 		`CREATE OR REPLACE FUNCTION ` + NotifyFunction + `() RETURNS trigger ` +
@@ -73,20 +81,21 @@ func notifyStmts(tableName, channel string) []string {
 			`json_build_object('t', TG_TABLE_NAME, 'op', TG_OP, 'id', ` +
 			`CASE WHEN TG_OP = 'DELETE' THEN OLD.id ELSE NEW.id END)::text); ` +
 			`RETURN NULL; END $$`,
-		`DROP TRIGGER IF EXISTS ` + trigger + ` ON ` + tableName,
+		`DROP TRIGGER IF EXISTS ` + trigger + ` ON ` + table,
 		`CREATE TRIGGER ` + trigger + ` AFTER INSERT OR UPDATE OR DELETE ON ` +
-			tableName + ` FOR EACH ROW EXECUTE FUNCTION ` + NotifyFunction +
-			`('` + channel + `')`,
+			table + ` FOR EACH ROW EXECUTE FUNCTION ` + NotifyFunction +
+			`('` + channel.String() + `')`,
 	}
 }
 
 // NewNotifying is New whose table also notifies channel of its changes, see
 // [NotifyChange].
 func NewNotifying[T any](ctx context.Context, conf *settingpb.Config,
-	schema dbx.Schema, channel string) (dbx.Database[T], error) {
+	schema dbx.Schema, channel Channel) (dbx.Database[T], error) {
 
 	return Open[T](ctx, conf, schema,
-		func(ctx context.Context, client Client, tableName string) error {
+		func(ctx context.Context, client Client,
+			tableName dbx.Table) error {
 			if err := syncSchema(ctx, client, tableName, schema); err != nil {
 				return err
 			}
@@ -104,9 +113,9 @@ type Subscription struct {
 // Listen starts listening to channel on a connection taken from the pool
 // shared by the tables.
 func Listen(ctx context.Context, conf *settingpb.Config,
-	channel string) (*Subscription, error) {
+	channel Channel) (*Subscription, error) {
 
-	if !_identifier.MatchString(channel) {
+	if !_identifier.MatchString(channel.String()) {
 		return nil, fmt.Errorf("listen: invalid channel %q", channel)
 	}
 
@@ -121,7 +130,7 @@ func Listen(ctx context.Context, conf *settingpb.Config,
 	}
 
 	conn := acquired.Hijack()
-	if _, err := conn.Exec(ctx, "LISTEN "+channel); err != nil {
+	if _, err := conn.Exec(ctx, "LISTEN "+channel.String()); err != nil {
 		_ = conn.Close(ctx)
 
 		return nil, fmt.Errorf("listen %s: %w", channel, err)

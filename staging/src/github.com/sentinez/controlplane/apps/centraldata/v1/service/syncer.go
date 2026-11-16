@@ -28,8 +28,8 @@ import (
 	"github.com/sentinez/pkg/szerror"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szprotobuf"
+	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
-	"github.com/sentinez/pkg/sztable"
 	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	"google.golang.org/protobuf/proto"
 )
@@ -279,7 +279,7 @@ func (s *Syncer) diff(ctx context.Context, table pgrepo.Table,
 
 // tableSync what the sync of a table read and changed in the memory.
 type tableSync struct {
-	table             sztable.Table
+	table             dbx.Table
 	index, total      int
 	rows              int
 	upserted, deleted int
@@ -305,17 +305,17 @@ func (t tableSync) log(publish bool) {
 
 // debugDiff logs a row that differs from the memory (old is nil when the row
 // is new, row is nil when it was deleted), as a colored line diff like git's.
-func debugDiff(table sztable.Table, id string, old, row proto.Message) {
+func debugDiff(table dbx.Table, id string, old, row proto.Message) {
 	szlog.Debugf("centraldata: diff %v",
 		rowDiff{table: table, id: id, old: old, row: row})
 }
 
 // held the rows of the memory by id.
-func (s *Syncer) held(table sztable.Table) (map[string]proto.Message, error) {
+func (s *Syncer) held(table dbx.Table) (map[string]proto.Message, error) {
 	held := make(map[string]proto.Message)
 
-	_, _, err := s.memory.Snapshot([]sztable.Table{table},
-		func(_ sztable.Table, row any) error {
+	_, _, err := s.memory.Snapshot([]dbx.Table{table},
+		func(_ dbx.Table, row any) error {
 			msg, ok := row.(proto.Message)
 			if !ok {
 				return fmt.Errorf("%s holds %T", table, row)
@@ -362,7 +362,7 @@ func (s *Syncer) handle(ctx context.Context, change postgres.Change) {
 
 // debugChange logs the row held by the memory against the one the database
 // has now (nil when it was deleted).
-func (s *Syncer) debugChange(table sztable.Table, id string,
+func (s *Syncer) debugChange(table dbx.Table, id string,
 	row proto.Message) {
 
 	szlog.Debugf("centraldata: diff %v",
@@ -381,7 +381,7 @@ func (s *Syncer) table(relation string) (pgrepo.Table, bool) {
 
 // upsert writes rows to the memory: in one write, or one by one when each
 // is published with its own version.
-func (s *Syncer) upsert(ctx context.Context, table sztable.Table,
+func (s *Syncer) upsert(ctx context.Context, table dbx.Table,
 	rows []proto.Message, publish bool) error {
 
 	if !publish {
@@ -414,7 +414,7 @@ func (s *Syncer) upsert(ctx context.Context, table sztable.Table,
 }
 
 // remove deletes the row of id, which the memory may not hold.
-func (s *Syncer) remove(ctx context.Context, table sztable.Table,
+func (s *Syncer) remove(ctx context.Context, table dbx.Table,
 	id string, publish bool) error {
 
 	version, err := s.memory.DeleteAt(table, id)
@@ -472,7 +472,7 @@ func sleep(ctx context.Context, d time.Duration) {
 // String is called, so it costs nothing when the debug level is off.
 type rowDiff struct {
 	memory   *memrepo.Memory
-	table    sztable.Table
+	table    dbx.Table
 	id       string
 	old, row proto.Message
 }

@@ -19,7 +19,7 @@ import (
 	"context"
 
 	memrepo "github.com/sentinez/controlplane/apps/centraldata/v1/repos/memory"
-	"github.com/sentinez/pkg/sztable"
+	"github.com/sentinez/pkg/szstorage/dbx"
 	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
@@ -29,13 +29,13 @@ type CentralDataService struct {
 	config *settingpb.Config
 	memory *memrepo.Memory
 	// tables the tables Sync may stream, in the order it streams them.
-	tables []sztable.Table
+	tables []dbx.Table
 }
 
 // New creates a CentralDataService keeping its data in memory; tables are
 // those Sync streams.
 func New(config *settingpb.Config, memory *memrepo.Memory,
-	tables ...sztable.Table) *CentralDataService {
+	tables ...dbx.Table) *CentralDataService {
 
 	return &CentralDataService{
 		config: config,
@@ -50,7 +50,7 @@ func (srv *CentralDataService) Memory() *memrepo.Memory {
 }
 
 // Tables the tables Sync streams.
-func (srv *CentralDataService) Tables() []sztable.Table {
+func (srv *CentralDataService) Tables() []dbx.Table {
 	return srv.tables
 }
 

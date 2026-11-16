@@ -17,6 +17,8 @@ package table
 import (
 	"testing"
 
+	"github.com/sentinez/pkg/szstorage/dbx"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -37,7 +39,7 @@ func TestIsValidTableName(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
-			assert.Equal(t, tt.want, IsValidTableName(tt.give))
+			assert.Equal(t, tt.want, IsValidTableName(dbx.Table(tt.give)))
 		})
 	}
 }

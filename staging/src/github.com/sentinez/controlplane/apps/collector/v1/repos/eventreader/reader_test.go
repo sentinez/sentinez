@@ -32,7 +32,7 @@ type _table struct {
 	dbx.Database[_event]
 }
 
-func (_table) Table() string { return "t" }
+func (_table) Table() dbx.Table { return "t" }
 
 func newReader() *Reader[_event] {
 	return &Reader[_event]{

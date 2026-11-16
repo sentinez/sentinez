@@ -30,7 +30,7 @@ import (
 
 const (
 	// Channel the postgres channel the synced tables notify.
-	Channel = "sentinez_centraldata"
+	Channel postgres.Channel = "sentinez_centraldata"
 
 	_openTimeout = 30 * time.Second
 )

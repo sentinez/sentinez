@@ -39,7 +39,7 @@ const _idColumn = "id"
 // Table is a synced table of the database.
 type Table interface {
 	// Name the table, ex: sztable.SecuritySecRules.
-	Name() sztable.Table
+	Name() dbx.Table
 	// Relation the name of the table in the database, as the
 	// notifications carry it (lower case).
 	Relation() string
@@ -50,8 +50,8 @@ type Table interface {
 }
 
 // Defaults the tables synced when none is configured.
-func Defaults() []sztable.Table {
-	return []sztable.Table{
+func Defaults() []dbx.Table {
+	return []dbx.Table{
 		sztable.SecuritySecRules,
 		sztable.SecurityRateLimits,
 		sztable.SecurityCoreRulesets,
@@ -62,14 +62,14 @@ func Defaults() []sztable.Table {
 
 // Parse the comma-separated names of tables, [Defaults] when empty. It
 // fails on a table that cannot be synced.
-func Parse(list string) ([]sztable.Table, error) {
+func Parse(list string) ([]dbx.Table, error) {
 	if strings.TrimSpace(list) == "" {
 		return Defaults(), nil
 	}
 
-	var tables []sztable.Table
+	var tables []dbx.Table
 	for _, name := range strings.Split(list, ",") {
-		table := sztable.Table(strings.TrimSpace(name))
+		table := dbx.Table(strings.TrimSpace(name))
 		if _, ok := _openers[table]; !ok {
 			return nil, fmt.Errorf("table %q cannot be synced", table)
 		}
@@ -82,7 +82,7 @@ func Parse(list string) ([]sztable.Table, error) {
 
 // Open the tables, creating them and their notify trigger on channel.
 func Open(ctx context.Context, conf *settingpb.Config,
-	tables []sztable.Table, channel string) ([]Table, error) {
+	tables []dbx.Table, channel postgres.Channel) ([]Table, error) {
 
 	opened := make([]Table, 0, len(tables))
 	for _, name := range tables {
@@ -102,11 +102,12 @@ func Open(ctx context.Context, conf *settingpb.Config,
 	return opened, nil
 }
 
-type opener func(context.Context, *settingpb.Config, string) (Table, error)
+type opener func(context.Context, *settingpb.Config,
+	postgres.Channel) (Table, error)
 
 // _openers the tables that can be synced, each with the scanners generated
 // for its model.
-var _openers = map[sztable.Table]opener{
+var _openers = map[dbx.Table]opener{
 	sztable.SecuritySecRules: openerOf(schema.SecuritySecRules,
 		securitypb.SecRuleColumns, securitypb.ScanSecRule,
 		securitypb.ScanOneSecRule),
@@ -130,7 +131,7 @@ func openerOf[T any, P rowPtr[T]](sch func() dbx.Schema,
 	scanOne dbx.ScanOneFn[T]) opener {
 
 	return func(ctx context.Context, conf *settingpb.Config,
-		channel string) (Table, error) {
+		channel postgres.Channel) (Table, error) {
 
 		return open[T, P](ctx, conf, channel, sch(), columns(), scan,
 			scanOne)
@@ -144,7 +145,7 @@ type rowPtr[T any] interface {
 
 // table is a Table of the model T.
 type table[T any, P rowPtr[T]] struct {
-	name     sztable.Table
+	name     dbx.Table
 	relation string
 	storage  dbx.Database[T]
 	columns  []string
@@ -153,7 +154,7 @@ type table[T any, P rowPtr[T]] struct {
 }
 
 func open[T any, P rowPtr[T]](ctx context.Context, conf *settingpb.Config,
-	channel string, sch dbx.Schema, columns []string,
+	channel postgres.Channel, sch dbx.Schema, columns []string,
 	scan dbx.ScanFn[T], scanOne dbx.ScanOneFn[T]) (Table, error) {
 
 	storage, err := postgres.NewNotifying[T](ctx, conf, sch, channel)
@@ -163,7 +164,7 @@ func open[T any, P rowPtr[T]](ctx context.Context, conf *settingpb.Config,
 
 	return &table[T, P]{
 		name:     sch.Table,
-		relation: strings.ToLower(storage.Table()),
+		relation: strings.ToLower(storage.Table().String()),
 		storage:  storage,
 		columns:  columns,
 		scan:     scan,
@@ -171,7 +172,7 @@ func open[T any, P rowPtr[T]](ctx context.Context, conf *settingpb.Config,
 	}, nil
 }
 
-func (t *table[T, P]) Name() sztable.Table { return t.name }
+func (t *table[T, P]) Name() dbx.Table { return t.name }
 
 func (t *table[T, P]) Relation() string { return t.relation }
 

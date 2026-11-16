@@ -22,7 +22,6 @@ import (
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventfilter"
 	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
-	"github.com/sentinez/pkg/sztable"
 	analyticpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -49,7 +48,7 @@ type latencyReader struct {
 // openLatency returns the latencyReader of the egress table, which must
 // exist (synced by its repo), filtered on cols.
 func openLatency(ctx context.Context, conf *settingpb.Config,
-	table sztable.Table, cols eventfilter.Columns) (*latencyReader, error) {
+	table dbx.Table, cols eventfilter.Columns) (*latencyReader, error) {
 	db, err := postgres.Open[analyticpb.UpstreamLatency](ctx, conf,
 		dbx.Schema{Table: table}, postgres.NoSync)
 	if err != nil {
@@ -62,7 +61,7 @@ func openLatency(ctx context.Context, conf *settingpb.Config,
 // Latency implements LatencyReader.
 func (l *latencyReader) Latency(ctx context.Context,
 	filter *eventfilter.Filter) ([]*analyticpb.UpstreamLatency, error) {
-	b, err := filter.Where(sq.Select().From(l.db.Table()), l.cols)
+	b, err := filter.Where(postgres.SelectBuilder(l.db, nil), l.cols)
 	if err != nil {
 		return nil, err
 	}

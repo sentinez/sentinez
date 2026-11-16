@@ -283,7 +283,7 @@ func listConditions(req *tenantpb.ListCaCertificateRequest) []sq.Sqlizer {
 func (r *CaCertificates) total(
 	ctx context.Context, conds []sq.Sqlizer,
 ) (int64, error) {
-	builder := sq.Select("COUNT(*)").From(r.storage.Table())
+	builder := postgres.CountBuilder(r.storage)
 	for _, cond := range conds {
 		builder = builder.Where(cond)
 	}

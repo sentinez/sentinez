@@ -108,7 +108,7 @@ func (r *SecRule) total(
 	ctx context.Context, req *securitypb.ListSecRulesRequest,
 ) (int64, error) {
 	builder := buildListQuery(
-		sq.Select("COUNT(*)").From(r.storage.Table()), req)
+		postgres.CountBuilder(r.storage), req)
 
 	var total int64
 	if err := r.storage.Query(ctx, builder, &total); err != nil {

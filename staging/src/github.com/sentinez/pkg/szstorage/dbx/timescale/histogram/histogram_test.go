@@ -21,7 +21,6 @@ import (
 
 	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/sentinez/pkg/szstorage/dbx/timescale"
-	"github.com/sentinez/pkg/sztable"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -132,7 +131,7 @@ func sourceQueryTests() []queryTest {
 // viewSchemaTest a case of TestViewSchema.
 type viewSchemaTest struct {
 	give       typepb.HistogramInterval
-	wantName   sztable.Table
+	wantName   dbx.Table
 	wantBucket time.Duration
 	wantKeep   time.Duration
 	wantLate   time.Duration
@@ -191,7 +190,7 @@ func viewSchemaTests(sourceKeep time.Duration) []viewSchemaTest {
 type viewNameTest struct {
 	name        string
 	give        viewDef
-	wantName    sztable.Table
+	wantName    dbx.Table
 	wantGroupBy []string
 }
 

@@ -27,7 +27,7 @@ import (
 // its indexes, an index needs its column; in one round trip, run as a
 // single implicit transaction.
 func syncSchema(ctx context.Context, client Client,
-	tableName string, schema dbx.Schema) error {
+	tableName dbx.Table, schema dbx.Schema) error {
 
 	stmts := make([]string, 0, 1+len(schema.Columns)+len(schema.Indexes))
 	stmts = append(stmts, stmt.CreateTable(tableName, schema))

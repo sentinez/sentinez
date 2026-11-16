@@ -184,7 +184,7 @@ func AnalyticHttpEgressEvent() dbx.Schema {
 }
 
 // secRuleEvents the schema of a table of secrulepb.SecRuleEvent.
-func secRuleEvents(table sztable.Table) dbx.Schema {
+func secRuleEvents(table dbx.Table) dbx.Schema {
 	return dbx.Schema{
 		Table: table,
 		Columns: []dbx.Column{

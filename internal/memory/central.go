@@ -22,6 +22,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/sentinez/pkg/szstorage/dbx"
+
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/sznormalize"
 	"github.com/sentinez/pkg/sztable"
@@ -36,7 +38,7 @@ import (
 )
 
 // rows the rows of the synced tables, by table then id.
-type rows map[sztable.Table]map[string]proto.Message
+type rows map[dbx.Table]map[string]proto.Message
 
 // _centralWriteTimeout bounds the writes of one rebuild to the cluster:
 // past it the rest apply here only, and the reconcile of the map shares
@@ -72,7 +74,7 @@ func (c *CentralSink) Replace(changes []*centraldatapb.Change) error {
 				change.GetId(), err)
 		}
 
-		put(next, sztable.Table(change.GetTable()), change.GetId(), msg)
+		put(next, dbx.Table(change.GetTable()), change.GetId(), msg)
 	}
 
 	c.mu.Lock()
@@ -100,7 +102,7 @@ func (c *CentralSink) Replace(changes []*centraldatapb.Change) error {
 
 // Apply implements centralsync.Sink.
 func (c *CentralSink) Apply(change *centraldatapb.Change) error {
-	table, id := sztable.Table(change.GetTable()), change.GetId()
+	table, id := dbx.Table(change.GetTable()), change.GetId()
 	szlog.Debugf("edge: centraldata: received %s %s %s, version %d",
 		change.GetOp(), change.GetTable(), change.GetId(),
 		change.GetVersion())
@@ -130,7 +132,7 @@ func (c *CentralSink) Apply(change *centraldatapb.Change) error {
 	return nil
 }
 
-func put(r rows, table sztable.Table, id string, msg proto.Message) {
+func put(r rows, table dbx.Table, id string, msg proto.Message) {
 	if r[table] == nil {
 		r[table] = make(map[string]proto.Message)
 	}
@@ -292,7 +294,7 @@ func (c *CentralSink) security(id string, base *edgepb.Security,
 }
 
 // sorted the rows of table of resource id, by id.
-func (c *CentralSink) sorted(table sztable.Table, id string) []proto.Message {
+func (c *CentralSink) sorted(table dbx.Table, id string) []proto.Message {
 	var list []proto.Message
 	for _, msg := range c.rows[table] {
 		if resourceOf(msg) == id {

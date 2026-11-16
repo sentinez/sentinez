@@ -30,7 +30,6 @@ import (
 	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	"github.com/sentinez/pkg/szstorage/dbx/timescale"
-	"github.com/sentinez/pkg/sztable"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
@@ -283,8 +282,7 @@ func New(ctx context.Context, conf *settingpb.Config,
 		return nil, err
 	}
 
-	db, err := postgres.Open[Point](ctx, conf, source.Schema,
-		postgres.NoSync)
+	db, err := postgres.Open[Point](ctx, conf, source.Schema, postgres.NoSync)
 	if err != nil {
 		return nil, err
 	}
@@ -602,7 +600,7 @@ func (d viewDef) schema(interval typepb.HistogramInterval,
 	}
 
 	return timescale.ViewSchema{
-		Name:       sztable.Table(name + spec.suffix),
+		Name:       dbx.Table(name + spec.suffix),
 		Source:     d.source,
 		Bucket:     spec.bucket,
 		GroupBy:    groupBy,
@@ -615,7 +613,7 @@ func (d viewDef) schema(interval typepb.HistogramInterval,
 
 // pointsQuery sums the totals of the view per bucket, resource and key:
 // over the tenants, one per resource, of the filter and w.
-func pointsQuery(view, key string, filter *Filter,
+func pointsQuery(view dbx.Table, key string, filter *Filter,
 	w window) sq.SelectBuilder {
 
 	return bucketQuery(viewSource(view), key, _sumTotal, filter, w)
@@ -624,13 +622,13 @@ func pointsQuery(view, key string, filter *Filter,
 // bucketSource where a bucketQuery reads: a table, the SQL of the start of
 // the bucket of its rows, and the column bounding them.
 type bucketSource struct {
-	table  string
+	table  dbx.Table
 	bucket string
 	time   string
 }
 
 // viewSource the source of a view: its buckets are stored.
-func viewSource(view string) bucketSource {
+func viewSource(view dbx.Table) bucketSource {
 	return bucketSource{
 		table:  view,
 		bucket: timescale.BucketColumn,
@@ -651,7 +649,7 @@ func bucketQuery(src bucketSource, column, total string, filter *Filter,
 	}
 
 	b := sq.Select(src.bucket, typepb.Owner_ResourceId, selected, total).
-		From(src.table).
+		From(src.table.String()).
 		Where(sq.GtOrEq{src.time: w.from.UnixMilli()}).
 		Where(sq.Lt{src.time: w.to().UnixMilli()}).
 		GroupBy(groupBy...).

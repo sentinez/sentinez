@@ -14,8 +14,6 @@
 
 package dbx
 
-import "github.com/sentinez/pkg/sztable"
-
 // The timestamp columns of a Schema that names none.
 const (
 	DefaultCreatedAt = "created_at"
@@ -27,7 +25,7 @@ const (
 // id column and the CreatedAt and UpdatedAt timestamp columns are always
 // present.
 type Schema struct {
-	Table   sztable.Table
+	Table   Table
 	Columns []Column
 	Indexes []Index
 	// CreatedAt names the creation time column, DefaultCreatedAt when
