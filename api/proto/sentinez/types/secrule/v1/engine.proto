@@ -32,13 +32,3 @@ message SecRule {
   int32 priority = 7;
   string expr_preview = 8;
 }
-
-message SecRuleLite {
-  string id = 1;
-  string name = 2;
-  string description = 3;
-
-  sentinez.types.rule.v1.ExpressionLite expr = 4;
-  sentinez.types.rule.v1.Action action = 5;
-  string status = 6;
-}

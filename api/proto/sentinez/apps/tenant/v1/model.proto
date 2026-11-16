@@ -25,9 +25,10 @@ import "sentinez/types/v1/options.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1;tenantpb";
 
-// Resource is a server of a tenant: its name, domain and routes are those
-// of server (server.name, server.resource_domain), its id is the
-// server.resource_id the edge fills into the events of its requests.
+// Resource is a resource of a tenant: a domain the edge serves and the
+// locations it routes to the origins. Its id is the one the edge fills
+// into the events of its requests; the edge takes it as the
+// sentinez.dmz.edge.v1.Resource of its setting.
 message Resource {
   option (sentinez.types.v1.x_message) = {
     database_model: true
@@ -49,9 +50,22 @@ message Resource {
     (sentinez.types.v1.x_field).nullable = true
   ];
 
-  sentinez.dmz.edge.v1.Server server = 4 [(sentinez.types.v1.x_field).codec = COLUMN_CODEC_PROTO];
+  string name = 4 [(buf.validate.field) = {
+    ignore: IGNORE_IF_ZERO_VALUE
+    string: {pattern: "^[a-zA-Z0-9-]+"}
+  }];
 
-  sentinez.types.v1.Status status = 5;
+  // Domain the edge serves the resource at, lower case: the namespace of
+  // its setting. Required.
+  string domain = 5 [(buf.validate.field) = {
+    ignore: IGNORE_IF_ZERO_VALUE
+    string: {pattern: "^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,63}$"}
+  }];
+
+  // Routes of the domain to the origins, stored as JSONB.
+  repeated sentinez.dmz.edge.v1.Location locations = 6;
+
+  sentinez.types.v1.Status status = 7;
 }
 
 message Tenant {
@@ -67,10 +81,16 @@ message Tenant {
     string: {prefix: "tnt_"}
   }];
 
-  string name = 3 [(sentinez.types.v1.x_field).nullable = true];
-  string description = 4 [(sentinez.types.v1.x_field).nullable = true];
+  string name = 3 [
+    (buf.validate.field).string.max_len = 64,
+    (sentinez.types.v1.x_field).nullable = true
+  ];
+  string description = 4 [
+    (buf.validate.field).string.max_len = 255,
+    (sentinez.types.v1.x_field).nullable = true
+  ];
 
-  sentinez.types.v1.Plan plan = 5;
+  sentinez.types.v1.Plan plan = 5 [(buf.validate.field).enum.defined_only = true];
 }
 
 message Member {

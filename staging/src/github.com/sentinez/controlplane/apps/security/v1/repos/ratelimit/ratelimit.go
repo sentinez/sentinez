@@ -32,7 +32,7 @@ import (
 // nolint
 type IRateLimit interface {
 	Create(ctx context.Context, model *securitypb.RateLimit) (*securitypb.RateLimit, error)
-	Update(ctx context.Context, model *securitypb.RateLimit) error
+	Update(ctx context.Context, model *securitypb.RateLimit, paths []string) error
 	Get(ctx context.Context, id string) (*securitypb.RateLimit, error)
 	Delete(ctx context.Context, id string) error
 
@@ -125,20 +125,7 @@ func (r *RateLimit) total(
 func (r *RateLimit) Create(ctx context.Context,
 	model *securitypb.RateLimit) (*securitypb.RateLimit, error) {
 	model.Id = szrand.NewUUID(szprefix.RateLimit)
-	query := postgres.InsertBuilder(r.storage, postgres.M{
-		securitypb.RateLimit_Id:              model.GetId(),
-		securitypb.RateLimit_Name:            model.GetName(),
-		securitypb.RateLimit_Description:     model.GetDescription(),
-		securitypb.RateLimit_Expr:            model.GetExpr(),
-		securitypb.RateLimit_Status:          model.GetStatus(),
-		securitypb.RateLimit_Priority:        model.GetPriority(),
-		securitypb.RateLimit_Action:          model.GetAction(),
-		securitypb.RateLimit_TimeWindow:      model.GetTimeWindow(),
-		securitypb.RateLimit_MaxRequests:     model.GetMaxRequests(),
-		securitypb.RateLimit_Timeout:         model.GetTimeout(),
-		securitypb.RateLimit_OwnerResourceId: model.GetOwner().GetResourceId(),
-		securitypb.RateLimit_OwnerTenantId:   model.GetOwner().GetTenantId(),
-	})
+	query := postgres.InsertBuilder(r.storage, rateLimitRow(model))
 
 	if _, err := r.storage.Insert(ctx, query); err != nil {
 		return nil, err
@@ -160,25 +147,36 @@ func (r *RateLimit) Get(
 	return r.storage.Select(ctx, builder, securitypb.ScanOneRateLimit)
 }
 
-func (r *RateLimit) Update(
-	ctx context.Context,
-	model *securitypb.RateLimit,
-) error {
+// Update writes the columns of the fields of model paths names, as
+// szprotobuf.ApplyMask returns them; a path of no column is skipped.
+func (r *RateLimit) Update(ctx context.Context,
+	model *securitypb.RateLimit, paths []string) error {
+
 	query := postgres.UpdateBuilder(r.storage, model.GetId()).
-		SetMap(sq.Eq{
-			securitypb.RateLimit_Name:        model.GetName(),
-			securitypb.RateLimit_Description: model.GetDescription(),
-			securitypb.RateLimit_Expr:        model.GetExpr(),
-			securitypb.RateLimit_Status:      model.GetStatus(),
-			securitypb.RateLimit_Priority:    model.GetPriority(),
-			securitypb.RateLimit_Action:      model.GetAction(),
-			securitypb.RateLimit_TimeWindow:  model.GetTimeWindow(),
-			securitypb.RateLimit_MaxRequests: model.GetMaxRequests(),
-			securitypb.RateLimit_Timeout:     model.GetTimeout(),
-		})
+		SetMap(rateLimitRow(model).Only(paths))
 
 	_, err := r.storage.Exec(ctx, query)
 	return err
+}
+
+// rateLimitRow the stored columns of model.
+func rateLimitRow(model *securitypb.RateLimit) postgres.M {
+	owner := model.GetOwner()
+
+	return postgres.M{
+		securitypb.RateLimit_Id:              model.GetId(),
+		securitypb.RateLimit_Name:            model.GetName(),
+		securitypb.RateLimit_Description:     model.GetDescription(),
+		securitypb.RateLimit_Expr:            model.GetExpr(),
+		securitypb.RateLimit_Status:          model.GetStatus(),
+		securitypb.RateLimit_Priority:        model.GetPriority(),
+		securitypb.RateLimit_Action:          model.GetAction(),
+		securitypb.RateLimit_TimeWindow:      model.GetTimeWindow(),
+		securitypb.RateLimit_MaxRequests:     model.GetMaxRequests(),
+		securitypb.RateLimit_Timeout:         model.GetTimeout(),
+		securitypb.RateLimit_OwnerResourceId: owner.GetResourceId(),
+		securitypb.RateLimit_OwnerTenantId:   owner.GetTenantId(),
+	}
 }
 
 func (r *RateLimit) selectQuery(page *typepb.Pages) sq.SelectBuilder {

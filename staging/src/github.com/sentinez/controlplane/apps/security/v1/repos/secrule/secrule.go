@@ -32,7 +32,7 @@ import (
 // nolint
 type ISecRule interface {
 	Create(ctx context.Context, model *securitypb.SecRule) (*securitypb.SecRule, error)
-	Update(ctx context.Context, model *securitypb.SecRule) error
+	Update(ctx context.Context, model *securitypb.SecRule, paths []string) error
 	Get(ctx context.Context, id string) (*securitypb.SecRule, error)
 	Delete(ctx context.Context, id string) error
 
@@ -121,17 +121,7 @@ func (r *SecRule) total(
 func (r *SecRule) Create(ctx context.Context,
 	model *securitypb.SecRule) (*securitypb.SecRule, error) {
 	model.Id = szrand.NewUUID(szprefix.SecRule)
-	query := postgres.InsertBuilder(r.storage, postgres.M{
-		securitypb.SecRule_Id:              model.GetId(),
-		securitypb.SecRule_Name:            model.GetName(),
-		securitypb.SecRule_Description:     model.GetDescription(),
-		securitypb.SecRule_Expr:            model.GetExpr(),
-		securitypb.SecRule_Status:          model.GetStatus(),
-		securitypb.SecRule_Priority:        model.GetPriority(),
-		securitypb.SecRule_Action:          model.GetAction(),
-		securitypb.SecRule_OwnerResourceId: model.GetOwner().GetResourceId(),
-		securitypb.SecRule_OwnerTenantId:   model.GetOwner().GetTenantId(),
-	})
+	query := postgres.InsertBuilder(r.storage, secRuleRow(model))
 
 	if _, err := r.storage.Insert(ctx, query); err != nil {
 		return nil, err
@@ -152,32 +142,31 @@ func (r *SecRule) Get(
 	return r.storage.Select(ctx, builder, securitypb.ScanOneSecRule)
 }
 
-func (r *SecRule) Update(
-	ctx context.Context,
-	model *securitypb.SecRule,
-) error {
-	query := postgres.UpdateBuilder(r.storage, model.GetId())
+// Update writes the columns of the fields of model paths names, as
+// szprotobuf.ApplyMask returns them; a path of no column is skipped.
+func (r *SecRule) Update(ctx context.Context, model *securitypb.SecRule,
+	paths []string) error {
 
-	if model.GetName() != "" {
-		query = query.Set(securitypb.SecRule_Name, model.GetName())
-	}
-	if model.GetDescription() != "" {
-		query = query.Set(
-			securitypb.SecRule_Description,
-			model.GetDescription(),
-		)
-	}
-	if model.GetExpr() != nil {
-		query = query.Set(securitypb.SecRule_Expr, model.GetExpr())
-	}
-
-	query = query.
-		Set(securitypb.SecRule_Status, model.GetStatus()).
-		Set(securitypb.SecRule_Priority, model.GetPriority()).
-		Set(securitypb.SecRule_Action, model.GetAction())
+	query := postgres.UpdateBuilder(r.storage, model.GetId()).
+		SetMap(secRuleRow(model).Only(paths))
 
 	_, err := r.storage.Exec(ctx, query)
 	return err
+}
+
+// secRuleRow the stored columns of model.
+func secRuleRow(model *securitypb.SecRule) postgres.M {
+	return postgres.M{
+		securitypb.SecRule_Id:              model.GetId(),
+		securitypb.SecRule_Name:            model.GetName(),
+		securitypb.SecRule_Description:     model.GetDescription(),
+		securitypb.SecRule_Expr:            model.GetExpr(),
+		securitypb.SecRule_Status:          model.GetStatus(),
+		securitypb.SecRule_Priority:        model.GetPriority(),
+		securitypb.SecRule_Action:          model.GetAction(),
+		securitypb.SecRule_OwnerResourceId: model.GetOwner().GetResourceId(),
+		securitypb.SecRule_OwnerTenantId:   model.GetOwner().GetTenantId(),
+	}
 }
 
 func (r *SecRule) selectQuery(page *typepb.Pages) sq.SelectBuilder {

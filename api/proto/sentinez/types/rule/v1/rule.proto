@@ -99,38 +99,8 @@ message AndCondition {
   repeated AndCondition or_condition = 2;
 }
 
-message AndConditionLite {
-  repeated RuleLite rules = 1;
-  repeated AndConditionLite or_condition = 2;
-}
-
-// A complete rule definition
-message RuleLite {
-  string id = 1;
-  string name = 2; // @gotags: yaml:"name"
-  ConditionLite condition = 4; // @gotags: yaml:"condition"
-  repeated string actions = 5; // @gotags: yaml:"actions"
-}
-
-// A logical condition expression
-message ConditionLite {
-  // The source of the field
-  // Example: "User-Agent" or "country"
-  string source = 1; // @gotags: yaml:"source"
-  string key = 2; // @gotags: yaml:"key"
-  // Supported operators: "eq", "ne", "contains",
-  // "matches", "in", "prefix", "suffix", "gt", "lt"
-  string operator = 3; // @gotags: yaml:"operator"
-  // The value to compare against
-  string value = 4; // @gotags: yaml:"value"
-}
-
 message Expression {
   repeated AndCondition or_condition = 1;
-}
-
-message ExpressionLite {
-  repeated AndConditionLite or_condition = 1;
 }
 
 message MatchedRules {

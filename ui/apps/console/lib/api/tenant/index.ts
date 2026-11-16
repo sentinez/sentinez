@@ -47,12 +47,13 @@ import {
   UpdateTenantRequest,
   UpdateTenantResponse,
 } from '@sentinez/proto/sentinez/apps/tenant/v1/tenant';
-import { Server } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
+import { Resource as EdgeResource } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 import axios, { AxiosError, AxiosHeaders } from 'axios';
 
 import { API_BASE_PATH } from '@/lib/api/base';
 import { ALL_SAMPLE_USERS } from '@/lib/api/iam/user';
+import { applyMask } from '@/lib/api/mask';
 import { paginate, toQuery } from '@/lib/api/pages';
 // Set NEXT_PUBLIC_USE_SAMPLE=true to return sample responses when an API call fails
 const USE_SAMPLE = process.env.NEXT_PUBLIC_USE_SAMPLE === 'true';
@@ -66,6 +67,21 @@ export interface ApiOptions {
 // Tenant that owns every sample resource
 export const SAMPLE_TENANT_ID = 'tnt_console-sample';
 
+/** The edge resource of r: what the edge serves it as (EdgeResource of sznormalize) */
+export function edgeResourceOf(r: Resource): EdgeResource {
+  return EdgeResource.fromPartial({
+    id: r.id,
+    name: r.name,
+    domain: r.domain,
+    locations: r.locations,
+  });
+}
+
+/** The name, domain and locations of a resource from the edge resource of a request */
+function tenantFieldsOf(srv?: EdgeResource): Pick<Resource, 'name' | 'domain' | 'locations'> {
+  return { name: srv?.name ?? '', domain: srv?.domain ?? '', locations: srv?.locations ?? [] };
+}
+
 const upstream = (server: string, protocol = 'PROXY_PROTOCOL_HTTPS') => ({ server, protocol });
 
 // Written as proto JSON (the wire format), parsed with Resource.fromJSON
@@ -75,58 +91,49 @@ export const SAMPLE_RESOURCES: Resource[] = [
     id: 'rsrc_0199a6f0-4c1e-7a2b-9d3e-000000000001',
     tenantId: SAMPLE_TENANT_ID,
     status: 'STATUS_ACTIVE',
-    server: {
-      name: 'badcheese',
-      resourceId: 'rsrc_0199a6f0-4c1e-7a2b-9d3e-000000000001',
-      resourceDomain: 'badcheese.s6z.io.vn',
-      locations: [
-        {
-          location: '/',
-          proxyRewrite: '/',
-          proxyPass: [upstream('10.0.1.10'), upstream('10.0.1.11')],
-          balanceStrategy: 'BALANCE_STRATEGY_ROUND_ROBIN',
-          proxySetHeaders: { 'X-Forwarded-Proto': 'https' },
-        },
-        {
-          location: '/api',
-          proxyRewrite: '/',
-          proxyPass: [upstream('api.badcheese.internal', 'PROXY_PROTOCOL_HTTP')],
-          balanceStrategy: 'BALANCE_STRATEGY_ROUND_ROBIN',
-          proxySetHeaders: {},
-        },
-      ],
-    },
+    name: 'badcheese',
+    domain: 'badcheese.s6z.io.vn',
+    locations: [
+      {
+        location: '/',
+        proxyRewrite: '/',
+        proxyPass: [upstream('10.0.1.10'), upstream('10.0.1.11')],
+        balanceStrategy: 'BALANCE_STRATEGY_ROUND_ROBIN',
+        proxySetHeaders: { 'X-Forwarded-Proto': 'https' },
+      },
+      {
+        location: '/api',
+        proxyRewrite: '/',
+        proxyPass: [upstream('api.badcheese.internal', 'PROXY_PROTOCOL_HTTP')],
+        balanceStrategy: 'BALANCE_STRATEGY_ROUND_ROBIN',
+        proxySetHeaders: {},
+      },
+    ],
   },
   {
     metadata: { createdAt: '2026-09-12T02:15:00Z', updatedAt: '2026-09-28T14:00:00Z' },
     id: 'rsrc_0199a6f0-4c1e-7a2b-9d3e-000000000002',
     tenantId: SAMPLE_TENANT_ID,
     status: 'STATUS_ACTIVE',
-    server: {
-      name: 'shop',
-      resourceId: 'rsrc_0199a6f0-4c1e-7a2b-9d3e-000000000002',
-      resourceDomain: 'shop.example.com',
-      locations: [
-        {
-          location: '/',
-          proxyRewrite: '/',
-          proxyPass: [upstream('203.0.113.20')],
-          balanceStrategy: 'BALANCE_STRATEGY_ROUND_ROBIN',
-          proxySetHeaders: {},
-        },
-      ],
-    },
+    name: 'shop',
+    domain: 'shop.example.com',
+    locations: [
+      {
+        location: '/',
+        proxyRewrite: '/',
+        proxyPass: [upstream('203.0.113.20')],
+        balanceStrategy: 'BALANCE_STRATEGY_ROUND_ROBIN',
+        proxySetHeaders: {},
+      },
+    ],
   },
   {
     metadata: { createdAt: '2026-10-01T09:45:00Z', updatedAt: '2026-10-01T09:45:00Z' },
     id: 'rsrc_0199a6f0-4c1e-7a2b-9d3e-000000000003',
     tenantId: SAMPLE_TENANT_ID,
     status: 'STATUS_DISABLE',
-    server: {
-      name: 'staging',
-      resourceId: 'rsrc_0199a6f0-4c1e-7a2b-9d3e-000000000003',
-      resourceDomain: 'staging.example.com',
-    },
+    name: 'staging',
+    domain: 'staging.example.com',
   },
 ].map((r) => Resource.fromJSON(r));
 
@@ -142,11 +149,9 @@ const generatedResources: Resource[] = Array.from({ length: 20 }, (_, i): Resour
     },
     id,
     tenantId: SAMPLE_TENANT_ID,
-    server: Server.fromPartial({
-      name: `site${n}`,
-      resourceId: id,
-      resourceDomain: `site${n}.example.com`,
-    }),
+    name: `site${n}`,
+    domain: `site${n}.example.com`,
+    locations: [],
     status: n % 4 === 0 ? Status.STATUS_DISABLE : Status.STATUS_ACTIVE,
   };
 });
@@ -256,8 +261,8 @@ async function orNull<T>(label: string, run: () => Promise<T>): Promise<T | null
 function filterSample(req: Partial<ListResourceRequest>): Resource[] {
   return sampleStore.filter(
     (r) =>
-      (!req.resourceDomain || r.server?.resourceDomain === req.resourceDomain) &&
-      (!req.resourceName || r.server?.name === req.resourceName) &&
+      (!req.resourceDomain || r.domain === req.resourceDomain) &&
+      (!req.resourceName || r.name === req.resourceName) &&
       (!req.status || r.status === req.status),
   );
 }
@@ -281,7 +286,7 @@ export async function getResource(req: Partial<GetResourceRequest>, options?: Ap
 export async function getResourceByDomain(req: GetResourceByDomainRequest, options?: ApiOptions) {
   return orNull('fetching resource by domain', () =>
     withFallback<GetResourceByDomainResponse>('getResourceByDomain', () => ({
-      resource: sampleStore.find((r) => r.server?.resourceDomain === req.resourceDomain),
+      resource: sampleStore.find((r) => r.domain === req.resourceDomain),
     }))(async () => {
       const domain = encodeURIComponent(req.resourceDomain);
       const resp = await axios.get(`${API_BASE_PATH}/tenant/resource/${domain}`, {
@@ -319,11 +324,10 @@ export async function createResource(
     const now = new Date();
     const id = `rsrc_${crypto.randomUUID()}`;
     const created: Resource = {
-      ...req,
+      ...tenantFieldsOf(req.resource),
       id,
       tenantId: SAMPLE_TENANT_ID,
-      // the API stores the server under the resource id
-      server: req.server && { ...req.server, resourceId: id },
+      status: req.status,
       metadata: { createdAt: now, updatedAt: now },
     };
     sampleStore = [...sampleStore, created];
@@ -347,10 +351,9 @@ export async function updateResource(
     sampleStore = sampleStore.map((r) =>
       r.id === req.id
         ? {
-            ...r,
-            ...req,
-            // An update without a server keeps the stored one
-            server: req.server ?? r.server,
+            ...applyMask(r, req.resource, req.updateMask, Resource.fromPartial({})),
+            id: r.id,
+            tenantId: r.tenantId,
             metadata: { ...r.metadata, updatedAt: new Date() },
           }
         : r,
@@ -562,11 +565,8 @@ export async function updateTenant(
     sampleTenantStore = sampleTenantStore.map((t) =>
       t.id === req.id
         ? {
-            ...t,
-            plan: req.plan,
-            // empty name / description keep the stored ones
-            name: req.name || t.name,
-            description: req.description || t.description,
+            ...applyMask(t, req.tenant, req.updateMask, Tenant.fromPartial({})),
+            id: t.id,
             metadata: { ...t.metadata, updatedAt: new Date() },
           }
         : t,

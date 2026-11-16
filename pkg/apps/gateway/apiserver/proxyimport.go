@@ -32,16 +32,16 @@ import (
 	edgeyaml "github.com/sentinez/sentinez/pkg/apps/dmz/edge/yaml"
 )
 
-var errNoServer = errors.New("proxy.yaml has no server")
+var errNoResource = errors.New("proxy.yaml has no ingress.resource")
 
 // _proxyImportTimeout bounds the import, which runs before the apiserver
 // listens.
 const _proxyImportTimeout = 10 * time.Second
 
-// tenantImporter stores the server of a proxy.yaml.
+// tenantImporter stores the resource of a proxy.yaml.
 type tenantImporter interface {
-	ImportServer(ctx context.Context, tenant *tenantpb.Tenant,
-		srv *edgepb.Server) error
+	ImportResource(ctx context.Context, tenant *tenantpb.Tenant,
+		srv *edgepb.Resource) error
 }
 
 // securityImporter stores the security block of a proxy.yaml.
@@ -94,33 +94,33 @@ func storeProxy(ctx context.Context, data []byte,
 		return err
 	}
 	sznormalize.NormalizeEdgeSetting(setting)
-	srv := setting.GetServer()
+	srv := setting.GetIngress().GetResource()
 	if srv == nil {
-		return errNoServer
+		return errNoResource
 	}
 
 	// the ids the edge gives the requests of a setting without them
-	srv.ResourceId = cmp.Or(srv.GetResourceId(), defaults.ResourceId)
+	srv.Id = cmp.Or(srv.GetId(), defaults.ResourceId)
 	meta := setting.GetMetadata()
 	tenantId := cmp.Or(meta.GetTenantId(), defaults.TenantId)
 
-	err = tenant.ImportServer(ctx, &tenantpb.Tenant{
+	err = tenant.ImportResource(ctx, &tenantpb.Tenant{
 		Id:   tenantId,
 		Name: cmp.Or(meta.GetTenantName(), tenantId),
 		Plan: meta.GetPlan(),
 	}, srv)
 	if err != nil {
-		return fmt.Errorf("import server: %w", err)
+		return fmt.Errorf("import resource: %w", err)
 	}
 
-	owner := &typepb.Owner{TenantId: tenantId, ResourceId: srv.GetResourceId()}
+	owner := &typepb.Owner{TenantId: tenantId, ResourceId: srv.GetId()}
 	err = security.ImportSecurity(ctx, owner, srv.GetName(),
 		setting.GetSecurity())
 	if err != nil {
 		return err
 	}
 
-	szlog.Infof("proxy import: server %q stored as %s",
-		srv.GetName(), srv.GetResourceId())
+	szlog.Infof("proxy import: resource %q stored as %s",
+		srv.GetName(), srv.GetId())
 	return nil
 }

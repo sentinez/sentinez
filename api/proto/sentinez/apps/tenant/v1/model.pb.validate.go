@@ -62,14 +62,23 @@ func (m *Resource) Validate() error {
 
 	// no validation rules for TenantId
 
-	if v, ok := interface{}(m.GetServer()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ResourceValidationError{
-				field:  "Server",
-				reason: "embedded message failed validation",
-				cause:  err,
+	// no validation rules for Name
+
+	// no validation rules for Domain
+
+	for idx, item := range m.GetLocations() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ResourceValidationError{
+					field:  fmt.Sprintf("Locations[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
 			}
 		}
+
 	}
 
 	// no validation rules for Status

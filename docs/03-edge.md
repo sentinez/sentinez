@@ -34,7 +34,7 @@ main: run() → runner.Run(ctx, NewApp(edgeServer), NewApp(grpcServer), NewApp(l
      └─ Serve(e.Run(ctx, e.PublishStatus()))  // zone leader, see 3.8
 
 edge.NewServer(conf)
- ├─ edgeyaml.LoadSetting(conf)              // raw *Lite setting of proxy.yaml
+ ├─ edgeyaml.LoadSetting(conf)              // raw setting of proxy.yaml
  ├─ memory.NewMemStore(conf)                // singleton; cluster.NewCluster + settings SyncMap
  └─ switch conf.Flag.Engine                 // --engine
      hertz → engine.Hertz(conf)            → httphz.NewServer + WithOnStdConnect(OnHertzConnect)
@@ -182,7 +182,7 @@ stage that produced them; the stage names are exported constants (e.g.
 |---|---|---|---|
 | 0 | `TRC` | `trace.Tracer` | Generates request ID `senz:req:<xid>` when the context has none |
 | 1 | `LOG` | `logging.Logging` | Calls `next` first, then logs an `httppb.IngressEvent` (JSON, kind `LOG_TYPE_HTTP_INGRESS`, the ingress) and, when `ROU` proxied the request, an `httppb.EgressEvent` of the proxy → upstream origin leg (kind `LOG_TYPE_HTTP_EGRESS`: upstream, origin status, content type/length, latency, and the headers the edge set on the upstream request via `szhttp.SetUpstreamHeader`, sorted by name with credential headers omitted) |
-| 2 | `DMA` | `secure.DomainBased` | The host (port stripped, lower case) is the namespace: it must be the `server.resourceDomain` of a loaded setting. Otherwise → `403`. Sets `X().Namespace` and the tenant/resource ids of the setting |
+| 2 | `DMA` | `secure.DomainBased` | The host (port stripped, lower case) is the namespace: it must be the `ingress.resource.domain` of a loaded setting. Otherwise → `403`. Sets `X().Namespace` and the tenant/resource ids of the setting |
 | 3 | `PUB` | `cdn.Public` | Serves the images embedded in the binary under `/cdn/sentinez/public/`; a load failure at provisioning stops the edge |
 | 4 | `CDN` | `cdn.Cache` | If the namespace has an active CDN rule whose expression matches: look up the cache by `method+scheme+host+path+query+Accept-Encoding`; hit → return the cached response with `X-Cache: HIT`; miss → continue and store cacheable responses (TTL 1h, see [04-rule-engine.md](04-rule-engine.md#44-cdn-rules)) |
 | 5 | `LMT` | `secure.Limiter` | for each limiter whose required `ingress.expr` matches (priority order, like `RUL`): `limiter.Allow(IP)`; exceeded → `429` |
@@ -210,19 +210,20 @@ written as strings. Full example:
 setting:
   metadata:
     tenantId: tnt_acme           # id of this proxy.yaml (default tnt_default, then not synced)
-  server:
-    name: badcheese              # display name
-    resourceDomain: badcheese.is.s6z.io.vn # namespace = request host (required)
-    resourceId: rsrc_shop        # id of the upstream servers (default rsrc_default)
-    locations:
-      - location: /api           # prefix to match
-        proxyRewrite: /          # replaces the prefix before forwarding (default = location)
-        proxyPass:
-          - server: api.example.com
-            protocol: PROXY_PROTOCOL_HTTPS   # or PROXY_PROTOCOL_HTTP
-        balanceStrategy: BALANCE_STRATEGY_ROUND_ROBIN
-        proxySetHeaders:
-          X-Real-IP: $remote_addr
+  ingress:
+    resource:
+      name: badcheese              # display name
+      domain: badcheese.is.s6z.io.vn # namespace = request host (required)
+      id: rsrc_shop                # id of the resource (default rsrc_default)
+      locations:
+        - location: /api           # prefix to match
+          proxyRewrite: /          # replaces the prefix before forwarding (default = location)
+          proxyPass:
+            - server: api.example.com
+              protocol: PROXY_PROTOCOL_HTTPS   # or PROXY_PROTOCOL_HTTP
+          balanceStrategy: BALANCE_STRATEGY_ROUND_ROBIN
+          proxySetHeaders:
+            X-Real-IP: $remote_addr
   security:
     core_ruleset:                # OWASP CRS, one configuration per namespace
       status: STATUS_ACTIVE
@@ -257,7 +258,7 @@ setting:
           state: RULE_STATE_DETECTION_ONLY  # logged, never counted
         - id: 942130
           state: RULE_STATE_ENABLED         # forced on above paranoiaLevel
-    sec_rules:                   # SecRules (Lite form)
+    sec_rules:                   # SecRules
       - ingress:
           name: "Block /block"
           status: STATUS_ACTIVE
@@ -304,11 +305,11 @@ Notes:
 - `overrides[].state`: `RULE_STATE_DISABLED` can be scoped to a `location`;
   `RULE_STATE_DETECTION_ONLY` and `RULE_STATE_ENABLED` always apply to the
   whole namespace.
-- The "Lite" types (`SecRuleLite`, `cdn.RuleLite`, `ExpressionLite`) use
-  strings for `source/operator/status/value`. `NormalizeEdgeSetting` converts
-  them to the runtime types (`SecRule`, `cdn.Rule`, `Expression`) with real
-  enums, turns `value` into a string `structpb.Value`, and generates IDs
-  `srule_<uuid>` / `cond_<nanoid>`.
+- Rules are written directly in their runtime types (`SecRule`, `cdn.Rule`,
+  `Expression`): `source/operator/status` take the enum names, an unknown
+  one fails the parse. `NormalizeEdgeSetting` turns the number and bool
+  `value`s into strings and generates the missing IDs `srule_<uuid>` /
+  `cond_<nanoid>`.
 - Variables supported in `proxySetHeaders`
   ([core/szhttp/variable](../staging/src/github.com/sentinez/core/szhttp/variable/variable.go)):
   `$host`, `$remote_addr`, `$scheme`, `$request_uri`,
@@ -360,7 +361,7 @@ A reverse proxy is created once per `upstream.server` in
 ## 3.7 Memory store
 
 `memory.MemStore` (a singleton) groups stores keyed by **namespace**
-(`server.resourceDomain`, lower case, no trailing dot):
+(`ingress.resource.domain`, lower case, no trailing dot):
 
 | Store | Type | Contents |
 |---|---|---|
@@ -454,7 +455,7 @@ stores from it ([internal/memory/sync.go](../internal/memory/sync.go)):
   a restart does not make every edge rebuild it.
 - On each change (`OnChange`), the node normalizes a copy
   (`sznormalize.NormalizeEdgeSetting`) and rebuilds the stores of its
-  namespace (`server.resourceDomain`), which requests still route by. A namespace
+  namespace (`ingress.resource.domain`), which requests still route by. A namespace
   that changed name, or a deleted resource, is unloaded first.
 - A namespace belongs to one resource: a second resource claiming it is
   not loaded (logged), and cannot unload it.

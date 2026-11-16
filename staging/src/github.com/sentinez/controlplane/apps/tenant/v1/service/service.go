@@ -27,6 +27,7 @@ import (
 	"github.com/sentinez/pkg/szerror"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/sznormalize"
+	"github.com/sentinez/pkg/szprotobuf"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
@@ -87,24 +88,36 @@ func (svc *Service) GetResourceByDomain(ctx context.Context,
 	return &tenantpb.GetResourceByDomainResponse{Resource: found}, nil
 }
 
-// errNoDomain a server stored without the domain the edge serves it at.
+// errNoDomain a resource stored without the domain the edge serves it at.
 var errNoDomain = szerror.StatusInvalidArgumentF(
-	"server.resource_domain is required")
+	"resource.domain is required")
 
-// defaultServer is srv without its routes.
-func defaultServer(srv *edgepb.Server) *edgepb.Server {
-	return &edgepb.Server{
-		Name:           srv.GetName(),
-		ResourceId:     srv.GetResourceId(),
-		ResourceDomain: srv.GetResourceDomain(),
-	}
+// _resourceUpdatable the fields of a resource UpdateResource writes.
+var _resourceUpdatable = []string{
+	tenantpb.Resource_Name, tenantpb.Resource_Domain,
+	tenantpb.Resource_Locations, tenantpb.Resource_Status,
 }
 
-// normalizeServer normalizes the domain of srv as the edge matches it,
+// resourceOf is the tenant resource of the edge resource srv, its domain
+// normalized as the edge matches it; errNoDomain without one.
+func resourceOf(srv *edgepb.Resource) (*tenantpb.Resource, error) {
+	rsc := sznormalize.TenantResource(srv)
+	if rsc == nil {
+		return nil, errNoDomain
+	}
+
+	if err := normalizeDomain(rsc); err != nil {
+		return nil, err
+	}
+
+	return rsc, nil
+}
+
+// normalizeDomain sets the domain of rsc as the edge matches it,
 // errNoDomain without one.
-func normalizeServer(srv *edgepb.Server) error {
-	srv.ResourceDomain = sznormalize.ResourceDomain(srv.GetResourceDomain())
-	if srv.GetResourceDomain() == "" {
+func normalizeDomain(rsc *tenantpb.Resource) error {
+	rsc.Domain = sznormalize.ResourceDomain(rsc.GetDomain())
+	if rsc.GetDomain() == "" {
 		return errNoDomain
 	}
 
@@ -119,8 +132,9 @@ func (svc *Service) GetResource(ctx context.Context,
 		return nil, err
 	}
 
+	// the resource without its routes
 	if req.GetDefault() {
-		rsc.Server = defaultServer(rsc.GetServer())
+		rsc.Locations = nil
 	}
 
 	return &tenantpb.GetResourceResponse{Resource: rsc}, nil
@@ -135,15 +149,15 @@ func (svc *Service) CreateResource(ctx context.Context,
 		return nil, err
 	}
 
-	if err = normalizeServer(req.GetServer()); err != nil {
+	rsc, err := resourceOf(req.GetResource())
+	if err != nil {
 		return nil, err
 	}
 
-	resp, err := svc.resource.Create(ctx, &tenantpb.Resource{
-		Server:   req.GetServer(),
-		Status:   req.GetStatus(),
-		TenantId: req.GetTenantId(),
-	})
+	rsc.Status = req.GetStatus()
+	rsc.TenantId = req.GetTenantId()
+
+	resp, err := svc.resource.Create(ctx, rsc)
 	if err != nil {
 		return nil, err
 	}
@@ -171,22 +185,22 @@ func (svc *Service) DeleteResource(ctx context.Context,
 func (svc *Service) UpdateResource(ctx context.Context,
 	req *tenantpb.UpdateResourceRequest,
 ) (*tenantpb.UpdateResourceResponse, error) {
-	_, err := svc.authz.RequireResource(ctx, req.GetId(), authz.Write)
+	rsc, err := svc.authz.RequireResource(ctx, req.GetId(), authz.Write)
 	if err != nil {
 		return nil, err
 	}
 
-	if srv := req.GetServer(); srv != nil {
-		if err = normalizeServer(srv); err != nil {
-			return nil, err
-		}
+	paths, err := szprotobuf.ApplyMask(rsc, req.GetResource(),
+		req.GetUpdateMask(), _resourceUpdatable...)
+	if err != nil {
+		return nil, err
 	}
 
-	err = svc.resource.Update(ctx, &tenantpb.Resource{
-		Id:     req.GetId(),
-		Status: req.GetStatus(),
-		Server: req.GetServer(),
-	})
+	if err = normalizeDomain(rsc); err != nil {
+		return nil, err
+	}
+
+	err = svc.resource.Update(ctx, rsc, paths)
 	if err != nil {
 		return nil, fmt.Errorf("resource.Update: %w", err)
 	}

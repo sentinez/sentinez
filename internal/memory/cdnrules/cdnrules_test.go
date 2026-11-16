@@ -55,7 +55,7 @@ func delivery(cdns ...*cdnpb.CDN) *edgepb.Delivery {
 }
 
 func cdn(id string, status typepb.Status, priority int32) *cdnpb.CDN {
-	return &cdnpb.CDN{RuleRuntime: &cdnpb.Rule{
+	return &cdnpb.CDN{Rule: &cdnpb.Rule{
 		Id: id, Status: status, Priority: priority,
 	}}
 }

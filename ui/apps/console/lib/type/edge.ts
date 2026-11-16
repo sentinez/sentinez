@@ -1,6 +1,6 @@
 import { BalanceStrategy, ProxyProtocol } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
 
-// Helpers of the edge setting (Server, Location, Upstream): the labels of
+// Helpers of the edge setting (Resource, Location, Upstream): the labels of
 // its enums and the patterns its protobuf validation (buf.validate) holds.
 
 /** The protocol of an upstream; the edge reads an unspecified one as HTTPS */
@@ -59,8 +59,8 @@ export function headerLinesOf(text: string): HeaderLine[] {
     });
 }
 
-// Patterns from setting.proto (buf.validate): server.name,
-// server.resource_domain, location.location / proxy_rewrite, upstream.server
+// Patterns from setting.proto (buf.validate): resource.name,
+// resource.domain, location.location / proxy_rewrite, upstream.server
 export const NAME_RE = /^[a-zA-Z0-9-]+$/;
 export const DOMAIN_RE = /^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,63}$/;
 export const LOCATION_RE = /^\/.*$/;

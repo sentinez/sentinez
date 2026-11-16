@@ -89,3 +89,23 @@ func TestInsertRowsBuilderError(t *testing.T) {
 
 	require.ErrorIs(t, err, wantErr)
 }
+
+func TestMOnly(t *testing.T) {
+	cols := M{"name": "a", "status": 1, "plan": 2}
+
+	got := cols.Only([]string{"status", "name", "missing"})
+
+	assert.Equal(t, M{"name": "a", "status": 1}, got)
+}
+
+func TestUpdateBuilderOnlyMaskedColumns(t *testing.T) {
+	cols := M{"name": "a", "status": 1}
+
+	sql, args, err := UpdateBuilder[struct{}](fakeTable{}, "id_1").
+		SetMap(cols.Only([]string{"name"})).ToSql()
+
+	require.NoError(t, err)
+	assert.Equal(t,
+		"UPDATE items SET updated_at = ?, name = ? WHERE id = ?", sql)
+	assert.Equal(t, []any{"a", "id_1"}, args[1:])
+}

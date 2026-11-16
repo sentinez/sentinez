@@ -34,7 +34,7 @@ var errUnnamedRule = errors.New("rule without a name")
 // the core ruleset (one per resource, named name) and the sec_rules and
 // limiters, matched by name against the rules owner already has. Stored
 // rules missing from sec are left untouched. sec must be normalized
-// (sznormalize.NormalizeEdgeSetting) so its rules carry their runtime.
+// (sznormalize.NormalizeEdgeSetting) so its rules carry their ids.
 func (srv *SecurityService) ImportSecurity(ctx context.Context,
 	owner *typepb.Owner, name string, sec *edgepb.Security) error {
 
@@ -79,7 +79,7 @@ func (srv *SecurityService) importCoreRuleset(ctx context.Context,
 	}
 
 	crs.Id = stored[0].GetId()
-	return srv.coreRulesetRepo.Update(ctx, crs)
+	return srv.coreRulesetRepo.Update(ctx, crs, _coreRulesetUpdatable)
 }
 
 // importSecRules upserts rules by name among the sec rules of owner.
@@ -96,7 +96,7 @@ func (srv *SecurityService) importSecRules(ctx context.Context,
 	models := make([]*securitypb.SecRule, 0, len(rules))
 	for _, rule := range rules {
 		models = append(models,
-			secRuleFromEdge(owner, rule.GetIngressRuntime()))
+			secRuleFromEdge(owner, rule.GetIngress()))
 	}
 
 	return upsertByName(ctx, stored, models,
@@ -106,7 +106,7 @@ func (srv *SecurityService) importSecRules(ctx context.Context,
 				return err
 			}
 			m.Id = id
-			return srv.secRuleRepo.Update(ctx, m)
+			return srv.secRuleRepo.Update(ctx, m, _secRuleUpdatable)
 		})
 }
 
@@ -139,7 +139,7 @@ func (srv *SecurityService) importRateLimits(ctx context.Context,
 				return err
 			}
 			m.Id = id
-			return srv.rateLimitRepo.Update(ctx, m)
+			return srv.rateLimitRepo.Update(ctx, m, _rateLimitUpdatable)
 		})
 }
 
@@ -192,7 +192,7 @@ func secRuleFromEdge(owner *typepb.Owner,
 func rateLimitFromEdge(owner *typepb.Owner,
 	limiter *edgepb.RateLimit) (*securitypb.RateLimit, error) {
 
-	rule := limiter.GetIngressRuntime()
+	rule := limiter.GetIngress()
 	model := &securitypb.RateLimit{
 		Owner:       owner,
 		Name:        rule.GetName(),

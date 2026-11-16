@@ -28,16 +28,16 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// fakeTenant records the imported server.
+// fakeTenant records the imported resource.
 type fakeTenant struct {
-	err    error
-	tenant *tenantpb.Tenant
-	server *edgepb.Server
+	err      error
+	tenant   *tenantpb.Tenant
+	resource *edgepb.Resource
 }
 
-func (f *fakeTenant) ImportServer(_ context.Context, tenant *tenantpb.Tenant,
-	srv *edgepb.Server) error {
-	f.tenant, f.server = tenant, srv
+func (f *fakeTenant) ImportResource(_ context.Context, tenant *tenantpb.Tenant,
+	srv *edgepb.Resource) error {
+	f.tenant, f.resource = tenant, srv
 	return f.err
 }
 
@@ -71,30 +71,30 @@ func TestStoreProxy(t *testing.T) {
 	assert.Equal(t, "tnt_default_admin", tenant.tenant.GetId())
 	assert.Equal(t, "admin", tenant.tenant.GetName())
 	assert.Equal(t, typepb.Plan_PLAN_PRO, tenant.tenant.GetPlan())
-	assert.Equal(t, "badcheese", tenant.server.GetName())
+	assert.Equal(t, "badcheese", tenant.resource.GetName())
 	assert.Equal(t, "badcheese.is.s6z.io.vn",
-		tenant.server.GetResourceDomain())
-	assert.Equal(t, "rsrc_default", tenant.server.GetResourceId())
+		tenant.resource.GetDomain())
+	assert.Equal(t, "rsrc_default", tenant.resource.GetId())
 	assert.Equal(t, "badcheese", security.name)
 	assert.Equal(t, &typepb.Owner{
 		TenantId: "tnt_default_admin", ResourceId: "rsrc_default",
 	}, security.owner)
 	require.NotEmpty(t, security.sec.GetSecRules())
-	assert.NotNil(t, security.sec.GetSecRules()[0].GetIngressRuntime())
-	assert.NotNil(t, security.sec.GetLimiters()[0].GetIngressRuntime())
+	assert.NotNil(t, security.sec.GetSecRules()[0].GetIngress())
+	assert.NotNil(t, security.sec.GetLimiters()[0].GetIngress())
 }
 
 func TestStoreProxyDefaults(t *testing.T) {
 	tenant := &fakeTenant{}
 
-	err := storeProxy(t.Context(), []byte("setting: {server: {name: a}}"),
-		tenant, &fakeSecurity{})
+	data := []byte("setting: {ingress: {resource: {name: a}}}")
+	err := storeProxy(t.Context(), data, tenant, &fakeSecurity{})
 
 	require.NoError(t, err)
 	assert.Equal(t, &tenantpb.Tenant{
 		Id: defaults.TenantId, Name: defaults.TenantId,
 	}, tenant.tenant)
-	assert.Equal(t, defaults.ResourceId, tenant.server.GetResourceId())
+	assert.Equal(t, defaults.ResourceId, tenant.resource.GetId())
 }
 
 func TestStoreProxyErrors(t *testing.T) {
@@ -105,8 +105,8 @@ func TestStoreProxyErrors(t *testing.T) {
 	}{
 		{"no setting", []byte("other: 1"), &fakeTenant{}},
 		{"bad yaml", []byte("setting: ["), &fakeTenant{}},
-		{"no server", []byte("setting: {metadata: {}}"), &fakeTenant{}},
-		{"tenant fails", []byte("setting: {server: {name: a}}"),
+		{"no resource", []byte("setting: {metadata: {}}"), &fakeTenant{}},
+		{"tenant fails", []byte("setting: {ingress: {resource: {name: a}}}"),
 			&fakeTenant{err: errors.New("db down")}},
 	}
 

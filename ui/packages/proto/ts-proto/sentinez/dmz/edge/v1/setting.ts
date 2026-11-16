@@ -8,7 +8,7 @@
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { CDN } from "../../../types/cdn/v1/rule";
 import { CoreRuleset } from "../../../types/coreruleset/v1/setting";
-import { SecRule as SecRule1, SecRuleLite } from "../../../types/secrule/v1/engine";
+import { SecRule as SecRule1 } from "../../../types/secrule/v1/engine";
 import { Plan, planFromJSON, planToJSON } from "../../../types/v1/known";
 
 export const protobufPackage = "sentinez.dmz.edge.v1";
@@ -91,9 +91,9 @@ export interface Setting {
   metadata?:
     | Metadata
     | undefined;
-  /** @gotags: yaml:"server" */
-  server?:
-    | Server
+  /** @gotags: yaml:"ingress" */
+  ingress?:
+    | Ingress
     | undefined;
   /** @gotags: yaml:"security" */
   security?:
@@ -109,6 +109,39 @@ export interface Setting {
     | undefined;
   /** @gotags: yaml:"delivery" */
   delivery?: Delivery | undefined;
+}
+
+/**
+ * Ingress is where a request enters the edge and how it reaches the
+ * origin: the resource (domain, locations and upstreams) and the
+ * certificates it is served with.
+ */
+export interface Ingress {
+  /** @gotags: yaml:"resource" */
+  resource?:
+    | Resource
+    | undefined;
+  /**
+   * Certificates the edge serves for resource.domain, from the CA
+   * certificates of usage SERVER of the resource; never read from a file.
+   */
+  tls?: Tls | undefined;
+}
+
+/** Tls the certificates the edge serves for the domain of a setting. */
+export interface Tls {
+  certificates: Certificate[];
+}
+
+/**
+ * Certificate one certificate and its private key, if any, both sealed
+ * with SENZ_DATA_KEY and bound to id: the cluster never holds them in
+ * clear, each edge opens them with its own key.
+ */
+export interface Certificate {
+  id: string;
+  pem: string;
+  privateKey: string;
 }
 
 /** Metadata identifies the setting in the logs of the edge. */
@@ -127,23 +160,23 @@ export interface Metadata {
   plan: Plan;
 }
 
-/** Server defines where the request goes and how the edge processes it: */
-export interface Server {
+/** Resource defines where the request goes and how the edge processes it: */
+export interface Resource {
+  /**
+   * Id of the resource, filled into the events of its requests;
+   * "rsrc_default" when empty.
+   */
+  id: string;
   /** @gotags: yaml:"name" */
   name: string;
   /** @gotags: yaml:"locations" */
   locations: Location[];
   /**
-   * Id of the upstream servers of the locations, filled into the events
-   * of the requests; "rsrc_default" when empty.
-   */
-  resourceId: string;
-  /**
-   * Domain the server is served at, the namespace of the setting: the
+   * Domain the resource is served at, the namespace of the setting: the
    * edge keys its stores by it and matches the request host against it,
    * the apiserver stores it as the domain of the resource. Required.
    */
-  resourceDomain: string;
+  domain: string;
 }
 
 export interface Location {
@@ -178,20 +211,12 @@ export interface Security {
 
 export interface SecRule {
   /** @gotags: yaml:"ingress" */
-  ingress?:
-    | SecRuleLite
-    | undefined;
-  /** @gotags: yaml:"-" */
-  ingressRuntime?: SecRule1 | undefined;
+  ingress?: SecRule1 | undefined;
 }
 
 export interface RateLimit {
   /** @gotags: yaml:"ingress" */
   ingress?:
-    | SecRuleLite
-    | undefined;
-  /** @gotags: yaml:"-" */
-  ingressRuntime?:
     | SecRule1
     | undefined;
   /** @gotags: yaml:"timeWindow" */
@@ -225,7 +250,7 @@ export interface Upstream {
 function createBaseSetting(): Setting {
   return {
     metadata: undefined,
-    server: undefined,
+    ingress: undefined,
     security: undefined,
     trafficControl: undefined,
     personal: undefined,
@@ -238,8 +263,8 @@ export const Setting: MessageFns<Setting> = {
     if (message.metadata !== undefined) {
       Metadata.encode(message.metadata, writer.uint32(10).fork()).join();
     }
-    if (message.server !== undefined) {
-      Server.encode(message.server, writer.uint32(18).fork()).join();
+    if (message.ingress !== undefined) {
+      Ingress.encode(message.ingress, writer.uint32(18).fork()).join();
     }
     if (message.security !== undefined) {
       Security.encode(message.security, writer.uint32(26).fork()).join();
@@ -282,7 +307,7 @@ export const Setting: MessageFns<Setting> = {
               break;
             }
 
-            message.server = Server.decode(reader, reader.uint32());
+            message.ingress = Ingress.decode(reader, reader.uint32());
             continue;
           }
           case 3: {
@@ -332,7 +357,7 @@ export const Setting: MessageFns<Setting> = {
   fromJSON(object: any): Setting {
     return {
       metadata: isSet(object.metadata) ? Metadata.fromJSON(object.metadata) : undefined,
-      server: isSet(object.server) ? Server.fromJSON(object.server) : undefined,
+      ingress: isSet(object.ingress) ? Ingress.fromJSON(object.ingress) : undefined,
       security: isSet(object.security) ? Security.fromJSON(object.security) : undefined,
       trafficControl: isSet(object.trafficControl)
         ? TrafficControl.fromJSON(object.trafficControl)
@@ -349,8 +374,8 @@ export const Setting: MessageFns<Setting> = {
     if (message.metadata !== undefined) {
       obj.metadata = Metadata.toJSON(message.metadata);
     }
-    if (message.server !== undefined) {
-      obj.server = Server.toJSON(message.server);
+    if (message.ingress !== undefined) {
+      obj.ingress = Ingress.toJSON(message.ingress);
     }
     if (message.security !== undefined) {
       obj.security = Security.toJSON(message.security);
@@ -375,8 +400,8 @@ export const Setting: MessageFns<Setting> = {
     message.metadata = (object.metadata !== undefined && object.metadata !== null)
       ? Metadata.fromPartial(object.metadata)
       : undefined;
-    message.server = (object.server !== undefined && object.server !== null)
-      ? Server.fromPartial(object.server)
+    message.ingress = (object.ingress !== undefined && object.ingress !== null)
+      ? Ingress.fromPartial(object.ingress)
       : undefined;
     message.security = (object.security !== undefined && object.security !== null)
       ? Security.fromPartial(object.security)
@@ -390,6 +415,269 @@ export const Setting: MessageFns<Setting> = {
     message.delivery = (object.delivery !== undefined && object.delivery !== null)
       ? Delivery.fromPartial(object.delivery)
       : undefined;
+    return message;
+  },
+};
+
+function createBaseIngress(): Ingress {
+  return { resource: undefined, tls: undefined };
+}
+
+export const Ingress: MessageFns<Ingress> = {
+  encode(message: Ingress, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.resource !== undefined) {
+      Resource.encode(message.resource, writer.uint32(10).fork()).join();
+    }
+    if (message.tls !== undefined) {
+      Tls.encode(message.tls, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Ingress {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseIngress();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.resource = Resource.decode(reader, reader.uint32());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.tls = Tls.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): Ingress {
+    return {
+      resource: isSet(object.resource) ? Resource.fromJSON(object.resource) : undefined,
+      tls: isSet(object.tls) ? Tls.fromJSON(object.tls) : undefined,
+    };
+  },
+
+  toJSON(message: Ingress): unknown {
+    const obj: any = {};
+    if (message.resource !== undefined) {
+      obj.resource = Resource.toJSON(message.resource);
+    }
+    if (message.tls !== undefined) {
+      obj.tls = Tls.toJSON(message.tls);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Ingress>, I>>(base?: I): Ingress {
+    return Ingress.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Ingress>, I>>(object: I): Ingress {
+    const message = createBaseIngress();
+    message.resource = (object.resource !== undefined && object.resource !== null)
+      ? Resource.fromPartial(object.resource)
+      : undefined;
+    message.tls = (object.tls !== undefined && object.tls !== null) ? Tls.fromPartial(object.tls) : undefined;
+    return message;
+  },
+};
+
+function createBaseTls(): Tls {
+  return { certificates: [] };
+}
+
+export const Tls: MessageFns<Tls> = {
+  encode(message: Tls, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.certificates) {
+      Certificate.encode(v!, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Tls {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseTls();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.certificates.push(Certificate.decode(reader, reader.uint32()));
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): Tls {
+    return {
+      certificates: globalThis.Array.isArray(object?.certificates)
+        ? object.certificates.map((e: any) => Certificate.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: Tls): unknown {
+    const obj: any = {};
+    if (message.certificates?.length) {
+      obj.certificates = message.certificates.map((e) => Certificate.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Tls>, I>>(base?: I): Tls {
+    return Tls.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Tls>, I>>(object: I): Tls {
+    const message = createBaseTls();
+    message.certificates = object.certificates?.map((e) => Certificate.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseCertificate(): Certificate {
+  return { id: "", pem: "", privateKey: "" };
+}
+
+export const Certificate: MessageFns<Certificate> = {
+  encode(message: Certificate, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.pem !== "") {
+      writer.uint32(18).string(message.pem);
+    }
+    if (message.privateKey !== "") {
+      writer.uint32(26).string(message.privateKey);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Certificate {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseCertificate();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.pem = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.privateKey = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): Certificate {
+    return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      pem: isSet(object.pem) ? globalThis.String(object.pem) : "",
+      privateKey: isSet(object.privateKey)
+        ? globalThis.String(object.privateKey)
+        : isSet(object.private_key)
+        ? globalThis.String(object.private_key)
+        : "",
+    };
+  },
+
+  toJSON(message: Certificate): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.pem !== "") {
+      obj.pem = message.pem;
+    }
+    if (message.privateKey !== "") {
+      obj.privateKey = message.privateKey;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Certificate>, I>>(base?: I): Certificate {
+    return Certificate.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Certificate>, I>>(object: I): Certificate {
+    const message = createBaseCertificate();
+    message.id = object.id ?? "";
+    message.pem = object.pem ?? "";
+    message.privateKey = object.privateKey ?? "";
     return message;
   },
 };
@@ -503,28 +791,28 @@ export const Metadata: MessageFns<Metadata> = {
   },
 };
 
-function createBaseServer(): Server {
-  return { name: "", locations: [], resourceId: "", resourceDomain: "" };
+function createBaseResource(): Resource {
+  return { id: "", name: "", locations: [], domain: "" };
 }
 
-export const Server: MessageFns<Server> = {
-  encode(message: Server, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const Resource: MessageFns<Resource> = {
+  encode(message: Resource, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
     if (message.name !== "") {
-      writer.uint32(10).string(message.name);
+      writer.uint32(18).string(message.name);
     }
     for (const v of message.locations) {
-      Location.encode(v!, writer.uint32(18).fork()).join();
+      Location.encode(v!, writer.uint32(26).fork()).join();
     }
-    if (message.resourceId !== "") {
-      writer.uint32(26).string(message.resourceId);
-    }
-    if (message.resourceDomain !== "") {
-      writer.uint32(34).string(message.resourceDomain);
+    if (message.domain !== "") {
+      writer.uint32(34).string(message.domain);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): Server {
+  decode(input: BinaryReader | Uint8Array, length?: number): Resource {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -533,7 +821,7 @@ export const Server: MessageFns<Server> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseServer();
+      const message = createBaseResource();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -542,7 +830,7 @@ export const Server: MessageFns<Server> = {
               break;
             }
 
-            message.name = reader.string();
+            message.id = reader.string();
             continue;
           }
           case 2: {
@@ -550,7 +838,7 @@ export const Server: MessageFns<Server> = {
               break;
             }
 
-            message.locations.push(Location.decode(reader, reader.uint32()));
+            message.name = reader.string();
             continue;
           }
           case 3: {
@@ -558,7 +846,7 @@ export const Server: MessageFns<Server> = {
               break;
             }
 
-            message.resourceId = reader.string();
+            message.locations.push(Location.decode(reader, reader.uint32()));
             continue;
           }
           case 4: {
@@ -566,7 +854,7 @@ export const Server: MessageFns<Server> = {
               break;
             }
 
-            message.resourceDomain = reader.string();
+            message.domain = reader.string();
             continue;
           }
         }
@@ -581,51 +869,43 @@ export const Server: MessageFns<Server> = {
     }
   },
 
-  fromJSON(object: any): Server {
+  fromJSON(object: any): Resource {
     return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       locations: globalThis.Array.isArray(object?.locations)
         ? object.locations.map((e: any) => Location.fromJSON(e))
         : [],
-      resourceId: isSet(object.resourceId)
-        ? globalThis.String(object.resourceId)
-        : isSet(object.resource_id)
-        ? globalThis.String(object.resource_id)
-        : "",
-      resourceDomain: isSet(object.resourceDomain)
-        ? globalThis.String(object.resourceDomain)
-        : isSet(object.resource_domain)
-        ? globalThis.String(object.resource_domain)
-        : "",
+      domain: isSet(object.domain) ? globalThis.String(object.domain) : "",
     };
   },
 
-  toJSON(message: Server): unknown {
+  toJSON(message: Resource): unknown {
     const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
     if (message.name !== "") {
       obj.name = message.name;
     }
     if (message.locations?.length) {
       obj.locations = message.locations.map((e) => Location.toJSON(e));
     }
-    if (message.resourceId !== "") {
-      obj.resourceId = message.resourceId;
-    }
-    if (message.resourceDomain !== "") {
-      obj.resourceDomain = message.resourceDomain;
+    if (message.domain !== "") {
+      obj.domain = message.domain;
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<Server>, I>>(base?: I): Server {
-    return Server.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<Resource>, I>>(base?: I): Resource {
+    return Resource.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<Server>, I>>(object: I): Server {
-    const message = createBaseServer();
+  fromPartial<I extends Exact<DeepPartial<Resource>, I>>(object: I): Resource {
+    const message = createBaseResource();
+    message.id = object.id ?? "";
     message.name = object.name ?? "";
     message.locations = object.locations?.map((e) => Location.fromPartial(e)) || [];
-    message.resourceId = object.resourceId ?? "";
-    message.resourceDomain = object.resourceDomain ?? "";
+    message.domain = object.domain ?? "";
     return message;
   },
 };
@@ -1019,16 +1299,13 @@ export const Security: MessageFns<Security> = {
 };
 
 function createBaseSecRule(): SecRule {
-  return { ingress: undefined, ingressRuntime: undefined };
+  return { ingress: undefined };
 }
 
 export const SecRule: MessageFns<SecRule> = {
   encode(message: SecRule, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.ingress !== undefined) {
-      SecRuleLite.encode(message.ingress, writer.uint32(10).fork()).join();
-    }
-    if (message.ingressRuntime !== undefined) {
-      SecRule1.encode(message.ingressRuntime, writer.uint32(18).fork()).join();
+      SecRule1.encode(message.ingress, writer.uint32(10).fork()).join();
     }
     return writer;
   },
@@ -1051,15 +1328,7 @@ export const SecRule: MessageFns<SecRule> = {
               break;
             }
 
-            message.ingress = SecRuleLite.decode(reader, reader.uint32());
-            continue;
-          }
-          case 2: {
-            if (tag !== 18) {
-              break;
-            }
-
-            message.ingressRuntime = SecRule1.decode(reader, reader.uint32());
+            message.ingress = SecRule1.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -1075,23 +1344,13 @@ export const SecRule: MessageFns<SecRule> = {
   },
 
   fromJSON(object: any): SecRule {
-    return {
-      ingress: isSet(object.ingress) ? SecRuleLite.fromJSON(object.ingress) : undefined,
-      ingressRuntime: isSet(object.ingressRuntime)
-        ? SecRule1.fromJSON(object.ingressRuntime)
-        : isSet(object.ingress_runtime)
-        ? SecRule1.fromJSON(object.ingress_runtime)
-        : undefined,
-    };
+    return { ingress: isSet(object.ingress) ? SecRule1.fromJSON(object.ingress) : undefined };
   },
 
   toJSON(message: SecRule): unknown {
     const obj: any = {};
     if (message.ingress !== undefined) {
-      obj.ingress = SecRuleLite.toJSON(message.ingress);
-    }
-    if (message.ingressRuntime !== undefined) {
-      obj.ingressRuntime = SecRule1.toJSON(message.ingressRuntime);
+      obj.ingress = SecRule1.toJSON(message.ingress);
     }
     return obj;
   },
@@ -1102,26 +1361,20 @@ export const SecRule: MessageFns<SecRule> = {
   fromPartial<I extends Exact<DeepPartial<SecRule>, I>>(object: I): SecRule {
     const message = createBaseSecRule();
     message.ingress = (object.ingress !== undefined && object.ingress !== null)
-      ? SecRuleLite.fromPartial(object.ingress)
-      : undefined;
-    message.ingressRuntime = (object.ingressRuntime !== undefined && object.ingressRuntime !== null)
-      ? SecRule1.fromPartial(object.ingressRuntime)
+      ? SecRule1.fromPartial(object.ingress)
       : undefined;
     return message;
   },
 };
 
 function createBaseRateLimit(): RateLimit {
-  return { ingress: undefined, ingressRuntime: undefined, timeWindow: "", maxRequests: 0, timeout: "" };
+  return { ingress: undefined, timeWindow: "", maxRequests: 0, timeout: "" };
 }
 
 export const RateLimit: MessageFns<RateLimit> = {
   encode(message: RateLimit, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.ingress !== undefined) {
-      SecRuleLite.encode(message.ingress, writer.uint32(10).fork()).join();
-    }
-    if (message.ingressRuntime !== undefined) {
-      SecRule1.encode(message.ingressRuntime, writer.uint32(18).fork()).join();
+      SecRule1.encode(message.ingress, writer.uint32(10).fork()).join();
     }
     if (message.timeWindow !== "") {
       writer.uint32(90).string(message.timeWindow);
@@ -1153,15 +1406,7 @@ export const RateLimit: MessageFns<RateLimit> = {
               break;
             }
 
-            message.ingress = SecRuleLite.decode(reader, reader.uint32());
-            continue;
-          }
-          case 2: {
-            if (tag !== 18) {
-              break;
-            }
-
-            message.ingressRuntime = SecRule1.decode(reader, reader.uint32());
+            message.ingress = SecRule1.decode(reader, reader.uint32());
             continue;
           }
           case 11: {
@@ -1202,12 +1447,7 @@ export const RateLimit: MessageFns<RateLimit> = {
 
   fromJSON(object: any): RateLimit {
     return {
-      ingress: isSet(object.ingress) ? SecRuleLite.fromJSON(object.ingress) : undefined,
-      ingressRuntime: isSet(object.ingressRuntime)
-        ? SecRule1.fromJSON(object.ingressRuntime)
-        : isSet(object.ingress_runtime)
-        ? SecRule1.fromJSON(object.ingress_runtime)
-        : undefined,
+      ingress: isSet(object.ingress) ? SecRule1.fromJSON(object.ingress) : undefined,
       timeWindow: isSet(object.timeWindow)
         ? globalThis.String(object.timeWindow)
         : isSet(object.time_window)
@@ -1225,10 +1465,7 @@ export const RateLimit: MessageFns<RateLimit> = {
   toJSON(message: RateLimit): unknown {
     const obj: any = {};
     if (message.ingress !== undefined) {
-      obj.ingress = SecRuleLite.toJSON(message.ingress);
-    }
-    if (message.ingressRuntime !== undefined) {
-      obj.ingressRuntime = SecRule1.toJSON(message.ingressRuntime);
+      obj.ingress = SecRule1.toJSON(message.ingress);
     }
     if (message.timeWindow !== "") {
       obj.timeWindow = message.timeWindow;
@@ -1248,10 +1485,7 @@ export const RateLimit: MessageFns<RateLimit> = {
   fromPartial<I extends Exact<DeepPartial<RateLimit>, I>>(object: I): RateLimit {
     const message = createBaseRateLimit();
     message.ingress = (object.ingress !== undefined && object.ingress !== null)
-      ? SecRuleLite.fromPartial(object.ingress)
-      : undefined;
-    message.ingressRuntime = (object.ingressRuntime !== undefined && object.ingressRuntime !== null)
-      ? SecRule1.fromPartial(object.ingressRuntime)
+      ? SecRule1.fromPartial(object.ingress)
       : undefined;
     message.timeWindow = object.timeWindow ?? "";
     message.maxRequests = object.maxRequests ?? 0;

@@ -95,16 +95,22 @@ func (CaCertificateUsage) EnumDescriptor() ([]byte, []int) {
 	return file_sentinez_apps_tenant_v1_model_proto_rawDescGZIP(), []int{0}
 }
 
-// Resource is a server of a tenant: its name, domain and routes are those
-// of server (server.name, server.resource_domain), its id is the
-// server.resource_id the edge fills into the events of its requests.
+// Resource is a resource of a tenant: a domain the edge serves and the
+// locations it routes to the origins. Its id is the one the edge fills
+// into the events of its requests; the edge takes it as the
+// sentinez.dmz.edge.v1.Resource of its setting.
 type Resource struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Metadata      *v1.Metadata           `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
-	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
-	TenantId      string                 `protobuf:"bytes,3,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
-	Server        *v11.Server            `protobuf:"bytes,4,opt,name=server,proto3" json:"server,omitempty"`
-	Status        v1.Status              `protobuf:"varint,5,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	Metadata *v1.Metadata           `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty"`
+	Id       string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	TenantId string                 `protobuf:"bytes,3,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	Name     string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
+	// Domain the edge serves the resource at, lower case: the namespace of
+	// its setting. Required.
+	Domain string `protobuf:"bytes,5,opt,name=domain,proto3" json:"domain,omitempty"`
+	// Routes of the domain to the origins, stored as JSONB.
+	Locations     []*v11.Location `protobuf:"bytes,6,rep,name=locations,proto3" json:"locations,omitempty"`
+	Status        v1.Status       `protobuf:"varint,7,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -160,9 +166,23 @@ func (x *Resource) GetTenantId() string {
 	return ""
 }
 
-func (x *Resource) GetServer() *v11.Server {
+func (x *Resource) GetName() string {
 	if x != nil {
-		return x.Server
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Resource) GetDomain() string {
+	if x != nil {
+		return x.Domain
+	}
+	return ""
+}
+
+func (x *Resource) GetLocations() []*v11.Location {
+	if x != nil {
+		return x.Locations
 	}
 	return nil
 }
@@ -523,19 +543,21 @@ var File_sentinez_apps_tenant_v1_model_proto protoreflect.FileDescriptor
 
 const file_sentinez_apps_tenant_v1_model_proto_rawDesc = "" +
 	"\n" +
-	"#sentinez/apps/tenant/v1/model.proto\x12\x17sentinez.apps.tenant.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\"sentinez/dmz/edge/v1/setting.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"\x9a\x02\n" +
+	"#sentinez/apps/tenant/v1/model.proto\x12\x17sentinez.apps.tenant.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\"sentinez/dmz/edge/v1/setting.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"\xac\x03\n" +
 	"\bResource\x12?\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataB\x06\xca\xf0\x19\x02\b\x01R\bmetadata\x12\x1f\n" +
 	"\x02id\x18\x02 \x01(\tB\x0f\xbaH\f\xc8\x01\x01r\a:\x05rsrc_R\x02id\x121\n" +
-	"\ttenant_id\x18\x03 \x01(\tB\x14\xbaH\v\xc8\x01\x01r\x06:\x04tnt_\xca\xf0\x19\x02 \x01R\btenantId\x12<\n" +
-	"\x06server\x18\x04 \x01(\v2\x1c.sentinez.dmz.edge.v1.ServerB\x06\xca\xf0\x19\x02\x18\x01R\x06server\x121\n" +
-	"\x06status\x18\x05 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status:\b\xca\xf3\x18\x04\b\x01\x18\x01\"\xe6\x01\n" +
+	"\ttenant_id\x18\x03 \x01(\tB\x14\xbaH\v\xc8\x01\x01r\x06:\x04tnt_\xca\xf0\x19\x02 \x01R\btenantId\x12,\n" +
+	"\x04name\x18\x04 \x01(\tB\x18\xbaH\x15\xd8\x01\x01r\x102\x0e^[a-zA-Z0-9-]+R\x04name\x12b\n" +
+	"\x06domain\x18\x05 \x01(\tBJ\xbaHG\xd8\x01\x01rB2@^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,63}$R\x06domain\x12<\n" +
+	"\tlocations\x18\x06 \x03(\v2\x1e.sentinez.dmz.edge.v1.LocationR\tlocations\x121\n" +
+	"\x06status\x18\a \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status:\b\xca\xf3\x18\x04\b\x01\x18\x01\"\xff\x01\n" +
 	"\x06Tenant\x12?\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataB\x06\xca\xf0\x19\x02\b\x01R\bmetadata\x12\x1e\n" +
-	"\x02id\x18\x02 \x01(\tB\x0e\xbaH\v\xc8\x01\x01r\x06:\x04tnt_R\x02id\x12\x1a\n" +
-	"\x04name\x18\x03 \x01(\tB\x06\xca\xf0\x19\x02 \x01R\x04name\x12(\n" +
-	"\vdescription\x18\x04 \x01(\tB\x06\xca\xf0\x19\x02 \x01R\vdescription\x12+\n" +
-	"\x04plan\x18\x05 \x01(\x0e2\x17.sentinez.types.v1.PlanR\x04plan:\b\xca\xf3\x18\x04\b\x01\x18\x01\"\x83\x02\n" +
+	"\x02id\x18\x02 \x01(\tB\x0e\xbaH\v\xc8\x01\x01r\x06:\x04tnt_R\x02id\x12!\n" +
+	"\x04name\x18\x03 \x01(\tB\r\xbaH\x04r\x02\x18@\xca\xf0\x19\x02 \x01R\x04name\x120\n" +
+	"\vdescription\x18\x04 \x01(\tB\x0e\xbaH\x05r\x03\x18\xff\x01\xca\xf0\x19\x02 \x01R\vdescription\x125\n" +
+	"\x04plan\x18\x05 \x01(\x0e2\x17.sentinez.types.v1.PlanB\b\xbaH\x05\x82\x01\x02\x10\x01R\x04plan:\b\xca\xf3\x18\x04\b\x01\x18\x01\"\x83\x02\n" +
 	"\x06Member\x12?\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataB\x06\xca\xf0\x19\x02\b\x01R\bmetadata\x12\x1e\n" +
 	"\x02id\x18\x02 \x01(\tB\x0e\xbaH\v\xc8\x01\x01r\x06:\x04mem_R\x02id\x12(\n" +
@@ -592,7 +614,7 @@ var file_sentinez_apps_tenant_v1_model_proto_goTypes = []any{
 	(*Member)(nil),                // 3: sentinez.apps.tenant.v1.Member
 	(*CaCertificate)(nil),         // 4: sentinez.apps.tenant.v1.CaCertificate
 	(*v1.Metadata)(nil),           // 5: sentinez.types.v1.Metadata
-	(*v11.Server)(nil),            // 6: sentinez.dmz.edge.v1.Server
+	(*v11.Location)(nil),          // 6: sentinez.dmz.edge.v1.Location
 	(v1.Status)(0),                // 7: sentinez.types.v1.Status
 	(v1.Plan)(0),                  // 8: sentinez.types.v1.Plan
 	(v1.Role)(0),                  // 9: sentinez.types.v1.Role
@@ -601,7 +623,7 @@ var file_sentinez_apps_tenant_v1_model_proto_goTypes = []any{
 }
 var file_sentinez_apps_tenant_v1_model_proto_depIdxs = []int32{
 	5,  // 0: sentinez.apps.tenant.v1.Resource.metadata:type_name -> sentinez.types.v1.Metadata
-	6,  // 1: sentinez.apps.tenant.v1.Resource.server:type_name -> sentinez.dmz.edge.v1.Server
+	6,  // 1: sentinez.apps.tenant.v1.Resource.locations:type_name -> sentinez.dmz.edge.v1.Location
 	7,  // 2: sentinez.apps.tenant.v1.Resource.status:type_name -> sentinez.types.v1.Status
 	5,  // 3: sentinez.apps.tenant.v1.Tenant.metadata:type_name -> sentinez.types.v1.Metadata
 	8,  // 4: sentinez.apps.tenant.v1.Tenant.plan:type_name -> sentinez.types.v1.Plan

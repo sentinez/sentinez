@@ -48,7 +48,7 @@ xoá mục tương ứng.
   (`sentinez/dmz/edge/zone/<zone>/status`); `Elector.Publish` và
   `leader.All` đã sẵn cho các bản ghi zone-wide khác nhưng chưa có bản ghi
   nào. Cũng chưa có gì đọc status.
-- Gỡ một namespace (resource bị xoá, `server.resourceDomain` đổi) vẫn giữ các
+- Gỡ một namespace (resource bị xoá, `ingress.resource.domain` đổi) vẫn giữ các
   reverse proxy của nó: chúng được key theo upstream và dùng chung giữa các
   namespace, không có đếm tham chiếu.
 - Waiting room (`ROM`), `pkg/szqueue`, `pkg/sztopic`, `pkg/szstorage/{keyval,

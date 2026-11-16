@@ -59,7 +59,7 @@ type Rule struct {
 func (rc *Rule) Store(namespace string, delivery *edgepb.Delivery) {
 	chain := make([]Entry, 0, len(delivery.GetCdn()))
 	for _, cdn := range delivery.GetCdn() {
-		rule := cdn.GetRuleRuntime()
+		rule := cdn.GetRule()
 		if rule.GetStatus() != typepb.Status_STATUS_ACTIVE {
 			continue
 		}

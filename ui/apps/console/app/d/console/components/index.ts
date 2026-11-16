@@ -1,4 +1,5 @@
 export * from './chart';
+export * from './edge-resource-fields';
 export * from './resource-latency';
 export * from './resource-overview';
 export * from './resource-routing';
@@ -6,5 +7,4 @@ export * from './resource-setting-json';
 export * from './resource-unavailable';
 export * from './resource-view';
 export * from './resource-visitors';
-export * from './server-fields';
 export * from './table';

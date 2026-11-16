@@ -70,7 +70,7 @@ exported. An `https://` endpoint uses TLS.
 |---|---|
 | `core` | Constants `Name` (`sentinez/1.0`, used as the `Server` header), `Code` (`SENZ`), `Version`, request ID prefix, `EnvPattern` |
 | `core/szcontext` | `WithTransportValue` / `GetTransport` for `netpb.Transport` |
-| `pkg/sznormalize` | `NormalizeEdgeSetting` (Lite → runtime) |
+| `pkg/sznormalize` | `NormalizeEdgeSetting` (defaults of the edge setting), `EdgeSetting`/`EdgeResource`/`TenantResource` (tenant resource ↔ edge setting) |
 | `core/internal/console` | ASCII banner (`go-figure`) printed once at startup |
 | `core/internal/render` | `templ` templates for the 400/403/404/429/500 pages |
 | `pkg/szstorage/cache/mem` | Generic cache on top of `patrickmn/go-cache` |

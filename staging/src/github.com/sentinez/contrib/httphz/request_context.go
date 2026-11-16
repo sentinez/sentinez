@@ -22,6 +22,7 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/cloudwego/hertz/pkg/app"
+	netstd "github.com/sentinez/contrib/httphz/net/std"
 	"github.com/sentinez/core/szcontext"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/httpconst"
@@ -243,6 +244,17 @@ func (c *Context) Queries() map[string][][]byte {
 
 func (c *Context) TLS() bool {
 	return c.Scheme() == httpconst.SchemeSecure
+}
+
+// ServerName implements szhttp.Request: the SNI of the TLS conn of the
+// request, "" on a plain one.
+func (c *Context) ServerName() string {
+	conn, ok := c.req.GetConn().(*netstd.TLSConn)
+	if !ok {
+		return ""
+	}
+
+	return conn.ConnectionState().ServerName
 }
 
 func (c *Context) RequestTime() time.Time {

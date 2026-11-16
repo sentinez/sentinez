@@ -22,15 +22,18 @@ import (
 	"sync"
 	"time"
 
+	"github.com/sentinez/controlplane/pkg/crypto"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szlimiter"
 	"github.com/sentinez/core/szrule"
 	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/szsync"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/memory/cdnrules"
+	"github.com/sentinez/sentinez/internal/memory/certificates"
 	"github.com/sentinez/sentinez/internal/memory/ratelimiter"
 	"github.com/sentinez/sentinez/internal/memory/reverseproxy"
 	"github.com/sentinez/sentinez/internal/memory/routes"
@@ -56,6 +59,11 @@ func NewMemStore(conf *settingpb.Config) (*MemStore, error) {
 		return _store, nil
 	}
 
+	sealer, err := newSealer(conf)
+	if err != nil {
+		return nil, err
+	}
+
 	shared, err := cluster.NewCluster(conf)
 	if err != nil {
 		return nil, err
@@ -66,10 +74,18 @@ func NewMemStore(conf *settingpb.Config) (*MemStore, error) {
 
 	_shared.Start()
 
-	_store = &MemStore{
+	_store = newMemStore(shared, sealer)
+
+	return _store, nil
+}
+
+func newMemStore(shared *cluster.Cluster, sealer *crypto.Sealer,
+) *MemStore {
+	return &MemStore{
 		synced:       newSettingSync(shared, _settingsMap),
 		central:      newSettingSync(shared, _centralMap),
 		owners:       make(map[string]string),
+		locals:       szsync.NewMap[string, *edgepb.Setting](),
 		setting:      settings.New(),
 		limiter:      ratelimiter.New(),
 		reverseProxy: reverseproxy.New(),
@@ -77,9 +93,9 @@ func NewMemStore(conf *settingpb.Config) (*MemStore, error) {
 		secRule:      secrules.New(),
 		rulesets:     rulesets.New(),
 		cdnRules:     cdnrules.New(),
+		certificates: certificates.New(),
+		sealer:       sealer,
 	}
-
-	return _store, nil
 }
 
 type MemStore struct {
@@ -93,6 +109,9 @@ type MemStore struct {
 	// owners maps a namespace to the resource id that holds it
 	ownersMu sync.Mutex
 	owners   map[string]string
+	// locals the settings of this edge's file that are not synced, by
+	// namespace: loaded back when centraldata releases the namespace
+	locals *szsync.Map[string, *edgepb.Setting]
 
 	setting      *settings.Setting
 	limiter      *ratelimiter.Limiter
@@ -101,6 +120,10 @@ type MemStore struct {
 	secRule      *secrules.SecRule
 	rulesets     *rulesets.Rulesets
 	cdnRules     *cdnrules.Rule
+	certificates *certificates.Certificates
+	// sealer opens the certificates of the settings; nil without
+	// SENZ_DATA_KEY
+	sealer *crypto.Sealer
 }
 
 func (m *MemStore) Shutdown(ctx context.Context) error {
@@ -176,6 +199,15 @@ func (m *MemStore) Setting() *settings.Setting {
 	return m.setting
 }
 
+// Certificates the certificates the edge serves, by domain.
+func (m *MemStore) Certificates() *certificates.Certificates {
+	if m == nil {
+		return nil
+	}
+
+	return m.certificates
+}
+
 func (m *MemStore) CDNRules() *cdnrules.Rule {
 	if m == nil {
 		return nil
@@ -186,21 +218,22 @@ func (m *MemStore) CDNRules() *cdnrules.Rule {
 
 func (m *MemStore) LoadCDNRule(st ...*edgepb.Setting) error {
 	for _, s := range st {
-		m.cdnRules.Store(s.GetServer().GetResourceDomain(), s.GetDelivery())
+		ns := s.GetIngress().GetResource().GetDomain()
+		m.cdnRules.Store(ns, s.GetDelivery())
 	}
 
 	return nil
 }
 
 func (m *MemStore) LoadRouter(s *edgepb.Setting) error {
-	m.route.Store(s.GetServer())
+	m.route.Store(s.GetIngress().GetResource())
 	return nil
 }
 
 func (m *MemStore) LoadReverseProxy(
 	server szhttp.Server, s *edgepb.Setting) error {
 
-	for _, routeConfig := range s.GetServer().GetLocations() {
+	for _, routeConfig := range s.GetIngress().GetResource().GetLocations() {
 		for _, upstream := range routeConfig.GetProxyPass() {
 			if _, ok := m.reverseProxy.Load(upstream.GetServer()); ok {
 				continue
@@ -229,13 +262,13 @@ func (m *MemStore) LoadRateLimiter(s *edgepb.Setting) error {
 
 	for i, l := range limiters {
 		// a nil expr matches every request: a limiter must say what it counts
-		if len(l.GetIngressRuntime().GetExpr().GetOrCondition()) == 0 {
+		if len(l.GetIngress().GetExpr().GetOrCondition()) == 0 {
 			return fmt.Errorf("rate limiter %d: %w", i, errLimiterNoExpr)
 		}
 
-		if l.GetIngressRuntime().GetStatus() != typepb.Status_STATUS_ACTIVE {
+		if l.GetIngress().GetStatus() != typepb.Status_STATUS_ACTIVE {
 			szlog.Infof("edge:limiter: ignore '%s'",
-				s.GetServer().GetResourceDomain())
+				s.GetIngress().GetResource().GetDomain())
 			continue
 		}
 
@@ -247,13 +280,13 @@ func (m *MemStore) LoadRateLimiter(s *edgepb.Setting) error {
 		entries = append(entries, entry)
 	}
 
-	m.limiter.Store(s.GetServer().GetResourceDomain(), entries)
+	m.limiter.Store(s.GetIngress().GetResource().GetDomain(), entries)
 
 	return nil
 }
 
 func (m *MemStore) LoadRulesets(s *edgepb.Setting) error {
-	ns := s.GetServer().GetResourceDomain()
+	ns := s.GetIngress().GetResource().GetDomain()
 
 	err := m.rulesets.Store(ns, s.GetSecurity().GetCoreRuleset())
 	if err != nil {
@@ -266,10 +299,10 @@ func (m *MemStore) LoadRulesets(s *edgepb.Setting) error {
 func (m *MemStore) LoadSecRule(s *edgepb.Setting) error {
 	rules := make([]*secrulepb.SecRule, 0, len(s.GetSecurity().GetSecRules()))
 	for _, rule := range s.GetSecurity().GetSecRules() {
-		rules = append(rules, rule.GetIngressRuntime())
+		rules = append(rules, rule.GetIngress())
 	}
 
-	m.secRule.Store(s.GetServer().GetResourceDomain(), rules)
+	m.secRule.Store(s.GetIngress().GetResource().GetDomain(), rules)
 
 	return nil
 }
@@ -285,7 +318,7 @@ func newLimiterEntry(l *edgepb.RateLimit) (ratelimiter.Entry, error) {
 		return ratelimiter.Entry{}, fmt.Errorf("timeout: %w", err)
 	}
 
-	rule := l.GetIngressRuntime()
+	rule := l.GetIngress()
 
 	return ratelimiter.Entry{
 		Eval:    szrule.NewEval(rule.GetId(), rule.GetExpr()),

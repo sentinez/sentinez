@@ -49,7 +49,7 @@ func (f *fakeRepo[M]) Create(_ context.Context, m M) (M, error) {
 	return m, nil
 }
 
-func (f *fakeRepo[M]) Update(_ context.Context, m M) error {
+func (f *fakeRepo[M]) Update(_ context.Context, m M, _ []string) error {
 	f.updated = append(f.updated, m)
 	return nil
 }
@@ -113,14 +113,14 @@ func importSecurity() *edgepb.Security {
 	return &edgepb.Security{
 		CoreRuleset: &corerulesetpb.CoreRuleset{ParanoiaLevel: 1},
 		SecRules: []*edgepb.SecRule{
-			{IngressRuntime: &secrulepb.SecRule{Name: "block", Action: block}},
-			{IngressRuntime: &secrulepb.SecRule{Name: "challenge"}},
+			{Ingress: &secrulepb.SecRule{Name: "block", Action: block}},
+			{Ingress: &secrulepb.SecRule{Name: "challenge"}},
 		},
 		Limiters: []*edgepb.RateLimit{{
-			IngressRuntime: &secrulepb.SecRule{Name: "limit"},
-			TimeWindow:     "5s",
-			MaxRequests:    100,
-			Timeout:        "5s",
+			Ingress:     &secrulepb.SecRule{Name: "limit"},
+			TimeWindow:  "5s",
+			MaxRequests: 100,
+			Timeout:     "5s",
 		}},
 	}
 }
@@ -177,19 +177,19 @@ func TestImportSecurityInvalid(t *testing.T) {
 	}{
 		{"unnamed sec rule", &edgepb.Security{
 			SecRules: []*edgepb.SecRule{
-				{IngressRuntime: &secrulepb.SecRule{}},
+				{Ingress: &secrulepb.SecRule{}},
 			},
 		}},
 		{"unnamed limiter", &edgepb.Security{
 			Limiters: []*edgepb.RateLimit{{
-				IngressRuntime: &secrulepb.SecRule{},
-				TimeWindow:     "5s", MaxRequests: 1,
+				Ingress:    &secrulepb.SecRule{},
+				TimeWindow: "5s", MaxRequests: 1,
 			}},
 		}},
 		{"limiter without max requests", &edgepb.Security{
 			Limiters: []*edgepb.RateLimit{{
-				IngressRuntime: &secrulepb.SecRule{Name: "limit"},
-				TimeWindow:     "5s",
+				Ingress:    &secrulepb.SecRule{Name: "limit"},
+				TimeWindow: "5s",
 			}},
 		}},
 	}

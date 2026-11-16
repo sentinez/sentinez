@@ -59,8 +59,9 @@ Ghi chú:
   nguồn dạng chuỗi (`PATH`, `BODY`, `HOST`, `METHOD`, `JA4`, giá trị một
   `HEADER` hoặc `QUERY`). Vế nào không phải số thì không khớp.
 - Source không xác định → không khớp (`bypass = false`).
-- Trong YAML, `value` luôn là chuỗi (bản Lite) nên các toán tử list
-  (`IN`/`NOT_IN`) chỉ dùng được khi tạo `Expression` trực tiếp (vd. qua API).
+- Trong YAML, `value` dạng scalar được so khớp như chuỗi (số và bool được
+  `NormalizeEdgeSetting` đổi sang chuỗi); các toán tử list (`IN`/`NOT_IN`)
+  nhận một list YAML, vd. `value: [GET, HEAD]`.
 
 ## 4.3 SecRule
 
@@ -124,12 +125,12 @@ Có ba dạng SecRule trong proto:
 | Type | Dùng ở |
 |---|---|
 | `apps.security.v1.SecRule` | Model API/DB (control plane), có `metadata`, `action` dạng string + `action_value` |
-| `types.secrule.v1.SecRule` / `SecRuleLite` | Runtime ở edge / dạng nhập YAML |
-| `dmz.edge.v1.SecRule` | Wrapper trong `Setting`: `{ingress: Lite, ingress_runtime: Runtime}` |
+| `types.secrule.v1.SecRule` | Runtime ở edge và dạng nhập YAML |
+| `dmz.edge.v1.SecRule` | Wrapper trong `Setting`: `{ingress: SecRule}` |
 
 ## 4.4 CDN rule
 
-`types.cdn.v1.CDN{rule: RuleLite, rule_runtime: Rule}` nằm trong
+`types.cdn.v1.CDN{rule: Rule}` nằm trong
 `setting.delivery.cdn`. Như SecRule, mỗi namespace giữ một **chuỗi** CDN
 rule
 ([internal/memory/cdnrules](../../internal/memory/cdnrules/cdnrules.go)):

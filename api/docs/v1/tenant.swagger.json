@@ -472,7 +472,7 @@
         ]
       },
       "put": {
-        "summary": "Updates an existing tenant resource.",
+        "summary": "Updates the fields of a tenant resource its update_mask names.",
         "operationId": "TenantService_UpdateResource",
         "responses": {
           "200": {
@@ -586,14 +586,14 @@
           },
           {
             "name": "resourceName",
-            "description": "server.name",
+            "description": "resource.name",
             "in": "query",
             "required": false,
             "type": "string"
           },
           {
             "name": "resourceDomain",
-            "description": "server.resource_domain",
+            "description": "resource.domain",
             "in": "query",
             "required": false,
             "type": "string"
@@ -728,7 +728,7 @@
         ]
       },
       "put": {
-        "summary": "Updates the plan of a tenant.",
+        "summary": "Updates the fields of a tenant its update_mask names.",
         "operationId": "TenantService_UpdateTenant",
         "responses": {
           "200": {
@@ -836,6 +836,65 @@
     }
   },
   "definitions": {
+    "appstenantv1Resource": {
+      "type": "object",
+      "properties": {
+        "metadata": {
+          "$ref": "#/definitions/sentineztypesv1Metadata"
+        },
+        "id": {
+          "type": "string"
+        },
+        "tenantId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "domain": {
+          "type": "string",
+          "description": "Domain the edge serves the resource at, lower case: the namespace of\nits setting. Required."
+        },
+        "locations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/edgev1Location"
+          },
+          "description": "Routes of the domain to the origins, stored as JSONB."
+        },
+        "status": {
+          "$ref": "#/definitions/typesv1Status"
+        }
+      },
+      "description": "Resource is a resource of a tenant: a domain the edge serves and the\nlocations it routes to the origins. Its id is the one the edge fills\ninto the events of its requests; the edge takes it as the\nsentinez.dmz.edge.v1.Resource of its setting."
+    },
+    "dmzedgev1Resource": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Id of the resource, filled into the events of its requests;\n\"rsrc_default\" when empty.\n\n@gotags: yaml:\"id\""
+        },
+        "name": {
+          "type": "string",
+          "title": "@gotags: yaml:\"name\""
+        },
+        "locations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/edgev1Location"
+          },
+          "title": "@gotags: yaml:\"locations\""
+        },
+        "domain": {
+          "type": "string",
+          "description": "Domain the resource is served at, the namespace of the setting: the\nedge keys its stores by it and matches the request host against it,\nthe apiserver stores it as the domain of the resource. Required.\n\n@gotags: yaml:\"domain\""
+        }
+      },
+      "title": "Resource defines where the request goes and how the edge processes it:"
+    },
     "edgev1Location": {
       "type": "object",
       "properties": {
@@ -1072,9 +1131,9 @@
     "v1CreateResourceRequest": {
       "type": "object",
       "properties": {
-        "server": {
-          "$ref": "#/definitions/v1Server",
-          "description": "server.resource_domain is required."
+        "resource": {
+          "$ref": "#/definitions/dmzedgev1Resource",
+          "description": "resource.domain is required."
         },
         "status": {
           "$ref": "#/definitions/typesv1Status"
@@ -1088,7 +1147,7 @@
       "type": "object",
       "properties": {
         "resource": {
-          "$ref": "#/definitions/v1Resource"
+          "$ref": "#/definitions/appstenantv1Resource"
         }
       }
     },
@@ -1146,7 +1205,7 @@
       "type": "object",
       "properties": {
         "resource": {
-          "$ref": "#/definitions/v1Resource"
+          "$ref": "#/definitions/appstenantv1Resource"
         }
       }
     },
@@ -1154,7 +1213,7 @@
       "type": "object",
       "properties": {
         "resource": {
-          "$ref": "#/definitions/v1Resource"
+          "$ref": "#/definitions/appstenantv1Resource"
         }
       }
     },
@@ -1209,7 +1268,7 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/v1Resource"
+            "$ref": "#/definitions/appstenantv1Resource"
           }
         }
       }
@@ -1307,27 +1366,6 @@
       ],
       "default": "PROXY_PROTOCOL_UNSPECIFIED"
     },
-    "v1Resource": {
-      "type": "object",
-      "properties": {
-        "metadata": {
-          "$ref": "#/definitions/sentineztypesv1Metadata"
-        },
-        "id": {
-          "type": "string"
-        },
-        "tenantId": {
-          "type": "string"
-        },
-        "server": {
-          "$ref": "#/definitions/v1Server"
-        },
-        "status": {
-          "$ref": "#/definitions/typesv1Status"
-        }
-      },
-      "description": "Resource is a server of a tenant: its name, domain and routes are those\nof server (server.name, server.resource_domain), its id is the\nserver.resource_id the edge fills into the events of its requests."
-    },
     "v1Role": {
       "type": "string",
       "enum": [
@@ -1338,32 +1376,6 @@
         "ROLE_MEMBER"
       ],
       "default": "ROLE_UNSPECIFIED"
-    },
-    "v1Server": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "title": "@gotags: yaml:\"name\""
-        },
-        "locations": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/edgev1Location"
-          },
-          "title": "@gotags: yaml:\"locations\""
-        },
-        "resourceId": {
-          "type": "string",
-          "description": "Id of the upstream servers of the locations, filled into the events\nof the requests; \"rsrc_default\" when empty.\n\n@gotags: yaml:\"resourceId\""
-        },
-        "resourceDomain": {
-          "type": "string",
-          "description": "Domain the server is served at, the namespace of the setting: the\nedge keys its stores by it and matches the request host against it,\nthe apiserver stores it as the domain of the resource. Required.\n\n@gotags: yaml:\"resourceDomain\""
-        }
-      },
-      "title": "Server defines where the request goes and how the edge processes it:"
     },
     "v1StatusResponse": {
       "type": "object",
@@ -1417,12 +1429,13 @@
         "id": {
           "type": "string"
         },
-        "server": {
-          "$ref": "#/definitions/v1Server",
-          "description": "Replaces the stored server when set."
+        "resource": {
+          "$ref": "#/definitions/appstenantv1Resource",
+          "description": "The fields to write, those update_mask names; its id and tenant_id\nare ignored."
         },
-        "status": {
-          "$ref": "#/definitions/typesv1Status"
+        "updateMask": {
+          "type": "string",
+          "description": "Fields of resource to update, among name, domain, locations and\nstatus (\"*\" for all of them); without one, those set in resource. A\nnamed field unset in resource is cleared, but the domain is required."
         }
       }
     },
@@ -1435,16 +1448,13 @@
         "id": {
           "type": "string"
         },
-        "plan": {
-          "$ref": "#/definitions/v1Plan"
+        "tenant": {
+          "$ref": "#/definitions/v1Tenant",
+          "description": "The fields to write, those update_mask names; its id is ignored."
         },
-        "name": {
+        "updateMask": {
           "type": "string",
-          "description": "name is left unchanged when empty."
-        },
-        "description": {
-          "type": "string",
-          "description": "description is left unchanged when empty."
+          "description": "Fields of tenant to update, among name, description and plan (\"*\"\nfor all of them); without one, those set in tenant. A named field\nunset in tenant is cleared, but the plan is required."
         }
       }
     },

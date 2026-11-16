@@ -15,27 +15,32 @@
 package sznormalize
 
 import (
+	"strconv"
 	"strings"
 
-	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szprefix"
 	"github.com/sentinez/pkg/szrand"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
-	cdnpb "github.com/sentinez/sentinez/api/proto/sentinez/types/cdn/v1"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
 const _defaultLimiterDuration = "5s"
 
+// NormalizeEdgeSetting fills the defaults of edge in place: the ids its
+// rules and conditions lack (proxy.yaml sets none), the durations of its
+// limiters, the scalar values of its conditions as strings, and its
+// resource domain as ResourceDomain gives it.
 func NormalizeEdgeSetting(edge *edgepb.Setting) {
-	if srv := edge.GetServer(); srv != nil {
-		srv.ResourceDomain = ResourceDomain(srv.GetResourceDomain())
+	if srv := edge.GetIngress().GetResource(); srv != nil {
+		srv.Domain = ResourceDomain(srv.GetDomain())
 	}
 
-	normalizeEdgeDelivery(edge.GetDelivery())
+	for _, cdn := range edge.GetDelivery().GetCdn() {
+		normalizeOrCond(cdn.GetRule().GetExpr().GetOrCondition())
+	}
+
 	normalizeEdgeSecurity(edge.GetSecurity())
 }
 
@@ -45,29 +50,9 @@ func ResourceDomain(domain string) string {
 	return strings.ToLower(strings.TrimSuffix(domain, "."))
 }
 
-func normalizeEdgeDelivery(delivery *edgepb.Delivery) {
-	for _, cdn := range delivery.GetCdn() {
-		cdn.RuleRuntime = toCDN(cdn.GetRule())
-	}
-}
-
-func toCDN(cdn *cdnpb.RuleLite) *cdnpb.Rule {
-	return &cdnpb.Rule{
-		Id:          cdn.GetId(),
-		Name:        cdn.GetName(),
-		Description: cdn.GetDescription(),
-		Expr:        toExpr(cdn.GetExpr()),
-		Status:      toStatus(cdn.GetStatus()),
-		Priority:    cdn.GetPriority(),
-	}
-}
-
 func normalizeEdgeSecurity(edgeSec *edgepb.Security) {
 	for _, rule := range edgeSec.GetSecRules() {
-		// a rule built from the database holds its runtime form only
-		if rule.GetIngress() != nil {
-			rule.IngressRuntime = toSecRule(rule.GetIngress())
-		}
+		normalizeSecRule(rule.GetIngress())
 	}
 
 	for _, lim := range edgeSec.GetLimiters() {
@@ -76,9 +61,7 @@ func normalizeEdgeSecurity(edgeSec *edgepb.Security) {
 }
 
 func normalizeLimiter(lim *edgepb.RateLimit) {
-	if lim.GetIngress() != nil {
-		lim.IngressRuntime = toSecRule(lim.GetIngress())
-	}
+	normalizeSecRule(lim.GetIngress())
 
 	if lim.GetTimeWindow() == "" {
 		lim.TimeWindow = _defaultLimiterDuration
@@ -89,114 +72,58 @@ func normalizeLimiter(lim *edgepb.RateLimit) {
 	}
 }
 
-func toSecRule(rgLite *secrulepb.SecRuleLite) *secrulepb.SecRule {
-	if rgLite == nil {
-		return nil
+// normalizeSecRule gives rule an id if it has none: a rule of proxy.yaml,
+// one of the database keeps its own.
+func normalizeSecRule(rule *secrulepb.SecRule) {
+	if rule == nil {
+		return
 	}
 
-	expr := toExpr(rgLite.GetExpr())
-	szlog.Debugf("Expr: %v", expr)
-
-	return &secrulepb.SecRule{
-		Id:          szrand.NewUUID(szprefix.SecRule),
-		Name:        rgLite.GetName(),
-		Description: rgLite.GetDescription(),
-		Expr:        expr,
-		Action:      rgLite.GetAction(),
-		Status:      toStatus(rgLite.GetStatus()),
+	if rule.GetId() == "" {
+		rule.Id = szrand.NewUUID(szprefix.SecRule)
 	}
+
+	normalizeOrCond(rule.GetExpr().GetOrCondition())
 }
 
-func toExpr(expr *rulepb.ExpressionLite) *rulepb.Expression {
-	e := &rulepb.Expression{
-		OrCondition: parsOrCond(expr.GetOrCondition()),
-	}
-
-	return e
-}
-
-func parsOrCond(orCond []*rulepb.AndConditionLite) []*rulepb.AndCondition {
-	if orCond == nil {
-		return nil
-	}
-
-	var andCond []*rulepb.AndCondition
-
+func normalizeOrCond(orCond []*rulepb.AndCondition) {
 	for _, and := range orCond {
-		a := parseAndCond(and)
-		if a == nil {
-			continue
+		for _, rule := range and.GetRules() {
+			normalizeCondition(rule.GetCondition())
 		}
 
-		andCond = append(andCond, a)
+		normalizeOrCond(and.GetOrCondition())
 	}
-
-	return andCond
 }
 
-func parseAndCond(andCond *rulepb.AndConditionLite) *rulepb.AndCondition {
-	if andCond == nil {
-		return nil
-	}
-
-	and := &rulepb.AndCondition{}
-
-	for _, rule := range andCond.GetRules() {
-		and.Rules = append(and.Rules, toRule(rule))
-	}
-
-	and.OrCondition = parsOrCond(andCond.GetOrCondition())
-
-	return and
-}
-
-func toOperator(operator string) rulepb.Operator {
-	op, ok := rulepb.Operator_value[operator]
-	if !ok {
-		return rulepb.Operator_OPERATOR_UNSPECIFIED
-	}
-
-	return rulepb.Operator(op)
-}
-
-func toSource(source string) rulepb.FieldSource {
-	src, ok := rulepb.FieldSource_value[source]
-	if !ok {
-		return rulepb.FieldSource_FIELD_SOURCE_UNSPECIFIED
-	}
-
-	return rulepb.FieldSource(src)
-}
-
-func toStatus(status string) typepb.Status {
-	st, ok := typepb.Status_value[status]
-	if !ok {
-		return typepb.Status_STATUS_UNSPECIFIED
-	}
-
-	return typepb.Status(st)
-}
-
-func toCondition(cond *rulepb.ConditionLite) *rulepb.Condition {
+func normalizeCondition(cond *rulepb.Condition) {
 	if cond == nil {
-		return nil
+		return
 	}
 
-	return &rulepb.Condition{
-		Id:       szrand.NewNanoId(szprefix.Condition),
-		Key:      cond.GetKey(),
-		Operator: toOperator(cond.GetOperator()),
-		Value:    structpb.NewStringValue(cond.GetValue()),
-		Source:   toSource(cond.GetSource()),
+	if cond.GetId() == "" {
+		cond.Id = szrand.NewNanoId(szprefix.Condition)
 	}
+
+	cond.Value = stringValue(cond.GetValue())
 }
 
-func toRule(rule *rulepb.RuleLite) *rulepb.Rule {
-	if rule == nil {
-		return nil
+// stringValue is val with its number and bool scalars, and those of its
+// list, as strings: the rules match the request against strings only,
+// while proxy.yaml reads `value: 443` as a number.
+func stringValue(val *structpb.Value) *structpb.Value {
+	switch kind := val.GetKind().(type) {
+	case *structpb.Value_NumberValue:
+		return structpb.NewStringValue(
+			strconv.FormatFloat(kind.NumberValue, 'f', -1, 64))
+	case *structpb.Value_BoolValue:
+		return structpb.NewStringValue(
+			strconv.FormatBool(kind.BoolValue))
+	case *structpb.Value_ListValue:
+		for i, v := range kind.ListValue.GetValues() {
+			kind.ListValue.Values[i] = stringValue(v)
+		}
 	}
 
-	return &rulepb.Rule{
-		Condition: toCondition(rule.GetCondition()),
-	}
+	return val
 }

@@ -7,10 +7,12 @@ SZ_COMPOSE := $(SZ_ROOT)/deploy/docker/docker-compose.yaml
 CONSUL_ADDR ?= http://sentinez.consul:8500
 CONSUL_PROXY_KEY ?= sentinez/proxy.yaml
 CONSUL_PROXY_FILE ?= $(SZ_ROOT)/cmd/szedge/v1/proxy.yaml
+# the Consul KV of the edges: the lock of a zone is leader/<zone>
+SZ_EDGE_KV = $(CONSUL_ADDR)/v1/kv/sentinez/dmz/edge
 
 .PHONY: image.clear compose.up compose.down consul.proxy.put consul.env.put
 .PHONY: compose.edge.up compose.edge.down compose.edge.leader
-.PHONY: compose.edge.consul
+.PHONY: compose.edge.consul compose.edge.roles
 
 image.clear:
 	@docker rmi hashicorp/consul
@@ -43,9 +45,27 @@ compose.edge.down:
 # The node holding the lock of the zone, and the status it last wrote.
 compose.edge.leader:
 	@echo "lock:   $$(curl -sSf \
-		'$(CONSUL_ADDR)/v1/kv/sentinez/dmz/edge/leader/$(SZ_EDGE_ZONE)?raw')"
+		'$(SZ_EDGE_KV)/leader/$(SZ_EDGE_ZONE)?raw')"
 	@echo "status: $$(curl -sSf \
-		'$(CONSUL_ADDR)/v1/kv/sentinez/dmz/edge/zone/$(SZ_EDGE_ZONE)/status?raw')"
+		'$(SZ_EDGE_KV)/zone/$(SZ_EDGE_ZONE)/status?raw')"
+
+# The role of every running edge: leader when it holds the lock of its
+# zone (SENZ_ZONE, else $(SZ_EDGE_ZONE)), whose node is its hostname and a
+# suffix; else follower.
+compose.edge.roles:
+	@printf '%-24s %-6s %s\n' EDGE ZONE ROLE
+	@for c in $$(docker ps --filter name=sentinez.dmz.edge \
+		--format '{{.Names}}' | sort); do \
+		set -- $$(docker inspect \
+			-f '{{.Config.Hostname}}{{range .Config.Env}} {{.}}{{end}}' $$c); \
+		host=$$1; \
+		zone=$$(printf '%s\n' "$$@" | sed -n 's/^SENZ_ZONE=//p' | \
+			tr A-Z a-z); \
+		zone=$${zone:-$(SZ_EDGE_ZONE)}; \
+		lock=$$(curl -sSf "$(SZ_EDGE_KV)/leader/$$zone?raw" 2>/dev/null); \
+		case "$$lock" in "$$host"-*) role=leader;; *) role=follower;; esac; \
+		printf '%-24s %-6s %s\n' $$c $$zone $$role; \
+	done
 
 # The Raft peers of the Consul servers, and which of them leads.
 compose.edge.consul:

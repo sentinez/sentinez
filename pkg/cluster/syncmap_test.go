@@ -24,15 +24,15 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-func newLocalSyncMap(node string) *SyncMap[edgepb.Server, *edgepb.Server] {
-	return NewSyncMap[edgepb.Server](&Cluster{node: node}, "test")
+func newLocalSyncMap(node string) *SyncMap[edgepb.Resource, *edgepb.Resource] {
+	return NewSyncMap[edgepb.Resource](&Cluster{node: node}, "test")
 }
 
 func TestSyncMapLocalBeforeStart(t *testing.T) {
 	ctx := context.Background()
 	m := newLocalSyncMap("edge-a")
 
-	require.NoError(t, m.Store(ctx, "k", &edgepb.Server{Name: "a"}))
+	require.NoError(t, m.Store(ctx, "k", &edgepb.Resource{Name: "a"}))
 	got, ok := m.Load("k")
 	require.True(t, ok)
 	assert.Equal(t, "a", got.GetName())
@@ -44,10 +44,10 @@ func TestSyncMapLocalBeforeStart(t *testing.T) {
 
 func TestSyncMapApplyLastWriterWins(t *testing.T) {
 	m := newLocalSyncMap("edge-a")
-	value := func(name string, version uint64) entry[edgepb.Server] {
-		return entry[edgepb.Server]{
+	value := func(name string, version uint64) entry[edgepb.Resource] {
+		return entry[edgepb.Resource]{
 			record: record{version: version, origin: "edge-b"},
-			value:  &edgepb.Server{Name: name},
+			value:  &edgepb.Resource{Name: name},
 		}
 	}
 
@@ -62,12 +62,12 @@ func TestSyncMapApplyLastWriterWins(t *testing.T) {
 func TestSyncMapRangeSkipsTombstones(t *testing.T) {
 	ctx := context.Background()
 	m := newLocalSyncMap("edge-a")
-	require.NoError(t, m.Store(ctx, "a", &edgepb.Server{Name: "a"}))
-	require.NoError(t, m.Store(ctx, "b", &edgepb.Server{Name: "b"}))
+	require.NoError(t, m.Store(ctx, "a", &edgepb.Resource{Name: "a"}))
+	require.NoError(t, m.Store(ctx, "b", &edgepb.Resource{Name: "b"}))
 	require.NoError(t, m.Delete(ctx, "b"))
 
 	var keys []string
-	m.Range(func(key string, _ *edgepb.Server) bool {
+	m.Range(func(key string, _ *edgepb.Resource) bool {
 		keys = append(keys, key)
 		return true
 	})
@@ -77,7 +77,7 @@ func TestSyncMapRangeSkipsTombstones(t *testing.T) {
 
 func TestSyncMapDecode(t *testing.T) {
 	m := newLocalSyncMap("edge-a")
-	payload, err := proto.Marshal(&edgepb.Server{Name: "x"})
+	payload, err := proto.Marshal(&edgepb.Resource{Name: "x"})
 	require.NoError(t, err)
 
 	e, err := m.decode(record{version: 1, payload: payload})
@@ -98,10 +98,10 @@ func mustMarshal(t *testing.T, m proto.Message) []byte {
 func TestSyncMapOrigin(t *testing.T) {
 	m := newLocalSyncMap("edge-a")
 	require.NoError(t, m.Store(context.Background(), "mine",
-		&edgepb.Server{Name: "v1"}))
-	m.apply("theirs", entry[edgepb.Server]{
+		&edgepb.Resource{Name: "v1"}))
+	m.apply("theirs", entry[edgepb.Resource]{
 		record: record{version: 1, origin: "edge-b"},
-		value:  &edgepb.Server{Name: "v1"},
+		value:  &edgepb.Resource{Name: "v1"},
 	})
 
 	tests := []struct {
@@ -130,14 +130,14 @@ func TestSyncMapOnChange(t *testing.T) {
 
 	type change struct{ prev, next string }
 	var got []change
-	m.OnChange(func(_ string, prev, next *edgepb.Server) {
+	m.OnChange(func(_ string, prev, next *edgepb.Resource) {
 		got = append(got, change{prev.GetName(), next.GetName()})
 	})
 
-	require.NoError(t, m.Store(ctx, "k", &edgepb.Server{Name: "v1"}))
-	require.NoError(t, m.Store(ctx, "k", &edgepb.Server{Name: "v2"}))
+	require.NoError(t, m.Store(ctx, "k", &edgepb.Resource{Name: "v1"}))
+	require.NoError(t, m.Store(ctx, "k", &edgepb.Resource{Name: "v2"}))
 	require.NoError(t, m.Delete(ctx, "k"))
-	m.apply("k", entry[edgepb.Server]{record: record{version: 1}})
+	m.apply("k", entry[edgepb.Resource]{record: record{version: 1}})
 
 	assert.Equal(t, []change{{"", "v1"}, {"v1", "v2"}, {"v2", ""}}, got,
 		"an older write changes nothing")

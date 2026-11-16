@@ -20,11 +20,6 @@ import (
 
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
-	"github.com/sentinez/sentinez/internal/memory/cdnrules"
-	"github.com/sentinez/sentinez/internal/memory/ratelimiter"
-	"github.com/sentinez/sentinez/internal/memory/routes"
-	"github.com/sentinez/sentinez/internal/memory/secrules"
-	"github.com/sentinez/sentinez/internal/memory/settings"
 	"github.com/sentinez/sentinez/pkg/cluster"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -33,16 +28,7 @@ import (
 // newSyncStore is a MemStore whose synced map is not started: its writes
 // apply locally, which runs the same change hook as a synced write.
 func newSyncStore() *MemStore {
-	m := &MemStore{
-		synced:   newSettingSync(&cluster.Cluster{}, _settingsMap),
-		central:  newSettingSync(&cluster.Cluster{}, _centralMap),
-		owners:   make(map[string]string),
-		setting:  settings.New(),
-		limiter:  ratelimiter.New(),
-		route:    routes.New(),
-		secRule:  secrules.New(),
-		cdnRules: cdnrules.New(),
-	}
+	m := newMemStore(&cluster.Cluster{}, nil)
 	m.synced.OnChange(m.applySetting)
 	m.central.OnChange(m.applyCentral)
 
@@ -52,7 +38,9 @@ func newSyncStore() *MemStore {
 func newSetting(id, ns string) *edgepb.Setting {
 	return &edgepb.Setting{
 		Metadata: &edgepb.Metadata{TenantId: id},
-		Server:   &edgepb.Server{ResourceDomain: ns},
+		Ingress: &edgepb.Ingress{
+			Resource: &edgepb.Resource{Domain: ns},
+		},
 	}
 }
 
@@ -166,4 +154,52 @@ func TestShareDefaultTenantIdStaysLocal(t *testing.T) {
 	assert.True(t, loadedNs(m, "sync-default"))
 	_, ok := m.synced.Load(defaults.TenantId)
 	assert.False(t, ok)
+}
+
+func TestCentralReleaseRestoresFileSetting(t *testing.T) {
+	tests := []struct {
+		name      string
+		giveShare *edgepb.Setting
+		giveNext  *edgepb.Setting // centraldata's next setting of rsrc_1
+		wantOwner string
+	}{
+		{"local, deleted", newSetting("", "rel-local"), nil, ""},
+		{"synced, deleted", newSetting("tnt_1", "rel-synced"), nil, "tnt_1"},
+		{
+			"local, renamed", newSetting("", "rel-renamed"),
+			newSetting("tnt_1", "rel-renamed-new"), "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
+			ns := tt.giveShare.GetIngress().GetResource().GetDomain()
+			m := newSyncStore()
+			m.share(ctx, tt.giveShare)
+			require.NoError(t, m.central.Store(ctx, "rsrc_1",
+				newSetting("tnt_1", ns)))
+			require.Equal(t, "rsrc_1", m.owners[ns], "centraldata outranks")
+
+			if tt.giveNext == nil {
+				require.NoError(t, m.central.Delete(ctx, "rsrc_1"))
+			} else {
+				require.NoError(t, m.central.Store(ctx, "rsrc_1", tt.giveNext))
+			}
+
+			assert.True(t, loadedNs(m, ns))
+			assert.Equal(t, tt.wantOwner, m.owners[ns])
+		})
+	}
+}
+
+func TestCentralReleaseWithoutFileSetting(t *testing.T) {
+	ctx := context.Background()
+	m := newSyncStore()
+	require.NoError(t, m.central.Store(ctx, "rsrc_1",
+		newSetting("tnt_1", "rel-none")))
+
+	require.NoError(t, m.central.Delete(ctx, "rsrc_1"))
+
+	assert.False(t, loadedNs(m, "rel-none"))
 }

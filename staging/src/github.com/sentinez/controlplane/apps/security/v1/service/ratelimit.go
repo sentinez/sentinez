@@ -21,6 +21,7 @@ import (
 
 	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/pkg/szerror"
+	"github.com/sentinez/pkg/szprotobuf"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 )
 
@@ -87,13 +88,22 @@ func (srv *SecurityService) GetRateLimit(ctx context.Context,
 		GetRateLimitResponse{RateLimit: srv.mapRateLimit(ctx, dbRL)}, nil
 }
 
-// UpdateRateLimit updates an existing rate limit rule
+// _rateLimitUpdatable the fields of a rate limit an update writes.
+var _rateLimitUpdatable = []string{
+	securitypb.RateLimit_Name, securitypb.RateLimit_Description,
+	securitypb.RateLimit_Expr, securitypb.RateLimit_Status,
+	securitypb.RateLimit_Priority, securitypb.RateLimit_Action,
+	securitypb.RateLimit_TimeWindow, securitypb.RateLimit_MaxRequests,
+	securitypb.RateLimit_Timeout,
+}
+
+// UpdateRateLimit updates the fields of a rate limit rule its
+// update_mask names; the rule they make must be valid.
 func (srv *SecurityService) UpdateRateLimit(ctx context.Context,
 	req *securitypb.UpdateRateLimitRequest,
 ) (*securitypb.UpdateRateLimitResponse, error) {
-	rl := req.GetRateLimit()
-	if err := validateRateLimit(rl); err != nil {
-		return nil, err
+	if req.GetRateLimit() == nil {
+		return nil, szerror.StatusInvalidArgumentF("rate_limit is required")
 	}
 
 	dbRL, err := owned(ctx, srv, srv.rateLimitRepo.Get, "rate limit",
@@ -102,17 +112,17 @@ func (srv *SecurityService) UpdateRateLimit(ctx context.Context,
 		return nil, err
 	}
 
-	dbRL.Name = rl.GetName()
-	dbRL.Description = rl.GetDescription()
-	dbRL.Expr = rl.GetExpr()
-	dbRL.Status = rl.GetStatus()
-	dbRL.Priority = rl.GetPriority()
-	dbRL.Action = rl.GetAction()
-	dbRL.TimeWindow = rl.GetTimeWindow()
-	dbRL.MaxRequests = rl.GetMaxRequests()
-	dbRL.Timeout = rl.GetTimeout()
+	paths, err := szprotobuf.ApplyMask(dbRL, req.GetRateLimit(),
+		req.GetUpdateMask(), _rateLimitUpdatable...)
+	if err != nil {
+		return nil, err
+	}
 
-	if err := srv.rateLimitRepo.Update(ctx, dbRL); err != nil {
+	if err = validateRateLimit(dbRL); err != nil {
+		return nil, err
+	}
+
+	if err = srv.rateLimitRepo.Update(ctx, dbRL, paths); err != nil {
 		return nil, err
 	}
 

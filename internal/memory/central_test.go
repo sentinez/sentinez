@@ -53,7 +53,7 @@ func resourceRow(t *testing.T, id, tenant,
 	return upsertOf(t, sztable.TenantResources, id, &tenantpb.Resource{
 		Id:       id,
 		TenantId: tenant,
-		Server:   &edgepb.Server{ResourceId: id, ResourceDomain: domain},
+		Domain:   domain,
 	})
 }
 
@@ -219,7 +219,7 @@ func TestCentralSinkWritesTheSyncedMap(t *testing.T) {
 	st, held := m.central.Load("rsrc_1")
 	require.True(t, held)
 	assert.Equal(t, "central-map.example",
-		st.GetServer().GetResourceDomain())
+		st.GetIngress().GetResource().GetDomain())
 }
 
 func TestMovingTheDomainUnloadsTheOldOne(t *testing.T) {
@@ -255,26 +255,4 @@ func TestTakesOverTheFileAndKeepsTheCDN(t *testing.T) {
 	st, err := m.setting.Load("central-file.example")
 	require.NoError(t, err)
 	assert.Len(t, st.GetDelivery().GetCdn(), 1)
-}
-
-func TestCaCertificatesStaySealed(t *testing.T) {
-	m := newSyncStore()
-	sink := m.CentralSink()
-	cert := func(id, resource string) *centraldatapb.Change {
-		return upsertOf(t, sztable.TenantCaCertificates, id,
-			&tenantpb.CaCertificate{
-				Id: id, Owner: &typepb.Owner{ResourceId: resource},
-				Pem: "v1:sealed", PrivateKey: "v1:sealed-key",
-			})
-	}
-
-	require.NoError(t, sink.Replace([]*centraldatapb.Change{
-		cert("cacrt_b", "rsrc_1"), cert("cacrt_a", "rsrc_1"),
-		cert("cacrt_c", "rsrc_2"),
-	}))
-	got := sink.CaCertificates("rsrc_1")
-
-	require.Len(t, got, 2)
-	assert.Equal(t, "cacrt_a", got[0].GetId())
-	assert.Equal(t, "v1:sealed-key", got[0].GetPrivateKey())
 }

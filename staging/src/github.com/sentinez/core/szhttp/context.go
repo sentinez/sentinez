@@ -35,6 +35,9 @@ type Request interface {
 	Body() []byte
 	JA4() string
 	TLS() bool
+	// ServerName is the name the client asked for in the TLS handshake
+	// (SNI), "" without TLS or SNI.
+	ServerName() string
 	Method() []byte
 	Host() []byte
 	StatusCode() int

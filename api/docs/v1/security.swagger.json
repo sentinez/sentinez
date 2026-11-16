@@ -1043,7 +1043,8 @@
           "$ref": "#/definitions/appssecurityv1CoreRuleset"
         },
         "updateMask": {
-          "type": "string"
+          "type": "string",
+          "description": "Fields of core_ruleset to update, among name, description and\ncontent (\"*\" for all of them); without one, those set in core_ruleset.\nA named field unset in core_ruleset is cleared."
         }
       }
     },
@@ -1054,7 +1055,8 @@
           "$ref": "#/definitions/v1RateLimit"
         },
         "updateMask": {
-          "type": "string"
+          "type": "string",
+          "description": "Fields of rate_limit to update, among name, description, expr,\nstatus, priority, action, time_window, max_requests and timeout (\"*\"\nfor all of them); without one, those set in rate_limit. A named field\nunset in rate_limit is cleared."
         }
       }
     },
@@ -1065,7 +1067,8 @@
           "$ref": "#/definitions/v1SecRule"
         },
         "updateMask": {
-          "type": "string"
+          "type": "string",
+          "description": "Fields of sec_rule to update, among name, description, expr, status,\npriority and action (\"*\" for all of them); without one, those set in\nsec_rule. A named field unset in sec_rule is cleared."
         }
       }
     },

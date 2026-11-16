@@ -64,8 +64,8 @@ make sz.edge.run
 `make sz.edge.run` truyền `--cert_file`, `--cert_key_file`,
 `--proxy_config=./cmd/szedge/v1/proxy.yaml`, `--env_file`, `--engine=quic`.
 Request được phục vụ
-bằng cấu hình có `server.resourceDomain` trùng host của nó (bỏ port): request
-tới `badcheese.is.s6z.io.vn` dùng `resourceDomain: badcheese.is.s6z.io.vn`. Edge còn mở pprof ở `:6060`.
+bằng cấu hình có `ingress.resource.domain` trùng host của nó (bỏ port): request
+tới `badcheese.is.s6z.io.vn` dùng `domain: badcheese.is.s6z.io.vn`. Edge còn mở pprof ở `:6060`.
 
 > `hack/mkcert-local.sh` đặt cert vào `cmd/szedge/v1/`; truyền chúng qua
 > `--cert_file`/`--cert_key_file`.
@@ -171,8 +171,8 @@ validate bằng protovalidate.
 | `--log_level` | `debug` | `debug\|info\|warn\|error` | tất cả |
 | `--env_file` | tuỳ service | — | tất cả (`""` = không đọc file) |
 | `--proxy_config` | `./proxy.yaml` | — | edge |
-| `--cert_file` | `./_wildcard.sentinez.vn+1.pem` (edge), `""` (apiserver) | — | edge, apiserver (có certificate thì apiserver phục vụ HTTPS và HTTP/3) |
-| `--cert_key_file` | `./_wildcard.sentinez.vn+1-key.pem` (edge), `""` (apiserver) | — | edge, apiserver |
+| `--cert_file` | `""` | — | edge, apiserver (có certificate thì apiserver phục vụ HTTPS và HTTP/3; không có thì edge chỉ phục vụ certificate của centraldata) |
+| `--cert_key_file` | `""` | — | edge, apiserver |
 | `--engine` | `quic` | `std\|hertz\|quic` | edge (HTTP server, xem [03-edge.md](03-edge.md#310-chọn-engine)) |
 
 `--mode` còn quyết định tiền tố tên bảng DB (`dev_sentinez_iam_users`, ...)

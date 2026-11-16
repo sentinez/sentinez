@@ -24,13 +24,11 @@ export function ResourceOverview({ resource }: { resource: Resource }) {
         })
       : tc('notAvailable');
   const status = statusLabel(resource.status);
-  // The id the edge stamps its events with, when not the resource's
-  const eventsId = resource.server?.resourceId;
 
   return (
     <OverviewCard>
-      <OverviewField label={t('name')}>{resource.server?.name}</OverviewField>
-      <OverviewField label={t('domain')}>{resource.server?.resourceDomain}</OverviewField>
+      <OverviewField label={t('name')}>{resource.name}</OverviewField>
+      <OverviewField label={t('domain')}>{resource.domain}</OverviewField>
       <OverviewField label={t('status')}>
         <BadgeStatus status={status} value={status} />
       </OverviewField>
@@ -41,11 +39,6 @@ export function ResourceOverview({ resource }: { resource: Resource }) {
       <OverviewField label={t('tenantId')} mono>
         {resource.tenantId}
       </OverviewField>
-      {eventsId && eventsId !== resource.id && (
-        <OverviewField label={t('eventsResourceId')} mono>
-          {eventsId}
-        </OverviewField>
-      )}
       <OverviewField label={t('createdAt')}>{formatDate(resource.metadata?.createdAt)}</OverviewField>
     </OverviewCard>
   );

@@ -391,7 +391,8 @@ func tenantOnPlan(t *testing.T, plan typepb.Plan, wantUpdate bool,
 		Return(&tenantpb.Tenant{Id: _tenantId, Plan: plan}, nil)
 
 	if wantUpdate {
-		repo.EXPECT().Update(mock.Anything, mock.Anything).Return(nil)
+		repo.EXPECT().Update(mock.Anything, mock.Anything, mock.Anything).
+			Return(nil)
 	}
 
 	return repo
@@ -425,9 +426,8 @@ func TestUpdateTenantPlan(t *testing.T) {
 				tenantOnPlan(t, tt.giveCurrent, tt.wantCode == codes.OK), nil)
 
 			_, err := svc.UpdateTenant(asUser(t, "user_1"),
-				&tenantpb.UpdateTenantRequest{
-					Id: _tenantId, Name: "acme", Plan: tt.givePlan,
-				})
+				&tenantpb.UpdateTenantRequest{Id: _tenantId,
+					Tenant: &tenantpb.Tenant{Name: "acme", Plan: tt.givePlan}})
 
 			assert.Equal(t, tt.wantCode, status.Code(err))
 		})
@@ -438,7 +438,8 @@ func TestUpdateTenantPlanAsAdminControlPlane(t *testing.T) {
 	svc := New(nil, nil, nil, tenantOnPlan(t, typepb.Plan_PLAN_FREE, true), nil)
 
 	_, err := svc.UpdateTenant(asAdmin(t), &tenantpb.UpdateTenantRequest{
-		Id: _tenantId, Plan: typepb.Plan_PLAN_PRO,
+		Id:     _tenantId,
+		Tenant: &tenantpb.Tenant{Plan: typepb.Plan_PLAN_PRO},
 	})
 
 	require.NoError(t, err)

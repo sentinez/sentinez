@@ -3,15 +3,15 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 
-import { Server } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
+import { Resource as EdgeResource } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
 
 /** The edge setting of a resource as raw JSON, folded until asked for */
-export function ResourceSettingJson({ server }: { server?: Server }) {
+export function ResourceSettingJson({ resource }: { resource?: EdgeResource }) {
   const t = useTranslations('ResourceSetting');
   // Serialized only once unfolded, not on every render of the page
   const [open, setOpen] = useState(false);
 
-  if (!server) {
+  if (!resource) {
     return null;
   }
 
@@ -22,7 +22,7 @@ export function ResourceSettingJson({ server }: { server?: Server }) {
       </summary>
       {open && (
         <pre className="bg-muted text-foreground mt-2 max-h-96 overflow-auto rounded-md p-3 text-xs">
-          {JSON.stringify(Server.toJSON(server), null, 2)}
+          {JSON.stringify(EdgeResource.toJSON(resource), null, 2)}
         </pre>
       )}
     </details>

@@ -28,7 +28,9 @@ import (
 func TestLoadRateLimiterKeepsAllLimiters(t *testing.T) {
 	m := &MemStore{limiter: ratelimiter.New()}
 	err := m.LoadRateLimiter(&edgepb.Setting{
-		Server: &edgepb.Server{ResourceDomain: "multi-limiter"},
+		Ingress: &edgepb.Ingress{
+			Resource: &edgepb.Resource{Domain: "multi-limiter"},
+		},
 		Security: &edgepb.Security{Limiters: []*edgepb.RateLimit{
 			newRateLimit("a", typepb.Status_STATUS_ACTIVE, 1),
 			newRateLimit("b", typepb.Status_STATUS_DISABLE, 1),
@@ -58,9 +60,11 @@ func TestLoadRateLimiterKeepsAllLimiters(t *testing.T) {
 func TestLoadRateLimiterRequiresExpr(t *testing.T) {
 	m := &MemStore{limiter: ratelimiter.New()}
 	err := m.LoadRateLimiter(&edgepb.Setting{
-		Server: &edgepb.Server{ResourceDomain: "no-expr-limiter"},
+		Ingress: &edgepb.Ingress{
+			Resource: &edgepb.Resource{Domain: "no-expr-limiter"},
+		},
 		Security: &edgepb.Security{Limiters: []*edgepb.RateLimit{{
-			IngressRuntime: &secrulepb.SecRule{
+			Ingress: &secrulepb.SecRule{
 				Id: "a", Status: typepb.Status_STATUS_ACTIVE,
 			},
 			TimeWindow: "1s",
@@ -81,7 +85,7 @@ func newRateLimit(
 	}
 
 	return &edgepb.RateLimit{
-		IngressRuntime: &secrulepb.SecRule{
+		Ingress: &secrulepb.SecRule{
 			Id: id, Status: status, Expr: expr,
 		},
 		TimeWindow:  "1s",

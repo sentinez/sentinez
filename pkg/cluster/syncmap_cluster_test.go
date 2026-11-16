@@ -31,7 +31,7 @@ import (
 
 const _syncWait = 10 * time.Second
 
-type serverMap = SyncMap[edgepb.Server, *edgepb.Server]
+type serverMap = SyncMap[edgepb.Resource, *edgepb.Resource]
 
 func freePort(t *testing.T) int {
 	t.Helper()
@@ -72,7 +72,7 @@ func startNode(t *testing.T, node, peer string) (*Cluster, string) {
 	return c, "127.0.0.1:" + strconv.Itoa(conf.MemberlistConfig.BindPort)
 }
 
-type serverHook = func(key string, prev, next *edgepb.Server)
+type serverHook = func(key string, prev, next *edgepb.Resource)
 
 // startPair starts two joined nodes and a started map name on each;
 // hook, if not nil, is the OnChange of the map of the second node.
@@ -96,7 +96,7 @@ func startMap(
 ) *serverMap {
 	t.Helper()
 
-	m := NewSyncMap[edgepb.Server](c, name)
+	m := NewSyncMap[edgepb.Resource](c, name)
 	m.interval = 50 * time.Millisecond
 	m.OnChange(hook)
 	require.NoError(t, m.Start(context.Background()))
@@ -123,7 +123,7 @@ func TestSyncMapClusterStoreDelete(t *testing.T) {
 	ctx := context.Background()
 	a, b := startPair(t, "store-delete", nil)
 
-	require.NoError(t, a.Store(ctx, "k", &edgepb.Server{Name: "v1"}))
+	require.NoError(t, a.Store(ctx, "k", &edgepb.Resource{Name: "v1"}))
 	require.Eventually(t, loaded(b, "k", "v1"), _syncWait, 10*time.Millisecond)
 
 	require.NoError(t, b.Delete(ctx, "k"))
@@ -133,7 +133,7 @@ func TestSyncMapClusterStoreDelete(t *testing.T) {
 func TestSyncMapClusterLateJoinerLoads(t *testing.T) {
 	ctx := context.Background()
 	a, b := startPair(t, "late", nil)
-	require.NoError(t, a.Store(ctx, "k", &edgepb.Server{Name: "v1"}))
+	require.NoError(t, a.Store(ctx, "k", &edgepb.Resource{Name: "v1"}))
 	require.Eventually(t, loaded(b, "k", "v1"), _syncWait, 10*time.Millisecond)
 
 	late := startMap(t, b.cluster, "late", nil)
@@ -145,7 +145,7 @@ func TestSyncMapClusterRepairsLostMessage(t *testing.T) {
 	a, b := startPair(t, "repair", nil)
 
 	// a write whose PubSub message is lost: only the local map has it
-	e := entry[edgepb.Server]{value: &edgepb.Server{Name: "v1"},
+	e := entry[edgepb.Resource]{value: &edgepb.Resource{Name: "v1"},
 		record: record{version: a.clock.next(), origin: "edge-a"}}
 	e.payload = mustMarshal(t, e.value)
 	a.apply("k", e)
@@ -156,10 +156,10 @@ func TestSyncMapClusterRepairsLostMessage(t *testing.T) {
 func TestSyncMapClusterOnChangeFromPeer(t *testing.T) {
 	changed := make(chan string, 1)
 	a, _ := startPair(t, "on-change",
-		func(_ string, _, next *edgepb.Server) { changed <- next.GetName() })
+		func(_ string, _, next *edgepb.Resource) { changed <- next.GetName() })
 
 	require.NoError(t, a.Store(context.Background(), "k",
-		&edgepb.Server{Name: "v1"}))
+		&edgepb.Resource{Name: "v1"}))
 
 	select {
 	case got := <-changed:

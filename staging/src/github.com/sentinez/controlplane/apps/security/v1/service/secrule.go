@@ -22,6 +22,7 @@ import (
 	"github.com/sentinez/controlplane/apps/security/v1/repos/secrule"
 	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/pkg/szerror"
+	"github.com/sentinez/pkg/szprotobuf"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
@@ -159,7 +160,14 @@ func (srv *SecurityService) GetSecRule(ctx context.Context,
 		GetSecRuleResponse{SecRule: srv.mapSecRule(ctx, dbRB)}, nil
 }
 
-// UpdateSecRule updates an existing WAF rule based
+// _secRuleUpdatable the fields of a sec rule an update writes.
+var _secRuleUpdatable = []string{
+	securitypb.SecRule_Name, securitypb.SecRule_Description,
+	securitypb.SecRule_Expr, securitypb.SecRule_Status,
+	securitypb.SecRule_Priority, securitypb.SecRule_Action,
+}
+
+// UpdateSecRule updates the fields of a WAF rule its update_mask names.
 func (srv *SecurityService) UpdateSecRule(ctx context.Context,
 	req *securitypb.UpdateSecRuleRequest,
 ) (*securitypb.UpdateSecRuleResponse, error) {
@@ -173,16 +181,13 @@ func (srv *SecurityService) UpdateSecRule(ctx context.Context,
 		return nil, err
 	}
 
-	// Validate rule structure
+	paths, err := szprotobuf.ApplyMask(dbRB, req.GetSecRule(),
+		req.GetUpdateMask(), _secRuleUpdatable...)
+	if err != nil {
+		return nil, err
+	}
 
-	dbRB.Name = req.GetSecRule().GetName()
-	dbRB.Description = req.GetSecRule().GetDescription()
-	dbRB.Expr = req.GetSecRule().GetExpr()
-	dbRB.Status = req.GetSecRule().GetStatus()
-	dbRB.Priority = req.GetSecRule().GetPriority()
-	dbRB.Action = req.GetSecRule().GetAction()
-
-	if err := srv.secRuleRepo.Update(ctx, dbRB); err != nil {
+	if err = srv.secRuleRepo.Update(ctx, dbRB, paths); err != nil {
 		return nil, err
 	}
 

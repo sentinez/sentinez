@@ -19,62 +19,34 @@ import (
 
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	cdnpb "github.com/sentinez/sentinez/api/proto/sentinez/types/cdn/v1"
+	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/types/known/structpb"
 )
 
-func TestNormalizeEdgeSettingLimiters(t *testing.T) {
-	tests := []struct {
-		name        string
-		giveIngress *secrulepb.SecRuleLite
-		wantStatus  typepb.Status
-	}{
-		{
-			name:        "active ingress",
-			giveIngress: &secrulepb.SecRuleLite{Status: "STATUS_ACTIVE"},
-			wantStatus:  typepb.Status_STATUS_ACTIVE,
-		},
-		{
-			name:        "disabled ingress",
-			giveIngress: &secrulepb.SecRuleLite{Status: "STATUS_DISABLE"},
-			wantStatus:  typepb.Status_STATUS_DISABLE,
-		},
-	}
+func TestNormalizeEdgeSettingRuleIdFilled(t *testing.T) {
+	// from proxy.yaml: no id
+	rule := &secrulepb.SecRule{}
+	normalizeSecRule(rule)
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := normalizeLimiterRule(tt.giveIngress)
-			if got == nil {
-				t.Fatal("IngressRuntime is nil")
-			}
+	assert.NotEmpty(t, rule.GetId())
+}
 
-			if got.GetStatus() != tt.wantStatus {
-				t.Errorf("status = %v, want %v", got.GetStatus(), tt.wantStatus)
-			}
+func TestNormalizeEdgeSettingRuleIdKept(t *testing.T) {
+	// from the database
+	rule := &secrulepb.SecRule{Id: "srule_1"}
+	normalizeSecRule(rule)
 
-			if got.GetId() == "" {
-				t.Error("id is empty")
-			}
-		})
-	}
+	assert.Equal(t, "srule_1", rule.GetId())
 }
 
 func TestNormalizeEdgeSettingLimiterNoIngress(t *testing.T) {
-	if got := normalizeLimiterRule(nil); got != nil {
-		t.Errorf("IngressRuntime = %v, want nil", got)
-	}
-}
+	lim := &edgepb.RateLimit{}
+	normalizeLimiter(lim)
 
-func normalizeLimiterRule(ingress *secrulepb.SecRuleLite) *secrulepb.SecRule {
-	lim := &edgepb.RateLimit{Ingress: ingress}
-	NormalizeEdgeSetting(&edgepb.Setting{
-		Security: &edgepb.Security{
-			Limiters: []*edgepb.RateLimit{lim},
-		},
-	})
-
-	return lim.GetIngressRuntime()
+	assert.Nil(t, lim.GetIngress())
 }
 
 func TestNormalizeEdgeSettingLimiterDurations(t *testing.T) {
@@ -117,22 +89,47 @@ func TestNormalizeEdgeSettingLimiterDurations(t *testing.T) {
 }
 
 func TestNormalizeEdgeSettingCDN(t *testing.T) {
-	cdn := &cdnpb.CDN{Rule: &cdnpb.RuleLite{
-		Id: "c1", Name: "static", Status: "STATUS_ACTIVE", Priority: 10,
+	cdn := &cdnpb.CDN{Rule: &cdnpb.Rule{
+		Id: "c1", Expr: exprOf(&rulepb.Condition{Value: anyValue(t, 443)}),
 	}}
 
 	NormalizeEdgeSetting(&edgepb.Setting{
 		Delivery: &edgepb.Delivery{Cdn: []*cdnpb.CDN{cdn}},
 	})
 
-	got := cdn.GetRuleRuntime()
-	if got.GetPriority() != 10 {
-		t.Errorf("priority = %d, want 10", got.GetPriority())
+	cond := conditionOf(cdn.GetRule().GetExpr())
+	assert.Equal(t, "c1", cdn.GetRule().GetId())
+	assert.NotEmpty(t, cond.GetId())
+	assert.Equal(t, "443", cond.GetValue().GetStringValue())
+}
+
+func TestStringValue(t *testing.T) {
+	tests := []struct {
+		name string
+		give any
+		want any
+	}{
+		{name: "string", give: "/api", want: "/api"},
+		{name: "number", give: 443, want: "443"},
+		{name: "float", give: 1.5, want: "1.5"},
+		{name: "bool", give: true, want: "true"},
+		{
+			name: "list",
+			give: []any{"GET", 1},
+			want: []any{"GET", "1"},
+		},
 	}
 
-	if got.GetStatus() != typepb.Status_STATUS_ACTIVE {
-		t.Errorf("status = %v, want active", got.GetStatus())
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := stringValue(anyValue(t, tt.give))
+			assert.Equal(t, tt.want, got.AsInterface())
+		})
 	}
+}
+
+func TestStringValueNil(t *testing.T) {
+	assert.Nil(t, stringValue(nil))
 }
 
 func TestResourceDomain(t *testing.T) {
@@ -154,21 +151,41 @@ func TestResourceDomain(t *testing.T) {
 	}
 }
 
-// A rule rebuilt from the database holds its runtime form only: normalizing
-// must not replace it with the nothing its absent ingress gives.
-func TestNormalizeKeepsRuntimeWithoutIngress(t *testing.T) {
-	runtime := &secrulepb.SecRule{Id: "r1", Name: "block"}
+// A rule rebuilt from the database keeps its id and its conditions.
+func TestNormalizeKeepsDatabaseRule(t *testing.T) {
+	cond := &rulepb.Condition{
+		Id: "cond_1", Value: structpb.NewStringValue("POST"),
+	}
+	runtime := &secrulepb.SecRule{Id: "r1", Expr: exprOf(cond)}
 	setting := &edgepb.Setting{Security: &edgepb.Security{
-		SecRules: []*edgepb.SecRule{{IngressRuntime: runtime}},
-		Limiters: []*edgepb.RateLimit{{IngressRuntime: runtime}},
+		SecRules: []*edgepb.SecRule{{Ingress: runtime}},
+		Limiters: []*edgepb.RateLimit{{Ingress: runtime}},
 	}}
 
 	NormalizeEdgeSetting(setting)
 
-	assert.Same(t, runtime, setting.GetSecurity().GetSecRules()[0].
-		GetIngressRuntime())
-	assert.Same(t, runtime, setting.GetSecurity().GetLimiters()[0].
-		GetIngressRuntime())
-	assert.Equal(t, "5s",
-		setting.GetSecurity().GetLimiters()[0].GetTimeWindow())
+	sec := setting.GetSecurity()
+	assert.Same(t, runtime, sec.GetSecRules()[0].GetIngress())
+	assert.Equal(t, "r1", runtime.GetId())
+	assert.Equal(t, "cond_1", cond.GetId())
+	assert.Equal(t, "5s", sec.GetLimiters()[0].GetTimeWindow())
+}
+
+func exprOf(cond *rulepb.Condition) *rulepb.Expression {
+	return &rulepb.Expression{OrCondition: []*rulepb.AndCondition{{
+		Rules: []*rulepb.Rule{{Condition: cond}},
+	}}}
+}
+
+func conditionOf(expr *rulepb.Expression) *rulepb.Condition {
+	return expr.GetOrCondition()[0].GetRules()[0].GetCondition()
+}
+
+func anyValue(t *testing.T, v any) *structpb.Value {
+	t.Helper()
+
+	val, err := structpb.NewValue(v)
+	require.NoError(t, err)
+
+	return val
 }

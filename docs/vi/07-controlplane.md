@@ -322,23 +322,24 @@ authenticator của chúng chỉ hoạt động khi `provider_user_id` = email.
 ## 7.4 Tenant
 
 Proto: [apps/tenant/v1](../../api/proto/sentinez/apps/tenant/v1/). Một
-`Resource` gồm `id, tenant_id, server, status`: `server` là
-`edgepb.Server` của resource, nơi duy nhất giữ tên (`server.name`) và
-domain (`server.resource_domain`), và `server.resource_id` luôn là `id`
-của resource. Bảng `tenant.resources` (`id, tenant_id, server BYTEA,
-server_name, server_resource_domain, status`): `server` lưu dạng protobuf
-nhị phân, `server_name`/`server_resource_domain` được dẫn xuất từ nó ở mỗi
-lần ghi (`schema.ResourceServerName`/`ResourceServerDomain`) để lọc. Service
-đổi domain về chữ thường như edge so khớp, và từ chối server không có
+`Resource` gồm `id, tenant_id, name, domain, locations, status`, lưu
+trong bảng `tenant.resources` mỗi field một cột (`locations` dạng JSONB,
+các `edgepb.Location` của domain). `CreateResource` mang một
+`edgepb.Resource` (`resource`), được `sznormalize.TenantResource` tách
+thành các field này; `UpdateResource` mang một `Resource` và một
+`update_mask` (xem [Cập nhật](#cập-nhật-và-update_mask));
+edge nhận lại setting qua `sznormalize.EdgeSetting` / `EdgeResource`, với
+`id` luôn là `id` của resource. Service
+đổi domain về chữ thường như edge so khớp, và từ chối resource không có
 domain.
 
 | RPC | REST | Ghi chú |
 |---|---|---|
-| `ListResource` | `GET /tenant/resources` | Lọc `status`, `resource_name` (`server.name`), `resource_domain` (`server.resource_domain`), `tenant_ids` |
-| `CreateResource` | `POST /tenant/resource` | Bắt buộc `server` có `resource_domain` |
-| `UpdateResource` | `PUT /tenant/resource` | Đặt `status`; `server` (nếu có) thay server đang lưu |
+| `ListResource` | `GET /tenant/resources` | Lọc `status`, `resource_name` (`name`), `resource_domain` (`domain`), `tenant_ids` |
+| `CreateResource` | `POST /tenant/resource` | Bắt buộc `resource` có `domain` |
+| `UpdateResource` | `PUT /tenant/resource` | Ghi các trường của `resource` mà `update_mask` nêu, trong `name`, `domain`, `locations`, `status` |
 | `DeleteResource` | `DELETE /tenant/resource` | |
-| `GetResource` | `GET /tenant/resource` | `default=true` → server bỏ các location |
+| `GetResource` | `GET /tenant/resource` | `default=true` → resource bỏ các location |
 | `GetResourceByDomain` | `GET /tenant/resource/{resource_domain}` | Lấy bản ghi đầu tiên khớp domain |
 | `Status` | `GET /tenant/status` | |
 
@@ -392,8 +393,30 @@ action JSONB`).
 | `Status` | `GET /security/status` |
 
 Service kiểm tra `sec_rule` bắt buộc khi tạo/sửa; `UpdateSecRule` đọc bản
-ghi, ghi đè các trường từ request rồi gọi repo `Update`. Rule lưu ở đây tới
+ghi rồi ghi các trường mà `update_mask` nêu (xem
+[Cập nhật](#cập-nhật-và-update_mask)). Rule lưu ở đây tới
 edge qua centraldata (xem [CentralData](#centraldata-đồng-bộ-các-bảng-xuống-edge)).
+
+### Cập nhật và update_mask
+
+`UpdateResource`, `UpdateTenant`, `UpdateSecRule`, `UpdateRateLimit` và
+`UpdateCoreRuleset` nhận model (`resource`, `tenant`, `sec_rule`, ...) và
+một `google.protobuf.FieldMask` `update_mask`, đọc theo AIP-134:
+
+- không có path: các trường được set trong model (mask ngầm định)
+- `*`: mọi trường được phép cập nhật
+- còn lại: các path của nó; trường được nêu mà model để trống thì bị xoá,
+  path không phải trường được phép cập nhật trả về `InvalidArgument`
+
+Trong body JSON, mask là chuỗi tên lowerCamelCase:
+`"updateMask": "name,timeWindow"`. Service đọc bản ghi đang lưu, chép các
+trường trong mask lên nó bằng `szprotobuf.ApplyMask`, kiểm tra kết quả
+(domain của resource và plan của tenant là bắt buộc, rate limit và core
+ruleset được validate toàn bộ), rồi repo `Update(ctx, model, paths)` chỉ
+ghi các cột của các path đó (`postgres.M.Only`). Mỗi service tự liệt kê
+các trường được phép cập nhật; id, owner và tenant không bao giờ đổi.
+`UpdateMember` và `UpdateUser` chỉ đặt một trường (`roles`, `full_name`)
+nên không nhận mask.
 
 ## 7.6 Analytic, Greeter, CentralData
 

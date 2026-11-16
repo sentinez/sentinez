@@ -47,6 +47,7 @@ const (
 type rows[M interface{ GetId() string }] struct {
 	byId    map[string]M
 	created []M
+	updated [][]string // the paths of each update
 	deleted []string
 }
 
@@ -64,7 +65,10 @@ func (r *rows[M]) Create(_ context.Context, m M) (M, error) {
 	return m, nil
 }
 
-func (r *rows[M]) Update(context.Context, M) error { return nil }
+func (r *rows[M]) Update(_ context.Context, _ M, paths []string) error {
+	r.updated = append(r.updated, paths)
+	return nil
+}
 
 func (r *rows[M]) Delete(_ context.Context, id string) error {
 	r.deleted = append(r.deleted, id)

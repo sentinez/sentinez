@@ -215,6 +215,12 @@ func (c *RequestContext) Host() []byte {
 	return bytesconv.S2b(c.req.GetHost())
 }
 
+// ServerName implements szhttp.Request: a request of a value has no
+// connection.
+func (*RequestContext) ServerName() string {
+	return ""
+}
+
 func (c *RequestContext) JA4() string {
 	return c.req.GetFingerprint()
 }

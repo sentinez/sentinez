@@ -38,10 +38,6 @@ var (
 
 	_ = typepb.Status(0)
 
-	_ = typepb.Status(0)
-
-	_ = typepb.Plan(0)
-
 	_ = typepb.Plan(0)
 
 	_ = typepb.Plan(0)
@@ -488,17 +484,25 @@ func (m *UpdateResourceRequest) Validate() error {
 
 	// no validation rules for Id
 
-	if v, ok := interface{}(m.GetServer()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetResource()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UpdateResourceRequestValidationError{
-				field:  "Server",
+				field:  "Resource",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
 		}
 	}
 
-	// no validation rules for Status
+	if v, ok := interface{}(m.GetUpdateMask()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateResourceRequestValidationError{
+				field:  "UpdateMask",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	return nil
 }
@@ -634,10 +638,10 @@ func (m *CreateResourceRequest) Validate() error {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetServer()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetResource()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return CreateResourceRequestValidationError{
-				field:  "Server",
+				field:  "Resource",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -2100,11 +2104,25 @@ func (m *UpdateTenantRequest) Validate() error {
 
 	// no validation rules for Id
 
-	// no validation rules for Plan
+	if v, ok := interface{}(m.GetTenant()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateTenantRequestValidationError{
+				field:  "Tenant",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
-	// no validation rules for Name
-
-	// no validation rules for Description
+	if v, ok := interface{}(m.GetUpdateMask()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpdateTenantRequestValidationError{
+				field:  "UpdateMask",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	return nil
 }

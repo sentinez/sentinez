@@ -43,7 +43,14 @@ export interface GetSecRuleResponse {
 
 export interface UpdateSecRuleRequest {
   id: string;
-  secRule?: SecRule | undefined;
+  secRule?:
+    | SecRule
+    | undefined;
+  /**
+   * Fields of sec_rule to update, among name, description, expr, status,
+   * priority and action ("*" for all of them); without one, those set in
+   * sec_rule. A named field unset in sec_rule is cleared.
+   */
   updateMask?: string[] | undefined;
 }
 
@@ -88,7 +95,15 @@ export interface GetRateLimitResponse {
 
 export interface UpdateRateLimitRequest {
   id: string;
-  rateLimit?: RateLimit | undefined;
+  rateLimit?:
+    | RateLimit
+    | undefined;
+  /**
+   * Fields of rate_limit to update, among name, description, expr,
+   * status, priority, action, time_window, max_requests and timeout ("*"
+   * for all of them); without one, those set in rate_limit. A named field
+   * unset in rate_limit is cleared.
+   */
   updateMask?: string[] | undefined;
 }
 
@@ -133,7 +148,14 @@ export interface GetCoreRulesetResponse {
 
 export interface UpdateCoreRulesetRequest {
   id: string;
-  coreRuleset?: CoreRuleset | undefined;
+  coreRuleset?:
+    | CoreRuleset
+    | undefined;
+  /**
+   * Fields of core_ruleset to update, among name, description and
+   * content ("*" for all of them); without one, those set in core_ruleset.
+   * A named field unset in core_ruleset is cleared.
+   */
   updateMask?: string[] | undefined;
 }
 

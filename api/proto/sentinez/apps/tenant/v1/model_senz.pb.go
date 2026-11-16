@@ -4,9 +4,7 @@
 package tenantpb
 
 import (
-	v11 "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	proto "google.golang.org/protobuf/proto"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	time "time"
 )
@@ -16,7 +14,9 @@ const (
 	Resource_MetadataUpdatedAt = "metadata_updated_at"
 	Resource_Id                = "id"
 	Resource_TenantId          = "tenant_id"
-	Resource_Server            = "server"
+	Resource_Name              = "name"
+	Resource_Domain            = "domain"
+	Resource_Locations         = "locations"
 	Resource_Status            = "status"
 )
 
@@ -68,7 +68,9 @@ func ResourceColumns() []string {
 		Resource_MetadataUpdatedAt,
 		Resource_Id,
 		Resource_TenantId,
-		Resource_Server,
+		Resource_Name,
+		Resource_Domain,
+		Resource_Locations,
 		Resource_Status,
 	}
 }
@@ -83,20 +85,14 @@ func ResourceValues(m *Resource) ([]any, error) {
 	if v := m.GetMetadata().GetUpdatedAt(); v != nil {
 		colMetadataUpdatedAt = v.AsTime()
 	}
-	var colServer []byte
-	if v := m.GetServer(); v != nil {
-		b, err := proto.Marshal(v)
-		if err != nil {
-			return nil, err
-		}
-		colServer = b
-	}
 	return []any{
 		colMetadataCreatedAt,
 		colMetadataUpdatedAt,
 		m.GetId(),
 		m.GetTenantId(),
-		colServer,
+		m.GetName(),
+		m.GetDomain(),
+		m.GetLocations(),
 		m.GetStatus(),
 	}, nil
 }
@@ -108,14 +104,15 @@ func ScanOneResource[R interface{ Scan(dest ...any) error }](row R) (*Resource, 
 		colMetadataCreatedAt time.Time
 		colMetadataUpdatedAt time.Time
 		colTenantId          *string
-		colServer            []byte
 	)
 	if err := row.Scan(
 		&colMetadataCreatedAt,
 		&colMetadataUpdatedAt,
 		&m.Id,
 		&colTenantId,
-		&colServer,
+		&m.Name,
+		&m.Domain,
+		&m.Locations,
 		&m.Status,
 	); err != nil {
 		return nil, err
@@ -124,12 +121,6 @@ func ScanOneResource[R interface{ Scan(dest ...any) error }](row R) (*Resource, 
 	m.Metadata.UpdatedAt = timestamppb.New(colMetadataUpdatedAt)
 	if colTenantId != nil {
 		m.TenantId = *colTenantId
-	}
-	if len(colServer) != 0 {
-		m.Server = &v11.Server{}
-		if err := proto.Unmarshal(colServer, m.Server); err != nil {
-			return nil, err
-		}
 	}
 	return m, nil
 }

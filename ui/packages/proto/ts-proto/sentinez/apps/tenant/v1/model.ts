@@ -7,7 +7,7 @@
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Timestamp } from "../../../../google/protobuf/timestamp";
-import { Server } from "../../../dmz/edge/v1/setting";
+import { Location } from "../../../dmz/edge/v1/setting";
 import {
   Plan,
   planFromJSON,
@@ -75,15 +75,23 @@ export function caCertificateUsageToJSON(object: CaCertificateUsage): string {
 }
 
 /**
- * Resource is a server of a tenant: its name, domain and routes are those
- * of server (server.name, server.resource_domain), its id is the
- * server.resource_id the edge fills into the events of its requests.
+ * Resource is a resource of a tenant: a domain the edge serves and the
+ * locations it routes to the origins. Its id is the one the edge fills
+ * into the events of its requests; the edge takes it as the
+ * sentinez.dmz.edge.v1.Resource of its setting.
  */
 export interface Resource {
   metadata?: Metadata | undefined;
   id: string;
   tenantId: string;
-  server?: Server | undefined;
+  name: string;
+  /**
+   * Domain the edge serves the resource at, lower case: the namespace of
+   * its setting. Required.
+   */
+  domain: string;
+  /** Routes of the domain to the origins, stored as JSONB. */
+  locations: Location[];
   status: Status;
 }
 
@@ -155,7 +163,7 @@ export interface CaCertificate {
 }
 
 function createBaseResource(): Resource {
-  return { metadata: undefined, id: "", tenantId: "", server: undefined, status: 0 };
+  return { metadata: undefined, id: "", tenantId: "", name: "", domain: "", locations: [], status: 0 };
 }
 
 export const Resource: MessageFns<Resource> = {
@@ -169,11 +177,17 @@ export const Resource: MessageFns<Resource> = {
     if (message.tenantId !== "") {
       writer.uint32(26).string(message.tenantId);
     }
-    if (message.server !== undefined) {
-      Server.encode(message.server, writer.uint32(34).fork()).join();
+    if (message.name !== "") {
+      writer.uint32(34).string(message.name);
+    }
+    if (message.domain !== "") {
+      writer.uint32(42).string(message.domain);
+    }
+    for (const v of message.locations) {
+      Location.encode(v!, writer.uint32(50).fork()).join();
     }
     if (message.status !== 0) {
-      writer.uint32(40).int32(message.status);
+      writer.uint32(56).int32(message.status);
     }
     return writer;
   },
@@ -220,11 +234,27 @@ export const Resource: MessageFns<Resource> = {
               break;
             }
 
-            message.server = Server.decode(reader, reader.uint32());
+            message.name = reader.string();
             continue;
           }
           case 5: {
-            if (tag !== 40) {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.domain = reader.string();
+            continue;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.locations.push(Location.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 7: {
+            if (tag !== 56) {
               break;
             }
 
@@ -252,7 +282,11 @@ export const Resource: MessageFns<Resource> = {
         : isSet(object.tenant_id)
         ? globalThis.String(object.tenant_id)
         : "",
-      server: isSet(object.server) ? Server.fromJSON(object.server) : undefined,
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      domain: isSet(object.domain) ? globalThis.String(object.domain) : "",
+      locations: globalThis.Array.isArray(object?.locations)
+        ? object.locations.map((e: any) => Location.fromJSON(e))
+        : [],
       status: isSet(object.status) ? statusFromJSON(object.status) : 0,
     };
   },
@@ -268,8 +302,14 @@ export const Resource: MessageFns<Resource> = {
     if (message.tenantId !== "") {
       obj.tenantId = message.tenantId;
     }
-    if (message.server !== undefined) {
-      obj.server = Server.toJSON(message.server);
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.domain !== "") {
+      obj.domain = message.domain;
+    }
+    if (message.locations?.length) {
+      obj.locations = message.locations.map((e) => Location.toJSON(e));
     }
     if (message.status !== 0) {
       obj.status = statusToJSON(message.status);
@@ -287,9 +327,9 @@ export const Resource: MessageFns<Resource> = {
       : undefined;
     message.id = object.id ?? "";
     message.tenantId = object.tenantId ?? "";
-    message.server = (object.server !== undefined && object.server !== null)
-      ? Server.fromPartial(object.server)
-      : undefined;
+    message.name = object.name ?? "";
+    message.domain = object.domain ?? "";
+    message.locations = object.locations?.map((e) => Location.fromPartial(e)) || [];
     message.status = object.status ?? 0;
     return message;
   },

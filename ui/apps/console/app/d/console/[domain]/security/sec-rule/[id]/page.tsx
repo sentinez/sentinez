@@ -14,10 +14,12 @@ import {
   validateSecRuleForm,
 } from '../../components';
 import { getSecRule, updateSecRule } from '@/lib/api/security';
+import { MASK_ALL, type UpdateMask } from '@/lib/api/mask';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 import { useEffect, useState } from 'react';
 
-const UPDATE_MASK = ['name', 'description', 'expr', 'action', 'status', 'priority'];
+// the form edits every field: the server names them
+const UPDATE_MASK: UpdateMask = [MASK_ALL];
 
 export default function EditSecRulePage({ params }: { params: Promise<{ id: string }> }) {
   const t = useTranslations('SecRule');

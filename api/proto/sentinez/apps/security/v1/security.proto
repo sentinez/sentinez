@@ -209,6 +209,9 @@ message GetSecRuleResponse {
 message UpdateSecRuleRequest {
   string id = 1 [(buf.validate.field).string.min_len = 1];
   SecRule sec_rule = 2 [(buf.validate.field).required = true];
+  // Fields of sec_rule to update, among name, description, expr, status,
+  // priority and action ("*" for all of them); without one, those set in
+  // sec_rule. A named field unset in sec_rule is cleared.
   google.protobuf.FieldMask update_mask = 3;
 }
 
@@ -256,6 +259,10 @@ message GetRateLimitResponse {
 message UpdateRateLimitRequest {
   string id = 1 [(buf.validate.field).string.min_len = 1];
   RateLimit rate_limit = 2 [(buf.validate.field).required = true];
+  // Fields of rate_limit to update, among name, description, expr,
+  // status, priority, action, time_window, max_requests and timeout ("*"
+  // for all of them); without one, those set in rate_limit. A named field
+  // unset in rate_limit is cleared.
   google.protobuf.FieldMask update_mask = 3;
 }
 
@@ -303,6 +310,9 @@ message GetCoreRulesetResponse {
 message UpdateCoreRulesetRequest {
   string id = 1 [(buf.validate.field).string.min_len = 1];
   CoreRuleset core_ruleset = 2 [(buf.validate.field).required = true];
+  // Fields of core_ruleset to update, among name, description and
+  // content ("*" for all of them); without one, those set in core_ruleset.
+  // A named field unset in core_ruleset is cleared.
   google.protobuf.FieldMask update_mask = 3;
 }
 

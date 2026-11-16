@@ -24,9 +24,9 @@ export function ResourceView() {
     <div className="flex flex-col gap-6 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">{resource.server?.name}</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{resource.name}</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            {resource.server?.resourceDomain} &mdash; {resource.id}
+            {resource.domain} &mdash; {resource.id}
           </p>
         </div>
         <BadgeStatus status={statusLabel(resource.status)} value={statusLabel(resource.status)} />

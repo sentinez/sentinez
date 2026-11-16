@@ -39,7 +39,7 @@ var _likeEscaper = strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`)
 type ITenant interface {
 	Create(ctx context.Context, tenant *tenantpb.Tenant) (*tenantpb.Tenant, error)
 	Upsert(ctx context.Context, tenant *tenantpb.Tenant) error
-	Update(ctx context.Context, tenant *tenantpb.Tenant) error
+	Update(ctx context.Context, tenant *tenantpb.Tenant, paths []string) error
 	Get(ctx context.Context, id string) (*tenantpb.Tenant, error)
 	Delete(ctx context.Context, id string) error
 
@@ -161,12 +161,7 @@ func (t *Tenants) Create(ctx context.Context,
 	tenant *tenantpb.Tenant) (*tenantpb.Tenant, error) {
 
 	tenant.Id = szrand.NewUUID(szprefix.Tenant)
-	query := postgres.InsertBuilder(t.storage, postgres.M{
-		tenantpb.Tenant_Id:          tenant.GetId(),
-		tenantpb.Tenant_Name:        tenant.GetName(),
-		tenantpb.Tenant_Description: tenant.GetDescription(),
-		tenantpb.Tenant_Plan:        tenant.GetPlan(),
-	})
+	query := postgres.InsertBuilder(t.storage, tenantRow(tenant))
 
 	if _, err := t.storage.Insert(ctx, query); err != nil {
 		return nil, err
@@ -188,23 +183,27 @@ func (t *Tenants) Get(
 	return t.storage.Select(ctx, builder, tenantpb.ScanOneTenant)
 }
 
-// Update implements ITenant. Zero-valued fields are left unchanged.
-func (t *Tenants) Update(ctx context.Context, tenant *tenantpb.Tenant) error {
-	query := postgres.UpdateBuilder(t.storage, tenant.GetId())
+// Update implements ITenant: it writes the columns of the fields of
+// tenant paths names, as szprotobuf.ApplyMask returns them; a path of no
+// column is skipped.
+func (t *Tenants) Update(ctx context.Context, tenant *tenantpb.Tenant,
+	paths []string) error {
 
-	if tenant.GetName() != "" {
-		query = query.Set(tenantpb.Tenant_Name, tenant.GetName())
-	}
-	if tenant.GetDescription() != "" {
-		query = query.Set(
-			tenantpb.Tenant_Description, tenant.GetDescription())
-	}
-	if tenant.GetPlan() != typepb.Plan_PLAN_UNSPECIFIED {
-		query = query.Set(tenantpb.Tenant_Plan, tenant.GetPlan())
-	}
+	query := postgres.UpdateBuilder(t.storage, tenant.GetId()).
+		SetMap(tenantRow(tenant).Only(paths))
 
 	_, err := t.storage.Exec(ctx, query)
 	return err
+}
+
+// tenantRow the stored columns of tenant.
+func tenantRow(tenant *tenantpb.Tenant) postgres.M {
+	return postgres.M{
+		tenantpb.Tenant_Id:          tenant.GetId(),
+		tenantpb.Tenant_Name:        tenant.GetName(),
+		tenantpb.Tenant_Description: tenant.GetDescription(),
+		tenantpb.Tenant_Plan:        tenant.GetPlan(),
+	}
 }
 
 func (t *Tenants) selectQuery(page *typepb.Pages) sq.SelectBuilder {

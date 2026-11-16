@@ -33,8 +33,8 @@ func Parse() (*settingpb.Flag, error) {
 	_onceEdge.Do(func() {
 		szflag.Get().ProxyConfig = "./proxy.yaml"
 		szflag.Get().EnvFile = "./.env"
-		szflag.Get().CertFile = "./_wildcard.sentinez.vn+1.pem"
-		szflag.Get().CertKeyFile = "./_wildcard.sentinez.vn+1-key.pem"
+		szflag.Get().CertFile = ""
+		szflag.Get().CertKeyFile = ""
 		szflag.Get().Engine = "quic"
 
 		pflag.StringVar(&szflag.Get().EnvFile, settingpb.XFlag_EnvFile,
