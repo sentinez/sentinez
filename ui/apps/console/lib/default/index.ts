@@ -29,6 +29,8 @@ export interface NavItem {
   url: string;
   icon?: any;
   isActive?: boolean;
+  /** Left out of the sidebar (the page stays reachable by its url) */
+  hidden?: boolean;
   items?: NavItem[];
 }
 
@@ -122,6 +124,8 @@ export const dashboard: {
       url: '/d/console/delivery/cdn',
       icon: Truck,
       isActive: false,
+      // Temporarily hidden: the CDN delivery tab is not ready yet
+      hidden: true,
       items: [
         {
           titleKey: 'cdn',

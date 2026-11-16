@@ -3,25 +3,29 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { cn } from '@sentinez/ui/lib/utils';
-import { Button } from '@sentinez/ui/components/button';
-import { Card, CardContent } from '@sentinez/ui/components/card';
-import { Input } from '@sentinez/ui/components/input';
-import { Label } from '@sentinez/ui/components/label';
+import { Fingerprint, Lock } from 'lucide-react';
 import { PasskeyLogin } from '@/lib/api/iam/passkey';
 import { toast } from '@/lib/toast';
 import { handleStatusError } from '@/lib/error-handler';
 import { SENTINEZ_ACCESS_TOKEN_KEY } from '@/lib/const';
 import { homePath, storeUser } from '@/lib/session';
+import {
+  AuthAlternative,
+  AuthFooter,
+  AuthForm,
+  AuthHeader,
+  AuthSubmit,
+  EmailField,
+} from './auth-form';
 
-export function PasskeyLoginForm({ className, ...props }: React.ComponentProps<'div'>) {
+export function PasskeyLoginForm() {
   const t = useTranslations('Auth');
   const te = useTranslations('Errors');
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  async function handleLoginPasskey(e: React.ChangeEvent) {
+  async function handleLoginPasskey(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!email) {
       toast.warning(t('inputRequired'), t('enterEmail'));
@@ -52,38 +56,29 @@ export function PasskeyLoginForm({ className, ...props }: React.ComponentProps<'
   }
 
   return (
-    <div className={cn('flex flex-col gap-6', className)} {...props}>
-      <Card>
-        <CardContent>
-          <form onSubmit={handleLoginPasskey}>
-            <div className="grid gap-6">
-              <div className="grid gap-6">
-                <div className="grid gap-3">
-                  <Label htmlFor="email">{t('email')}</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="m@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
-                <Button type="submit" className="w-full cursor-pointer" disabled={isLoading}>
-                  {isLoading ? t('authenticating') : t('login')}
-                </Button>
-              </div>
-              <div className="text-center text-sm">
-                {t('noAccount')} <br />
-                <a href="/auth/passkey/register" className="underline underline-offset-4">
-                  {t('register')}
-                </a>
-              </div>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+    <AuthForm>
+      <AuthHeader title={t('passkeyLoginTitle')} description={t('passkeyLoginDescription')} />
+
+      <form onSubmit={handleLoginPasskey} className="flex flex-col gap-5">
+        <EmailField
+          label={t('email')}
+          type="email"
+          autoComplete="username webauthn"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          disabled={isLoading}
+        />
+
+        <AuthSubmit loading={isLoading} icon={Fingerprint}>
+          {isLoading ? t('authenticating') : t('login')}
+        </AuthSubmit>
+      </form>
+
+      <AuthAlternative href="/auth" icon={Lock}>
+        {t('loginWithPassword')}
+      </AuthAlternative>
+
+      <AuthFooter text={t('noAccount')} linkText={t('register')} href="/auth/passkey/register" />
+    </AuthForm>
   );
 }

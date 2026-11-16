@@ -9,6 +9,7 @@ import {
   CarouselPrevious,
 } from '@sentinez/ui/components/carousel';
 import { Input } from '@sentinez/ui/components/input';
+import { cn } from '@sentinez/ui/lib/utils';
 import { Search } from 'lucide-react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
@@ -39,6 +40,10 @@ const CAROUSEL_OPTS = {
 const listTenantsMinLoading = (...args: Parameters<typeof listTenants>) =>
   withMinLoading(listTenants(...args));
 
+// Fade-up entrance (tw-animate-css), staggered by the card's position
+const ENTER = 'animate-in fade-in slide-in-from-bottom-4 fill-mode-both duration-400 ease-out';
+const enterDelay = (index: number) => ({ animationDelay: `${index * 70}ms` });
+
 export default function View() {
   const t = useTranslations('Tenant');
   const tc = useTranslations('Common');
@@ -54,7 +59,8 @@ export default function View() {
   );
 
   return (
-    <div className="flex min-h-svh flex-col gap-6 p-4 sm:p-10">
+    <div className="relative isolate flex min-h-svh flex-col gap-6 p-4 sm:p-10">
+      <TenantBackdrop />
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1 font-bold font-['Phudu',sans-serif]">
           <div className="flex size-6 items-center justify-center rounded-md">
@@ -94,6 +100,8 @@ export default function View() {
               }
             >
               <CarouselContent
+                // room for the hover lift and shadow of the cards
+                viewportClassName="-my-8 py-8"
                 className="flex-col gap-4 sm:flex-row sm:gap-0"
                 aria-busy={isLoading}
               >
@@ -103,9 +111,11 @@ export default function View() {
                         <TenantSkeleton />
                       </CarouselItem>
                     ))
-                  : tenants.map((tenant) => (
+                  : tenants.map((tenant, i) => (
                       <CarouselItem key={tenant.id} className="basis-auto">
-                        <Tenant tenant={tenant} />
+                        <div className={ENTER} style={enterDelay(i)}>
+                          <Tenant tenant={tenant} />
+                        </div>
                       </CarouselItem>
                     ))}
               </CarouselContent>
@@ -122,9 +132,24 @@ export default function View() {
               {tc('noResults')}
             </p>
           )}
-          <TeamJoin onCreated={() => refresh()} />
+          <div
+            className={cn(ENTER, 'w-full max-w-sm sm:w-auto')}
+            style={enterDelay(isLoading ? 0 : visible)}
+          >
+            <TeamJoin onCreated={() => refresh()} />
+          </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+/** A faint grid under a soft glow, both fading out */
+function TenantBackdrop() {
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+      <div className="grid-backdrop absolute inset-0 opacity-60" />
+      <div className="absolute inset-0 m-auto size-[42rem] rounded-full bg-[radial-gradient(circle,color-mix(in_oklch,var(--primary)_14%,transparent),transparent_70%)] motion-safe:animate-[glow-drift_12s_ease-in-out_infinite_alternate]" />
     </div>
   );
 }
