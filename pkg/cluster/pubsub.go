@@ -22,22 +22,19 @@ import (
 
 	"github.com/olric-data/olric"
 	"github.com/redis/go-redis/v9"
+	"github.com/sentinez/sentinez/pkg/cluster/channel"
 )
-
-// CentralDataChannel the channel centraldata publishes the changes of its
-// tables on, and the edges subscribe to.
-const CentralDataChannel = "sentinez.centraldata.changes"
 
 // _publishTimeout bounds a publication: a slow cluster must not hold the
 // caller back.
 const _publishTimeout = 5 * time.Second
 
-// Subscribe listens to channel, on the pub/sub of the cluster, once it is
+// Subscribe listens to ch, on the pub/sub of the cluster, once it is
 // ready. The messages are on Channel() of the result, which the caller
 // closes. Pub/sub is at-most-once: a subscriber learns of what it missed
 // from the payloads (see centraldata's versions), not from the channel.
 func (c *Cluster) Subscribe(ctx context.Context,
-	channel string) (*redis.PubSub, error) {
+	ch channel.Channel) (*redis.PubSub, error) {
 
 	select {
 	case <-c.ready:
@@ -45,27 +42,27 @@ func (c *Cluster) Subscribe(ctx context.Context,
 		return nil, ctx.Err()
 	}
 
-	_, sub, err := c.subscribe(ctx, channel)
+	_, sub, err := c.subscribe(ctx, ch)
 
 	return sub, err
 }
 
 // subscribe opens the pub/sub of the cluster on this node, which receives
-// what is published on any node, and listens to channel on it.
+// what is published on any node, and listens to ch on it.
 func (c *Cluster) subscribe(ctx context.Context,
-	channel string) (*olric.PubSub, *redis.PubSub, error) {
+	ch channel.Channel) (*olric.PubSub, *redis.PubSub, error) {
 
 	ps, err := c.client.NewPubSub(olric.ToAddress(c.addr))
 	if err != nil {
 		return nil, nil, fmt.Errorf("cluster: new pubsub: %w", err)
 	}
 
-	sub := ps.Subscribe(ctx, channel)
+	sub := ps.Subscribe(ctx, ch.String())
 	if _, err := sub.Receive(ctx); err != nil {
 		_ = sub.Close()
 
 		return nil, nil, fmt.Errorf("cluster: subscribe %s: %w",
-			channel, err)
+			ch, err)
 	}
 
 	return ps, sub, nil
@@ -99,15 +96,15 @@ func NewPublisher(addrs []string) (*Publisher, error) {
 	return &Publisher{client: client, pubsub: ps}, nil
 }
 
-// Publish sends msg to the subscribers of channel.
-func (p *Publisher) Publish(ctx context.Context, channel string,
+// Publish sends msg to the subscribers of ch.
+func (p *Publisher) Publish(ctx context.Context, ch channel.Channel,
 	msg []byte) error {
 
 	ctx, cancel := context.WithTimeout(ctx, _publishTimeout)
 	defer cancel()
 
-	if _, err := p.pubsub.Publish(ctx, channel, msg); err != nil {
-		return fmt.Errorf("cluster: publish %s: %w", channel, err)
+	if _, err := p.pubsub.Publish(ctx, ch.String(), msg); err != nil {
+		return fmt.Errorf("cluster: publish %s: %w", ch, err)
 	}
 
 	return nil
