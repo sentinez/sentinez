@@ -24,6 +24,7 @@ import { Input } from '@sentinez/ui/components/input';
 import { Label } from '@sentinez/ui/components/label';
 import { Skeleton } from '@sentinez/ui/components/skeleton';
 import { Textarea } from '@sentinez/ui/components/textarea';
+import { cn } from '@sentinez/ui/lib/utils';
 import type { Tenant as TenantModel } from '@sentinez/proto/sentinez/apps/tenant/v1/model';
 import { Plan } from '@sentinez/proto/sentinez/types/v1/known';
 import { MoveRight, Plus } from 'lucide-react';
@@ -40,12 +41,22 @@ import { toast } from '@/lib/toast';
 const NAME_MAX_LENGTH = 64;
 const DESCRIPTION_MAX_LENGTH = 255;
 
+// Hover effect shared by the cards: lift, glow and a tinted border
+const CARD_HOVER =
+  'group relative overflow-hidden transition-[translate,box-shadow,border-color] duration-300 ease-out hover:border-primary/50 hover:shadow-[0_12px_32px_-12px] hover:shadow-primary/35 motion-safe:hover:-translate-y-1';
+const ARROW_HOVER = 'transition-transform duration-300 group-hover:translate-x-1';
+
 export function Tenant({ tenant }: { tenant: TenantModel }) {
   const t = useTranslations('Tenant');
   const planLabel = usePlanLabel();
 
   return (
-    <Card className="w-full transition-colors duration-300 hover:border-primary sm:w-[300px]">
+    <Card className={cn(CARD_HOVER, 'w-full sm:w-[300px]')}>
+      {/* Accent line that slides in on hover */}
+      <span
+        aria-hidden
+        className="from-primary pointer-events-none absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 bg-linear-to-r to-sky-400 transition-transform duration-500 ease-out group-hover:scale-x-100"
+      />
       <CardHeader className="grid-cols-[minmax(0,1fr)]">
         <CardTitle className="truncate" title={tenant.name || tenant.id}>
           {tenant.name || tenant.id}
@@ -60,7 +71,7 @@ export function Tenant({ tenant }: { tenant: TenantModel }) {
       <CardFooter className="flex justify-between">
         <Link href="/d/console/domain" className="w-full" onClick={() => selectTenant(tenant.id)}>
           <Button className="w-full cursor-pointer">
-            {t('go')} <MoveRight />
+            {t('go')} <MoveRight className={ARROW_HOVER} />
           </Button>
         </Link>
       </CardFooter>
@@ -92,18 +103,23 @@ export function TeamJoin({ onCreated }: { onCreated?: () => void }) {
 
   return (
     <>
-      <Card className="w-full max-w-sm transition-transform duration-300 sm:w-[300px] sm:hover:scale-105">
+      <Card
+        className={cn(
+          CARD_HOVER,
+          'bg-card/80 w-full max-w-sm border-dashed shadow-none hover:border-solid sm:w-[300px]',
+        )}
+      >
         <CardHeader>
           <CardTitle>{t('createOrJoin')}</CardTitle>
           <CardDescription>{t('createOrJoinDescription')}</CardDescription>
         </CardHeader>
         <CardContent></CardContent>
         <CardFooter className="flex justify-between">
-          <Button variant="outline" className=" cursor-pointer">
-            {t('join')} <Plus />
+          <Button variant="outline" className="cursor-pointer">
+            {t('join')} <Plus className="transition-transform duration-300 group-hover:rotate-90" />
           </Button>
-          <Button className=" cursor-pointer" onClick={() => setOpen(true)}>
-            {t('create')} <MoveRight />
+          <Button className="cursor-pointer" onClick={() => setOpen(true)}>
+            {t('create')} <MoveRight className={ARROW_HOVER} />
           </Button>
         </CardFooter>
       </Card>

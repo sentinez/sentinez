@@ -68,6 +68,8 @@ Licensed under the [Apache 2.0](LICENSE) license.
 
 ![Creative Commons License](https://i.creativecommons.org/l/by/4.0/88x31.png)  
 **Sentinéz** – photo by **Duc-Hung Ho**  
+[![HCMUT](./_logo/hcmut-badge.svg)](https://hcmut.edu.vn)
+
 Licensed under [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/)
 
 ---

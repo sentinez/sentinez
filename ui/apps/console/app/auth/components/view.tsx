@@ -1,6 +1,5 @@
 'use client';
 
-import { LoginForm } from '@/app/auth/components/login-form';
 import Image from 'next/image';
 import { ReactNode, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
@@ -71,13 +70,22 @@ export default function View({ children }: { children: ReactNode }) {
           <Language />
         </div>
         <div className="flex flex-1 items-center justify-center">
-          <div className="w-full max-w-xs">{children}</div>
+          <div className="w-full max-w-sm">{children}</div>
         </div>
+        <p className="text-muted-foreground text-center text-xs lg:text-left">
+          © 2025-2026 Sentinéz Labs
+        </p>
       </div>
       <div className="relative hidden lg:flex animated-gradient">
-        <main className="flex-1 flex flex-col items-center justify-center text-center px-4 py-8 md:px-6 md:py-12">
-          <h1 className="[font-family:'Phudu',sans-serif] text-[clamp(2.5rem,8vw,8rem)] font-semibold leading-[0.95] tracking-[-0.03em] uppercase flex flex-col items-center max-w-full">
-            <span className=" text-white">SENTINÉZ</span>
+        {/* Grid pattern, faded towards the edges */}
+        <div
+          aria-hidden="true"
+          // own layer: not repainted with the animated gradient behind it
+          className="grid-backdrop pointer-events-none absolute inset-0 transform-gpu [--grid-color:rgb(255_255_255/0.18)]"
+        />
+        <main className="relative flex-1 flex flex-col items-center justify-center text-center px-4 py-8 md:px-6 md:py-12">
+          <h1 className="[font-family:'Phudu',sans-serif] text-[clamp(2.5rem,7vw,7rem)] font-semibold leading-[0.95] tracking-[-0.03em] uppercase flex flex-col items-center max-w-full">
+            <span className="text-white drop-shadow-sm">SENTINÉZ</span>
             <span className="relative h-[1.3em] w-full flex items-center justify-center overflow-hidden max-w-full">
               <AnimatePresence mode="wait">
                 <motion.span
@@ -86,7 +94,7 @@ export default function View({ children }: { children: ReactNode }) {
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: -25, opacity: 0 }}
                   transition={{ duration: 0.4, ease: 'easeInOut' }}
-                  className="text-[#0a0a0a] text-[clamp(1.5rem,5.5vw,5.5rem)] whitespace-nowrap block"
+                  className="text-[#0a0a0a] text-[clamp(1.5rem,4.5vw,4.5rem)] whitespace-nowrap block"
                 >
                   {MULTI_LANG_TEXTS[langIndex]}
                 </motion.span>

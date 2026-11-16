@@ -2,90 +2,54 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { cn } from '@sentinez/ui/lib/utils';
-import { Button } from '@sentinez/ui/components/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@sentinez/ui/components/card';
-import { Input } from '@sentinez/ui/components/input';
-import { Label } from '@sentinez/ui/components/label';
-import Image from 'next/image';
 import { PasskeyRegister } from '@/lib/api/iam/passkey';
+import { toast } from '@/lib/toast';
+import { AuthFooter, AuthForm, AuthHeader, AuthSubmit, EmailField } from './auth-form';
 
-export function SignUpForm({ className, ...props }: React.ComponentProps<'div'>) {
+export function SignUpForm() {
   const t = useTranslations('Auth');
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  async function handleSignUp(e: React.FormEvent) {
+  async function handleSignUp(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!email) {
-      alert(t('enterEmailFirst'));
+      toast.warning(t('inputRequired'), t('enterEmailFirst'));
       return;
     }
 
     try {
       setIsLoading(true);
       await PasskeyRegister({ emailOrUsername: email });
-      alert(t('accountCreated'));
+      toast.success(t('accountCreated'));
     } catch (err: any) {
       console.error(err);
-      alert(t('signUpFailed', { message: err.message }));
+      toast.error(t('signUpFailedTitle'), t('signUpFailed', { message: err.message }));
     } finally {
       setIsLoading(false);
     }
   }
 
   return (
-    <div className={cn('flex flex-col gap-6', className)} {...props}>
-      <Card>
-        {/* <CardHeader className="text-center">
-          <CardTitle className="text-xl">
-            <a href="#" className="flex items-center gap-2 self-center font-medium">
-              <div className="text-primary-foreground flex size-6 items-center justify-center rounded-md">
-                <Image width={600} height={600} src="/assets/sntz.png" alt="Image" />
-              </div>
-              Sentinéz
-            </a>
-          </CardTitle>
-          <CardDescription className="text-left">
-            Create your Sentinéz account
-          </CardDescription>
-        </CardHeader> */}
-        <CardContent>
-          <form onSubmit={handleSignUp}>
-            <div className="grid gap-6">
-              <div className="grid gap-6">
-                <div className="grid gap-3">
-                  <Label htmlFor="email">{t('email')}</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="m@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
-                <Button type="submit" className="w-full cursor-pointer" disabled={isLoading}>
-                  {isLoading ? t('creatingAccount') : t('signUpButton')}
-                </Button>
-              </div>
-              <div className="text-center text-sm">
-                {t('hasAccount')} <br />
-                <a href="/auth/passkey/login" className="underline underline-offset-4">
-                  {t('signIn')}
-                </a>
-              </div>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+    <AuthForm>
+      <AuthHeader title={t('signUpTitle')} description={t('signUpDescription')} />
+
+      <form onSubmit={handleSignUp} className="flex flex-col gap-5">
+        <EmailField
+          label={t('email')}
+          type="email"
+          autoComplete="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          disabled={isLoading}
+        />
+
+        <AuthSubmit loading={isLoading}>
+          {isLoading ? t('creatingAccount') : t('signUpButton')}
+        </AuthSubmit>
+      </form>
+
+      <AuthFooter text={t('hasAccount')} linkText={t('signIn')} href="/auth" />
+    </AuthForm>
   );
 }

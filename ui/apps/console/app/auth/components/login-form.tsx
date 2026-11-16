@@ -3,32 +3,33 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { cn } from '@sentinez/ui/lib/utils';
-import { Button } from '@sentinez/ui/components/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@sentinez/ui/components/card';
-import { Input } from '@sentinez/ui/components/input';
-import { Label } from '@sentinez/ui/components/label';
+import { Eye, EyeOff, KeyRound, Lock } from 'lucide-react';
 import { Login } from '@/lib/api/iam/auth';
 import { toast } from '@/lib/toast';
 import { handleStatusError } from '@/lib/error-handler';
 import { SENTINEZ_ACCESS_TOKEN_KEY } from '@/lib/const';
 import { homePath, storeUser } from '@/lib/session';
+import {
+  AuthAlternative,
+  AuthField,
+  AuthFooter,
+  AuthForm,
+  AuthHeader,
+  AuthSubmit,
+  EmailField,
+  IconInput,
+} from './auth-form';
 
-export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
+export function LoginForm() {
   const t = useTranslations('Auth');
   const te = useTranslations('Errors');
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  async function handleLogin(e: React.ChangeEvent) {
+  async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     if (!email || !password) {
@@ -56,63 +57,62 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
   }
 
   return (
-    <div className={cn('flex flex-col gap-6', className)} {...props}>
-      <Card>
-        <CardHeader className="text-center">
-          <CardTitle className="text-xl">{t('login')}</CardTitle>
-          <CardDescription className=" text-center">{t('loginDescription')}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleLogin}>
-            <div className="grid gap-6">
-              <div className="grid gap-6">
-                <div className="grid gap-3">
-                  <Label htmlFor="email">{t('email')}</Label>
-                  <Input
-                    id="email"
-                    placeholder="m@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
-                <div className="grid gap-3">
-                  <div className="flex items-center">
-                    <Label htmlFor="password">{t('password')}</Label>
-                    <a href="#" className="ml-auto text-sm underline-offset-4 hover:underline">
-                      {t('forgotPassword')}
-                    </a>
-                  </div>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
-                <Button type="submit" className="w-full cursor-pointer" disabled={isLoading}>
-                  {isLoading ? t('loggingIn') : t('login')}
-                </Button>
-              </div>
-              <div className="text-center text-sm">
-                {t('noAccount')} <br />
-                <a href="/auth/signup" className="underline underline-offset-4">
-                  {t('signUp')}
-                </a>
-                <br />
-                {t('or')}
-                <br />
-                <a href="/auth/passkey/login" className="underline underline-offset-4">
-                  {t('passkey')}
-                </a>
-              </div>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+    <AuthForm>
+      <AuthHeader title={t('welcomeBack')} description={t('loginDescription')} />
+
+      <form onSubmit={handleLogin} className="flex flex-col gap-5">
+        <EmailField
+          label={t('emailOrUsername')}
+          autoComplete="username"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          disabled={isLoading}
+        />
+
+        <AuthField
+          id="password"
+          label={t('password')}
+          aside={
+            <a
+              href="#"
+              className="text-muted-foreground hover:text-foreground text-xs underline-offset-4 hover:underline"
+            >
+              {t('forgotPassword')}
+            </a>
+          }
+        >
+          <IconInput
+            icon={Lock}
+            id="password"
+            name="password"
+            type={showPassword ? 'text' : 'password'}
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            disabled={isLoading}
+            trailing={
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? t('hidePassword') : t('showPassword')}
+                aria-pressed={showPassword}
+                className="text-muted-foreground hover:text-foreground cursor-pointer"
+              >
+                {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+              </button>
+            }
+          />
+        </AuthField>
+
+        <AuthSubmit loading={isLoading}>{isLoading ? t('loggingIn') : t('login')}</AuthSubmit>
+      </form>
+
+      <AuthAlternative href="/auth/passkey/login" icon={KeyRound}>
+        {t('loginWithPasskey')}
+      </AuthAlternative>
+
+      <AuthFooter text={t('noAccount')} linkText={t('signUp')} href="/auth/signup" />
+    </AuthForm>
   );
 }

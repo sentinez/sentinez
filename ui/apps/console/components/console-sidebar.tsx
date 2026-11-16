@@ -16,6 +16,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  SidebarRail,
   useSidebar,
 } from '@sentinez/ui/components/sidebar';
 import Image from 'next/image';
@@ -41,19 +42,29 @@ type SidebarProps = ComponentProps<typeof Sidebar>;
 
 /** Sidebar of the tenant-level pages (`/d/console/(root)`, `/d/setting`). */
 export function RootSidebar(props: SidebarProps) {
-  return <ConsoleSidebar navMain={dashboard.rootNavMain} {...props} />;
+  return <ConsoleSidebar navMain={_rootNavMain} {...props} />;
 }
 
 /** Sidebar of the domain pages (`/d/console/[domain]/...`). */
 export function DomainSidebar(props: SidebarProps) {
   const domain = usePathname().split('/')[3];
   const navMain = useMemo(
-    () => (domain ? withDomain(dashboard.domainNavMain, domain) : dashboard.domainNavMain),
+    () => (domain ? withDomain(_domainNavMain, domain) : _domainNavMain),
     [domain],
   );
 
   return <ConsoleSidebar navMain={navMain} {...props} />;
 }
+
+/** Drops the items marked `hidden`, at every level. */
+function visible(items: NavItem[]): NavItem[] {
+  return items
+    .filter((item) => !item.hidden)
+    .map((item) => (item.items ? { ...item, items: visible(item.items) } : item));
+}
+
+const _rootNavMain = visible(dashboard.rootNavMain);
+const _domainNavMain = visible(dashboard.domainNavMain);
 
 /** Rewrites `/d/console/<path>` urls to `/d/console/<domain>/<path>`. */
 function withDomain(items: NavItem[], domain: string): NavItem[] {
@@ -381,6 +392,9 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
           </SidebarGroup>
         </SidebarContent>
       </Sidebar>
+      {/* Inside the edge: this sidebar clips its overflow, which would cut the
+          default rail (centred on the edge) in half */}
+      <SidebarRail className="translate-x-0 group-data-[side=left]:right-0 after:left-auto after:right-0" />
     </Sidebar>
   );
 }
