@@ -236,12 +236,12 @@ func newTLSConfig(certFile, keyFile string,
 
 	// every domain has a certificate then, the one of the files
 	conf.Certificates = []tls.Certificate{cert}
-	conf.GetConfigForClient = transport.TLSConfig
+	conf.GetConfigForClient = transport.FingerprintHello
 
 	return conf, nil
 }
 
-// configForClient fingerprints the client (transport.TLSConfig), and
+// configForClient fingerprints the client (transport.FingerprintHello), and
 // refuses to resume a session for a domain getCert no longer has a
 // certificate for: a resumed handshake picks no certificate, so a client
 // holding a session ticket would still reach a domain whose certificate
@@ -253,7 +253,7 @@ func configForClient(conf *tls.Config,
 	noResume.SessionTicketsDisabled = true
 
 	return func(chi *tls.ClientHelloInfo) (*tls.Config, error) {
-		if _, err := transport.TLSConfig(chi); err != nil {
+		if _, err := transport.FingerprintHello(chi); err != nil {
 			return nil, err
 		}
 

@@ -98,7 +98,7 @@ func newServerTLSConfig(t *testing.T) *tls.Config {
 	require.NoError(t, err)
 
 	return &tls.Config{
-		GetConfigForClient: TLSConfig,
+		GetConfigForClient: FingerprintHello,
 		MinVersion:         tls.VersionTLS13,
 		Certificates: []tls.Certificate{
 			{Certificate: [][]byte{der}, PrivateKey: key},
