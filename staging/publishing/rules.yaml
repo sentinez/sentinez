@@ -13,3 +13,4 @@ rules:
   - destination: bpf
   - destination: mcp
   - destination: go-import
+  - destination: scripting

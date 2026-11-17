@@ -66,6 +66,8 @@ service SecurityService {
       post: "/security/secrule"
       body: "*"
     };
+
+    option (sentinez.types.v1.x_method) = {audit: true};
   }
 
   // GetSecRule retrieves a WAF rule based by ID
@@ -79,11 +81,15 @@ service SecurityService {
       put: "/security/secrule/{id}"
       body: "*"
     };
+
+    option (sentinez.types.v1.x_method) = {audit: true};
   }
 
   // DeleteSecRule removes a WAF rule based by ID
   rpc DeleteSecRule(DeleteSecRuleRequest) returns (DeleteSecRuleResponse) {
     option (google.api.http) = {delete: "/security/secrule/{id}"};
+
+    option (sentinez.types.v1.x_method) = {audit: true};
   }
 
   // ListSecRules lists WAF rule baseds with optional filters
@@ -99,6 +105,8 @@ service SecurityService {
       post: "/security/ratelimit"
       body: "*"
     };
+
+    option (sentinez.types.v1.x_method) = {audit: true};
   }
 
   // GetRateLimit retrieves a rate limit rule by ID
@@ -112,11 +120,15 @@ service SecurityService {
       put: "/security/ratelimit/{id}"
       body: "*"
     };
+
+    option (sentinez.types.v1.x_method) = {audit: true};
   }
 
   // DeleteRateLimit removes a rate limit rule by ID
   rpc DeleteRateLimit(DeleteRateLimitRequest) returns (DeleteRateLimitResponse) {
     option (google.api.http) = {delete: "/security/ratelimit/{id}"};
+
+    option (sentinez.types.v1.x_method) = {audit: true};
   }
 
   // ListRateLimits lists rate limit rules with optional filters
@@ -132,6 +144,8 @@ service SecurityService {
       post: "/security/coreruleset"
       body: "*"
     };
+
+    option (sentinez.types.v1.x_method) = {audit: true};
   }
 
   // GetCoreRuleset retrieves an OWASP CRS configuration by ID
@@ -145,11 +159,15 @@ service SecurityService {
       put: "/security/coreruleset/{id}"
       body: "*"
     };
+
+    option (sentinez.types.v1.x_method) = {audit: true};
   }
 
   // DeleteCoreRuleset removes an OWASP CRS configuration by ID
   rpc DeleteCoreRuleset(DeleteCoreRulesetRequest) returns (DeleteCoreRulesetResponse) {
     option (google.api.http) = {delete: "/security/coreruleset/{id}"};
+
+    option (sentinez.types.v1.x_method) = {audit: true};
   }
 
   // ListCoreRulesets lists OWASP CRS configurations, filtered by their

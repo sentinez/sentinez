@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package authz checks what the caller of a control plane method may
+// reach: its tenants and resources, by role.
 package authz
 
 import (

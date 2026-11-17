@@ -26,6 +26,7 @@ type Network string
 type Option struct {
 	network     string
 	onStdAccept func(conn net.Conn) error
+	passthrough PassthroughFunc
 
 	tlsConf  *tls.Config
 	quicConf *quic.Config
@@ -42,6 +43,15 @@ func WithTCP() NetworkOption {
 func WithOnAccept(fn func(conn net.Conn) error) NetworkOption {
 	return func(o *Option) {
 		o.onStdAccept = fn
+	}
+}
+
+// WithPassthrough makes the listener read the client hello of each
+// connection and forward the ones fn resolves to their upstream untouched
+// (TLS passthrough); Accept returns the others only.
+func WithPassthrough(fn PassthroughFunc) NetworkOption {
+	return func(o *Option) {
+		o.passthrough = fn
 	}
 }
 

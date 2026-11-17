@@ -87,4 +87,6 @@ message XMethod {
   // public lets the method be called without a token. Methods that do not
   // set it require a valid token.
   bool public = 3;
+  // audit records each call of the method in the audit log.
+  bool audit = 4;
 }

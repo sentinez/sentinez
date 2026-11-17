@@ -10,6 +10,7 @@ import { Textarea } from '@sentinez/ui/components/textarea';
 import {
   BalanceStrategy,
   ProxyProtocol,
+  TlsMode,
   type Location,
   type Resource as EdgeResource,
 } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
@@ -19,6 +20,7 @@ import {
   HEADER_NAME_RE,
   LOCATION_RE,
   NAME_RE,
+  TLS_MODES,
   UPSTREAM_RE,
   balanceLabelKey,
   headerLinesOf,
@@ -39,6 +41,8 @@ export interface LocationFormValue {
 
 export interface EdgeResourceFormValue {
   name: string;
+  /** How the edge carries the TLS of the domain to the origin */
+  tlsMode: TlsMode;
   locations: LocationFormValue[];
 }
 
@@ -71,6 +75,7 @@ function locationFormOf(l: Location): LocationFormValue {
 export function edgeResourceFormOf(resource?: EdgeResource): EdgeResourceFormValue {
   return {
     name: resource?.name ?? '',
+    tlsMode: resource?.tlsMode ?? TlsMode.TLS_MODE_UNSPECIFIED,
     locations: (resource?.locations ?? []).map(locationFormOf),
   };
 }
@@ -103,6 +108,7 @@ export function edgeResourceOfForm(f: EdgeResourceFormValue, stored?: EdgeResour
     id: stored?.id ?? '',
     domain: stored?.domain ?? '',
     locations: f.locations.map(locationOf),
+    tlsMode: f.tlsMode,
   };
 }
 
@@ -250,9 +256,14 @@ interface Props {
   onChange: (patch: Partial<EdgeResourceFormValue>) => void;
 }
 
-/** The fields of the edge Resource of a resource: its name and locations */
+/** The fields of the edge Resource of a resource: its name, TLS mode and locations */
 export function EdgeResourceFields({ value, onChange }: Props) {
   const t = useTranslations('ResourceSetting');
+  const tlsModes = TLS_MODES.map((m) => ({
+    value: m.value,
+    label: t(m.label),
+    description: t(m.help),
+  }));
   const patchLocation = (i: number, patch: Partial<LocationFormValue>) =>
     onChange({ locations: value.locations.map((l, j) => (j === i ? { ...l, ...patch } : l)) });
 
@@ -267,6 +278,15 @@ export function EdgeResourceFields({ value, onChange }: Props) {
           autoComplete="off"
           value={value.name}
           onChange={(e) => onChange({ name: e.target.value })}
+        />
+      </div>
+
+      <div className="sm:w-1/2">
+        <OptionSelect
+          label={t('tlsMode')}
+          value={value.tlsMode}
+          options={tlsModes}
+          onChange={(tlsMode) => onChange({ tlsMode })}
         />
       </div>
 

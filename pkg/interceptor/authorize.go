@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package authz authenticates and authorizes the calls to the control plane.
-package authz
+package interceptor
 
 import (
 	"context"
 	"strings"
+	"sync"
 
 	"github.com/sentinez/controlplane/pkg/headers"
 	"github.com/sentinez/pkg/szerror"
@@ -30,18 +30,18 @@ import (
 	"google.golang.org/protobuf/reflect/protoregistry"
 )
 
-// Unary returns a server interceptor that denies a call by default:
+// Authorize returns a server interceptor that denies a call by default:
 //   - a method marked public is open, and sees the caller when it sent a
 //     valid token;
 //   - any other method, including one without an x_method option, needs a
 //     valid token whose control plane the method allows.
 //
 // The caller is then available from [headers.GetAuth].
-func Unary() grpc.UnaryServerInterceptor {
+func Authorize() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo,
 		handler grpc.UnaryHandler) (any, error) {
 
-		ctx, err := authorize(ctx, info.FullMethod)
+		ctx, err := authorizeCall(ctx, info.FullMethod)
 		if err != nil {
 			return nil, err
 		}
@@ -50,12 +50,13 @@ func Unary() grpc.UnaryServerInterceptor {
 	}
 }
 
-func authorize(ctx context.Context,
+func authorizeCall(ctx context.Context,
 	fullMethod string) (context.Context, error) {
 
-	method := methodOf(fullMethod)
+	method := MethodOf(fullMethod)
 
 	auth, err := headers.GetAuth(ctx)
+	setCaller(ctx, auth)
 	if method.GetPublic() {
 		if err == nil {
 			ctx = headers.WithAuth(ctx, auth)
@@ -77,9 +78,27 @@ func authorize(ctx context.Context,
 	return ctx, bindCertificate(ctx)
 }
 
-// methodOf returns the x_method option of the gRPC method fullMethod
-// ("/pkg.Service/Method"), or nil when it has none or is unknown.
-func methodOf(fullMethod string) *typepb.XMethod {
+// _methods caches the x_method option of each method looked up by
+// [MethodOf]: full method name to *typepb.XMethod, nil when it has none or
+// is unknown (the registry is complete once the program is initialized).
+var _methods sync.Map
+
+// MethodOf returns the x_method option of the gRPC method fullMethod
+// ("/pkg.Service/Method"), or nil when it has none or is unknown. The
+// option of a method is looked up once.
+func MethodOf(fullMethod string) *typepb.XMethod {
+	if cached, ok := _methods.Load(fullMethod); ok {
+		method, _ := cached.(*typepb.XMethod)
+		return method
+	}
+
+	method := lookupMethod(fullMethod)
+	_methods.Store(fullMethod, method)
+
+	return method
+}
+
+func lookupMethod(fullMethod string) *typepb.XMethod {
 	name := strings.ReplaceAll(strings.TrimPrefix(fullMethod, "/"), "/", ".")
 
 	desc, err := protoregistry.GlobalFiles.
@@ -99,13 +118,14 @@ func methodOf(fullMethod string) *typepb.XMethod {
 	return method
 }
 
-// Stream is [Unary] for the streaming calls: the same rules, applied once
-// when the stream opens, and the caller is on the context of the stream.
-func Stream() grpc.StreamServerInterceptor {
+// AuthorizeStream is [Authorize] for the streaming calls: the same rules,
+// applied once when the stream opens, and the caller is on the context of
+// the stream.
+func AuthorizeStream() grpc.StreamServerInterceptor {
 	return func(srv any, ss grpc.ServerStream, info *grpc.StreamServerInfo,
 		handler grpc.StreamHandler) error {
 
-		ctx, err := authorize(ss.Context(), info.FullMethod)
+		ctx, err := authorizeCall(ss.Context(), info.FullMethod)
 		if err != nil {
 			return err
 		}
@@ -122,12 +142,12 @@ type authStream struct {
 
 func (s *authStream) Context() context.Context { return s.ctx }
 
-// ServerOptions returns the gRPC server options that install [Unary] and
-// [Stream].
+// ServerOptions returns the gRPC server options that install [Authorize] and
+// [AuthorizeStream].
 func ServerOptions() []grpc.ServerOption {
 	return []grpc.ServerOption{
-		grpc.ChainUnaryInterceptor(Unary()),
-		grpc.ChainStreamInterceptor(Stream()),
+		grpc.ChainUnaryInterceptor(Authorize()),
+		grpc.ChainStreamInterceptor(AuthorizeStream()),
 	}
 }
 

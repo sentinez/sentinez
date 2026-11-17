@@ -17,10 +17,10 @@ package collector
 
 import (
 	collectorfac "github.com/sentinez/controlplane/apps/collector/v1/factory"
-	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/core/szgrpc"
 	collectorpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/collector/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	"google.golang.org/grpc"
 )
 
 // Collector serves CollectorServiceServer over gRPC.
@@ -31,9 +31,12 @@ type Collector struct {
 }
 
 // NewService creates the collector gRPC server.
-func NewService(conf *settingpb.Config) *Collector {
+// opts are the options of the gRPC server, at least the authorization
+// of interceptor.ServerOptions: without it every method is open.
+func NewService(conf *settingpb.Config,
+	opts []grpc.ServerOption) *Collector {
 	return &Collector{
-		Server:  szgrpc.New(authz.ServerOptions()...),
+		Server:  szgrpc.New(opts...),
 		handler: collectorfac.NewDefaultHandler(conf),
 		conf:    conf,
 	}

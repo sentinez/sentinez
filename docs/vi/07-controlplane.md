@@ -322,7 +322,7 @@ authenticator của chúng chỉ hoạt động khi `provider_user_id` = email.
 ## 7.4 Tenant
 
 Proto: [apps/tenant/v1](../../api/proto/sentinez/apps/tenant/v1/). Một
-`Resource` gồm `id, tenant_id, name, domain, locations, status`, lưu
+`Resource` gồm `id, tenant_id, name, domain, locations, status, tls_mode`, lưu
 trong bảng `tenant.resources` mỗi field một cột (`locations` dạng JSONB,
 các `edgepb.Location` của domain). `CreateResource` mang một
 `edgepb.Resource` (`resource`), được `sznormalize.TenantResource` tách
@@ -337,7 +337,7 @@ domain.
 |---|---|---|
 | `ListResource` | `GET /tenant/resources` | Lọc `status`, `resource_name` (`name`), `resource_domain` (`domain`), `tenant_ids` |
 | `CreateResource` | `POST /tenant/resource` | Bắt buộc `resource` có `domain` |
-| `UpdateResource` | `PUT /tenant/resource` | Ghi các trường của `resource` mà `update_mask` nêu, trong `name`, `domain`, `locations`, `status` |
+| `UpdateResource` | `PUT /tenant/resource` | Ghi các trường của `resource` mà `update_mask` nêu, trong `name`, `domain`, `locations`, `status`, `tls_mode` |
 | `DeleteResource` | `DELETE /tenant/resource` | |
 | `GetResource` | `GET /tenant/resource` | `default=true` → resource bỏ các location |
 | `GetResourceByDomain` | `GET /tenant/resource/{resource_domain}` | Lấy bản ghi đầu tiên khớp domain |
@@ -352,8 +352,10 @@ Proto: [apps/tenant/v1](../../api/proto/sentinez/apps/tenant/v1/). Một
 `CaCertificate` là một chứng chỉ của resource, cùng các trường được parse từ
 PEM (`subject`, `issuer`, `provider`, `serial_number`, `fingerprint_sha256`,
 `not_before`, `not_after`, `self_signed`) và `usage`: `UPSTREAM` (kiểm tra các
-máy chủ origin), `CLIENT` (kiểm tra chứng chỉ client, mTLS) hoặc `SERVER`
-(chứng chỉ TLS mà edge trình ra: không cần là CA, và luôn có khoá riêng). Bản
+máy chủ origin), `CLIENT` (kiểm tra chứng chỉ client, mTLS), `SERVER`
+(chứng chỉ TLS mà edge trình ra) hoặc `UPSTREAM_CLIENT` (chứng chỉ client mà
+edge trình cho máy chủ origin, mTLS). Hai usage sau là leaf: chứng chỉ không
+cần là CA, và luôn có khoá riêng. Bản
 ghi bất biến: chỉ tạo, đọc và xoá, không cập nhật. PEM và khoá riêng được mã
 hoá bằng `SENZ_DATA_KEY` trong database, API không bao giờ trả khoá về
 (`has_private_key` cho biết có khoá hay không). Fingerprint là duy nhất trong
@@ -369,13 +371,13 @@ một resource.
 `CreateCaCertificate` nhận:
 
 - Một bundle gồm số chứng chỉ bất kỳ. Mỗi chứng chỉ phải chưa hết hạn, phải là
-  CA (trừ khi usage là `SERVER`), và không được lặp. Chữ nằm giữa các khối PEM
+  CA (trừ khi usage là `SERVER` hoặc `UPSTREAM_CLIENT`), và không được lặp. Chữ nằm giữa các khối PEM
   bị từ chối.
 - Một khoá riêng, trong `private_key` hoặc là một khối của `pem` (tối đa một
   khoá, tính cả hai nơi). Khoá được gắn vào chứng chỉ khớp với nó trong bundle,
   nên có thể tải cả chain (leaf + intermediate) kèm khoá của leaf; khoá không
   khớp chứng chỉ nào, hoặc được mã hoá bằng passphrase, bị từ chối. Usage
-  `SERVER` bắt buộc có khoá.
+  `SERVER` và `UPSTREAM_CLIENT` bắt buộc có khoá.
 
 ## 7.5 Security
 
@@ -506,8 +508,10 @@ postgres ──trigger: pg_notify(id)──► centraldata ──Olric pub/sub�
   mở method nào không liệt kê control plane service, và token user không bao
   giờ mở được `Sync`.
 - **CA certificate** đi đúng như bảng lưu: pem và private key vẫn được seal
-  bằng `SENZ_DATA_KEY`, thứ centraldata không bao giờ đọc. Edge giữ chúng ở
-  dạng seal (`CentralSink.CaCertificates`) cho tới ngày dùng tới. Ai
+  bằng `SENZ_DATA_KEY`, thứ centraldata không bao giờ đọc. Edge đặt chúng vào
+  `ingress.tls` của setting theo usage (`SERVER` → `certificates`,
+  `UPSTREAM` → `upstream_cas`, `UPSTREAM_CLIENT` → `upstream_certificates`)
+  và chỉ mở khi nạp setting (xem [03-edge.md](03-edge.md#upstream-tls-ca-riêng-mtls)). Ai
   subscribe được channel Olric của edge cũng chỉ thấy bản đã seal.
 
 ### Collector: thu nạp event của edge

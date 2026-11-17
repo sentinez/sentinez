@@ -16,6 +16,7 @@ package szhttp
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"net"
 
@@ -41,8 +42,9 @@ type server struct {
 }
 
 // AcceptReverse implements [Server].
-func (s *server) AcceptReverse(target string) (ReverseProxy, error) {
-	return s.s.AcceptReverse(target)
+func (s *server) AcceptReverse(target string,
+	conf *tls.Config) (ReverseProxy, error) {
+	return s.s.AcceptReverse(target, conf)
 }
 
 // Handle implements [Server].

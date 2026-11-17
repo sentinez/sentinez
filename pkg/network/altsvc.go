@@ -60,15 +60,12 @@ type AltSvcTransport struct {
 }
 
 // NewAltSvcTransport returns an [AltSvcTransport] dialing TCP with
-// [StandardTransporter].
-func NewAltSvcTransport() *AltSvcTransport {
-	t := &AltSvcTransport{tcp: StandardTransporter()}
+// [StandardTransporter]; conf, when not nil, is the TLS config of both TCP
+// and HTTP/3 (which needs TLS 1.3 at least).
+func NewAltSvcTransport(conf *tls.Config) *AltSvcTransport {
+	t := &AltSvcTransport{tcp: StandardTransporter(conf)}
 	t.h3 = &http3.Transport{
-		TLSClientConfig: &tls.Config{
-			MinVersion: tls.VersionTLS13,
-			ClientSessionCache: tls.NewLRUClientSessionCache(
-				_h3SessionCacheSize),
-		},
+		TLSClientConfig: h3TLSConfig(conf),
 		QUICConfig: &quic.Config{
 			HandshakeIdleTimeout: _h3HandshakeTimeout,
 		},
@@ -76,6 +73,20 @@ func NewAltSvcTransport() *AltSvcTransport {
 	}
 
 	return t
+}
+
+// h3TLSConfig the TLS config of HTTP/3 out of conf: TLS 1.3, resuming
+// sessions.
+func h3TLSConfig(conf *tls.Config) *tls.Config {
+	h3 := &tls.Config{}
+	if conf != nil {
+		h3 = conf.Clone()
+	}
+
+	h3.MinVersion = tls.VersionTLS13
+	h3.ClientSessionCache = tls.NewLRUClientSessionCache(_h3SessionCacheSize)
+
+	return h3
 }
 
 // RoundTrip implements [http.RoundTripper].

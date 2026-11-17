@@ -19,11 +19,11 @@ import (
 	"context"
 
 	iamfac "github.com/sentinez/controlplane/apps/iam/v1/factory"
-	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/core/szgrpc"
 	"github.com/sentinez/sentinez/api/client/local"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"
 )
 
@@ -33,9 +33,12 @@ func GetListener() *bufconn.Listener {
 	return _bufLis
 }
 
-func NewService(ctx context.Context, appConf *settingpb.Config) *IAM {
+// opts are the options of the gRPC server, at least the authorization
+// of interceptor.ServerOptions: without it every method is open.
+func NewService(ctx context.Context, appConf *settingpb.Config,
+	opts []grpc.ServerOption) *IAM {
 	return &IAM{
-		Server: szgrpc.New(authz.ServerOptions()...),
+		Server: szgrpc.New(opts...),
 		hdl:    iamfac.NewDefaultHandler(ctx, appConf),
 	}
 }

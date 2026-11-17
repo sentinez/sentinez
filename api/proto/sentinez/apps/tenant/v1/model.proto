@@ -66,6 +66,13 @@ message Resource {
   repeated sentinez.dmz.edge.v1.Location locations = 6;
 
   sentinez.types.v1.Status status = 7;
+
+  // How the edge carries the TLS of the domain to its upstreams; NULL in
+  // the rows stored before it, read as unspecified.
+  sentinez.dmz.edge.v1.TlsMode tls_mode = 8 [
+    (buf.validate.field).enum.defined_only = true,
+    (sentinez.types.v1.x_field).nullable = true
+  ];
 }
 
 message Tenant {
@@ -118,9 +125,9 @@ message Member {
   repeated sentinez.types.v1.Role roles = 5 [(buf.validate.field).repeated.unique = true];
 }
 
-// CaCertificate is one certificate of a resource: a trusted CA, or the TLS
-// certificate the edge serves (usage SERVER), with its private key when one
-// was given. A bundle without a key is split into one record per
+// CaCertificate is one certificate of a resource: a trusted CA, or a
+// certificate of the edge (usage SERVER or UPSTREAM_CLIENT), with its
+// private key when one was given. A bundle without a key is split into one record per
 // certificate on import, so the parsed fields below describe exactly one
 // certificate and the fingerprint is kept unique per resource. A record is
 // immutable: it is only created, read and deleted.
@@ -150,9 +157,9 @@ message CaCertificate {
   sentinez.types.v1.Status status = 6;
 
   // PEM-encoded certificate: exactly one CERTIFICATE block, with
-  // BasicConstraints CA=true unless the usage is SERVER. The source of truth; every parsed field
-  // below is set from it by the service, never by the client. Stored
-  // encrypted.
+  // BasicConstraints CA=true unless the usage is SERVER or UPSTREAM_CLIENT.
+  // The source of truth; every parsed field below is set from it by the
+  // service, never by the client. Stored encrypted.
   string pem = 7 [(buf.validate.field) = {
     required: true
     string: {
@@ -183,7 +190,7 @@ message CaCertificate {
 
   // PEM-encoded private key of the certificate, empty without one. Stored
   // encrypted and never returned by the API.
-  string private_key = 16;
+  string private_key = 16 [debug_redact = true];
 
   // Whether the record holds a private key; set on read, not stored.
   bool has_private_key = 17 [(sentinez.types.v1.x_field).ignore = true];
@@ -198,4 +205,7 @@ enum CaCertificateUsage {
   // The TLS certificate the edge serves to its clients: not a CA, and always
   // with its private key.
   CA_CERTIFICATE_USAGE_SERVER = 3;
+  // The client certificate the edge presents to upstream servers (mTLS):
+  // not a CA, and always with its private key.
+  CA_CERTIFICATE_USAGE_UPSTREAM_CLIENT = 4;
 }

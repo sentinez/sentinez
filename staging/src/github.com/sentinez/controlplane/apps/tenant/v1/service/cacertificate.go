@@ -104,12 +104,19 @@ func (svc *Service) ListCaCertificate(ctx context.Context,
 	return resp, nil
 }
 
-// _usageServer is the usage of the TLS certificate the edge serves.
-const _usageServer = tenantpb.CaCertificateUsage_CA_CERTIFICATE_USAGE_SERVER
+const (
+	// _usageServer is the usage of the TLS certificate the edge serves.
+	_usageServer = tenantpb.CaCertificateUsage_CA_CERTIFICATE_USAGE_SERVER
+	// _usageUpstreamClient is the usage of the client certificate the edge
+	// presents to the upstreams (mTLS).
+	_usageUpstreamClient = tenantpb.
+				CaCertificateUsage_CA_CERTIFICATE_USAGE_UPSTREAM_CLIENT
+)
 
-// errServerNeedsKey a certificate to serve, stored without its private key.
-var errServerNeedsKey = szerror.StatusInvalidArgumentF(
-	"a server certificate needs its private_key")
+// errLeafNeedsKey a certificate of the edge (to serve, or to present to
+// the upstreams), stored without its private key.
+var errLeafNeedsKey = szerror.StatusInvalidArgumentF(
+	"a server or upstream client certificate needs its private_key")
 
 // errKeyCount a request with more than one private key.
 var errKeyCount = szerror.StatusInvalidArgumentF(
@@ -149,20 +156,20 @@ func newCaCertificates(req *tenantpb.CreateCaCertificateRequest,
 	resource *tenantpb.Resource, now time.Time,
 ) ([]*tenantpb.CaCertificate, error) {
 
-	// the certificate the edge serves is not a CA, and is of no use without
-	// its key
-	server := req.GetUsage() == _usageServer
+	// a certificate of the edge, served or presented to the upstreams, is
+	// not a CA, and is of no use without its key
+	leaf := isLeafUsage(req.GetUsage())
 
 	bundle, key, err := splitRequestKey(req)
 	if err != nil {
 		return nil, err
 	}
 
-	if server && key == nil {
-		return nil, errServerNeedsKey
+	if leaf && key == nil {
+		return nil, errLeafNeedsKey
 	}
 
-	certs, err := parseCaBundle(bundle, now, server)
+	certs, err := parseCaBundle(bundle, now, leaf)
 	if err != nil {
 		return nil, err
 	}
@@ -176,6 +183,12 @@ func newCaCertificates(req *tenantpb.CreateCaCertificateRequest,
 	}
 
 	return certs, nil
+}
+
+// isLeafUsage reports whether usage is of a certificate of the edge rather
+// than of a CA it trusts.
+func isLeafUsage(usage tenantpb.CaCertificateUsage) bool {
+	return usage == _usageServer || usage == _usageUpstreamClient
 }
 
 // fillCaCertificate sets what the request and the owner give to the i-th of

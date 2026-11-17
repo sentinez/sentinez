@@ -96,6 +96,7 @@ var errNoDomain = szerror.StatusInvalidArgumentF(
 var _resourceUpdatable = []string{
 	tenantpb.Resource_Name, tenantpb.Resource_Domain,
 	tenantpb.Resource_Locations, tenantpb.Resource_Status,
+	tenantpb.Resource_TlsMode,
 }
 
 // resourceOf is the tenant resource of the edge resource srv, its domain

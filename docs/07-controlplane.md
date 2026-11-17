@@ -329,7 +329,7 @@ given the email as user handle, so their authenticators only work with
 ## 7.4 Tenant
 
 Protos: [apps/tenant/v1](../api/proto/sentinez/apps/tenant/v1/). A
-`Resource` is `id, tenant_id, name, domain, locations, status`, stored in
+`Resource` is `id, tenant_id, name, domain, locations, status, tls_mode`, stored in
 table `tenant.resources` with one column each (`locations` as JSONB, the
 `edgepb.Location`s of the domain). `CreateResource` carries an
 `edgepb.Resource` (`resource`), turned into these fields by
@@ -344,7 +344,7 @@ resource without one.
 |---|---|---|
 | `ListResource` | `GET /tenant/resources` | Filters `status`, `resource_name` (`name`), `resource_domain` (`domain`), `tenant_ids` |
 | `CreateResource` | `POST /tenant/resource` | `resource` with `domain` required |
-| `UpdateResource` | `PUT /tenant/resource` | Writes the fields of `resource` its `update_mask` names, among `name`, `domain`, `locations`, `status` |
+| `UpdateResource` | `PUT /tenant/resource` | Writes the fields of `resource` its `update_mask` names, among `name`, `domain`, `locations`, `status`, `tls_mode` |
 | `DeleteResource` | `DELETE /tenant/resource` | |
 | `GetResource` | `GET /tenant/resource` | `default=true` → the resource without its locations |
 | `GetResourceByDomain` | `GET /tenant/resource/{resource_domain}` | Returns the first record matching the domain |
@@ -359,9 +359,11 @@ Protos: [apps/tenant/v1](../api/proto/sentinez/apps/tenant/v1/). A
 `CaCertificate` is one certificate of a resource, with what is parsed from its
 PEM (`subject`, `issuer`, `provider`, `serial_number`, `fingerprint_sha256`,
 `not_before`, `not_after`, `self_signed`) and its `usage`: `UPSTREAM` (verifies
-the origin servers), `CLIENT` (verifies the client certificates, mTLS) or
-`SERVER` (the TLS certificate the edge serves: it need not be a CA, and always
-has its private key). A record is immutable: created, read and deleted, never
+the origin servers), `CLIENT` (verifies the client certificates, mTLS),
+`SERVER` (the TLS certificate the edge serves) or `UPSTREAM_CLIENT` (the
+client certificate the edge presents to the origin servers, mTLS). The last
+two are leaf usages: the certificate need not be a CA, and always has its
+private key. A record is immutable: created, read and deleted, never
 updated. The PEM and the private key are sealed with `SENZ_DATA_KEY` in the
 database, and the API never returns the key (`has_private_key` tells whether
 there is one). The fingerprint is unique per resource.
@@ -376,13 +378,13 @@ there is one). The fingerprint is unique per resource.
 What `CreateCaCertificate` accepts:
 
 - A bundle of any number of certificates. Each must not have expired, must be a
-  CA (unless the usage is `SERVER`), and may not appear twice. Text between the
+  CA (unless the usage is `SERVER` or `UPSTREAM_CLIENT`), and may not appear twice. Text between the
   PEM blocks is refused.
 - A private key, in `private_key` or as a block of `pem` (one key at most, in
   both together). It is attached to the certificate of the bundle that matches
   it, so a full chain (leaf + intermediates) can be uploaded with the key of
   its leaf; a key that matches none, or is encrypted with a passphrase, is
-  refused. The usage `SERVER` requires a key.
+  refused. The usages `SERVER` and `UPSTREAM_CLIENT` require a key.
 
 ## 7.5 Security
 
@@ -516,8 +518,10 @@ postgres ──trigger: pg_notify(id)──► centraldata ──Olric pub/sub�
   service control plane, and a user token never opens `Sync`.
 - **CA certificates** travel as the table holds them: the pem and the private
   key stay sealed with `SENZ_DATA_KEY`, which centraldata never reads. The
-  edge keeps them sealed (`CentralSink.CaCertificates`) for the day it uses
-  them. Anyone who can subscribe to the edge's Olric channel sees them sealed.
+  edge puts them in `ingress.tls` of the resource's setting by usage
+  (`SERVER` → `certificates`, `UPSTREAM` → `upstream_cas`,
+  `UPSTREAM_CLIENT` → `upstream_certificates`) and opens them only when it
+  loads the setting (see [03-edge.md](03-edge.md#upstream-tls-custom-ca-mtls)). Anyone who can subscribe to the edge's Olric channel sees them sealed.
 
 ### Collector: edge event ingest
 

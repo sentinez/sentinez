@@ -63,6 +63,7 @@ service IdentityAccessManagementService {
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
     option (sentinez.types.v1.x_method) = {
       control_planes: [CONTROL_PLANE_ADMIN]
+      audit: true
     };
   }
 
@@ -97,7 +98,10 @@ service IdentityAccessManagementService {
       body: "*"
     };
 
-    option (sentinez.types.v1.x_method) = {public: true};
+    option (sentinez.types.v1.x_method) = {
+      public: true
+      audit: true
+    };
   }
 
   rpc GetUser(GetUserRequest) returns (GetUserResponse) {
@@ -113,7 +117,10 @@ service IdentityAccessManagementService {
       body: "*"
     };
 
-    option (sentinez.types.v1.x_method) = {ignore: true};
+    option (sentinez.types.v1.x_method) = {
+      ignore: true
+      audit: true
+    };
   }
 
   rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {
@@ -121,6 +128,7 @@ service IdentityAccessManagementService {
 
     option (sentinez.types.v1.x_method) = {
       control_planes: [CONTROL_PLANE_ADMIN]
+      audit: true
     };
   }
 
@@ -130,7 +138,10 @@ service IdentityAccessManagementService {
       body: "*"
     };
 
-    option (sentinez.types.v1.x_method) = {public: true};
+    option (sentinez.types.v1.x_method) = {
+      public: true
+      audit: true
+    };
   }
 
   rpc PasskeyRegisterChallenge(PasskeyRegisterChallengeRequest) returns (PasskeyRegisterChallengeResponse) {
@@ -145,7 +156,10 @@ service IdentityAccessManagementService {
       body: "*"
     };
 
-    option (sentinez.types.v1.x_method) = {public: true};
+    option (sentinez.types.v1.x_method) = {
+      public: true
+      audit: true
+    };
   }
 
   // PasskeyLinkChallenge starts adding a passkey to the signed-in user.
@@ -168,13 +182,16 @@ service IdentityAccessManagementService {
       body: "*"
     };
 
-    option (sentinez.types.v1.x_method) = {public: true};
+    option (sentinez.types.v1.x_method) = {
+      public: true
+      audit: true
+    };
   }
 }
 
 message PasskeyLoginVerifyRequest {
   string session_id = 1;
-  bytes credential_assertion_data = 2;
+  bytes credential_assertion_data = 2 [debug_redact = true];
 }
 
 message PasskeyLoginVerifyResponse {
@@ -196,7 +213,7 @@ message PasskeyLoginChallengeResponse {
 
 message PasskeyRegisterVerifyRequest {
   string session_id = 1;
-  bytes credential_creation_response = 2;
+  bytes credential_creation_response = 2 [debug_redact = true];
 }
 
 message PasskeyRegisterVerifyResponse {}
@@ -226,7 +243,10 @@ message LoginRequest {
     string: {pattern: "^([a-zA-Z][a-zA-Z0-9._]{2,29}|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$"}
   }];
 
-  string password = 2 [(buf.validate.field).string.min_len = 8];
+  string password = 2 [
+    (buf.validate.field).string.min_len = 8,
+    debug_redact = true
+  ];
 }
 
 message LoginResponse {
@@ -237,7 +257,10 @@ message LoginResponse {
 message CreateAccountRequest {
   string username = 1 [(buf.validate.field).string.pattern = "^[a-zA-Z][a-zA-Z0-9._]{2,29}$"];
   string full_name = 2 [(buf.validate.field).required = true];
-  string password = 3 [(buf.validate.field).string.min_len = 8];
+  string password = 3 [
+    (buf.validate.field).string.min_len = 8,
+    debug_redact = true
+  ];
   string email = 4 [(buf.validate.field).string.email = true];
 }
 

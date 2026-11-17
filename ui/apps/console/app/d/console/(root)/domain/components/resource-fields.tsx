@@ -14,7 +14,11 @@ import { PlusIcon, Trash2Icon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { Resource } from '@sentinez/proto/sentinez/apps/tenant/v1/model';
 import type { CreateResourceRequest } from '@sentinez/proto/sentinez/apps/tenant/v1/tenant';
-import { BalanceStrategy, ProxyProtocol } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
+import {
+  BalanceStrategy,
+  ProxyProtocol,
+  TlsMode,
+} from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 import {
   DOMAIN_RE,
@@ -101,6 +105,8 @@ export function resourceOf(f: ResourceFormValue, tenantId: string): CreateResour
       domain: f.resourceDomain.trim().toLowerCase(),
       // assigned by the API
       id: '',
+      // by the protocol of each upstream; changed in the setting of the domain
+      tlsMode: TlsMode.TLS_MODE_UNSPECIFIED,
       locations:
         origins.length === 0
           ? []

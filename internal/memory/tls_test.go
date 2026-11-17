@@ -235,21 +235,20 @@ func TestUnloadDropsCertificate(t *testing.T) {
 	assert.False(t, ok)
 }
 
-func TestCentralSettingCarriesServerCertificates(t *testing.T) {
+func TestCentralSettingCarriesCertificatesByUsage(t *testing.T) {
 	m := newSyncStore()
 	sink := m.CentralSink()
 	cert := func(id string, usage tenantpb.CaCertificateUsage,
 	) *centraldatapb.Change {
-		return upsertOf(t, sztable.TenantCaCertificates, id,
-			&tenantpb.CaCertificate{
-				Id: id, Owner: &typepb.Owner{ResourceId: "rsrc_1"},
-				Usage: usage, Pem: "v1:pem-" + id, PrivateKey: "v1:key",
-			})
+		return caCertRow(t, id, usage)
 	}
 
 	const (
-		server = tenantpb.CaCertificateUsage_CA_CERTIFICATE_USAGE_SERVER
-		client = tenantpb.CaCertificateUsage_CA_CERTIFICATE_USAGE_CLIENT
+		server   = tenantpb.CaCertificateUsage_CA_CERTIFICATE_USAGE_SERVER
+		client   = tenantpb.CaCertificateUsage_CA_CERTIFICATE_USAGE_CLIENT
+		upstream = tenantpb.CaCertificateUsage_CA_CERTIFICATE_USAGE_UPSTREAM
+		mtls     = tenantpb.
+				CaCertificateUsage_CA_CERTIFICATE_USAGE_UPSTREAM_CLIENT
 	)
 
 	require.NoError(t, sink.Replace([]*centraldatapb.Change{
@@ -257,13 +256,39 @@ func TestCentralSettingCarriesServerCertificates(t *testing.T) {
 		cert("cacrt_b", server),
 		cert("cacrt_a", server),
 		cert("cacrt_c", client),
+		cert("cacrt_d", upstream),
+		cert("cacrt_e", mtls),
 	}))
 
 	st, ok := m.central.Load("rsrc_1")
 	require.True(t, ok)
-	certs := st.GetIngress().GetTls().GetCertificates()
-	require.Len(t, certs, 2)
-	assert.Equal(t, "cacrt_a", certs[0].GetId())
-	assert.Equal(t, "v1:pem-cacrt_a", certs[0].GetPem(), "still sealed")
-	assert.Equal(t, "cacrt_b", certs[1].GetId())
+	tls := st.GetIngress().GetTls()
+	assert.Equal(t, []string{"cacrt_a", "cacrt_b"},
+		idsOf(tls.GetCertificates()))
+	assert.Equal(t, "v1:pem-cacrt_a", tls.GetCertificates()[0].GetPem(),
+		"still sealed")
+	assert.Equal(t, []string{"cacrt_d"}, idsOf(tls.GetUpstreamCas()))
+	assert.Equal(t, []string{"cacrt_e"},
+		idsOf(tls.GetUpstreamCertificates()))
+}
+
+// caCertRow the change upserting the certificate id of rsrc_1, of usage.
+func caCertRow(t *testing.T, id string, usage tenantpb.CaCertificateUsage,
+) *centraldatapb.Change {
+	t.Helper()
+
+	return upsertOf(t, sztable.TenantCaCertificates, id,
+		&tenantpb.CaCertificate{
+			Id: id, Owner: &typepb.Owner{ResourceId: "rsrc_1"},
+			Usage: usage, Pem: "v1:pem-" + id, PrivateKey: "v1:key",
+		})
+}
+
+func idsOf(certs []*edgepb.Certificate) []string {
+	ids := make([]string, 0, len(certs))
+	for _, c := range certs {
+		ids = append(ids, c.GetId())
+	}
+
+	return ids
 }

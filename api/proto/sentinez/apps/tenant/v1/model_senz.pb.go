@@ -4,6 +4,7 @@
 package tenantpb
 
 import (
+	v11 "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	time "time"
@@ -18,6 +19,7 @@ const (
 	Resource_Domain            = "domain"
 	Resource_Locations         = "locations"
 	Resource_Status            = "status"
+	Resource_TlsMode           = "tls_mode"
 )
 
 const (
@@ -72,6 +74,7 @@ func ResourceColumns() []string {
 		Resource_Domain,
 		Resource_Locations,
 		Resource_Status,
+		Resource_TlsMode,
 	}
 }
 
@@ -94,6 +97,7 @@ func ResourceValues(m *Resource) ([]any, error) {
 		m.GetDomain(),
 		m.GetLocations(),
 		m.GetStatus(),
+		m.GetTlsMode(),
 	}, nil
 }
 
@@ -104,6 +108,7 @@ func ScanOneResource[R interface{ Scan(dest ...any) error }](row R) (*Resource, 
 		colMetadataCreatedAt time.Time
 		colMetadataUpdatedAt time.Time
 		colTenantId          *string
+		colTlsMode           *v11.TlsMode
 	)
 	if err := row.Scan(
 		&colMetadataCreatedAt,
@@ -114,6 +119,7 @@ func ScanOneResource[R interface{ Scan(dest ...any) error }](row R) (*Resource, 
 		&m.Domain,
 		&m.Locations,
 		&m.Status,
+		&colTlsMode,
 	); err != nil {
 		return nil, err
 	}
@@ -121,6 +127,9 @@ func ScanOneResource[R interface{ Scan(dest ...any) error }](row R) (*Resource, 
 	m.Metadata.UpdatedAt = timestamppb.New(colMetadataUpdatedAt)
 	if colTenantId != nil {
 		m.TenantId = *colTenantId
+	}
+	if colTlsMode != nil {
+		m.TlsMode = *colTlsMode
 	}
 	return m, nil
 }

@@ -16,15 +16,13 @@ package iamsvc
 
 import (
 	"context"
-	"net"
 	"strings"
 	"time"
 
+	"github.com/sentinez/controlplane/pkg/headers"
 	"github.com/sentinez/controlplane/pkg/loginlimit"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/status"
 )
 
@@ -60,7 +58,7 @@ type attempt struct {
 }
 
 func attemptOf(ctx context.Context, username string) attempt {
-	client := clientAddr(ctx)
+	client := headers.ClientAddr(ctx)
 	if username == "" {
 		return attempt{client: client}
 	}
@@ -95,28 +93,6 @@ func (l *signInLimits) succeed(a attempt) {
 	if a.account != "" {
 		l.byAccount.Reset(a.account)
 	}
-}
-
-// clientAddr returns the address of the client: the last of the
-// X-Forwarded-For the gateway sets, which is the peer it saw, not what the
-// client wrote in front of it.
-func clientAddr(ctx context.Context) string {
-	if md, ok := metadata.FromIncomingContext(ctx); ok {
-		if forwarded := md.Get("x-forwarded-for"); len(forwarded) != 0 {
-			hops := strings.Split(forwarded[len(forwarded)-1], ",")
-			if addr := strings.TrimSpace(hops[len(hops)-1]); addr != "" {
-				return addr
-			}
-		}
-	}
-
-	if p, ok := peer.FromContext(ctx); ok {
-		if host, _, err := net.SplitHostPort(p.Addr.String()); err == nil {
-			return host
-		}
-	}
-
-	return "unknown"
 }
 
 // limited runs call unless the client failed too often, and counts its

@@ -19,13 +19,14 @@ import (
 	"context"
 
 	"github.com/sentinez/controlplane/apps/greeter/v1"
-	"github.com/sentinez/core"
 	"github.com/sentinez/core/szgrpc"
 	"github.com/sentinez/core/szrunner"
+	"github.com/sentinez/pkg/szcode"
 	"github.com/sentinez/pkg/szlog"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
 	"github.com/sentinez/sentinez/pkg/apps/controlplane/greeter/config"
+	"github.com/sentinez/sentinez/pkg/interceptor"
 )
 
 func main() {
@@ -35,7 +36,7 @@ func main() {
 }
 
 func run() error {
-	r, err := szrunner.New(config.Config, core.Code)
+	r, err := szrunner.New(config.Config, szcode.Code)
 	if err != nil {
 		return err
 	}
@@ -44,7 +45,7 @@ func run() error {
 }
 
 func app(c *szrunner.Context[greeter.Greeter]) {
-	c.Inject(greeter.NewService)
+	c.Inject(interceptor.ServerOptions, greeter.NewService)
 
 	c.Serve(func(_ context.Context, server *greeter.Greeter) error {
 		conf, err := config.Config()

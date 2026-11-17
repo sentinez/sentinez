@@ -168,7 +168,7 @@ func (s *Server) Start() error {
 		return err
 	}
 
-	lis, err := listen(addr, tlsConf)
+	lis, err := listen(addr, tlsConf, s.memstore.Passthrough)
 	if err != nil {
 		return err
 	}
@@ -190,8 +190,12 @@ type listeners struct {
 	quic *network.QuicListener
 }
 
-func listen(addr string, tlsConf *tls.Config) (*listeners, error) {
-	std, err := network.StdListen(addr, network.WithTCP())
+// listen on addr: TCP, which passes the TLS of the domains passthrough
+// resolves through untouched, and QUIC, which terminates it.
+func listen(addr string, tlsConf *tls.Config,
+	passthrough network.PassthroughFunc) (*listeners, error) {
+	std, err := network.StdListen(addr, network.WithTCP(),
+		network.WithPassthrough(passthrough))
 	if err != nil {
 		return nil, err
 	}
@@ -236,12 +240,12 @@ func newTLSConfig(certFile, keyFile string,
 
 	// every domain has a certificate then, the one of the files
 	conf.Certificates = []tls.Certificate{cert}
-	conf.GetConfigForClient = transport.TLSConfig
+	conf.GetConfigForClient = transport.FingerprintHello
 
 	return conf, nil
 }
 
-// configForClient fingerprints the client (transport.TLSConfig), and
+// configForClient fingerprints the client (transport.FingerprintHello), and
 // refuses to resume a session for a domain getCert no longer has a
 // certificate for: a resumed handshake picks no certificate, so a client
 // holding a session ticket would still reach a domain whose certificate
@@ -253,7 +257,7 @@ func configForClient(conf *tls.Config,
 	noResume.SessionTicketsDisabled = true
 
 	return func(chi *tls.ClientHelloInfo) (*tls.Config, error) {
-		if _, err := transport.TLSConfig(chi); err != nil {
+		if _, err := transport.FingerprintHello(chi); err != nil {
 			return nil, err
 		}
 

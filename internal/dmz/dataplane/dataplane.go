@@ -16,7 +16,9 @@ package dataplane
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"sync"
 
 	"github.com/sentinez/core/szgrpc"
 	"github.com/sentinez/pkg/szlog"
@@ -36,23 +38,18 @@ func New(conf *settingpb.Config) *Server {
 type Server struct {
 	grpc *szgrpc.Server
 	conf *settingpb.Config
+
+	mu  sync.Mutex
+	xdp *driver.Context // nil until Start attached it
 }
 
 const VETH0 = "veth0"
 
+// Start attaches the XDP program to networkInterface, then serves gRPC.
 func (s *Server) Start(networkInterface string) error {
-	ctx := driver.NewContext()
-
-	iface, err := network.GetInterface(networkInterface)
-	if err != nil {
-		return fmt.Errorf("stream: getting interface: %w", err)
+	if err := s.attach(networkInterface); err != nil {
+		return err
 	}
-
-	if err := ctx.AttachXDP(iface.Index); err != nil {
-		return fmt.Errorf("stream: attaching xdp: %w", err)
-	}
-
-	szlog.Infof("stream: attaching xdp successfully")
 
 	return s.grpc.Serve(s.conf,
 		szgrpc.WithDiscorvery(false),
@@ -61,7 +58,41 @@ func (s *Server) Start(networkInterface string) error {
 	)
 }
 
+// Stop shuts gRPC down, and detaches and unloads the XDP program.
 func (s *Server) Stop(ctx context.Context) error {
-	_ = driver.CloseContext()
-	return s.grpc.Shutdown(ctx)
+	err := s.grpc.Shutdown(ctx)
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.xdp != nil {
+		err = errors.Join(err, s.xdp.Close())
+		s.xdp = nil
+	}
+
+	return err
+}
+
+func (s *Server) attach(networkInterface string) error {
+	iface, err := network.GetInterface(networkInterface)
+	if err != nil {
+		return fmt.Errorf("dataplane: interface: %w", err)
+	}
+
+	xdp, err := driver.NewContext()
+	if err != nil {
+		return err
+	}
+
+	if err := xdp.AttachXDP(iface.Index); err != nil {
+		return errors.Join(err, xdp.Close())
+	}
+
+	s.mu.Lock()
+	s.xdp = xdp
+	s.mu.Unlock()
+
+	szlog.Infof("dataplane: xdp attached to %s", networkInterface)
+
+	return nil
 }

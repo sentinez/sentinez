@@ -31,9 +31,9 @@ import (
 
 	"github.com/quic-go/quic-go"
 	"github.com/quic-go/quic-go/http3"
-	"github.com/sentinez/core"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/httpconst"
+	"github.com/sentinez/pkg/szcode"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -132,7 +132,7 @@ func TestListenAndServeHTTP(t *testing.T) {
 	resp := get(t, http.DefaultClient, "http://"+ln.Addr().String()+"/ping")
 
 	assert.Equal(t, _pong, readBody(t, resp))
-	assert.Equal(t, core.Name, resp.Header.Get(httpconst.HeaderServer))
+	assert.Equal(t, szcode.Name, resp.Header.Get(httpconst.HeaderServer))
 	assert.Empty(t, resp.Header.Get("Alt-Svc"))
 }
 

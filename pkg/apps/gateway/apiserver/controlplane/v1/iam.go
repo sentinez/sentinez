@@ -17,10 +17,10 @@ package controlplane
 import (
 	"context"
 
-	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/core/szgrpc/grpcgateway"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	"google.golang.org/grpc"
 )
 
 var _ grpcgateway.ServiceRegistrar = (*identityAccessManagement)(nil)
@@ -28,13 +28,15 @@ var _ grpcgateway.ServiceRegistrar = (*identityAccessManagement)(nil)
 // NewIAM creates a new iam service registrar.
 func NewIAM(
 	srv iampb.IdentityAccessManagementServiceServer,
+	interceptors ...grpc.UnaryServerInterceptor,
 ) grpcgateway.ServiceRegistrar {
-	return &identityAccessManagement{server: srv}
+	return &identityAccessManagement{server: srv, interceptors: interceptors}
 }
 
 // identityAccessManagement is the identityAccessManagement service registrar.
 type identityAccessManagement struct {
-	server iampb.IdentityAccessManagementServiceServer
+	server       iampb.IdentityAccessManagementServiceServer
+	interceptors []grpc.UnaryServerInterceptor
 }
 
 // AcceptFromEndpoint implements httpgw.ServiceRegistrar.
@@ -55,7 +57,7 @@ func (i *identityAccessManagement) Accept(ctx context.Context,
 
 	// a local conn, unlike the generated HandlerServer registration, runs
 	// interceptors, so requests are validated at the gateway.
-	conn := grpcgateway.NewLocalConn(authz.Unary())
+	conn := grpcgateway.NewLocalConn(chain(i.interceptors)...)
 	iampb.RegisterIdentityAccessManagementServiceServer(conn, i.server)
 
 	return iampb.RegisterIdentityAccessManagementServiceHandlerClient(ctx,

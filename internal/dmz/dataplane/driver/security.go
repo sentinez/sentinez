@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//	http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package bpf
+package driver
 
 import (
 	"encoding/binary"
@@ -20,30 +20,30 @@ import (
 	"net"
 
 	sentinezbpf "github.com/sentinez/bpf/sentinez"
-	"github.com/sentinez/sentinez/internal/dmz/dataplane/driver"
 )
 
 // BlockCIDR adds cidr to the XDP blocklist. The key ip is kept in network
 // byte order in memory, as XDP looks it up with the raw saddr.
-func BlockCIDR(cidr string) error {
-	_, network, err := net.ParseCIDR(cidr)
+func (ctx *Context) BlockCIDR(cidr string) error {
+	_, ipNet, err := net.ParseCIDR(cidr)
 	if err != nil {
-		return err
+		return fmt.Errorf("driver: %w", err)
 	}
 
-	ip4 := network.IP.To4()
+	ip4 := ipNet.IP.To4()
 	if ip4 == nil {
-		return fmt.Errorf("only IPv4 CIDR is supported")
+		return fmt.Errorf("driver: %s: %w", cidr, errNotIPv4)
 	}
 
-	ones, _ := network.Mask.Size()
+	ones, _ := ipNet.Mask.Size()
+	key := sentinezbpf.SenzIpLpmKey{
+		Prefixlen: uint32(ones),
+		Ip:        binary.NativeEndian.Uint32(ip4),
+	}
 
-	return driver.Exec(func(so *sentinezbpf.SenzObjects) error {
-		key := sentinezbpf.SenzIpLpmKey{
-			Prefixlen: uint32(ones),
-			Ip:        binary.NativeEndian.Uint32(ip4),
-		}
+	if err := ctx.obj.Blocklist.Put(key, uint8(1)); err != nil {
+		return fmt.Errorf("driver: block %s: %w", cidr, err)
+	}
 
-		return so.Blocklist.Put(key, uint8(1))
-	})
+	return nil
 }

@@ -17,22 +17,26 @@ package controlplane
 import (
 	"context"
 
-	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/core/szgrpc/grpcgateway"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	"google.golang.org/grpc"
 )
 
 var _ grpcgateway.ServiceRegistrar = (*tenant)(nil)
 
 // NewTenant creates a new tenant service registrar.
-func NewTenant(srv tenantpb.TenantServiceServer) grpcgateway.ServiceRegistrar {
-	return &tenant{server: srv}
+func NewTenant(
+	srv tenantpb.TenantServiceServer,
+	interceptors ...grpc.UnaryServerInterceptor,
+) grpcgateway.ServiceRegistrar {
+	return &tenant{server: srv, interceptors: interceptors}
 }
 
 // tenant is the tenant service registrar.
 type tenant struct {
-	server tenantpb.TenantServiceServer
+	server       tenantpb.TenantServiceServer
+	interceptors []grpc.UnaryServerInterceptor
 }
 
 // AcceptFromEndpoint implements httpx.ServiceRegistrar.
@@ -52,7 +56,7 @@ func (t *tenant) Accept(ctx context.Context, server grpcgateway.Server) error {
 
 	// a local conn, unlike RegisterTenantServiceHandlerServer, runs
 	// interceptors, so requests are validated at the gateway.
-	conn := grpcgateway.NewLocalConn(authz.Unary())
+	conn := grpcgateway.NewLocalConn(chain(t.interceptors)...)
 	tenantpb.RegisterTenantServiceServer(conn, t.server)
 
 	return tenantpb.RegisterTenantServiceHandlerClient(ctx,

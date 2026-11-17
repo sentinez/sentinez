@@ -117,6 +117,7 @@ func resourceRow(rs *tenantpb.Resource) postgres.M {
 		tenantpb.Resource_Domain:    rs.GetDomain(),
 		tenantpb.Resource_Locations: rs.GetLocations(),
 		tenantpb.Resource_Status:    rs.GetStatus(),
+		tenantpb.Resource_TlsMode:   rs.GetTlsMode(),
 	}
 }
 

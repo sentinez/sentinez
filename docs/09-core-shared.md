@@ -33,7 +33,7 @@ exported. An `https://` endpoint uses TLS.
 ## 9.2 `core/szhttp` and `core/szhttp/chains`
 
 - `szhttp.Server`: `ListenAndServe`, `Shutdown`, `Use(middleware)`,
-  `Handle(RequestHandler)`, `AcceptReverse(target)`. The Hertz server
+  `Handle(RequestHandler)`, `AcceptReverse(target, tlsConf)` (`tlsConf` dials an https target, nil for the default). The Hertz server
   (`contrib/httphz`) wraps the handler with the `Use` middleware once, when
   it starts, so `Use` may come before or after `Handle`.
 - `ServerOption`: `WithCertificate`, `WithTLSConfig`, `WithServerName`,
@@ -70,6 +70,8 @@ exported. An `https://` endpoint uses TLS.
 |---|---|
 | `core` | Constants `Name` (`sentinez/1.0`, used as the `Server` header), `Code` (`SENZ`), `Version`, request ID prefix, `EnvPattern` |
 | `core/szcontext` | `WithTransportValue` / `GetTransport` for `netpb.Transport` |
+| `core/szcrypto/certs` | `Parse` (first PEM certificate), `Pick(host, pairs, pool)` / `PickClient(pairs, pool)` (first key pair valid now, for host or as a client certificate, with the chain of its issuers; `ErrNoValidCertificate`), `ChainOf`, `IsSelfSigned` |
+| `core/szcrypto/pow` | Proof-of-work challenges |
 | `pkg/sznormalize` | `NormalizeEdgeSetting` (defaults of the edge setting), `EdgeSetting`/`EdgeResource`/`TenantResource` (tenant resource ↔ edge setting) |
 | `core/internal/console` | ASCII banner (`go-figure`) printed once at startup |
 | `core/internal/render` | `templ` templates for the 400/403/404/429/500 pages |
@@ -179,7 +181,7 @@ compressed data; decompressed (the producer uses zstd) it is larger.
 |---|---|
 | `pkg/apps/**/config` | Singleton `Config()`: parses flags + loads env + attaches `XMeta` |
 | `pkg/apps/**/flags` | Service-specific flags, default `--env_file` |
-| `pkg/network` | `StdListen` (TCP, `StdConn`s with IDs), `QuicListen` (UDP, needs `WithTLSConfig`, adds the `h3` ALPN, own `quic.Transport` that gives each connection an ID read with `ConnId(ctx)`), `StandardTransporter` (30s dial timeout), `QuicTransporter` (HTTP/3 client, unused), `GetInterface` |
+| `pkg/network` | `StdListen` (TCP, `StdConn`s with IDs; `WithPassthrough` routes TLS by SNI, see [03-edge.md](03-edge.md#tls-modes)), `QuicListen` (UDP, needs `WithTLSConfig`, adds the `h3` ALPN, own `quic.Transport` that gives each connection an ID read with `ConnId(ctx)`), `StandardTransporter(conf)` (30s dial timeout, `conf` for https), `NewAltSvcTransport(conf)`, `QuicTransporter` (HTTP/3 client, unused), `GetInterface` |
 | `pkg/network/httpx` | `szhttp.Context` and `ReverseProxy` implemented with `net/http`, shared by both servers below |
 | `pkg/network/httpx/std` | `szhttp.Server` on `net/http` (TCP) |
 | `pkg/network/httpx/quic` | `szhttp.Server` serving HTTP/3 (UDP) and HTTP/1.1/2 (TCP) on one address, with `Alt-Svc` |

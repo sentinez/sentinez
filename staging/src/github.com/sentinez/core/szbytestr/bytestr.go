@@ -15,13 +15,13 @@
 package szbytestr
 
 import (
-	"github.com/sentinez/core"
 	"github.com/sentinez/core/szhttp/httpconst"
+	"github.com/sentinez/pkg/szcode"
 )
 
 var (
-	DefaultServerName = []byte(core.Name)
-	DefaultUserAgent  = []byte(core.BaseName)
+	DefaultServerName = []byte(szcode.Name)
+	DefaultUserAgent  = []byte(szcode.BaseName)
 )
 
 var (
@@ -31,6 +31,7 @@ var (
 	TooManyRequests     = []byte("Too many requests")
 	BadRequest          = []byte("Bad request")
 	MisdirectedRequest  = []byte("Misdirected request")
+	BadGateway          = []byte("Bad gateway")
 	HitCache            = []byte("HIT")
 	MethodNotAllowed    = []byte(httpconst.ValueMethodNotAllowed)
 )

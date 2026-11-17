@@ -64,10 +64,11 @@ type Server struct {
 }
 
 // AcceptReverse implements [szhttp.Server].
-func (s *Server) AcceptReverse(target string) (szhttp.ReverseProxy, error) {
+func (s *Server) AcceptReverse(target string,
+	conf *tls.Config) (szhttp.ReverseProxy, error) {
 	// Dialing HTTP/3 blindly hangs on TCP-only upstreams, so start on TCP
 	// and switch only once the upstream advertises h3 via Alt-Svc.
-	return httpx.NewReverseProxy(target, network.NewAltSvcTransport())
+	return httpx.NewReverseProxy(target, network.NewAltSvcTransport(conf))
 }
 
 func (s *Server) Use(

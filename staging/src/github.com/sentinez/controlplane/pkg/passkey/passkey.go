@@ -18,7 +18,7 @@ import (
 	"strings"
 
 	"github.com/go-webauthn/webauthn/webauthn"
-	"github.com/sentinez/core"
+	"github.com/sentinez/pkg/szcode"
 	"github.com/sentinez/pkg/szlog"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
@@ -65,7 +65,7 @@ func ClientOrigins(config *settingpb.Config) []string {
 func NewWebAuthn(config *settingpb.Config) *webauthn.WebAuthn {
 	wconfig := &webauthn.Config{
 		// Display Name for your site
-		RPDisplayName: core.Name,
+		RPDisplayName: szcode.Name,
 		// Generally the FQDN for your site
 		RPID: config.Get(settingpb.Senz_SENZ_HOSTNAME),
 		// The origin URLs allowed for WebAuthn

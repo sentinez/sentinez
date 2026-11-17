@@ -47,8 +47,9 @@ Server.Start()
  │   │                                  // share this one; each change rebuilds routes,
  │   │                                  // reverse proxies, CDN, SecRule, limiter, WAF
  │   └─ server.Handle(http.Init(conf, mem).Handle)
- ├─ newTLSConfig(cert, key)  → {GetConfigForClient: transport.TLSConfig, MinVersion: TLS1.3, Certificates}
- ├─ network.StdListen(SENZ_ADDRESS | 0.0.0.0:443)   // TCP
+ ├─ newTLSConfig(cert, key)  → {GetConfigForClient: transport.FingerprintHello, MinVersion: TLS1.3, Certificates}
+ ├─ network.StdListen(SENZ_ADDRESS | 0.0.0.0:443,
+ │       WithPassthrough(mem.Passthrough))        // TCP, see 3.6 (TLS modes)
  ├─ network.QuicListen(same addr, WithTLSConfig)    // UDP
  └─ server.ListenAndServe(addr,
         WithCertificate(cert, key), WithTLSConfig(tlsConf),
@@ -77,7 +78,7 @@ Both servers run in an `errgroup`; when either exits, the other is closed.
 `Shutdown` shuts both down. Requests on both protocols go through the same
 `http.ServeMux` and the same middleware chain, using the shared
 `httpx.Context`. QUIC is only terminated at the edge: `AcceptReverse` uses
-`network.StandardTransporter()`, so upstreams are reached over TCP
+`network.StandardTransporter(conf)`, so upstreams are reached over TCP
 (HTTP/1.1 or HTTP/2). `network.QuicTransporter` (an `http3.Transport`)
 exists but is not used.
 
@@ -91,7 +92,7 @@ listener (`opt.StdListener`).
 
 ## 3.2 Fingerprints & connection context
 
-Every TLS connection gets an ID before its handshake. `transport.TLSConfig`
+Every TLS connection gets an ID before its handshake. `transport.FingerprintHello`
 (the `GetConfigForClient` callback) stores the JA4 fingerprint under that ID
 in `pkg/szstore/ja4` (in-memory, 24h TTL). The connect hook puts the same
 ID into the request context as `netpb.Transport{ConnId, ServerName(SNI)}`, and
@@ -102,7 +103,7 @@ the ID lives:
 | | TCP (HTTP/1.1, HTTP/2) | QUIC (HTTP/3) |
 |---|---|---|
 | ID created by | `network.StdListener.Accept`, as `*network.StdConn{Id}` | `quic.Transport.ConnContext` in `network.QuicListen`, put on the connection context |
-| `TLSConfig` reads it with `network.HelloConnId(chi)` from | `chi.Conn.(*network.StdConn).Id` | `network.ConnId(chi.Context())` |
+| `FingerprintHello` reads it with `network.HelloConnId(chi)` from | `chi.Conn.(*network.StdConn).Id` | `network.ConnId(chi.Context())` |
 | Connect hook | `OnStandardConnect` / `OnHertzConnect` (`WithOnStdConnect`) unwrap `TLSConn → tls.Conn → network.StdConn` | `OnQuicConnect` (`WithOnQuicConnect`) reads `network.ConnId(conn.Context())` |
 | JA4 prefix | `t` | `q` |
 | Removed from the cache | `network.StdConn.Close` | `context.AfterFunc` when quic-go cancels the connection context (close or failed handshake) |
@@ -126,7 +127,7 @@ IDs are 8 random bytes in hex (`network.newConnId`).
   connection migration.
 - `ja4plus` (v0.0.3) picks the protocol character from
   `LocalAddr().Network()`, which is `"udp"` for QUIC, and so writes `d`
-  (DTLS). For a `"udp"` handshake `TLSConfig` passes `ja4plus` a copy of the
+  (DTLS). For a `"udp"` handshake `FingerprintHello` passes `ja4plus` a copy of the
   `ClientHelloInfo` whose conn reports `"quic"`, so it writes `q` as the JA4
   spec requires. The edge serves no DTLS.
 - Test: [transport_quic_test.go](../internal/dmz/edge/transport/transport_quic_test.go)
@@ -182,7 +183,7 @@ stage that produced them; the stage names are exported constants (e.g.
 |---|---|---|---|
 | 0 | `TRC` | `trace.Tracer` | Generates request ID `senz:req:<xid>` when the context has none |
 | 1 | `LOG` | `logging.Logging` | Calls `next` first, then logs an `httppb.IngressEvent` (JSON, kind `LOG_TYPE_HTTP_INGRESS`, the ingress) and, when `ROU` proxied the request, an `httppb.EgressEvent` of the proxy → upstream origin leg (kind `LOG_TYPE_HTTP_EGRESS`: upstream, origin status, content type/length, latency, and the headers the edge set on the upstream request via `szhttp.SetUpstreamHeader`, sorted by name with credential headers omitted) |
-| 2 | `DMA` | `secure.DomainBased` | The host (port stripped, lower case) is the namespace: it must be the `ingress.resource.domain` of a loaded setting. Otherwise → `403`. Sets `X().Namespace` and the tenant/resource ids of the setting |
+| 2 | `DMA` | `secure.DomainBased` | The host (port stripped, lower case) is the namespace: it must be the `ingress.resource.domain` of a loaded setting. Otherwise → `403`. A domain in `TLS_MODE_PASSTHROUGH` → `421` (see 3.6). Sets `X().Namespace` and the tenant/resource ids of the setting |
 | 3 | `PUB` | `cdn.Public` | Serves the images embedded in the binary under `/cdn/sentinez/public/`; a load failure at provisioning stops the edge |
 | 4 | `CDN` | `cdn.Cache` | If the namespace has an active CDN rule whose expression matches: look up the cache by `method+scheme+host+path+query+Accept-Encoding`; hit → return the cached response with `X-Cache: HIT`; miss → continue and store cacheable responses (TTL 1h, see [04-rule-engine.md](04-rule-engine.md#44-cdn-rules)) |
 | 5 | `LMT` | `secure.Limiter` | for each limiter whose required `ingress.expr` matches (priority order, like `RUL`): `limiter.Allow(IP)`; exceeded → `429` |
@@ -190,7 +191,7 @@ stage that produced them; the stage names are exported constants (e.g.
 | 7 | `STC` | `static.Static` | After the rest of the chain, if the path has a static extension (`.css .js .png ...`) sets `Cache-Control: public, max-age=3600, immutable` |
 | 8 | `RUL` | `secure.SecRule` | Walks the active SecRules by descending priority; the first matching rule with action `BLOCK` → `403`; other actions are only debug-logged and evaluation continues |
 | 9 | `WAF` | `secure.WAF` | Coraza transaction: `ExecIngress` (headers/body) → rest of chain → `ExecEgress` (response). Blocked with status 403 → 403 page. Finally logs a `secrulepb.Event` (`LOG_TYPE_CORE_RULESETS`) if the transaction was interrupted |
-| 10 | `ROU` | `routing.StandardRouter` | Ends the chain: finds the route, rewrites the path, sets headers, calls `ReverseProxy.Serve` |
+| 10 | `ROU` | `routing.StandardRouter` | Ends the chain: finds the route, rewrites the path, sets headers, calls `ReverseProxy.Serve` of the namespace's proxy to the upstream; none → `502` |
 
 Error responses (`400/403/404/429/500`) are rendered with `templ` templates
 ([core/internal/render](../staging/src/github.com/sentinez/core/internal/render/))
@@ -345,8 +346,12 @@ Examples:
 | `/api` | `/v1/` | `/api/users` | `/v1/users` |
 | `/api` | — | `/apix` | not matched by `/api` |
 
-A reverse proxy is created once per `upstream.server` in
-`MemStore.LoadReverseProxy` via `server.AcceptReverse(target)`:
+`MemStore.LoadReverseProxy` builds the proxies of a namespace, one per
+`upstream.server`, via `server.AcceptReverse(target, conf)`, in place of the
+previous ones of the namespace. `conf` is the upstream TLS of the setting
+(below), nil without one. A proxy without `conf` is shared by every
+namespace dialing that target (`MemStore.plainProxy`), so its connection
+pool lives across loads; one with `conf` belongs to its namespace.
 
 - Hertz (`proxyhz.ReverseProxy`): two clients (TLS / plain); the director
   rewrites the URI with `JoinURLPath` and sets `Host` to the upstream host.
@@ -354,9 +359,65 @@ A reverse proxy is created once per `upstream.server` in
   the target (`upstream + URI`) per request.
 - `net/http` (`httpx.ReverseProxy`, used by the `Quic` and `Standard`
   engines): `httputil.NewSingleHostReverseProxy` with the given
-  `http.RoundTripper` (`network.StandardTransporter()`, 30s dial timeout).
+  `http.RoundTripper` (`network.StandardTransporter(conf)`, 30s dial timeout; the `Quic` engine
+  uses `network.NewAltSvcTransport(conf)`, HTTP/3 with a TLS 1.3 clone of
+  `conf`).
   The writer is wrapped so the context sees the upstream status and body;
   `Unwrap` keeps `Flush`/`Hijack` reachable for streaming and upgrades.
+
+### TLS modes
+
+`ingress.resource.tls_mode` (`edgepb.TlsMode`, tenant column `tls_mode`)
+says how the edge carries the TLS of a domain to its origin:
+
+| Mode | Edge | Upstream |
+|---|---|---|
+| `UNSPECIFIED` (default) | Terminates TLS, runs the chain | The `protocol` of each upstream (`szhttp.Upstream2Target`) |
+| `TERMINATE` | Terminates TLS, runs the chain | `http://` for every upstream; no upstream TLS is built |
+| `REENCRYPT` | Terminates TLS, runs the chain | `https://` for every upstream, with the upstream TLS below |
+| `PASSTHROUGH` | Forwards the TCP stream untouched, no HTTP | The upstream servers on port `443` |
+
+`targetOf` maps the mode to a protocol and calls `Upstream2Target`.
+
+**Passthrough** is decided on the TCP listener, before any handshake
+([pkg/network/passthrough.go](../pkg/network/passthrough.go)). With
+`WithPassthrough(fn)`, `StdListen` accepts on its own (`sniRouter`) and
+reads the client hello of each connection in its own goroutine
+(`peekServerName`: a `tls.Server` over a tee of the conn, stopped by
+`GetConfigForClient` once it has the SNI; 10s timeout).
+
+- `fn` (`MemStore.Passthrough`) resolves the SNI to the upstream addresses
+  the namespace's load stored (`MemStore.passthrough`, each server once, in
+  location order). Those connections are dialed in order (first that
+  answers, 10s each) and piped both ways, with half-close.
+- Any other connection (a terminated name, no SNI, not TLS) is handed to
+  `Accept` with the bytes read replayed (`StdConn.pending`), so the TLS
+  server, JA4 and the connection id see it as before.
+- `Close` of the listener closes the piped connections and waits for the
+  router's goroutines.
+
+Limits: no SecRule, rate limit, CDN or request log for a passthrough
+domain; TCP only (a QUIC handshake falls back to TCP); port 443 fixed. A
+request that still reaches HTTP for such a domain (no SNI, QUIC, or a
+connection coalesced from another domain) gets `421` from `DMA`.
+
+### Upstream TLS (custom CA, mTLS)
+
+`MemStore.upstreamTLS` ([internal/memory/tls.go](../internal/memory/tls.go))
+builds the `tls.Config` the namespace dials its HTTPS upstreams with, from
+`ingress.tls`:
+
+- `upstream_cas` (CA certificates of usage `UPSTREAM`): the `RootCAs`, in
+  place of the system ones.
+- `upstream_certificates` (usage `UPSTREAM_CLIENT`, with key): the client
+  certificate (mTLS), picked with `certs.PickClient` and sent with the chain
+  of its issuers.
+
+Both are opened with `SENZ_DATA_KEY`. TLS 1.2 at least. Without either the
+config is nil (the system roots, no client certificate). It fails closed:
+when the key is missing or a certificate does not open, the namespace keeps
+no proxy at all, so its upstreams are never dialed without the CAs or the
+client certificate it asks for.
 
 ## 3.7 Memory store
 
@@ -367,7 +428,7 @@ A reverse proxy is created once per `upstream.server` in
 |---|---|---|
 | `settings.Setting` | `Map[string,*edgepb.Setting]` | Normalized Settings by namespace, rebuilt from the synced settings (3.8) |
 | `routes.Router` | `Map[string,[]*Location]` | Sorted locations |
-| `reverseproxy.ReverseProxy` | `Map[string,szhttp.ReverseProxy]` | Key = upstream server |
+| `reverseproxy.ReverseProxy` | `Map[string,map[string]szhttp.ReverseProxy]` | The proxies of a namespace, by upstream server (3.6) |
 | `secrules.SecRule` | `Map[string,[]Entry]` | Compiled `Entry{Eval, Rule}`, active only, sorted by priority |
 | `ratelimiter.Limiter` | `Map[string,*RateLimiter]` | One limiter per namespace |
 | `rulesets.Rulesets` | `Map[string,coraza.WAF]` | One WAF instance per namespace |

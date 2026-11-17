@@ -56,10 +56,13 @@ func (r *StandardRouter) Handle(ctx szhttp.Context, _ chains.Handler) error {
 		return szhttp.NotFound(ctx)
 	}
 
-	rprx, ok := r.proxy.Load(target)
-	if ok {
-		serve(ctx, target, rprx)
+	rprx, ok := r.proxy.Load(ctx.X().GetNamespace(), target)
+	if !ok {
+		szlog.Errorf("[edge] no reverse proxy to %s", target)
+		return szhttp.BadGateway(ctx)
 	}
+
+	serve(ctx, target, rprx)
 
 	return nil
 }

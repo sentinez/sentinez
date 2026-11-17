@@ -17,23 +17,26 @@ package controlplane
 import (
 	"context"
 
-	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/core/szgrpc/grpcgateway"
 	analyticpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	"google.golang.org/grpc"
 )
 
 var _ grpcgateway.ServiceRegistrar = (*analytic)(nil)
 
 // NewAnalytic creates a new analytic service registrar.
 func NewAnalytic(
-	srv analyticpb.AnalyticServiceServer) grpcgateway.ServiceRegistrar {
-	return &analytic{server: srv}
+	srv analyticpb.AnalyticServiceServer,
+	interceptors ...grpc.UnaryServerInterceptor,
+) grpcgateway.ServiceRegistrar {
+	return &analytic{server: srv, interceptors: interceptors}
 }
 
 // analytic is the analytic service registrar.
 type analytic struct {
-	server analyticpb.AnalyticServiceServer
+	server       analyticpb.AnalyticServiceServer
+	interceptors []grpc.UnaryServerInterceptor
 }
 
 // AcceptFromEndpoint implements httpx.ServiceRegistrar.
@@ -54,7 +57,7 @@ func (a *analytic) Accept(ctx context.Context,
 
 	// a local conn, unlike RegisterAnalyticServiceHandlerServer, runs
 	// interceptors, so requests are validated at the gateway.
-	conn := grpcgateway.NewLocalConn(authz.Unary())
+	conn := grpcgateway.NewLocalConn(chain(a.interceptors)...)
 	analyticpb.RegisterAnalyticServiceServer(conn, a.server)
 
 	return analyticpb.RegisterAnalyticServiceHandlerClient(ctx,

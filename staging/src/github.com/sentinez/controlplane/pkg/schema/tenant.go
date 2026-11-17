@@ -63,6 +63,7 @@ func TenantResources() dbx.Schema {
 			{Name: tenantpb.Resource_Locations, Type: dbx.JSONB},
 			{Name: tenantpb.Resource_TenantId, Type: dbx.Text},
 			{Name: tenantpb.Resource_Status, Type: dbx.Int4},
+			{Name: tenantpb.Resource_TlsMode, Type: dbx.Int4},
 		},
 	}
 }

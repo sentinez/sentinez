@@ -1,0 +1,46 @@
+// Copyright 2026 Duc-Hung Ho.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package sentinez.types.audit.v1;
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+import "sentinez/types/v1/known.proto";
+
+option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/types/audit/v1;auditpb";
+
+// AuditLog is one call of a method that sets x_method.audit.
+message AuditLog {
+  // id is prefixed "aud_".
+  string id = 1;
+  google.protobuf.Timestamp time = 2;
+  // method is the full gRPC method, "/pkg.Service/Method".
+  string method = 3;
+  string user_id = 4;
+  string name = 5;
+  sentinez.types.v1.ControlPlane control_plane = 6;
+  string remote_addr = 7;
+  string user_agent = 8;
+  // request is the request as protojson, its debug_redact fields hidden.
+  google.protobuf.Struct request = 9;
+  // code is the grpc code of the call, 0 when it succeeded.
+  uint32 code = 10;
+  string error = 11;
+  google.protobuf.Duration latency = 12;
+  // tenant_id is the one the request or response carries.
+  string tenant_id = 13;
+}

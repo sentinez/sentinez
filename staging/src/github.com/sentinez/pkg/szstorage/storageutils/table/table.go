@@ -21,7 +21,7 @@ import (
 
 	"github.com/sentinez/pkg/szstorage/dbx"
 
-	"github.com/sentinez/core"
+	"github.com/sentinez/pkg/szcode"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
 
@@ -32,7 +32,7 @@ var _envRe = regexp.MustCompile(
 
 func NewTable(appConf *settingpb.Config, name dbx.Table) dbx.Table {
 	tableName := fmt.Sprintf("%s.%s.%s",
-		appConf.GetFlag().GetEnvMode(), core.BaseName, name)
+		appConf.GetFlag().GetEnvMode(), szcode.BaseName, name)
 	return dbx.Table(strings.ReplaceAll(tableName, ".", "_"))
 }
 

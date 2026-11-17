@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from '@sentinez/ui/components/select';
 import { Textarea } from '@sentinez/ui/components/textarea';
-import { CA_USAGES, caUsageHelp } from './ca-certificate-status';
+import { CA_USAGES, caUsageHelp, isLeafUsage } from './ca-certificate-status';
 
 type ValidationTranslator = ReturnType<typeof useTranslations<'Validation'>>;
 
@@ -80,9 +80,9 @@ export function validateCaCertificateForm(
   if (!pem.includes(CERTIFICATE_BEGIN)) return tv('caPemRequired');
   if (byteLength(pem) > MAX_PEM_BYTES) return tv('caPemTooLarge');
   if (byteLength(key) > MAX_KEY_BYTES) return tv('caKeyTooLarge');
-  // the certificate the edge serves is of no use without its key
-  if (form.usage === CaCertificateUsage.CA_CERTIFICATE_USAGE_SERVER && !key && !hasKeyBlock) {
-    return tv('caServerNeedsKey');
+  // a certificate of the edge is of no use without its key
+  if (isLeafUsage(form.usage) && !key && !hasKeyBlock) {
+    return tv('caLeafNeedsKey');
   }
 
   return null;

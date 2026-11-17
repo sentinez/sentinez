@@ -173,27 +173,6 @@ func TestLoginCanNotEscapeBySpoofingForwardedFor(t *testing.T) {
 	assert.Equal(t, codes.ResourceExhausted, status.Code(err))
 }
 
-func TestClientAddr(t *testing.T) {
-	tests := []struct {
-		name string
-		give context.Context
-		want string
-	}{
-		{"one hop", metadata.NewIncomingContext(t.Context(),
-			metadata.Pairs("x-forwarded-for", "10.0.0.1")), "10.0.0.1"},
-		{"the last of several", metadata.NewIncomingContext(t.Context(),
-			metadata.Pairs("x-forwarded-for", "6.6.6.6, 10.0.0.1")),
-			"10.0.0.1"},
-		{"nothing known", t.Context(), "unknown"},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, clientAddr(tt.give))
-		})
-	}
-}
-
 func TestLocalAccountsFailureCounts(t *testing.T) {
 	accounts := accountmock.NewMockIAccount(t)
 	accounts.EXPECT().GetByProvider(mock.Anything, mock.Anything,

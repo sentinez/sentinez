@@ -9,8 +9,8 @@ L3 trước khi tới edge.
 | [bpf/sentinez/senz_monitor.h](../../staging/src/github.com/sentinez/bpf/sentinez/senz_monitor.h) | Đếm byte theo IP nguồn |
 | [bpf/sentinez/senz_security.h](../../staging/src/github.com/sentinez/bpf/sentinez/senz_security.h) | Chặn IP/CIDR bằng LPM trie |
 | `bpf/sentinez/senz_bpfe{l,b}.{go,o}` | Code Go + object sinh bởi `bpf2go` |
-| [internal/dmz/dataplane/](../../internal/dmz/dataplane/) | `Server` (Start/Stop) và `driver` (nạp object, attach XDP) |
-| [internal/dmz/dataplane/bpf/](../../internal/dmz/dataplane/bpf/) | API Go thao tác map: `LookupBandwidth`, `BlockCIDR` |
+| [internal/dmz/dataplane/](../../internal/dmz/dataplane/) | `Server` (Start/Stop) |
+| [internal/dmz/dataplane/driver/](../../internal/dmz/dataplane/driver/) | `Context`: nạp object, attach XDP, đọc ghi map (`LookupBandwidth`, `BlockCIDR`) |
 | [hack/net/dev/Makefile](../../hack/net/dev/Makefile) | Dựng network namespace để thử nghiệm |
 
 ## 5.1 Chương trình XDP
@@ -43,28 +43,29 @@ Header libbpf/xdp-tools lấy từ submodule trong `bpf/_submodules`.
 
 ## 5.2 Phía Go
 
-`driver.NewContext()` (singleton): `rlimit.RemoveMemlock()` →
+`driver.NewContext() (*Context, error)`: `rlimit.RemoveMemlock()` →
 `LoadSenzObjects` → giữ `*SenzObjects`. `AttachXDP(ifIndex)` gắn
-`SenzMain` qua `link.AttachXDP`. `driver.Exec(fn)` cho phép thao tác map khi
-context đã được khởi tạo.
+`SenzMain` qua `link.AttachXDP`. `Close` gỡ link rồi mới dỡ object. Lỗi có
+tiền tố `driver:`. Package không giữ trạng thái global: `Context` thuộc về
+nơi tạo ra nó.
 
-`dataplane.Server.Start(VETH0)`: lấy interface `veth0`, attach XDP rồi phục vụ
+`dataplane.Server.Start(VETH0)`: lấy interface `veth0`, nạp một
+`driver.Context` và attach XDP (attach lỗi thì đóng lại ngay), rồi phục vụ
 gRPC (`DataPlaneService` mới có `Status` trong proto, chưa đăng ký handler).
-`Stop` đóng object/link và `GracefulStop` gRPC.
+Server giữ `Context`; `Stop` tắt gRPC rồi đóng nó, và trả về cả hai lỗi.
 
-API trong `internal/dmz/dataplane/bpf`:
+Các method của `driver.Context` trên map:
 
-| Hàm | Mô tả |
+| Method | Mô tả |
 |---|---|
-| `LookupBandwidth(ip) (uint64, error)` | Cộng giá trị per-CPU của `ip_bandwidth` cho IPv4 |
+| `LookupBandwidth(ip) (uint64, error)` | Cộng giá trị per-CPU của `ip_bandwidth` cho IPv4 (mỗi CPU khả dụng một giá trị, `ebpf.PossibleCPU`); 0 khi địa chỉ chưa có |
 | `BlockCIDR(cidr) error` | Thêm khoá LPM `{prefixlen, ip mạng}` vào `blocklist` (chỉ IPv4) |
 
 Khoá giữ IP theo thứ tự byte mạng trong bộ nhớ, giống `saddr` thô mà XDP
 dùng (`binary.NativeEndian` trên 4 byte địa chỉ).
 
-Lưu ý: `driver` là trạng thái **trong tiến trình**: chỉ dataplane nạp object
-eBPF (map không được pin), nên các hàm này chỉ dùng được ở đó. Hiện không
-tiến trình nào khác gọi chúng, và `BlockCIDR` chưa có nơi gọi.
+Lưu ý: map không được pin, nên các method này chỉ dùng được trên `Context`
+của tiến trình dataplane. Hiện chưa có nơi nào gọi chúng.
 
 ## 5.3 Môi trường netns để phát triển
 

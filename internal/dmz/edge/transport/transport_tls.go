@@ -24,7 +24,11 @@ import (
 	"github.com/sentinez/sentinez/pkg/network"
 )
 
-func TLSConfig(chi *tls.ClientHelloInfo) (*tls.Config, error) {
+// FingerprintHello stores the JA4 fingerprint of the client hello chi under
+// its connection id (a hello without one is skipped). It is a
+// GetConfigForClient hook that changes nothing: the config is always nil,
+// the handshake goes on with the config of the server.
+func FingerprintHello(chi *tls.ClientHelloInfo) (*tls.Config, error) {
 	szlog.Debugf("SNI: %s", chi.ServerName)
 
 	connId := network.HelloConnId(chi)

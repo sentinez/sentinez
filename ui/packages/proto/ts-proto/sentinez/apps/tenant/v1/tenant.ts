@@ -66,8 +66,8 @@ export interface UpdateResourceRequest {
     | Resource
     | undefined;
   /**
-   * Fields of resource to update, among name, domain, locations and
-   * status ("*" for all of them); without one, those set in resource. A
+   * Fields of resource to update, among name, domain, locations, status
+   * and tls_mode ("*" for all of them); without one, those set in resource. A
    * named field unset in resource is cleared, but the domain is required.
    */
   updateMask?: string[] | undefined;
@@ -219,15 +219,16 @@ export interface CreateCaCertificateRequest {
   description: string;
   usage: CaCertificateUsage;
   /**
-   * One or more PEM CERTIFICATE blocks, each a CA; for the usage SERVER they
-   * need not be CAs. Each is stored on its own. A PEM private key block may
+   * One or more PEM CERTIFICATE blocks, each a CA; for the usages SERVER
+   * and UPSTREAM_CLIENT they need not be CAs. Each is stored on its own. A PEM private key block may
    * come in it too, as in a single pem file.
    */
   pem: string;
   /**
    * PEM private key, kept with the one certificate of pem that it belongs to
    * (the request is refused when it matches none, or holds more than one
-   * key). Required for the usage SERVER, here or in pem.
+   * key). Required for the usages SERVER and UPSTREAM_CLIENT, here or in
+   * pem.
    */
   privateKey: string;
 }

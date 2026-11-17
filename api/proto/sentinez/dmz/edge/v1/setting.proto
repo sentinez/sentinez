@@ -40,14 +40,26 @@ message Setting {
 message Ingress {
   Resource resource = 1; // @gotags: yaml:"resource"
 
-  // Certificates the edge serves for resource.domain, from the CA
-  // certificates of usage SERVER of the resource; never read from a file.
+  // Certificates of resource: the ones the edge serves for its domain and
+  // the ones it dials the HTTPS upstreams with, from its CA certificates;
+  // never read from a file.
   Tls tls = 2; // @gotags: yaml:"-"
 }
 
-// Tls the certificates the edge serves for the domain of a setting.
+// Tls the certificates of the domain of a setting.
 message Tls {
+  // The certificates the edge serves (usage SERVER): the key pairs, and
+  // the chain of their issuers.
   repeated Certificate certificates = 1;
+
+  // The CAs the certificates of the HTTPS upstreams are verified with
+  // (usage UPSTREAM), in place of the system ones; none: the system ones.
+  repeated Certificate upstream_cas = 2;
+
+  // The client certificate the edge presents to the HTTPS upstreams
+  // (usage UPSTREAM_CLIENT, mTLS): the key pairs, and the chain of their
+  // issuers; none: no client certificate.
+  repeated Certificate upstream_certificates = 3;
 }
 
 // Certificate one certificate and its private key, if any, both sealed
@@ -92,6 +104,27 @@ message Resource {
     ignore: IGNORE_IF_ZERO_VALUE
     string: {pattern: "^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,63}$"}
   }]; // @gotags: yaml:"domain"
+
+  // How the edge carries the TLS of the domain to its upstreams.
+  TlsMode tls_mode = 5 [(buf.validate.field).enum.defined_only = true]; // @gotags: yaml:"tlsMode"
+}
+
+// TlsMode how the edge carries the TLS of a domain to its upstreams.
+enum TlsMode {
+  // Each upstream as its protocol says: HTTP terminates, HTTPS
+  // re-encrypts.
+  TLS_MODE_UNSPECIFIED = 0;
+  // The edge decrypts the TLS, processes the HTTP request, and sends it
+  // to the upstreams in clear (HTTP), whatever their protocol.
+  TLS_MODE_TERMINATE = 1;
+  // The edge forwards the TLS untouched, by the server name (SNI) of the
+  // client hello, to port 443 of the upstreams: it holds no certificate
+  // of the domain and sees no HTTP, so no rule, limit or cache applies.
+  TLS_MODE_PASSTHROUGH = 2;
+  // The edge decrypts the TLS, processes the HTTP request, then opens a
+  // new TLS connection to the upstreams (HTTPS), whatever their protocol,
+  // with the upstream CAs and client certificate of the resource.
+  TLS_MODE_REENCRYPT = 3;
 }
 
 message Location {

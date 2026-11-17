@@ -75,12 +75,12 @@ function RoutingCard({ resource, onSaved }: { resource: Resource; onSaved: () =>
 
     setSaving(true);
     try {
-      // The form edits the name and the routes, not the domain
-      const { name, locations } = edgeResourceOfForm(value, edge);
+      // The form edits the name, the TLS mode and the routes, not the domain
+      const { name, locations, tlsMode } = edgeResourceOfForm(value, edge);
       await updateResource({
         id: resource.id,
-        resource: Resource.fromPartial({ name, locations }),
-        updateMask: ['name', 'locations'],
+        resource: Resource.fromPartial({ name, locations, tlsMode }),
+        updateMask: ['name', 'locations', 'tls_mode'],
       });
       toast.success(t('saved'));
       await onSaved();

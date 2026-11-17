@@ -1,4 +1,8 @@
-import { BalanceStrategy, ProxyProtocol } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
+import {
+  BalanceStrategy,
+  ProxyProtocol,
+  TlsMode,
+} from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
 
 // Helpers of the edge setting (Resource, Location, Upstream): the labels of
 // its enums and the patterns its protobuf validation (buf.validate) holds.
@@ -21,6 +25,21 @@ export function schemeOf(protocol: ProxyProtocol): 'http' | 'https' {
 export const PROTOCOL_LABEL = [
   { value: ProxyProtocol.PROXY_PROTOCOL_HTTPS, label: 'HTTPS' },
   { value: ProxyProtocol.PROXY_PROTOCOL_HTTP, label: 'HTTP' },
+] as const;
+
+/**
+ * The TLS modes in the order a select lists them, with the keys of the
+ * `ResourceSetting` messages that label and describe each
+ */
+export const TLS_MODES = [
+  { value: TlsMode.TLS_MODE_UNSPECIFIED, label: 'tlsModeAuto', help: 'tlsModeAutoHelp' },
+  { value: TlsMode.TLS_MODE_TERMINATE, label: 'tlsModeTerminate', help: 'tlsModeTerminateHelp' },
+  { value: TlsMode.TLS_MODE_REENCRYPT, label: 'tlsModeReencrypt', help: 'tlsModeReencryptHelp' },
+  {
+    value: TlsMode.TLS_MODE_PASSTHROUGH,
+    label: 'tlsModePassthrough',
+    help: 'tlsModePassthroughHelp',
+  },
 ] as const;
 
 /** Keys of the `ResourceSetting` messages that label a balance strategy */

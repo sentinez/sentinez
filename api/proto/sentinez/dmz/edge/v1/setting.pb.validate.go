@@ -267,6 +267,36 @@ func (m *Tls) Validate() error {
 
 	}
 
+	for idx, item := range m.GetUpstreamCas() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return TlsValidationError{
+					field:  fmt.Sprintf("UpstreamCas[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	for idx, item := range m.GetUpstreamCertificates() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return TlsValidationError{
+					field:  fmt.Sprintf("UpstreamCertificates[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
 	return nil
 }
 
@@ -492,6 +522,8 @@ func (m *Resource) Validate() error {
 	}
 
 	// no validation rules for Domain
+
+	// no validation rules for TlsMode
 
 	return nil
 }

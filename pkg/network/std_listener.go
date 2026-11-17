@@ -37,6 +37,9 @@ func StdListen(addr string, opts ...NetworkOption) (*StdListener, error) {
 	}
 
 	listener.Listener = lis
+	if listener.opt.passthrough != nil {
+		listener.sni = newSNIRouter(lis, listener.opt.passthrough)
+	}
 
 	return listener, nil
 }
@@ -44,15 +47,15 @@ func StdListen(addr string, opts ...NetworkOption) (*StdListener, error) {
 type StdListener struct {
 	net.Listener
 	opt Option
+	// sni routes the connections when there is a passthrough, else nil.
+	sni *sniRouter
 }
 
 func (l *StdListener) Accept() (net.Conn, error) {
-	conn, err := l.Listener.Accept()
+	connWrapper, err := l.accept()
 	if err != nil {
 		return nil, err
 	}
-
-	connWrapper := newStdConn(conn)
 
 	if l.opt.onStdAccept != nil {
 		if err := l.opt.onStdAccept(connWrapper); err != nil {
@@ -63,4 +66,28 @@ func (l *StdListener) Accept() (net.Conn, error) {
 	szlog.Debugf("network: new conn: %s", connWrapper.Id)
 
 	return connWrapper, nil
+}
+
+// Close implements net.Listener: it also stops the passthrough
+// connections.
+func (l *StdListener) Close() error {
+	err := l.Listener.Close()
+	if l.sni != nil {
+		l.sni.close()
+	}
+
+	return err
+}
+
+func (l *StdListener) accept() (*StdConn, error) {
+	if l.sni != nil {
+		return l.sni.accept()
+	}
+
+	conn, err := l.Listener.Accept()
+	if err != nil {
+		return nil, err
+	}
+
+	return newStdConn(conn), nil
 }

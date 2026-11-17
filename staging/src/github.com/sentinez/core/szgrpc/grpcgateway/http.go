@@ -27,10 +27,10 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/quic-go/quic-go/http3"
-	"github.com/sentinez/core"
 	"github.com/sentinez/core/internal/console"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/httpconst"
+	"github.com/sentinez/pkg/szcode"
 	"github.com/sentinez/pkg/szerror"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
@@ -256,7 +256,7 @@ func chain(h http.Handler, m ...func(http.Handler) http.Handler) http.Handler {
 // headers set after it are not sent.
 func extendHeader(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set(httpconst.HeaderServer, core.Name)
+		w.Header().Set(httpconst.HeaderServer, szcode.Name)
 
 		next.ServeHTTP(w, r)
 	})

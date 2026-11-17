@@ -16,6 +16,7 @@ package stdhttpx
 
 import (
 	"context"
+	"crypto/tls"
 	"net/http"
 	"slices"
 	"time"
@@ -43,8 +44,9 @@ type Server struct {
 }
 
 // AcceptReverse implements [szhttp.Server].
-func (s *Server) AcceptReverse(target string) (szhttp.ReverseProxy, error) {
-	return httpx.NewReverseProxy(target, network.StandardTransporter())
+func (s *Server) AcceptReverse(target string,
+	conf *tls.Config) (szhttp.ReverseProxy, error) {
+	return httpx.NewReverseProxy(target, network.StandardTransporter(conf))
 }
 
 func (s *Server) Use(

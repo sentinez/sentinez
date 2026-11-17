@@ -47,7 +47,7 @@ import {
   UpdateTenantRequest,
   UpdateTenantResponse,
 } from '@sentinez/proto/sentinez/apps/tenant/v1/tenant';
-import { Resource as EdgeResource } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
+import { Resource as EdgeResource, TlsMode } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 import axios, { AxiosError, AxiosHeaders } from 'axios';
 
@@ -74,12 +74,20 @@ export function edgeResourceOf(r: Resource): EdgeResource {
     name: r.name,
     domain: r.domain,
     locations: r.locations,
+    tlsMode: r.tlsMode,
   });
 }
 
-/** The name, domain and locations of a resource from the edge resource of a request */
-function tenantFieldsOf(srv?: EdgeResource): Pick<Resource, 'name' | 'domain' | 'locations'> {
-  return { name: srv?.name ?? '', domain: srv?.domain ?? '', locations: srv?.locations ?? [] };
+/** The name, domain, locations and TLS mode of a resource from the edge resource of a request */
+function tenantFieldsOf(
+  srv?: EdgeResource,
+): Pick<Resource, 'name' | 'domain' | 'locations' | 'tlsMode'> {
+  return {
+    name: srv?.name ?? '',
+    domain: srv?.domain ?? '',
+    locations: srv?.locations ?? [],
+    tlsMode: srv?.tlsMode ?? TlsMode.TLS_MODE_UNSPECIFIED,
+  };
 }
 
 const upstream = (server: string, protocol = 'PROXY_PROTOCOL_HTTPS') => ({ server, protocol });
@@ -153,6 +161,7 @@ const generatedResources: Resource[] = Array.from({ length: 20 }, (_, i): Resour
     domain: `site${n}.example.com`,
     locations: [],
     status: n % 4 === 0 ? Status.STATUS_DISABLE : Status.STATUS_ACTIVE,
+    tlsMode: TlsMode.TLS_MODE_UNSPECIFIED,
   };
 });
 

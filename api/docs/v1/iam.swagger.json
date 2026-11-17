@@ -576,9 +576,11 @@
       "enum": [
         "CONTROL_PLANE_UNSPECIFIED",
         "CONTROL_PLANE_PORTAL",
-        "CONTROL_PLANE_ADMIN"
+        "CONTROL_PLANE_ADMIN",
+        "CONTROL_PLANE_SERVICE"
       ],
-      "default": "CONTROL_PLANE_UNSPECIFIED"
+      "default": "CONTROL_PLANE_UNSPECIFIED",
+      "description": " - CONTROL_PLANE_SERVICE: SERVICE is an internal service (eg the edge) calling another one; its\ntokens are signed with SENZ_SERVICE_KEY, never with SENZ_SECRET_KEY."
     },
     "v1CreateAccountRequest": {
       "type": "object",
