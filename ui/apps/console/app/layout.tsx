@@ -5,6 +5,7 @@ import '@sentinez/ui/custom.css';
 
 import { Providers } from '@/components/providers';
 import { Metadata } from 'next';
+import { headers } from 'next/headers';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getTranslations } from 'next-intl/server';
 import LoadingEffect from '@/components/loading-effect';
@@ -24,22 +25,24 @@ export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('Metadata');
   const title = t('title');
   const description = t('description');
+  const image = '/assets/sntz-og.png';
 
   return {
+    metadataBase: await requestOrigin(),
     title,
     description,
 
     openGraph: {
       title,
       description,
-      url: 'https://s6z.io.vn/',
+      url: 'https://console.s6z.io.vn/',
       siteName: 'Sentinéz',
       type: 'website',
       images: [
         {
-          url: 'https://s6z.io.vn/images/sntz.png',
-          width: 720,
-          height: 720,
+          url: image,
+          width: 1200,
+          height: 630,
           alt: title,
         },
       ],
@@ -49,9 +52,20 @@ export async function generateMetadata(): Promise<Metadata> {
       card: 'summary_large_image',
       title,
       description,
-      images: ['https://s6z.io.vn/images/sntz.png'],
+      images: [image],
     },
   };
+}
+
+// requestOrigin resolves the origin the console is served from, so the
+// metadata image links back to this app's own public assets.
+async function requestOrigin(): Promise<URL | null> {
+  const h = await headers();
+  const host = h.get('x-forwarded-host') ?? h.get('host');
+  if (!host) return null;
+
+  const proto = h.get('x-forwarded-proto') ?? 'https';
+  return new URL(`${proto}://${host}`);
 }
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
