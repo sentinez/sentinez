@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sentinez/core/szcrypto/certs"
 	"github.com/sentinez/pkg/szerror"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -132,7 +133,7 @@ func newCaCertificate(cert *x509.Certificate) *tenantpb.CaCertificate {
 		FingerprintSha256: hex.EncodeToString(sum[:]),
 		NotBefore:         timestamppb.New(cert.NotBefore),
 		NotAfter:          timestamppb.New(cert.NotAfter),
-		SelfSigned:        isSelfSigned(cert),
+		SelfSigned:        certs.IsSelfSigned(cert),
 	}
 }
 
@@ -144,12 +145,6 @@ func providerOf(cert *x509.Certificate) string {
 	}
 
 	return cert.Issuer.CommonName
-}
-
-// isSelfSigned reports whether cert is signed by its own key, as a root CA.
-func isSelfSigned(cert *x509.Certificate) bool {
-	return bytes.Equal(cert.RawSubject, cert.RawIssuer) &&
-		cert.CheckSignatureFrom(cert) == nil
 }
 
 // attachPrivateKey sets the private key of the one certificate of certs that
