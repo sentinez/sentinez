@@ -2,7 +2,7 @@ services:
   sentinez.monitoring.prometheus:
     image: prom/prometheus:v3.8.1
     container_name: sentinez.monitoring.prometheus
-    restart: on-failure:3
+    restart: "no"
 
     command:
       - --config.file=/etc/prometheus/prometheus.yml
@@ -22,7 +22,7 @@ services:
   sentinez.monitoring.grafana:
     image: grafana/grafana:12.1.1
     container_name: sentinez.monitoring.grafana
-    restart: on-failure:3
+    restart: "no"
 
     ports:
       - "3000:3000"
@@ -37,7 +37,7 @@ services:
   sentinez.monitoring.cadvisor:
     image: gcr.io/cadvisor/cadvisor
     container_name: sentinez.monitoring.cadvisor
-    restart: on-failure:3
+    restart: "no"
 
     ports:
       - "8080:8080"

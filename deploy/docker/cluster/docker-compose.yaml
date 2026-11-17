@@ -4,7 +4,7 @@
 
 x-consul: &consul
   image: hashicorp/consul:latest
-  restart: on-failure:3
+  restart: "no"
   # leave_on_terminate has no flag: a server keeps its Raft seat on SIGTERM
   # by default, which would leave sentinez.consul without a quorum
   command:
@@ -18,7 +18,7 @@ x-consul: &consul
 
 x-edge: &edge
   image: sentinez/edge:latest
-  restart: on-failure
+  restart: "no"
   # public resolvers for the upstreams, see deploy/docker/docker-compose.yaml
   dns:
     - 8.8.8.8

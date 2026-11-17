@@ -17,7 +17,7 @@ services:
     container_name: sentinez.timescale
     ports:
       - "5432:5432"
-    restart: on-failure:3
+    restart: "no"
     env_file:
       - timescale.env
     volumes:
@@ -31,7 +31,7 @@ services:
   #   hostname: sentinez.postgres
   #   ports:
   #     - "5432:5432"
-  #   restart: on-failure:3
+  #   restart: "no"
   #   environment:
   #     POSTGRES_USER: root
   #     POSTGRES_PASSWORD: root
@@ -45,7 +45,7 @@ services:
     image: hashicorp/consul:latest
     container_name: sentinez.consul
     hostname: sentinez.consul
-    restart: on-failure:3
+    restart: "no"
     ports:
       - "8500:8500"   # UI & API
       - "8600:8600/udp" # DNS
@@ -73,7 +73,7 @@ services:
   #   image: sentinez/apiserver:latest
   #   hostname: sentinez.gateway.apiserver
   #   container_name: sentinez.gateway.apiserver
-  #   restart: on-failure:3
+  #   restart: "no"
   #   ports:
   #     - "8080:8080"
   #   networks:
@@ -87,7 +87,7 @@ services:
     image: sentinez/edge:latest
     hostname: sentinez.dmz.edge
     container_name: sentinez.dmz.edge
-    restart: on-failure
+    restart: "no"
     ports:
       - "7443:7443" # HTTPS connection
       - "7443:7443/udp"
@@ -132,7 +132,7 @@ services:
     image: apache/kafka:3.9.0
     container_name: sentinez.kafka
     hostname: sentinez.kafka
-    restart: on-failure:3
+    restart: "no"
     ports:
       - "9094:9094" # clients on the host
     env_file:
@@ -182,7 +182,7 @@ services:
     image: sentinez/collector:latest
     hostname: sentinez.apps.collector
     container_name: sentinez.apps.collector
-    restart: on-failure
+    restart: "no"
     # no .env inside the image: the env comes from env_file/environment
     command: ["main", "--env_file="]
     ports:
@@ -201,17 +201,17 @@ services:
   # Publishes the changes of the synced tables to the edges of
   # deploy/docker/cluster through their Olric servers, and serves their
   # leader's Sync (make sz.centraldata.image.build). Olric refuses a client
-  # before those edges listen: it restarts until they do, so run
-  # make compose.edge.up. Do not run make sz.centraldata.run beside it: both
-  # would register the same service in Consul.
+  # before those edges listen: it exits until they do, so run
+  # make compose.edge.up, which starts it last. Do not run
+  # make sz.centraldata.run beside it: both would register the same service
+  # in Consul.
   sentinez.apps.centraldata:
     image: sentinez/centraldata:latest
     hostname: sentinez.apps.centraldata
     container_name: sentinez.apps.centraldata
-    # no retry cap: it fails until the edges listen, and Consul until it
-    # has a leader; on-failure, unlike unless-stopped, never starts it at
-    # boot
-    restart: on-failure
+    # not restarted, not even on-failure: Docker counts the SIGTERM of a
+    # shutdown as a failure and would start it at boot
+    restart: "no"
     # no .env inside the image: the env comes from env_file/environment
     command: ["main", "--env_file="]
     ports:
