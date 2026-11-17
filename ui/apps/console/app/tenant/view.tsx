@@ -86,7 +86,11 @@ export default function View() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <RefreshButton loading={isLoading} onRefresh={refresh} />
+          <RefreshButton
+            loading={isLoading}
+            onRefresh={refresh}
+            className="border-input bg-transparent"
+          />
         </div>
         <div className="flex w-full flex-col items-center justify-center gap-4 sm:flex-row sm:flex-wrap sm:gap-10">
           {visible > 0 && (
