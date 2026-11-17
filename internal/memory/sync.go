@@ -224,8 +224,7 @@ func (m *MemStore) load(id string, s *edgepb.Setting) {
 }
 
 // unload removes namespace from the stores if resource id holds it, and
-// reports whether it did. The reverse proxies stay: they are keyed by
-// upstream, shared between namespaces.
+// reports whether it did.
 func (m *MemStore) unload(id, ns string) bool {
 	m.ownersMu.Lock()
 	if m.owners[ns] != id {
@@ -238,6 +237,8 @@ func (m *MemStore) unload(id, ns string) bool {
 
 	m.setting.Delete(ns)
 	m.route.Delete(ns)
+	m.reverseProxy.Delete(ns)
+	m.passthrough.Delete(ns)
 	m.cdnRules.Delete(ns)
 	m.secRule.Delete(ns)
 	m.limiter.Delete(ns)

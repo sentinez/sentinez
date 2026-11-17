@@ -17,6 +17,7 @@ package memory
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"sync"
@@ -89,6 +90,8 @@ func newMemStore(shared *cluster.Cluster, sealer *crypto.Sealer,
 		setting:      settings.New(),
 		limiter:      ratelimiter.New(),
 		reverseProxy: reverseproxy.New(),
+		plainProxy:   szsync.NewMap[string, szhttp.ReverseProxy](),
+		passthrough:  szsync.NewMap[string, []string](),
 		route:        routes.New(),
 		secRule:      secrules.New(),
 		rulesets:     rulesets.New(),
@@ -116,6 +119,12 @@ type MemStore struct {
 	setting      *settings.Setting
 	limiter      *ratelimiter.Limiter
 	reverseProxy *reverseproxy.ReverseProxy
+	// plainProxy the proxies without upstream TLS settings, by target:
+	// shared by every namespace dialing that target
+	plainProxy *szsync.Map[string, szhttp.ReverseProxy]
+	// passthrough the upstream addresses of the namespaces in passthrough
+	// mode
+	passthrough  *szsync.Map[string, []string]
 	route        *routes.Router
 	secRule      *secrules.SecRule
 	rulesets     *rulesets.Rulesets
@@ -230,30 +239,139 @@ func (m *MemStore) LoadRouter(s *edgepb.Setting) error {
 	return nil
 }
 
+// LoadReverseProxy builds the proxies of the upstreams of s, dialed with
+// its upstream TLS settings, in place of the previous ones of its
+// namespace. When those settings fail the namespace has no proxy: its
+// upstreams are never dialed without the CAs or the client certificate it
+// asks for. A namespace in passthrough mode has its upstream addresses
+// instead, for the listener (see Passthrough).
 func (m *MemStore) LoadReverseProxy(
 	server szhttp.Server, s *edgepb.Setting) error {
 
-	for _, routeConfig := range s.GetIngress().GetResource().GetLocations() {
-		for _, upstream := range routeConfig.GetProxyPass() {
-			if _, ok := m.reverseProxy.Load(upstream.GetServer()); ok {
-				continue
-			}
+	res := s.GetIngress().GetResource()
+	ns := res.GetDomain()
+	if res.GetTlsMode() == _passthrough {
+		// the listener forwards its connections, no request reaches here
+		m.reverseProxy.Delete(ns)
+		m.passthrough.Store(ns, passthroughAddrs(res))
 
-			target, err := szhttp.Upstream2Target(upstream)
-			if err != nil {
-				return fmt.Errorf("reverse proxy: target: %w", err)
-			}
+		return nil
+	}
 
-			rproxy, err := server.AcceptReverse(target)
-			if err != nil {
-				return fmt.Errorf("reverse proxy: create: %w", err)
-			}
+	m.passthrough.Delete(ns)
 
-			m.reverseProxy.Store(upstream.GetServer(), rproxy)
+	conf, err := m.upstreamTLS(s)
+	if err != nil {
+		m.reverseProxy.Delete(ns)
+		return fmt.Errorf("reverse proxy: upstream tls: %w", err)
+	}
+
+	proxies, err := m.newReverseProxies(server, res, conf)
+	m.reverseProxy.Store(ns, proxies)
+
+	return err
+}
+
+// newReverseProxies the proxies of the upstreams of res, by server,
+// dialing with conf; an upstream that fails is left out.
+func (m *MemStore) newReverseProxies(server szhttp.Server,
+	res *edgepb.Resource, conf *tls.Config,
+) (map[string]szhttp.ReverseProxy, error) {
+
+	servers := upstreamServers(res)
+	proxies := make(map[string]szhttp.ReverseProxy, len(servers))
+
+	var errs []error
+	for _, upstream := range servers {
+		rproxy, err := m.newReverseProxy(server, upstream,
+			res.GetTlsMode(), conf)
+		if err != nil {
+			errs = append(errs, err)
+			continue
+		}
+
+		proxies[upstream.GetServer()] = rproxy
+	}
+
+	return proxies, errors.Join(errs...)
+}
+
+// newReverseProxy the proxy to upstream. Without conf it is the one every
+// namespace shares for that target, so its connections are pooled once
+// and kept across loads; with conf it is the namespace's own.
+func (m *MemStore) newReverseProxy(server szhttp.Server,
+	upstream *edgepb.Upstream, mode edgepb.TlsMode, conf *tls.Config,
+) (szhttp.ReverseProxy, error) {
+
+	target, err := targetOf(mode, upstream)
+	if err != nil {
+		return nil, fmt.Errorf("reverse proxy: target: %w", err)
+	}
+
+	if conf == nil {
+		if rproxy, ok := m.plainProxy.Load(target); ok {
+			return rproxy, nil
 		}
 	}
 
-	return nil
+	rproxy, err := server.AcceptReverse(target, conf)
+	if err != nil {
+		return nil, fmt.Errorf("reverse proxy: create: %w", err)
+	}
+
+	if conf == nil {
+		m.plainProxy.Store(target, rproxy)
+	}
+
+	return rproxy, nil
+}
+
+// _modeProtocol the protocol a TLS mode dials every upstream with; a mode
+// left out follows the protocol of each upstream.
+var _modeProtocol = map[edgepb.TlsMode]edgepb.ProxyProtocol{
+	edgepb.TlsMode_TLS_MODE_TERMINATE: _protocolHTTP,
+	edgepb.TlsMode_TLS_MODE_REENCRYPT: _protocolHTTPS,
+}
+
+const (
+	_protocolHTTP  = edgepb.ProxyProtocol_PROXY_PROTOCOL_HTTP
+	_protocolHTTPS = edgepb.ProxyProtocol_PROXY_PROTOCOL_HTTPS
+)
+
+// targetOf the target of the proxy to upstream, of the protocol mode asks
+// for.
+func targetOf(mode edgepb.TlsMode, upstream *edgepb.Upstream,
+) (string, error) {
+	if protocol, ok := _modeProtocol[mode]; ok {
+		upstream = &edgepb.Upstream{
+			Server: upstream.GetServer(), Protocol: protocol,
+		}
+	}
+
+	return szhttp.Upstream2Target(upstream)
+}
+
+// upstreamServers the upstreams of res with a server, each server once, in
+// the order of its locations.
+func upstreamServers(res *edgepb.Resource) []*edgepb.Upstream {
+	var (
+		upstreams []*edgepb.Upstream
+		seen      = make(map[string]struct{})
+	)
+
+	for _, loc := range res.GetLocations() {
+		for _, upstream := range loc.GetProxyPass() {
+			server := upstream.GetServer()
+			if _, ok := seen[server]; ok || server == "" {
+				continue
+			}
+
+			seen[server] = struct{}{}
+			upstreams = append(upstreams, upstream)
+		}
+	}
+
+	return upstreams
 }
 
 func (m *MemStore) LoadRateLimiter(s *edgepb.Setting) error {

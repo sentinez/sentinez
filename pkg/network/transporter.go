@@ -15,12 +15,15 @@
 package network
 
 import (
+	"crypto/tls"
 	"net"
 	"net/http"
 	"time"
 )
 
-func StandardTransporter() http.RoundTripper {
+// StandardTransporter the transport of a reverse proxy over TCP; conf,
+// when not nil, is the TLS config it dials https with, else the default.
+func StandardTransporter(conf *tls.Config) http.RoundTripper {
 	base, ok := http.DefaultTransport.(*http.Transport)
 	if !ok {
 		base = &http.Transport{}
@@ -31,6 +34,13 @@ func StandardTransporter() http.RoundTripper {
 		Timeout:   30 * time.Second,
 		KeepAlive: 30 * time.Second,
 	}).DialContext
+
+	if conf != nil {
+		// ForceAttemptHTTP2 of the clone keeps h2 with a custom config,
+		// which the transport then changes (it adds h2 to NextProtos):
+		// a clone keeps conf, shared by several transports, as it is
+		transport.TLSClientConfig = conf.Clone()
+	}
 
 	return transport
 }

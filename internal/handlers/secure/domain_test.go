@@ -20,8 +20,13 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szhttp/chains"
+	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
+	"github.com/sentinez/sentinez/internal/memory/settings"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestMisdirected(t *testing.T) {
@@ -47,4 +52,27 @@ func TestMisdirected(t *testing.T) {
 			assert.Equal(t, tt.want, misdirected(ctx, tt.giveNs))
 		})
 	}
+}
+
+func TestDomainRefusesPassthroughRequest(t *testing.T) {
+	const ns = "pass.example.com"
+	store := settings.New()
+	store.Store(&edgepb.Setting{Ingress: &edgepb.Ingress{
+		Resource: &edgepb.Resource{
+			Domain:  ns,
+			TlsMode: edgepb.TlsMode_TLS_MODE_PASSTHROUGH,
+		},
+	}})
+	t.Cleanup(func() { store.Delete(ns) })
+
+	rec := httptest.NewRecorder()
+	ctx := httpx.NewContext(
+		httptest.NewRequest(http.MethodGet, "https://"+ns+"/", nil), rec)
+	next := chains.HandlerFunc(func(szhttp.Context) error {
+		t.Fatal("a passthrough domain reaches no stage")
+		return nil
+	})
+
+	require.NoError(t, (&DomainBased{settings: store}).Handle(ctx, next))
+	assert.Equal(t, http.StatusMisdirectedRequest, rec.Code)
 }

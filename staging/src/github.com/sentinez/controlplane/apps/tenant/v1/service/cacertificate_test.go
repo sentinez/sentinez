@@ -168,43 +168,57 @@ func TestCreateCaCertificateGivesTheKeyToTheRepoOnly(t *testing.T) {
 	assert.True(t, resp.GetCaCertificates()[0].GetHasPrivateKey())
 }
 
-func TestCreateServerCertificateNeedsTheKey(t *testing.T) {
-	leaf := leafNamed(t, "www.example.com")
-	// no transaction, no repo call: nothing is stored
-	svc := caService(t, typepb.Role_ROLE_LEADER, _tenantId, nil,
-		cacertmock.NewMockICaCertificate(t))
+// _leafUsages the usages of a certificate of the edge rather than of a CA.
+var _leafUsages = []tenantpb.CaCertificateUsage{
+	_usageServer, _usageUpstreamClient,
+}
 
-	_, err := svc.CreateCaCertificate(asUser(t, "user_1"),
-		&tenantpb.CreateCaCertificateRequest{
-			ResourceId: _resourceId, Pem: leaf.certPEM,
-			Usage: _usageServer,
+func TestCreateLeafCertificateNeedsTheKey(t *testing.T) {
+	leaf := leafNamed(t, "www.example.com")
+
+	for _, tt := range _leafUsages {
+		t.Run(tt.String(), func(t *testing.T) {
+			// no transaction, no repo call: nothing is stored
+			svc := caService(t, typepb.Role_ROLE_LEADER, _tenantId, nil,
+				cacertmock.NewMockICaCertificate(t))
+
+			_, err := svc.CreateCaCertificate(asUser(t, "user_1"),
+				&tenantpb.CreateCaCertificateRequest{
+					ResourceId: _resourceId, Pem: leaf.certPEM, Usage: tt,
+				})
+
+			assert.Equal(t, codes.InvalidArgument, status.Code(err))
 		})
-
-	assert.Equal(t, codes.InvalidArgument, status.Code(err))
+	}
 }
 
-func TestCreateServerCertificateIsNotACa(t *testing.T) {
+func TestCreateLeafCertificateIsNotACa(t *testing.T) {
 	leaf := leafNamed(t, "www.example.com")
-	tx, conn := mockTx(t)
-	conn.ExpectCommit()
-	repo := cacertmock.NewMockICaCertificate(t)
-	createsEach(repo)
 
-	resp, err := caService(t, typepb.Role_ROLE_LEADER, _tenantId, tx, repo).
-		CreateCaCertificate(asUser(t, "user_1"),
-			&tenantpb.CreateCaCertificateRequest{
-				ResourceId: _resourceId, Pem: leaf.certPEM,
-				PrivateKey: leaf.keyPEM,
-				Usage:      _usageServer,
-			})
+	for _, tt := range _leafUsages {
+		t.Run(tt.String(), func(t *testing.T) {
+			tx, conn := mockTx(t)
+			conn.ExpectCommit()
+			repo := cacertmock.NewMockICaCertificate(t)
+			createsEach(repo)
 
-	require.NoError(t, err)
-	require.Len(t, resp.GetCaCertificates(), 1)
-	assert.Equal(t, "www.example.com", resp.GetCaCertificates()[0].GetName())
-	assert.NoError(t, conn.ExpectationsWereMet())
+			resp, err := caService(t, typepb.Role_ROLE_LEADER, _tenantId,
+				tx, repo).CreateCaCertificate(asUser(t, "user_1"),
+				&tenantpb.CreateCaCertificateRequest{
+					ResourceId: _resourceId, Pem: leaf.certPEM,
+					PrivateKey: leaf.keyPEM, Usage: tt,
+				})
+
+			require.NoError(t, err)
+			require.Len(t, resp.GetCaCertificates(), 1)
+			assert.Equal(t, "www.example.com",
+				resp.GetCaCertificates()[0].GetName())
+			assert.NoError(t, conn.ExpectationsWereMet())
+		})
+	}
 }
 
-func TestCreateLeafCertificateIsRefusedWithoutServerUsage(t *testing.T) {
+func TestCreateLeafCertificateIsRefusedWithoutLeafUsage(t *testing.T) {
 	leaf := leafNamed(t, "www.example.com")
 	svc := caService(t, typepb.Role_ROLE_LEADER, _tenantId, nil,
 		cacertmock.NewMockICaCertificate(t))

@@ -136,7 +136,10 @@ type Server interface {
 	ListenAndServe(addr string, opts ...ServerOption) error
 	Use(mdw ...func(next RequestHandler) RequestHandler)
 	Handle(fn RequestHandler)
-	AcceptReverse(target string) (ReverseProxy, error)
+	// AcceptReverse a proxy to the upstream target ("http://host" or
+	// "https://host"); conf, when not nil, is the TLS config it dials an
+	// https target with (CAs, client certificate), else the defaults.
+	AcceptReverse(target string, conf *tls.Config) (ReverseProxy, error)
 }
 
 type ReverseProxy interface {

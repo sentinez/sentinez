@@ -17,6 +17,8 @@ import (
 
 	"google.golang.org/protobuf/types/known/anypb"
 
+	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
+
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
 
@@ -35,6 +37,8 @@ var (
 	_ = anypb.Any{}
 
 	_ = typepb.Status(0)
+
+	_ = edgepb.TlsMode(0)
 
 	_ = typepb.Plan(0)
 
@@ -82,6 +86,8 @@ func (m *Resource) Validate() error {
 	}
 
 	// no validation rules for Status
+
+	// no validation rules for TlsMode
 
 	return nil
 }

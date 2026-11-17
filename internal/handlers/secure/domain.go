@@ -16,6 +16,7 @@ package secure
 
 import (
 	"github.com/sentinez/core/szhttp/chains"
+	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/pkg/bytesconv"
@@ -65,6 +66,13 @@ func (d *DomainBased) Handle(
 	st, err := d.settings.Load(ns)
 	if err != nil {
 		return szhttp.Forbidden(ctx)
+	}
+
+	// the listener forwards the connections of a passthrough domain: a
+	// request of it came on a connection made for another name
+	if st.GetIngress().GetResource().GetTlsMode() ==
+		edgepb.TlsMode_TLS_MODE_PASSTHROUGH {
+		return szhttp.MisdirectedRequest(ctx)
 	}
 
 	xctx.Namespace = ns

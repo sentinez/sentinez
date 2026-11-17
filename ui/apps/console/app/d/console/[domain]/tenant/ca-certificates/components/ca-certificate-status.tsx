@@ -48,7 +48,17 @@ export const CA_USAGES = [
     label: 'usageServer',
     help: 'usageServerHelp',
   },
+  {
+    value: CaCertificateUsage.CA_CERTIFICATE_USAGE_UPSTREAM_CLIENT,
+    label: 'usageUpstreamClient',
+    help: 'usageUpstreamClientHelp',
+  },
 ] as const;
+
+/** Whether a certificate of usage belongs to the edge (served, or presented to the upstreams) rather than being a CA it trusts: not a CA, and of no use without its key */
+export const isLeafUsage = (usage: CaCertificateUsage) =>
+  usage === CaCertificateUsage.CA_CERTIFICATE_USAGE_SERVER ||
+  usage === CaCertificateUsage.CA_CERTIFICATE_USAGE_UPSTREAM_CLIENT;
 
 /** The usage entry, the upstream one for an unspecified usage */
 const caUsageOf = (usage: CaCertificateUsage) =>

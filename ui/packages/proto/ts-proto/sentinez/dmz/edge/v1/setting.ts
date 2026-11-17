@@ -13,6 +13,70 @@ import { Plan, planFromJSON, planToJSON } from "../../../types/v1/known";
 
 export const protobufPackage = "sentinez.dmz.edge.v1";
 
+/** TlsMode how the edge carries the TLS of a domain to its upstreams. */
+export enum TlsMode {
+  /**
+   * TLS_MODE_UNSPECIFIED - Each upstream as its protocol says: HTTP terminates, HTTPS
+   * re-encrypts.
+   */
+  TLS_MODE_UNSPECIFIED = 0,
+  /**
+   * TLS_MODE_TERMINATE - The edge decrypts the TLS, processes the HTTP request, and sends it
+   * to the upstreams in clear (HTTP), whatever their protocol.
+   */
+  TLS_MODE_TERMINATE = 1,
+  /**
+   * TLS_MODE_PASSTHROUGH - The edge forwards the TLS untouched, by the server name (SNI) of the
+   * client hello, to port 443 of the upstreams: it holds no certificate
+   * of the domain and sees no HTTP, so no rule, limit or cache applies.
+   */
+  TLS_MODE_PASSTHROUGH = 2,
+  /**
+   * TLS_MODE_REENCRYPT - The edge decrypts the TLS, processes the HTTP request, then opens a
+   * new TLS connection to the upstreams (HTTPS), whatever their protocol,
+   * with the upstream CAs and client certificate of the resource.
+   */
+  TLS_MODE_REENCRYPT = 3,
+  UNRECOGNIZED = -1,
+}
+
+export function tlsModeFromJSON(object: any): TlsMode {
+  switch (object) {
+    case 0:
+    case "TLS_MODE_UNSPECIFIED":
+      return TlsMode.TLS_MODE_UNSPECIFIED;
+    case 1:
+    case "TLS_MODE_TERMINATE":
+      return TlsMode.TLS_MODE_TERMINATE;
+    case 2:
+    case "TLS_MODE_PASSTHROUGH":
+      return TlsMode.TLS_MODE_PASSTHROUGH;
+    case 3:
+    case "TLS_MODE_REENCRYPT":
+      return TlsMode.TLS_MODE_REENCRYPT;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return TlsMode.UNRECOGNIZED;
+  }
+}
+
+export function tlsModeToJSON(object: TlsMode): string {
+  switch (object) {
+    case TlsMode.TLS_MODE_UNSPECIFIED:
+      return "TLS_MODE_UNSPECIFIED";
+    case TlsMode.TLS_MODE_TERMINATE:
+      return "TLS_MODE_TERMINATE";
+    case TlsMode.TLS_MODE_PASSTHROUGH:
+      return "TLS_MODE_PASSTHROUGH";
+    case TlsMode.TLS_MODE_REENCRYPT:
+      return "TLS_MODE_REENCRYPT";
+    case TlsMode.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 export enum BalanceStrategy {
   BALANCE_STRATEGY_UNSPECIFIED = 0,
   BALANCE_STRATEGY_ROUND_ROBIN = 1,
@@ -122,15 +186,31 @@ export interface Ingress {
     | Resource
     | undefined;
   /**
-   * Certificates the edge serves for resource.domain, from the CA
-   * certificates of usage SERVER of the resource; never read from a file.
+   * Certificates of resource: the ones the edge serves for its domain and
+   * the ones it dials the HTTPS upstreams with, from its CA certificates;
+   * never read from a file.
    */
   tls?: Tls | undefined;
 }
 
-/** Tls the certificates the edge serves for the domain of a setting. */
+/** Tls the certificates of the domain of a setting. */
 export interface Tls {
+  /**
+   * The certificates the edge serves (usage SERVER): the key pairs, and
+   * the chain of their issuers.
+   */
   certificates: Certificate[];
+  /**
+   * The CAs the certificates of the HTTPS upstreams are verified with
+   * (usage UPSTREAM), in place of the system ones; none: the system ones.
+   */
+  upstreamCas: Certificate[];
+  /**
+   * The client certificate the edge presents to the HTTPS upstreams
+   * (usage UPSTREAM_CLIENT, mTLS): the key pairs, and the chain of their
+   * issuers; none: no client certificate.
+   */
+  upstreamCertificates: Certificate[];
 }
 
 /**
@@ -177,6 +257,8 @@ export interface Resource {
    * the apiserver stores it as the domain of the resource. Required.
    */
   domain: string;
+  /** How the edge carries the TLS of the domain to its upstreams. */
+  tlsMode: TlsMode;
 }
 
 export interface Location {
@@ -507,13 +589,19 @@ export const Ingress: MessageFns<Ingress> = {
 };
 
 function createBaseTls(): Tls {
-  return { certificates: [] };
+  return { certificates: [], upstreamCas: [], upstreamCertificates: [] };
 }
 
 export const Tls: MessageFns<Tls> = {
   encode(message: Tls, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     for (const v of message.certificates) {
       Certificate.encode(v!, writer.uint32(10).fork()).join();
+    }
+    for (const v of message.upstreamCas) {
+      Certificate.encode(v!, writer.uint32(18).fork()).join();
+    }
+    for (const v of message.upstreamCertificates) {
+      Certificate.encode(v!, writer.uint32(26).fork()).join();
     }
     return writer;
   },
@@ -539,6 +627,22 @@ export const Tls: MessageFns<Tls> = {
             message.certificates.push(Certificate.decode(reader, reader.uint32()));
             continue;
           }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.upstreamCas.push(Certificate.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.upstreamCertificates.push(Certificate.decode(reader, reader.uint32()));
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -556,6 +660,16 @@ export const Tls: MessageFns<Tls> = {
       certificates: globalThis.Array.isArray(object?.certificates)
         ? object.certificates.map((e: any) => Certificate.fromJSON(e))
         : [],
+      upstreamCas: globalThis.Array.isArray(object?.upstreamCas)
+        ? object.upstreamCas.map((e: any) => Certificate.fromJSON(e))
+        : globalThis.Array.isArray(object?.upstream_cas)
+        ? object.upstream_cas.map((e: any) => Certificate.fromJSON(e))
+        : [],
+      upstreamCertificates: globalThis.Array.isArray(object?.upstreamCertificates)
+        ? object.upstreamCertificates.map((e: any) => Certificate.fromJSON(e))
+        : globalThis.Array.isArray(object?.upstream_certificates)
+        ? object.upstream_certificates.map((e: any) => Certificate.fromJSON(e))
+        : [],
     };
   },
 
@@ -563,6 +677,12 @@ export const Tls: MessageFns<Tls> = {
     const obj: any = {};
     if (message.certificates?.length) {
       obj.certificates = message.certificates.map((e) => Certificate.toJSON(e));
+    }
+    if (message.upstreamCas?.length) {
+      obj.upstreamCas = message.upstreamCas.map((e) => Certificate.toJSON(e));
+    }
+    if (message.upstreamCertificates?.length) {
+      obj.upstreamCertificates = message.upstreamCertificates.map((e) => Certificate.toJSON(e));
     }
     return obj;
   },
@@ -573,6 +693,8 @@ export const Tls: MessageFns<Tls> = {
   fromPartial<I extends Exact<DeepPartial<Tls>, I>>(object: I): Tls {
     const message = createBaseTls();
     message.certificates = object.certificates?.map((e) => Certificate.fromPartial(e)) || [];
+    message.upstreamCas = object.upstreamCas?.map((e) => Certificate.fromPartial(e)) || [];
+    message.upstreamCertificates = object.upstreamCertificates?.map((e) => Certificate.fromPartial(e)) || [];
     return message;
   },
 };
@@ -792,7 +914,7 @@ export const Metadata: MessageFns<Metadata> = {
 };
 
 function createBaseResource(): Resource {
-  return { id: "", name: "", locations: [], domain: "" };
+  return { id: "", name: "", locations: [], domain: "", tlsMode: 0 };
 }
 
 export const Resource: MessageFns<Resource> = {
@@ -808,6 +930,9 @@ export const Resource: MessageFns<Resource> = {
     }
     if (message.domain !== "") {
       writer.uint32(34).string(message.domain);
+    }
+    if (message.tlsMode !== 0) {
+      writer.uint32(40).int32(message.tlsMode);
     }
     return writer;
   },
@@ -857,6 +982,14 @@ export const Resource: MessageFns<Resource> = {
             message.domain = reader.string();
             continue;
           }
+          case 5: {
+            if (tag !== 40) {
+              break;
+            }
+
+            message.tlsMode = reader.int32() as any;
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -877,6 +1010,11 @@ export const Resource: MessageFns<Resource> = {
         ? object.locations.map((e: any) => Location.fromJSON(e))
         : [],
       domain: isSet(object.domain) ? globalThis.String(object.domain) : "",
+      tlsMode: isSet(object.tlsMode)
+        ? tlsModeFromJSON(object.tlsMode)
+        : isSet(object.tls_mode)
+        ? tlsModeFromJSON(object.tls_mode)
+        : 0,
     };
   },
 
@@ -894,6 +1032,9 @@ export const Resource: MessageFns<Resource> = {
     if (message.domain !== "") {
       obj.domain = message.domain;
     }
+    if (message.tlsMode !== 0) {
+      obj.tlsMode = tlsModeToJSON(message.tlsMode);
+    }
     return obj;
   },
 
@@ -906,6 +1047,7 @@ export const Resource: MessageFns<Resource> = {
     message.name = object.name ?? "";
     message.locations = object.locations?.map((e) => Location.fromPartial(e)) || [];
     message.domain = object.domain ?? "";
+    message.tlsMode = object.tlsMode ?? 0;
     return message;
   },
 };

@@ -168,7 +168,7 @@ func (s *Server) Start() error {
 		return err
 	}
 
-	lis, err := listen(addr, tlsConf)
+	lis, err := listen(addr, tlsConf, s.memstore.Passthrough)
 	if err != nil {
 		return err
 	}
@@ -190,8 +190,12 @@ type listeners struct {
 	quic *network.QuicListener
 }
 
-func listen(addr string, tlsConf *tls.Config) (*listeners, error) {
-	std, err := network.StdListen(addr, network.WithTCP())
+// listen on addr: TCP, which passes the TLS of the domains passthrough
+// resolves through untouched, and QUIC, which terminates it.
+func listen(addr string, tlsConf *tls.Config,
+	passthrough network.PassthroughFunc) (*listeners, error) {
+	std, err := network.StdListen(addr, network.WithTCP(),
+		network.WithPassthrough(passthrough))
 	if err != nil {
 		return nil, err
 	}

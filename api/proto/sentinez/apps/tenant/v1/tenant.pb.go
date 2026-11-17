@@ -311,8 +311,8 @@ type UpdateResourceRequest struct {
 	// The fields to write, those update_mask names; its id and tenant_id
 	// are ignored.
 	Resource *Resource `protobuf:"bytes,2,opt,name=resource,proto3" json:"resource,omitempty"`
-	// Fields of resource to update, among name, domain, locations and
-	// status ("*" for all of them); without one, those set in resource. A
+	// Fields of resource to update, among name, domain, locations, status
+	// and tls_mode ("*" for all of them); without one, those set in resource. A
 	// named field unset in resource is cleared, but the domain is required.
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,3,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -1695,13 +1695,14 @@ type CreateCaCertificateRequest struct {
 	Name        string             `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Description string             `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
 	Usage       CaCertificateUsage `protobuf:"varint,4,opt,name=usage,proto3,enum=sentinez.apps.tenant.v1.CaCertificateUsage" json:"usage,omitempty"`
-	// One or more PEM CERTIFICATE blocks, each a CA; for the usage SERVER they
-	// need not be CAs. Each is stored on its own. A PEM private key block may
+	// One or more PEM CERTIFICATE blocks, each a CA; for the usages SERVER
+	// and UPSTREAM_CLIENT they need not be CAs. Each is stored on its own. A PEM private key block may
 	// come in it too, as in a single pem file.
 	Pem string `protobuf:"bytes,5,opt,name=pem,proto3" json:"pem,omitempty"`
 	// PEM private key, kept with the one certificate of pem that it belongs to
 	// (the request is refused when it matches none, or holds more than one
-	// key). Required for the usage SERVER, here or in pem.
+	// key). Required for the usages SERVER and UPSTREAM_CLIENT, here or in
+	// pem.
 	PrivateKey    string `protobuf:"bytes,6,opt,name=private_key,json=privateKey,proto3" json:"private_key,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

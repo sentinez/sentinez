@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package reverseproxy keeps the reverse proxies of the upstreams, by
+// namespace: each namespace dials its upstreams with its own TLS settings
+// (CAs and client certificate), so a proxy is never shared between two.
 package reverseproxy
 
 import (
@@ -24,32 +27,46 @@ import (
 var (
 	_once             sync.Once
 	_reverseProxyInst *ReverseProxy
-	_mu               sync.Mutex
 )
 
+// New returns the process-wide reverse proxy store.
 func New() *ReverseProxy {
 	_once.Do(func() {
 		_reverseProxyInst = &ReverseProxy{
-			space: szsync.NewMap[string, szhttp.ReverseProxy](),
+			space: szsync.NewMap[string, map[string]szhttp.ReverseProxy](),
 		}
 	})
 
 	return _reverseProxyInst
 }
 
+// ReverseProxy is a concurrent map of namespace to the proxies of its
+// upstreams, by upstream server. The map of a namespace is never changed
+// once stored, only replaced.
 type ReverseProxy struct {
-	space *szsync.Map[string, szhttp.ReverseProxy]
+	space *szsync.Map[string, map[string]szhttp.ReverseProxy]
 }
 
-func (rp *ReverseProxy) Store(target string, rproxy szhttp.ReverseProxy) {
-	rp.space.Store(target, rproxy)
+// Store sets the proxies of namespace ns, by upstream server, in place of
+// the previous ones.
+func (rp *ReverseProxy) Store(ns string,
+	proxies map[string]szhttp.ReverseProxy) {
+	rp.space.Store(ns, proxies)
 }
 
-func (rp *ReverseProxy) Load(target string) (szhttp.ReverseProxy, bool) {
-	expr, ok := rp.space.Load(target)
+// Load returns the proxy of namespace ns to its upstream server target.
+func (rp *ReverseProxy) Load(ns, target string) (szhttp.ReverseProxy, bool) {
+	proxies, ok := rp.space.Load(ns)
 	if !ok {
 		return nil, false
 	}
 
-	return expr, true
+	proxy, ok := proxies[target]
+
+	return proxy, ok
+}
+
+// Delete drops the proxies of namespace ns.
+func (rp *ReverseProxy) Delete(ns string) {
+	rp.space.Delete(ns)
 }

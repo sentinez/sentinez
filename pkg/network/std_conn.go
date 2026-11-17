@@ -30,6 +30,27 @@ func newStdConn(conn net.Conn) *StdConn {
 type StdConn struct {
 	net.Conn
 	Id string
+
+	// pending what was read off Conn before (the client hello the
+	// passthrough router peeked), served first by Read.
+	pending []byte
+}
+
+// Read implements net.Conn: the pending bytes, then the conn.
+func (c *StdConn) Read(b []byte) (int, error) {
+	if len(c.pending) != 0 {
+		n := copy(b, c.pending)
+		c.pending = c.pending[n:]
+
+		return n, nil
+	}
+
+	return c.Conn.Read(b)
+}
+
+// CloseWrite half-closes the conn when it is TCP, else closes it.
+func (c *StdConn) CloseWrite() error {
+	return closeWrite(c.Conn)
 }
 
 func (c *StdConn) Close() error {

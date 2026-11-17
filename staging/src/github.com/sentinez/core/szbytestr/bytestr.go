@@ -31,6 +31,7 @@ var (
 	TooManyRequests     = []byte("Too many requests")
 	BadRequest          = []byte("Bad request")
 	MisdirectedRequest  = []byte("Misdirected request")
+	BadGateway          = []byte("Bad gateway")
 	HitCache            = []byte("HIT")
 	MethodNotAllowed    = []byte(httpconst.ValueMethodNotAllowed)
 )

@@ -53,8 +53,9 @@ type XServer struct {
 }
 
 // AcceptReverse implements [szhttp.Server].
-func (s *XServer) AcceptReverse(target string) (szhttp.ReverseProxy, error) {
-	return proxyhz.NewReverseProxy(target)
+func (s *XServer) AcceptReverse(target string,
+	conf *tls.Config) (szhttp.ReverseProxy, error) {
+	return proxyhz.NewReverseProxy(target, proxyhz.WithTLSConfig(conf))
 }
 
 // Use implements Server.

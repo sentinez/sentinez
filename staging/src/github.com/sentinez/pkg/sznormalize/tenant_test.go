@@ -33,6 +33,7 @@ func tenantResource() *tenantpb.Resource {
 			Location:  "/",
 			ProxyPass: []*edgepb.Upstream{{Server: "10.0.0.1"}},
 		}},
+		TlsMode: edgepb.TlsMode_TLS_MODE_REENCRYPT,
 	}
 }
 
@@ -46,6 +47,7 @@ func TestEdgeResource(t *testing.T) {
 		Name:      "shop",
 		Domain:    "shop.example.com",
 		Locations: res.GetLocations(),
+		TlsMode:   edgepb.TlsMode_TLS_MODE_REENCRYPT,
 	}
 	assert.True(t, proto.Equal(want, got), "got %v", got)
 	// the locations are copies: res does not change with the setting

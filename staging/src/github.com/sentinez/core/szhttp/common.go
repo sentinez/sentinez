@@ -40,6 +40,12 @@ func MisdirectedRequest(ctx Context) error {
 		szbytestr.MisdirectedRequest)
 }
 
+// BadGateway answers 502: the edge has no way to the upstream of the
+// request.
+func BadGateway(ctx Context) error {
+	return ctx.String(http.StatusBadGateway, szbytestr.BadGateway)
+}
+
 func BadRequest(ctx Context) error {
 	return renderPage(ctx, http.StatusBadRequest, render.BadRequest,
 		szbytestr.BadRequest)

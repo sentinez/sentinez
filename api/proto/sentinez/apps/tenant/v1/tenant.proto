@@ -375,8 +375,8 @@ message UpdateResourceRequest {
   // The fields to write, those update_mask names; its id and tenant_id
   // are ignored.
   sentinez.apps.tenant.v1.Resource resource = 2 [(buf.validate.field).required = true];
-  // Fields of resource to update, among name, domain, locations and
-  // status ("*" for all of them); without one, those set in resource. A
+  // Fields of resource to update, among name, domain, locations, status
+  // and tls_mode ("*" for all of them); without one, those set in resource. A
   // named field unset in resource is cleared, but the domain is required.
   google.protobuf.FieldMask update_mask = 3;
 }
@@ -614,8 +614,8 @@ message CreateCaCertificateRequest {
     not_in: [0]
   }];
 
-  // One or more PEM CERTIFICATE blocks, each a CA; for the usage SERVER they
-  // need not be CAs. Each is stored on its own. A PEM private key block may
+  // One or more PEM CERTIFICATE blocks, each a CA; for the usages SERVER
+  // and UPSTREAM_CLIENT they need not be CAs. Each is stored on its own. A PEM private key block may
   // come in it too, as in a single pem file.
   string pem = 5 [
     debug_redact = true,
@@ -630,7 +630,8 @@ message CreateCaCertificateRequest {
 
   // PEM private key, kept with the one certificate of pem that it belongs to
   // (the request is refused when it matches none, or holds more than one
-  // key). Required for the usage SERVER, here or in pem.
+  // key). Required for the usages SERVER and UPSTREAM_CLIENT, here or in
+  // pem.
   string private_key = 6 [
     debug_redact = true,
     (buf.validate.field) = {

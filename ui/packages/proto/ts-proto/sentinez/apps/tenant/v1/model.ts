@@ -7,7 +7,7 @@
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Timestamp } from "../../../../google/protobuf/timestamp";
-import { Location } from "../../../dmz/edge/v1/setting";
+import { Location, TlsMode, tlsModeFromJSON, tlsModeToJSON } from "../../../dmz/edge/v1/setting";
 import {
   Plan,
   planFromJSON,
@@ -34,6 +34,11 @@ export enum CaCertificateUsage {
    * with its private key.
    */
   CA_CERTIFICATE_USAGE_SERVER = 3,
+  /**
+   * CA_CERTIFICATE_USAGE_UPSTREAM_CLIENT - The client certificate the edge presents to upstream servers (mTLS):
+   * not a CA, and always with its private key.
+   */
+  CA_CERTIFICATE_USAGE_UPSTREAM_CLIENT = 4,
   UNRECOGNIZED = -1,
 }
 
@@ -51,6 +56,9 @@ export function caCertificateUsageFromJSON(object: any): CaCertificateUsage {
     case 3:
     case "CA_CERTIFICATE_USAGE_SERVER":
       return CaCertificateUsage.CA_CERTIFICATE_USAGE_SERVER;
+    case 4:
+    case "CA_CERTIFICATE_USAGE_UPSTREAM_CLIENT":
+      return CaCertificateUsage.CA_CERTIFICATE_USAGE_UPSTREAM_CLIENT;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -68,6 +76,8 @@ export function caCertificateUsageToJSON(object: CaCertificateUsage): string {
       return "CA_CERTIFICATE_USAGE_CLIENT";
     case CaCertificateUsage.CA_CERTIFICATE_USAGE_SERVER:
       return "CA_CERTIFICATE_USAGE_SERVER";
+    case CaCertificateUsage.CA_CERTIFICATE_USAGE_UPSTREAM_CLIENT:
+      return "CA_CERTIFICATE_USAGE_UPSTREAM_CLIENT";
     case CaCertificateUsage.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
@@ -93,6 +103,11 @@ export interface Resource {
   /** Routes of the domain to the origins, stored as JSONB. */
   locations: Location[];
   status: Status;
+  /**
+   * How the edge carries the TLS of the domain to its upstreams; NULL in
+   * the rows stored before it, read as unspecified.
+   */
+  tlsMode: TlsMode;
 }
 
 export interface Tenant {
@@ -112,9 +127,9 @@ export interface Member {
 }
 
 /**
- * CaCertificate is one certificate of a resource: a trusted CA, or the TLS
- * certificate the edge serves (usage SERVER), with its private key when one
- * was given. A bundle without a key is split into one record per
+ * CaCertificate is one certificate of a resource: a trusted CA, or a
+ * certificate of the edge (usage SERVER or UPSTREAM_CLIENT), with its
+ * private key when one was given. A bundle without a key is split into one record per
  * certificate on import, so the parsed fields below describe exactly one
  * certificate and the fingerprint is kept unique per resource. A record is
  * immutable: it is only created, read and deleted.
@@ -130,9 +145,9 @@ export interface CaCertificate {
   status: Status;
   /**
    * PEM-encoded certificate: exactly one CERTIFICATE block, with
-   * BasicConstraints CA=true unless the usage is SERVER. The source of truth; every parsed field
-   * below is set from it by the service, never by the client. Stored
-   * encrypted.
+   * BasicConstraints CA=true unless the usage is SERVER or UPSTREAM_CLIENT.
+   * The source of truth; every parsed field below is set from it by the
+   * service, never by the client. Stored encrypted.
    */
   pem: string;
   /** Subject and issuer distinguished names, in RFC 2253 form. */
@@ -163,7 +178,7 @@ export interface CaCertificate {
 }
 
 function createBaseResource(): Resource {
-  return { metadata: undefined, id: "", tenantId: "", name: "", domain: "", locations: [], status: 0 };
+  return { metadata: undefined, id: "", tenantId: "", name: "", domain: "", locations: [], status: 0, tlsMode: 0 };
 }
 
 export const Resource: MessageFns<Resource> = {
@@ -188,6 +203,9 @@ export const Resource: MessageFns<Resource> = {
     }
     if (message.status !== 0) {
       writer.uint32(56).int32(message.status);
+    }
+    if (message.tlsMode !== 0) {
+      writer.uint32(64).int32(message.tlsMode);
     }
     return writer;
   },
@@ -261,6 +279,14 @@ export const Resource: MessageFns<Resource> = {
             message.status = reader.int32() as any;
             continue;
           }
+          case 8: {
+            if (tag !== 64) {
+              break;
+            }
+
+            message.tlsMode = reader.int32() as any;
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -288,6 +314,11 @@ export const Resource: MessageFns<Resource> = {
         ? object.locations.map((e: any) => Location.fromJSON(e))
         : [],
       status: isSet(object.status) ? statusFromJSON(object.status) : 0,
+      tlsMode: isSet(object.tlsMode)
+        ? tlsModeFromJSON(object.tlsMode)
+        : isSet(object.tls_mode)
+        ? tlsModeFromJSON(object.tls_mode)
+        : 0,
     };
   },
 
@@ -314,6 +345,9 @@ export const Resource: MessageFns<Resource> = {
     if (message.status !== 0) {
       obj.status = statusToJSON(message.status);
     }
+    if (message.tlsMode !== 0) {
+      obj.tlsMode = tlsModeToJSON(message.tlsMode);
+    }
     return obj;
   },
 
@@ -331,6 +365,7 @@ export const Resource: MessageFns<Resource> = {
     message.domain = object.domain ?? "";
     message.locations = object.locations?.map((e) => Location.fromPartial(e)) || [];
     message.status = object.status ?? 0;
+    message.tlsMode = object.tlsMode ?? 0;
     return message;
   },
 };

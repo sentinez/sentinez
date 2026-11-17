@@ -62,11 +62,12 @@ func EdgeResource(res *tenantpb.Resource) *edgepb.Resource {
 		Name:      res.GetName(),
 		Domain:    res.GetDomain(),
 		Locations: cloneLocations(res.GetLocations()),
+		TlsMode:   res.GetTlsMode(),
 	}
 }
 
 // TenantResource is the tenant resource of the edge resource srv: its id,
-// name, domain and copies of its locations; nil when srv is.
+// name, domain, TLS mode and copies of its locations; nil when srv is.
 func TenantResource(srv *edgepb.Resource) *tenantpb.Resource {
 	if srv == nil {
 		return nil
@@ -77,6 +78,7 @@ func TenantResource(srv *edgepb.Resource) *tenantpb.Resource {
 		Name:      srv.GetName(),
 		Domain:    srv.GetDomain(),
 		Locations: cloneLocations(srv.GetLocations()),
+		TlsMode:   srv.GetTlsMode(),
 	}
 }
 

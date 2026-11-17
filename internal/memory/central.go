@@ -241,30 +241,50 @@ func (c *CentralSink) setting(res *tenantpb.Resource) *edgepb.Setting {
 	return st
 }
 
-// tls the certificates the edge serves for resource id: those of usage
-// SERVER, still sealed, by id. The ones without a private key are the
-// chain of the others.
+// tls the certificates of resource id, still sealed, by id, sorted by
+// usage: the ones the edge serves (SERVER), the CAs of the upstreams
+// (UPSTREAM) and the client certificate it presents to them
+// (UPSTREAM_CLIENT). Among SERVER and UPSTREAM_CLIENT, the ones without a
+// private key are the chain of the others.
 func (c *CentralSink) tls(id string) *edgepb.Tls {
-	var certs []*edgepb.Certificate
+	t := &edgepb.Tls{}
+	found := false
 	for _, msg := range c.sorted(sztable.TenantCaCertificates, id) {
 		row, ok := msg.(*tenantpb.CaCertificate)
-		if !ok || row.GetUsage() !=
-			tenantpb.CaCertificateUsage_CA_CERTIFICATE_USAGE_SERVER {
+		if !ok {
 			continue
 		}
 
-		certs = append(certs, &edgepb.Certificate{
-			Id:         row.GetId(),
-			Pem:        row.GetPem(),
-			PrivateKey: row.GetPrivateKey(),
-		})
+		if dst := tlsSlot(t, row.GetUsage()); dst != nil {
+			found = true
+			*dst = append(*dst, &edgepb.Certificate{
+				Id:         row.GetId(),
+				Pem:        row.GetPem(),
+				PrivateKey: row.GetPrivateKey(),
+			})
+		}
 	}
 
-	if len(certs) == 0 {
+	if !found {
 		return nil
 	}
 
-	return &edgepb.Tls{Certificates: certs}
+	return t
+}
+
+// tlsSlot the list of t a certificate of usage goes in, nil for none.
+func tlsSlot(t *edgepb.Tls, usage tenantpb.CaCertificateUsage,
+) *[]*edgepb.Certificate {
+	switch usage {
+	case tenantpb.CaCertificateUsage_CA_CERTIFICATE_USAGE_SERVER:
+		return &t.Certificates
+	case tenantpb.CaCertificateUsage_CA_CERTIFICATE_USAGE_UPSTREAM:
+		return &t.UpstreamCas
+	case tenantpb.CaCertificateUsage_CA_CERTIFICATE_USAGE_UPSTREAM_CLIENT:
+		return &t.UpstreamCertificates
+	default:
+		return nil
+	}
 }
 
 // security the security of resource id from its rows; the core ruleset of

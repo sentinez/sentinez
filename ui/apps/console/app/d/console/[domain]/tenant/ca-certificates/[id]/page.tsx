@@ -4,7 +4,7 @@ import { type ReactNode, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFormatter, useTranslations } from 'next-intl';
 import { Copy, Download, FileKey2, KeyRound, ShieldCheck } from 'lucide-react';
-import { CaCertificate, CaCertificateUsage } from '@sentinez/proto/sentinez/apps/tenant/v1/model';
+import { CaCertificate } from '@sentinez/proto/sentinez/apps/tenant/v1/model';
 import { Badge } from '@sentinez/ui/components/badge';
 import { Button } from '@sentinez/ui/components/button';
 import {
@@ -31,7 +31,14 @@ import { handleStatusError } from '@/lib/error-handler';
 import { deleteCaCertificate, getCaCertificate } from '@/lib/api/tenant';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 import { InfoCard, InfoRow } from '@/components/info-card';
-import { CaExpiryBadge, DAY_MS, caExpiryOf, caUsageHelp, caUsageLabel } from '../components';
+import {
+  CaExpiryBadge,
+  DAY_MS,
+  caExpiryOf,
+  caUsageHelp,
+  caUsageLabel,
+  isLeafUsage,
+} from '../components';
 
 /** Saves text as a file, in the browser */
 function download(name: string, text: string) {
@@ -201,8 +208,7 @@ export default function CaCertificatePage({ params }: { params: Promise<{ id: st
 /** The name, the kind of certificate, and how much of its validity is left */
 function SummaryCard({ cert, now }: { cert: CaCertificate; now: number }) {
   const t = useTranslations('CaCertificate');
-  const server = cert.usage === CaCertificateUsage.CA_CERTIFICATE_USAGE_SERVER;
-  const Icon = server ? FileKey2 : ShieldCheck;
+  const Icon = isLeafUsage(cert.usage) ? FileKey2 : ShieldCheck;
 
   return (
     <Card className="py-5">
