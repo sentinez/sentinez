@@ -18,11 +18,11 @@ import (
 	"context"
 
 	analyticfac "github.com/sentinez/controlplane/apps/analytic/v1/factory"
-	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/core/szgrpc"
 	"github.com/sentinez/sentinez/api/client/local"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"
 )
 
@@ -32,14 +32,16 @@ func GetListener() *bufconn.Listener {
 	return _bufLis
 }
 
-func NewService(ctx context.Context,
-	appConf *settingpb.Config) (*Analytic, error) {
+// opts are the options of the gRPC server, at least the authorization
+// of interceptor.ServerOptions: without it every method is open.
+func NewService(ctx context.Context, appConf *settingpb.Config,
+	opts []grpc.ServerOption) (*Analytic, error) {
 	hdl, err := analyticfac.NewDefaultHandler(ctx, appConf)
 	if err != nil {
 		return nil, err
 	}
 
-	server := szgrpc.New(authz.ServerOptions()...)
+	server := szgrpc.New(opts...)
 
 	return &Analytic{Server: server, hdl: hdl}, nil
 }

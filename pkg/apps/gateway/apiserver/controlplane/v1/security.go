@@ -17,23 +17,26 @@ package controlplane
 import (
 	"context"
 
-	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/core/szgrpc/grpcgateway"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	"google.golang.org/grpc"
 )
 
 var _ grpcgateway.ServiceRegistrar = (*security)(nil)
 
 // NewSecurity creates a new security service registrar.
 func NewSecurity(
-	srv securitypb.SecurityServiceServer) grpcgateway.ServiceRegistrar {
-	return &security{server: srv}
+	srv securitypb.SecurityServiceServer,
+	interceptors ...grpc.UnaryServerInterceptor,
+) grpcgateway.ServiceRegistrar {
+	return &security{server: srv, interceptors: interceptors}
 }
 
 // security is the security service registrar.
 type security struct {
-	server securitypb.SecurityServiceServer
+	server       securitypb.SecurityServiceServer
+	interceptors []grpc.UnaryServerInterceptor
 }
 
 // AcceptFromEndpoint implements httpx.ServiceRegistrar.
@@ -54,7 +57,7 @@ func (s *security) Accept(ctx context.Context,
 
 	// a local conn, unlike RegisterSecurityServiceHandlerServer, runs
 	// interceptors, so requests are validated at the gateway.
-	conn := grpcgateway.NewLocalConn(authz.Unary())
+	conn := grpcgateway.NewLocalConn(chain(s.interceptors)...)
 	securitypb.RegisterSecurityServiceServer(conn, s.server)
 
 	return securitypb.RegisterSecurityServiceHandlerClient(ctx,

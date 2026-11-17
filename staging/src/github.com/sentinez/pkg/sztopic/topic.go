@@ -31,4 +31,6 @@ const (
 	EventHTTPSecRule   Topic = "sentinez.event.http.secrule"
 	EventHTTPRateLimit Topic = "sentinez.event.http.ratelimit"
 	EventHTTPCDNRule   Topic = "sentinez.event.http.cdnrule"
+
+	EventActivityAuditLog Topic = "sentinez.auditlog.activities"
 )

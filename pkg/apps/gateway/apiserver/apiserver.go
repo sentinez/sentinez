@@ -17,11 +17,13 @@ package apiserver
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/sentinez/core/szgrpc/grpcgateway"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/szsdklog"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
 )
@@ -48,6 +50,8 @@ type Server struct {
 	// runtime.ServeMux and HTTP server
 	server grpcgateway.Server
 	conf   *settingpb.Config
+	// auditExporter takes the audit log to Kafka or OTLP, nil without one.
+	auditExporter *szsdklog.Exporter
 }
 
 // visitToEndpoint all service to external grpc server
@@ -100,5 +104,9 @@ func (srv *Server) Start(ctx context.Context) error {
 
 func (srv *Server) Shutdown(ctx context.Context) error {
 	szlog.Debug("apiserver: shutdown")
-	return srv.server.Shutdown(ctx)
+
+	return errors.Join(
+		srv.auditExporter.Shutdown(ctx),
+		srv.server.Shutdown(ctx),
+	)
 }

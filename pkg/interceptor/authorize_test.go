@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package authz
+package interceptor
 
 import (
 	"context"
@@ -69,8 +69,8 @@ func calls(token, fullMethod string) (context.Context, error) {
 		return nil, nil
 	}
 
-	_, err := Unary()(ctx, nil, &grpc.UnaryServerInfo{FullMethod: fullMethod},
-		handler)
+	info := &grpc.UnaryServerInfo{FullMethod: fullMethod}
+	_, err := Authorize()(ctx, nil, info, handler)
 
 	return seen, err
 }
@@ -106,7 +106,7 @@ func methods() (public, protected []string) {
 			for j := range svc.Methods().Len() {
 				name := "/" + string(svc.FullName()) + "/" +
 					string(svc.Methods().Get(j).Name())
-				if methodOf(name).GetPublic() {
+				if MethodOf(name).GetPublic() {
 					public = append(public, name)
 				} else {
 					protected = append(protected, name)

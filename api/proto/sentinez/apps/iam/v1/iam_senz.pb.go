@@ -32,6 +32,7 @@ func GetMetaIamServiceKey() string {
 
 func GetIdentityAccessManagementServiceCreateUser() *v1.XMethod {
 	return &v1.XMethod{
+		Audit: true,
 		ControlPlanes: []v1.ControlPlane{
 			v1.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
@@ -62,6 +63,7 @@ func GetIdentityAccessManagementServiceStatus() *v1.XMethod {
 func GetIdentityAccessManagementServiceCreateAccount() *v1.XMethod {
 	return &v1.XMethod{
 		Public: true,
+		Audit:  true,
 	}
 }
 
@@ -74,11 +76,13 @@ func GetIdentityAccessManagementServiceGetUser() *v1.XMethod {
 func GetIdentityAccessManagementServiceUpdateUser() *v1.XMethod {
 	return &v1.XMethod{
 		Ignore: true,
+		Audit:  true,
 	}
 }
 
 func GetIdentityAccessManagementServiceDeleteUser() *v1.XMethod {
 	return &v1.XMethod{
+		Audit: true,
 		ControlPlanes: []v1.ControlPlane{
 			v1.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
@@ -88,6 +92,7 @@ func GetIdentityAccessManagementServiceDeleteUser() *v1.XMethod {
 func GetIdentityAccessManagementServiceLogin() *v1.XMethod {
 	return &v1.XMethod{
 		Public: true,
+		Audit:  true,
 	}
 }
 
@@ -100,6 +105,7 @@ func GetIdentityAccessManagementServicePasskeyRegisterChallenge() *v1.XMethod {
 func GetIdentityAccessManagementServicePasskeyRegisterVerify() *v1.XMethod {
 	return &v1.XMethod{
 		Public: true,
+		Audit:  true,
 	}
 }
 
@@ -118,5 +124,6 @@ func GetIdentityAccessManagementServicePasskeyLoginChallenge() *v1.XMethod {
 func GetIdentityAccessManagementServicePasskeyLoginVerify() *v1.XMethod {
 	return &v1.XMethod{
 		Public: true,
+		Audit:  true,
 	}
 }

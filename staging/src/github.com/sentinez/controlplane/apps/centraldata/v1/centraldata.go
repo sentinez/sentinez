@@ -18,10 +18,10 @@ package centraldata
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	centraldatafac "github.com/sentinez/controlplane/apps/centraldata/v1/factory"
 	centraldatasvc "github.com/sentinez/controlplane/apps/centraldata/v1/service"
-	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/core/szgrpc"
 	"github.com/sentinez/sentinez/api/client/connection"
 	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
@@ -40,8 +40,10 @@ type CentralData struct {
 // NewService creates the centraldata gRPC server. publisher sends the
 // changes of the tables to the edges. The server requires the client
 // certificate of the internal CA when SENZ_TLS_* are set.
-func NewService(conf *settingpb.Config,
-	publisher centraldatasvc.Publisher) (*CentralData, error) {
+// opts are the options of the gRPC server, at least the authorization
+// of interceptor.ServerOptions: without it every method is open.
+func NewService(conf *settingpb.Config, publisher centraldatasvc.Publisher,
+	opts []grpc.ServerOption) (*CentralData, error) {
 
 	service, err := centraldatafac.NewDefaultService(conf)
 	if err != nil {
@@ -53,7 +55,7 @@ func NewService(conf *settingpb.Config,
 		return nil, fmt.Errorf("new syncer: %w", err)
 	}
 
-	opts, err := serverOptions(conf)
+	opts, err = serverOptions(conf, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -66,8 +68,10 @@ func NewService(conf *settingpb.Config,
 	}, nil
 }
 
-func serverOptions(conf *settingpb.Config) ([]grpc.ServerOption, error) {
-	opts := authz.ServerOptions()
+// serverOptions returns opts, then the TLS credentials when enabled.
+func serverOptions(conf *settingpb.Config,
+	opts []grpc.ServerOption) ([]grpc.ServerOption, error) {
+	opts = slices.Clone(opts)
 
 	tls := connection.TLSFromConfig(conf)
 	if !tls.Enabled() {

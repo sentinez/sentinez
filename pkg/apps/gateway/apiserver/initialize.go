@@ -26,6 +26,8 @@ import (
 	tenanthdl "github.com/sentinez/controlplane/apps/tenant/v1/handler"
 	"github.com/sentinez/controlplane/pkg/passkey"
 	"github.com/sentinez/pkg/szlog"
+	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
+	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/pkg/apps/gateway/apiserver/controlplane/v1"
 	"github.com/sentinez/sentinez/pkg/apps/gateway/apiserver/handlers"
@@ -55,17 +57,34 @@ func (srv *Server) Initialize(
 		szlog.Warnf("proxy import: %v", err)
 	}
 
+	return srv.visitServices(ctx, conf,
+		securityhdl.New(security), tenanthdl.New(tenant))
+}
+
+// visitServices registers the services of the control plane, each with the
+// audit log in front of its authorization.
+func (srv *Server) visitServices(ctx context.Context,
+	conf *settingpb.Config, security securitypb.SecurityServiceServer,
+	tenant tenantpb.TenantServiceServer) error {
+
 	analytic, err := analyticfac.NewDefaultHandler(ctx, conf)
 	if err != nil {
 		return err
 	}
 
+	audit, exporter, err := auditInterceptor(conf)
+	if err != nil {
+		return err
+	}
+
+	srv.auditExporter = exporter
+
 	return srv.Visit(ctx,
-		controlplane.NewAnalytic(analytic),
-		controlplane.NewGreeter(greeterfac.NewDefaultHandler(conf)),
-		controlplane.NewIAM(iamfac.NewDefaultHandler(ctx, conf)),
-		controlplane.NewSecurity(securityhdl.New(security)),
-		controlplane.NewTenant(tenanthdl.New(tenant)),
+		controlplane.NewAnalytic(analytic, audit),
+		controlplane.NewGreeter(greeterfac.NewDefaultHandler(conf), audit),
+		controlplane.NewIAM(iamfac.NewDefaultHandler(ctx, conf), audit),
+		controlplane.NewSecurity(security, audit),
+		controlplane.NewTenant(tenant, audit),
 	)
 }
 

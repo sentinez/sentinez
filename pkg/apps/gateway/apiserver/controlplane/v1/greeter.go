@@ -18,22 +18,26 @@ package controlplane
 import (
 	"context"
 
-	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/core/szgrpc/grpcgateway"
 	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/greeter/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	"google.golang.org/grpc"
 )
 
 var _ grpcgateway.ServiceRegistrar = (*Greeter)(nil)
 
 // NewGreeter creates a new greeter service to register handler to gateway
-func NewGreeter(server greeterpb.GreeterServiceServer) *Greeter {
-	return &Greeter{server: server}
+func NewGreeter(
+	server greeterpb.GreeterServiceServer,
+	interceptors ...grpc.UnaryServerInterceptor,
+) *Greeter {
+	return &Greeter{server: server, interceptors: interceptors}
 }
 
 // Greeter represents the Greeter service
 type Greeter struct {
-	server greeterpb.GreeterServiceServer
+	server       greeterpb.GreeterServiceServer
+	interceptors []grpc.UnaryServerInterceptor
 }
 
 // AcceptFromEndpoint implements httpgw.ServiceRegistrar.
@@ -53,7 +57,7 @@ func (g *Greeter) Accept(ctx context.Context, server grpcgateway.Server) error {
 
 	// a local conn, unlike RegisterGreeterServiceHandlerServer, runs
 	// interceptors, so requests are validated at the gateway.
-	conn := grpcgateway.NewLocalConn(authz.Unary())
+	conn := grpcgateway.NewLocalConn(chain(g.interceptors)...)
 	greeterpb.RegisterGreeterServiceServer(conn, g.server)
 
 	return greeterpb.RegisterGreeterServiceHandlerClient(ctx,

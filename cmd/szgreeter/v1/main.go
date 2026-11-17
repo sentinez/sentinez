@@ -26,6 +26,7 @@ import (
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
 	"github.com/sentinez/sentinez/pkg/apps/controlplane/greeter/config"
+	"github.com/sentinez/sentinez/pkg/interceptor"
 )
 
 func main() {
@@ -44,7 +45,7 @@ func run() error {
 }
 
 func app(c *szrunner.Context[greeter.Greeter]) {
-	c.Inject(greeter.NewService)
+	c.Inject(interceptor.ServerOptions, greeter.NewService)
 
 	c.Serve(func(_ context.Context, server *greeter.Greeter) error {
 		conf, err := config.Config()

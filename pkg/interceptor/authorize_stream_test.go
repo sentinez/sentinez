@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package authz
+package interceptor
 
 import (
 	"context"
@@ -62,7 +62,7 @@ func streams(token, fullMethod string) (context.Context, error) {
 		return nil
 	}
 
-	err := Stream()(nil, fakeStream{ctx: ctx},
+	err := AuthorizeStream()(nil, fakeStream{ctx: ctx},
 		&grpc.StreamServerInfo{FullMethod: fullMethod}, handler)
 
 	return seen, err
@@ -143,7 +143,7 @@ func streamsOn(ctx context.Context, token string) error {
 		metadata.Pairs(headers.AuthHeader, token))
 	handler := func(any, grpc.ServerStream) error { return nil }
 
-	return Stream()(nil, fakeStream{ctx: ctx},
+	return AuthorizeStream()(nil, fakeStream{ctx: ctx},
 		&grpc.StreamServerInfo{FullMethod: _sync}, handler)
 }
 

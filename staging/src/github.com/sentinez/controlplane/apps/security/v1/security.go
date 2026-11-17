@@ -19,11 +19,11 @@ import (
 	"context"
 
 	securityfac "github.com/sentinez/controlplane/apps/security/v1/factory"
-	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/core/szgrpc"
 	"github.com/sentinez/sentinez/api/client/local"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"
 )
 
@@ -35,8 +35,11 @@ func GetListener() *bufconn.Listener {
 }
 
 // NewService creates a new Security module instance.
+// opts are the options of the gRPC server, at least the authorization
+// of interceptor.ServerOptions: without it every method is open.
 func NewService(
 	ctx context.Context, appConf *settingpb.Config,
+	opts []grpc.ServerOption,
 ) (*Security, error) {
 	hdl, err := securityfac.NewDefaultHandler(ctx, appConf)
 	if err != nil {
@@ -44,7 +47,7 @@ func NewService(
 	}
 
 	return &Security{
-		Server: szgrpc.New(authz.ServerOptions()...),
+		Server: szgrpc.New(opts...),
 		hdl:    hdl,
 	}, nil
 }

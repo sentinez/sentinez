@@ -26,7 +26,6 @@ import (
 	centraldatahdl "github.com/sentinez/controlplane/apps/centraldata/v1/handler"
 	memrepo "github.com/sentinez/controlplane/apps/centraldata/v1/repos/memory"
 	centraldatasvc "github.com/sentinez/controlplane/apps/centraldata/v1/service"
-	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/controlplane/pkg/crypto"
 	"github.com/sentinez/core/szgrpc"
 	"github.com/sentinez/pkg/szconfig"
@@ -41,6 +40,7 @@ import (
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/centralsync"
+	"github.com/sentinez/sentinez/pkg/interceptor"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -77,7 +77,8 @@ func startCentral(t *testing.T) *central {
 	require.NoError(t, err)
 
 	service := centraldatasvc.New(nil, memory, sztable.SecuritySecRules)
-	srv := szgrpc.New(append(authz.ServerOptions(), grpc.Creds(creds))...)
+	opts := append(interceptor.ServerOptions(), grpc.Creds(creds))
+	srv := szgrpc.New(opts...)
 	centraldatapb.RegisterCentralDataServiceServer(srv.AsServer(),
 		centraldatahdl.New(service))
 

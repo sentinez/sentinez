@@ -28,6 +28,7 @@ import (
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
 	"github.com/sentinez/sentinez/pkg/apps/controlplane/collector/config"
+	"github.com/sentinez/sentinez/pkg/interceptor"
 )
 
 func main() {
@@ -49,7 +50,7 @@ func run() error {
 }
 
 func app(c *szrunner.Context[collector.Collector]) {
-	c.Inject(collector.NewService)
+	c.Inject(interceptor.ServerOptions, collector.NewService)
 
 	c.Serve(func(_ context.Context, server *collector.Collector) error {
 		conf, err := config.Config()

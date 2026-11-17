@@ -256,6 +256,8 @@ func (m *XMethod) Validate() error {
 
 	// no validation rules for Public
 
+	// no validation rules for Audit
+
 	return nil
 }
 

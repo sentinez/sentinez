@@ -30,6 +30,60 @@ func GetMetaSecurityServiceKey() string {
 	return metadata_security.GetServiceKey()
 }
 
+func GetSecurityServiceCreateSecRule() *v1.XMethod {
+	return &v1.XMethod{
+		Audit: true,
+	}
+}
+
+func GetSecurityServiceUpdateSecRule() *v1.XMethod {
+	return &v1.XMethod{
+		Audit: true,
+	}
+}
+
+func GetSecurityServiceDeleteSecRule() *v1.XMethod {
+	return &v1.XMethod{
+		Audit: true,
+	}
+}
+
+func GetSecurityServiceCreateRateLimit() *v1.XMethod {
+	return &v1.XMethod{
+		Audit: true,
+	}
+}
+
+func GetSecurityServiceUpdateRateLimit() *v1.XMethod {
+	return &v1.XMethod{
+		Audit: true,
+	}
+}
+
+func GetSecurityServiceDeleteRateLimit() *v1.XMethod {
+	return &v1.XMethod{
+		Audit: true,
+	}
+}
+
+func GetSecurityServiceCreateCoreRuleset() *v1.XMethod {
+	return &v1.XMethod{
+		Audit: true,
+	}
+}
+
+func GetSecurityServiceUpdateCoreRuleset() *v1.XMethod {
+	return &v1.XMethod{
+		Audit: true,
+	}
+}
+
+func GetSecurityServiceDeleteCoreRuleset() *v1.XMethod {
+	return &v1.XMethod{
+		Audit: true,
+	}
+}
+
 func GetSecurityServiceStatus() *v1.XMethod {
 	return &v1.XMethod{
 		Public: true,

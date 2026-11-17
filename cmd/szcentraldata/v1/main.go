@@ -27,6 +27,7 @@ import (
 	"github.com/sentinez/sentinez/internal/defaults"
 	centraldatapub "github.com/sentinez/sentinez/pkg/apps/controlplane/centraldata"
 	"github.com/sentinez/sentinez/pkg/apps/controlplane/centraldata/config"
+	"github.com/sentinez/sentinez/pkg/interceptor"
 )
 
 func main() {
@@ -45,7 +46,8 @@ func run() error {
 }
 
 func app(c *szrunner.Context[centraldata.CentralData]) {
-	c.Inject(centraldatapub.NewPublisher, centraldata.NewService)
+	c.Inject(interceptor.ServerOptions, centraldatapub.NewPublisher,
+		centraldata.NewService)
 
 	c.OnStart(func(ctx context.Context, server *centraldata.CentralData) error {
 		return server.StartSync(ctx)
