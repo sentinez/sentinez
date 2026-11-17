@@ -47,8 +47,9 @@ Server.Start()
  │   │                                  // chia sẻ setting này; mỗi thay đổi dựng lại route,
  │   │                                  // reverse proxy, CDN, SecRule, limiter, WAF
  │   └─ server.Handle(http.Init(conf, mem).Handle)
- ├─ newTLSConfig(cert, key)  → {GetConfigForClient: transport.TLSConfig, MinVersion: TLS1.3, Certificates}
- ├─ network.StdListen(SENZ_ADDRESS | 0.0.0.0:443)   // TCP
+ ├─ newTLSConfig(cert, key)  → {GetConfigForClient: transport.FingerprintHello, MinVersion: TLS1.3, Certificates}
+ ├─ network.StdListen(SENZ_ADDRESS | 0.0.0.0:443,
+ │       WithPassthrough(mem.Passthrough))        // TCP, xem 3.6 (TLS mode)
  ├─ network.QuicListen(cùng addr, WithTLSConfig)    // UDP
  └─ server.ListenAndServe(addr,
         WithCertificate(cert, key), WithTLSConfig(tlsConf),
@@ -76,7 +77,7 @@ cấu hình certificate.
 Hai server chạy trong một `errgroup`; khi một bên dừng thì bên kia bị đóng.
 `Shutdown` tắt cả hai. Request ở cả hai giao thức đi qua cùng `http.ServeMux`
 và cùng chain middleware, dùng `httpx.Context` chung. QUIC chỉ được terminate
-ở edge: `AcceptReverse` dùng `network.StandardTransporter()`, nên upstream
+ở edge: `AcceptReverse` dùng `network.StandardTransporter(conf)`, nên upstream
 được gọi qua TCP (HTTP/1.1 hoặc HTTP/2). `network.QuicTransporter` (một
 `http3.Transport`) có sẵn nhưng chưa được dùng.
 
@@ -89,7 +90,7 @@ handler duy nhất cho mọi path. Chỉ dùng listener TCP (`opt.StdListener`).
 
 ## 3.2 Fingerprint & context kết nối
 
-Mỗi kết nối TLS được cấp một ID trước khi handshake. `transport.TLSConfig`
+Mỗi kết nối TLS được cấp một ID trước khi handshake. `transport.FingerprintHello`
 (callback `GetConfigForClient`) lưu JA4 fingerprint theo ID đó vào
 `pkg/szstore/ja4` (in-memory, TTL 24h). Hook connect đưa cùng ID đó vào
 context của request dưới dạng `netpb.Transport{ConnId, ServerName(SNI)}`, và
@@ -100,7 +101,7 @@ ID:
 | | TCP (HTTP/1.1, HTTP/2) | QUIC (HTTP/3) |
 |---|---|---|
 | Tạo ID | `network.StdListener.Accept`, dạng `*network.StdConn{Id}` | `quic.Transport.ConnContext` trong `network.QuicListen`, gắn vào context của kết nối |
-| `TLSConfig` đọc ID bằng `network.HelloConnId(chi)`, từ | `chi.Conn.(*network.StdConn).Id` | `network.ConnId(chi.Context())` |
+| `FingerprintHello` đọc ID bằng `network.HelloConnId(chi)`, từ | `chi.Conn.(*network.StdConn).Id` | `network.ConnId(chi.Context())` |
 | Hook connect | `OnStandardConnect` / `OnHertzConnect` (`WithOnStdConnect`) bóc lớp `TLSConn → tls.Conn → network.StdConn` | `OnQuicConnect` (`WithOnQuicConnect`) đọc `network.ConnId(conn.Context())` |
 | Ký tự đầu JA4 | `t` | `q` |
 | Xoá khỏi cache | `network.StdConn.Close` | `context.AfterFunc` khi quic-go huỷ context của kết nối (đóng kết nối hoặc handshake lỗi) |
@@ -122,7 +123,7 @@ ID là 8 byte ngẫu nhiên dạng hex (`network.newConnId`).
   giữ nguyên khi kết nối migrate.
 - `ja4plus` (v0.0.3) chọn ký tự giao thức theo `LocalAddr().Network()`; với
   QUIC giá trị này là `"udp"` nên nó ghi `d` (DTLS). Với handshake `"udp"`,
-  `TLSConfig` đưa cho `ja4plus` một bản sao `ClientHelloInfo` có conn báo
+  `FingerprintHello` đưa cho `ja4plus` một bản sao `ClientHelloInfo` có conn báo
   `"quic"`, nên nó ghi `q` như spec JA4 yêu cầu. Edge không phục vụ DTLS.
 - Test: [transport_quic_test.go](../../internal/dmz/edge/transport/transport_quic_test.go)
   chạy handshake QUIC thật và kiểm tra fingerprint `q13…`, SNI và việc xoá
@@ -175,7 +176,7 @@ gây lỗi; tên stage là hằng exported (vd `secure.WAFId`). Panic của plug
 |---|---|---|---|
 | 0 | `TRC` | `trace.Tracer` | Sinh request ID `senz:req:<xid>` nếu context chưa có |
 | 1 | `LOG` | `logging.Logging` | Gọi `next` trước, sau đó log `httppb.IngressEvent` (JSON, kind `LOG_TYPE_HTTP_INGRESS`, chiều ingress) và, nếu `ROU` đã proxy request, một `httppb.EgressEvent` cho chặng proxy → upstream origin (kind `LOG_TYPE_HTTP_EGRESS`: upstream, status của origin, content type/length, latency, cùng các header do edge thiết lập gửi tới upstream qua `szhttp.SetUpstreamHeader`, được sắp xếp theo tên và lược bỏ header nhạy cảm) |
-| 2 | `DMA` | `secure.DomainBased` | Host (bỏ port, chữ thường) là namespace: phải là `ingress.resource.domain` của một setting đã nạp. Sai → `403`. Gán `X().Namespace` và tenant/resource id của setting |
+| 2 | `DMA` | `secure.DomainBased` | Host (bỏ port, chữ thường) là namespace: phải là `ingress.resource.domain` của một setting đã nạp. Sai → `403`. Domain ở `TLS_MODE_PASSTHROUGH` → `421` (xem 3.6). Gán `X().Namespace` và tenant/resource id của setting |
 | 3 | `PUB` | `cdn.Public` | Phục vụ ảnh embed trong binary dưới `/cdn/sentinez/public/`; nạp ảnh lỗi lúc provision thì edge không khởi động |
 | 4 | `CDN` | `cdn.Cache` | Nếu có CDN rule active cho namespace và expression khớp: tra cache theo key `method+scheme+host+path+query+Accept-Encoding`; hit → trả response với `X-Cache: HIT`; miss → chạy tiếp và lưu response cache được (TTL 1h, xem [04-rule-engine.md](04-rule-engine.md#44-cdn-rules)) |
 | 5 | `LMT` | `secure.Limiter` | với mỗi limiter có `ingress.expr` (bắt buộc) khớp, theo priority như `RUL`: `limiter.Allow(IP)`; vượt → `429` |
@@ -183,7 +184,7 @@ gây lỗi; tên stage là hằng exported (vd `secure.WAFId`). Panic của plug
 | 7 | `STC` | `static.Static` | Sau khi chạy tiếp, nếu path có đuôi tĩnh (`.css .js .png ...`) thì set `Cache-Control: public, max-age=3600, immutable` |
 | 8 | `RUL` | `secure.SecRule` | Duyệt các SecRule active theo priority giảm dần; rule đầu tiên khớp có action `BLOCK` → `403`; action khác chỉ log debug và đi tiếp |
 | 9 | `WAF` | `secure.WAF` | Coraza transaction: `ExecIngress` (header/body) → chạy tiếp → `ExecEgress` (response). Bị chặn với status 403 → trang 403. Cuối cùng log `secrulepb.Event` (`LOG_TYPE_CORE_RULESETS`) nếu bị interrupt |
-| 10 | `ROU` | `routing.StandardRouter` | Kết thúc chain: tìm route, rewrite path, set header, gọi `ReverseProxy.Serve` |
+| 10 | `ROU` | `routing.StandardRouter` | Kết thúc chain: tìm route, rewrite path, set header, gọi `ReverseProxy.Serve` của proxy tới upstream thuộc namespace; không có → `502` |
 
 Response lỗi (`400/403/404/429/500`) được render bằng template `templ`
 ([core/internal/render](../../staging/src/github.com/sentinez/core/internal/render/))
@@ -334,8 +335,12 @@ Ví dụ:
 | `/api` | `/v1/` | `/api/users` | `/v1/users` |
 | `/api` | — | `/apix` | không khớp `/api` |
 
-Reverse proxy được tạo một lần cho mỗi `upstream.server` trong
-`MemStore.LoadReverseProxy` qua `server.AcceptReverse(target)`:
+`MemStore.LoadReverseProxy` dựng các proxy của một namespace, mỗi
+`upstream.server` một proxy, qua `server.AcceptReverse(target, conf)`, thay
+cho các proxy trước đó của namespace. `conf` là upstream TLS của setting
+(bên dưới), nil nếu không có. Proxy không có `conf` được mọi namespace gọi
+cùng target dùng chung (`MemStore.plainProxy`), nên pool kết nối của nó được
+giữ qua các lần nạp; proxy có `conf` thuộc riêng namespace của nó.
 
 - Hertz (`proxyhz.ReverseProxy`): 2 client (TLS / plain), director viết lại
   URI bằng `JoinURLPath` và set `Host` = host upstream. Request có
@@ -343,9 +348,62 @@ Reverse proxy được tạo một lần cho mỗi `upstream.server` trong
   (`upstream + URI`) được dựng riêng cho từng request.
 - `net/http` (`httpx.ReverseProxy`, dùng cho engine `Quic` và `Standard`):
   `httputil.NewSingleHostReverseProxy` với `http.RoundTripper` truyền vào
-  (`network.StandardTransporter()`, dial timeout 30s). Writer được bọc để
+  (`network.StandardTransporter(conf)`, dial timeout 30s; engine `Quic` dùng
+  `network.NewAltSvcTransport(conf)`, HTTP/3 với bản clone TLS 1.3 của
+  `conf`). Writer được bọc để
   context thấy status và body của upstream; `Unwrap` giữ `Flush`/`Hijack`
   cho streaming và upgrade.
+
+### TLS mode
+
+`ingress.resource.tls_mode` (`edgepb.TlsMode`, cột `tls_mode` của tenant)
+quy định cách edge mang TLS của một domain tới origin:
+
+| Mode | Edge | Upstream |
+|---|---|---|
+| `UNSPECIFIED` (mặc định) | Terminate TLS, chạy chain | Theo `protocol` của từng upstream (`szhttp.Upstream2Target`) |
+| `TERMINATE` | Terminate TLS, chạy chain | `http://` cho mọi upstream; không dựng upstream TLS |
+| `REENCRYPT` | Terminate TLS, chạy chain | `https://` cho mọi upstream, với upstream TLS bên dưới |
+| `PASSTHROUGH` | Chuyển nguyên luồng TCP, không xử lý HTTP | Các upstream server ở cổng `443` |
+
+`targetOf` đổi mode thành protocol rồi gọi `Upstream2Target`.
+
+**Passthrough** được quyết định ở listener TCP, trước mọi handshake
+([pkg/network/passthrough.go](../../pkg/network/passthrough.go)). Với
+`WithPassthrough(fn)`, `StdListen` tự accept (`sniRouter`) và đọc client
+hello của từng kết nối trong goroutine riêng (`peekServerName`: một
+`tls.Server` trên bản tee của conn, dừng ở `GetConfigForClient` khi đã có
+SNI; timeout 10s).
+
+- `fn` (`MemStore.Passthrough`) tra SNI ra các địa chỉ upstream mà lần nạp
+  namespace đã lưu (`MemStore.passthrough`, mỗi server một lần, theo thứ tự
+  location). Kết nối đó được dial lần lượt (cái đầu tiên trả lời, mỗi cái
+  10s) rồi nối hai chiều, có half-close.
+- Kết nối khác (tên được terminate, không SNI, không phải TLS) được trả cho
+  `Accept`, các byte đã đọc được phát lại (`StdConn.pending`), nên server
+  TLS, JA4 và conn id thấy nó như trước.
+- `Close` của listener đóng các kết nối đang nối và đợi goroutine của router.
+
+Giới hạn: domain passthrough không có SecRule, rate limit, CDN hay log
+request; chỉ TCP (handshake QUIC thất bại, client quay về TCP); cổng 443 cố
+định. Request vẫn tới tầng HTTP của domain đó (không SNI, QUIC, hoặc kết nối
+dùng chung từ domain khác) nhận `421` từ `DMA`.
+
+### Upstream TLS (CA riêng, mTLS)
+
+`MemStore.upstreamTLS` ([internal/memory/tls.go](../../internal/memory/tls.go))
+dựng `tls.Config` mà namespace dùng để gọi các upstream HTTPS, từ
+`ingress.tls`:
+
+- `upstream_cas` (CA certificate có usage `UPSTREAM`): làm `RootCAs`, thay cho
+  CA của hệ thống.
+- `upstream_certificates` (usage `UPSTREAM_CLIENT`, có khoá): chứng chỉ client
+  (mTLS), chọn bằng `certs.PickClient` và gửi kèm chain các issuer của nó.
+
+Cả hai được mở bằng `SENZ_DATA_KEY`. Tối thiểu TLS 1.2. Không có cả hai thì
+config là nil (CA hệ thống, không có chứng chỉ client). Lỗi thì đóng: thiếu
+khoá hoặc một chứng chỉ không mở được thì namespace không có proxy nào, nên
+upstream không bao giờ bị gọi khi thiếu CA hay chứng chỉ client mà nó yêu cầu.
 
 ## 3.7 Memory store
 
@@ -356,7 +414,7 @@ Reverse proxy được tạo một lần cho mỗi `upstream.server` trong
 |---|---|---|
 | `settings.Setting` | `Map[string,*edgepb.Setting]` | Setting đã normalize theo namespace, dựng lại từ setting được đồng bộ (3.8) |
 | `routes.Router` | `Map[string,[]*Location]` | Location đã sắp xếp |
-| `reverseproxy.ReverseProxy` | `Map[string,szhttp.ReverseProxy]` | Key = upstream server |
+| `reverseproxy.ReverseProxy` | `Map[string,map[string]szhttp.ReverseProxy]` | Các proxy của namespace, theo upstream server (3.6) |
 | `secrules.SecRule` | `Map[string,[]Entry]` | `Entry{Eval, Rule}` đã compile, lọc active, sort theo priority |
 | `ratelimiter.Limiter` | `Map[string,*RateLimiter]` | Một limiter / namespace |
 | `rulesets.Rulesets` | `Map[string,coraza.WAF]` | WAF instance / namespace |
