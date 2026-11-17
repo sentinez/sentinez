@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//	http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,71 +12,48 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package driver loads the sentinez eBPF objects and drives them: attaching
+// the XDP program, and reading and writing its maps.
 package driver
 
 import (
+	"errors"
 	"fmt"
-	"sync"
 
 	"github.com/cilium/ebpf/link"
+	"github.com/cilium/ebpf/rlimit"
 	sentinezbpf "github.com/sentinez/bpf/sentinez"
-	"github.com/sentinez/pkg/szlog"
 )
 
-var (
-	_once    sync.Once
-	_context *Context
-)
-
-func NewContext() *Context {
-	_once.Do(func() {
-		if err := setupRlimit(); err != nil {
-			szlog.Errorf("stream: remove mem lock err=%v", err)
-			return
-		}
-
-		var objs sentinezbpf.SenzObjects
-		if err := sentinezbpf.LoadSenzObjects(&objs, nil); err != nil {
-			szlog.Errorf("stream: load bpf object err: %v", err)
-			return
-		}
-
-		_context = &Context{
-			obj: &objs,
-		}
-	})
-
-	return _context
-}
-
-func CloseContext() error {
-	if _context == nil {
-		return nil
-	}
-
-	if err := _context.Close(); err != nil {
-		return fmt.Errorf("stream: close context err: %v", err)
-	}
-
-	return nil
-}
-
+// Context the loaded eBPF objects, and the XDP link once attached. Close
+// releases both.
 type Context struct {
 	obj  *sentinezbpf.SenzObjects
 	link link.Link
 }
 
-func (ctx *Context) AttachXDP(ifIndex int) error {
-	if ctx == nil || ctx.obj == nil {
-		return fmt.Errorf("stream context unavailable: context is nil")
+// NewContext loads the eBPF objects into the kernel.
+func NewContext() (*Context, error) {
+	if err := rlimit.RemoveMemlock(); err != nil {
+		return nil, fmt.Errorf("driver: remove memlock: %w", err)
 	}
 
+	var objs sentinezbpf.SenzObjects
+	if err := sentinezbpf.LoadSenzObjects(&objs, nil); err != nil {
+		return nil, fmt.Errorf("driver: load objects: %w", err)
+	}
+
+	return &Context{obj: &objs}, nil
+}
+
+// AttachXDP attaches the XDP program to the interface of index ifIndex.
+func (ctx *Context) AttachXDP(ifIndex int) error {
 	l, err := link.AttachXDP(link.XDPOptions{
 		Program:   ctx.obj.SenzMain,
 		Interface: ifIndex,
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("driver: attach xdp: %w", err)
 	}
 
 	ctx.link = l
@@ -84,21 +61,17 @@ func (ctx *Context) AttachXDP(ifIndex int) error {
 	return nil
 }
 
+// Close detaches the XDP program, then unloads the objects.
 func (ctx *Context) Close() error {
-	if ctx == nil {
-		return nil
-	}
-
-	if ctx.obj != nil {
-		if err := ctx.obj.Close(); err != nil {
-			return err
-		}
-	}
-
+	var errs []error
 	if ctx.link != nil {
-		if err := ctx.link.Close(); err != nil {
-			return err
-		}
+		errs = append(errs, ctx.link.Close())
+	}
+
+	errs = append(errs, ctx.obj.Close())
+
+	if err := errors.Join(errs...); err != nil {
+		return fmt.Errorf("driver: close: %w", err)
 	}
 
 	return nil
