@@ -27,8 +27,7 @@ export async function Login(params: LoginRequest): Promise<LoginResponse> {
   } catch (err: unknown) {
     // A refusal of the server (wrong password...) is thrown: only a backend
     // out of reach signs in with a sample user
-    const answered = axios.isAxiosError(err) && err.response !== undefined;
-    if (!USE_SAMPLE || answered || axios.isCancel(err)) throw err;
+    if (!USE_SAMPLE || !isOutOfReach(err)) throw err;
     console.warn('[iam] Login failed, using sample response:', (err as Error)?.message);
     return sampleLogin(params.emailOrUsername);
   }
@@ -39,6 +38,17 @@ export async function CreateAccount(params: CreateAccountRequest): Promise<Creat
   const endpoint = `${API_BASE_PATH}/iam/account`;
   const resp = await axios.post(endpoint, CreateAccountRequest.toJSON(params));
   return CreateAccountResponse.fromJSON(resp.data ?? {});
+}
+
+// Statuses of the /api proxy (app/api/[...path]) or of the host when the
+// apiserver cannot be reached
+const UNREACHABLE_STATUSES = new Set([502, 503, 504]);
+
+// Whether err tells of an apiserver out of reach rather than of its refusal
+function isOutOfReach(err: unknown): boolean {
+  if (axios.isCancel(err) || !axios.isAxiosError(err)) return false;
+  const status = err.response?.status;
+  return status === undefined || UNREACHABLE_STATUSES.has(status);
 }
 
 /**
