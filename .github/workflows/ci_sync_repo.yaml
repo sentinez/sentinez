@@ -129,3 +129,18 @@ jobs:
         env:
           SENZ_GITHUB_TOKEN: ${{ secrets.SENZ_GITHUB_TOKEN }}
         run: bash hack/ci/action_sync.sh go-import
+
+  scripting:
+    name: sync sentinez/scripting
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Sync sentinez/scripting
+        env:
+          SENZ_GITHUB_TOKEN: ${{ secrets.SENZ_GITHUB_TOKEN }}
+        run: bash hack/ci/action_sync.sh scripting
