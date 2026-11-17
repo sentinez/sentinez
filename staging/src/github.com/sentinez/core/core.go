@@ -15,15 +15,6 @@
 package core
 
 const (
-
 	// Version holds the complete version number. Filled in at linking time.
 	Version = "v0.0.1-beta"
-
-	// Name is the full name of the project.
-	Name = "sentinez/1.0"
-
-	// Code is the code of the project.
-	Code = "SENZ"
-
-	BaseName = "sentinez"
 )

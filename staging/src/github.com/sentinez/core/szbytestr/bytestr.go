@@ -15,13 +15,13 @@
 package szbytestr
 
 import (
-	"github.com/sentinez/core"
 	"github.com/sentinez/core/szhttp/httpconst"
+	"github.com/sentinez/pkg/szcode"
 )
 
 var (
-	DefaultServerName = []byte(core.Name)
-	DefaultUserAgent  = []byte(core.BaseName)
+	DefaultServerName = []byte(szcode.Name)
+	DefaultUserAgent  = []byte(szcode.BaseName)
 )
 
 var (

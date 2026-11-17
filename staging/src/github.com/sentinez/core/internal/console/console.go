@@ -20,13 +20,14 @@ import (
 
 	"github.com/common-nighthawk/go-figure"
 	"github.com/sentinez/core"
+	"github.com/sentinez/pkg/szcode"
 	"github.com/sentinez/pkg/szcolor"
 )
 
 // var once sync.Once
 
 func INFO(serviceName string, key string, msgs ...string) {
-	msgs = append([]string{core.Code + " " + core.Version}, msgs...)
+	msgs = append([]string{szcode.Code + " " + core.Version}, msgs...)
 	gts := szcolor.Green.Add(">")
 	msg := strings.Join(msgs, "\n"+gts+" ")
 
@@ -39,7 +40,7 @@ func INFO(serviceName string, key string, msgs ...string) {
 
 // GenFigure generates the ASCII art of the project.
 func GenFigure(header string, footer string) string {
-	fig := figure.NewFigure(strings.ToLower(core.Code), "speed", true)
+	fig := figure.NewFigure(strings.ToLower(szcode.Code), "speed", true)
 	figureLines := strings.Split(fig.String(), "\n")
 	sideText := []string{
 		"",

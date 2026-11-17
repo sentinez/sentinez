@@ -17,8 +17,8 @@ package main
 import (
 	"context"
 
-	"github.com/sentinez/core"
 	"github.com/sentinez/core/szrunner"
+	"github.com/sentinez/pkg/szcode"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/sentinez/internal/dmz/dataplane"
 	"github.com/sentinez/sentinez/pkg/apps/dmz/dataplane/config"
@@ -31,7 +31,7 @@ func main() {
 }
 
 func run() error {
-	r, err := szrunner.New(config.Config, core.Code)
+	r, err := szrunner.New(config.Config, szcode.Code)
 	if err != nil {
 		return err
 	}

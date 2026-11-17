@@ -3,7 +3,6 @@ module github.com/sentinez/pkg
 go 1.27.1
 
 replace (
-	github.com/sentinez/core => ../core
 	github.com/sentinez/sentinez/api => ../../../../../api
 )
 
@@ -22,7 +21,6 @@ require (
 	github.com/oklog/ulid/v2 v2.1.2
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/quasilyte/go-ruleguard/dsl v0.3.23
-	github.com/sentinez/core v0.0.0-20260513071300-d9570928a8b6
 	github.com/sentinez/sentinez/api v0.0.0
 	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.12.1

@@ -20,38 +20,38 @@ import (
 	"net/http"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/sentinez/core"
+	"github.com/sentinez/pkg/szcode"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 var (
-	_forbidden = fmt.Sprintf("%s-%d: %s", core.Code,
+	_forbidden = fmt.Sprintf("%s-%d: %s", szcode.Code,
 		typepb.Errors_ERRORS_FORBIDDEN,
 		typepb.Errors_ERRORS_FORBIDDEN.String())
 
-	_unspecified = fmt.Sprintf("%s-%d: %s", core.Code,
+	_unspecified = fmt.Sprintf("%s-%d: %s", szcode.Code,
 		typepb.Errors_ERRORS_UNSPECIFIED,
 		typepb.Errors_ERRORS_UNSPECIFIED.String())
 
-	_internalError = fmt.Sprintf("%s-%d: %s", core.Code,
+	_internalError = fmt.Sprintf("%s-%d: %s", szcode.Code,
 		typepb.Errors_ERRORS_INTERNAL_ERROR,
 		typepb.Errors_ERRORS_INTERNAL_ERROR.String())
 
-	_notFound = fmt.Sprintf("%s-%d: %s", core.Code,
+	_notFound = fmt.Sprintf("%s-%d: %s", szcode.Code,
 		typepb.Errors_ERRORS_NOT_FOUND,
 		typepb.Errors_ERRORS_NOT_FOUND.String())
 
-	_unauthorized = fmt.Sprintf("%s-%d: %s", core.Code,
+	_unauthorized = fmt.Sprintf("%s-%d: %s", szcode.Code,
 		typepb.Errors_ERRORS_UNAUTHORIZED,
 		typepb.Errors_ERRORS_UNAUTHORIZED.String())
 
-	_invalidData = fmt.Sprintf("%s-%d: %s", core.Code,
+	_invalidData = fmt.Sprintf("%s-%d: %s", szcode.Code,
 		typepb.Errors_ERRORS_INVALID_DATA,
 		typepb.Errors_ERRORS_INVALID_DATA.String())
 
-	_unimplemented = fmt.Sprintf("%s-%d: %s", core.Code,
+	_unimplemented = fmt.Sprintf("%s-%d: %s", szcode.Code,
 		typepb.Errors_ERRORS_UNIMPLEMENTED,
 		typepb.Errors_ERRORS_UNIMPLEMENTED.String())
 )

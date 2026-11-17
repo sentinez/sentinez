@@ -29,8 +29,8 @@ import (
 	httphznet "github.com/sentinez/contrib/httphz/net"
 	netstd "github.com/sentinez/contrib/httphz/net/std"
 	proxyhz "github.com/sentinez/contrib/httphz/proxy"
-	"github.com/sentinez/core"
 	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/pkg/szcode"
 	"github.com/sentinez/pkg/szlog"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
@@ -160,7 +160,7 @@ func (s *XServer) initialize(addr string, opt *szhttp.Option) error {
 	s.core.AddProtocol("h2", factory.NewServerFactory())
 
 	s.core.NoRoute(s.buildHandler())
-	s.core.Name = core.Name
+	s.core.Name = szcode.Name
 
 	return nil
 }
