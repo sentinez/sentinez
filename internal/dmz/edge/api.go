@@ -20,16 +20,16 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 )
 
-var _ edgepb.EdgeServiceServer = (*EdgeService)(nil)
+var _ edgepb.RevProxyServiceServer = (*RevProxyService)(nil)
 
-func New() *EdgeService {
-	return &EdgeService{}
+func New() *RevProxyService {
+	return &RevProxyService{}
 }
 
-type EdgeService struct{}
+type RevProxyService struct{}
 
-// Status implements [edgepb.EdgeServiceServer].
-func (e *EdgeService) Status(_ context.Context,
+// Status implements [edgepb.RevProxyServiceServer].
+func (e *RevProxyService) Status(_ context.Context,
 	_ *edgepb.StatusRequest) (*edgepb.StatusResponse, error) {
 
 	return &edgepb.StatusResponse{Msg: "OK"}, nil

@@ -36,11 +36,11 @@ import (
 	"github.com/sentinez/sentinez/internal/memory/cdnrules"
 	"github.com/sentinez/sentinez/internal/memory/certificates"
 	"github.com/sentinez/sentinez/internal/memory/ratelimiter"
-	"github.com/sentinez/sentinez/internal/memory/reverseproxy"
 	"github.com/sentinez/sentinez/internal/memory/routes"
 	"github.com/sentinez/sentinez/internal/memory/rulesets"
 	"github.com/sentinez/sentinez/internal/memory/secrules"
 	"github.com/sentinez/sentinez/internal/memory/settings"
+	"github.com/sentinez/sentinez/internal/memory/upstream"
 	"github.com/sentinez/sentinez/pkg/cluster"
 )
 
@@ -89,7 +89,7 @@ func newMemStore(shared *cluster.Cluster, sealer *crypto.Sealer,
 		locals:       szsync.NewMap[string, *edgepb.Setting](),
 		setting:      settings.New(),
 		limiter:      ratelimiter.New(),
-		reverseProxy: reverseproxy.New(),
+		revProxy:     upstream.New(),
 		plainProxy:   szsync.NewMap[string, szhttp.ReverseProxy](),
 		passthrough:  szsync.NewMap[string, []string](),
 		route:        routes.New(),
@@ -116,9 +116,9 @@ type MemStore struct {
 	// namespace: loaded back when centraldata releases the namespace
 	locals *szsync.Map[string, *edgepb.Setting]
 
-	setting      *settings.Setting
-	limiter      *ratelimiter.Limiter
-	reverseProxy *reverseproxy.ReverseProxy
+	setting  *settings.Setting
+	limiter  *ratelimiter.Limiter
+	revProxy *upstream.ReverseProxy
 	// plainProxy the proxies without upstream TLS settings, by target:
 	// shared by every namespace dialing that target
 	plainProxy *szsync.Map[string, szhttp.ReverseProxy]
@@ -175,12 +175,12 @@ func (m *MemStore) Route() *routes.Router {
 	return m.route
 }
 
-func (m *MemStore) ReverseProxy() *reverseproxy.ReverseProxy {
+func (m *MemStore) ReverseProxy() *upstream.ReverseProxy {
 	if m == nil {
 		return nil
 	}
 
-	return m.reverseProxy
+	return m.revProxy
 }
 
 // Cluster the Olric cluster this edge belongs to.
@@ -252,7 +252,7 @@ func (m *MemStore) LoadReverseProxy(
 	ns := res.GetDomain()
 	if res.GetTlsMode() == _passthrough {
 		// the listener forwards its connections, no request reaches here
-		m.reverseProxy.Delete(ns)
+		m.revProxy.Delete(ns)
 		m.passthrough.Store(ns, passthroughAddrs(res))
 
 		return nil
@@ -262,12 +262,12 @@ func (m *MemStore) LoadReverseProxy(
 
 	conf, err := m.upstreamTLS(s)
 	if err != nil {
-		m.reverseProxy.Delete(ns)
+		m.revProxy.Delete(ns)
 		return fmt.Errorf("reverse proxy: upstream tls: %w", err)
 	}
 
 	proxies, err := m.newReverseProxies(server, res, conf)
-	m.reverseProxy.Store(ns, proxies)
+	m.revProxy.Store(ns, proxies)
 
 	return err
 }

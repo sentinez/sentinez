@@ -123,8 +123,8 @@ const file_sentinez_dmz_edge_v1_edge_proto_rawDesc = "" +
 	"\x1fsentinez/dmz/edge/v1/edge.proto\x12\x14sentinez.dmz.edge.v1\x1a\x1fsentinez/types/v1/options.proto\"\x0f\n" +
 	"\rStatusRequest\"\"\n" +
 	"\x0eStatusResponse\x12\x10\n" +
-	"\x03msg\x18\x01 \x01(\tR\x03msg2d\n" +
-	"\vEdgeService\x12U\n" +
+	"\x03msg\x18\x01 \x01(\tR\x03msg2h\n" +
+	"\x0fRevProxyService\x12U\n" +
 	"\x06Status\x12#.sentinez.dmz.edge.v1.StatusRequest\x1a$.sentinez.dmz.edge.v1.StatusResponse\"\x00Br\x8a\xb2\x19*\n" +
 	"\x10SENTINEZ // EDGE\x10\x01\x1a\x14sentinez.dmz.edge.v1ZBgithub.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1;edgepbb\x06proto3"
 
@@ -146,8 +146,8 @@ var file_sentinez_dmz_edge_v1_edge_proto_goTypes = []any{
 	(*StatusResponse)(nil), // 1: sentinez.dmz.edge.v1.StatusResponse
 }
 var file_sentinez_dmz_edge_v1_edge_proto_depIdxs = []int32{
-	0, // 0: sentinez.dmz.edge.v1.EdgeService.Status:input_type -> sentinez.dmz.edge.v1.StatusRequest
-	1, // 1: sentinez.dmz.edge.v1.EdgeService.Status:output_type -> sentinez.dmz.edge.v1.StatusResponse
+	0, // 0: sentinez.dmz.edge.v1.RevProxyService.Status:input_type -> sentinez.dmz.edge.v1.StatusRequest
+	1, // 1: sentinez.dmz.edge.v1.RevProxyService.Status:output_type -> sentinez.dmz.edge.v1.StatusResponse
 	1, // [1:2] is the sub-list for method output_type
 	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name

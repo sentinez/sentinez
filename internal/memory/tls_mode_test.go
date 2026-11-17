@@ -80,7 +80,7 @@ func TestLoadReverseProxyPassthroughHasNone(t *testing.T) {
 		edgepb.ProxyProtocol_PROXY_PROTOCOL_HTTPS))
 
 	require.NoError(t, err)
-	_, ok := m.reverseProxy.Load(_upstreamNs, _upstreamServer)
+	_, ok := m.revProxy.Load(_upstreamNs, _upstreamServer)
 	assert.False(t, ok, "the previous proxy is dropped")
 }
 
@@ -152,7 +152,7 @@ func TestLoadReverseProxySharesPlainProxies(t *testing.T) {
 	srv := &acceptServer{confs: map[string]*tls.Config{}}
 	other := upstreamSetting(nil)
 	other.Ingress.Resource.Domain = "other.example.com"
-	t.Cleanup(func() { m.reverseProxy.Delete("other.example.com") })
+	t.Cleanup(func() { m.revProxy.Delete("other.example.com") })
 
 	require.NoError(t, m.LoadReverseProxy(srv, upstreamSetting(nil)))
 	clear(srv.confs)
@@ -160,6 +160,6 @@ func TestLoadReverseProxySharesPlainProxies(t *testing.T) {
 	require.NoError(t, m.LoadReverseProxy(srv, other))
 
 	assert.Empty(t, srv.confs, "built once, then reused")
-	_, ok := m.reverseProxy.Load("other.example.com", _upstreamServer)
+	_, ok := m.revProxy.Load("other.example.com", _upstreamServer)
 	assert.True(t, ok)
 }

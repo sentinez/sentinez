@@ -22,34 +22,34 @@ import (
 	"github.com/sentinez/sentinez/pkg/cluster/leader"
 )
 
-// Edge serves the traffic and campaigns for the leadership of the zone:
+// RevProxy serves the traffic and campaigns for the leadership of the zone:
 // the leader keeps the zone Status in Consul and follows centraldata for
-// the cluster (edge.Server.Lead). The elector lives in this app, as the
-// tasks of the leader need the stores of the edge.
-func Edge(c *szrunner.Context[edge.Server]) {
-	c.Inject(edge.NewServer, leader.New)
+// the cluster (edge.RevProxyServer.Lead). The elector lives in this app, as
+// the tasks of the leader need the stores of the edge.
+func RevProxy(c *szrunner.Context[edge.RevProxyServer]) {
+	c.Inject(edge.NewRevProxyServer, leader.New)
 
-	c.Serve(func(_ context.Context, server *edge.Server) error {
+	c.Serve(func(_ context.Context, server *edge.RevProxyServer) error {
 		return server.Start()
 	})
 
-	c.Serve(func(ctx context.Context, server *edge.Server) error {
+	c.Serve(func(ctx context.Context, server *edge.RevProxyServer) error {
 		return server.Lead(ctx)
 	})
 
-	c.OnStop(func(ctx context.Context, server *edge.Server) error {
+	c.OnStop(func(ctx context.Context, server *edge.RevProxyServer) error {
 		return server.Shutdown(ctx)
 	})
 }
 
-func GRPC(c *szrunner.Context[edge.Service]) {
-	c.Inject(edge.NewService)
+func GRPC(c *szrunner.Context[edge.RevProxyService]) {
+	c.Inject(edge.NewRevProxyService)
 
-	c.Serve(func(_ context.Context, server *edge.Service) error {
+	c.Serve(func(_ context.Context, server *edge.RevProxyService) error {
 		return server.Start()
 	})
 
-	c.OnStop(func(ctx context.Context, server *edge.Service) error {
+	c.OnStop(func(ctx context.Context, server *edge.RevProxyService) error {
 		return server.Shutdown(ctx)
 	})
 }

@@ -8,7 +8,7 @@ Mã nguồn liên quan:
 | Đường dẫn | Vai trò |
 |---|---|
 | [cmd/szedge/v1/main.go](../../cmd/szedge/v1/main.go) | Entry point, bật pprof `:6060` |
-| [pkg/apps/dmz/edge/](../../pkg/apps/dmz/edge/) | `Server` (Start/Shutdown), config, flags, nạp YAML |
+| [pkg/apps/dmz/edge/](../../pkg/apps/dmz/edge/) | `RevProxyServer` (Start/Lead/Shutdown), `RevProxyService` (gRPC), config, flags, nạp YAML |
 | [internal/dmz/edge/engine/](../../internal/dmz/edge/engine/engine.go) | Constructor HTTP engine, chọn qua `--engine`: `Quic` (mặc định, HTTP/3 + HTTP/1.1/2), `Hertz` hoặc `Standard` (`net/http`) |
 | [internal/handlers/](../../internal/handlers/) | Các plugin của chain middleware |
 | [internal/dmz/edge/transport/](../../internal/dmz/edge/transport/) | Hook TLS (JA4) và OnConnect |
@@ -22,18 +22,17 @@ Mã nguồn liên quan:
 ## 3.1 Khởi động
 
 ```
-main: run() → runner.Run(ctx, NewApp(edgeServer), NewApp(grpcServer), NewApp(leader), NewApp(pprof))
- ├─ edgeServer
- │   ├─ Inject(config.Config, edgeyaml.LoadSetting, edge.NewServer)
- │   └─ Serve(server.Start)
- ├─ grpcServer
- │   ├─ Inject(config.Config, edge.NewService)
- │   └─ Serve(service.Start)   // gRPC on defaults.EdgeAddress
- └─ leader
-     ├─ Inject(config.Config, leader.New)
-     └─ Serve(e.Run(ctx, e.PublishStatus()))  // leader theo zone, xem 3.8
+main: run() → runner.Run(ctx, NewApp(server.RevProxy), NewApp(server.GRPC), NewApp(server.Pprof))
+ ├─ server.RevProxy
+ │   ├─ Inject(edge.NewRevProxyServer, leader.New)
+ │   ├─ Serve(server.Start)
+ │   └─ Serve(server.Lead)     // leader theo zone, xem 3.8
+ ├─ server.GRPC
+ │   ├─ Inject(edge.NewRevProxyService)
+ │   └─ Serve(service.Start)   // gRPC trên defaults.EdgeAddress
+ └─ server.Pprof                // :6060
 
-edge.NewServer(conf)
+edge.NewRevProxyServer(conf)
  ├─ edgeyaml.LoadSetting(conf)              // setting thô của proxy.yaml
  ├─ memory.NewMemStore(conf)                // singleton; cluster.NewCluster + SyncMap setting
  └─ switch conf.Flag.Engine                 // --engine
@@ -41,7 +40,7 @@ edge.NewServer(conf)
      quic  → engine.Quic(conf)             → quichttpx.NewServer + WithOnStdConnect(OnStandardConnect)
      std, khác → engine.Standard(conf)     → stdhttpx.NewServer + WithOnStdConnect(OnStandardConnect)
 
-Server.Start()
+RevProxyServer.Start()
  ├─ initialize()
  │   ├─ mem.Sync(ctx, server, setting)  // 30s: đợi Olric, nạp setting của cluster,
  │   │                                  // chia sẻ setting này; mỗi thay đổi dựng lại route,
@@ -414,7 +413,7 @@ upstream không bao giờ bị gọi khi thiếu CA hay chứng chỉ client mà
 |---|---|---|
 | `settings.Setting` | `Map[string,*edgepb.Setting]` | Setting đã normalize theo namespace, dựng lại từ setting được đồng bộ (3.8) |
 | `routes.Router` | `Map[string,[]*Location]` | Location đã sắp xếp |
-| `reverseproxy.ReverseProxy` | `Map[string,map[string]szhttp.ReverseProxy]` | Các proxy của namespace, theo upstream server (3.6) |
+| `upstream.ReverseProxy` | `Map[string,map[string]szhttp.ReverseProxy]` | Các proxy của namespace, theo upstream server (3.6) |
 | `secrules.SecRule` | `Map[string,[]Entry]` | `Entry{Eval, Rule}` đã compile, lọc active, sort theo priority |
 | `ratelimiter.Limiter` | `Map[string,*RateLimiter]` | Một limiter / namespace |
 | `rulesets.Rulesets` | `Map[string,coraza.WAF]` | WAF instance / namespace |
@@ -599,9 +598,9 @@ ghi, nên node nhả lock rồi tranh cử lại. Lỗi khác (không kết nố
 Consul) được log và thử lại ở tick sau. Edge standalone không ghi `status`
 (`PublishStatus` trả `nil`): node chỉ giữ quyền leader.
 
-**Wiring.** App `Edge` của [cmd/szedge/v1/server/server.go](../../cmd/szedge/v1/server/server.go)
-inject `Elector` vào `edge.Server` (`Inject(edge.NewServer, leader.New)`) và
-serve `Server.Lead` song song `Server.Start`: các task của leader cần store
+**Wiring.** App `RevProxy` của [cmd/szedge/v1/server/server.go](../../cmd/szedge/v1/server/server.go)
+inject `Elector` vào `edge.RevProxyServer` (`Inject(edge.NewRevProxyServer, leader.New)`) và
+serve `RevProxyServer.Lead` song song `RevProxyServer.Start`: các task của leader cần store
 của edge, thứ mà container fx của app khác không với tới. `Lead` chạy
 `leader.All(e.PublishStatus(), followCentralData)`: chỉ leader theo
 centraldata ([07-controlplane.md](07-controlplane.md)), và follower của nó
@@ -630,19 +629,20 @@ cả hai thì nó mất quorum tới khi chúng chạy lại. Các edge chạy v
 đọc biến này, mặc định `info`), để thấy quá trình sync:
 `docker logs sentinez.dmz.edge.02 2>&1 | grep "edge: centraldata"`.
 
-## 3.9 gRPC EdgeService
+## 3.9 gRPC RevProxyService
 
-`edgepb.EdgeService` chỉ còn `Status`, trả về `OK`
+`edgepb.RevProxyService` chỉ còn `Status`, trả về `OK`
 ([internal/dmz/edge/api.go](../../internal/dmz/edge/api.go), package `edge`).
-Nó được đóng gói trong `edge.Service` (`pkg/apps/dmz/edge/edge_service.go`), và
-`main` khởi chạy nó qua app `grpcServer` trên `defaults.EdgeAddress`. RPC
+Nó được đóng gói trong `edge.RevProxyService`
+([pkg/apps/dmz/edge/rev_proxy_service.go](../../pkg/apps/dmz/edge/rev_proxy_service.go)),
+và `main` khởi chạy nó qua app `server.GRPC` trên `defaults.EdgeAddress`. RPC
 `EvalCoreRuleset` (chạy lại một request với một setting CRS) đã bị bỏ cùng
 `szcrs.Evaluate`. `internal/dmz/edge/events/{pub,sub}` hiện là package rỗng.
 
 ## 3.10 Chọn engine
 
 Engine được chọn lúc khởi động bằng flag `--engine` (mặc định `quic`);
-`edge.NewServer` switch theo `conf.Flag.Engine`:
+`edge.NewRevProxyServer` switch theo `conf.Flag.Engine`:
 
 | `--engine` | Constructor | Server | Giao thức |
 |---|---|---|---|

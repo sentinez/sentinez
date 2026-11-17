@@ -26,8 +26,9 @@ import (
 )
 
 // main is the entrypoint of the Edge application.
-// It initializes configuration, creates the HTTP server and Edge Engine,
-// and registers their start/stop hooks with the runner framework.
+// It initializes configuration, creates the RevProxyServer (HTTP) and the
+// RevProxyService (gRPC), and registers their start/stop hooks with the
+// runner framework.
 func main() {
 	if err := run(); err != nil {
 		szlog.Fatal(err)
@@ -41,7 +42,7 @@ func run() error {
 	}
 
 	return r.Run(context.Background(),
-		szrunner.NewApp(server.Edge),
+		szrunner.NewApp(server.RevProxy),
 		szrunner.NewApp(server.GRPC),
 		szrunner.NewApp(server.Pprof),
 	)

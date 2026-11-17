@@ -21,8 +21,8 @@ import (
 	"github.com/sentinez/core/szhttp/chains"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/sentinez/internal/envplugin"
-	"github.com/sentinez/sentinez/internal/memory/reverseproxy"
 	"github.com/sentinez/sentinez/internal/memory/routes"
+	"github.com/sentinez/sentinez/internal/memory/upstream"
 )
 
 // StandardRouterId is the chain stage name of StandardRouter.
@@ -38,7 +38,7 @@ var (
 // (logging.Logging). It ends the chain: next is never called.
 type StandardRouter struct {
 	route *routes.Router
-	proxy *reverseproxy.ReverseProxy
+	proxy *upstream.ReverseProxy
 }
 
 func (*StandardRouter) ID() string { return StandardRouterId }

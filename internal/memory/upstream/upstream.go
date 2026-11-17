@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package reverseproxy keeps the reverse proxies of the upstreams, by
+// Package upstream keeps the reverse proxies of the upstreams, by
 // namespace: each namespace dials its upstreams with its own TLS settings
 // (CAs and client certificate), so a proxy is never shared between two.
-package reverseproxy
+package upstream
 
 import (
 	"sync"

@@ -25,11 +25,11 @@ import (
 //
 // Package edge implements the core Edge Server component.
 //
-// The Edge Engine provides remote procedure call (RPC) capabilities over gRPC,
-// allowing other services to connect to edge layer, execute remote functions
-// and interact with its internal processing pipelines.
+// The RevProxyService provides remote procedure call (RPC) capabilities over
+// gRPC, allowing other services to connect to edge layer, execute remote
+// functions and interact with its internal processing pipelines.
 //
-// Together with the Edge Server (HTTP entrypoint), these components form
+// Together with the RevProxyServer (HTTP entrypoint), these components form
 // the foundation of the edge platform - responsible for traffic handling,
 // routing, proxying, policy enforcement.
 //
@@ -38,22 +38,22 @@ import (
 // across the entire edge system.
 //
 
-func NewService(conf *settingpb.Config) *Service {
-	return &Service{
-		Server:      szgrpc.New(),
-		EdgeService: edge.New(),
-		conf:        conf,
+func NewRevProxyService(conf *settingpb.Config) *RevProxyService {
+	return &RevProxyService{
+		Server:          szgrpc.New(),
+		RevProxyService: edge.New(),
+		conf:            conf,
 	}
 }
 
-type Service struct {
+type RevProxyService struct {
 	*szgrpc.Server
-	*edge.EdgeService
+	*edge.RevProxyService
 	conf *settingpb.Config
 }
 
-func (e *Service) Start() error {
-	edgepb.RegisterEdgeServiceServer(e.AsServer(), e)
+func (e *RevProxyService) Start() error {
+	edgepb.RegisterRevProxyServiceServer(e.AsServer(), e)
 
 	return e.Serve(e.conf,
 		szgrpc.WithDiscorvery(false),
