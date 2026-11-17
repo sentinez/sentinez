@@ -237,7 +237,7 @@ func (m *MemStore) unload(id, ns string) bool {
 
 	m.setting.Delete(ns)
 	m.route.Delete(ns)
-	m.reverseProxy.Delete(ns)
+	m.revProxy.Delete(ns)
 	m.passthrough.Delete(ns)
 	m.cdnRules.Delete(ns)
 	m.secRule.Delete(ns)

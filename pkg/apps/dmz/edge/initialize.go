@@ -28,7 +28,7 @@ import (
 // settings it holds.
 const _syncTimeout = 30 * time.Second
 
-func (s *Server) initialize() error {
+func (s *RevProxyServer) initialize() error {
 	ctx, cancel := context.WithTimeout(context.Background(), _syncTimeout)
 	defer cancel()
 

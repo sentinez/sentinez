@@ -25,7 +25,7 @@ import (
 // Once the server shuts down, Lead returns without campaigning: the nil
 // elector would panic otherwise.
 func TestLeadAfterShutdownDoesNotCampaign(t *testing.T) {
-	s := &Server{}
+	s := &RevProxyServer{}
 	s.endLead()
 
 	assert.NoError(t, s.Lead(context.Background()))
@@ -34,7 +34,7 @@ func TestLeadAfterShutdownDoesNotCampaign(t *testing.T) {
 // A term that ends before the edge synced its map follows nothing: the
 // nil memstore would panic otherwise.
 func TestFollowCentralDataWaitsForTheSync(t *testing.T) {
-	s := &Server{synced: make(chan struct{})}
+	s := &RevProxyServer{synced: make(chan struct{})}
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 

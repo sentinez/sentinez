@@ -25,7 +25,7 @@ option (sentinez.types.v1.x_meta) = {
   service_key: "sentinez.dmz.edge.v1"
 };
 
-service EdgeService {
+service RevProxyService {
   rpc Status(StatusRequest) returns (StatusResponse) {}
 }
 

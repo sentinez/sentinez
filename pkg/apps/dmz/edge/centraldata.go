@@ -37,7 +37,7 @@ var errCentralConfig = errors.New("centraldata sync is not configured")
 // keeps the zone Status in Consul and, when the edge holds a service token
 // (SENZ_SERVICE_TOKEN), follows centraldata for the whole cluster: it
 // writes the settings of the tables to the synced map every edge loads.
-func (s *Server) Lead(ctx context.Context) error {
+func (s *RevProxyServer) Lead(ctx context.Context) error {
 	if !s.beginLead() {
 		return nil
 	}
@@ -52,7 +52,7 @@ func (s *Server) Lead(ctx context.Context) error {
 }
 
 // beginLead counts a running Lead, unless the server is shutting down.
-func (s *Server) beginLead() bool {
+func (s *RevProxyServer) beginLead() bool {
 	s.leadMu.Lock()
 	defer s.leadMu.Unlock()
 
@@ -67,7 +67,7 @@ func (s *Server) beginLead() bool {
 
 // endLead stops new Leads and waits for the running one, so nothing
 // writes the cluster once it stops.
-func (s *Server) endLead() {
+func (s *RevProxyServer) endLead() {
 	s.leadMu.Lock()
 	s.leadClosed = true
 	s.leadMu.Unlock()
@@ -79,8 +79,8 @@ func (s *Server) endLead() {
 // and keeps them current, until the term ends. It never ends the term: a
 // configuration error does not mend by campaigning again, and the settings
 // already in the cluster serve meanwhile.
-func (s *Server) followCentralData(ctx context.Context, term leader.Term,
-) error {
+func (s *RevProxyServer) followCentralData(ctx context.Context,
+	term leader.Term) error {
 	// the map is written once the edge synced it
 	select {
 	case <-s.synced:
@@ -108,7 +108,7 @@ func (s *Server) followCentralData(ctx context.Context, term leader.Term,
 	return nil
 }
 
-func (s *Server) newFollower() (*centralsync.Follower, error) {
+func (s *RevProxyServer) newFollower() (*centralsync.Follower, error) {
 	key, err := szsign.ParseKey(s.conf.Get(settingpb.Senz_SENZ_SYNC_KEY))
 	if err != nil {
 		return nil, errors.Join(errCentralConfig, err)
@@ -127,7 +127,7 @@ func (s *Server) newFollower() (*centralsync.Follower, error) {
 
 // dialCentralData finds centraldata in consul and connects to it with the
 // internal mTLS and the service token of the edge.
-func (s *Server) dialCentralData(context.Context,
+func (s *RevProxyServer) dialCentralData(context.Context,
 ) (centraldatapb.CentralDataServiceClient, io.Closer, error) {
 	tls := connection.TLSFromConfig(s.conf)
 	opt := &options.Options{

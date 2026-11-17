@@ -69,7 +69,7 @@ func upstreamStore(t *testing.T, sealer *crypto.Sealer) *MemStore {
 
 	m := newSyncStore()
 	m.sealer = sealer
-	t.Cleanup(func() { m.reverseProxy.Delete(_upstreamNs) })
+	t.Cleanup(func() { m.revProxy.Delete(_upstreamNs) })
 
 	return m
 }
@@ -83,7 +83,7 @@ func TestLoadReverseProxyWithoutUpstreamTLS(t *testing.T) {
 	conf, ok := srv.confs["https://"+_upstreamServer]
 	require.True(t, ok)
 	assert.Nil(t, conf, "the defaults of the transport")
-	_, ok = m.reverseProxy.Load(_upstreamNs, _upstreamServer)
+	_, ok = m.revProxy.Load(_upstreamNs, _upstreamServer)
 	assert.True(t, ok)
 }
 
@@ -162,7 +162,7 @@ func TestLoadReverseProxyFailsClosed(t *testing.T) {
 			err := m.LoadReverseProxy(srv, upstreamSetting(tt.giveTls))
 
 			require.Error(t, err)
-			_, ok := m.reverseProxy.Load(_upstreamNs, _upstreamServer)
+			_, ok := m.revProxy.Load(_upstreamNs, _upstreamServer)
 			assert.False(t, ok, "the previous proxy is dropped")
 		})
 	}
@@ -173,11 +173,11 @@ func TestUnloadDropsReverseProxy(t *testing.T) {
 	m.server = &acceptServer{confs: map[string]*tls.Config{}}
 
 	m.load("rsrc_1", upstreamSetting(nil))
-	_, ok := m.reverseProxy.Load(_upstreamNs, _upstreamServer)
+	_, ok := m.revProxy.Load(_upstreamNs, _upstreamServer)
 	require.True(t, ok)
 
 	m.unload("rsrc_1", _upstreamNs)
 
-	_, ok = m.reverseProxy.Load(_upstreamNs, _upstreamServer)
+	_, ok = m.revProxy.Load(_upstreamNs, _upstreamServer)
 	assert.False(t, ok)
 }

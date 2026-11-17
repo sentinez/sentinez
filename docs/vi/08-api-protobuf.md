@@ -12,7 +12,7 @@ api/proto/sentinez/
 │   ├── <domain>.proto       #   service + request/response
 │   └── model.proto          #   model DB (x_message.database_model)
 ├── dmz/
-│   ├── edge/v1/             # EdgeService, Setting (proxy.yaml), Context
+│   ├── edge/v1/             # RevProxyService, Setting (proxy.yaml), Context
 │   └── dataplane/v1/        # DataPlaneService
 ├── gateway/
 │   ├── apiserver/v1/        # chỉ khai báo x_meta

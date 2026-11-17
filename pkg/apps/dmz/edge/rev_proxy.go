@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package edge provides the implementation of the EdgeServiceServer interface.
+// Package edge provides the implementation of the RevProxyServiceServer
+// interface.
 package edge
 
 import (
@@ -48,7 +49,7 @@ import (
 // controlled startup and graceful shutdown.
 //
 
-// NewServer initializes and returns a new Edge Server instance.
+// NewRevProxyServer initializes and returns a new Edge Server instance.
 // The Edge Server is responsible for handling all external HTTP traffic
 //
 // Parameters:
@@ -56,10 +57,10 @@ import (
 //   - elector: Campaigns for the leadership of the zone (Lead).
 //
 // Returns:
-//   - *Server: A new Edge Server instance ready to be started.
+//   - *RevProxyServer: A new Edge Server instance ready to be started.
 //   - error: error when create server
-func NewServer(conf *settingpb.Config, elector *leader.Elector,
-) (*Server, error) {
+func NewRevProxyServer(conf *settingpb.Config, elector *leader.Elector,
+) (*RevProxyServer, error) {
 
 	localSetting, err := edgeyaml.LoadSetting(conf)
 	if err != nil {
@@ -76,7 +77,7 @@ func NewServer(conf *settingpb.Config, elector *leader.Elector,
 		return nil, err
 	}
 
-	return &Server{
+	return &RevProxyServer{
 		setting:     localSetting,
 		memstore:    mem,
 		conf:        conf,
@@ -86,13 +87,13 @@ func NewServer(conf *settingpb.Config, elector *leader.Elector,
 	}, nil
 }
 
-// Server represents the core Edge Server.
-// It wraps an `stdhttp.Server` for network operations
+// RevProxyServer represents the core Edge RevProxyServer.
+// It wraps an `stdhttp.RevProxyServer` for network operations
 // and holds the runtime proxy configuration.
 //
-// The Server is the main handler of the edge service —
+// The RevProxyServer is the main handler of the edge service —
 // all ingress traffic is processed and dispatched here.
-type Server struct {
+type RevProxyServer struct {
 	server      szhttp.Server
 	conf        *settingpb.Config
 	setting     *edgepb.Setting
@@ -116,7 +117,7 @@ type Server struct {
 //
 // This method is automatically invoked by the `runner` package
 // during the service shutdown phase.
-func (s *Server) Shutdown(ctx context.Context) error {
+func (s *RevProxyServer) Shutdown(ctx context.Context) error {
 	szlog.Debugf("application is shutting down")
 	s.endLead()
 
@@ -146,7 +147,7 @@ func (s *Server) Shutdown(ctx context.Context) error {
 //
 // Returns:
 //   - error: Any error that occurred during startup or serving.
-func (s *Server) Start() error {
+func (s *RevProxyServer) Start() error {
 	server, engineOpts := newServer(s.conf)
 	s.server = server
 

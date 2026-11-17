@@ -8,7 +8,7 @@ Relevant source:
 | Path | Role |
 |---|---|
 | [cmd/szedge/v1/main.go](../cmd/szedge/v1/main.go) | Entry point, enables pprof on `:6060` |
-| [pkg/apps/dmz/edge/](../pkg/apps/dmz/edge/) | `Server` (Start/Shutdown), config, flags, YAML loading |
+| [pkg/apps/dmz/edge/](../pkg/apps/dmz/edge/) | `RevProxyServer` (Start/Lead/Shutdown), `RevProxyService` (gRPC), config, flags, YAML loading |
 | [internal/dmz/edge/engine/](../internal/dmz/edge/engine/engine.go) | HTTP engine constructors, chosen by `--engine`: `Quic` (default, HTTP/3 + HTTP/1.1/2), `Hertz` or `Standard` (`net/http`) |
 | [internal/handlers/](../internal/handlers/) | Middleware chain plugins |
 | [internal/dmz/edge/transport/](../internal/dmz/edge/transport/) | TLS (JA4) and OnConnect hooks |
@@ -22,18 +22,17 @@ Relevant source:
 ## 3.1 Startup
 
 ```
-main: run() → runner.Run(ctx, NewApp(edgeServer), NewApp(grpcServer), NewApp(leader), NewApp(pprof))
- ├─ edgeServer
- │   ├─ Inject(config.Config, edgeyaml.LoadSetting, edge.NewServer)
- │   └─ Serve(server.Start)
- ├─ grpcServer
- │   ├─ Inject(config.Config, edge.NewService)
+main: run() → runner.Run(ctx, NewApp(server.RevProxy), NewApp(server.GRPC), NewApp(server.Pprof))
+ ├─ server.RevProxy
+ │   ├─ Inject(edge.NewRevProxyServer, leader.New)
+ │   ├─ Serve(server.Start)
+ │   └─ Serve(server.Lead)     // zone leader, see 3.8
+ ├─ server.GRPC
+ │   ├─ Inject(edge.NewRevProxyService)
  │   └─ Serve(service.Start)   // gRPC on defaults.EdgeAddress
- └─ leader
-     ├─ Inject(config.Config, leader.New)
-     └─ Serve(e.Run(ctx, e.PublishStatus()))  // zone leader, see 3.8
+ └─ server.Pprof                // :6060
 
-edge.NewServer(conf)
+edge.NewRevProxyServer(conf)
  ├─ edgeyaml.LoadSetting(conf)              // raw setting of proxy.yaml
  ├─ memory.NewMemStore(conf)                // singleton; cluster.NewCluster + settings SyncMap
  └─ switch conf.Flag.Engine                 // --engine
@@ -41,7 +40,7 @@ edge.NewServer(conf)
      quic  → engine.Quic(conf)             → quichttpx.NewServer + WithOnStdConnect(OnStandardConnect)
      std, other → engine.Standard(conf)    → stdhttpx.NewServer + WithOnStdConnect(OnStandardConnect)
 
-Server.Start()
+RevProxyServer.Start()
  ├─ initialize()
  │   ├─ mem.Sync(ctx, server, setting)  // 30s: wait for Olric, load the cluster's settings,
  │   │                                  // share this one; each change rebuilds routes,
@@ -428,7 +427,7 @@ client certificate it asks for.
 |---|---|---|
 | `settings.Setting` | `Map[string,*edgepb.Setting]` | Normalized Settings by namespace, rebuilt from the synced settings (3.8) |
 | `routes.Router` | `Map[string,[]*Location]` | Sorted locations |
-| `reverseproxy.ReverseProxy` | `Map[string,map[string]szhttp.ReverseProxy]` | The proxies of a namespace, by upstream server (3.6) |
+| `upstream.ReverseProxy` | `Map[string,map[string]szhttp.ReverseProxy]` | The proxies of a namespace, by upstream server (3.6) |
 | `secrules.SecRule` | `Map[string,[]Entry]` | Compiled `Entry{Eval, Rule}`, active only, sorted by priority |
 | `ratelimiter.Limiter` | `Map[string,*RateLimiter]` | One limiter per namespace |
 | `rulesets.Rulesets` | `Map[string,coraza.WAF]` | One WAF instance per namespace |
@@ -617,9 +616,9 @@ so the node gives up the lock and campaigns again. Other errors (Consul
 unreachable) are logged and retried at the next tick. A standalone edge
 writes no `status` (`PublishStatus` returns `nil`): it only leads.
 
-**Wiring.** The `Edge` app of [cmd/szedge/v1/server/server.go](../cmd/szedge/v1/server/server.go)
-injects the `Elector` into `edge.Server` (`Inject(edge.NewServer, leader.New)`)
-and serves `Server.Lead` beside `Server.Start`: the tasks of the leader need
+**Wiring.** The `RevProxy` app of [cmd/szedge/v1/server/server.go](../cmd/szedge/v1/server/server.go)
+injects the `Elector` into `edge.RevProxyServer` (`Inject(edge.NewRevProxyServer, leader.New)`)
+and serves `RevProxyServer.Lead` beside `RevProxyServer.Start`: the tasks of the leader need
 the stores of the edge, which another app's fx container cannot reach.
 `Lead` runs `leader.All(e.PublishStatus(), followCentralData)`: only the
 leader follows centraldata ([07-controlplane.md](07-controlplane.md)), and
@@ -649,12 +648,13 @@ leaves it without a quorum until they are back. The edges run with
 reads it, `info` by default), which shows the sync:
 `docker logs sentinez.dmz.edge.02 2>&1 | grep "edge: centraldata"`.
 
-## 3.9 EdgeService gRPC
+## 3.9 RevProxyService gRPC
 
-`edgepb.EdgeService` only has `Status`, which returns `OK`
+`edgepb.RevProxyService` only has `Status`, which returns `OK`
 ([internal/dmz/edge/api.go](../internal/dmz/edge/api.go), package `edge`).
-It is packaged as `edge.Service` (`pkg/apps/dmz/edge/edge_service.go`), and
-`main` starts it as the `grpcServer` app on `defaults.EdgeAddress`. The
+It is packaged as `edge.RevProxyService`
+([pkg/apps/dmz/edge/rev_proxy_service.go](../pkg/apps/dmz/edge/rev_proxy_service.go)),
+and `main` starts it as the `server.GRPC` app on `defaults.EdgeAddress`. The
 `EvalCoreRuleset` RPC (replaying a request against a CRS setting) was removed
 together with `szcrs.Evaluate`. `internal/dmz/edge/events/{pub,sub}` are
 empty packages for now.
@@ -662,7 +662,7 @@ empty packages for now.
 ## 3.10 Choosing the engine
 
 The engine is picked at startup with the `--engine` flag (default `quic`);
-`edge.NewServer` switches on `conf.Flag.Engine`:
+`edge.NewRevProxyServer` switches on `conf.Flag.Engine`:
 
 | `--engine` | Constructor | Server | Protocols |
 |---|---|---|---|

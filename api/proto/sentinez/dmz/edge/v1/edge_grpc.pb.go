@@ -33,99 +33,99 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	EdgeService_Status_FullMethodName = "/sentinez.dmz.edge.v1.EdgeService/Status"
+	RevProxyService_Status_FullMethodName = "/sentinez.dmz.edge.v1.RevProxyService/Status"
 )
 
-// EdgeServiceClient is the client API for EdgeService service.
+// RevProxyServiceClient is the client API for RevProxyService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type EdgeServiceClient interface {
+type RevProxyServiceClient interface {
 	Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 }
 
-type edgeServiceClient struct {
+type revProxyServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewEdgeServiceClient(cc grpc.ClientConnInterface) EdgeServiceClient {
-	return &edgeServiceClient{cc}
+func NewRevProxyServiceClient(cc grpc.ClientConnInterface) RevProxyServiceClient {
+	return &revProxyServiceClient{cc}
 }
 
-func (c *edgeServiceClient) Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error) {
+func (c *revProxyServiceClient) Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(StatusResponse)
-	err := c.cc.Invoke(ctx, EdgeService_Status_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, RevProxyService_Status_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// EdgeServiceServer is the server API for EdgeService service.
-// All implementations should embed UnimplementedEdgeServiceServer
+// RevProxyServiceServer is the server API for RevProxyService service.
+// All implementations should embed UnimplementedRevProxyServiceServer
 // for forward compatibility.
-type EdgeServiceServer interface {
+type RevProxyServiceServer interface {
 	Status(context.Context, *StatusRequest) (*StatusResponse, error)
 }
 
-// UnimplementedEdgeServiceServer should be embedded to have
+// UnimplementedRevProxyServiceServer should be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedEdgeServiceServer struct{}
+type UnimplementedRevProxyServiceServer struct{}
 
-func (UnimplementedEdgeServiceServer) Status(context.Context, *StatusRequest) (*StatusResponse, error) {
+func (UnimplementedRevProxyServiceServer) Status(context.Context, *StatusRequest) (*StatusResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Status not implemented")
 }
-func (UnimplementedEdgeServiceServer) testEmbeddedByValue() {}
+func (UnimplementedRevProxyServiceServer) testEmbeddedByValue() {}
 
-// UnsafeEdgeServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to EdgeServiceServer will
+// UnsafeRevProxyServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to RevProxyServiceServer will
 // result in compilation errors.
-type UnsafeEdgeServiceServer interface {
-	mustEmbedUnimplementedEdgeServiceServer()
+type UnsafeRevProxyServiceServer interface {
+	mustEmbedUnimplementedRevProxyServiceServer()
 }
 
-func RegisterEdgeServiceServer(s grpc.ServiceRegistrar, srv EdgeServiceServer) {
-	// If the following call panics, it indicates UnimplementedEdgeServiceServer was
+func RegisterRevProxyServiceServer(s grpc.ServiceRegistrar, srv RevProxyServiceServer) {
+	// If the following call panics, it indicates UnimplementedRevProxyServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&EdgeService_ServiceDesc, srv)
+	s.RegisterService(&RevProxyService_ServiceDesc, srv)
 }
 
-func _EdgeService_Status_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _RevProxyService_Status_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StatusRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(EdgeServiceServer).Status(ctx, in)
+		return srv.(RevProxyServiceServer).Status(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: EdgeService_Status_FullMethodName,
+		FullMethod: RevProxyService_Status_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EdgeServiceServer).Status(ctx, req.(*StatusRequest))
+		return srv.(RevProxyServiceServer).Status(ctx, req.(*StatusRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// EdgeService_ServiceDesc is the grpc.ServiceDesc for EdgeService service.
+// RevProxyService_ServiceDesc is the grpc.ServiceDesc for RevProxyService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var EdgeService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "sentinez.dmz.edge.v1.EdgeService",
-	HandlerType: (*EdgeServiceServer)(nil),
+var RevProxyService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "sentinez.dmz.edge.v1.RevProxyService",
+	HandlerType: (*RevProxyServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Status",
-			Handler:    _EdgeService_Status_Handler,
+			Handler:    _RevProxyService_Status_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
