@@ -31,6 +31,7 @@ import { handleStatusError } from '@/lib/error-handler';
 import { deleteCaCertificate, getCaCertificate } from '@/lib/api/tenant';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 import { InfoCard, InfoRow } from '@/components/info-card';
+import { CodeBlock } from '@/components/code-block';
 import {
   CaExpiryBadge,
   DAY_MS,
@@ -109,7 +110,7 @@ export default function CaCertificatePage({ params }: { params: Promise<{ id: st
         )}
       </PageLayoutHeader>
 
-      <PageLayoutContent>
+      <PageLayoutContent size="sm">
         {!cert && (
           <p className="py-10 text-center text-muted-foreground">{t('loadDetailFailed')}</p>
         )}
@@ -176,9 +177,7 @@ export default function CaCertificatePage({ params }: { params: Promise<{ id: st
                 </CardAction>
               </CardHeader>
               <CardContent>
-                <pre className="max-h-80 overflow-auto rounded-md bg-muted p-4 font-mono text-xs leading-relaxed">
-                  {cert.pem}
-                </pre>
+                <CodeBlock className="max-h-80" value={cert.pem} />
               </CardContent>
             </Card>
           </>

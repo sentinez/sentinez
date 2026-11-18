@@ -99,7 +99,7 @@ export default function EditMemberPage() {
           </Button>
         </div>
       </PageLayoutHeader>
-      <PageLayoutContent>
+      <PageLayoutContent size="sm">
         <div className="flex items-center gap-4">
           <MemberAvatar name={profile.name} seed={profile.seed} className="h-16 w-16" />
           <div className="grid min-w-0">

@@ -14,6 +14,7 @@ import {
 } from '@sentinez/ui/components/sheet';
 import { toast } from '@/lib/toast';
 import { InfoRow } from '@/components/info-card';
+import { CodeBlock } from '@/components/code-block';
 import { RequestLink } from './request-link';
 import type { DetailConfig, DetailSection } from './types';
 
@@ -107,9 +108,7 @@ export function EventDetail<T>({ config, event, onClose }: Props<T>) {
         {event && (
           <div className="flex-1 overflow-y-auto px-4 pb-6">
             {view === 'json' ? (
-              <pre className="mt-4 overflow-x-auto rounded-md bg-muted p-3 font-mono text-xs">
-                {json}
-              </pre>
+              <CodeBlock className="mt-4 max-h-none" value={json} />
             ) : (
               <>
                 <dl className="flex flex-col pt-2">

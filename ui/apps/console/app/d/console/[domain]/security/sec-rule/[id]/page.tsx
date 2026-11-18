@@ -86,7 +86,7 @@ export default function EditSecRulePage({ params }: { params: Promise<{ id: stri
           </Button>
         </div>
       </PageLayoutHeader>
-      <PageLayoutContent>
+      <PageLayoutContent size="sm">
         <SecRuleFields value={form} onChange={patchForm} idPrefix="edit" />
       </PageLayoutContent>
     </PageLayout>

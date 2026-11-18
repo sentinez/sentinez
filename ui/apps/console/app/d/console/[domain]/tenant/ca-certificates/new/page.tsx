@@ -62,7 +62,7 @@ export default function CreateCaCertificatePage() {
           </Button>
         </div>
       </PageLayoutHeader>
-      <PageLayoutContent>
+      <PageLayoutContent size="sm">
         <CaCertificateFields value={form} onChange={patchForm} />
       </PageLayoutContent>
     </PageLayout>

@@ -58,14 +58,21 @@ export default function Loading() {
 
 - Layout: `PageLayout`, `PageLayoutHeader` (title, subtitle, action buttons),
   `PageLayoutContent` from `@/components/page-layout`. The header is left-aligned and
-  `max-w-7xl`; the content is narrower (`max-w-5xl`) and centred under the header, the
-  full width when the page is narrower. Put the content straight in `PageLayoutContent`, never in a wrapper with its own `max-w-*`, `mx-auto` or
+  `max-w-7xl`; the content is centred under the header, the full width when the page is
+  narrower, and its `size` sets the width from large to small: `xl` (`max-w-7xl`, the whole
+  header width, for the list pages and the event log pages: histogram + event table), `lg` (`max-w-5xl`, the
+  default), `md` (`max-w-3xl`) and `sm` (`max-w-xl`, for the create and update form pages `new/page.tsx`, `[id]/page.tsx`). Put the content straight in `PageLayoutContent`, never in a wrapper with its own `max-w-*`, `mx-auto` or
   `py-*` (`PageLayoutContent` already pads and spaces its children), and never pull a
   block out with a negative margin (`-mx-1`).
 - Forms: `<PageLayoutContent><XxxFields ... /></PageLayoutContent>`. Short fields
   (selects, numbers) go side by side in `<FieldGrid>` (`cols={3}` for three) from
   `@/components/field-grid`, not a hand-written `grid sm:grid-cols-2`, so they do not
   stretch across the page.
+- Raw JSON (a preview, a "show JSON" fold) or text (a certificate) is
+  `<CodeBlock value={...} />` from `@/components/code-block`, not a hand-written
+  `<pre>{JSON.stringify(...)}</pre>`: it
+  keeps the parent's width (`min-w-0`) and scrolls a long line inside itself, so the card
+  around it does not widen or shift when zooming.
 - List: the filter / refresh / columns row above the table is `<PageLayoutToolbar>`
   (spacing included: no `ml-2` on its items, no `py-4`).
 - `PageLayoutHeader` is sticky and already holds the sidebar trigger and the

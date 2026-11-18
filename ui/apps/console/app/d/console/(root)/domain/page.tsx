@@ -21,7 +21,7 @@ export default async function Page() {
         </Button>
       </PageLayoutHeader>
 
-      <PageLayoutContent>
+      <PageLayoutContent size="xl">
         <ResourceTable />
       </PageLayoutContent>
     </PageLayout>

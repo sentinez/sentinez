@@ -32,6 +32,7 @@ import {
 } from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import { OPERATOR_OPTIONS } from '@/lib/type/security';
 import { useSecurityOptions } from '@/hooks/use-security-options';
+import { CodeBlock } from '@/components/code-block';
 
 // ─── Factories ───────────────────────────────────────────────────────────────
 
@@ -172,8 +173,12 @@ export function QueryBuilder({
         data-slot="query-builder"
         data-orientation={orientation}
         className={cn(
-          'group/query-builder flex gap-4 h-full',
-          'data-[orientation=horizontal]:gap-6 lg:data-[orientation=horizontal]:grid-cols-5',
+          // vertical: editor above the JSON, both full width; horizontal:
+          // a 3/2 grid from lg. Never a flex row, or the JSON card is as
+          // wide as its longest line and the split moves with the zoom.
+          'group/query-builder flex flex-col gap-4 min-w-0',
+          'lg:data-[orientation=horizontal]:grid lg:data-[orientation=horizontal]:grid-cols-5',
+          'data-[orientation=horizontal]:gap-6',
           className,
         )}
         {...props}
@@ -209,7 +214,7 @@ export function QueryBuilderEditor({
     <Card
       data-slot="query-builder-editor"
       className={cn(
-        'w-full h-full overflow-hidden shadow-none',
+        'w-full min-w-0 overflow-hidden shadow-none',
         'lg:group-data-[orientation=horizontal]/query-builder:col-span-3',
         className,
       )}
@@ -421,8 +426,11 @@ export function QueryBuilderPreview({ title, className, ...props }: QueryBuilder
     <Card
       data-slot="query-builder-preview"
       className={cn(
-        'bg-muted/20 shadow-none h-full sticky top-4 z-auto',
+        'w-full min-w-0 bg-muted/20 shadow-none',
         'lg:group-data-[orientation=horizontal]/query-builder:col-span-2',
+        'lg:group-data-[orientation=horizontal]/query-builder:sticky',
+        'lg:group-data-[orientation=horizontal]/query-builder:top-4',
+        'lg:group-data-[orientation=horizontal]/query-builder:self-start',
         className,
       )}
       {...props}
@@ -431,9 +439,7 @@ export function QueryBuilderPreview({ title, className, ...props }: QueryBuilder
         <CardTitle>{title ?? t('json')}</CardTitle>
       </CardHeader>
       <CardContent>
-        <pre className="text-xs text-muted-foreground overflow-auto max-h-150 scrollbar-thin">
-          {JSON.stringify(expression, null, 2)}
-        </pre>
+        <CodeBlock value={expression} />
       </CardContent>
     </Card>
   );
