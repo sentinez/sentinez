@@ -94,17 +94,43 @@ export interface XField {
   codec: ColumnCodec;
   /** The column of a scalar field may be NULL, scanned as its zero value. */
   nullable: boolean;
+  /**
+   * What the string field holds of an audited call whose request, else
+   * response, holds it: the tenant or the resource it is about.
+   */
+  audit?: XAudit | undefined;
+}
+
+/** XAudit what an x_field.audit string field holds. */
+export interface XAudit {
+  /** The id of the tenant of the call. */
+  tenantId: boolean;
+  /** The id of the resource of the call. */
+  resourceId: boolean;
 }
 
 export interface XMethod {
-  /** ignore skips the control plane check; a valid token is still required. */
-  ignore: boolean;
+  /**
+   * ignore_control_plane skips the control plane check; a valid token is
+   * still required.
+   */
+  ignoreControlPlane: boolean;
   controlPlanes: ControlPlane[];
   /**
    * public lets the method be called without a token. Methods that do not
    * set it require a valid token.
    */
   public: boolean;
+  /** audit records each call of the method in the audit log. */
+  audit: boolean;
+  /**
+   * audit_no_owner no field of the request or the response of the method
+   * holds the tenant or the resource of its audited calls: their owner is
+   * only the one the checks of their access record, if any. Without it,
+   * the request or the response of an audited method must hold a field
+   * x_field.audit marks, protoc-gen-go-senz fails otherwise.
+   */
+  auditNoOwner: boolean;
 }
 
 function createBaseXMeta(): XMeta {
@@ -330,7 +356,7 @@ export const XMessage: MessageFns<XMessage> = {
 };
 
 function createBaseXField(): XField {
-  return { flatten: false, ignore: false, codec: 0, nullable: false };
+  return { flatten: false, ignore: false, codec: 0, nullable: false, audit: undefined };
 }
 
 export const XField: MessageFns<XField> = {
@@ -346,6 +372,9 @@ export const XField: MessageFns<XField> = {
     }
     if (message.nullable !== false) {
       writer.uint32(32).bool(message.nullable);
+    }
+    if (message.audit !== undefined) {
+      XAudit.encode(message.audit, writer.uint32(42).fork()).join();
     }
     return writer;
   },
@@ -395,6 +424,14 @@ export const XField: MessageFns<XField> = {
             message.nullable = reader.bool();
             continue;
           }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.audit = XAudit.decode(reader, reader.uint32());
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -413,6 +450,7 @@ export const XField: MessageFns<XField> = {
       ignore: isSet(object.ignore) ? globalThis.Boolean(object.ignore) : false,
       codec: isSet(object.codec) ? columnCodecFromJSON(object.codec) : 0,
       nullable: isSet(object.nullable) ? globalThis.Boolean(object.nullable) : false,
+      audit: isSet(object.audit) ? XAudit.fromJSON(object.audit) : undefined,
     };
   },
 
@@ -430,6 +468,9 @@ export const XField: MessageFns<XField> = {
     if (message.nullable !== false) {
       obj.nullable = message.nullable;
     }
+    if (message.audit !== undefined) {
+      obj.audit = XAudit.toJSON(message.audit);
+    }
     return obj;
   },
 
@@ -442,18 +483,114 @@ export const XField: MessageFns<XField> = {
     message.ignore = object.ignore ?? false;
     message.codec = object.codec ?? 0;
     message.nullable = object.nullable ?? false;
+    message.audit = (object.audit !== undefined && object.audit !== null)
+      ? XAudit.fromPartial(object.audit)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseXAudit(): XAudit {
+  return { tenantId: false, resourceId: false };
+}
+
+export const XAudit: MessageFns<XAudit> = {
+  encode(message: XAudit, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.tenantId !== false) {
+      writer.uint32(8).bool(message.tenantId);
+    }
+    if (message.resourceId !== false) {
+      writer.uint32(16).bool(message.resourceId);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): XAudit {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseXAudit();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.tenantId = reader.bool();
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.resourceId = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): XAudit {
+    return {
+      tenantId: isSet(object.tenantId)
+        ? globalThis.Boolean(object.tenantId)
+        : isSet(object.tenant_id)
+        ? globalThis.Boolean(object.tenant_id)
+        : false,
+      resourceId: isSet(object.resourceId)
+        ? globalThis.Boolean(object.resourceId)
+        : isSet(object.resource_id)
+        ? globalThis.Boolean(object.resource_id)
+        : false,
+    };
+  },
+
+  toJSON(message: XAudit): unknown {
+    const obj: any = {};
+    if (message.tenantId !== false) {
+      obj.tenantId = message.tenantId;
+    }
+    if (message.resourceId !== false) {
+      obj.resourceId = message.resourceId;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<XAudit>, I>>(base?: I): XAudit {
+    return XAudit.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<XAudit>, I>>(object: I): XAudit {
+    const message = createBaseXAudit();
+    message.tenantId = object.tenantId ?? false;
+    message.resourceId = object.resourceId ?? false;
     return message;
   },
 };
 
 function createBaseXMethod(): XMethod {
-  return { ignore: false, controlPlanes: [], public: false };
+  return { ignoreControlPlane: false, controlPlanes: [], public: false, audit: false, auditNoOwner: false };
 }
 
 export const XMethod: MessageFns<XMethod> = {
   encode(message: XMethod, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.ignore !== false) {
-      writer.uint32(8).bool(message.ignore);
+    if (message.ignoreControlPlane !== false) {
+      writer.uint32(8).bool(message.ignoreControlPlane);
     }
     writer.uint32(18).fork();
     for (const v of message.controlPlanes) {
@@ -462,6 +599,12 @@ export const XMethod: MessageFns<XMethod> = {
     writer.join();
     if (message.public !== false) {
       writer.uint32(24).bool(message.public);
+    }
+    if (message.audit !== false) {
+      writer.uint32(32).bool(message.audit);
+    }
+    if (message.auditNoOwner !== false) {
+      writer.uint32(40).bool(message.auditNoOwner);
     }
     return writer;
   },
@@ -484,7 +627,7 @@ export const XMethod: MessageFns<XMethod> = {
               break;
             }
 
-            message.ignore = reader.bool();
+            message.ignoreControlPlane = reader.bool();
             continue;
           }
           case 2: {
@@ -513,6 +656,22 @@ export const XMethod: MessageFns<XMethod> = {
             message.public = reader.bool();
             continue;
           }
+          case 4: {
+            if (tag !== 32) {
+              break;
+            }
+
+            message.audit = reader.bool();
+            continue;
+          }
+          case 5: {
+            if (tag !== 40) {
+              break;
+            }
+
+            message.auditNoOwner = reader.bool();
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -527,26 +686,42 @@ export const XMethod: MessageFns<XMethod> = {
 
   fromJSON(object: any): XMethod {
     return {
-      ignore: isSet(object.ignore) ? globalThis.Boolean(object.ignore) : false,
+      ignoreControlPlane: isSet(object.ignoreControlPlane)
+        ? globalThis.Boolean(object.ignoreControlPlane)
+        : isSet(object.ignore_control_plane)
+        ? globalThis.Boolean(object.ignore_control_plane)
+        : false,
       controlPlanes: globalThis.Array.isArray(object?.controlPlanes)
         ? object.controlPlanes.map((e: any) => controlPlaneFromJSON(e))
         : globalThis.Array.isArray(object?.control_planes)
         ? object.control_planes.map((e: any) => controlPlaneFromJSON(e))
         : [],
       public: isSet(object.public) ? globalThis.Boolean(object.public) : false,
+      audit: isSet(object.audit) ? globalThis.Boolean(object.audit) : false,
+      auditNoOwner: isSet(object.auditNoOwner)
+        ? globalThis.Boolean(object.auditNoOwner)
+        : isSet(object.audit_no_owner)
+        ? globalThis.Boolean(object.audit_no_owner)
+        : false,
     };
   },
 
   toJSON(message: XMethod): unknown {
     const obj: any = {};
-    if (message.ignore !== false) {
-      obj.ignore = message.ignore;
+    if (message.ignoreControlPlane !== false) {
+      obj.ignoreControlPlane = message.ignoreControlPlane;
     }
     if (message.controlPlanes?.length) {
       obj.controlPlanes = message.controlPlanes.map((e) => controlPlaneToJSON(e));
     }
     if (message.public !== false) {
       obj.public = message.public;
+    }
+    if (message.audit !== false) {
+      obj.audit = message.audit;
+    }
+    if (message.auditNoOwner !== false) {
+      obj.auditNoOwner = message.auditNoOwner;
     }
     return obj;
   },
@@ -556,9 +731,11 @@ export const XMethod: MessageFns<XMethod> = {
   },
   fromPartial<I extends Exact<DeepPartial<XMethod>, I>>(object: I): XMethod {
     const message = createBaseXMethod();
-    message.ignore = object.ignore ?? false;
+    message.ignoreControlPlane = object.ignoreControlPlane ?? false;
     message.controlPlanes = object.controlPlanes?.map((e) => e) || [];
     message.public = object.public ?? false;
+    message.audit = object.audit ?? false;
+    message.auditNoOwner = object.auditNoOwner ?? false;
     return message;
   },
 };

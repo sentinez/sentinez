@@ -13,7 +13,9 @@
 // limitations under the License.
 
 // Package authz checks what the caller of a control plane method may
-// reach: its tenants and resources, by role.
+// reach: its tenants and resources, by role. A check records the tenant
+// and the resource it looks at as the owner of the call, for its audit log
+// (see auditowner).
 package authz
 
 import (
@@ -23,6 +25,7 @@ import (
 	"maps"
 	"slices"
 
+	"github.com/sentinez/controlplane/pkg/auditowner"
 	"github.com/sentinez/controlplane/pkg/headers"
 	"github.com/sentinez/pkg/szerror"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
@@ -135,6 +138,7 @@ func (a *Authorizer) RequireTenant(ctx context.Context, tenantId string,
 func (a *Authorizer) rankIn(ctx context.Context, auth *headers.Auth,
 	tenantId string, least typepb.Role) (int, error) {
 
+	auditowner.Set(ctx, tenantId, "")
 	if auth.IsAdmin() {
 		return Rank(typepb.Role_ROLE_SUPER_ADMIN), nil
 	}
@@ -188,6 +192,7 @@ func (a *Authorizer) memberRank(ctx context.Context, tenantId,
 func (a *Authorizer) RequireResource(ctx context.Context, resourceId string,
 	least typepb.Role) (*tenantpb.Resource, error) {
 
+	auditowner.Set(ctx, "", resourceId)
 	resource, err := a.resources.Get(ctx, resourceId)
 	if szerror.IsNoRows(err) {
 		return nil, notFoundResource(resourceId)
@@ -208,6 +213,7 @@ func (a *Authorizer) RequireResource(ctx context.Context, resourceId string,
 func (a *Authorizer) RequireResourceOf(ctx context.Context,
 	resource *tenantpb.Resource, least typepb.Role) error {
 
+	auditowner.Set(ctx, "", resource.GetId())
 	auth, err := headers.GetAuth(ctx)
 	if err != nil {
 		return err
@@ -227,6 +233,7 @@ func (a *Authorizer) RequireResourceOf(ctx context.Context,
 func (a *Authorizer) RequireOwner(ctx context.Context, owner *typepb.Owner,
 	least typepb.Role) error {
 
+	auditowner.Set(ctx, owner.GetTenantId(), owner.GetResourceId())
 	auth, err := headers.GetAuth(ctx)
 	if err != nil {
 		return err
@@ -288,6 +295,22 @@ func (a *Authorizer) TenantIds(ctx context.Context, requested []string,
 	}
 
 	return narrow(requested, own), nil
+}
+
+// noTenant is the scope of the rows of no tenant, the empty tenant id,
+// which only the admin control plane sees.
+func (a *Authorizer) noTenant(ctx context.Context) (Scope, error) {
+	auth, err := headers.GetAuth(ctx)
+	if err != nil {
+		return Scope{}, err
+	}
+
+	if !auth.IsAdmin() {
+		return Scope{}, szerror.StatusForbiddenF(
+			"the rows of no tenant need the admin control plane")
+	}
+
+	return Scope{Ids: []string{""}}, nil
 }
 
 // ResourceIds limits requested to the resources of the tenants the caller

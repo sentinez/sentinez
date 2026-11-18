@@ -1,5 +1,5 @@
 import { Badge } from '@sentinez/ui/components/badge';
-import { Check, X } from 'lucide-react';
+import { Check, Clock, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 export default function BadgeStatus(props: { status: string; value: string }) {
@@ -17,6 +17,14 @@ export default function BadgeStatus(props: { status: string; value: string }) {
     return (
       <Badge variant="destructive">
         {t('disable')} <X />
+      </Badge>
+    );
+  }
+
+  if (props.status === 'pending') {
+    return (
+      <Badge variant="secondary">
+        {t('pending')} <Clock />
       </Badge>
     );
   }

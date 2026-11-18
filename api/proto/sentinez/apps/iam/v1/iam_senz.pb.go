@@ -32,7 +32,8 @@ func GetMetaIamServiceKey() string {
 
 func GetIdentityAccessManagementServiceCreateUser() *v1.XMethod {
 	return &v1.XMethod{
-		Audit: true,
+		Audit:        true,
+		AuditNoOwner: true,
 		ControlPlanes: []v1.ControlPlane{
 			v1.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
@@ -41,12 +42,16 @@ func GetIdentityAccessManagementServiceCreateUser() *v1.XMethod {
 
 func GetIdentityAccessManagementServiceListAccounts() *v1.XMethod {
 	return &v1.XMethod{
-		Ignore: true,
+		IgnoreControlPlane: true,
+		Audit:              true,
+		AuditNoOwner:       true,
 	}
 }
 
 func GetIdentityAccessManagementServiceListUsers() *v1.XMethod {
 	return &v1.XMethod{
+		Audit:        true,
+		AuditNoOwner: true,
 		ControlPlanes: []v1.ControlPlane{
 			v1.ControlPlane_CONTROL_PLANE_PORTAL,
 			v1.ControlPlane_CONTROL_PLANE_ADMIN,
@@ -56,33 +61,38 @@ func GetIdentityAccessManagementServiceListUsers() *v1.XMethod {
 
 func GetIdentityAccessManagementServiceStatus() *v1.XMethod {
 	return &v1.XMethod{
-		Ignore: true,
+		IgnoreControlPlane: true,
 	}
 }
 
 func GetIdentityAccessManagementServiceCreateAccount() *v1.XMethod {
 	return &v1.XMethod{
-		Public: true,
-		Audit:  true,
+		Public:       true,
+		Audit:        true,
+		AuditNoOwner: true,
 	}
 }
 
 func GetIdentityAccessManagementServiceGetUser() *v1.XMethod {
 	return &v1.XMethod{
-		Ignore: true,
+		IgnoreControlPlane: true,
+		Audit:              true,
+		AuditNoOwner:       true,
 	}
 }
 
 func GetIdentityAccessManagementServiceUpdateUser() *v1.XMethod {
 	return &v1.XMethod{
-		Ignore: true,
-		Audit:  true,
+		IgnoreControlPlane: true,
+		Audit:              true,
+		AuditNoOwner:       true,
 	}
 }
 
 func GetIdentityAccessManagementServiceDeleteUser() *v1.XMethod {
 	return &v1.XMethod{
-		Audit: true,
+		Audit:        true,
+		AuditNoOwner: true,
 		ControlPlanes: []v1.ControlPlane{
 			v1.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
@@ -91,8 +101,9 @@ func GetIdentityAccessManagementServiceDeleteUser() *v1.XMethod {
 
 func GetIdentityAccessManagementServiceLogin() *v1.XMethod {
 	return &v1.XMethod{
-		Public: true,
-		Audit:  true,
+		Public:       true,
+		Audit:        true,
+		AuditNoOwner: true,
 	}
 }
 
@@ -104,14 +115,15 @@ func GetIdentityAccessManagementServicePasskeyRegisterChallenge() *v1.XMethod {
 
 func GetIdentityAccessManagementServicePasskeyRegisterVerify() *v1.XMethod {
 	return &v1.XMethod{
-		Public: true,
-		Audit:  true,
+		Public:       true,
+		Audit:        true,
+		AuditNoOwner: true,
 	}
 }
 
 func GetIdentityAccessManagementServicePasskeyLinkChallenge() *v1.XMethod {
 	return &v1.XMethod{
-		Ignore: true,
+		IgnoreControlPlane: true,
 	}
 }
 
@@ -123,7 +135,8 @@ func GetIdentityAccessManagementServicePasskeyLoginChallenge() *v1.XMethod {
 
 func GetIdentityAccessManagementServicePasskeyLoginVerify() *v1.XMethod {
 	return &v1.XMethod{
-		Public: true,
-		Audit:  true,
+		Public:       true,
+		Audit:        true,
+		AuditNoOwner: true,
 	}
 }

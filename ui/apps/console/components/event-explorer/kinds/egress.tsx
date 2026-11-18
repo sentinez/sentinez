@@ -10,7 +10,7 @@ import { latencyMs } from '@/lib/latency';
 import { StatusBadge } from '../status-badge';
 import { headerPairsOf, queryParamsOf, statusClassOf } from '../status';
 import type { EventConfig, ListRequest } from '../types';
-import { MonoCell, PathCell, columnOf, statusSeries } from './shared';
+import { MonoCell, PathCell, columnOf, statusSeries, eventApis } from './shared';
 
 const list = async (req: ListRequest, options?: ApiOptions) =>
   (await listHttpEgressEvents(req, options)).events;
@@ -25,7 +25,7 @@ export function useEgressConfig(): EventConfig<EgressEvent> {
     const lengthOf = (e: EgressEvent) =>
       e.contentLength < 0 ? t('streamed') : format.number(e.contentLength);
     return {
-      kind: EventKind.EVENT_KIND_HTTP_EGRESS,
+      ...eventApis(EventKind.EVENT_KIND_HTTP_EGRESS),
       title: t('egress.title'),
       subtitle: t('egress.subtitle'),
       list,

@@ -17,6 +17,7 @@ package securitysvc
 import (
 	"testing"
 
+	"github.com/sentinez/controlplane/pkg/auditchange"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/stretchr/testify/assert"
@@ -33,8 +34,9 @@ func maskOf(paths ...string) *fieldmaskpb.FieldMask {
 func TestUpdateSecRuleWritesTheMask(t *testing.T) {
 	f := newFixture(t, typepb.Role_ROLE_LEADER)
 	f.rules.byId[_ruleId].Priority = 7
+	ctx, change := auditchange.With(portalUser(t))
 
-	resp, err := f.svc.UpdateSecRule(portalUser(t),
+	resp, err := f.svc.UpdateSecRule(ctx,
 		&securitypb.UpdateSecRuleRequest{
 			Id:         _ruleId,
 			SecRule:    &securitypb.SecRule{Name: "block", Priority: 1},
@@ -47,6 +49,11 @@ func TestUpdateSecRuleWritesTheMask(t *testing.T) {
 	assert.Equal(t, int32(7), resp.GetSecRule().GetPriority())
 	assert.Equal(t, _resourceId,
 		resp.GetSecRule().GetOwner().GetResourceId())
+
+	before, after, paths := change.Get()
+	assert.NotEqual(t, "block", before.(*securitypb.SecRule).GetName())
+	assert.Equal(t, "block", after.(*securitypb.SecRule).GetName())
+	assert.Equal(t, []string{securitypb.SecRule_Name}, paths)
 }
 
 func TestUpdateSecRuleOwnerNotUpdatable(t *testing.T) {

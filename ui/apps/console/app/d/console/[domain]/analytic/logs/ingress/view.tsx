@@ -1,9 +1,9 @@
 'use client';
 
-import { EventExplorer } from '../_explorer/event-explorer';
-import { useIngressConfig } from '../_explorer/kinds/ingress';
+import { DomainEventExplorer } from '../domain-explorer';
+import { useIngressConfig } from '@/components/event-explorer/kinds/ingress';
 
 export default function View() {
   const config = useIngressConfig();
-  return <EventExplorer config={config} />;
+  return <DomainEventExplorer config={config} />;
 }

@@ -1,7 +1,11 @@
 import type { ReactNode } from 'react';
 import type { ColumnDef } from '@tanstack/react-table';
 
-import type { EventKind } from '@sentinez/proto/sentinez/apps/analytic/v1/event';
+import type {
+  GetEventHistogramResponse,
+  GetEventTopValuesResponse,
+} from '@sentinez/proto/sentinez/apps/analytic/v1/event';
+import type { HistogramResolution } from '@sentinez/proto/sentinez/types/v1/known';
 import type { ApiOptions, Pages } from '@/lib/api/analytic';
 
 // ListRequest the request of a page of events, the latest first
@@ -15,6 +19,19 @@ export type ListRequest = {
   from?: Date;
   to?: Date;
 };
+
+// HistogramRequest the request of the histogram of the events of a list
+export type HistogramRequest = Omit<ListRequest, 'page'> & { resolution: HistogramResolution };
+
+// HistogramData the buckets of a histogram
+export type HistogramData = Pick<GetEventHistogramResponse, 'points' | 'interval' | 'truncated'>;
+
+// TopValuesRequest the request of the top values of the fields of the
+// events of a list
+export type TopValuesRequest = Omit<ListRequest, 'page'> & { fields: string[] };
+
+// TopValuesData the top values of the fields of the events
+export type TopValuesData = GetEventTopValuesResponse;
 
 // FieldFilter the events holding value in the field of the name field
 export type FieldFilter = { field: string; value: string };
@@ -56,10 +73,15 @@ export interface DetailSection {
  * their detail.
  */
 export interface EventConfig<T> {
-  kind: EventKind;
   title: string;
   subtitle: string;
   list: (req: ListRequest, options?: ApiOptions) => Promise<T[]>;
+  /** The histogram of the events, keyed by seriesOf */
+  histogram: (req: HistogramRequest, options?: ApiOptions) => Promise<HistogramData>;
+  /** The top values of the fields of the events */
+  topValues: (req: TopValuesRequest, options?: ApiOptions) => Promise<TopValuesData>;
+  /** The ids a filter names, which the list asks the API for (requestIdsOf) */
+  idsOf?: (query: string) => string[];
   idOf: (e: T) => string;
   /** When the event happened, in millis */
   timeOf: (e: T) => number;
@@ -83,11 +105,20 @@ export interface EventConfig<T> {
     req: { id: string; resourceId: string; from?: Date; to?: Date },
     options?: ApiOptions,
   ) => Promise<T | null>;
-  detail: {
-    title: (e: T) => ReactNode;
-    /** The rows after the time one */
-    rows: (e: T) => [string, ReactNode][];
-    sections?: (e: T) => DetailSection[];
-    toJSON: (e: T) => unknown;
-  };
+  detail: EventDetailDef<T>;
+}
+
+// TableConfig what the table of events needs of a config
+export type TableConfig<T> = Pick<EventConfig<T>, 'idOf' | 'timeOf' | 'columns' | 'requestOf'>;
+
+// DetailConfig what the detail sheet of an event needs of a config
+export type DetailConfig<T> = Pick<EventConfig<T>, 'idOf' | 'timeOf' | 'requestOf' | 'detail'>;
+
+// EventDetailDef the detail sheet of an event
+export interface EventDetailDef<T> {
+  title: (e: T) => ReactNode;
+  /** The rows after the time one */
+  rows: (e: T) => [string, ReactNode][];
+  sections?: (e: T) => DetailSection[];
+  toJSON: (e: T) => unknown;
 }

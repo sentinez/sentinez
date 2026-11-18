@@ -1,6 +1,6 @@
 ---
 name: console-page
-description: Conventions for adding or changing pages in ui/apps/console (list / create / detail pages, sidebar tabs, loading effect, left-aligned page layout, shared form and toolbar components). Read BEFORE writing or refactoring any page.tsx, view.tsx or loading.tsx under ui/apps/console/app, e.g. "implement trang ...", "tạo trang list/create/edit", or a new sidebar tab.
+description: Conventions for adding or changing pages in ui/apps/console (list / create / detail pages, sidebar tabs, loading effect, centred page layout, shared form and toolbar components). Read BEFORE writing or refactoring any page.tsx, view.tsx or loading.tsx under ui/apps/console/app, e.g. "implement trang ...", "tạo trang list/create/edit", or a new sidebar tab.
 argument-hint: '<route> (e.g. security/rate-limiter)'
 ---
 
@@ -57,9 +57,9 @@ export default function Loading() {
 ```
 
 - Layout: `PageLayout`, `PageLayoutHeader` (title, subtitle, action buttons),
-  `PageLayoutContent` from `@/components/page-layout`. Everything is left-aligned and
-  as wide as `PageLayoutContent` (`max-w-7xl`), so zooming keeps the layout: put the
-  content straight in it, never in a wrapper with its own `max-w-*`, `mx-auto` or
+  `PageLayoutContent` from `@/components/page-layout`. The header is left-aligned and
+  `max-w-7xl`; the content is narrower (`max-w-5xl`) and centred under the header, the
+  full width when the page is narrower. Put the content straight in `PageLayoutContent`, never in a wrapper with its own `max-w-*`, `mx-auto` or
   `py-*` (`PageLayoutContent` already pads and spaces its children), and never pull a
   block out with a negative margin (`-mx-1`).
 - Forms: `<PageLayoutContent><XxxFields ... /></PageLayoutContent>`. Short fields
@@ -70,9 +70,9 @@ export default function Loading() {
   (spacing included: no `ml-2` on its items, no `py-4`).
 - `PageLayoutHeader` is sticky and already holds the sidebar trigger and the
   breadcrumb of the path (`BreadcrumbBar`): a page never renders its own.
-- Centering (`mx-auto`, `items-center justify-center` on the page) is only for the
-  screens outside the sidebar: `app/auth`, `app/tenant`, `not-found`. Inside a page,
-  only small things centre in their own box (a table cell, a tooltip, an empty state).
+- The page itself is laid out by `PageLayoutHeader` / `PageLayoutContent` only; a page
+  never adds its own `mx-auto` or `items-center justify-center`. Inside a page, only
+  small things centre in their own box (a table cell, a tooltip, an empty state).
 - The list links to `./<resource>/<id>` and `./<resource>/new`.
 - Rows are the proto models from `@sentinez/proto/sentinez/apps/<domain>/v1/model`
   (e.g. `SecRule`, `RateLimit`, `Resource`), as returned by `lib/api`. Columns that

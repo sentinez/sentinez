@@ -45,6 +45,38 @@ export enum Senz {
    * database are encrypted with, eg the CA certificates and their keys
    */
   SENZ_DATA_KEY = 17,
+  /**
+   * SENZ_SERVICE_KEY - HMAC key (base64 encoded) the service tokens are signed and verified
+   * with; held by the verifying services only, never by the edge
+   */
+  SENZ_SERVICE_KEY = 18,
+  /**
+   * SENZ_SERVICE_TOKEN - service token the edge presents to centraldata, signed with
+   * SENZ_SERVICE_KEY
+   */
+  SENZ_SERVICE_TOKEN = 19,
+  /**
+   * SENZ_TLS_CA - internal mTLS: PEM files of the internal CA, and of the certificate and
+   * key of this service
+   */
+  SENZ_TLS_CA = 20,
+  SENZ_TLS_CERT = 21,
+  SENZ_TLS_KEY = 22,
+  /**
+   * SENZ_OLRIC_ADDRESSES - Olric addresses (comma-separated) of the edge cluster centraldata
+   * publishes the changes to
+   */
+  SENZ_OLRIC_ADDRESSES = 23,
+  /**
+   * SENZ_SYNC_TABLES - tables (comma-separated) centraldata syncs to the edge; the default
+   * set when empty
+   */
+  SENZ_SYNC_TABLES = 24,
+  /**
+   * SENZ_SYNC_KEY - HMAC key (base64 encoded) the changes centraldata publishes to the
+   * edges are signed and verified with; held by centraldata and the edges
+   */
+  SENZ_SYNC_KEY = 25,
   UNRECOGNIZED = -1,
 }
 
@@ -104,6 +136,30 @@ export function senzFromJSON(object: any): Senz {
     case 17:
     case "SENZ_DATA_KEY":
       return Senz.SENZ_DATA_KEY;
+    case 18:
+    case "SENZ_SERVICE_KEY":
+      return Senz.SENZ_SERVICE_KEY;
+    case 19:
+    case "SENZ_SERVICE_TOKEN":
+      return Senz.SENZ_SERVICE_TOKEN;
+    case 20:
+    case "SENZ_TLS_CA":
+      return Senz.SENZ_TLS_CA;
+    case 21:
+    case "SENZ_TLS_CERT":
+      return Senz.SENZ_TLS_CERT;
+    case 22:
+    case "SENZ_TLS_KEY":
+      return Senz.SENZ_TLS_KEY;
+    case 23:
+    case "SENZ_OLRIC_ADDRESSES":
+      return Senz.SENZ_OLRIC_ADDRESSES;
+    case 24:
+    case "SENZ_SYNC_TABLES":
+      return Senz.SENZ_SYNC_TABLES;
+    case 25:
+    case "SENZ_SYNC_KEY":
+      return Senz.SENZ_SYNC_KEY;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -149,6 +205,22 @@ export function senzToJSON(object: Senz): string {
       return "SENZ_ZONE";
     case Senz.SENZ_DATA_KEY:
       return "SENZ_DATA_KEY";
+    case Senz.SENZ_SERVICE_KEY:
+      return "SENZ_SERVICE_KEY";
+    case Senz.SENZ_SERVICE_TOKEN:
+      return "SENZ_SERVICE_TOKEN";
+    case Senz.SENZ_TLS_CA:
+      return "SENZ_TLS_CA";
+    case Senz.SENZ_TLS_CERT:
+      return "SENZ_TLS_CERT";
+    case Senz.SENZ_TLS_KEY:
+      return "SENZ_TLS_KEY";
+    case Senz.SENZ_OLRIC_ADDRESSES:
+      return "SENZ_OLRIC_ADDRESSES";
+    case Senz.SENZ_SYNC_TABLES:
+      return "SENZ_SYNC_TABLES";
+    case Senz.SENZ_SYNC_KEY:
+      return "SENZ_SYNC_KEY";
     case Senz.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";

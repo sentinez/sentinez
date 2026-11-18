@@ -6,6 +6,7 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import { Any } from "../../../../google/protobuf/any";
 
 export const protobufPackage = "sentinez.apps.centraldata.v1";
 
@@ -14,6 +15,85 @@ export interface StatusRequest {
 
 export interface StatusResponse {
   msg: string;
+}
+
+export interface SyncRequest {
+  /** Tables to stream; all the synced tables when empty. */
+  tables: string[];
+}
+
+export interface SyncResponse {
+  row?: Change | undefined;
+  done?: Snapshot | undefined;
+}
+
+/**
+ * Snapshot is the last message of the stream: the state of the rows
+ * streamed before it.
+ */
+export interface Snapshot {
+  version: number;
+  epoch: string;
+}
+
+/** Change is a row of the stream and the payload of the Olric channel. */
+export interface Change {
+  table: string;
+  op: Change_Op;
+  id: string;
+  row?: Any | undefined;
+  version: number;
+  epoch: string;
+}
+
+export enum Change_Op {
+  /** OP_UNSPECIFIED - with an empty table: the edge must sync again */
+  OP_UNSPECIFIED = 0,
+  OP_UPSERT = 1,
+  OP_DELETE = 2,
+  UNRECOGNIZED = -1,
+}
+
+export function change_OpFromJSON(object: any): Change_Op {
+  switch (object) {
+    case 0:
+    case "OP_UNSPECIFIED":
+      return Change_Op.OP_UNSPECIFIED;
+    case 1:
+    case "OP_UPSERT":
+      return Change_Op.OP_UPSERT;
+    case 2:
+    case "OP_DELETE":
+      return Change_Op.OP_DELETE;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return Change_Op.UNRECOGNIZED;
+  }
+}
+
+export function change_OpToJSON(object: Change_Op): string {
+  switch (object) {
+    case Change_Op.OP_UNSPECIFIED:
+      return "OP_UNSPECIFIED";
+    case Change_Op.OP_UPSERT:
+      return "OP_UPSERT";
+    case Change_Op.OP_DELETE:
+      return "OP_DELETE";
+    case Change_Op.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
+/**
+ * Envelope is what centraldata publishes on the Olric channel: a Change as
+ * marshaled, and its HMAC-SHA256 under SENZ_SYNC_KEY, as the channel does
+ * not authenticate who publishes.
+ */
+export interface Envelope {
+  change: Uint8Array;
+  mac: Uint8Array;
 }
 
 function createBaseStatusRequest(): StatusRequest {
@@ -135,6 +215,504 @@ export const StatusResponse: MessageFns<StatusResponse> = {
   },
 };
 
+function createBaseSyncRequest(): SyncRequest {
+  return { tables: [] };
+}
+
+export const SyncRequest: MessageFns<SyncRequest> = {
+  encode(message: SyncRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.tables) {
+      writer.uint32(10).string(v!);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SyncRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSyncRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.tables.push(reader.string());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): SyncRequest {
+    return {
+      tables: globalThis.Array.isArray(object?.tables) ? object.tables.map((e: any) => globalThis.String(e)) : [],
+    };
+  },
+
+  toJSON(message: SyncRequest): unknown {
+    const obj: any = {};
+    if (message.tables?.length) {
+      obj.tables = message.tables;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<SyncRequest>, I>>(base?: I): SyncRequest {
+    return SyncRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<SyncRequest>, I>>(object: I): SyncRequest {
+    const message = createBaseSyncRequest();
+    message.tables = object.tables?.map((e) => e) || [];
+    return message;
+  },
+};
+
+function createBaseSyncResponse(): SyncResponse {
+  return { row: undefined, done: undefined };
+}
+
+export const SyncResponse: MessageFns<SyncResponse> = {
+  encode(message: SyncResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.row !== undefined) {
+      Change.encode(message.row, writer.uint32(10).fork()).join();
+    }
+    if (message.done !== undefined) {
+      Snapshot.encode(message.done, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SyncResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSyncResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.row = Change.decode(reader, reader.uint32());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.done = Snapshot.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): SyncResponse {
+    return {
+      row: isSet(object.row) ? Change.fromJSON(object.row) : undefined,
+      done: isSet(object.done) ? Snapshot.fromJSON(object.done) : undefined,
+    };
+  },
+
+  toJSON(message: SyncResponse): unknown {
+    const obj: any = {};
+    if (message.row !== undefined) {
+      obj.row = Change.toJSON(message.row);
+    }
+    if (message.done !== undefined) {
+      obj.done = Snapshot.toJSON(message.done);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<SyncResponse>, I>>(base?: I): SyncResponse {
+    return SyncResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<SyncResponse>, I>>(object: I): SyncResponse {
+    const message = createBaseSyncResponse();
+    message.row = (object.row !== undefined && object.row !== null) ? Change.fromPartial(object.row) : undefined;
+    message.done = (object.done !== undefined && object.done !== null) ? Snapshot.fromPartial(object.done) : undefined;
+    return message;
+  },
+};
+
+function createBaseSnapshot(): Snapshot {
+  return { version: 0, epoch: "" };
+}
+
+export const Snapshot: MessageFns<Snapshot> = {
+  encode(message: Snapshot, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.version !== 0) {
+      writer.uint32(8).uint64(message.version);
+    }
+    if (message.epoch !== "") {
+      writer.uint32(18).string(message.epoch);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Snapshot {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSnapshot();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.version = longToNumber(reader.uint64());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.epoch = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): Snapshot {
+    return {
+      version: isSet(object.version) ? globalThis.Number(object.version) : 0,
+      epoch: isSet(object.epoch) ? globalThis.String(object.epoch) : "",
+    };
+  },
+
+  toJSON(message: Snapshot): unknown {
+    const obj: any = {};
+    if (message.version !== 0) {
+      obj.version = Math.round(message.version);
+    }
+    if (message.epoch !== "") {
+      obj.epoch = message.epoch;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Snapshot>, I>>(base?: I): Snapshot {
+    return Snapshot.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Snapshot>, I>>(object: I): Snapshot {
+    const message = createBaseSnapshot();
+    message.version = object.version ?? 0;
+    message.epoch = object.epoch ?? "";
+    return message;
+  },
+};
+
+function createBaseChange(): Change {
+  return { table: "", op: 0, id: "", row: undefined, version: 0, epoch: "" };
+}
+
+export const Change: MessageFns<Change> = {
+  encode(message: Change, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.table !== "") {
+      writer.uint32(10).string(message.table);
+    }
+    if (message.op !== 0) {
+      writer.uint32(16).int32(message.op);
+    }
+    if (message.id !== "") {
+      writer.uint32(26).string(message.id);
+    }
+    if (message.row !== undefined) {
+      Any.encode(message.row, writer.uint32(34).fork()).join();
+    }
+    if (message.version !== 0) {
+      writer.uint32(40).uint64(message.version);
+    }
+    if (message.epoch !== "") {
+      writer.uint32(50).string(message.epoch);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Change {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseChange();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.table = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.op = reader.int32() as any;
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.row = Any.decode(reader, reader.uint32());
+            continue;
+          }
+          case 5: {
+            if (tag !== 40) {
+              break;
+            }
+
+            message.version = longToNumber(reader.uint64());
+            continue;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.epoch = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): Change {
+    return {
+      table: isSet(object.table) ? globalThis.String(object.table) : "",
+      op: isSet(object.op) ? change_OpFromJSON(object.op) : 0,
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      row: isSet(object.row) ? Any.fromJSON(object.row) : undefined,
+      version: isSet(object.version) ? globalThis.Number(object.version) : 0,
+      epoch: isSet(object.epoch) ? globalThis.String(object.epoch) : "",
+    };
+  },
+
+  toJSON(message: Change): unknown {
+    const obj: any = {};
+    if (message.table !== "") {
+      obj.table = message.table;
+    }
+    if (message.op !== 0) {
+      obj.op = change_OpToJSON(message.op);
+    }
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.row !== undefined) {
+      obj.row = Any.toJSON(message.row);
+    }
+    if (message.version !== 0) {
+      obj.version = Math.round(message.version);
+    }
+    if (message.epoch !== "") {
+      obj.epoch = message.epoch;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Change>, I>>(base?: I): Change {
+    return Change.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Change>, I>>(object: I): Change {
+    const message = createBaseChange();
+    message.table = object.table ?? "";
+    message.op = object.op ?? 0;
+    message.id = object.id ?? "";
+    message.row = (object.row !== undefined && object.row !== null) ? Any.fromPartial(object.row) : undefined;
+    message.version = object.version ?? 0;
+    message.epoch = object.epoch ?? "";
+    return message;
+  },
+};
+
+function createBaseEnvelope(): Envelope {
+  return { change: new Uint8Array(0), mac: new Uint8Array(0) };
+}
+
+export const Envelope: MessageFns<Envelope> = {
+  encode(message: Envelope, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.change.length !== 0) {
+      writer.uint32(10).bytes(message.change);
+    }
+    if (message.mac.length !== 0) {
+      writer.uint32(18).bytes(message.mac);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Envelope {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseEnvelope();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.change = reader.bytes();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.mac = reader.bytes();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): Envelope {
+    return {
+      change: isSet(object.change) ? bytesFromBase64(object.change) : new Uint8Array(0),
+      mac: isSet(object.mac) ? bytesFromBase64(object.mac) : new Uint8Array(0),
+    };
+  },
+
+  toJSON(message: Envelope): unknown {
+    const obj: any = {};
+    if (message.change.length !== 0) {
+      obj.change = base64FromBytes(message.change);
+    }
+    if (message.mac.length !== 0) {
+      obj.mac = base64FromBytes(message.mac);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Envelope>, I>>(base?: I): Envelope {
+    return Envelope.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Envelope>, I>>(object: I): Envelope {
+    const message = createBaseEnvelope();
+    message.change = object.change ?? new Uint8Array(0);
+    message.mac = object.mac ?? new Uint8Array(0);
+    return message;
+  },
+};
+
+function bytesFromBase64(b64: string): Uint8Array {
+  if ((globalThis as any).Buffer) {
+    return Uint8Array.from((globalThis as any).Buffer.from(b64, "base64"));
+  } else {
+    const bin = globalThis.atob(b64);
+    const arr = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; ++i) {
+      arr[i] = bin.charCodeAt(i);
+    }
+    return arr;
+  }
+}
+
+function base64FromBytes(arr: Uint8Array): string {
+  if ((globalThis as any).Buffer) {
+    return (globalThis as any).Buffer.from(arr).toString("base64");
+  } else {
+    const bin: string[] = [];
+    arr.forEach((byte) => {
+      bin.push(globalThis.String.fromCharCode(byte));
+    });
+    return globalThis.btoa(bin.join(""));
+  }
+}
+
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
@@ -146,6 +724,17 @@ export type DeepPartial<T> = T extends Builtin ? T
 type KeysOfUnion<T> = T extends T ? keyof T : never;
 export type Exact<P, I extends P> = P extends Builtin ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
+
+function longToNumber(int64: { toString(): string }): number {
+  const num = globalThis.Number(int64.toString());
+  if (num > globalThis.Number.MAX_SAFE_INTEGER) {
+    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
+  }
+  if (num < globalThis.Number.MIN_SAFE_INTEGER) {
+    throw new globalThis.Error("Value is smaller than Number.MIN_SAFE_INTEGER");
+  }
+  return num;
+}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;

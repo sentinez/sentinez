@@ -8,10 +8,40 @@ import { cn } from '@sentinez/ui/lib/utils';
 import type messages from '@/messages/en.json';
 import { RowLink } from '../request-link';
 import { STATUS_CLASSES, STATUS_COLORS } from '../status';
-import type { FieldDef, RequestRef, SeriesDef } from '../types';
+import type { EventKind } from '@sentinez/proto/sentinez/apps/analytic/v1/event';
+import { getEventHistogram, getEventTopValues, type ApiOptions } from '@/lib/api/analytic';
+import type {
+  EventConfig,
+  FieldDef,
+  HistogramRequest,
+  RequestRef,
+  SeriesDef,
+  TopValuesRequest,
+} from '../types';
 
 export type LogsTranslator = ReturnType<typeof useTranslations<'Logs'>>;
 export type ColumnKey = keyof (typeof messages)['Logs']['column'];
+
+type EventApis = Pick<EventConfig<unknown>, 'histogram' | 'topValues'>;
+
+// One per kind: the explorer refetches when its fetchers change
+const _eventApis = new Map<EventKind, EventApis>();
+
+// The histogram and top values of the events of kind, the same functions
+// on every call
+export const eventApis = (kind: EventKind): EventApis => {
+  let apis = _eventApis.get(kind);
+  if (!apis) {
+    apis = {
+      histogram: (req: HistogramRequest, options?: ApiOptions) =>
+        getEventHistogram({ ...req, kind }, options),
+      topValues: (req: TopValuesRequest, options?: ApiOptions) =>
+        getEventTopValues({ ...req, kind }, options),
+    };
+    _eventApis.set(kind, apis);
+  }
+  return apis;
+};
 
 // The label of a column of the Logs messages
 export const columnOf = (t: LogsTranslator) => (key: ColumnKey) => t(`column.${key}`);

@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/sentinez/controlplane/pkg/auditchange"
 	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/pkg/szerror"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
@@ -124,7 +125,23 @@ func (svc *Service) UpdateMember(ctx context.Context,
 		return nil, fmt.Errorf("member.Update: %w", err)
 	}
 
+	recordRoles(ctx, member, req.GetRoles())
+
 	return &tenantpb.UpdateMemberResponse{}, nil
+}
+
+// recordRoles records on the audit log of ctx that the roles of member
+// became roles; nothing when roles is empty, leaving them as they are.
+func recordRoles(ctx context.Context, member *tenantpb.Member,
+	roles []typepb.Role) {
+	if len(roles) == 0 {
+		return
+	}
+
+	after := &tenantpb.Member{Id: member.GetId(), Roles: roles}
+	auditchange.Set(ctx, &tenantpb.Member{
+		Id: member.GetId(), Roles: member.GetRoles(),
+	}, after, []string{tenantpb.Member_Roles})
 }
 
 // DeleteMember implements tenantpb.TenantServiceServer.

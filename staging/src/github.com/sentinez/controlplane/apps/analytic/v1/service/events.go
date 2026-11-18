@@ -205,6 +205,12 @@ type histogramRequest interface {
 // than the events are kept is an invalid argument.
 func histogramFilter(req histogramRequest, now time.Time) (
 	*histogram.Filter, histogram.Window, error) {
+	return keptHistogramFilter(req, now, schema.EventRetention)
+}
+
+// keptHistogramFilter is histogramFilter of events kept for retention.
+func keptHistogramFilter(req histogramRequest, now time.Time,
+	retention time.Duration) (*histogram.Filter, histogram.Window, error) {
 	filter := &histogram.Filter{
 		Resolution:  req.GetResolution(),
 		ResourceIds: req.GetResourceIds(),
@@ -212,7 +218,7 @@ func histogramFilter(req histogramRequest, now time.Time) (
 		To:          eventfilter.TimeOf(req.GetTo()),
 	}
 
-	err := keptSince(now, filter.From, filter.To)
+	err := keptSince(now, retention, filter.From, filter.To)
 	if err != nil {
 		return nil, histogram.Window{}, err
 	}
@@ -221,16 +227,17 @@ func histogramFilter(req histogramRequest, now time.Time) (
 }
 
 // keptSince whether the events at the times, unset ones skipped, are still
-// kept at now (schema.EventRetention): an invalid argument when one is
-// older, their histogram long gone.
-func keptSince(now time.Time, times ...time.Time) error {
-	oldest := now.Add(-schema.EventRetention)
+// kept at now, for retention: an invalid argument when one is older, their
+// histogram long gone.
+func keptSince(now time.Time, retention time.Duration,
+	times ...time.Time) error {
+	oldest := now.Add(-retention)
 	for _, t := range times {
 		if !t.IsZero() && t.Before(oldest) {
 			return szerror.StatusInvalidArgumentF(
 				"%s is before %s: the events are kept %s",
 				t.Format(time.RFC3339), oldest.Format(time.RFC3339),
-				schema.EventRetention)
+				retention)
 		}
 	}
 

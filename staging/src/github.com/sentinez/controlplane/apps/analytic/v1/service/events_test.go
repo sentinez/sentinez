@@ -18,6 +18,7 @@ import (
 	"testing"
 	"time"
 
+	auditlogsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/auditlogs"
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventfilter"
 	"github.com/sentinez/pkg/szstorage/dbx/timescale/histogram"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
@@ -238,4 +239,43 @@ func TestListFilterRejectsFilter(t *testing.T) {
 	})
 
 	assert.Equal(t, codes.InvalidArgument, status.Code(err))
+}
+
+func TestAuditListFilter(t *testing.T) {
+	give := &pb.ListAuditLogsRequest{
+		TenantIds:  []string{"tnt_1"},
+		RequestIds: []string{"aud_1"},
+		Filters:    []string{"code:7"},
+	}
+
+	got, err := auditListFilter(give)
+
+	require.NoError(t, err)
+	assert.Equal(t, &eventfilter.Filter{
+		RequestIds: []string{"aud_1"},
+		TenantIds:  []string{"tnt_1"},
+		Matches:    []eventfilter.Match{{Field: "code", Value: "7"}},
+		Page:       &typepb.Pages{Size: _pageSize, Index: 1},
+	}, got)
+}
+
+func TestKeptHistogramFilterRetention(t *testing.T) {
+	tests := []struct {
+		name    string
+		give    time.Duration
+		wantErr bool
+	}{
+		{"older than the events, kept", 60 * 24 * time.Hour, false},
+		{"older than the logs", 91 * 24 * time.Hour, true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, _, err := keptHistogramFilter(&pb.GetAuditLogHistogramRequest{
+				From: timestamppb.New(_histNow.Add(-tt.give)),
+			}, _histNow, auditlogsrepo.Retention)
+
+			assert.Equal(t, tt.wantErr, err != nil)
+		})
+	}
 }

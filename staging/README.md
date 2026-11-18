@@ -6,3 +6,4 @@
 - https://github.com/sentinez/contrib.git
 - https://github.com/sentinez/bpf.git
 - https://github.com/sentinez/controlplane.git
+- https://github.com/sentinez/scripting.git

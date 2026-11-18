@@ -18,6 +18,7 @@ require (
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10
 	github.com/quasilyte/go-ruleguard/dsl v0.3.23
 	github.com/sentinez/core v0.0.0-00010101000000-000000000000
+	github.com/sentinez/pkg v0.0.0-00010101000000-000000000000
 	github.com/sentinez/sentinez/api v0.0.0
 	github.com/sqlc-dev/sqlc v1.31.1
 	github.com/stretchr/testify v1.12.1
@@ -101,7 +102,7 @@ require (
 	github.com/jedib0t/go-pretty/v6 v6.7.8 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/juju/ratelimit v1.0.2 // indirect
-	github.com/klauspost/compress v1.18.4 // indirect
+	github.com/klauspost/compress v1.20.3 // indirect
 	github.com/klauspost/pgzip v1.2.6 // indirect
 	github.com/knadh/koanf/maps v0.1.2 // indirect
 	github.com/knadh/koanf/parsers/yaml v1.1.0 // indirect

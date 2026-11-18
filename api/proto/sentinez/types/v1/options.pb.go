@@ -227,7 +227,10 @@ type XField struct {
 	// flattening it.
 	Codec ColumnCodec `protobuf:"varint,3,opt,name=codec,proto3,enum=sentinez.types.v1.ColumnCodec" json:"codec,omitempty"`
 	// The column of a scalar field may be NULL, scanned as its zero value.
-	Nullable      bool `protobuf:"varint,4,opt,name=nullable,proto3" json:"nullable,omitempty"`
+	Nullable bool `protobuf:"varint,4,opt,name=nullable,proto3" json:"nullable,omitempty"`
+	// What the string field holds of an audited call whose request, else
+	// response, holds it: the tenant or the resource it is about.
+	Audit         *XAudit `protobuf:"bytes,5,opt,name=audit,proto3" json:"audit,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -290,23 +293,92 @@ func (x *XField) GetNullable() bool {
 	return false
 }
 
+func (x *XField) GetAudit() *XAudit {
+	if x != nil {
+		return x.Audit
+	}
+	return nil
+}
+
+// XAudit what an x_field.audit string field holds.
+type XAudit struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The id of the tenant of the call.
+	TenantId bool `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	// The id of the resource of the call.
+	ResourceId    bool `protobuf:"varint,2,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *XAudit) Reset() {
+	*x = XAudit{}
+	mi := &file_sentinez_types_v1_options_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *XAudit) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*XAudit) ProtoMessage() {}
+
+func (x *XAudit) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_types_v1_options_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use XAudit.ProtoReflect.Descriptor instead.
+func (*XAudit) Descriptor() ([]byte, []int) {
+	return file_sentinez_types_v1_options_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *XAudit) GetTenantId() bool {
+	if x != nil {
+		return x.TenantId
+	}
+	return false
+}
+
+func (x *XAudit) GetResourceId() bool {
+	if x != nil {
+		return x.ResourceId
+	}
+	return false
+}
+
 type XMethod struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// ignore skips the control plane check; a valid token is still required.
-	Ignore        bool           `protobuf:"varint,1,opt,name=ignore,proto3" json:"ignore,omitempty"`
-	ControlPlanes []ControlPlane `protobuf:"varint,2,rep,packed,name=control_planes,json=controlPlanes,proto3,enum=sentinez.types.v1.ControlPlane" json:"control_planes,omitempty"`
+	// ignore_control_plane skips the control plane check; a valid token is
+	// still required.
+	IgnoreControlPlane bool           `protobuf:"varint,1,opt,name=ignore_control_plane,json=ignoreControlPlane,proto3" json:"ignore_control_plane,omitempty"`
+	ControlPlanes      []ControlPlane `protobuf:"varint,2,rep,packed,name=control_planes,json=controlPlanes,proto3,enum=sentinez.types.v1.ControlPlane" json:"control_planes,omitempty"`
 	// public lets the method be called without a token. Methods that do not
 	// set it require a valid token.
 	Public bool `protobuf:"varint,3,opt,name=public,proto3" json:"public,omitempty"`
 	// audit records each call of the method in the audit log.
-	Audit         bool `protobuf:"varint,4,opt,name=audit,proto3" json:"audit,omitempty"`
+	Audit bool `protobuf:"varint,4,opt,name=audit,proto3" json:"audit,omitempty"`
+	// audit_no_owner no field of the request or the response of the method
+	// holds the tenant or the resource of its audited calls: their owner is
+	// only the one the checks of their access record, if any. Without it,
+	// the request or the response of an audited method must hold a field
+	// x_field.audit marks, protoc-gen-go-senz fails otherwise.
+	AuditNoOwner  bool `protobuf:"varint,5,opt,name=audit_no_owner,json=auditNoOwner,proto3" json:"audit_no_owner,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *XMethod) Reset() {
 	*x = XMethod{}
-	mi := &file_sentinez_types_v1_options_proto_msgTypes[3]
+	mi := &file_sentinez_types_v1_options_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -318,7 +390,7 @@ func (x *XMethod) String() string {
 func (*XMethod) ProtoMessage() {}
 
 func (x *XMethod) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_types_v1_options_proto_msgTypes[3]
+	mi := &file_sentinez_types_v1_options_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -331,12 +403,12 @@ func (x *XMethod) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use XMethod.ProtoReflect.Descriptor instead.
 func (*XMethod) Descriptor() ([]byte, []int) {
-	return file_sentinez_types_v1_options_proto_rawDescGZIP(), []int{3}
+	return file_sentinez_types_v1_options_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *XMethod) GetIgnore() bool {
+func (x *XMethod) GetIgnoreControlPlane() bool {
 	if x != nil {
-		return x.Ignore
+		return x.IgnoreControlPlane
 	}
 	return false
 }
@@ -358,6 +430,13 @@ func (x *XMethod) GetPublic() bool {
 func (x *XMethod) GetAudit() bool {
 	if x != nil {
 		return x.Audit
+	}
+	return false
+}
+
+func (x *XMethod) GetAuditNoOwner() bool {
+	if x != nil {
+		return x.AuditNoOwner
 	}
 	return false
 }
@@ -434,17 +513,23 @@ const file_sentinez_types_v1_options_proto_rawDesc = "" +
 	"\bXMessage\x12%\n" +
 	"\x0edatabase_model\x18\x01 \x01(\bR\rdatabaseModel\x12!\n" +
 	"\fexport_field\x18\x02 \x01(\bR\vexportField\x12\x18\n" +
-	"\ascanner\x18\x03 \x01(\bR\ascanner\"\x8c\x01\n" +
+	"\ascanner\x18\x03 \x01(\bR\ascanner\"\xbd\x01\n" +
 	"\x06XField\x12\x18\n" +
 	"\aflatten\x18\x01 \x01(\bR\aflatten\x12\x16\n" +
 	"\x06ignore\x18\x02 \x01(\bR\x06ignore\x124\n" +
 	"\x05codec\x18\x03 \x01(\x0e2\x1e.sentinez.types.v1.ColumnCodecR\x05codec\x12\x1a\n" +
-	"\bnullable\x18\x04 \x01(\bR\bnullable\"\x97\x01\n" +
-	"\aXMethod\x12\x16\n" +
-	"\x06ignore\x18\x01 \x01(\bR\x06ignore\x12F\n" +
+	"\bnullable\x18\x04 \x01(\bR\bnullable\x12/\n" +
+	"\x05audit\x18\x05 \x01(\v2\x19.sentinez.types.v1.XAuditR\x05audit\"F\n" +
+	"\x06XAudit\x12\x1b\n" +
+	"\ttenant_id\x18\x01 \x01(\bR\btenantId\x12\x1f\n" +
+	"\vresource_id\x18\x02 \x01(\bR\n" +
+	"resourceId\"\xd7\x01\n" +
+	"\aXMethod\x120\n" +
+	"\x14ignore_control_plane\x18\x01 \x01(\bR\x12ignoreControlPlane\x12F\n" +
 	"\x0econtrol_planes\x18\x02 \x03(\x0e2\x1f.sentinez.types.v1.ControlPlaneR\rcontrolPlanes\x12\x16\n" +
 	"\x06public\x18\x03 \x01(\bR\x06public\x12\x14\n" +
-	"\x05audit\x18\x04 \x01(\bR\x05audit*x\n" +
+	"\x05audit\x18\x04 \x01(\bR\x05audit\x12$\n" +
+	"\x0eaudit_no_owner\x18\x05 \x01(\bR\fauditNoOwner*x\n" +
 	"\vColumnCodec\x12\x1c\n" +
 	"\x18COLUMN_CODEC_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12COLUMN_CODEC_PROTO\x10\x01\x12\x1a\n" +
@@ -468,37 +553,39 @@ func file_sentinez_types_v1_options_proto_rawDescGZIP() []byte {
 }
 
 var file_sentinez_types_v1_options_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_sentinez_types_v1_options_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_sentinez_types_v1_options_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_sentinez_types_v1_options_proto_goTypes = []any{
 	(ColumnCodec)(0),                    // 0: sentinez.types.v1.ColumnCodec
 	(*XMeta)(nil),                       // 1: sentinez.types.v1.XMeta
 	(*XMessage)(nil),                    // 2: sentinez.types.v1.XMessage
 	(*XField)(nil),                      // 3: sentinez.types.v1.XField
-	(*XMethod)(nil),                     // 4: sentinez.types.v1.XMethod
-	(Zone)(0),                           // 5: sentinez.types.v1.Zone
-	(ControlPlane)(0),                   // 6: sentinez.types.v1.ControlPlane
-	(*descriptorpb.MethodOptions)(nil),  // 7: google.protobuf.MethodOptions
-	(*descriptorpb.MessageOptions)(nil), // 8: google.protobuf.MessageOptions
-	(*descriptorpb.FileOptions)(nil),    // 9: google.protobuf.FileOptions
-	(*descriptorpb.FieldOptions)(nil),   // 10: google.protobuf.FieldOptions
+	(*XAudit)(nil),                      // 4: sentinez.types.v1.XAudit
+	(*XMethod)(nil),                     // 5: sentinez.types.v1.XMethod
+	(Zone)(0),                           // 6: sentinez.types.v1.Zone
+	(ControlPlane)(0),                   // 7: sentinez.types.v1.ControlPlane
+	(*descriptorpb.MethodOptions)(nil),  // 8: google.protobuf.MethodOptions
+	(*descriptorpb.MessageOptions)(nil), // 9: google.protobuf.MessageOptions
+	(*descriptorpb.FileOptions)(nil),    // 10: google.protobuf.FileOptions
+	(*descriptorpb.FieldOptions)(nil),   // 11: google.protobuf.FieldOptions
 }
 var file_sentinez_types_v1_options_proto_depIdxs = []int32{
-	5,  // 0: sentinez.types.v1.XMeta.service_zone:type_name -> sentinez.types.v1.Zone
+	6,  // 0: sentinez.types.v1.XMeta.service_zone:type_name -> sentinez.types.v1.Zone
 	0,  // 1: sentinez.types.v1.XField.codec:type_name -> sentinez.types.v1.ColumnCodec
-	6,  // 2: sentinez.types.v1.XMethod.control_planes:type_name -> sentinez.types.v1.ControlPlane
-	7,  // 3: sentinez.types.v1.x_method:extendee -> google.protobuf.MethodOptions
-	8,  // 4: sentinez.types.v1.x_message:extendee -> google.protobuf.MessageOptions
-	9,  // 5: sentinez.types.v1.x_meta:extendee -> google.protobuf.FileOptions
-	10, // 6: sentinez.types.v1.x_field:extendee -> google.protobuf.FieldOptions
-	4,  // 7: sentinez.types.v1.x_method:type_name -> sentinez.types.v1.XMethod
-	2,  // 8: sentinez.types.v1.x_message:type_name -> sentinez.types.v1.XMessage
-	1,  // 9: sentinez.types.v1.x_meta:type_name -> sentinez.types.v1.XMeta
-	3,  // 10: sentinez.types.v1.x_field:type_name -> sentinez.types.v1.XField
-	11, // [11:11] is the sub-list for method output_type
-	11, // [11:11] is the sub-list for method input_type
-	7,  // [7:11] is the sub-list for extension type_name
-	3,  // [3:7] is the sub-list for extension extendee
-	0,  // [0:3] is the sub-list for field type_name
+	4,  // 2: sentinez.types.v1.XField.audit:type_name -> sentinez.types.v1.XAudit
+	7,  // 3: sentinez.types.v1.XMethod.control_planes:type_name -> sentinez.types.v1.ControlPlane
+	8,  // 4: sentinez.types.v1.x_method:extendee -> google.protobuf.MethodOptions
+	9,  // 5: sentinez.types.v1.x_message:extendee -> google.protobuf.MessageOptions
+	10, // 6: sentinez.types.v1.x_meta:extendee -> google.protobuf.FileOptions
+	11, // 7: sentinez.types.v1.x_field:extendee -> google.protobuf.FieldOptions
+	5,  // 8: sentinez.types.v1.x_method:type_name -> sentinez.types.v1.XMethod
+	2,  // 9: sentinez.types.v1.x_message:type_name -> sentinez.types.v1.XMessage
+	1,  // 10: sentinez.types.v1.x_meta:type_name -> sentinez.types.v1.XMeta
+	3,  // 11: sentinez.types.v1.x_field:type_name -> sentinez.types.v1.XField
+	12, // [12:12] is the sub-list for method output_type
+	12, // [12:12] is the sub-list for method input_type
+	8,  // [8:12] is the sub-list for extension type_name
+	4,  // [4:8] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_types_v1_options_proto_init() }
@@ -513,7 +600,7 @@ func file_sentinez_types_v1_options_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_types_v1_options_proto_rawDesc), len(file_sentinez_types_v1_options_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   4,
+			NumMessages:   5,
 			NumExtensions: 4,
 			NumServices:   0,
 		},

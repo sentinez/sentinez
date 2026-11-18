@@ -80,6 +80,340 @@
         ]
       }
     },
+    "/analytic/audit-logs": {
+      "get": {
+        "summary": "ListAuditLogs lists the audit logs of the control plane calls of the\ntenants of the caller, the latest first.",
+        "operationId": "AnalyticService_ListAuditLogs",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListAuditLogsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page.index",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.total",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "tenantIds",
+            "description": "Tenants of the logs, any of them; all those of the caller when empty.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "resourceIds",
+            "description": "Resources of the logs, any of them; all when empty.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "from",
+            "description": "Bound the time of the logs, from inclusive, to exclusive.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "requestIds",
+            "description": "Ids of the logs, any of them; all when empty.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "filters",
+            "description": "Field filters, all of them, each \"field:value\": method, user_id,\ncode, control_plane, tenant_id, remote_addr or user_agent.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "withoutTenant",
+            "description": "Only the logs of no tenant, tenant_ids ignored: the calls about none,\nsuch as the logins and those refused before their tenant was known.\nThe admin control plane only.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "AnalyticService"
+        ]
+      }
+    },
+    "/analytic/audit-logs/histogram": {
+      "get": {
+        "summary": "GetAuditLogHistogram counts the audit logs of the tenants of the\ncaller per time bucket, resource and grpc code.",
+        "operationId": "AnalyticService_GetAuditLogHistogram",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetAuditLogHistogramResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "resolution",
+            "description": " - HISTOGRAM_RESOLUTION_UNSPECIFIED: Picked by from and to: the shortest range holding them but one bucket\n(buckets of seconds only within the 7 days they are kept), else 30\ndays; 1 hour without from.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "HISTOGRAM_RESOLUTION_UNSPECIFIED",
+              "HISTOGRAM_RESOLUTION_5_MINUTES",
+              "HISTOGRAM_RESOLUTION_15_MINUTES",
+              "HISTOGRAM_RESOLUTION_30_MINUTES",
+              "HISTOGRAM_RESOLUTION_1_HOUR",
+              "HISTOGRAM_RESOLUTION_3_HOURS",
+              "HISTOGRAM_RESOLUTION_6_HOURS",
+              "HISTOGRAM_RESOLUTION_12_HOURS",
+              "HISTOGRAM_RESOLUTION_24_HOURS",
+              "HISTOGRAM_RESOLUTION_2_DAYS",
+              "HISTOGRAM_RESOLUTION_7_DAYS",
+              "HISTOGRAM_RESOLUTION_30_DAYS"
+            ],
+            "default": "HISTOGRAM_RESOLUTION_UNSPECIFIED"
+          },
+          {
+            "name": "tenantIds",
+            "description": "Tenants of the logs, any of them; all those of the caller when empty.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "resourceIds",
+            "description": "Resources of the logs, any of them; all when empty.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "from",
+            "description": "The buckets, as GetEventHistogramRequest.from and to: at most the 90\ndays the logs are kept.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "requestIds",
+            "description": "Ids of the logs, any of them; all when empty.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "filters",
+            "description": "Field filters, all of them, each \"field:value\" (see\nListAuditLogsRequest.filters).",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "withoutTenant",
+            "description": "Only the logs of no tenant, tenant_ids ignored: the calls about none,\nsuch as the logins and those refused before their tenant was known.\nThe admin control plane only.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "AnalyticService"
+        ]
+      }
+    },
+    "/analytic/audit-logs/top-values": {
+      "get": {
+        "summary": "GetAuditLogTopValues counts the most frequent values of fields of the\naudit logs of the tenants of the caller over a time range.",
+        "operationId": "AnalyticService_GetAuditLogTopValues",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetAuditLogTopValuesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenantIds",
+            "description": "Tenants of the logs, any of them; all those of the caller when empty.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "resourceIds",
+            "description": "Resources of the logs, any of them; all when empty.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "from",
+            "description": "Bound the time of the logs, from inclusive, to exclusive: to now when\nunset, from the hour before to when unset.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "fields",
+            "description": "The fields to count, in this order, each once: method, user_id, code,\ncontrol_plane, tenant_id, remote_addr, user_agent; all when empty.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "limit",
+            "description": "The values per field: 5 when 0, at most 20.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "filters",
+            "description": "Field filters, all of them, each \"field:value\" (see\nListAuditLogsRequest.filters).",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "requestIds",
+            "description": "Ids of the logs, any of them; all when empty.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "withoutTenant",
+            "description": "Only the logs of no tenant, tenant_ids ignored: the calls about none,\nsuch as the logins and those refused before their tenant was known.\nThe admin control plane only.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "AnalyticService"
+        ]
+      }
+    },
     "/analytic/events/coreruleset": {
       "get": {
         "operationId": "AnalyticService_ListCoreRuleEvents",
@@ -1063,6 +1397,74 @@
         }
       }
     },
+    "v1AuditLog": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "id is prefixed \"aud_\"."
+        },
+        "method": {
+          "type": "string",
+          "description": "method is the full gRPC method, \"/pkg.Service/Method\"."
+        },
+        "userId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "controlPlane": {
+          "$ref": "#/definitions/v1ControlPlane"
+        },
+        "remoteAddr": {
+          "type": "string"
+        },
+        "userAgent": {
+          "type": "string"
+        },
+        "request": {
+          "type": "object",
+          "description": "request is the request as protojson, its debug_redact fields hidden."
+        },
+        "code": {
+          "type": "integer",
+          "format": "int64",
+          "description": "code is the grpc code of the call, 0 when it succeeded."
+        },
+        "error": {
+          "type": "string"
+        },
+        "latency": {
+          "type": "string"
+        },
+        "tenantId": {
+          "type": "string",
+          "description": "tenant_id is the one the request or response carries."
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "int64",
+          "description": "timestamp is the start of the call, in unix milliseconds."
+        },
+        "resourceId": {
+          "type": "string",
+          "description": "resource_id is the one the request or response carries."
+        }
+      },
+      "description": "AuditLog is one call of a method that sets x_method.audit."
+    },
+    "v1ControlPlane": {
+      "type": "string",
+      "enum": [
+        "CONTROL_PLANE_UNSPECIFIED",
+        "CONTROL_PLANE_PORTAL",
+        "CONTROL_PLANE_ADMIN",
+        "CONTROL_PLANE_SERVICE"
+      ],
+      "default": "CONTROL_PLANE_UNSPECIFIED",
+      "description": " - CONTROL_PLANE_SERVICE: SERVICE is an internal service (eg the edge) calling another one; its\ntokens are signed with SENZ_SERVICE_KEY, never with SENZ_SECRET_KEY."
+    },
     "v1CoreRuleEvent": {
       "type": "object",
       "properties": {
@@ -1274,6 +1676,51 @@
         }
       },
       "description": "FieldValue the events holding a value of a field."
+    },
+    "v1GetAuditLogHistogramResponse": {
+      "type": "object",
+      "properties": {
+        "points": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1HistogramPoint"
+          },
+          "description": "As GetEventHistogramResponse.points, the key the grpc code of the\ncalls."
+        },
+        "interval": {
+          "$ref": "#/definitions/v1HistogramInterval"
+        },
+        "from": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "to": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "truncated": {
+          "type": "boolean"
+        }
+      }
+    },
+    "v1GetAuditLogTopValuesResponse": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "string",
+          "format": "int64",
+          "description": "The logs of the range."
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1FieldTopValues"
+          },
+          "description": "One per field of the request, in its order."
+        }
+      }
     },
     "v1GetEgressLatencyResponse": {
       "type": "object",
@@ -1513,6 +1960,18 @@
         "total": {
           "type": "string",
           "format": "int64"
+        }
+      }
+    },
+    "v1ListAuditLogsResponse": {
+      "type": "object",
+      "properties": {
+        "logs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AuditLog"
+          }
         }
       }
     },

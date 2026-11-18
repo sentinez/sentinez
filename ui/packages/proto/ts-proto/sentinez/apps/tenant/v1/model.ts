@@ -102,6 +102,15 @@ export interface Resource {
   domain: string;
   /** Routes of the domain to the origins, stored as JSONB. */
   locations: Location[];
+  /**
+   * Active only when the certificates of the resource fit its tls_mode,
+   * valid now: none for passthrough; else a server certificate for the
+   * domain with its private key and, when the edge re-encrypts
+   * (re-encrypt, unspecified), a valid upstream CA and upstream client
+   * certificate if it has any. The service stores a resource asked active
+   * without them as pending, and settles it again whenever a certificate
+   * of it is uploaded (pending to active) or deleted (active to pending).
+   */
   status: Status;
   /**
    * How the edge carries the TLS of the domain to its upstreams; NULL in

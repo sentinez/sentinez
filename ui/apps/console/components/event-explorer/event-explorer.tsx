@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useFormatter, useLocale, useTranslations } from 'next-intl';
 import type { PaginationState } from '@tanstack/react-table';
@@ -13,13 +13,7 @@ import { Skeleton } from '@sentinez/ui/components/skeleton';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 import { RefreshButton } from '@/components/refresh-button';
 import { useApi } from '@/hooks/use-api';
-import { useResourceId } from '@/hooks/use-resource-id';
-import {
-  bucketMillisOf,
-  getEventHistogram,
-  getEventTopValues,
-  type ApiOptions,
-} from '@/lib/api/analytic';
+import { bucketMillisOf, type ApiOptions } from '@/lib/api/analytic';
 import { dimmed } from './dimmed';
 import { EventDetail } from './event-detail';
 import { EventFields } from './event-fields';
@@ -55,8 +49,6 @@ const keyed =
   (k: Keyed<R>, options?: ApiOptions) =>
     fn(k.req, options);
 
-const fetchHistogram = keyed(getEventHistogram);
-const fetchTopValues = keyed(getEventTopValues);
 // The fetch of a config without byId, never called
 const noFetch = async () => null;
 
@@ -64,18 +56,29 @@ const noFetch = async () => null;
 const AROUND_MILLIS = 30 * 1000;
 
 /**
- * Kibana Discover-like explorer of the events of a kind, for the resource
- * of the `[domain]` segment: a time range, the histogram of the events per
- * series, the top values of their fields (counted by the API over the
- * range), a filter of the page and the page of events, each opened in a
- * detail sheet. A click on a bar narrows the list and the top values to
- * its bucket.
+ * Kibana Discover-like explorer of the events of a kind, for resources: a
+ * time range, the histogram of the events per series, the top values of
+ * their fields (counted by the API over the range), a filter of the page
+ * and the page of events, each opened in a detail sheet. A click on a bar
+ * narrows the list and the top values to its bucket.
  */
-export function EventExplorer<T>({ config }: { config: EventConfig<T> }) {
+export function EventExplorer<T>({
+  config,
+  resourceIds,
+  pending = false,
+  actions,
+}: {
+  config: EventConfig<T>;
+  /** The resources of the events, all of those the caller sees when empty */
+  resourceIds: string[];
+  /** The resources are not known yet: nothing is fetched until they are */
+  pending?: boolean;
+  /** Controls of the header, before the time range */
+  actions?: ReactNode;
+}) {
   const t = useTranslations('Explorer');
   const format = useFormatter();
   const locale = useLocale();
-  const { resourceId } = useResourceId();
 
   // A link to a request (RequestLink) opens the page around its time, the
   // filter on its id and its detail
@@ -106,7 +109,10 @@ export function EventExplorer<T>({ config }: { config: EventConfig<T> }) {
   // again, an absolute range not moving
   const [reloadKey, setReloadKey] = useState(0);
 
-  const { kind, list, seriesOf } = config;
+  const { list, seriesOf } = config;
+  const idsOf = config.idsOf ?? requestIdsOf;
+  const fetchHistogram = useMemo(() => keyed(config.histogram), [config.histogram]);
+  const fetchTopValues = useMemo(() => keyed(config.topValues), [config.topValues]);
   const resolution = resolutionOf(range, now);
   const bounds = useMemo(() => windowOf(range, now), [range, now]);
   // The window the histogram loads, the one before a zoom that kept its
@@ -115,23 +121,22 @@ export function EventExplorer<T>({ config }: { config: EventConfig<T> }) {
   const histogramKey = loaded.to !== undefined && loaded.to <= now ? 0 : reloadKey;
   // The request ids of the filter are asked to the API, the other terms
   // filter the page; the histogram counts those of the API filters
-  const requestIds = useMemo(() => requestIdsOf(query), [query]);
+  const requestIds = useMemo(() => idsOf(query), [idsOf, query]);
   const selection = useMemo(
     () => ({
-      resourceIds: resourceId ? [resourceId] : [],
+      resourceIds,
       requestIds,
       filters: filterParams,
     }),
-    [resourceId, requestIds, filterParams],
+    [resourceIds, requestIds, filterParams],
   );
   // An absolute range ends its buckets with it: the API ends them before
   // to, back the span of the resolution
   const histogram = useApi(
     fetchHistogram,
-    resourceId
+    !pending
       ? {
           req: {
-            kind,
             resolution,
             ...selection,
             to: dateOf(loaded.to),
@@ -168,10 +173,9 @@ export function EventExplorer<T>({ config }: { config: EventConfig<T> }) {
   const fieldNames = useMemo(() => config.fields.map((f) => f.name), [config.fields]);
   const topValues = useApi(
     fetchTopValues,
-    resourceId
+    !pending
       ? {
           req: {
-            kind,
             ...selection,
             from: new Date(listRange.from),
             to: dateOf(listRange.to),
@@ -185,7 +189,7 @@ export function EventExplorer<T>({ config }: { config: EventConfig<T> }) {
   const fetchList = useMemo(() => keyed(list), [list]);
   const page = useApi(
     fetchList,
-    resourceId
+    !pending
       ? {
           req: {
             ...selection,
@@ -204,11 +208,11 @@ export function EventExplorer<T>({ config }: { config: EventConfig<T> }) {
   // Looked up around its time: the table has no index on the request id
   const focus = useApi(
     fetchFocus,
-    byId && focusId && resourceId
+    byId && focusId && !pending
       ? {
           req: {
             id: focusId,
-            resourceId,
+            resourceId: resourceIds[0] ?? '',
             from: focusAt ? new Date(focusAt - AROUND_MILLIS) : undefined,
             to: focusAt ? new Date(focusAt + AROUND_MILLIS) : undefined,
           },
@@ -237,7 +241,7 @@ export function EventExplorer<T>({ config }: { config: EventConfig<T> }) {
   };
   // A new request id of the filter changes the list: back to its first page
   const changeQuery = (next: string) => {
-    if (requestIdsOf(next).join() !== requestIds.join()) firstPage();
+    if (idsOf(next).join() !== requestIds.join()) firstPage();
     setQuery(next);
   };
   const filtered = query.trim() !== '' || bucket !== undefined || filters.length > 0;
@@ -268,6 +272,7 @@ export function EventExplorer<T>({ config }: { config: EventConfig<T> }) {
     <PageLayout>
       <PageLayoutHeader title={config.title} subtitle={config.subtitle}>
         <div className="flex min-w-0 max-w-full items-center gap-2">
+          {actions}
           <TimeRangePicker value={range} onChange={pickRange} />
           <RefreshButton
             loading={loading || histogram.isLoading || topValues.isLoading}

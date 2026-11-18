@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventfilter"
+	"github.com/sentinez/controlplane/pkg/schema"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -53,7 +54,8 @@ func latencyFilter(sel *pb.EventSelection,
 		return nil, err
 	}
 
-	if err := keptSince(now, filter.From, filter.To); err != nil {
+	if err := keptSince(now, schema.EventRetention,
+		filter.From, filter.To); err != nil {
 		return nil, err
 	}
 	if filter.To.IsZero() {

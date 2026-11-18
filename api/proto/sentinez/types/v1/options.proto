@@ -66,6 +66,18 @@ message XField {
 
   // The column of a scalar field may be NULL, scanned as its zero value.
   bool nullable = 4;
+
+  // What the string field holds of an audited call whose request, else
+  // response, holds it: the tenant or the resource it is about.
+  XAudit audit = 5;
+}
+
+// XAudit what an x_field.audit string field holds.
+message XAudit {
+  // The id of the tenant of the call.
+  bool tenant_id = 1;
+  // The id of the resource of the call.
+  bool resource_id = 2;
 }
 
 // ColumnCodec how a message field stored as one column is scanned.
@@ -81,12 +93,19 @@ enum ColumnCodec {
 }
 
 message XMethod {
-  // ignore skips the control plane check; a valid token is still required.
-  bool ignore = 1;
+  // ignore_control_plane skips the control plane check; a valid token is
+  // still required.
+  bool ignore_control_plane = 1;
   repeated ControlPlane control_planes = 2;
   // public lets the method be called without a token. Methods that do not
   // set it require a valid token.
   bool public = 3;
   // audit records each call of the method in the audit log.
   bool audit = 4;
+  // audit_no_owner no field of the request or the response of the method
+  // holds the tenant or the resource of its audited calls: their owner is
+  // only the one the checks of their access record, if any. Without it,
+  // the request or the response of an audited method must hold a field
+  // x_field.audit marks, protoc-gen-go-senz fails otherwise.
+  bool audit_no_owner = 5;
 }

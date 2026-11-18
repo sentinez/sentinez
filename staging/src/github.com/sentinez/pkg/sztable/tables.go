@@ -39,6 +39,7 @@ const (
 	AnalyticRateLimiterEvent  dbx.Table = "analytic.ratelimiters.events"
 	AnalyticHttpIngressEvent  dbx.Table = "analytic.httpingress.events"
 	AnalyticHttpEgressEvent   dbx.Table = "analytic.httpegress.events"
+	AnalyticAuditLogsEvent    dbx.Table = "analytic.auditlogs.events"
 )
 
 const (

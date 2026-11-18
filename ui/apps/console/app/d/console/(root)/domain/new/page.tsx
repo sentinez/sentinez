@@ -14,6 +14,7 @@ import {
 import { createResource } from '@/lib/api/tenant';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 import { useState } from 'react';
+import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 import { useTenantId } from '@/hooks/use-tenant-id';
 
 export default function CreateResourcePage() {
@@ -35,8 +36,13 @@ export default function CreateResourcePage() {
 
     setSaving(true);
     try {
-      await createResource(resourceOf(form, tenantId));
-      toast.success(t('created'));
+      const { resource } = await createResource(resourceOf(form, tenantId));
+      if (resource?.status === Status.STATUS_PENDING) {
+        // the backend activates it once its certificates fit its TLS mode
+        toast.info(t('createdPending'), t('tlsPending'));
+      } else {
+        toast.success(t('created'));
+      }
       router.back();
     } catch {
       toast.error(t('createFailed'));

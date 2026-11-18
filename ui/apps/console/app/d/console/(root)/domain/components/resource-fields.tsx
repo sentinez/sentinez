@@ -29,6 +29,7 @@ import {
   protocolOf,
 } from '@/lib/type/edge';
 import { FieldGrid } from '@/components/field-grid';
+import { useTlsModes } from '@/hooks/use-tls-modes';
 
 export interface OriginRow {
   server: string;
@@ -39,6 +40,8 @@ export interface ResourceFormValue {
   resourceName: string;
   resourceDomain: string;
   status: Status;
+  /** Kept active only when the certificates of the domain fit it (see the backend) */
+  tlsMode: TlsMode;
   /** Path the origins serve, e.g. "/" */
   location: string;
   /** Empty means the backend applies its default edge setting */
@@ -55,7 +58,8 @@ type FieldsTranslator = ReturnType<typeof useTranslations<'ResourceFields'>>;
 type StatusTranslator = ReturnType<typeof useTranslations<'Enum.status'>>;
 type ValidationTranslator = ReturnType<typeof useTranslations<'Validation'>>;
 
-const statusOptions = (t: FieldsTranslator, ts: StatusTranslator): Option<Status>[] => [
+/** The statuses a resource can be asked to take */
+export const statusOptions = (t: FieldsTranslator, ts: StatusTranslator): Option<Status>[] => [
   {
     label: ts('active'),
     value: Status.STATUS_ACTIVE,
@@ -73,6 +77,7 @@ export function createEmptyResourceForm(): ResourceFormValue {
     resourceName: '',
     resourceDomain: '',
     status: Status.STATUS_ACTIVE,
+    tlsMode: TlsMode.TLS_MODE_UNSPECIFIED,
     location: '/',
     origins: [],
   };
@@ -85,6 +90,7 @@ export function resourceFormOf(r: Resource): ResourceFormValue {
     resourceName: r.name ?? '',
     resourceDomain: r.domain ?? '',
     status: r.status || Status.STATUS_ACTIVE,
+    tlsMode: r.tlsMode,
     location: loc?.location || '/',
     origins: (loc?.proxyPass ?? []).map((u) => ({
       server: u.server,
@@ -105,8 +111,7 @@ export function resourceOf(f: ResourceFormValue, tenantId: string): CreateResour
       domain: f.resourceDomain.trim().toLowerCase(),
       // assigned by the API
       id: '',
-      // by the protocol of each upstream; changed in the setting of the domain
-      tlsMode: TlsMode.TLS_MODE_UNSPECIFIED,
+      tlsMode: f.tlsMode,
       locations:
         origins.length === 0
           ? []
@@ -258,6 +263,7 @@ interface Props {
 export function ResourceFields({ value, onChange, idPrefix = 'resource' }: Props) {
   const t = useTranslations('ResourceFields');
   const ts = useTranslations('Enum.status');
+  const { options: tlsModes } = useTlsModes();
 
   return (
     <div className="flex flex-col gap-4">
@@ -293,6 +299,12 @@ export function ResourceFields({ value, onChange, idPrefix = 'resource' }: Props
           value={value.status}
           options={statusOptions(t, ts)}
           onChange={(status) => onChange({ status })}
+        />
+        <OptionSelect
+          label={t('tlsMode')}
+          value={value.tlsMode}
+          options={tlsModes}
+          onChange={(tlsMode) => onChange({ tlsMode })}
         />
       </FieldGrid>
 

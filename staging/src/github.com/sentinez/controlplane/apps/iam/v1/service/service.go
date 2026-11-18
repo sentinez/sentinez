@@ -27,6 +27,7 @@ import (
 	accrepos "github.com/sentinez/controlplane/apps/iam/v1/repos/accounts"
 	usersrepo "github.com/sentinez/controlplane/apps/iam/v1/repos/users"
 	memberrepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/members"
+	"github.com/sentinez/controlplane/pkg/auditchange"
 	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/controlplane/pkg/crypto"
 	"github.com/sentinez/controlplane/pkg/headers"
@@ -478,7 +479,9 @@ func (srv *IAMService) UpdateUser(ctx context.Context,
 		return nil, err
 	}
 
+	before := &iampb.User{Id: user.GetId(), FullName: user.GetFullName()}
 	user.FullName = fullName
+	auditchange.Set(ctx, before, user, []string{iampb.User_FullName})
 
 	return &iampb.UpdateUserResponse{User: user}, nil
 }

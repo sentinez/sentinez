@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/sentinez/controlplane/apps/collector/v1/ingest"
+	auditlogsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/auditlogs"
 	coreruleeventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/coreruleevents"
 	httpegresseventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/httpegressevents"
 	httpingresseventrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/httpingressevent"
@@ -67,8 +68,27 @@ func NewDefaultIngest(conf *settingpb.Config) (*ingest.Ingest, error) {
 	return ingest.New(consumer, sinks), nil
 }
 
-// newSinks the sink of each topic of an edge event table.
+// newSinks the sink of each topic of an event table: the edge events and
+// the audit logs of the control plane.
 func newSinks(ctx context.Context,
+	conf *settingpb.Config) (map[sztopic.Topic]ingest.Sink, error) {
+	sinks, err := newEdgeSinks(ctx, conf)
+	if err != nil {
+		return nil, err
+	}
+
+	auditLogs, err := auditlogsrepo.New(ctx, conf)
+	if err != nil {
+		return nil, err
+	}
+	sinks[sztopic.EventActivityAuditLog] = ingest.NewAuditLogSink(
+		auditLogs.Create)
+
+	return sinks, nil
+}
+
+// newEdgeSinks the sink of each topic of an edge event table.
+func newEdgeSinks(ctx context.Context,
 	conf *settingpb.Config) (map[sztopic.Topic]ingest.Sink, error) {
 	secRules, err := secruleeventsrepo.NewSecRules(ctx, conf)
 	if err != nil {

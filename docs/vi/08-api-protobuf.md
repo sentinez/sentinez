@@ -41,8 +41,8 @@ response trùng type.
 |---|---|---|---|
 | `x_meta` (52001) | File | `service_name`, `service_zone`, `service_key` | Định danh service: banner console, tên logger, key Consul, `GetMeta<Name>()` |
 | `x_message` (51001) | Message | `database_model`, `export_field`, `scanner` | Sinh hằng tên cột `<Msg>_<Field>` / `X<Msg>_<Field>`; `scanner` sinh thêm row scanner bên dưới |
-| `x_field` (53001) | Field | `flatten`, `ignore`, `codec`, `nullable` | Cách một field của model DB ánh xạ ra cột, xem bên dưới |
-| `x_method` (50001) | RPC | `ignore`, `control_planes[]`, `public` | Sinh `Get<Service><Method>() *XMethod` cho phân quyền |
+| `x_field` (53001) | Field | `flatten`, `ignore`, `codec`, `nullable`, `audit` | Cách một field của model DB ánh xạ ra cột, xem bên dưới; `audit.tenant_id` / `audit.resource_id` đánh dấu id tenant hoặc resource mà audit log lấy |
+| `x_method` (50001) | RPC | `ignore_control_plane`, `control_planes[]`, `public`, `audit`, `audit_no_owner` | Sinh `Get<Service><Method>() *XMethod` cho phân quyền; `audit` ghi audit log mỗi lần gọi, kèm các field mà một lần update đã đổi nếu service ghi lại bằng `auditchange.Set` |
 
 `Zone`: `DEMILITARIZED` (edge, dataplane), `INTERNAL` (domain service),
 `PRIVATE_API` (apiserver, realtime), `PUBLIC_API`.

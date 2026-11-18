@@ -41,8 +41,8 @@ response types must differ.
 |---|---|---|---|
 | `x_meta` (52001) | File | `service_name`, `service_zone`, `service_key` | Service identity: console banner, logger name, Consul key, `GetMeta<Name>()` |
 | `x_message` (51001) | Message | `database_model`, `export_field`, `scanner` | Generates column-name constants `<Msg>_<Field>` / `X<Msg>_<Field>`; `scanner` also generates the row scanners below |
-| `x_field` (53001) | Field | `flatten`, `ignore`, `codec`, `nullable` | How a field of a database model maps to columns, see below |
-| `x_method` (50001) | RPC | `ignore`, `control_planes[]`, `public` | Generates `Get<Service><Method>() *XMethod` for authorization |
+| `x_field` (53001) | Field | `flatten`, `ignore`, `codec`, `nullable`, `audit` | How a field of a database model maps to columns, see below; `audit.tenant_id` / `audit.resource_id` mark the tenant or resource id an audit log takes |
+| `x_method` (50001) | RPC | `ignore_control_plane`, `control_planes[]`, `public`, `audit`, `audit_no_owner` | Generates `Get<Service><Method>() *XMethod` for authorization; `audit` logs each call, and the fields an update changed when its service records them with `auditchange.Set` |
 
 `Zone`: `DEMILITARIZED` (edge, dataplane), `INTERNAL` (domain services),
 `PRIVATE_API` (apiserver, realtime), `PUBLIC_API`.

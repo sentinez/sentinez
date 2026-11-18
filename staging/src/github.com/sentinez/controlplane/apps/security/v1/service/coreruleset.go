@@ -17,10 +17,12 @@ package securitysvc
 import (
 	"context"
 
+	"github.com/sentinez/controlplane/pkg/auditchange"
 	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/pkg/szerror"
 	"github.com/sentinez/pkg/szprotobuf"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
+	"google.golang.org/protobuf/proto"
 )
 
 // mapCoreRuleset converts a DB CoreRuleset into an API CoreRuleset
@@ -102,6 +104,7 @@ func (srv *SecurityService) UpdateCoreRuleset(ctx context.Context,
 		return nil, err
 	}
 
+	before := proto.CloneOf(dbCRS)
 	paths, err := szprotobuf.ApplyMask(dbCRS, req.GetCoreRuleset(),
 		req.GetUpdateMask(), _coreRulesetUpdatable...)
 	if err != nil {
@@ -115,6 +118,8 @@ func (srv *SecurityService) UpdateCoreRuleset(ctx context.Context,
 	if err = srv.coreRulesetRepo.Update(ctx, dbCRS, paths); err != nil {
 		return nil, err
 	}
+
+	auditchange.Set(ctx, before, dbCRS, paths)
 
 	return &securitypb.UpdateCoreRulesetResponse{
 		CoreRuleset: srv.mapCoreRuleset(ctx, dbCRS),

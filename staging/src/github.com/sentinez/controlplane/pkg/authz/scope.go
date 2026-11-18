@@ -59,6 +59,28 @@ func ScopedTenants[R TenantScoped](ctx context.Context, a *Authorizer, req R,
 	return withIds(req, _tenantIds, scope, err)
 }
 
+// Tenantless is a TenantScoped request that may ask for the rows of no
+// tenant instead, with its without_tenant field.
+type Tenantless interface {
+	TenantScoped
+	GetWithoutTenant() bool
+}
+
+// ScopedTenantless is ScopedTenants, but a request without tenant asks for
+// the rows of no tenant, which only the admin control plane sees: its
+// tenant_ids is then the empty id alone; PermissionDenied for any other
+// caller.
+func ScopedTenantless[R Tenantless](ctx context.Context, a *Authorizer,
+	req R) (R, bool, error) {
+	if !req.GetWithoutTenant() {
+		return ScopedTenants(ctx, a, req)
+	}
+
+	scope, err := a.noTenant(ctx)
+
+	return withIds(req, _tenantIds, scope, err)
+}
+
 func withIds[R proto.Message](req R, field protoreflect.Name, scope Scope,
 	err error) (R, bool, error) {
 

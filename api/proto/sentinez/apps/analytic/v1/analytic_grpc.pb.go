@@ -45,6 +45,9 @@ const (
 	AnalyticService_GetUniqueVisitorHistogram_FullMethodName = "/sentinez.apps.analytic.v1.AnalyticService/GetUniqueVisitorHistogram"
 	AnalyticService_GetEventTopValues_FullMethodName         = "/sentinez.apps.analytic.v1.AnalyticService/GetEventTopValues"
 	AnalyticService_ListVisitors_FullMethodName              = "/sentinez.apps.analytic.v1.AnalyticService/ListVisitors"
+	AnalyticService_ListAuditLogs_FullMethodName             = "/sentinez.apps.analytic.v1.AnalyticService/ListAuditLogs"
+	AnalyticService_GetAuditLogHistogram_FullMethodName      = "/sentinez.apps.analytic.v1.AnalyticService/GetAuditLogHistogram"
+	AnalyticService_GetAuditLogTopValues_FullMethodName      = "/sentinez.apps.analytic.v1.AnalyticService/GetAuditLogTopValues"
 )
 
 // AnalyticServiceClient is the client API for AnalyticService service.
@@ -76,6 +79,15 @@ type AnalyticServiceClient interface {
 	// ListVisitors counts the requests received by the edge per time
 	// bucket, resource and client ip.
 	ListVisitors(ctx context.Context, in *ListVisitorsRequest, opts ...grpc.CallOption) (*ListVisitorsResponse, error)
+	// ListAuditLogs lists the audit logs of the control plane calls of the
+	// tenants of the caller, the latest first.
+	ListAuditLogs(ctx context.Context, in *ListAuditLogsRequest, opts ...grpc.CallOption) (*ListAuditLogsResponse, error)
+	// GetAuditLogHistogram counts the audit logs of the tenants of the
+	// caller per time bucket, resource and grpc code.
+	GetAuditLogHistogram(ctx context.Context, in *GetAuditLogHistogramRequest, opts ...grpc.CallOption) (*GetAuditLogHistogramResponse, error)
+	// GetAuditLogTopValues counts the most frequent values of fields of the
+	// audit logs of the tenants of the caller over a time range.
+	GetAuditLogTopValues(ctx context.Context, in *GetAuditLogTopValuesRequest, opts ...grpc.CallOption) (*GetAuditLogTopValuesResponse, error)
 }
 
 type analyticServiceClient struct {
@@ -206,6 +218,36 @@ func (c *analyticServiceClient) ListVisitors(ctx context.Context, in *ListVisito
 	return out, nil
 }
 
+func (c *analyticServiceClient) ListAuditLogs(ctx context.Context, in *ListAuditLogsRequest, opts ...grpc.CallOption) (*ListAuditLogsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListAuditLogsResponse)
+	err := c.cc.Invoke(ctx, AnalyticService_ListAuditLogs_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *analyticServiceClient) GetAuditLogHistogram(ctx context.Context, in *GetAuditLogHistogramRequest, opts ...grpc.CallOption) (*GetAuditLogHistogramResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAuditLogHistogramResponse)
+	err := c.cc.Invoke(ctx, AnalyticService_GetAuditLogHistogram_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *analyticServiceClient) GetAuditLogTopValues(ctx context.Context, in *GetAuditLogTopValuesRequest, opts ...grpc.CallOption) (*GetAuditLogTopValuesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAuditLogTopValuesResponse)
+	err := c.cc.Invoke(ctx, AnalyticService_GetAuditLogTopValues_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AnalyticServiceServer is the server API for AnalyticService service.
 // All implementations should embed UnimplementedAnalyticServiceServer
 // for forward compatibility.
@@ -235,6 +277,15 @@ type AnalyticServiceServer interface {
 	// ListVisitors counts the requests received by the edge per time
 	// bucket, resource and client ip.
 	ListVisitors(context.Context, *ListVisitorsRequest) (*ListVisitorsResponse, error)
+	// ListAuditLogs lists the audit logs of the control plane calls of the
+	// tenants of the caller, the latest first.
+	ListAuditLogs(context.Context, *ListAuditLogsRequest) (*ListAuditLogsResponse, error)
+	// GetAuditLogHistogram counts the audit logs of the tenants of the
+	// caller per time bucket, resource and grpc code.
+	GetAuditLogHistogram(context.Context, *GetAuditLogHistogramRequest) (*GetAuditLogHistogramResponse, error)
+	// GetAuditLogTopValues counts the most frequent values of fields of the
+	// audit logs of the tenants of the caller over a time range.
+	GetAuditLogTopValues(context.Context, *GetAuditLogTopValuesRequest) (*GetAuditLogTopValuesResponse, error)
 }
 
 // UnimplementedAnalyticServiceServer should be embedded to have
@@ -279,6 +330,15 @@ func (UnimplementedAnalyticServiceServer) GetEventTopValues(context.Context, *Ge
 }
 func (UnimplementedAnalyticServiceServer) ListVisitors(context.Context, *ListVisitorsRequest) (*ListVisitorsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListVisitors not implemented")
+}
+func (UnimplementedAnalyticServiceServer) ListAuditLogs(context.Context, *ListAuditLogsRequest) (*ListAuditLogsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListAuditLogs not implemented")
+}
+func (UnimplementedAnalyticServiceServer) GetAuditLogHistogram(context.Context, *GetAuditLogHistogramRequest) (*GetAuditLogHistogramResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetAuditLogHistogram not implemented")
+}
+func (UnimplementedAnalyticServiceServer) GetAuditLogTopValues(context.Context, *GetAuditLogTopValuesRequest) (*GetAuditLogTopValuesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetAuditLogTopValues not implemented")
 }
 func (UnimplementedAnalyticServiceServer) testEmbeddedByValue() {}
 
@@ -516,6 +576,60 @@ func _AnalyticService_ListVisitors_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AnalyticService_ListAuditLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListAuditLogsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AnalyticServiceServer).ListAuditLogs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AnalyticService_ListAuditLogs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AnalyticServiceServer).ListAuditLogs(ctx, req.(*ListAuditLogsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AnalyticService_GetAuditLogHistogram_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAuditLogHistogramRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AnalyticServiceServer).GetAuditLogHistogram(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AnalyticService_GetAuditLogHistogram_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AnalyticServiceServer).GetAuditLogHistogram(ctx, req.(*GetAuditLogHistogramRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AnalyticService_GetAuditLogTopValues_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAuditLogTopValuesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AnalyticServiceServer).GetAuditLogTopValues(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AnalyticService_GetAuditLogTopValues_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AnalyticServiceServer).GetAuditLogTopValues(ctx, req.(*GetAuditLogTopValuesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AnalyticService_ServiceDesc is the grpc.ServiceDesc for AnalyticService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -570,6 +684,18 @@ var AnalyticService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListVisitors",
 			Handler:    _AnalyticService_ListVisitors_Handler,
+		},
+		{
+			MethodName: "ListAuditLogs",
+			Handler:    _AnalyticService_ListAuditLogs_Handler,
+		},
+		{
+			MethodName: "GetAuditLogHistogram",
+			Handler:    _AnalyticService_GetAuditLogHistogram_Handler,
+		},
+		{
+			MethodName: "GetAuditLogTopValues",
+			Handler:    _AnalyticService_GetAuditLogTopValues_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

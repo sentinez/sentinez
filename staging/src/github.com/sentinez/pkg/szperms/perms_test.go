@@ -38,7 +38,7 @@ func TestAllow(t *testing.T) {
 		{
 			name: "Ignored method",
 			method: &typepb.XMethod{
-				Ignore: true,
+				IgnoreControlPlane: true,
 			},
 			plane:     typepb.ControlPlane_CONTROL_PLANE_PORTAL,
 			wantError: false,
@@ -104,7 +104,7 @@ func TestAllow(t *testing.T) {
 		{
 			name: "Ignored method with consoles still allows access",
 			method: &typepb.XMethod{
-				Ignore: true,
+				IgnoreControlPlane: true,
 				ControlPlanes: []typepb.ControlPlane{
 					typepb.ControlPlane_CONTROL_PLANE_ADMIN,
 				},

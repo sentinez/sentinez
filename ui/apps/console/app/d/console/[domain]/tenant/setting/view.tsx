@@ -16,7 +16,12 @@ import {
 } from '@sentinez/ui/components/card';
 import IsLoading from '@sentinez/ui/components/common/loading';
 import { Resource } from '@sentinez/proto/sentinez/apps/tenant/v1/model';
-import { edgeResourceOf, updateResource } from '@/lib/api/tenant';
+import { TlsMode } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
+import { Status } from '@sentinez/proto/sentinez/types/v1/known';
+import { edgeResourceOf, getResource, updateResource } from '@/lib/api/tenant';
+import { FieldGrid } from '@/components/field-grid';
+import { useTlsModes } from '@/hooks/use-tls-modes';
+import { OptionSelect, statusOptions } from '@/app/d/console/(root)/domain/components';
 import { toast } from '@/lib/toast';
 import { ResourceOverview } from '../../../components/resource-overview';
 import { ResourceUnavailable } from '../../../components/resource-unavailable';
@@ -46,6 +51,11 @@ export function SettingView() {
   return (
     <div className="flex flex-col gap-4 animate-in fade-in duration-500">
       <ResourceOverview resource={resource} />
+      <TlsCard
+        key={`tls-${resource.metadata?.updatedAt?.getTime()}`}
+        resource={resource}
+        onSaved={refresh}
+      />
       {/* Keyed by the update time: a saved setting starts again from the stored one */}
       <RoutingCard
         key={resource.metadata?.updatedAt?.getTime()}
@@ -75,12 +85,12 @@ function RoutingCard({ resource, onSaved }: { resource: Resource; onSaved: () =>
 
     setSaving(true);
     try {
-      // The form edits the name, the TLS mode and the routes, not the domain
-      const { name, locations, tlsMode } = edgeResourceOfForm(value, edge);
+      // The form edits the name and the routes, not the domain; the TLS mode is in TlsCard
+      const { name, locations } = edgeResourceOfForm(value, edge);
       await updateResource({
         id: resource.id,
-        resource: Resource.fromPartial({ name, locations, tlsMode }),
-        updateMask: ['name', 'locations', 'tls_mode'],
+        resource: Resource.fromPartial({ name, locations }),
+        updateMask: ['name', 'locations'],
       });
       toast.success(t('saved'));
       await onSaved();
@@ -136,6 +146,97 @@ function RoutingCard({ resource, onSaved }: { resource: Resource; onSaved: () =>
               {saving ? tc('saving') : tc('save')}
             </Button>
           </div>
+        </CardFooter>
+      )}
+    </Card>
+  );
+}
+
+// The status the select shows: pending is active, waiting for certificates
+const wantedStatus = (status: Status) =>
+  status === Status.STATUS_PENDING ? Status.STATUS_ACTIVE : status || Status.STATUS_DISABLE;
+
+/**
+ * The status and the TLS mode of the resource. Asked active, the backend
+ * keeps it pending until its certificates fit the mode, then activates it
+ * on its own when one is uploaded.
+ */
+function TlsCard({ resource, onSaved }: { resource: Resource; onSaved: () => Promise<void> }) {
+  const t = useTranslations('ResourceSetting');
+  const tf = useTranslations('ResourceFields');
+  const ts = useTranslations('Enum.status');
+  const tc = useTranslations('Common');
+  const { options: tlsModes } = useTlsModes();
+  const initialStatus = wantedStatus(resource.status);
+  const [status, setStatus] = useState<Status>(initialStatus);
+  const [tlsMode, setTlsMode] = useState<TlsMode>(resource.tlsMode);
+  const [saving, setSaving] = useState(false);
+  const changed = status !== initialStatus || tlsMode !== resource.tlsMode;
+  const statuses = useMemo(() => statusOptions(tf, ts), [tf, ts]);
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      await updateResource({
+        id: resource.id,
+        resource: Resource.fromPartial({ status, tlsMode }),
+        updateMask: ['status', 'tlsMode'],
+      });
+      const stored = (await getResource({ id: resource.id }))?.resource;
+      if (stored?.status === Status.STATUS_PENDING) {
+        toast.info(t('savedPending'), t('tlsPending'));
+      } else {
+        toast.success(t('saved'));
+      }
+      await onSaved();
+    } catch {
+      toast.error(t('saveFailed'));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Card className="gap-4">
+      <CardHeader>
+        <CardTitle>{t('tls')}</CardTitle>
+        <CardDescription>{t('tlsDescription')}</CardDescription>
+        {resource.status === Status.STATUS_PENDING && (
+          <p className="text-sm text-amber-700 dark:text-amber-400">{t('tlsPending')}</p>
+        )}
+      </CardHeader>
+      <CardContent>
+        <FieldGrid>
+          <OptionSelect
+            label={tf('status')}
+            value={status}
+            options={statuses}
+            onChange={setStatus}
+          />
+          <OptionSelect
+            label={t('tlsMode')}
+            value={tlsMode}
+            options={tlsModes}
+            onChange={setTlsMode}
+          />
+        </FieldGrid>
+      </CardContent>
+      {changed && (
+        <CardFooter className="flex justify-end gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            disabled={saving}
+            onClick={() => {
+              setStatus(initialStatus);
+              setTlsMode(resource.tlsMode);
+            }}
+          >
+            {tc('cancel')}
+          </Button>
+          <Button type="button" disabled={saving} onClick={save}>
+            {saving ? tc('saving') : tc('save')}
+          </Button>
         </CardFooter>
       )}
     </Card>

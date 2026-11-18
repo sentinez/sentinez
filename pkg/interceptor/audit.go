@@ -20,6 +20,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/sentinez/controlplane/pkg/auditchange"
+	"github.com/sentinez/controlplane/pkg/auditowner"
 	"github.com/sentinez/controlplane/pkg/headers"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szprefix"
@@ -30,7 +32,6 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/durationpb"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const _auditMessage = "audit"
@@ -39,7 +40,12 @@ const _auditMessage = "audit"
 // call of a method whose x_method option sets audit, also when the call
 // fails. Install it before the authorization interceptor to record the
 // calls it denies. The request is logged as protojson, its debug_redact
-// fields hidden; the response is only read for the tenant id.
+// fields hidden. The owner of the call, its tenant and resource, is the
+// one the checks of its access recorded (see auditowner), else the fields
+// x_field.audit marks in the request, then the response;
+// protoc-gen-go-senz requires such a field, or audit_no_owner, of every
+// audited method. An update that succeeds logs the fields it changed, as
+// its service records them (see auditchange).
 func Audit(log szlog.Log) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo,
 		handler grpc.UnaryHandler) (any, error) {
@@ -50,9 +56,13 @@ func Audit(log szlog.Log) grpc.UnaryServerInterceptor {
 
 		start := time.Now()
 		slot := &caller{}
-		resp, err := handler(context.WithValue(ctx, callerKey{}, slot), req)
-		call := &call{method: info.FullMethod, start: start,
-			req: messageOf(req), resp: messageOf(resp), err: err,
+		ctx, checked := auditowner.With(
+			context.WithValue(ctx, callerKey{}, slot))
+		ctx, changed := auditchange.With(ctx)
+		resp, err := handler(ctx, req)
+		call := &call{method: info.FullMethod, start: start, checked: checked,
+			changed: changed, req: messageOf(req), resp: messageOf(resp),
+			err:  err,
 			user: slot.userOf(ctx), addr: headers.ClientAddr(ctx),
 			agent: headers.UserAgent(ctx)}
 		log.Info(_auditMessage, call.entry())
@@ -98,6 +108,8 @@ func (c *caller) userOf(ctx context.Context) *typepb.Context {
 type call struct {
 	method      string
 	start       time.Time
+	checked     *auditowner.Owner
+	changed     *auditchange.Change
 	req, resp   proto.Message
 	err         error
 	user        *typepb.Context
@@ -105,22 +117,28 @@ type call struct {
 }
 
 func (c *call) entry() *auditpb.AuditLog {
+	// the ids the checks recorded first, the marked fields for the rest
+	setOwner(c.checked, c.req, c.resp)
+	tenantId, resourceId := c.checked.Ids()
 	entry := &auditpb.AuditLog{
 		Id:           szrand.NewUUID(szprefix.AuditLog),
-		Time:         timestamppb.New(c.start),
 		Method:       c.method,
 		RemoteAddr:   c.addr,
 		UserAgent:    c.agent,
 		Request:      redact(c.req),
 		Code:         uint32(status.Code(c.err)),
 		Latency:      durationpb.New(time.Since(c.start)),
-		TenantId:     tenantIdOf(c.req, c.resp),
+		TenantId:     tenantId,
+		ResourceId:   resourceId,
+		Timestamp:    c.start.UnixMilli(),
 		UserId:       c.user.GetUserId(),
 		Name:         c.user.GetName(),
 		ControlPlane: c.user.GetControlPlane(),
 	}
 	if c.err != nil {
 		entry.Error = status.Convert(c.err).Message()
+	} else {
+		entry.Change = changeOf(c.changed)
 	}
 
 	return entry

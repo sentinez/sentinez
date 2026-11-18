@@ -73,6 +73,8 @@ service SecurityService {
   // GetSecRule retrieves a WAF rule based by ID
   rpc GetSecRule(GetSecRuleRequest) returns (GetSecRuleResponse) {
     option (google.api.http) = {get: "/security/secrule/{id}"};
+
+    option (sentinez.types.v1.x_method) = {audit: true};
   }
 
   // UpdateSecRule updates an existing WAF rule based
@@ -89,12 +91,17 @@ service SecurityService {
   rpc DeleteSecRule(DeleteSecRuleRequest) returns (DeleteSecRuleResponse) {
     option (google.api.http) = {delete: "/security/secrule/{id}"};
 
-    option (sentinez.types.v1.x_method) = {audit: true};
+    option (sentinez.types.v1.x_method) = {
+      audit: true
+      audit_no_owner: true
+    };
   }
 
   // ListSecRules lists WAF rule baseds with optional filters
   rpc ListSecRules(ListSecRulesRequest) returns (ListSecRulesResponse) {
     option (google.api.http) = {get: "/security/secrules"};
+
+    option (sentinez.types.v1.x_method) = {audit: true};
   }
 
   // ── RateLimit ─────────────────────────────────────────────────────────────
@@ -112,6 +119,8 @@ service SecurityService {
   // GetRateLimit retrieves a rate limit rule by ID
   rpc GetRateLimit(GetRateLimitRequest) returns (GetRateLimitResponse) {
     option (google.api.http) = {get: "/security/ratelimit/{id}"};
+
+    option (sentinez.types.v1.x_method) = {audit: true};
   }
 
   // UpdateRateLimit updates an existing rate limit rule
@@ -128,12 +137,17 @@ service SecurityService {
   rpc DeleteRateLimit(DeleteRateLimitRequest) returns (DeleteRateLimitResponse) {
     option (google.api.http) = {delete: "/security/ratelimit/{id}"};
 
-    option (sentinez.types.v1.x_method) = {audit: true};
+    option (sentinez.types.v1.x_method) = {
+      audit: true
+      audit_no_owner: true
+    };
   }
 
   // ListRateLimits lists rate limit rules with optional filters
   rpc ListRateLimits(ListRateLimitsRequest) returns (ListRateLimitsResponse) {
     option (google.api.http) = {get: "/security/ratelimits"};
+
+    option (sentinez.types.v1.x_method) = {audit: true};
   }
 
   // ── CoreRuleset ───────────────────────────────────────────────────────────
@@ -151,6 +165,8 @@ service SecurityService {
   // GetCoreRuleset retrieves an OWASP CRS configuration by ID
   rpc GetCoreRuleset(GetCoreRulesetRequest) returns (GetCoreRulesetResponse) {
     option (google.api.http) = {get: "/security/coreruleset/{id}"};
+
+    option (sentinez.types.v1.x_method) = {audit: true};
   }
 
   // UpdateCoreRuleset updates an existing OWASP CRS configuration
@@ -167,13 +183,18 @@ service SecurityService {
   rpc DeleteCoreRuleset(DeleteCoreRulesetRequest) returns (DeleteCoreRulesetResponse) {
     option (google.api.http) = {delete: "/security/coreruleset/{id}"};
 
-    option (sentinez.types.v1.x_method) = {audit: true};
+    option (sentinez.types.v1.x_method) = {
+      audit: true
+      audit_no_owner: true
+    };
   }
 
   // ListCoreRulesets lists OWASP CRS configurations, filtered by their
   // name or by the fields of their content
   rpc ListCoreRulesets(ListCoreRulesetsRequest) returns (ListCoreRulesetsResponse) {
     option (google.api.http) = {get: "/security/corerulesets"};
+
+    option (sentinez.types.v1.x_method) = {audit: true};
   }
 
   // ── RuleInfo (OWASP CRS rule catalog) ─────────────────────────────────────

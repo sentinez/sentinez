@@ -24,7 +24,7 @@ import { TableSkeletonRows } from '@/components/table-skeleton';
 import { RequestLink } from './request-link';
 import { dimmed } from './dimmed';
 import { timeZoneOf } from './time-range';
-import type { EventConfig, RequestRef } from './types';
+import type { RequestRef, TableConfig } from './types';
 
 const PAGE_SIZES = [20, 50, 100];
 export const DEFAULT_PAGE_SIZE = 20;
@@ -68,7 +68,7 @@ function requestColumn<T>(
 }
 
 interface Props<T> {
-  config: EventConfig<T>;
+  config: TableConfig<T>;
   events: T[];
   /** Fetching the page: the last rows stay, dimmed */
   loading: boolean;

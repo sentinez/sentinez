@@ -17,6 +17,7 @@ import {
   ruleRequestFields,
   ruleRequestOf,
   ruleRequestRows,
+  eventApis,
 } from './shared';
 
 const list = async (req: ListRequest, options?: ApiOptions) =>
@@ -46,7 +47,7 @@ export function useCoreRuleConfig(): EventConfig<CoreRuleEvent> {
       </Badge>
     );
     return {
-      kind: EventKind.EVENT_KIND_CORE_RULE,
+      ...eventApis(EventKind.EVENT_KIND_CORE_RULE),
       title: t('coreRule.title'),
       subtitle: t('coreRule.subtitle'),
       list,

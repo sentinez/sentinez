@@ -272,6 +272,6 @@ func GetExampleServiceDelete() *v1.XMethod {
 
 func GetExampleServiceIgnored() *v1.XMethod {
 	return &v1.XMethod{
-		Ignore: true,
+		IgnoreControlPlane: true,
 	}
 }

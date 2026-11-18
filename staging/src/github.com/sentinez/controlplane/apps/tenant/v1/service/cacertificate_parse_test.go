@@ -49,6 +49,8 @@ type caOptions struct {
 	notAfter time.Time
 	notCa    bool
 	parent   *testCa
+	// dnsNames the names a leaf serves
+	dnsNames []string
 }
 
 // newTestCa generates a certificate; self-signed unless opts has a parent.
@@ -103,6 +105,7 @@ func caTemplate(t *testing.T, opts caOptions) *x509.Certificate {
 		NotAfter:              notAfter,
 		BasicConstraintsValid: true,
 		IsCA:                  !opts.notCa,
+		DNSNames:              opts.dnsNames,
 		KeyUsage: x509.KeyUsageCertSign |
 			x509.KeyUsageDigitalSignature,
 	}

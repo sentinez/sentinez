@@ -19,6 +19,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	membermock "github.com/sentinez/controlplane/apps/tenant/v1/repos/members/mock"
+	"github.com/sentinez/controlplane/pkg/auditchange"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/stretchr/testify/assert"
@@ -120,10 +121,16 @@ func TestUpdateMember(t *testing.T) {
 	repo.EXPECT().Update(mock.Anything,
 		&tenantpb.Member{Id: _memberId, Roles: roles}).Return(nil)
 
-	_, err := New(nil, nil, repo, nil, nil).UpdateMember(asAdmin(t),
+	ctx, change := auditchange.With(asAdmin(t))
+
+	_, err := New(nil, nil, repo, nil, nil).UpdateMember(ctx,
 		&tenantpb.UpdateMemberRequest{Id: _memberId, Roles: roles})
 
 	require.NoError(t, err)
+	before, after, paths := change.Get()
+	assert.Empty(t, before.(*tenantpb.Member).GetRoles())
+	assert.Equal(t, roles, after.(*tenantpb.Member).GetRoles())
+	assert.Equal(t, []string{tenantpb.Member_Roles}, paths)
 }
 
 func TestDeleteMember(t *testing.T) {

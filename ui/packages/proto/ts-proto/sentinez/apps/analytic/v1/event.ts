@@ -7,6 +7,7 @@
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Timestamp } from "../../../../google/protobuf/timestamp";
+import { AuditLog } from "../../../types/audit/v1/audit";
 import { CoreRuleEvent } from "../../../types/coreruleset/v1/event";
 import { EgressEvent, IngressEvent } from "../../../types/net/http/v1/event";
 import { SecRuleEvent } from "../../../types/secrule/v1/event";
@@ -486,6 +487,122 @@ export interface GetEgressLatencyResponse {
   /** The range measured. */
   from?: Date | undefined;
   to?: Date | undefined;
+}
+
+/** ListAuditLogsRequest selects the audit logs of a list, the latest first. */
+export interface ListAuditLogsRequest {
+  page?:
+    | Pages
+    | undefined;
+  /** Tenants of the logs, any of them; all those of the caller when empty. */
+  tenantIds: string[];
+  /** Resources of the logs, any of them; all when empty. */
+  resourceIds: string[];
+  /** Bound the time of the logs, from inclusive, to exclusive. */
+  from?: Date | undefined;
+  to?:
+    | Date
+    | undefined;
+  /** Ids of the logs, any of them; all when empty. */
+  requestIds: string[];
+  /**
+   * Field filters, all of them, each "field:value": method, user_id,
+   * code, control_plane, tenant_id, remote_addr or user_agent.
+   */
+  filters: string[];
+  /**
+   * Only the logs of no tenant, tenant_ids ignored: the calls about none,
+   * such as the logins and those refused before their tenant was known.
+   * The admin control plane only.
+   */
+  withoutTenant: boolean;
+}
+
+export interface ListAuditLogsResponse {
+  logs: AuditLog[];
+}
+
+export interface GetAuditLogHistogramRequest {
+  resolution: HistogramResolution;
+  /** Tenants of the logs, any of them; all those of the caller when empty. */
+  tenantIds: string[];
+  /** Resources of the logs, any of them; all when empty. */
+  resourceIds: string[];
+  /**
+   * The buckets, as GetEventHistogramRequest.from and to: at most the 90
+   * days the logs are kept.
+   */
+  from?: Date | undefined;
+  to?:
+    | Date
+    | undefined;
+  /** Ids of the logs, any of them; all when empty. */
+  requestIds: string[];
+  /**
+   * Field filters, all of them, each "field:value" (see
+   * ListAuditLogsRequest.filters).
+   */
+  filters: string[];
+  /**
+   * Only the logs of no tenant, tenant_ids ignored: the calls about none,
+   * such as the logins and those refused before their tenant was known.
+   * The admin control plane only.
+   */
+  withoutTenant: boolean;
+}
+
+export interface GetAuditLogHistogramResponse {
+  /**
+   * As GetEventHistogramResponse.points, the key the grpc code of the
+   * calls.
+   */
+  points: HistogramPoint[];
+  interval: HistogramInterval;
+  from?: Date | undefined;
+  to?: Date | undefined;
+  truncated: boolean;
+}
+
+export interface GetAuditLogTopValuesRequest {
+  /** Tenants of the logs, any of them; all those of the caller when empty. */
+  tenantIds: string[];
+  /** Resources of the logs, any of them; all when empty. */
+  resourceIds: string[];
+  /**
+   * Bound the time of the logs, from inclusive, to exclusive: to now when
+   * unset, from the hour before to when unset.
+   */
+  from?: Date | undefined;
+  to?:
+    | Date
+    | undefined;
+  /**
+   * The fields to count, in this order, each once: method, user_id, code,
+   * control_plane, tenant_id, remote_addr, user_agent; all when empty.
+   */
+  fields: string[];
+  /** The values per field: 5 when 0, at most 20. */
+  limit: number;
+  /**
+   * Field filters, all of them, each "field:value" (see
+   * ListAuditLogsRequest.filters).
+   */
+  filters: string[];
+  /** Ids of the logs, any of them; all when empty. */
+  requestIds: string[];
+  /**
+   * Only the logs of no tenant, tenant_ids ignored: the calls about none,
+   * such as the logins and those refused before their tenant was known.
+   * The admin control plane only.
+   */
+  withoutTenant: boolean;
+}
+
+export interface GetAuditLogTopValuesResponse {
+  /** The logs of the range. */
+  total: number;
+  /** One per field of the request, in its order. */
+  fields: FieldTopValues[];
 }
 
 function createBaseEventSelection(): EventSelection {
@@ -3653,6 +3770,926 @@ export const GetEgressLatencyResponse: MessageFns<GetEgressLatencyResponse> = {
     message.upstreams = object.upstreams?.map((e) => UpstreamLatency.fromPartial(e)) || [];
     message.from = object.from ?? undefined;
     message.to = object.to ?? undefined;
+    return message;
+  },
+};
+
+function createBaseListAuditLogsRequest(): ListAuditLogsRequest {
+  return {
+    page: undefined,
+    tenantIds: [],
+    resourceIds: [],
+    from: undefined,
+    to: undefined,
+    requestIds: [],
+    filters: [],
+    withoutTenant: false,
+  };
+}
+
+export const ListAuditLogsRequest: MessageFns<ListAuditLogsRequest> = {
+  encode(message: ListAuditLogsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.page !== undefined) {
+      Pages.encode(message.page, writer.uint32(10).fork()).join();
+    }
+    for (const v of message.tenantIds) {
+      writer.uint32(18).string(v!);
+    }
+    for (const v of message.resourceIds) {
+      writer.uint32(26).string(v!);
+    }
+    if (message.from !== undefined) {
+      Timestamp.encode(toTimestamp(message.from), writer.uint32(34).fork()).join();
+    }
+    if (message.to !== undefined) {
+      Timestamp.encode(toTimestamp(message.to), writer.uint32(42).fork()).join();
+    }
+    for (const v of message.requestIds) {
+      writer.uint32(50).string(v!);
+    }
+    for (const v of message.filters) {
+      writer.uint32(58).string(v!);
+    }
+    if (message.withoutTenant !== false) {
+      writer.uint32(64).bool(message.withoutTenant);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListAuditLogsRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseListAuditLogsRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.page = Pages.decode(reader, reader.uint32());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.tenantIds.push(reader.string());
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.resourceIds.push(reader.string());
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.from = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.to = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.requestIds.push(reader.string());
+            continue;
+          }
+          case 7: {
+            if (tag !== 58) {
+              break;
+            }
+
+            message.filters.push(reader.string());
+            continue;
+          }
+          case 8: {
+            if (tag !== 64) {
+              break;
+            }
+
+            message.withoutTenant = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): ListAuditLogsRequest {
+    return {
+      page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined,
+      tenantIds: globalThis.Array.isArray(object?.tenantIds)
+        ? object.tenantIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.tenant_ids)
+        ? object.tenant_ids.map((e: any) => globalThis.String(e))
+        : [],
+      resourceIds: globalThis.Array.isArray(object?.resourceIds)
+        ? object.resourceIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.resource_ids)
+        ? object.resource_ids.map((e: any) => globalThis.String(e))
+        : [],
+      from: isSet(object.from) ? fromJsonTimestamp(object.from) : undefined,
+      to: isSet(object.to) ? fromJsonTimestamp(object.to) : undefined,
+      requestIds: globalThis.Array.isArray(object?.requestIds)
+        ? object.requestIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.request_ids)
+        ? object.request_ids.map((e: any) => globalThis.String(e))
+        : [],
+      filters: globalThis.Array.isArray(object?.filters) ? object.filters.map((e: any) => globalThis.String(e)) : [],
+      withoutTenant: isSet(object.withoutTenant)
+        ? globalThis.Boolean(object.withoutTenant)
+        : isSet(object.without_tenant)
+        ? globalThis.Boolean(object.without_tenant)
+        : false,
+    };
+  },
+
+  toJSON(message: ListAuditLogsRequest): unknown {
+    const obj: any = {};
+    if (message.page !== undefined) {
+      obj.page = Pages.toJSON(message.page);
+    }
+    if (message.tenantIds?.length) {
+      obj.tenantIds = message.tenantIds;
+    }
+    if (message.resourceIds?.length) {
+      obj.resourceIds = message.resourceIds;
+    }
+    if (message.from !== undefined) {
+      obj.from = message.from.toISOString();
+    }
+    if (message.to !== undefined) {
+      obj.to = message.to.toISOString();
+    }
+    if (message.requestIds?.length) {
+      obj.requestIds = message.requestIds;
+    }
+    if (message.filters?.length) {
+      obj.filters = message.filters;
+    }
+    if (message.withoutTenant !== false) {
+      obj.withoutTenant = message.withoutTenant;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ListAuditLogsRequest>, I>>(base?: I): ListAuditLogsRequest {
+    return ListAuditLogsRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ListAuditLogsRequest>, I>>(object: I): ListAuditLogsRequest {
+    const message = createBaseListAuditLogsRequest();
+    message.page = (object.page !== undefined && object.page !== null) ? Pages.fromPartial(object.page) : undefined;
+    message.tenantIds = object.tenantIds?.map((e) => e) || [];
+    message.resourceIds = object.resourceIds?.map((e) => e) || [];
+    message.from = object.from ?? undefined;
+    message.to = object.to ?? undefined;
+    message.requestIds = object.requestIds?.map((e) => e) || [];
+    message.filters = object.filters?.map((e) => e) || [];
+    message.withoutTenant = object.withoutTenant ?? false;
+    return message;
+  },
+};
+
+function createBaseListAuditLogsResponse(): ListAuditLogsResponse {
+  return { logs: [] };
+}
+
+export const ListAuditLogsResponse: MessageFns<ListAuditLogsResponse> = {
+  encode(message: ListAuditLogsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.logs) {
+      AuditLog.encode(v!, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListAuditLogsResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseListAuditLogsResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.logs.push(AuditLog.decode(reader, reader.uint32()));
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): ListAuditLogsResponse {
+    return { logs: globalThis.Array.isArray(object?.logs) ? object.logs.map((e: any) => AuditLog.fromJSON(e)) : [] };
+  },
+
+  toJSON(message: ListAuditLogsResponse): unknown {
+    const obj: any = {};
+    if (message.logs?.length) {
+      obj.logs = message.logs.map((e) => AuditLog.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ListAuditLogsResponse>, I>>(base?: I): ListAuditLogsResponse {
+    return ListAuditLogsResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ListAuditLogsResponse>, I>>(object: I): ListAuditLogsResponse {
+    const message = createBaseListAuditLogsResponse();
+    message.logs = object.logs?.map((e) => AuditLog.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseGetAuditLogHistogramRequest(): GetAuditLogHistogramRequest {
+  return {
+    resolution: 0,
+    tenantIds: [],
+    resourceIds: [],
+    from: undefined,
+    to: undefined,
+    requestIds: [],
+    filters: [],
+    withoutTenant: false,
+  };
+}
+
+export const GetAuditLogHistogramRequest: MessageFns<GetAuditLogHistogramRequest> = {
+  encode(message: GetAuditLogHistogramRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.resolution !== 0) {
+      writer.uint32(8).int32(message.resolution);
+    }
+    for (const v of message.tenantIds) {
+      writer.uint32(18).string(v!);
+    }
+    for (const v of message.resourceIds) {
+      writer.uint32(26).string(v!);
+    }
+    if (message.from !== undefined) {
+      Timestamp.encode(toTimestamp(message.from), writer.uint32(34).fork()).join();
+    }
+    if (message.to !== undefined) {
+      Timestamp.encode(toTimestamp(message.to), writer.uint32(42).fork()).join();
+    }
+    for (const v of message.requestIds) {
+      writer.uint32(50).string(v!);
+    }
+    for (const v of message.filters) {
+      writer.uint32(58).string(v!);
+    }
+    if (message.withoutTenant !== false) {
+      writer.uint32(64).bool(message.withoutTenant);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetAuditLogHistogramRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetAuditLogHistogramRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.resolution = reader.int32() as any;
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.tenantIds.push(reader.string());
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.resourceIds.push(reader.string());
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.from = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.to = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.requestIds.push(reader.string());
+            continue;
+          }
+          case 7: {
+            if (tag !== 58) {
+              break;
+            }
+
+            message.filters.push(reader.string());
+            continue;
+          }
+          case 8: {
+            if (tag !== 64) {
+              break;
+            }
+
+            message.withoutTenant = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): GetAuditLogHistogramRequest {
+    return {
+      resolution: isSet(object.resolution) ? histogramResolutionFromJSON(object.resolution) : 0,
+      tenantIds: globalThis.Array.isArray(object?.tenantIds)
+        ? object.tenantIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.tenant_ids)
+        ? object.tenant_ids.map((e: any) => globalThis.String(e))
+        : [],
+      resourceIds: globalThis.Array.isArray(object?.resourceIds)
+        ? object.resourceIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.resource_ids)
+        ? object.resource_ids.map((e: any) => globalThis.String(e))
+        : [],
+      from: isSet(object.from) ? fromJsonTimestamp(object.from) : undefined,
+      to: isSet(object.to) ? fromJsonTimestamp(object.to) : undefined,
+      requestIds: globalThis.Array.isArray(object?.requestIds)
+        ? object.requestIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.request_ids)
+        ? object.request_ids.map((e: any) => globalThis.String(e))
+        : [],
+      filters: globalThis.Array.isArray(object?.filters) ? object.filters.map((e: any) => globalThis.String(e)) : [],
+      withoutTenant: isSet(object.withoutTenant)
+        ? globalThis.Boolean(object.withoutTenant)
+        : isSet(object.without_tenant)
+        ? globalThis.Boolean(object.without_tenant)
+        : false,
+    };
+  },
+
+  toJSON(message: GetAuditLogHistogramRequest): unknown {
+    const obj: any = {};
+    if (message.resolution !== 0) {
+      obj.resolution = histogramResolutionToJSON(message.resolution);
+    }
+    if (message.tenantIds?.length) {
+      obj.tenantIds = message.tenantIds;
+    }
+    if (message.resourceIds?.length) {
+      obj.resourceIds = message.resourceIds;
+    }
+    if (message.from !== undefined) {
+      obj.from = message.from.toISOString();
+    }
+    if (message.to !== undefined) {
+      obj.to = message.to.toISOString();
+    }
+    if (message.requestIds?.length) {
+      obj.requestIds = message.requestIds;
+    }
+    if (message.filters?.length) {
+      obj.filters = message.filters;
+    }
+    if (message.withoutTenant !== false) {
+      obj.withoutTenant = message.withoutTenant;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetAuditLogHistogramRequest>, I>>(base?: I): GetAuditLogHistogramRequest {
+    return GetAuditLogHistogramRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetAuditLogHistogramRequest>, I>>(object: I): GetAuditLogHistogramRequest {
+    const message = createBaseGetAuditLogHistogramRequest();
+    message.resolution = object.resolution ?? 0;
+    message.tenantIds = object.tenantIds?.map((e) => e) || [];
+    message.resourceIds = object.resourceIds?.map((e) => e) || [];
+    message.from = object.from ?? undefined;
+    message.to = object.to ?? undefined;
+    message.requestIds = object.requestIds?.map((e) => e) || [];
+    message.filters = object.filters?.map((e) => e) || [];
+    message.withoutTenant = object.withoutTenant ?? false;
+    return message;
+  },
+};
+
+function createBaseGetAuditLogHistogramResponse(): GetAuditLogHistogramResponse {
+  return { points: [], interval: 0, from: undefined, to: undefined, truncated: false };
+}
+
+export const GetAuditLogHistogramResponse: MessageFns<GetAuditLogHistogramResponse> = {
+  encode(message: GetAuditLogHistogramResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.points) {
+      HistogramPoint.encode(v!, writer.uint32(10).fork()).join();
+    }
+    if (message.interval !== 0) {
+      writer.uint32(16).int32(message.interval);
+    }
+    if (message.from !== undefined) {
+      Timestamp.encode(toTimestamp(message.from), writer.uint32(26).fork()).join();
+    }
+    if (message.to !== undefined) {
+      Timestamp.encode(toTimestamp(message.to), writer.uint32(34).fork()).join();
+    }
+    if (message.truncated !== false) {
+      writer.uint32(40).bool(message.truncated);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetAuditLogHistogramResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetAuditLogHistogramResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.points.push(HistogramPoint.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.interval = reader.int32() as any;
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.from = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.to = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 5: {
+            if (tag !== 40) {
+              break;
+            }
+
+            message.truncated = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): GetAuditLogHistogramResponse {
+    return {
+      points: globalThis.Array.isArray(object?.points) ? object.points.map((e: any) => HistogramPoint.fromJSON(e)) : [],
+      interval: isSet(object.interval) ? histogramIntervalFromJSON(object.interval) : 0,
+      from: isSet(object.from) ? fromJsonTimestamp(object.from) : undefined,
+      to: isSet(object.to) ? fromJsonTimestamp(object.to) : undefined,
+      truncated: isSet(object.truncated) ? globalThis.Boolean(object.truncated) : false,
+    };
+  },
+
+  toJSON(message: GetAuditLogHistogramResponse): unknown {
+    const obj: any = {};
+    if (message.points?.length) {
+      obj.points = message.points.map((e) => HistogramPoint.toJSON(e));
+    }
+    if (message.interval !== 0) {
+      obj.interval = histogramIntervalToJSON(message.interval);
+    }
+    if (message.from !== undefined) {
+      obj.from = message.from.toISOString();
+    }
+    if (message.to !== undefined) {
+      obj.to = message.to.toISOString();
+    }
+    if (message.truncated !== false) {
+      obj.truncated = message.truncated;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetAuditLogHistogramResponse>, I>>(base?: I): GetAuditLogHistogramResponse {
+    return GetAuditLogHistogramResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetAuditLogHistogramResponse>, I>>(object: I): GetAuditLogHistogramResponse {
+    const message = createBaseGetAuditLogHistogramResponse();
+    message.points = object.points?.map((e) => HistogramPoint.fromPartial(e)) || [];
+    message.interval = object.interval ?? 0;
+    message.from = object.from ?? undefined;
+    message.to = object.to ?? undefined;
+    message.truncated = object.truncated ?? false;
+    return message;
+  },
+};
+
+function createBaseGetAuditLogTopValuesRequest(): GetAuditLogTopValuesRequest {
+  return {
+    tenantIds: [],
+    resourceIds: [],
+    from: undefined,
+    to: undefined,
+    fields: [],
+    limit: 0,
+    filters: [],
+    requestIds: [],
+    withoutTenant: false,
+  };
+}
+
+export const GetAuditLogTopValuesRequest: MessageFns<GetAuditLogTopValuesRequest> = {
+  encode(message: GetAuditLogTopValuesRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.tenantIds) {
+      writer.uint32(10).string(v!);
+    }
+    for (const v of message.resourceIds) {
+      writer.uint32(18).string(v!);
+    }
+    if (message.from !== undefined) {
+      Timestamp.encode(toTimestamp(message.from), writer.uint32(26).fork()).join();
+    }
+    if (message.to !== undefined) {
+      Timestamp.encode(toTimestamp(message.to), writer.uint32(34).fork()).join();
+    }
+    for (const v of message.fields) {
+      writer.uint32(42).string(v!);
+    }
+    if (message.limit !== 0) {
+      writer.uint32(48).int32(message.limit);
+    }
+    for (const v of message.filters) {
+      writer.uint32(58).string(v!);
+    }
+    for (const v of message.requestIds) {
+      writer.uint32(66).string(v!);
+    }
+    if (message.withoutTenant !== false) {
+      writer.uint32(72).bool(message.withoutTenant);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetAuditLogTopValuesRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetAuditLogTopValuesRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.tenantIds.push(reader.string());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.resourceIds.push(reader.string());
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.from = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.to = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.fields.push(reader.string());
+            continue;
+          }
+          case 6: {
+            if (tag !== 48) {
+              break;
+            }
+
+            message.limit = reader.int32();
+            continue;
+          }
+          case 7: {
+            if (tag !== 58) {
+              break;
+            }
+
+            message.filters.push(reader.string());
+            continue;
+          }
+          case 8: {
+            if (tag !== 66) {
+              break;
+            }
+
+            message.requestIds.push(reader.string());
+            continue;
+          }
+          case 9: {
+            if (tag !== 72) {
+              break;
+            }
+
+            message.withoutTenant = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): GetAuditLogTopValuesRequest {
+    return {
+      tenantIds: globalThis.Array.isArray(object?.tenantIds)
+        ? object.tenantIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.tenant_ids)
+        ? object.tenant_ids.map((e: any) => globalThis.String(e))
+        : [],
+      resourceIds: globalThis.Array.isArray(object?.resourceIds)
+        ? object.resourceIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.resource_ids)
+        ? object.resource_ids.map((e: any) => globalThis.String(e))
+        : [],
+      from: isSet(object.from) ? fromJsonTimestamp(object.from) : undefined,
+      to: isSet(object.to) ? fromJsonTimestamp(object.to) : undefined,
+      fields: globalThis.Array.isArray(object?.fields) ? object.fields.map((e: any) => globalThis.String(e)) : [],
+      limit: isSet(object.limit) ? globalThis.Number(object.limit) : 0,
+      filters: globalThis.Array.isArray(object?.filters) ? object.filters.map((e: any) => globalThis.String(e)) : [],
+      requestIds: globalThis.Array.isArray(object?.requestIds)
+        ? object.requestIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.request_ids)
+        ? object.request_ids.map((e: any) => globalThis.String(e))
+        : [],
+      withoutTenant: isSet(object.withoutTenant)
+        ? globalThis.Boolean(object.withoutTenant)
+        : isSet(object.without_tenant)
+        ? globalThis.Boolean(object.without_tenant)
+        : false,
+    };
+  },
+
+  toJSON(message: GetAuditLogTopValuesRequest): unknown {
+    const obj: any = {};
+    if (message.tenantIds?.length) {
+      obj.tenantIds = message.tenantIds;
+    }
+    if (message.resourceIds?.length) {
+      obj.resourceIds = message.resourceIds;
+    }
+    if (message.from !== undefined) {
+      obj.from = message.from.toISOString();
+    }
+    if (message.to !== undefined) {
+      obj.to = message.to.toISOString();
+    }
+    if (message.fields?.length) {
+      obj.fields = message.fields;
+    }
+    if (message.limit !== 0) {
+      obj.limit = Math.round(message.limit);
+    }
+    if (message.filters?.length) {
+      obj.filters = message.filters;
+    }
+    if (message.requestIds?.length) {
+      obj.requestIds = message.requestIds;
+    }
+    if (message.withoutTenant !== false) {
+      obj.withoutTenant = message.withoutTenant;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetAuditLogTopValuesRequest>, I>>(base?: I): GetAuditLogTopValuesRequest {
+    return GetAuditLogTopValuesRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetAuditLogTopValuesRequest>, I>>(object: I): GetAuditLogTopValuesRequest {
+    const message = createBaseGetAuditLogTopValuesRequest();
+    message.tenantIds = object.tenantIds?.map((e) => e) || [];
+    message.resourceIds = object.resourceIds?.map((e) => e) || [];
+    message.from = object.from ?? undefined;
+    message.to = object.to ?? undefined;
+    message.fields = object.fields?.map((e) => e) || [];
+    message.limit = object.limit ?? 0;
+    message.filters = object.filters?.map((e) => e) || [];
+    message.requestIds = object.requestIds?.map((e) => e) || [];
+    message.withoutTenant = object.withoutTenant ?? false;
+    return message;
+  },
+};
+
+function createBaseGetAuditLogTopValuesResponse(): GetAuditLogTopValuesResponse {
+  return { total: 0, fields: [] };
+}
+
+export const GetAuditLogTopValuesResponse: MessageFns<GetAuditLogTopValuesResponse> = {
+  encode(message: GetAuditLogTopValuesResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.total !== 0) {
+      writer.uint32(8).int64(message.total);
+    }
+    for (const v of message.fields) {
+      FieldTopValues.encode(v!, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetAuditLogTopValuesResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetAuditLogTopValuesResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.total = longToNumber(reader.int64());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.fields.push(FieldTopValues.decode(reader, reader.uint32()));
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): GetAuditLogTopValuesResponse {
+    return {
+      total: isSet(object.total) ? globalThis.Number(object.total) : 0,
+      fields: globalThis.Array.isArray(object?.fields) ? object.fields.map((e: any) => FieldTopValues.fromJSON(e)) : [],
+    };
+  },
+
+  toJSON(message: GetAuditLogTopValuesResponse): unknown {
+    const obj: any = {};
+    if (message.total !== 0) {
+      obj.total = Math.round(message.total);
+    }
+    if (message.fields?.length) {
+      obj.fields = message.fields.map((e) => FieldTopValues.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetAuditLogTopValuesResponse>, I>>(base?: I): GetAuditLogTopValuesResponse {
+    return GetAuditLogTopValuesResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetAuditLogTopValuesResponse>, I>>(object: I): GetAuditLogTopValuesResponse {
+    const message = createBaseGetAuditLogTopValuesResponse();
+    message.total = object.total ?? 0;
+    message.fields = object.fields?.map((e) => FieldTopValues.fromPartial(e)) || [];
     return message;
   },
 };

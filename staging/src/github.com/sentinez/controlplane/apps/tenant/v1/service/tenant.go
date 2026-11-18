@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/sentinez/controlplane/pkg/auditchange"
 	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/controlplane/pkg/headers"
 	"github.com/sentinez/pkg/szerror"
@@ -165,7 +166,7 @@ func (svc *Service) UpdateTenant(ctx context.Context,
 		return nil, err
 	}
 
-	plan := tenant.GetPlan()
+	before := proto.CloneOf(tenant)
 	paths, err := szprotobuf.ApplyMask(tenant, req.GetTenant(),
 		req.GetUpdateMask(), _tenantUpdatable...)
 	if err != nil {
@@ -174,7 +175,7 @@ func (svc *Service) UpdateTenant(ctx context.Context,
 
 	// the plan is what the tenant pays for: its admins do not pick it
 	least := authz.Manage
-	if tenant.GetPlan() != plan {
+	if tenant.GetPlan() != before.GetPlan() {
 		least = authz.Billing
 	}
 
@@ -189,6 +190,8 @@ func (svc *Service) UpdateTenant(ctx context.Context,
 	if err = svc.tenant.Update(ctx, tenant, paths); err != nil {
 		return nil, fmt.Errorf("tenant.Update: %w", err)
 	}
+
+	auditchange.Set(ctx, before, tenant, paths)
 
 	return &tenantpb.UpdateTenantResponse{}, nil
 }

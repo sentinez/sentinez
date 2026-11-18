@@ -21,6 +21,7 @@ import (
 
 	"github.com/sentinez/pkg/szprefix"
 	"github.com/sentinez/pkg/sztopic"
+	auditpb "github.com/sentinez/sentinez/api/proto/sentinez/types/audit/v1"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	"github.com/stretchr/testify/assert"
@@ -137,6 +138,33 @@ func TestHttpEgressEventSinkInsert(t *testing.T) {
 	assert.Equal(t, int32(502), got[0].GetStatus())
 	assert.Equal(t, szprefix.Request.Key()+"t-1-5", got[1].GetId())
 	assert.Equal(t, "http://o", got[1].GetUpstream())
+}
+
+func TestAuditLogSinkInsert(t *testing.T) {
+	var got []*auditpb.AuditLog
+	s := NewAuditLogSink(func(_ context.Context,
+		logs ...*auditpb.AuditLog) error {
+		got = append(got, clones(logs)...)
+		return nil
+	})
+
+	withId, err := (&auditpb.AuditLog{Id: "aud_a", Code: 7}).MarshalVT()
+	require.NoError(t, err)
+	noId, err := (&auditpb.AuditLog{Method: "/s.S/M"}).MarshalVT()
+	require.NoError(t, err)
+
+	records := []*kgo.Record{
+		{Topic: "t", Partition: 1, Offset: 3, Value: withId},
+		{Topic: "t", Value: []byte{0xff}}, // malformed, dropped
+		{Topic: "t", Partition: 1, Offset: 5, Value: noId},
+	}
+	require.NoError(t, s.Insert(t.Context(), records))
+
+	require.Len(t, got, 2)
+	assert.Equal(t, "aud_a", got[0].GetId())
+	assert.Equal(t, uint32(7), got[0].GetCode())
+	assert.Equal(t, szprefix.AuditLog.Key()+"t-1-5", got[1].GetId())
+	assert.Equal(t, "/s.S/M", got[1].GetMethod())
 }
 
 func TestSinkReleasesEvents(t *testing.T) {
