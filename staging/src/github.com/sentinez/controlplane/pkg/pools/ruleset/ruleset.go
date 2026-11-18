@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package coreruleset pools the core ruleset events of the collector.
-package coreruleset
+// Package ruleset pools the core ruleset events of the collector.
+package ruleset
 
 import (
 	"github.com/sentinez/controlplane/pkg/pools"

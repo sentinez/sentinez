@@ -64,22 +64,22 @@ func (srv *SecurityService) importCoreRuleset(ctx context.Context,
 		return nil
 	}
 
-	stored, _, err := srv.coreRulesetRepo.List(ctx,
-		&securitypb.ListCoreRulesetsRequest{
+	stored, _, err := srv.rulesetRepo.List(ctx,
+		&securitypb.ListRulesetsRequest{
 			ResourceIds: []string{owner.GetResourceId()},
 		})
 	if err != nil {
 		return err
 	}
 
-	crs := &securitypb.CoreRuleset{Owner: owner, Name: name, Content: content}
+	crs := &securitypb.Ruleset{Owner: owner, Name: name, CoreRuleset: content}
 	if len(stored) == 0 {
-		_, err = srv.coreRulesetRepo.Create(ctx, crs)
+		_, err = srv.rulesetRepo.Create(ctx, crs)
 		return err
 	}
 
 	crs.Id = stored[0].GetId()
-	return srv.coreRulesetRepo.Update(ctx, crs, _coreRulesetUpdatable)
+	return srv.rulesetRepo.Update(ctx, crs, _coreRulesetUpdatable)
 }
 
 // importSecRules upserts rules by name among the sec rules of owner.

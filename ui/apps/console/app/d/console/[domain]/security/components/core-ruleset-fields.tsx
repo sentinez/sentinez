@@ -19,7 +19,7 @@ import { useSecurityOptions } from '@/hooks/use-security-options';
 import { HTTP_METHODS, SelectOption } from '@/lib/type/security';
 import { CoreRulesetFormValue } from './core-ruleset-form';
 import { ExclusionsEditor, OverridesEditor, SwitchField } from './core-ruleset-rules';
-import { useRuleInfos } from './rule-picker';
+import { useCRSRuleInfos } from './rule-picker';
 import { OptionSelect } from './sec-rule-fields';
 import { FieldGrid } from '@/components/field-grid';
 
@@ -213,7 +213,7 @@ export function CoreRulesetFields({ value, onChange, idPrefix = 'ruleset' }: Pro
     ],
     [value.overrides, value.exclusions],
   );
-  const catalog = useRuleInfos(ruleIds, value.version);
+  const catalog = useCRSRuleInfos(ruleIds, value.version);
 
   const toggleCategory = (category: Category, checked: boolean) =>
     onChange({

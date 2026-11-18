@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package coreruleset
+package ruleset
 
 import (
 	"context"
@@ -31,54 +31,54 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
-// The content column holds the proto JSON of the CRS setting: fields by
+// The core_ruleset column holds the proto JSON of the CRS setting: fields by
 // their proto name, enums by their value name. The list filters rely on
 // this encoding.
-var _marshalContent = protojson.MarshalOptions{UseProtoNames: true}
+var _marshalCoreRuleset = protojson.MarshalOptions{UseProtoNames: true}
 
 // nolint
-type ICoreRuleset interface {
-	Create(ctx context.Context, model *securitypb.CoreRuleset) (*securitypb.CoreRuleset, error)
-	Update(ctx context.Context, model *securitypb.CoreRuleset, paths []string) error
-	Get(ctx context.Context, id string) (*securitypb.CoreRuleset, error)
+type IRuleset interface {
+	Create(ctx context.Context, model *securitypb.Ruleset) (*securitypb.Ruleset, error)
+	Update(ctx context.Context, model *securitypb.Ruleset, paths []string) error
+	Get(ctx context.Context, id string) (*securitypb.Ruleset, error)
 	Delete(ctx context.Context, id string) error
 
-	WithTX(tx *postgres.TxSession) ICoreRuleset
+	WithTX(tx *postgres.TxSession) IRuleset
 
-	List(ctx context.Context, req *securitypb.ListCoreRulesetsRequest) ([]*securitypb.CoreRuleset, int64, error)
+	List(ctx context.Context, req *securitypb.ListRulesetsRequest) ([]*securitypb.Ruleset, int64, error)
 }
 
-var _ ICoreRuleset = (*CoreRuleset)(nil)
+var _ IRuleset = (*Ruleset)(nil)
 
-// New creates a CoreRuleset repository backed by Postgres.
+// New creates a Ruleset repository backed by Postgres.
 func New(
 	ctx context.Context, appConf *settingpb.Config,
-) (ICoreRuleset, error) {
-	storage, err := postgres.New[securitypb.CoreRuleset](ctx, appConf,
+) (IRuleset, error) {
+	storage, err := postgres.New[securitypb.Ruleset](ctx, appConf,
 		schema.SecurityCoreRulesets())
 	if err != nil {
 		return nil, err
 	}
 
-	return &CoreRuleset{
+	return &Ruleset{
 		storage: storage,
 	}, nil
 }
 
-// CoreRuleset is the Postgres repository for OWASP CRS configurations.
-type CoreRuleset struct {
-	storage dbx.Database[securitypb.CoreRuleset]
+// Ruleset is the Postgres repository for OWASP CRS configurations.
+type Ruleset struct {
+	storage dbx.Database[securitypb.Ruleset]
 }
 
-func (r *CoreRuleset) WithTX(tx *postgres.TxSession) ICoreRuleset {
-	return &CoreRuleset{
+func (r *Ruleset) WithTX(tx *postgres.TxSession) IRuleset {
+	return &Ruleset{
 		storage: postgres.WithTx(tx, r.storage),
 	}
 }
 
-func (r *CoreRuleset) List(ctx context.Context,
-	req *securitypb.ListCoreRulesetsRequest,
-) ([]*securitypb.CoreRuleset, int64, error) {
+func (r *Ruleset) List(ctx context.Context,
+	req *securitypb.ListRulesetsRequest,
+) ([]*securitypb.Ruleset, int64, error) {
 	conds, err := listConditions(req)
 	if err != nil {
 		return nil, 0, err
@@ -93,10 +93,10 @@ func (r *CoreRuleset) List(ctx context.Context,
 	if err != nil {
 		return nil, 0, err
 	}
-	szlog.Debug("[security.coreruleset] query: ", query, " args: ", args)
+	szlog.Debug("[security.ruleset] query: ", query, " args: ", args)
 
 	models, err := r.storage.CollectRows(
-		ctx, builder, securitypb.ScanCoreRuleset)
+		ctx, builder, securitypb.ScanRuleset)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -114,7 +114,7 @@ func (r *CoreRuleset) List(ctx context.Context,
 }
 
 // total counts the rows matching the list conditions.
-func (r *CoreRuleset) total(
+func (r *Ruleset) total(
 	ctx context.Context, conds []sq.Sqlizer,
 ) (int64, error) {
 	builder := postgres.CountBuilder(r.storage)
@@ -130,10 +130,10 @@ func (r *CoreRuleset) total(
 	return total, nil
 }
 
-func (r *CoreRuleset) Create(ctx context.Context,
-	model *securitypb.CoreRuleset) (*securitypb.CoreRuleset, error) {
-	model.Id = szrand.NewUUID(szprefix.CoreRuleset)
-	row, err := coreRulesetRow(model)
+func (r *Ruleset) Create(ctx context.Context,
+	model *securitypb.Ruleset) (*securitypb.Ruleset, error) {
+	model.Id = szrand.NewUUID(szprefix.Ruleset)
+	row, err := rulesetRow(model)
 	if err != nil {
 		return nil, err
 	}
@@ -147,25 +147,25 @@ func (r *CoreRuleset) Create(ctx context.Context,
 	return model, nil
 }
 
-func (r *CoreRuleset) Delete(ctx context.Context, id string) error {
+func (r *Ruleset) Delete(ctx context.Context, id string) error {
 	return r.storage.Delete(ctx, id)
 }
 
-func (r *CoreRuleset) Get(
+func (r *Ruleset) Get(
 	ctx context.Context,
 	id string,
-) (*securitypb.CoreRuleset, error) {
+) (*securitypb.Ruleset, error) {
 	builder := r.selectQuery(nil).
-		Where(sq.Eq{securitypb.CoreRuleset_Id: id})
-	return r.storage.Select(ctx, builder, securitypb.ScanOneCoreRuleset)
+		Where(sq.Eq{securitypb.Ruleset_Id: id})
+	return r.storage.Select(ctx, builder, securitypb.ScanOneRuleset)
 }
 
 // Update writes the columns of the fields of model paths names, as
 // szprotobuf.ApplyMask returns them; a path of no column is skipped.
-func (r *CoreRuleset) Update(ctx context.Context,
-	model *securitypb.CoreRuleset, paths []string) error {
+func (r *Ruleset) Update(ctx context.Context,
+	model *securitypb.Ruleset, paths []string) error {
 
-	row, err := coreRulesetRow(model)
+	row, err := rulesetRow(model)
 	if err != nil {
 		return err
 	}
@@ -177,9 +177,9 @@ func (r *CoreRuleset) Update(ctx context.Context,
 	return err
 }
 
-// coreRulesetRow the stored columns of model.
-func coreRulesetRow(model *securitypb.CoreRuleset) (postgres.M, error) {
-	content, err := marshalContent(model.GetContent())
+// rulesetRow the stored columns of model.
+func rulesetRow(model *securitypb.Ruleset) (postgres.M, error) {
+	crsJSON, err := marshalCoreRuleset(model.GetCoreRuleset())
 	if err != nil {
 		return nil, err
 	}
@@ -187,28 +187,28 @@ func coreRulesetRow(model *securitypb.CoreRuleset) (postgres.M, error) {
 	owner := model.GetOwner()
 
 	return postgres.M{
-		securitypb.CoreRuleset_Id:              model.GetId(),
-		securitypb.CoreRuleset_Name:            model.GetName(),
-		securitypb.CoreRuleset_Description:     model.GetDescription(),
-		securitypb.CoreRuleset_Content:         content,
-		securitypb.CoreRuleset_OwnerResourceId: owner.GetResourceId(),
-		securitypb.CoreRuleset_OwnerTenantId:   owner.GetTenantId(),
+		securitypb.Ruleset_Id:              model.GetId(),
+		securitypb.Ruleset_Name:            model.GetName(),
+		securitypb.Ruleset_Description:     model.GetDescription(),
+		securitypb.Ruleset_CoreRuleset:     crsJSON,
+		securitypb.Ruleset_OwnerResourceId: owner.GetResourceId(),
+		securitypb.Ruleset_OwnerTenantId:   owner.GetTenantId(),
 	}, nil
 }
 
-func (r *CoreRuleset) selectQuery(page *typepb.Pages) sq.SelectBuilder {
+func (r *Ruleset) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 	return postgres.SelectBuilder(r.storage, page,
-		securitypb.CoreRulesetColumns()...)
+		securitypb.RulesetColumns()...)
 }
 
-// marshalContent a setting without content is stored as an empty object,
-// so the content filters never meet a NULL.
-func marshalContent(content *corerulesetpb.CoreRuleset) (string, error) {
-	if content == nil {
+// marshalCoreRuleset a nil setting is stored as an empty object,
+// so the core_ruleset filters never meet a NULL.
+func marshalCoreRuleset(setting *corerulesetpb.CoreRuleset) (string, error) {
+	if setting == nil {
 		return "{}", nil
 	}
 
-	data, err := _marshalContent.Marshal(content)
+	data, err := _marshalCoreRuleset.Marshal(setting)
 	if err != nil {
 		return "", err
 	}

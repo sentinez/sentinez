@@ -350,31 +350,31 @@ func (x *ActionValue) GetMapValue() map[string]string {
 	return nil
 }
 
-type CoreRuleset struct {
+type Ruleset struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Owner         *v1.Owner              `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
 	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
 	Description   string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
-	Content       *v12.CoreRuleset       `protobuf:"bytes,5,opt,name=content,proto3" json:"content,omitempty"`
+	CoreRuleset   *v12.CoreRuleset       `protobuf:"bytes,5,opt,name=core_ruleset,json=coreRuleset,proto3" json:"core_ruleset,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *CoreRuleset) Reset() {
-	*x = CoreRuleset{}
+func (x *Ruleset) Reset() {
+	*x = Ruleset{}
 	mi := &file_sentinez_apps_security_v1_model_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CoreRuleset) String() string {
+func (x *Ruleset) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CoreRuleset) ProtoMessage() {}
+func (*Ruleset) ProtoMessage() {}
 
-func (x *CoreRuleset) ProtoReflect() protoreflect.Message {
+func (x *Ruleset) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_security_v1_model_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -386,42 +386,42 @@ func (x *CoreRuleset) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CoreRuleset.ProtoReflect.Descriptor instead.
-func (*CoreRuleset) Descriptor() ([]byte, []int) {
+// Deprecated: Use Ruleset.ProtoReflect.Descriptor instead.
+func (*Ruleset) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_model_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *CoreRuleset) GetOwner() *v1.Owner {
+func (x *Ruleset) GetOwner() *v1.Owner {
 	if x != nil {
 		return x.Owner
 	}
 	return nil
 }
 
-func (x *CoreRuleset) GetId() string {
+func (x *Ruleset) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *CoreRuleset) GetName() string {
+func (x *Ruleset) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *CoreRuleset) GetDescription() string {
+func (x *Ruleset) GetDescription() string {
 	if x != nil {
 		return x.Description
 	}
 	return ""
 }
 
-func (x *CoreRuleset) GetContent() *v12.CoreRuleset {
+func (x *Ruleset) GetCoreRuleset() *v12.CoreRuleset {
 	if x != nil {
-		return x.Content
+		return x.CoreRuleset
 	}
 	return nil
 }
@@ -464,13 +464,14 @@ const file_sentinez_apps_security_v1_model_proto_rawDesc = "" +
 	"\tmap_value\x18\x02 \x03(\v24.sentinez.apps.security.v1.ActionValue.MapValueEntryR\bmapValue\x1a;\n" +
 	"\rMapValueEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf3\x01\n" +
-	"\vCoreRuleset\x126\n" +
-	"\x05owner\x18\x01 \x01(\v2\x18.sentinez.types.v1.OwnerB\x06\xca\xf0\x19\x02\b\x01R\x05owner\x12\x1e\n" +
-	"\x02id\x18\x02 \x01(\tB\x0e\xbaH\v\xc8\x01\x01r\x06:\x04crs_R\x02id\x12\x12\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf7\x01\n" +
+	"\aRuleset\x126\n" +
+	"\x05owner\x18\x01 \x01(\v2\x18.sentinez.types.v1.OwnerB\x06\xca\xf0\x19\x02\b\x01R\x05owner\x12\x1d\n" +
+	"\x02id\x18\x02 \x01(\tB\r\xbaH\n" +
+	"\xc8\x01\x01r\x05:\x03rs_R\x02id\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12 \n" +
-	"\vdescription\x18\x04 \x01(\tR\vdescription\x12L\n" +
-	"\acontent\x18\x05 \x01(\v2*.sentinez.types.coreruleset.v1.CoreRulesetB\x06\xca\xf0\x19\x02\x18\x02R\acontent:\b\xca\xf3\x18\x04\b\x01\x18\x01BMZKgithub.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1;securitypbb\x06proto3"
+	"\vdescription\x18\x04 \x01(\tR\vdescription\x12U\n" +
+	"\fcore_ruleset\x18\x05 \x01(\v2*.sentinez.types.coreruleset.v1.CoreRulesetB\x06\xca\xf0\x19\x02\x18\x02R\vcoreRuleset:\b\xca\xf3\x18\x04\b\x01\x18\x01BMZKgithub.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1;securitypbb\x06proto3"
 
 var (
 	file_sentinez_apps_security_v1_model_proto_rawDescOnce sync.Once
@@ -489,7 +490,7 @@ var file_sentinez_apps_security_v1_model_proto_goTypes = []any{
 	(*SecRule)(nil),         // 0: sentinez.apps.security.v1.SecRule
 	(*RateLimit)(nil),       // 1: sentinez.apps.security.v1.RateLimit
 	(*ActionValue)(nil),     // 2: sentinez.apps.security.v1.ActionValue
-	(*CoreRuleset)(nil),     // 3: sentinez.apps.security.v1.CoreRuleset
+	(*Ruleset)(nil),         // 3: sentinez.apps.security.v1.Ruleset
 	nil,                     // 4: sentinez.apps.security.v1.ActionValue.MapValueEntry
 	(*v1.Owner)(nil),        // 5: sentinez.types.v1.Owner
 	(*v11.Expression)(nil),  // 6: sentinez.types.rule.v1.Expression
@@ -506,8 +507,8 @@ var file_sentinez_apps_security_v1_model_proto_depIdxs = []int32{
 	2,  // 6: sentinez.apps.security.v1.RateLimit.action_value:type_name -> sentinez.apps.security.v1.ActionValue
 	7,  // 7: sentinez.apps.security.v1.RateLimit.status:type_name -> sentinez.types.v1.Status
 	4,  // 8: sentinez.apps.security.v1.ActionValue.map_value:type_name -> sentinez.apps.security.v1.ActionValue.MapValueEntry
-	5,  // 9: sentinez.apps.security.v1.CoreRuleset.owner:type_name -> sentinez.types.v1.Owner
-	8,  // 10: sentinez.apps.security.v1.CoreRuleset.content:type_name -> sentinez.types.coreruleset.v1.CoreRuleset
+	5,  // 9: sentinez.apps.security.v1.Ruleset.owner:type_name -> sentinez.types.v1.Owner
+	8,  // 10: sentinez.apps.security.v1.Ruleset.core_ruleset:type_name -> sentinez.types.coreruleset.v1.CoreRuleset
 	11, // [11:11] is the sub-list for method output_type
 	11, // [11:11] is the sub-list for method input_type
 	11, // [11:11] is the sub-list for extension type_name

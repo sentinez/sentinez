@@ -330,17 +330,16 @@ var _ interface {
 	ErrorName() string
 } = ActionValueValidationError{}
 
-// Validate checks the field values on CoreRuleset with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
-func (m *CoreRuleset) Validate() error {
+// Validate checks the field values on Ruleset with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *Ruleset) Validate() error {
 	if m == nil {
 		return nil
 	}
 
 	if v, ok := interface{}(m.GetOwner()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return CoreRulesetValidationError{
+			return RulesetValidationError{
 				field:  "Owner",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -354,10 +353,10 @@ func (m *CoreRuleset) Validate() error {
 
 	// no validation rules for Description
 
-	if v, ok := interface{}(m.GetContent()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetCoreRuleset()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return CoreRulesetValidationError{
-				field:  "Content",
+			return RulesetValidationError{
+				field:  "CoreRuleset",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -367,9 +366,9 @@ func (m *CoreRuleset) Validate() error {
 	return nil
 }
 
-// CoreRulesetValidationError is the validation error returned by
-// CoreRuleset.Validate if the designated constraints aren't met.
-type CoreRulesetValidationError struct {
+// RulesetValidationError is the validation error returned by Ruleset.Validate
+// if the designated constraints aren't met.
+type RulesetValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -377,22 +376,22 @@ type CoreRulesetValidationError struct {
 }
 
 // Field function returns field value.
-func (e CoreRulesetValidationError) Field() string { return e.field }
+func (e RulesetValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e CoreRulesetValidationError) Reason() string { return e.reason }
+func (e RulesetValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e CoreRulesetValidationError) Cause() error { return e.cause }
+func (e RulesetValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e CoreRulesetValidationError) Key() bool { return e.key }
+func (e RulesetValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e CoreRulesetValidationError) ErrorName() string { return "CoreRulesetValidationError" }
+func (e RulesetValidationError) ErrorName() string { return "RulesetValidationError" }
 
 // Error satisfies the builtin error interface
-func (e CoreRulesetValidationError) Error() string {
+func (e RulesetValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -404,14 +403,14 @@ func (e CoreRulesetValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sCoreRuleset.%s: %s%s",
+		"invalid %sRuleset.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = CoreRulesetValidationError{}
+var _ error = RulesetValidationError{}
 
 var _ interface {
 	Field() string
@@ -419,4 +418,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = CoreRulesetValidationError{}
+} = RulesetValidationError{}

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package coreruleset
+package ruleset
 
 import (
 	"strings"
@@ -26,32 +26,32 @@ import (
 // _likeEscaper escapes the wildcards of a LIKE pattern.
 var _likeEscaper = strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`)
 
-// crs a partial setting, the content of a matching row contains it.
+// crs a partial setting, the core_ruleset of a matching row contains it.
 type crs = corerulesetpb.CoreRuleset
 
 // listConditions maps the filters of the request to WHERE conditions,
 // all of them must match.
 func listConditions(
-	req *securitypb.ListCoreRulesetsRequest,
+	req *securitypb.ListRulesetsRequest,
 ) ([]sq.Sqlizer, error) {
 	var conds []sq.Sqlizer
 
 	if len(req.GetIds()) > 0 {
-		conds = append(conds, sq.Eq{securitypb.CoreRuleset_Id: req.GetIds()})
+		conds = append(conds, sq.Eq{securitypb.Ruleset_Id: req.GetIds()})
 	}
 
 	if ids := req.GetResourceIds(); len(ids) > 0 {
 		conds = append(conds,
-			sq.Eq{securitypb.CoreRuleset_OwnerResourceId: ids})
+			sq.Eq{securitypb.Ruleset_OwnerResourceId: ids})
 	}
 
 	if name := req.GetName(); name != "" {
 		conds = append(conds, sq.ILike{
-			securitypb.CoreRuleset_Name: "%" + _likeEscaper.Replace(name) + "%",
+			securitypb.Ruleset_Name: "%" + _likeEscaper.Replace(name) + "%",
 		})
 	}
 
-	for _, alternatives := range contentFilters(req) {
+	for _, alternatives := range coreRulesetFilters(req) {
 		cond, err := containsAny(alternatives)
 		if err != nil {
 			return nil, err
@@ -65,9 +65,9 @@ func listConditions(
 	return conds, nil
 }
 
-// contentFilters the filters on the fields of content, each as the
+// coreRulesetFilters the filters on the fields of core_ruleset, each as the
 // partial settings a row has to contain one of.
-func contentFilters(req *securitypb.ListCoreRulesetsRequest) [][]*crs {
+func coreRulesetFilters(req *securitypb.ListRulesetsRequest) [][]*crs {
 	filters := [][]*crs{
 		partials(req.GetModes(), func(v corerulesetpb.EngineMode) *crs {
 			return &crs{Mode: v}
@@ -122,7 +122,7 @@ func overrideRulePartial(id uint32) *crs {
 	return &crs{Overrides: []*corerulesetpb.RuleOverride{{Id: id}}}
 }
 
-// containsAny the content contains one of the partial settings (JSONB
+// containsAny the core_ruleset contains one of the partial settings (JSONB
 // containment), nil = no condition.
 func containsAny(alternatives []*crs) (sq.Sqlizer, error) {
 	if len(alternatives) == 0 {
@@ -132,13 +132,13 @@ func containsAny(alternatives []*crs) (sq.Sqlizer, error) {
 	or := make(sq.Or, 0, len(alternatives))
 
 	for _, partial := range alternatives {
-		data, err := _marshalContent.Marshal(partial)
+		data, err := _marshalCoreRuleset.Marshal(partial)
 		if err != nil {
 			return nil, err
 		}
 
 		or = append(or, sq.Expr(
-			securitypb.CoreRuleset_Content+" @> ?::jsonb", string(data),
+			securitypb.Ruleset_CoreRuleset+" @> ?::jsonb", string(data),
 		))
 	}
 

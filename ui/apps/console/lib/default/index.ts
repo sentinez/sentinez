@@ -186,14 +186,14 @@ export const dashboard: {
               icon: ArrowUpFromLine,
             },
             {
-              titleKey: 'secRule',
-              url: '/d/console/analytic/logs/sec-rule',
-              icon: ShieldCheck,
-            },
-            {
               titleKey: 'rateLimiter',
               url: '/d/console/analytic/logs/rate-limiter',
               icon: Signal,
+            },
+            {
+              titleKey: 'secRule',
+              url: '/d/console/analytic/logs/sec-rule',
+              icon: ShieldCheck,
             },
             {
               titleKey: 'rulesets',

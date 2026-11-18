@@ -172,7 +172,7 @@ func resourceOf(msg proto.Message) string {
 		return row.GetOwner().GetResourceId()
 	case *securitypb.RateLimit:
 		return row.GetOwner().GetResourceId()
-	case *securitypb.CoreRuleset:
+	case *securitypb.Ruleset:
 		return row.GetOwner().GetResourceId()
 	case *tenantpb.CaCertificate:
 		return row.GetOwner().GetResourceId()
@@ -305,7 +305,7 @@ func (c *CentralSink) security(id string, base *edgepb.Security,
 	}
 
 	for _, msg := range c.sorted(sztable.SecurityCoreRulesets, id) {
-		sec.CoreRuleset = msg.(*securitypb.CoreRuleset).GetContent()
+		sec.CoreRuleset = msg.(*securitypb.Ruleset).GetCoreRuleset()
 
 		break
 	}

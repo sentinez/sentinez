@@ -67,22 +67,22 @@ func SecurityRateLimits() dbx.Schema {
 func SecurityCoreRulesets() dbx.Schema {
 	return dbx.Schema{
 		Table:     sztable.SecurityCoreRulesets,
-		CreatedAt: securitypb.CoreRuleset_OwnerCreatedAt,
-		UpdatedAt: securitypb.CoreRuleset_OwnerUpdatedAt,
+		CreatedAt: securitypb.Ruleset_OwnerCreatedAt,
+		UpdatedAt: securitypb.Ruleset_OwnerUpdatedAt,
 		Columns: []dbx.Column{
-			{Name: securitypb.CoreRuleset_Id, Type: dbx.Text},
-			{Name: securitypb.CoreRuleset_Name, Type: dbx.Text},
-			{Name: securitypb.CoreRuleset_Description, Type: dbx.Text},
-			{Name: securitypb.CoreRuleset_Content, Type: dbx.JSONB},
+			{Name: securitypb.Ruleset_Id, Type: dbx.Text},
+			{Name: securitypb.Ruleset_Name, Type: dbx.Text},
+			{Name: securitypb.Ruleset_Description, Type: dbx.Text},
+			{Name: securitypb.Ruleset_CoreRuleset, Type: dbx.JSONB},
 			{
-				Name: securitypb.CoreRuleset_OwnerResourceId,
+				Name: securitypb.Ruleset_OwnerResourceId,
 				Type: dbx.Text,
 			},
-			{Name: securitypb.CoreRuleset_OwnerTenantId, Type: dbx.Text},
+			{Name: securitypb.Ruleset_OwnerTenantId, Type: dbx.Text},
 		},
 		// The list filters on content are JSONB containments.
 		Indexes: []dbx.Index{
-			{Column: securitypb.CoreRuleset_Content, Method: dbx.GIN},
+			{Column: securitypb.Ruleset_CoreRuleset, Method: dbx.GIN},
 		},
 	}
 }

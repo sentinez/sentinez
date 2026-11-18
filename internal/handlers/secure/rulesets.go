@@ -27,7 +27,7 @@ import (
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/envplugin"
 	"github.com/sentinez/sentinez/internal/memory/rulesets"
-	"github.com/sentinez/sentinez/pkg/pools/coreruleset"
+	rulesetpool "github.com/sentinez/sentinez/pkg/pools/ruleset"
 )
 
 // WAFId is the chain stage name of WAF.
@@ -96,7 +96,7 @@ func (rs *Rulesets) capture(ctx szhttp.Context, ruleset *szcrs.Rulesets) {
 		return
 	}
 
-	event := coreruleset.Acquire()
+	event := rulesetpool.Acquire()
 	fillDetections(event, matched, it.RuleID)
 
 	event.Behavior = rulepb.RuleBehavior_RULE_BEHAVIOR_LOG
@@ -124,7 +124,7 @@ func (rs *Rulesets) capture(ctx szhttp.Context, ruleset *szcrs.Rulesets) {
 // fillDetections sets the detecting rules of event: the matched rules with
 // a message, but the framework rules and the interrupting rule.
 func fillDetections(
-	event *coreruleset.CoreRuleEvent,
+	event *rulesetpool.CoreRuleEvent,
 	matched []types.MatchedRule,
 	interruptId int,
 ) {

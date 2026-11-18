@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package coreruleset
+package ruleset
 
 import (
 	"io"
@@ -43,7 +43,7 @@ func (re *CoreRuleEvent) Close() error {
 
 func Acquire() *CoreRuleEvent {
 	obj := _pool.Get()
-	obj.Id = szrand.NewULID(szprefix.CoreRulesetEvent)
+	obj.Id = szrand.NewULID(szprefix.RulesetEvent)
 
 	return obj
 }

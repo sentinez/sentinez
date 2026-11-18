@@ -68,7 +68,7 @@
     "security": "Security",
     "rateLimiter": "Rate limiter",
     "secRule": "SecRule",
-    "rulesets": "Rulesets",
+    "rulesets": "Ruleset",
     "analytic": "Analytic",
     "logs": "Logs",
     "ingress": "Ingress",
@@ -363,7 +363,7 @@
     "cdnSubtitle": "Manage active content delivery network rule"
   },
   "Rulesets": {
-    "title": "Security Rulesets",
+    "title": "Core Rulesets",
     "subtitle": "Manage active owasp core rulesets.",
     "name": "Name",
     "description": "Description",
@@ -391,6 +391,11 @@
     "loadDetailFailed": "Failed to load ruleset details",
     "updated": "Ruleset updated successfully",
     "saveFailed": "Failed to save ruleset"
+  },
+  "CrsNotice": {
+    "title": "Powered by the OWASP Core Rule Set",
+    "inUse": "This ruleset runs the OWASP Core Rule Set (CRS). Tune it with the settings below.",
+    "learnMore": "About the OWASP CRS"
   },
   "CoreRulesetFields": {
     "name": "Name",
@@ -722,12 +727,9 @@
     "blockTimeoutHint": "How long a client stays blocked after exceeding the limit."
   },
   "QueryBuilder": {
-    "title": "Expression",
-    "description": "Visually assemble security rule expressions.",
     "or": "OR",
     "orGroup": "OR Group",
     "and": "AND",
-    "andGroup": "AND Group",
     "andGroupN": "AND group {n}",
     "removeGroup": "Remove AND group {n}",
     "noConditions": "No conditions in this group.",
@@ -738,7 +740,8 @@
     "keyPlaceholder": "Key (e.g. User-Agent)",
     "operator": "Operator",
     "value": "Value",
-    "json": "JSON"
+    "json": "JSON",
+    "addCondition": "Add condition"
   },
   "Validation": {
     "nameDescriptionRequired": "Fields name and description are required",
@@ -837,7 +840,7 @@
       "subtitle": "Requests rejected by the rate limiters of this domain"
     },
     "coreRule": {
-      "title": "Rulesets",
+      "title": "Ruleset",
       "subtitle": "Requests that matched the core rulesets (OWASP CRS) of this domain"
     },
     "series": {

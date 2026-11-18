@@ -208,7 +208,7 @@ const file_sentinez_types_coreruleset_v1_event_proto_rawDesc = "" +
 	"\n" +
 	")sentinez/types/coreruleset/v1/event.proto\x12\x1dsentinez.types.coreruleset.v1\x1a\x1bbuf/validate/validate.proto\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1fsentinez/types/v1/options.proto\"\xd4\x05\n" +
 	"\rCoreRuleEvent\x12F\n" +
-	"\x02id\x18\x01 \x01(\tB6\xbaH3r12/^([a-zA-Z0-9-]+-)?crevt_[0-9A-HJKMNP-TV-Z]{26}$R\x02id\x12(\n" +
+	"\x02id\x18\x01 \x01(\tB6\xbaH3r12/^([a-zA-Z0-9-]+-)?rsevt_[0-9A-HJKMNP-TV-Z]{26}$R\x02id\x12(\n" +
 	"\x10matched_rule_ids\x18\x02 \x03(\x05R\x0ematchedRuleIds\x12\x1e\n" +
 	"\n" +
 	"severities\x18\x03 \x03(\tR\n" +

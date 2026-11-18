@@ -363,7 +363,7 @@
     "cdnSubtitle": "Quản lý các quy tắc mạng phân phối nội dung đang hoạt động"
   },
   "Rulesets": {
-    "title": "Bộ quy tắc bảo mật",
+    "title": "Core Rulesets",
     "subtitle": "Quản lý các bộ quy tắc OWASP Core Rule Set đang hoạt động.",
     "name": "Tên",
     "description": "Mô tả",
@@ -391,6 +391,11 @@
     "loadDetailFailed": "Không tải được chi tiết bộ quy tắc",
     "updated": "Cập nhật bộ quy tắc thành công",
     "saveFailed": "Lưu bộ quy tắc thất bại"
+  },
+  "CrsNotice": {
+    "title": "Sử dụng OWASP Core Rule Set",
+    "inUse": "Bộ quy tắc này chạy OWASP Core Rule Set (CRS). Tinh chỉnh bằng các thiết lập bên dưới.",
+    "learnMore": "Tìm hiểu về OWASP CRS"
   },
   "CoreRulesetFields": {
     "name": "Tên",
@@ -722,12 +727,9 @@
     "blockTimeoutHint": "Thời gian client bị chặn sau khi vượt giới hạn."
   },
   "QueryBuilder": {
-    "title": "Biểu thức",
-    "description": "Lắp ghép biểu thức quy tắc bảo mật một cách trực quan.",
     "or": "HOẶC",
     "orGroup": "Nhóm OR",
     "and": "AND",
-    "andGroup": "Nhóm AND",
     "andGroupN": "Nhóm AND {n}",
     "removeGroup": "Xóa nhóm AND {n}",
     "noConditions": "Nhóm này chưa có điều kiện nào.",
@@ -738,7 +740,8 @@
     "keyPlaceholder": "Khóa (ví dụ User-Agent)",
     "operator": "Toán tử",
     "value": "Giá trị",
-    "json": "JSON"
+    "json": "JSON",
+    "addCondition": "Thêm điều kiện"
   },
   "Validation": {
     "nameDescriptionRequired": "Tên và mô tả là bắt buộc",

@@ -18,8 +18,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/sentinez/controlplane/apps/security/v1/repos/coreruleset"
 	"github.com/sentinez/controlplane/apps/security/v1/repos/ratelimit"
+	"github.com/sentinez/controlplane/apps/security/v1/repos/ruleset"
 	"github.com/sentinez/controlplane/apps/security/v1/repos/secrule"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
@@ -59,9 +59,9 @@ func (f *fakeRepo[M]) Update(_ context.Context, m M, _ []string) error {
 // fakeRepo win; the others panic through the nil interface.
 
 type (
-	secRuleRepo     struct{ secrule.ISecRule }
-	rateLimitRepo   struct{ ratelimit.IRateLimit }
-	coreRulesetRepo struct{ coreruleset.ICoreRuleset }
+	secRuleRepo   struct{ secrule.ISecRule }
+	rateLimitRepo struct{ ratelimit.IRateLimit }
+	rulesetRepo   struct{ ruleset.IRuleset }
 )
 
 type fakeSecRules struct {
@@ -86,13 +86,13 @@ func (f fakeRateLimits) List(context.Context,
 }
 
 type fakeCoreRulesets struct {
-	coreRulesetRepo
-	*fakeRepo[*securitypb.CoreRuleset]
+	rulesetRepo
+	*fakeRepo[*securitypb.Ruleset]
 }
 
 func (f fakeCoreRulesets) List(context.Context,
-	*securitypb.ListCoreRulesetsRequest,
-) ([]*securitypb.CoreRuleset, int64, error) {
+	*securitypb.ListRulesetsRequest,
+) ([]*securitypb.Ruleset, int64, error) {
 	return f.fakeRepo.List()
 }
 
@@ -100,7 +100,7 @@ func (f fakeCoreRulesets) List(context.Context,
 // crs.
 func newImportService(rules *fakeRepo[*securitypb.SecRule],
 	limits *fakeRepo[*securitypb.RateLimit],
-	crs *fakeRepo[*securitypb.CoreRuleset]) *SecurityService {
+	crs *fakeRepo[*securitypb.Ruleset]) *SecurityService {
 	return New(nil, fakeSecRules{fakeRepo: rules},
 		fakeRateLimits{fakeRepo: limits}, fakeCoreRulesets{fakeRepo: crs}, nil)
 }
@@ -128,7 +128,7 @@ func importSecurity() *edgepb.Security {
 func TestImportSecurityCreates(t *testing.T) {
 	rules, limits := &fakeRepo[*securitypb.SecRule]{},
 		&fakeRepo[*securitypb.RateLimit]{}
-	crs := &fakeRepo[*securitypb.CoreRuleset]{}
+	crs := &fakeRepo[*securitypb.Ruleset]{}
 
 	err := newImportService(rules, limits, crs).
 		ImportSecurity(t.Context(), _owner, "shop", importSecurity())
@@ -151,8 +151,8 @@ func TestImportSecurityUpdatesByName(t *testing.T) {
 	limits := &fakeRepo[*securitypb.RateLimit]{stored: []*securitypb.RateLimit{
 		{Id: "rlim_1", Name: "limit"},
 	}}
-	crs := &fakeRepo[*securitypb.CoreRuleset]{stored: []*securitypb.CoreRuleset{
-		{Id: "crs_1"},
+	crs := &fakeRepo[*securitypb.Ruleset]{stored: []*securitypb.Ruleset{
+		{Id: "rs_1"},
 	}}
 
 	err := newImportService(rules, limits, crs).
@@ -160,7 +160,7 @@ func TestImportSecurityUpdatesByName(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Len(t, crs.updated, 1)
-	assert.Equal(t, "crs_1", crs.updated[0].GetId())
+	assert.Equal(t, "rs_1", crs.updated[0].GetId())
 	require.Len(t, rules.updated, 1)
 	assert.Equal(t, "srule_1", rules.updated[0].GetId())
 	require.Len(t, rules.created, 1)
@@ -198,7 +198,7 @@ func TestImportSecurityInvalid(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := newImportService(&fakeRepo[*securitypb.SecRule]{},
 				&fakeRepo[*securitypb.RateLimit]{},
-				&fakeRepo[*securitypb.CoreRuleset]{})
+				&fakeRepo[*securitypb.Ruleset]{})
 
 			err := svc.ImportSecurity(t.Context(), _owner, "shop", tt.give)
 

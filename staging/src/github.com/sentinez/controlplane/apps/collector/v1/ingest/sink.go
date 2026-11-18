@@ -22,9 +22,9 @@ import (
 
 	"github.com/sentinez/controlplane/pkg/pools"
 	auditlogpool "github.com/sentinez/controlplane/pkg/pools/auditlog"
-	crspool "github.com/sentinez/controlplane/pkg/pools/coreruleset"
 	httpegresspool "github.com/sentinez/controlplane/pkg/pools/httpegress"
 	httpingresspool "github.com/sentinez/controlplane/pkg/pools/httpingress"
+	rulesetpool "github.com/sentinez/controlplane/pkg/pools/ruleset"
 	secrulepool "github.com/sentinez/controlplane/pkg/pools/secrule"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szprefix"
@@ -65,7 +65,7 @@ func NewSecRuleEventSink(create CreateFn[secrulepb.SecRuleEvent]) Sink {
 // NewCoreRuleEventSink returns the sink of the corerulesetpb.CoreRuleEvent
 // records, inserted by create.
 func NewCoreRuleEventSink(create CreateFn[crspb.CoreRuleEvent]) Sink {
-	return newSink(crspool.Pool(), szprefix.CoreRulesetEvent, create,
+	return newSink(rulesetpool.Pool(), szprefix.RulesetEvent, create,
 		func(e *crspb.CoreRuleEvent, id string) { e.Id = id })
 }
 

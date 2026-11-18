@@ -92,32 +92,32 @@ func GetSecurityServiceListRateLimits() *v1.XMethod {
 	}
 }
 
-func GetSecurityServiceCreateCoreRuleset() *v1.XMethod {
+func GetSecurityServiceCreateRuleset() *v1.XMethod {
 	return &v1.XMethod{
 		Audit: true,
 	}
 }
 
-func GetSecurityServiceGetCoreRuleset() *v1.XMethod {
+func GetSecurityServiceGetRuleset() *v1.XMethod {
 	return &v1.XMethod{
 		Audit: true,
 	}
 }
 
-func GetSecurityServiceUpdateCoreRuleset() *v1.XMethod {
+func GetSecurityServiceUpdateRuleset() *v1.XMethod {
 	return &v1.XMethod{
 		Audit: true,
 	}
 }
 
-func GetSecurityServiceDeleteCoreRuleset() *v1.XMethod {
+func GetSecurityServiceDeleteRuleset() *v1.XMethod {
 	return &v1.XMethod{
 		Audit:        true,
 		AuditNoOwner: true,
 	}
 }
 
-func GetSecurityServiceListCoreRulesets() *v1.XMethod {
+func GetSecurityServiceListRulesets() *v1.XMethod {
 	return &v1.XMethod{
 		Audit: true,
 	}

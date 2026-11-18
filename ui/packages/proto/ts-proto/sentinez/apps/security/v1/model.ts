@@ -6,7 +6,7 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { CoreRuleset as CoreRuleset1 } from "../../../types/coreruleset/v1/setting";
+import { CoreRuleset } from "../../../types/coreruleset/v1/setting";
 import { Expression } from "../../../types/rule/v1/rule";
 import { Status, statusFromJSON, statusToJSON } from "../../../types/v1/known";
 import { Owner } from "../../../types/v1/model";
@@ -55,12 +55,12 @@ export interface ActionValue_MapValueEntry {
   value: string;
 }
 
-export interface CoreRuleset {
+export interface Ruleset {
   owner?: Owner | undefined;
   id: string;
   name: string;
   description: string;
-  content?: CoreRuleset1 | undefined;
+  coreRuleset?: CoreRuleset | undefined;
 }
 
 function createBaseSecRule(): SecRule {
@@ -811,12 +811,12 @@ export const ActionValue_MapValueEntry: MessageFns<ActionValue_MapValueEntry> = 
   },
 };
 
-function createBaseCoreRuleset(): CoreRuleset {
-  return { owner: undefined, id: "", name: "", description: "", content: undefined };
+function createBaseRuleset(): Ruleset {
+  return { owner: undefined, id: "", name: "", description: "", coreRuleset: undefined };
 }
 
-export const CoreRuleset: MessageFns<CoreRuleset> = {
-  encode(message: CoreRuleset, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const Ruleset: MessageFns<Ruleset> = {
+  encode(message: Ruleset, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.owner !== undefined) {
       Owner.encode(message.owner, writer.uint32(10).fork()).join();
     }
@@ -829,13 +829,13 @@ export const CoreRuleset: MessageFns<CoreRuleset> = {
     if (message.description !== "") {
       writer.uint32(34).string(message.description);
     }
-    if (message.content !== undefined) {
-      CoreRuleset1.encode(message.content, writer.uint32(42).fork()).join();
+    if (message.coreRuleset !== undefined) {
+      CoreRuleset.encode(message.coreRuleset, writer.uint32(42).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CoreRuleset {
+  decode(input: BinaryReader | Uint8Array, length?: number): Ruleset {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -844,7 +844,7 @@ export const CoreRuleset: MessageFns<CoreRuleset> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseCoreRuleset();
+      const message = createBaseRuleset();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -885,7 +885,7 @@ export const CoreRuleset: MessageFns<CoreRuleset> = {
               break;
             }
 
-            message.content = CoreRuleset1.decode(reader, reader.uint32());
+            message.coreRuleset = CoreRuleset.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -900,17 +900,21 @@ export const CoreRuleset: MessageFns<CoreRuleset> = {
     }
   },
 
-  fromJSON(object: any): CoreRuleset {
+  fromJSON(object: any): Ruleset {
     return {
       owner: isSet(object.owner) ? Owner.fromJSON(object.owner) : undefined,
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       description: isSet(object.description) ? globalThis.String(object.description) : "",
-      content: isSet(object.content) ? CoreRuleset1.fromJSON(object.content) : undefined,
+      coreRuleset: isSet(object.coreRuleset)
+        ? CoreRuleset.fromJSON(object.coreRuleset)
+        : isSet(object.core_ruleset)
+        ? CoreRuleset.fromJSON(object.core_ruleset)
+        : undefined,
     };
   },
 
-  toJSON(message: CoreRuleset): unknown {
+  toJSON(message: Ruleset): unknown {
     const obj: any = {};
     if (message.owner !== undefined) {
       obj.owner = Owner.toJSON(message.owner);
@@ -924,23 +928,23 @@ export const CoreRuleset: MessageFns<CoreRuleset> = {
     if (message.description !== "") {
       obj.description = message.description;
     }
-    if (message.content !== undefined) {
-      obj.content = CoreRuleset1.toJSON(message.content);
+    if (message.coreRuleset !== undefined) {
+      obj.coreRuleset = CoreRuleset.toJSON(message.coreRuleset);
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CoreRuleset>, I>>(base?: I): CoreRuleset {
-    return CoreRuleset.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<Ruleset>, I>>(base?: I): Ruleset {
+    return Ruleset.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<CoreRuleset>, I>>(object: I): CoreRuleset {
-    const message = createBaseCoreRuleset();
+  fromPartial<I extends Exact<DeepPartial<Ruleset>, I>>(object: I): Ruleset {
+    const message = createBaseRuleset();
     message.owner = (object.owner !== undefined && object.owner !== null) ? Owner.fromPartial(object.owner) : undefined;
     message.id = object.id ?? "";
     message.name = object.name ?? "";
     message.description = object.description ?? "";
-    message.content = (object.content !== undefined && object.content !== null)
-      ? CoreRuleset1.fromPartial(object.content)
+    message.coreRuleset = (object.coreRuleset !== undefined && object.coreRuleset !== null)
+      ? CoreRuleset.fromPartial(object.coreRuleset)
       : undefined;
     return message;
   },

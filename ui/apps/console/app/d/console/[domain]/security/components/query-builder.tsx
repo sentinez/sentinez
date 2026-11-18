@@ -1,16 +1,14 @@
 'use client';
 
 import * as React from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { BracesIcon, ChevronDownIcon, PlusIcon, Trash2Icon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@sentinez/ui/components/card';
 import { Button } from '@sentinez/ui/components/button';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@sentinez/ui/components/collapsible';
 import { Input } from '@sentinez/ui/components/input';
 import {
   Select,
@@ -110,14 +108,18 @@ export type QueryBuilderProps = Omit<React.ComponentProps<'div'>, 'defaultValue'
   /** Initial expression in uncontrolled mode. */
   defaultValue?: Expression;
   onValueChange?: (value: Expression) => void;
-  orientation?: 'vertical' | 'horizontal';
 };
 
+/**
+ * Editor of a rule expression: OR of AND groups of conditions. It takes the
+ * width of the form it sits in (a container query lays a condition out on one
+ * row only when there is room), so it fits the narrow create / update pages.
+ * Without children it shows the editor and a folded JSON preview.
+ */
 export function QueryBuilder({
   value: valueProp,
   defaultValue,
   onValueChange,
-  orientation = 'vertical',
   className,
   children,
   ...props
@@ -171,16 +173,7 @@ export function QueryBuilder({
     <QueryBuilderContext.Provider value={context}>
       <div
         data-slot="query-builder"
-        data-orientation={orientation}
-        className={cn(
-          // vertical: editor above the JSON, both full width; horizontal:
-          // a 3/2 grid from lg. Never a flex row, or the JSON card is as
-          // wide as its longest line and the split moves with the zoom.
-          'group/query-builder flex flex-col gap-4 min-w-0',
-          'lg:data-[orientation=horizontal]:grid lg:data-[orientation=horizontal]:grid-cols-5',
-          'data-[orientation=horizontal]:gap-6',
-          className,
-        )}
+        className={cn('@container/query-builder flex min-w-0 flex-col gap-3', className)}
         {...props}
       >
         {children ?? (
@@ -196,47 +189,34 @@ export function QueryBuilder({
 
 // ─── QueryBuilderEditor ──────────────────────────────────────────────────────
 
-export type QueryBuilderEditorProps = React.ComponentProps<typeof Card> & {
-  title?: React.ReactNode;
-  description?: React.ReactNode;
-};
-
-export function QueryBuilderEditor({
-  title,
-  description,
-  className,
-  ...props
-}: QueryBuilderEditorProps) {
+export function QueryBuilderEditor({ className, ...props }: React.ComponentProps<'div'>) {
   const t = useTranslations('QueryBuilder');
   const { expression, addGroup } = useQueryBuilder();
 
   return (
-    <Card
+    <div
       data-slot="query-builder-editor"
-      className={cn(
-        'w-full min-w-0 overflow-hidden shadow-none',
-        'lg:group-data-[orientation=horizontal]/query-builder:col-span-3',
-        className,
-      )}
+      className={cn('flex min-w-0 flex-col gap-3', className)}
       {...props}
     >
-      <CardHeader>
-        <CardTitle>{title ?? t('title')}</CardTitle>
-        <CardDescription>{description ?? t('description')}</CardDescription>
-      </CardHeader>
-      <CardContent className="p-4 flex flex-col gap-4">
-        {expression.orCondition.map((_, groupIndex) => (
-          <React.Fragment key={groupIndex}>
-            {groupIndex > 0 && <QueryBuilderSeparator>{t('or')}</QueryBuilderSeparator>}
-            <QueryBuilderGroup groupIndex={groupIndex} />
-          </React.Fragment>
-        ))}
+      {expression.orCondition.map((_, groupIndex) => (
+        <React.Fragment key={groupIndex}>
+          {groupIndex > 0 && <QueryBuilderSeparator>{t('or')}</QueryBuilderSeparator>}
+          <QueryBuilderGroup groupIndex={groupIndex} />
+        </React.Fragment>
+      ))}
 
-        <Button variant="outline" size="sm" className="self-start" onClick={addGroup}>
-          <Plus className="w-4 h-4" aria-hidden /> {t('orGroup')}
-        </Button>
-      </CardContent>
-    </Card>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="max-w-full self-start"
+        onClick={addGroup}
+      >
+        <PlusIcon className="size-4" aria-hidden />
+        <span className="truncate">{t('orGroup')}</span>
+      </Button>
+    </div>
   );
 }
 
@@ -254,18 +234,18 @@ export function QueryBuilderSeparator({
       className={cn('flex items-center gap-2', className)}
       {...props}
     >
-      <div className="flex-1 h-px bg-border" />
-      <span className="text-xs font-bold px-2 py-0.5 rounded bg-muted text-muted-foreground">
+      <div className="h-px flex-1 bg-border" />
+      <span className="shrink-0 whitespace-nowrap rounded-full border px-2 py-0.5 text-xs font-semibold text-muted-foreground">
         {children}
       </span>
-      <div className="flex-1 h-px bg-border" />
+      <div className="h-px flex-1 bg-border" />
     </div>
   );
 }
 
 // ─── QueryBuilderGroup ───────────────────────────────────────────────────────
 
-export type QueryBuilderGroupProps = React.ComponentProps<typeof Card> & {
+export type QueryBuilderGroupProps = React.ComponentProps<'div'> & {
   groupIndex: number;
 };
 
@@ -279,52 +259,58 @@ export function QueryBuilderGroup({ groupIndex, className, ...props }: QueryBuil
   const canRemove = expression.orCondition.length > 1;
 
   return (
-    <Card
+    <div
       role="group"
       aria-label={label}
       data-slot="query-builder-group"
       data-empty={group.rules.length === 0 || undefined}
-      className={cn('border-dashed shadow-none', className)}
+      className={cn('grid min-w-0 gap-3 rounded-md border p-3', className)}
       {...props}
     >
-      <CardContent className="p-3 flex flex-col gap-3">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-            {t('andGroup')}
-          </span>
-          <div className="flex-1" />
-          <Button variant="outline" size="sm" onClick={() => addRule(groupIndex)}>
-            <Plus className="w-4 h-4" aria-hidden /> {t('and')}
+      <div className="flex min-h-8 items-center justify-between gap-2">
+        <span className="min-w-0 truncate text-sm font-medium">{label}</span>
+        {canRemove && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="size-8 shrink-0"
+            aria-label={t('removeGroup', { n: groupIndex + 1 })}
+            onClick={() => removeGroup(groupIndex)}
+          >
+            <Trash2Icon className="size-4" aria-hidden />
           </Button>
-          {canRemove && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-destructive"
-              aria-label={t('removeGroup', { n: groupIndex + 1 })}
-              onClick={() => removeGroup(groupIndex)}
-            >
-              <Trash2 className="w-4 h-4" aria-hidden />
-            </Button>
-          )}
-        </div>
-
-        {group.rules.length === 0 && (
-          <p className="text-sm text-muted-foreground text-center py-2">{t('noConditions')}</p>
         )}
+      </div>
 
-        {group.rules.map((rule, ruleIndex) => (
-          <div key={rule.condition?.id || ruleIndex} className="flex flex-col gap-1">
-            {ruleIndex > 0 && (
-              <span className="text-xs font-bold text-muted-foreground px-1" aria-hidden>
-                {t('and')}
-              </span>
-            )}
-            <QueryBuilderRule groupIndex={groupIndex} ruleIndex={ruleIndex} />
-          </div>
-        ))}
-      </CardContent>
-    </Card>
+      {group.rules.length === 0 && (
+        <p className="py-2 text-center text-sm text-balance text-muted-foreground">
+          {t('noConditions')}
+        </p>
+      )}
+
+      {group.rules.map((rule, ruleIndex) => (
+        <React.Fragment key={rule.condition?.id || ruleIndex}>
+          {ruleIndex > 0 && (
+            <span className="text-xs font-semibold text-muted-foreground" aria-hidden>
+              {t('and')}
+            </span>
+          )}
+          <QueryBuilderRule groupIndex={groupIndex} ruleIndex={ruleIndex} />
+        </React.Fragment>
+      ))}
+
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        className="max-w-full justify-self-start"
+        onClick={() => addRule(groupIndex)}
+      >
+        <PlusIcon className="size-4" aria-hidden />
+        <span className="truncate">{t('addCondition')}</span>
+      </Button>
+    </div>
   );
 }
 
@@ -335,6 +321,10 @@ export type QueryBuilderRuleProps = React.ComponentProps<'div'> & {
   ruleIndex: number;
 };
 
+/**
+ * One condition: source, key (header, query... name), operator and value.
+ * Two per row in a narrow form, all on one row when the builder is wide.
+ */
 export function QueryBuilderRule({
   groupIndex,
   ruleIndex,
@@ -349,64 +339,69 @@ export function QueryBuilderRule({
 
   const condition = rule.condition ?? createEmptyCondition();
   const needsKey = SOURCES_WITH_KEY.has(condition.source);
-  const label = t('conditionN', { n: ruleIndex + 1 });
   const update = (patch: Partial<Condition>) =>
     updateCondition(groupIndex, ruleIndex, (c) => ({ ...c, ...patch }));
 
   return (
     <div
       role="group"
-      aria-label={label}
+      aria-label={t('conditionN', { n: ruleIndex + 1 })}
       data-slot="query-builder-rule"
       data-has-key={needsKey || undefined}
-      className={cn(
-        'flex flex-wrap md:flex-nowrap items-center gap-2 p-3 rounded-md bg-muted/40',
-        className,
-      )}
+      className={cn('flex min-w-0 items-start gap-1 rounded-md bg-muted/50 p-2', className)}
       {...props}
     >
-      <EnumSelect
-        aria-label={t('source')}
-        value={condition.source}
-        onValueChange={(source) => update({ source: source as FieldSource, key: '' })}
-        options={fieldSourceOptions}
-        className="w-full md:w-44"
-      />
-
-      {needsKey && (
-        <Input
-          aria-label={t('key')}
-          placeholder={t('keyPlaceholder')}
-          value={condition.key}
-          onChange={(e) => update({ key: e.target.value })}
-          className="w-full md:w-40 font-mono text-xs"
+      <div className="grid min-w-0 flex-1 grid-cols-1 gap-2 @xs/query-builder:grid-cols-2 @2xl/query-builder:grid-cols-4">
+        <EnumSelect
+          aria-label={t('source')}
+          value={condition.source}
+          onValueChange={(source) => update({ source: source as FieldSource, key: '' })}
+          options={fieldSourceOptions}
         />
-      )}
 
-      <EnumSelect
-        aria-label={t('operator')}
-        value={condition.operator}
-        onValueChange={(operator) => update({ operator: operator as Operator })}
-        options={OPERATOR_OPTIONS}
-        className="w-full md:w-32"
-      />
+        {needsKey && (
+          <Input
+            aria-label={t('key')}
+            placeholder={t('keyPlaceholder')}
+            spellCheck={false}
+            autoComplete="off"
+            value={condition.key}
+            onChange={(e) => update({ key: e.target.value })}
+            className="min-w-0 bg-background font-mono text-xs text-ellipsis"
+          />
+        )}
 
-      <Input
-        aria-label={t('value')}
-        placeholder={t('value')}
-        value={String(condition.value ?? '')}
-        onChange={(e) => update({ value: e.target.value })}
-        className="w-full grow"
-      />
+        <EnumSelect
+          aria-label={t('operator')}
+          value={condition.operator}
+          onValueChange={(operator) => update({ operator: operator as Operator })}
+          options={OPERATOR_OPTIONS}
+        />
+
+        <Input
+          aria-label={t('value')}
+          placeholder={t('value')}
+          spellCheck={false}
+          autoComplete="off"
+          value={String(condition.value ?? '')}
+          onChange={(e) => update({ value: e.target.value })}
+          // without a key, the value takes the rest of the row
+          className={cn(
+            'min-w-0 bg-background text-ellipsis',
+            !needsKey && '@xs/query-builder:col-span-2',
+          )}
+        />
+      </div>
 
       <Button
+        type="button"
         variant="ghost"
         size="icon"
-        className="text-destructive shrink-0"
+        className="size-9 shrink-0 text-muted-foreground hover:text-destructive"
         aria-label={t('removeCondition', { n: ruleIndex + 1 })}
         onClick={() => removeRule(groupIndex, ruleIndex)}
       >
-        <Trash2 className="w-4 h-4" aria-hidden />
+        <Trash2Icon className="size-4" aria-hidden />
       </Button>
     </div>
   );
@@ -414,34 +409,33 @@ export function QueryBuilderRule({
 
 // ─── QueryBuilderPreview ─────────────────────────────────────────────────────
 
-export type QueryBuilderPreviewProps = React.ComponentProps<typeof Card> & {
-  title?: React.ReactNode;
-};
+export type QueryBuilderPreviewProps = React.ComponentProps<typeof Collapsible>;
 
-export function QueryBuilderPreview({ title, className, ...props }: QueryBuilderPreviewProps) {
+/** The expression as JSON, folded by default. */
+export function QueryBuilderPreview({ className, ...props }: QueryBuilderPreviewProps) {
   const t = useTranslations('QueryBuilder');
   const { expression } = useQueryBuilder();
 
   return (
-    <Card
+    <Collapsible
       data-slot="query-builder-preview"
-      className={cn(
-        'w-full min-w-0 bg-muted/20 shadow-none',
-        'lg:group-data-[orientation=horizontal]/query-builder:col-span-2',
-        'lg:group-data-[orientation=horizontal]/query-builder:sticky',
-        'lg:group-data-[orientation=horizontal]/query-builder:top-4',
-        'lg:group-data-[orientation=horizontal]/query-builder:self-start',
-        className,
-      )}
+      className={cn('group/preview flex min-w-0 flex-col gap-2', className)}
       {...props}
     >
-      <CardHeader>
-        <CardTitle>{title ?? t('json')}</CardTitle>
-      </CardHeader>
-      <CardContent>
+      <CollapsibleTrigger asChild>
+        <Button type="button" variant="ghost" size="sm" className="max-w-full self-start">
+          <BracesIcon className="size-4" aria-hidden />
+          <span className="truncate">{t('json')}</span>
+          <ChevronDownIcon
+            className="size-4 transition-transform group-data-[state=open]/preview:rotate-180"
+            aria-hidden
+          />
+        </Button>
+      </CollapsibleTrigger>
+      <CollapsibleContent>
         <CodeBlock value={expression} />
-      </CardContent>
-    </Card>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }
 
@@ -466,7 +460,16 @@ function EnumSelect({
 
   return (
     <Select value={String(value)} onValueChange={(v) => onValueChange(Number(v))}>
-      <SelectTrigger aria-label={ariaLabel} className={cn('h-9', className)}>
+      <SelectTrigger
+        aria-label={ariaLabel}
+        className={cn(
+          'w-full min-w-0 bg-background',
+          // the value truncates instead of widening the trigger
+          '*:data-[slot=select-value]:block *:data-[slot=select-value]:min-w-0',
+          '*:data-[slot=select-value]:truncate',
+          className,
+        )}
+      >
         <SelectValue placeholder={tc('select')} />
       </SelectTrigger>
       <SelectContent>

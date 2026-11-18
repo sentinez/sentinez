@@ -28,7 +28,7 @@ message CoreRuleEvent {
     scanner: true
   };
 
-  string id = 1 [(buf.validate.field).string.pattern = "^([a-zA-Z0-9-]+-)?crevt_[0-9A-HJKMNP-TV-Z]{26}$"];
+  string id = 1 [(buf.validate.field).string.pattern = "^([a-zA-Z0-9-]+-)?rsevt_[0-9A-HJKMNP-TV-Z]{26}$"];
 
   repeated int32 matched_rule_ids = 2;
   repeated string severities = 3;

@@ -716,7 +716,7 @@ Sink decode vào các message được tái sử dụng
 | Package | Message | Sink |
 |---|---|---|
 | `pools/secrule` | `secrulepb.SecRuleEvent` | secrule, ratelimit |
-| `pools/coreruleset` | `corerulesetpb.CoreRuleEvent` | rulesets |
+| `pools/ruleset` | `corerulesetpb.CoreRuleEvent` | rulesets |
 | `pools/httpingress` | `httppb.IngressEvent` | ingress |
 | `pools/httpegress` | `httppb.EgressEvent` | egress |
 

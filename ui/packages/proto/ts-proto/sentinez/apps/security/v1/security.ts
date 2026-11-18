@@ -21,7 +21,7 @@ import {
 } from "../../../types/coreruleset/v1/setting";
 import { Status, statusFromJSON, statusToJSON } from "../../../types/v1/known";
 import { Pages } from "../../../types/v1/model";
-import { CoreRuleset, RateLimit, SecRule } from "./model";
+import { RateLimit, Ruleset, SecRule } from "./model";
 
 export const protobufPackage = "sentinez.apps.security.v1";
 
@@ -130,51 +130,51 @@ export interface ListRateLimitsResponse {
   total: number;
 }
 
-export interface CreateCoreRulesetRequest {
-  coreRuleset?: CoreRuleset | undefined;
+export interface CreateRulesetRequest {
+  ruleset?: Ruleset | undefined;
 }
 
-export interface CreateCoreRulesetResponse {
+export interface CreateRulesetResponse {
   id: string;
 }
 
-export interface GetCoreRulesetRequest {
+export interface GetRulesetRequest {
   id: string;
 }
 
-export interface GetCoreRulesetResponse {
-  coreRuleset?: CoreRuleset | undefined;
+export interface GetRulesetResponse {
+  ruleset?: Ruleset | undefined;
 }
 
-export interface UpdateCoreRulesetRequest {
+export interface UpdateRulesetRequest {
   id: string;
-  coreRuleset?:
-    | CoreRuleset
+  ruleset?:
+    | Ruleset
     | undefined;
   /**
-   * Fields of core_ruleset to update, among name, description and
-   * content ("*" for all of them); without one, those set in core_ruleset.
-   * A named field unset in core_ruleset is cleared.
+   * Fields of ruleset to update, among name, description and
+   * core_ruleset ("*" for all of them); without one, those set in ruleset.
+   * A named field unset in ruleset is cleared.
    */
   updateMask?: string[] | undefined;
 }
 
-export interface UpdateCoreRulesetResponse {
-  coreRuleset?: CoreRuleset | undefined;
+export interface UpdateRulesetResponse {
+  ruleset?: Ruleset | undefined;
 }
 
-export interface DeleteCoreRulesetRequest {
+export interface DeleteRulesetRequest {
   id: string;
 }
 
-export interface DeleteCoreRulesetResponse {
+export interface DeleteRulesetResponse {
 }
 
 /**
- * ListCoreRulesetsRequest every filter set must match (AND); the values
+ * ListRulesetsRequest every filter set must match (AND); the values
  * of a repeated filter are alternatives (OR) unless stated otherwise.
  */
-export interface ListCoreRulesetsRequest {
+export interface ListRulesetsRequest {
   page?:
     | Pages
     | undefined;
@@ -186,38 +186,38 @@ export interface ListCoreRulesetsRequest {
   modes: EngineMode[];
   versions: Version[];
   statuses: Status[];
-  /** content.paranoia_level, 0 = any. */
+  /** core_ruleset.paranoia_level, 0 = any. */
   paranoiaLevel: number;
-  /** Rule groups all listed in content.categories. */
+  /** Rule groups all listed in core_ruleset.categories. */
   categories: Category[];
-  /** Tags excluded by content.exclusions. */
+  /** Tags excluded by core_ruleset.exclusions. */
   exclusionTags: string[];
-  /** Rules with a variable excluded by content.exclusions. */
+  /** Rules with a variable excluded by core_ruleset.exclusions. */
   exclusionRuleIds: number[];
-  /** Rules with a state changed by content.overrides. */
+  /** Rules with a state changed by core_ruleset.overrides. */
   overrideRuleIds: number[];
 }
 
-export interface ListCoreRulesetsResponse {
-  coreRulesets: CoreRuleset[];
+export interface ListRulesetsResponse {
+  rulesets: Ruleset[];
   total: number;
 }
 
-export interface GetRuleInfoRequest {
+export interface GetCRSRuleInfoRequest {
   id: number;
   /** CRS version of the catalog, unspecified = latest supported. */
   version: Version;
 }
 
-export interface GetRuleInfoResponse {
+export interface GetCRSRuleInfoResponse {
   rule?: RuleInfo | undefined;
 }
 
 /**
- * ListRuleInfosRequest every filter set must match (AND); the values of
+ * ListCRSRuleInfosRequest every filter set must match (AND); the values of
  * a repeated filter are alternatives (OR) unless stated otherwise.
  */
-export interface ListRuleInfosRequest {
+export interface ListCRSRuleInfosRequest {
   page?:
     | Pages
     | undefined;
@@ -242,7 +242,7 @@ export interface ListRuleInfosRequest {
   includeSystem: boolean;
 }
 
-export interface ListRuleInfosResponse {
+export interface ListCRSRuleInfosResponse {
   rules: RuleInfo[];
   /** Number of rules matching the filters, whatever the page. */
   total: number;
@@ -255,7 +255,7 @@ export interface RuleTag {
   ruleCount: number;
 }
 
-export interface ListRuleTagsRequest {
+export interface ListCRSRuleTagsRequest {
   page?:
     | Pages
     | undefined;
@@ -265,12 +265,12 @@ export interface ListRuleTagsRequest {
   search: string;
   /**
    * Tags only carried by system rules (init, evaluation, flow control)
-   * are left out unless asked for, as ListRuleInfos does.
+   * are left out unless asked for, as ListCRSRuleInfos does.
    */
   includeSystem: boolean;
 }
 
-export interface ListRuleTagsResponse {
+export interface ListCRSRuleTagsResponse {
   /** Sorted by name. */
   tags: RuleTag[];
   /** Number of tags matching the filters, whatever the page. */
@@ -1850,19 +1850,19 @@ export const ListRateLimitsResponse: MessageFns<ListRateLimitsResponse> = {
   },
 };
 
-function createBaseCreateCoreRulesetRequest(): CreateCoreRulesetRequest {
-  return { coreRuleset: undefined };
+function createBaseCreateRulesetRequest(): CreateRulesetRequest {
+  return { ruleset: undefined };
 }
 
-export const CreateCoreRulesetRequest: MessageFns<CreateCoreRulesetRequest> = {
-  encode(message: CreateCoreRulesetRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.coreRuleset !== undefined) {
-      CoreRuleset.encode(message.coreRuleset, writer.uint32(10).fork()).join();
+export const CreateRulesetRequest: MessageFns<CreateRulesetRequest> = {
+  encode(message: CreateRulesetRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.ruleset !== undefined) {
+      Ruleset.encode(message.ruleset, writer.uint32(10).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CreateCoreRulesetRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateRulesetRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -1871,7 +1871,7 @@ export const CreateCoreRulesetRequest: MessageFns<CreateCoreRulesetRequest> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseCreateCoreRulesetRequest();
+      const message = createBaseCreateRulesetRequest();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -1880,7 +1880,7 @@ export const CreateCoreRulesetRequest: MessageFns<CreateCoreRulesetRequest> = {
               break;
             }
 
-            message.coreRuleset = CoreRuleset.decode(reader, reader.uint32());
+            message.ruleset = Ruleset.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -1895,49 +1895,43 @@ export const CreateCoreRulesetRequest: MessageFns<CreateCoreRulesetRequest> = {
     }
   },
 
-  fromJSON(object: any): CreateCoreRulesetRequest {
-    return {
-      coreRuleset: isSet(object.coreRuleset)
-        ? CoreRuleset.fromJSON(object.coreRuleset)
-        : isSet(object.core_ruleset)
-        ? CoreRuleset.fromJSON(object.core_ruleset)
-        : undefined,
-    };
+  fromJSON(object: any): CreateRulesetRequest {
+    return { ruleset: isSet(object.ruleset) ? Ruleset.fromJSON(object.ruleset) : undefined };
   },
 
-  toJSON(message: CreateCoreRulesetRequest): unknown {
+  toJSON(message: CreateRulesetRequest): unknown {
     const obj: any = {};
-    if (message.coreRuleset !== undefined) {
-      obj.coreRuleset = CoreRuleset.toJSON(message.coreRuleset);
+    if (message.ruleset !== undefined) {
+      obj.ruleset = Ruleset.toJSON(message.ruleset);
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CreateCoreRulesetRequest>, I>>(base?: I): CreateCoreRulesetRequest {
-    return CreateCoreRulesetRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<CreateRulesetRequest>, I>>(base?: I): CreateRulesetRequest {
+    return CreateRulesetRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<CreateCoreRulesetRequest>, I>>(object: I): CreateCoreRulesetRequest {
-    const message = createBaseCreateCoreRulesetRequest();
-    message.coreRuleset = (object.coreRuleset !== undefined && object.coreRuleset !== null)
-      ? CoreRuleset.fromPartial(object.coreRuleset)
+  fromPartial<I extends Exact<DeepPartial<CreateRulesetRequest>, I>>(object: I): CreateRulesetRequest {
+    const message = createBaseCreateRulesetRequest();
+    message.ruleset = (object.ruleset !== undefined && object.ruleset !== null)
+      ? Ruleset.fromPartial(object.ruleset)
       : undefined;
     return message;
   },
 };
 
-function createBaseCreateCoreRulesetResponse(): CreateCoreRulesetResponse {
+function createBaseCreateRulesetResponse(): CreateRulesetResponse {
   return { id: "" };
 }
 
-export const CreateCoreRulesetResponse: MessageFns<CreateCoreRulesetResponse> = {
-  encode(message: CreateCoreRulesetResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const CreateRulesetResponse: MessageFns<CreateRulesetResponse> = {
+  encode(message: CreateRulesetResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CreateCoreRulesetResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateRulesetResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -1946,7 +1940,7 @@ export const CreateCoreRulesetResponse: MessageFns<CreateCoreRulesetResponse> = 
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseCreateCoreRulesetResponse();
+      const message = createBaseCreateRulesetResponse();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -1970,11 +1964,11 @@ export const CreateCoreRulesetResponse: MessageFns<CreateCoreRulesetResponse> = 
     }
   },
 
-  fromJSON(object: any): CreateCoreRulesetResponse {
+  fromJSON(object: any): CreateRulesetResponse {
     return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
   },
 
-  toJSON(message: CreateCoreRulesetResponse): unknown {
+  toJSON(message: CreateRulesetResponse): unknown {
     const obj: any = {};
     if (message.id !== "") {
       obj.id = message.id;
@@ -1982,29 +1976,29 @@ export const CreateCoreRulesetResponse: MessageFns<CreateCoreRulesetResponse> = 
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CreateCoreRulesetResponse>, I>>(base?: I): CreateCoreRulesetResponse {
-    return CreateCoreRulesetResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<CreateRulesetResponse>, I>>(base?: I): CreateRulesetResponse {
+    return CreateRulesetResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<CreateCoreRulesetResponse>, I>>(object: I): CreateCoreRulesetResponse {
-    const message = createBaseCreateCoreRulesetResponse();
+  fromPartial<I extends Exact<DeepPartial<CreateRulesetResponse>, I>>(object: I): CreateRulesetResponse {
+    const message = createBaseCreateRulesetResponse();
     message.id = object.id ?? "";
     return message;
   },
 };
 
-function createBaseGetCoreRulesetRequest(): GetCoreRulesetRequest {
+function createBaseGetRulesetRequest(): GetRulesetRequest {
   return { id: "" };
 }
 
-export const GetCoreRulesetRequest: MessageFns<GetCoreRulesetRequest> = {
-  encode(message: GetCoreRulesetRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const GetRulesetRequest: MessageFns<GetRulesetRequest> = {
+  encode(message: GetRulesetRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetCoreRulesetRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): GetRulesetRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -2013,7 +2007,7 @@ export const GetCoreRulesetRequest: MessageFns<GetCoreRulesetRequest> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseGetCoreRulesetRequest();
+      const message = createBaseGetRulesetRequest();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -2037,11 +2031,11 @@ export const GetCoreRulesetRequest: MessageFns<GetCoreRulesetRequest> = {
     }
   },
 
-  fromJSON(object: any): GetCoreRulesetRequest {
+  fromJSON(object: any): GetRulesetRequest {
     return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
   },
 
-  toJSON(message: GetCoreRulesetRequest): unknown {
+  toJSON(message: GetRulesetRequest): unknown {
     const obj: any = {};
     if (message.id !== "") {
       obj.id = message.id;
@@ -2049,29 +2043,29 @@ export const GetCoreRulesetRequest: MessageFns<GetCoreRulesetRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetCoreRulesetRequest>, I>>(base?: I): GetCoreRulesetRequest {
-    return GetCoreRulesetRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<GetRulesetRequest>, I>>(base?: I): GetRulesetRequest {
+    return GetRulesetRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetCoreRulesetRequest>, I>>(object: I): GetCoreRulesetRequest {
-    const message = createBaseGetCoreRulesetRequest();
+  fromPartial<I extends Exact<DeepPartial<GetRulesetRequest>, I>>(object: I): GetRulesetRequest {
+    const message = createBaseGetRulesetRequest();
     message.id = object.id ?? "";
     return message;
   },
 };
 
-function createBaseGetCoreRulesetResponse(): GetCoreRulesetResponse {
-  return { coreRuleset: undefined };
+function createBaseGetRulesetResponse(): GetRulesetResponse {
+  return { ruleset: undefined };
 }
 
-export const GetCoreRulesetResponse: MessageFns<GetCoreRulesetResponse> = {
-  encode(message: GetCoreRulesetResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.coreRuleset !== undefined) {
-      CoreRuleset.encode(message.coreRuleset, writer.uint32(10).fork()).join();
+export const GetRulesetResponse: MessageFns<GetRulesetResponse> = {
+  encode(message: GetRulesetResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.ruleset !== undefined) {
+      Ruleset.encode(message.ruleset, writer.uint32(10).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetCoreRulesetResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): GetRulesetResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -2080,7 +2074,7 @@ export const GetCoreRulesetResponse: MessageFns<GetCoreRulesetResponse> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseGetCoreRulesetResponse();
+      const message = createBaseGetRulesetResponse();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -2089,7 +2083,7 @@ export const GetCoreRulesetResponse: MessageFns<GetCoreRulesetResponse> = {
               break;
             }
 
-            message.coreRuleset = CoreRuleset.decode(reader, reader.uint32());
+            message.ruleset = Ruleset.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -2104,47 +2098,41 @@ export const GetCoreRulesetResponse: MessageFns<GetCoreRulesetResponse> = {
     }
   },
 
-  fromJSON(object: any): GetCoreRulesetResponse {
-    return {
-      coreRuleset: isSet(object.coreRuleset)
-        ? CoreRuleset.fromJSON(object.coreRuleset)
-        : isSet(object.core_ruleset)
-        ? CoreRuleset.fromJSON(object.core_ruleset)
-        : undefined,
-    };
+  fromJSON(object: any): GetRulesetResponse {
+    return { ruleset: isSet(object.ruleset) ? Ruleset.fromJSON(object.ruleset) : undefined };
   },
 
-  toJSON(message: GetCoreRulesetResponse): unknown {
+  toJSON(message: GetRulesetResponse): unknown {
     const obj: any = {};
-    if (message.coreRuleset !== undefined) {
-      obj.coreRuleset = CoreRuleset.toJSON(message.coreRuleset);
+    if (message.ruleset !== undefined) {
+      obj.ruleset = Ruleset.toJSON(message.ruleset);
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetCoreRulesetResponse>, I>>(base?: I): GetCoreRulesetResponse {
-    return GetCoreRulesetResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<GetRulesetResponse>, I>>(base?: I): GetRulesetResponse {
+    return GetRulesetResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetCoreRulesetResponse>, I>>(object: I): GetCoreRulesetResponse {
-    const message = createBaseGetCoreRulesetResponse();
-    message.coreRuleset = (object.coreRuleset !== undefined && object.coreRuleset !== null)
-      ? CoreRuleset.fromPartial(object.coreRuleset)
+  fromPartial<I extends Exact<DeepPartial<GetRulesetResponse>, I>>(object: I): GetRulesetResponse {
+    const message = createBaseGetRulesetResponse();
+    message.ruleset = (object.ruleset !== undefined && object.ruleset !== null)
+      ? Ruleset.fromPartial(object.ruleset)
       : undefined;
     return message;
   },
 };
 
-function createBaseUpdateCoreRulesetRequest(): UpdateCoreRulesetRequest {
-  return { id: "", coreRuleset: undefined, updateMask: undefined };
+function createBaseUpdateRulesetRequest(): UpdateRulesetRequest {
+  return { id: "", ruleset: undefined, updateMask: undefined };
 }
 
-export const UpdateCoreRulesetRequest: MessageFns<UpdateCoreRulesetRequest> = {
-  encode(message: UpdateCoreRulesetRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const UpdateRulesetRequest: MessageFns<UpdateRulesetRequest> = {
+  encode(message: UpdateRulesetRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
-    if (message.coreRuleset !== undefined) {
-      CoreRuleset.encode(message.coreRuleset, writer.uint32(18).fork()).join();
+    if (message.ruleset !== undefined) {
+      Ruleset.encode(message.ruleset, writer.uint32(18).fork()).join();
     }
     if (message.updateMask !== undefined) {
       FieldMask.encode(FieldMask.wrap(message.updateMask), writer.uint32(26).fork()).join();
@@ -2152,7 +2140,7 @@ export const UpdateCoreRulesetRequest: MessageFns<UpdateCoreRulesetRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): UpdateCoreRulesetRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): UpdateRulesetRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -2161,7 +2149,7 @@ export const UpdateCoreRulesetRequest: MessageFns<UpdateCoreRulesetRequest> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseUpdateCoreRulesetRequest();
+      const message = createBaseUpdateRulesetRequest();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -2178,7 +2166,7 @@ export const UpdateCoreRulesetRequest: MessageFns<UpdateCoreRulesetRequest> = {
               break;
             }
 
-            message.coreRuleset = CoreRuleset.decode(reader, reader.uint32());
+            message.ruleset = Ruleset.decode(reader, reader.uint32());
             continue;
           }
           case 3: {
@@ -2201,14 +2189,10 @@ export const UpdateCoreRulesetRequest: MessageFns<UpdateCoreRulesetRequest> = {
     }
   },
 
-  fromJSON(object: any): UpdateCoreRulesetRequest {
+  fromJSON(object: any): UpdateRulesetRequest {
     return {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
-      coreRuleset: isSet(object.coreRuleset)
-        ? CoreRuleset.fromJSON(object.coreRuleset)
-        : isSet(object.core_ruleset)
-        ? CoreRuleset.fromJSON(object.core_ruleset)
-        : undefined,
+      ruleset: isSet(object.ruleset) ? Ruleset.fromJSON(object.ruleset) : undefined,
       updateMask: isSet(object.updateMask)
         ? FieldMask.unwrap(FieldMask.fromJSON(object.updateMask))
         : isSet(object.update_mask)
@@ -2217,13 +2201,13 @@ export const UpdateCoreRulesetRequest: MessageFns<UpdateCoreRulesetRequest> = {
     };
   },
 
-  toJSON(message: UpdateCoreRulesetRequest): unknown {
+  toJSON(message: UpdateRulesetRequest): unknown {
     const obj: any = {};
     if (message.id !== "") {
       obj.id = message.id;
     }
-    if (message.coreRuleset !== undefined) {
-      obj.coreRuleset = CoreRuleset.toJSON(message.coreRuleset);
+    if (message.ruleset !== undefined) {
+      obj.ruleset = Ruleset.toJSON(message.ruleset);
     }
     if (message.updateMask !== undefined) {
       obj.updateMask = FieldMask.toJSON(FieldMask.wrap(message.updateMask));
@@ -2231,33 +2215,33 @@ export const UpdateCoreRulesetRequest: MessageFns<UpdateCoreRulesetRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<UpdateCoreRulesetRequest>, I>>(base?: I): UpdateCoreRulesetRequest {
-    return UpdateCoreRulesetRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<UpdateRulesetRequest>, I>>(base?: I): UpdateRulesetRequest {
+    return UpdateRulesetRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<UpdateCoreRulesetRequest>, I>>(object: I): UpdateCoreRulesetRequest {
-    const message = createBaseUpdateCoreRulesetRequest();
+  fromPartial<I extends Exact<DeepPartial<UpdateRulesetRequest>, I>>(object: I): UpdateRulesetRequest {
+    const message = createBaseUpdateRulesetRequest();
     message.id = object.id ?? "";
-    message.coreRuleset = (object.coreRuleset !== undefined && object.coreRuleset !== null)
-      ? CoreRuleset.fromPartial(object.coreRuleset)
+    message.ruleset = (object.ruleset !== undefined && object.ruleset !== null)
+      ? Ruleset.fromPartial(object.ruleset)
       : undefined;
     message.updateMask = object.updateMask ?? undefined;
     return message;
   },
 };
 
-function createBaseUpdateCoreRulesetResponse(): UpdateCoreRulesetResponse {
-  return { coreRuleset: undefined };
+function createBaseUpdateRulesetResponse(): UpdateRulesetResponse {
+  return { ruleset: undefined };
 }
 
-export const UpdateCoreRulesetResponse: MessageFns<UpdateCoreRulesetResponse> = {
-  encode(message: UpdateCoreRulesetResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.coreRuleset !== undefined) {
-      CoreRuleset.encode(message.coreRuleset, writer.uint32(10).fork()).join();
+export const UpdateRulesetResponse: MessageFns<UpdateRulesetResponse> = {
+  encode(message: UpdateRulesetResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.ruleset !== undefined) {
+      Ruleset.encode(message.ruleset, writer.uint32(10).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): UpdateCoreRulesetResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): UpdateRulesetResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -2266,7 +2250,7 @@ export const UpdateCoreRulesetResponse: MessageFns<UpdateCoreRulesetResponse> = 
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseUpdateCoreRulesetResponse();
+      const message = createBaseUpdateRulesetResponse();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -2275,7 +2259,7 @@ export const UpdateCoreRulesetResponse: MessageFns<UpdateCoreRulesetResponse> = 
               break;
             }
 
-            message.coreRuleset = CoreRuleset.decode(reader, reader.uint32());
+            message.ruleset = Ruleset.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -2290,49 +2274,43 @@ export const UpdateCoreRulesetResponse: MessageFns<UpdateCoreRulesetResponse> = 
     }
   },
 
-  fromJSON(object: any): UpdateCoreRulesetResponse {
-    return {
-      coreRuleset: isSet(object.coreRuleset)
-        ? CoreRuleset.fromJSON(object.coreRuleset)
-        : isSet(object.core_ruleset)
-        ? CoreRuleset.fromJSON(object.core_ruleset)
-        : undefined,
-    };
+  fromJSON(object: any): UpdateRulesetResponse {
+    return { ruleset: isSet(object.ruleset) ? Ruleset.fromJSON(object.ruleset) : undefined };
   },
 
-  toJSON(message: UpdateCoreRulesetResponse): unknown {
+  toJSON(message: UpdateRulesetResponse): unknown {
     const obj: any = {};
-    if (message.coreRuleset !== undefined) {
-      obj.coreRuleset = CoreRuleset.toJSON(message.coreRuleset);
+    if (message.ruleset !== undefined) {
+      obj.ruleset = Ruleset.toJSON(message.ruleset);
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<UpdateCoreRulesetResponse>, I>>(base?: I): UpdateCoreRulesetResponse {
-    return UpdateCoreRulesetResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<UpdateRulesetResponse>, I>>(base?: I): UpdateRulesetResponse {
+    return UpdateRulesetResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<UpdateCoreRulesetResponse>, I>>(object: I): UpdateCoreRulesetResponse {
-    const message = createBaseUpdateCoreRulesetResponse();
-    message.coreRuleset = (object.coreRuleset !== undefined && object.coreRuleset !== null)
-      ? CoreRuleset.fromPartial(object.coreRuleset)
+  fromPartial<I extends Exact<DeepPartial<UpdateRulesetResponse>, I>>(object: I): UpdateRulesetResponse {
+    const message = createBaseUpdateRulesetResponse();
+    message.ruleset = (object.ruleset !== undefined && object.ruleset !== null)
+      ? Ruleset.fromPartial(object.ruleset)
       : undefined;
     return message;
   },
 };
 
-function createBaseDeleteCoreRulesetRequest(): DeleteCoreRulesetRequest {
+function createBaseDeleteRulesetRequest(): DeleteRulesetRequest {
   return { id: "" };
 }
 
-export const DeleteCoreRulesetRequest: MessageFns<DeleteCoreRulesetRequest> = {
-  encode(message: DeleteCoreRulesetRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const DeleteRulesetRequest: MessageFns<DeleteRulesetRequest> = {
+  encode(message: DeleteRulesetRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): DeleteCoreRulesetRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): DeleteRulesetRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -2341,7 +2319,7 @@ export const DeleteCoreRulesetRequest: MessageFns<DeleteCoreRulesetRequest> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseDeleteCoreRulesetRequest();
+      const message = createBaseDeleteRulesetRequest();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -2365,11 +2343,11 @@ export const DeleteCoreRulesetRequest: MessageFns<DeleteCoreRulesetRequest> = {
     }
   },
 
-  fromJSON(object: any): DeleteCoreRulesetRequest {
+  fromJSON(object: any): DeleteRulesetRequest {
     return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
   },
 
-  toJSON(message: DeleteCoreRulesetRequest): unknown {
+  toJSON(message: DeleteRulesetRequest): unknown {
     const obj: any = {};
     if (message.id !== "") {
       obj.id = message.id;
@@ -2377,26 +2355,26 @@ export const DeleteCoreRulesetRequest: MessageFns<DeleteCoreRulesetRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<DeleteCoreRulesetRequest>, I>>(base?: I): DeleteCoreRulesetRequest {
-    return DeleteCoreRulesetRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<DeleteRulesetRequest>, I>>(base?: I): DeleteRulesetRequest {
+    return DeleteRulesetRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<DeleteCoreRulesetRequest>, I>>(object: I): DeleteCoreRulesetRequest {
-    const message = createBaseDeleteCoreRulesetRequest();
+  fromPartial<I extends Exact<DeepPartial<DeleteRulesetRequest>, I>>(object: I): DeleteRulesetRequest {
+    const message = createBaseDeleteRulesetRequest();
     message.id = object.id ?? "";
     return message;
   },
 };
 
-function createBaseDeleteCoreRulesetResponse(): DeleteCoreRulesetResponse {
+function createBaseDeleteRulesetResponse(): DeleteRulesetResponse {
   return {};
 }
 
-export const DeleteCoreRulesetResponse: MessageFns<DeleteCoreRulesetResponse> = {
-  encode(_: DeleteCoreRulesetResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const DeleteRulesetResponse: MessageFns<DeleteRulesetResponse> = {
+  encode(_: DeleteRulesetResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): DeleteCoreRulesetResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): DeleteRulesetResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -2405,7 +2383,7 @@ export const DeleteCoreRulesetResponse: MessageFns<DeleteCoreRulesetResponse> = 
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseDeleteCoreRulesetResponse();
+      const message = createBaseDeleteRulesetResponse();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -2421,25 +2399,25 @@ export const DeleteCoreRulesetResponse: MessageFns<DeleteCoreRulesetResponse> = 
     }
   },
 
-  fromJSON(_: any): DeleteCoreRulesetResponse {
+  fromJSON(_: any): DeleteRulesetResponse {
     return {};
   },
 
-  toJSON(_: DeleteCoreRulesetResponse): unknown {
+  toJSON(_: DeleteRulesetResponse): unknown {
     const obj: any = {};
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<DeleteCoreRulesetResponse>, I>>(base?: I): DeleteCoreRulesetResponse {
-    return DeleteCoreRulesetResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<DeleteRulesetResponse>, I>>(base?: I): DeleteRulesetResponse {
+    return DeleteRulesetResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<DeleteCoreRulesetResponse>, I>>(_: I): DeleteCoreRulesetResponse {
-    const message = createBaseDeleteCoreRulesetResponse();
+  fromPartial<I extends Exact<DeepPartial<DeleteRulesetResponse>, I>>(_: I): DeleteRulesetResponse {
+    const message = createBaseDeleteRulesetResponse();
     return message;
   },
 };
 
-function createBaseListCoreRulesetsRequest(): ListCoreRulesetsRequest {
+function createBaseListRulesetsRequest(): ListRulesetsRequest {
   return {
     page: undefined,
     name: "",
@@ -2456,8 +2434,8 @@ function createBaseListCoreRulesetsRequest(): ListCoreRulesetsRequest {
   };
 }
 
-export const ListCoreRulesetsRequest: MessageFns<ListCoreRulesetsRequest> = {
-  encode(message: ListCoreRulesetsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const ListRulesetsRequest: MessageFns<ListRulesetsRequest> = {
+  encode(message: ListRulesetsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.page !== undefined) {
       Pages.encode(message.page, writer.uint32(10).fork()).join();
     }
@@ -2509,7 +2487,7 @@ export const ListCoreRulesetsRequest: MessageFns<ListCoreRulesetsRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ListCoreRulesetsRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): ListRulesetsRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -2518,7 +2496,7 @@ export const ListCoreRulesetsRequest: MessageFns<ListCoreRulesetsRequest> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseListCoreRulesetsRequest();
+      const message = createBaseListRulesetsRequest();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -2690,7 +2668,7 @@ export const ListCoreRulesetsRequest: MessageFns<ListCoreRulesetsRequest> = {
     }
   },
 
-  fromJSON(object: any): ListCoreRulesetsRequest {
+  fromJSON(object: any): ListRulesetsRequest {
     return {
       page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined,
       name: isSet(object.name) ? globalThis.String(object.name) : "",
@@ -2729,7 +2707,7 @@ export const ListCoreRulesetsRequest: MessageFns<ListCoreRulesetsRequest> = {
     };
   },
 
-  toJSON(message: ListCoreRulesetsRequest): unknown {
+  toJSON(message: ListRulesetsRequest): unknown {
     const obj: any = {};
     if (message.page !== undefined) {
       obj.page = Pages.toJSON(message.page);
@@ -2770,11 +2748,11 @@ export const ListCoreRulesetsRequest: MessageFns<ListCoreRulesetsRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ListCoreRulesetsRequest>, I>>(base?: I): ListCoreRulesetsRequest {
-    return ListCoreRulesetsRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<ListRulesetsRequest>, I>>(base?: I): ListRulesetsRequest {
+    return ListRulesetsRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ListCoreRulesetsRequest>, I>>(object: I): ListCoreRulesetsRequest {
-    const message = createBaseListCoreRulesetsRequest();
+  fromPartial<I extends Exact<DeepPartial<ListRulesetsRequest>, I>>(object: I): ListRulesetsRequest {
+    const message = createBaseListRulesetsRequest();
     message.page = (object.page !== undefined && object.page !== null) ? Pages.fromPartial(object.page) : undefined;
     message.name = object.name ?? "";
     message.ids = object.ids?.map((e) => e) || [];
@@ -2791,14 +2769,14 @@ export const ListCoreRulesetsRequest: MessageFns<ListCoreRulesetsRequest> = {
   },
 };
 
-function createBaseListCoreRulesetsResponse(): ListCoreRulesetsResponse {
-  return { coreRulesets: [], total: 0 };
+function createBaseListRulesetsResponse(): ListRulesetsResponse {
+  return { rulesets: [], total: 0 };
 }
 
-export const ListCoreRulesetsResponse: MessageFns<ListCoreRulesetsResponse> = {
-  encode(message: ListCoreRulesetsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    for (const v of message.coreRulesets) {
-      CoreRuleset.encode(v!, writer.uint32(10).fork()).join();
+export const ListRulesetsResponse: MessageFns<ListRulesetsResponse> = {
+  encode(message: ListRulesetsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.rulesets) {
+      Ruleset.encode(v!, writer.uint32(10).fork()).join();
     }
     if (message.total !== 0) {
       writer.uint32(16).int64(message.total);
@@ -2806,7 +2784,7 @@ export const ListCoreRulesetsResponse: MessageFns<ListCoreRulesetsResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ListCoreRulesetsResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): ListRulesetsResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -2815,7 +2793,7 @@ export const ListCoreRulesetsResponse: MessageFns<ListCoreRulesetsResponse> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseListCoreRulesetsResponse();
+      const message = createBaseListRulesetsResponse();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -2824,7 +2802,7 @@ export const ListCoreRulesetsResponse: MessageFns<ListCoreRulesetsResponse> = {
               break;
             }
 
-            message.coreRulesets.push(CoreRuleset.decode(reader, reader.uint32()));
+            message.rulesets.push(Ruleset.decode(reader, reader.uint32()));
             continue;
           }
           case 2: {
@@ -2847,21 +2825,17 @@ export const ListCoreRulesetsResponse: MessageFns<ListCoreRulesetsResponse> = {
     }
   },
 
-  fromJSON(object: any): ListCoreRulesetsResponse {
+  fromJSON(object: any): ListRulesetsResponse {
     return {
-      coreRulesets: globalThis.Array.isArray(object?.coreRulesets)
-        ? object.coreRulesets.map((e: any) => CoreRuleset.fromJSON(e))
-        : globalThis.Array.isArray(object?.core_rulesets)
-        ? object.core_rulesets.map((e: any) => CoreRuleset.fromJSON(e))
-        : [],
+      rulesets: globalThis.Array.isArray(object?.rulesets) ? object.rulesets.map((e: any) => Ruleset.fromJSON(e)) : [],
       total: isSet(object.total) ? globalThis.Number(object.total) : 0,
     };
   },
 
-  toJSON(message: ListCoreRulesetsResponse): unknown {
+  toJSON(message: ListRulesetsResponse): unknown {
     const obj: any = {};
-    if (message.coreRulesets?.length) {
-      obj.coreRulesets = message.coreRulesets.map((e) => CoreRuleset.toJSON(e));
+    if (message.rulesets?.length) {
+      obj.rulesets = message.rulesets.map((e) => Ruleset.toJSON(e));
     }
     if (message.total !== 0) {
       obj.total = Math.round(message.total);
@@ -2869,23 +2843,23 @@ export const ListCoreRulesetsResponse: MessageFns<ListCoreRulesetsResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ListCoreRulesetsResponse>, I>>(base?: I): ListCoreRulesetsResponse {
-    return ListCoreRulesetsResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<ListRulesetsResponse>, I>>(base?: I): ListRulesetsResponse {
+    return ListRulesetsResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ListCoreRulesetsResponse>, I>>(object: I): ListCoreRulesetsResponse {
-    const message = createBaseListCoreRulesetsResponse();
-    message.coreRulesets = object.coreRulesets?.map((e) => CoreRuleset.fromPartial(e)) || [];
+  fromPartial<I extends Exact<DeepPartial<ListRulesetsResponse>, I>>(object: I): ListRulesetsResponse {
+    const message = createBaseListRulesetsResponse();
+    message.rulesets = object.rulesets?.map((e) => Ruleset.fromPartial(e)) || [];
     message.total = object.total ?? 0;
     return message;
   },
 };
 
-function createBaseGetRuleInfoRequest(): GetRuleInfoRequest {
+function createBaseGetCRSRuleInfoRequest(): GetCRSRuleInfoRequest {
   return { id: 0, version: 0 };
 }
 
-export const GetRuleInfoRequest: MessageFns<GetRuleInfoRequest> = {
-  encode(message: GetRuleInfoRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const GetCRSRuleInfoRequest: MessageFns<GetCRSRuleInfoRequest> = {
+  encode(message: GetCRSRuleInfoRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== 0) {
       writer.uint32(8).uint32(message.id);
     }
@@ -2895,7 +2869,7 @@ export const GetRuleInfoRequest: MessageFns<GetRuleInfoRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetRuleInfoRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): GetCRSRuleInfoRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -2904,7 +2878,7 @@ export const GetRuleInfoRequest: MessageFns<GetRuleInfoRequest> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseGetRuleInfoRequest();
+      const message = createBaseGetCRSRuleInfoRequest();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -2936,14 +2910,14 @@ export const GetRuleInfoRequest: MessageFns<GetRuleInfoRequest> = {
     }
   },
 
-  fromJSON(object: any): GetRuleInfoRequest {
+  fromJSON(object: any): GetCRSRuleInfoRequest {
     return {
       id: isSet(object.id) ? globalThis.Number(object.id) : 0,
       version: isSet(object.version) ? versionFromJSON(object.version) : 0,
     };
   },
 
-  toJSON(message: GetRuleInfoRequest): unknown {
+  toJSON(message: GetCRSRuleInfoRequest): unknown {
     const obj: any = {};
     if (message.id !== 0) {
       obj.id = Math.round(message.id);
@@ -2954,30 +2928,30 @@ export const GetRuleInfoRequest: MessageFns<GetRuleInfoRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetRuleInfoRequest>, I>>(base?: I): GetRuleInfoRequest {
-    return GetRuleInfoRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<GetCRSRuleInfoRequest>, I>>(base?: I): GetCRSRuleInfoRequest {
+    return GetCRSRuleInfoRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetRuleInfoRequest>, I>>(object: I): GetRuleInfoRequest {
-    const message = createBaseGetRuleInfoRequest();
+  fromPartial<I extends Exact<DeepPartial<GetCRSRuleInfoRequest>, I>>(object: I): GetCRSRuleInfoRequest {
+    const message = createBaseGetCRSRuleInfoRequest();
     message.id = object.id ?? 0;
     message.version = object.version ?? 0;
     return message;
   },
 };
 
-function createBaseGetRuleInfoResponse(): GetRuleInfoResponse {
+function createBaseGetCRSRuleInfoResponse(): GetCRSRuleInfoResponse {
   return { rule: undefined };
 }
 
-export const GetRuleInfoResponse: MessageFns<GetRuleInfoResponse> = {
-  encode(message: GetRuleInfoResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const GetCRSRuleInfoResponse: MessageFns<GetCRSRuleInfoResponse> = {
+  encode(message: GetCRSRuleInfoResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.rule !== undefined) {
       RuleInfo.encode(message.rule, writer.uint32(10).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetRuleInfoResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): GetCRSRuleInfoResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -2986,7 +2960,7 @@ export const GetRuleInfoResponse: MessageFns<GetRuleInfoResponse> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseGetRuleInfoResponse();
+      const message = createBaseGetCRSRuleInfoResponse();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -3010,11 +2984,11 @@ export const GetRuleInfoResponse: MessageFns<GetRuleInfoResponse> = {
     }
   },
 
-  fromJSON(object: any): GetRuleInfoResponse {
+  fromJSON(object: any): GetCRSRuleInfoResponse {
     return { rule: isSet(object.rule) ? RuleInfo.fromJSON(object.rule) : undefined };
   },
 
-  toJSON(message: GetRuleInfoResponse): unknown {
+  toJSON(message: GetCRSRuleInfoResponse): unknown {
     const obj: any = {};
     if (message.rule !== undefined) {
       obj.rule = RuleInfo.toJSON(message.rule);
@@ -3022,17 +2996,17 @@ export const GetRuleInfoResponse: MessageFns<GetRuleInfoResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetRuleInfoResponse>, I>>(base?: I): GetRuleInfoResponse {
-    return GetRuleInfoResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<GetCRSRuleInfoResponse>, I>>(base?: I): GetCRSRuleInfoResponse {
+    return GetCRSRuleInfoResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetRuleInfoResponse>, I>>(object: I): GetRuleInfoResponse {
-    const message = createBaseGetRuleInfoResponse();
+  fromPartial<I extends Exact<DeepPartial<GetCRSRuleInfoResponse>, I>>(object: I): GetCRSRuleInfoResponse {
+    const message = createBaseGetCRSRuleInfoResponse();
     message.rule = (object.rule !== undefined && object.rule !== null) ? RuleInfo.fromPartial(object.rule) : undefined;
     return message;
   },
 };
 
-function createBaseListRuleInfosRequest(): ListRuleInfosRequest {
+function createBaseListCRSRuleInfosRequest(): ListCRSRuleInfosRequest {
   return {
     page: undefined,
     version: 0,
@@ -3046,8 +3020,8 @@ function createBaseListRuleInfosRequest(): ListRuleInfosRequest {
   };
 }
 
-export const ListRuleInfosRequest: MessageFns<ListRuleInfosRequest> = {
-  encode(message: ListRuleInfosRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const ListCRSRuleInfosRequest: MessageFns<ListCRSRuleInfosRequest> = {
+  encode(message: ListCRSRuleInfosRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.page !== undefined) {
       Pages.encode(message.page, writer.uint32(10).fork()).join();
     }
@@ -3084,7 +3058,7 @@ export const ListRuleInfosRequest: MessageFns<ListRuleInfosRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ListRuleInfosRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): ListCRSRuleInfosRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -3093,7 +3067,7 @@ export const ListRuleInfosRequest: MessageFns<ListRuleInfosRequest> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseListRuleInfosRequest();
+      const message = createBaseListCRSRuleInfosRequest();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -3211,7 +3185,7 @@ export const ListRuleInfosRequest: MessageFns<ListRuleInfosRequest> = {
     }
   },
 
-  fromJSON(object: any): ListRuleInfosRequest {
+  fromJSON(object: any): ListCRSRuleInfosRequest {
     return {
       page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined,
       version: isSet(object.version) ? versionFromJSON(object.version) : 0,
@@ -3237,7 +3211,7 @@ export const ListRuleInfosRequest: MessageFns<ListRuleInfosRequest> = {
     };
   },
 
-  toJSON(message: ListRuleInfosRequest): unknown {
+  toJSON(message: ListCRSRuleInfosRequest): unknown {
     const obj: any = {};
     if (message.page !== undefined) {
       obj.page = Pages.toJSON(message.page);
@@ -3269,11 +3243,11 @@ export const ListRuleInfosRequest: MessageFns<ListRuleInfosRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ListRuleInfosRequest>, I>>(base?: I): ListRuleInfosRequest {
-    return ListRuleInfosRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<ListCRSRuleInfosRequest>, I>>(base?: I): ListCRSRuleInfosRequest {
+    return ListCRSRuleInfosRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ListRuleInfosRequest>, I>>(object: I): ListRuleInfosRequest {
-    const message = createBaseListRuleInfosRequest();
+  fromPartial<I extends Exact<DeepPartial<ListCRSRuleInfosRequest>, I>>(object: I): ListCRSRuleInfosRequest {
+    const message = createBaseListCRSRuleInfosRequest();
     message.page = (object.page !== undefined && object.page !== null) ? Pages.fromPartial(object.page) : undefined;
     message.version = object.version ?? 0;
     message.search = object.search ?? "";
@@ -3287,12 +3261,12 @@ export const ListRuleInfosRequest: MessageFns<ListRuleInfosRequest> = {
   },
 };
 
-function createBaseListRuleInfosResponse(): ListRuleInfosResponse {
+function createBaseListCRSRuleInfosResponse(): ListCRSRuleInfosResponse {
   return { rules: [], total: 0 };
 }
 
-export const ListRuleInfosResponse: MessageFns<ListRuleInfosResponse> = {
-  encode(message: ListRuleInfosResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const ListCRSRuleInfosResponse: MessageFns<ListCRSRuleInfosResponse> = {
+  encode(message: ListCRSRuleInfosResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     for (const v of message.rules) {
       RuleInfo.encode(v!, writer.uint32(10).fork()).join();
     }
@@ -3302,7 +3276,7 @@ export const ListRuleInfosResponse: MessageFns<ListRuleInfosResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ListRuleInfosResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): ListCRSRuleInfosResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -3311,7 +3285,7 @@ export const ListRuleInfosResponse: MessageFns<ListRuleInfosResponse> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseListRuleInfosResponse();
+      const message = createBaseListCRSRuleInfosResponse();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -3343,14 +3317,14 @@ export const ListRuleInfosResponse: MessageFns<ListRuleInfosResponse> = {
     }
   },
 
-  fromJSON(object: any): ListRuleInfosResponse {
+  fromJSON(object: any): ListCRSRuleInfosResponse {
     return {
       rules: globalThis.Array.isArray(object?.rules) ? object.rules.map((e: any) => RuleInfo.fromJSON(e)) : [],
       total: isSet(object.total) ? globalThis.Number(object.total) : 0,
     };
   },
 
-  toJSON(message: ListRuleInfosResponse): unknown {
+  toJSON(message: ListCRSRuleInfosResponse): unknown {
     const obj: any = {};
     if (message.rules?.length) {
       obj.rules = message.rules.map((e) => RuleInfo.toJSON(e));
@@ -3361,11 +3335,11 @@ export const ListRuleInfosResponse: MessageFns<ListRuleInfosResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ListRuleInfosResponse>, I>>(base?: I): ListRuleInfosResponse {
-    return ListRuleInfosResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<ListCRSRuleInfosResponse>, I>>(base?: I): ListCRSRuleInfosResponse {
+    return ListCRSRuleInfosResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ListRuleInfosResponse>, I>>(object: I): ListRuleInfosResponse {
-    const message = createBaseListRuleInfosResponse();
+  fromPartial<I extends Exact<DeepPartial<ListCRSRuleInfosResponse>, I>>(object: I): ListCRSRuleInfosResponse {
+    const message = createBaseListCRSRuleInfosResponse();
     message.rules = object.rules?.map((e) => RuleInfo.fromPartial(e)) || [];
     message.total = object.total ?? 0;
     return message;
@@ -3461,12 +3435,12 @@ export const RuleTag: MessageFns<RuleTag> = {
   },
 };
 
-function createBaseListRuleTagsRequest(): ListRuleTagsRequest {
+function createBaseListCRSRuleTagsRequest(): ListCRSRuleTagsRequest {
   return { page: undefined, version: 0, search: "", includeSystem: false };
 }
 
-export const ListRuleTagsRequest: MessageFns<ListRuleTagsRequest> = {
-  encode(message: ListRuleTagsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const ListCRSRuleTagsRequest: MessageFns<ListCRSRuleTagsRequest> = {
+  encode(message: ListCRSRuleTagsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.page !== undefined) {
       Pages.encode(message.page, writer.uint32(10).fork()).join();
     }
@@ -3482,7 +3456,7 @@ export const ListRuleTagsRequest: MessageFns<ListRuleTagsRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ListRuleTagsRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): ListCRSRuleTagsRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -3491,7 +3465,7 @@ export const ListRuleTagsRequest: MessageFns<ListRuleTagsRequest> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseListRuleTagsRequest();
+      const message = createBaseListCRSRuleTagsRequest();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -3539,7 +3513,7 @@ export const ListRuleTagsRequest: MessageFns<ListRuleTagsRequest> = {
     }
   },
 
-  fromJSON(object: any): ListRuleTagsRequest {
+  fromJSON(object: any): ListCRSRuleTagsRequest {
     return {
       page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined,
       version: isSet(object.version) ? versionFromJSON(object.version) : 0,
@@ -3552,7 +3526,7 @@ export const ListRuleTagsRequest: MessageFns<ListRuleTagsRequest> = {
     };
   },
 
-  toJSON(message: ListRuleTagsRequest): unknown {
+  toJSON(message: ListCRSRuleTagsRequest): unknown {
     const obj: any = {};
     if (message.page !== undefined) {
       obj.page = Pages.toJSON(message.page);
@@ -3569,11 +3543,11 @@ export const ListRuleTagsRequest: MessageFns<ListRuleTagsRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ListRuleTagsRequest>, I>>(base?: I): ListRuleTagsRequest {
-    return ListRuleTagsRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<ListCRSRuleTagsRequest>, I>>(base?: I): ListCRSRuleTagsRequest {
+    return ListCRSRuleTagsRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ListRuleTagsRequest>, I>>(object: I): ListRuleTagsRequest {
-    const message = createBaseListRuleTagsRequest();
+  fromPartial<I extends Exact<DeepPartial<ListCRSRuleTagsRequest>, I>>(object: I): ListCRSRuleTagsRequest {
+    const message = createBaseListCRSRuleTagsRequest();
     message.page = (object.page !== undefined && object.page !== null) ? Pages.fromPartial(object.page) : undefined;
     message.version = object.version ?? 0;
     message.search = object.search ?? "";
@@ -3582,12 +3556,12 @@ export const ListRuleTagsRequest: MessageFns<ListRuleTagsRequest> = {
   },
 };
 
-function createBaseListRuleTagsResponse(): ListRuleTagsResponse {
+function createBaseListCRSRuleTagsResponse(): ListCRSRuleTagsResponse {
   return { tags: [], total: 0 };
 }
 
-export const ListRuleTagsResponse: MessageFns<ListRuleTagsResponse> = {
-  encode(message: ListRuleTagsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const ListCRSRuleTagsResponse: MessageFns<ListCRSRuleTagsResponse> = {
+  encode(message: ListCRSRuleTagsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     for (const v of message.tags) {
       RuleTag.encode(v!, writer.uint32(10).fork()).join();
     }
@@ -3597,7 +3571,7 @@ export const ListRuleTagsResponse: MessageFns<ListRuleTagsResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ListRuleTagsResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): ListCRSRuleTagsResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -3606,7 +3580,7 @@ export const ListRuleTagsResponse: MessageFns<ListRuleTagsResponse> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseListRuleTagsResponse();
+      const message = createBaseListCRSRuleTagsResponse();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -3638,14 +3612,14 @@ export const ListRuleTagsResponse: MessageFns<ListRuleTagsResponse> = {
     }
   },
 
-  fromJSON(object: any): ListRuleTagsResponse {
+  fromJSON(object: any): ListCRSRuleTagsResponse {
     return {
       tags: globalThis.Array.isArray(object?.tags) ? object.tags.map((e: any) => RuleTag.fromJSON(e)) : [],
       total: isSet(object.total) ? globalThis.Number(object.total) : 0,
     };
   },
 
-  toJSON(message: ListRuleTagsResponse): unknown {
+  toJSON(message: ListCRSRuleTagsResponse): unknown {
     const obj: any = {};
     if (message.tags?.length) {
       obj.tags = message.tags.map((e) => RuleTag.toJSON(e));
@@ -3656,11 +3630,11 @@ export const ListRuleTagsResponse: MessageFns<ListRuleTagsResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ListRuleTagsResponse>, I>>(base?: I): ListRuleTagsResponse {
-    return ListRuleTagsResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<ListCRSRuleTagsResponse>, I>>(base?: I): ListCRSRuleTagsResponse {
+    return ListCRSRuleTagsResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ListRuleTagsResponse>, I>>(object: I): ListRuleTagsResponse {
-    const message = createBaseListRuleTagsResponse();
+  fromPartial<I extends Exact<DeepPartial<ListCRSRuleTagsResponse>, I>>(object: I): ListCRSRuleTagsResponse {
+    const message = createBaseListCRSRuleTagsResponse();
     message.tags = object.tags?.map((e) => RuleTag.fromPartial(e)) || [];
     message.total = object.total ?? 0;
     return message;

@@ -39,7 +39,7 @@ func eventMsgs() []proto.Message {
 			RequestId: reqId,
 		},
 		&corerulesetpb.CoreRuleEvent{
-			Id:        NewULID(szprefix.CoreRulesetEvent),
+			Id:        NewULID(szprefix.RulesetEvent),
 			RequestId: reqId,
 		},
 	}

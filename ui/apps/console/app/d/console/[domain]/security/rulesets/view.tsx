@@ -43,9 +43,9 @@ import { Input } from '@sentinez/ui/components/input';
 import { toast } from '@/lib/toast';
 import { ChevronDown, MoreHorizontal, PlusIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { listCoreRulesets, type Pages, deleteCoreRuleset } from '@/lib/api/security';
+import { listRulesets, type Pages, deleteRuleset } from '@/lib/api/security';
 import BadgeStatus from '@/components/badge-status';
-import { CoreRuleset } from '@sentinez/proto/sentinez/apps/security/v1/model';
+import { Ruleset } from '@sentinez/proto/sentinez/apps/security/v1/model';
 import { EngineMode } from '@sentinez/proto/sentinez/types/coreruleset/v1/setting';
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 import { ENGINE_MODE_BADGE_VARIANT, statusLabel } from '@/lib/type/security';
@@ -73,8 +73,8 @@ export const getColumns = (
   t: RulesetsTranslator,
   tc: CommonTranslator,
   options: SecurityOptions,
-  onDelete: (ruleset: CoreRuleset) => void,
-): ColumnDef<CoreRuleset>[] => [
+  onDelete: (ruleset: Ruleset) => void,
+): ColumnDef<Ruleset>[] => [
   {
     id: 'name',
     accessorFn: (r) => r.name,
@@ -105,12 +105,12 @@ export const getColumns = (
   },
   {
     id: 'mode',
-    accessorFn: (r) => r.content?.mode,
+    accessorFn: (r) => r.coreRuleset?.mode,
     size: 150,
     meta: { label: t('mode') },
     header: () => <div>{t('mode')}</div>,
     cell: ({ row }) => {
-      const mode = row.original.content?.mode ?? EngineMode.ENGINE_MODE_UNSPECIFIED;
+      const mode = row.original.coreRuleset?.mode ?? EngineMode.ENGINE_MODE_UNSPECIFIED;
       return (
         <Badge variant={ENGINE_MODE_BADGE_VARIANT[mode]}>{options.engineModeLabel(mode)}</Badge>
       );
@@ -118,36 +118,36 @@ export const getColumns = (
   },
   {
     id: 'version',
-    accessorFn: (r) => r.content?.version,
+    accessorFn: (r) => r.coreRuleset?.version,
     size: 150,
     meta: { label: t('version') },
     header: () => <div>{t('version')}</div>,
     cell: ({ row }) => (
       <div className="truncate tabular-nums">
-        {options.crsVersionLabel(row.original.content?.version)}
+        {options.crsVersionLabel(row.original.coreRuleset?.version)}
       </div>
     ),
   },
   {
     id: 'paranoiaLevel',
-    accessorFn: (r) => r.content?.paranoiaLevel,
+    accessorFn: (r) => r.coreRuleset?.paranoiaLevel,
     size: 110,
     meta: { label: t('paranoiaLevel') },
     header: () => <div>{t('paranoiaLevel')}</div>,
     cell: ({ row }) => (
       <div className="truncate tabular-nums">
-        {row.original.content?.paranoiaLevel || t('paranoiaDefault')}
+        {row.original.coreRuleset?.paranoiaLevel || t('paranoiaDefault')}
       </div>
     ),
   },
   {
     id: 'ruleGroups',
-    accessorFn: (r) => r.content?.categories.length,
+    accessorFn: (r) => r.coreRuleset?.categories.length,
     size: 120,
     meta: { label: t('ruleGroups') },
     header: () => <div>{t('ruleGroups')}</div>,
     cell: ({ row }) => {
-      const count = row.original.content?.categories.length ?? 0;
+      const count = row.original.coreRuleset?.categories.length ?? 0;
       return (
         <div className="truncate tabular-nums">
           {count ? t('groupsCount', { count }) : t('allGroups')}
@@ -157,12 +157,12 @@ export const getColumns = (
   },
   {
     id: 'status',
-    accessorFn: (r) => r.content?.status,
+    accessorFn: (r) => r.coreRuleset?.status,
     size: 120,
     meta: { label: t('status') },
     header: () => <div>{t('status')}</div>,
     cell: ({ row }) => {
-      const s = statusLabel(row.original.content?.status);
+      const s = statusLabel(row.original.coreRuleset?.status);
       return (
         <div className="capitalize">
           <BadgeStatus status={s} value={s} />
@@ -201,7 +201,7 @@ export default function View() {
   const t = useTranslations('Rulesets');
   const tc = useTranslations('Common');
   const options = useSecurityOptions();
-  const [deleting, setDeleting] = useState<CoreRuleset | null>(null);
+  const [deleting, setDeleting] = useState<Ruleset | null>(null);
   const [deletingBusy, setDeletingBusy] = useState(false);
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -217,7 +217,7 @@ export default function View() {
   const fetchPage = useCallback(
     async (page: Pages, signal: AbortSignal) => {
       if (!resourceId) return { items: [], total: 0 };
-      const res = await listCoreRulesets(
+      const res = await listRulesets(
         {
           page,
           resourceIds: [resourceId],
@@ -227,7 +227,7 @@ export default function View() {
         },
         { signal },
       );
-      return { items: res.coreRulesets, total: res.total };
+      return { items: res.rulesets, total: res.total };
     },
     [resourceId, nameQuery, mode, status],
   );
@@ -251,7 +251,7 @@ export default function View() {
     if (!id) return;
     setDeletingBusy(true);
     try {
-      await deleteCoreRuleset({ id });
+      await deleteRuleset({ id });
       toast.success(t('deleted'));
       setDeleting(null);
       refresh();
@@ -267,7 +267,7 @@ export default function View() {
 
   const columns = useMemo(() => getColumns(t, tc, options, setDeleting), [t, tc, options]);
 
-  const table = useReactTable<CoreRuleset>({
+  const table = useReactTable<Ruleset>({
     data: rulesets,
     columns,
     getCoreRowModel: getCoreRowModel(),

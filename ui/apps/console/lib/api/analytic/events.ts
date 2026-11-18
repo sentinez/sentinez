@@ -59,28 +59,67 @@ const SAMPLE_AGENTS = [
 ];
 const SAMPLE_SECRULE_IDS = ['srule_sample-block-admin', 'srule_sample-challenge-login'];
 const SAMPLE_RATELIMIT_ID = 'srule_sample-api-limit';
-const SAMPLE_CORE_RULES = [
-  { id: 941100, message: 'XSS Attack Detected via libinjection' },
-  { id: 942100, message: 'SQL Injection Attack Detected via libinjection' },
-  { id: 930120, message: 'OS File Access Attempt' },
+const SAMPLE_ADMIN_PATH = '/wp-admin.php';
+// The anomaly score CRS adds per severity of a matched rule
+const SEVERITY_SCORE = { critical: 5, warning: 3, notice: 2 };
+// The CRS rules the sample requests match
+type SampleCoreRule = { id: number; severity: keyof typeof SEVERITY_SCORE; message: string };
+const crit = (id: number, message: string): SampleCoreRule => ({
+  id,
+  severity: 'critical',
+  message,
+});
+const SAMPLE_ATTACKS: { query: string; rule: SampleCoreRule }[] = [
+  {
+    query: "id=1' OR '1'='1",
+    rule: crit(942100, 'SQL Injection Attack Detected via libinjection'),
+  },
+  {
+    query: 'q=<script>alert(1)</script>',
+    rule: crit(941100, 'XSS Attack Detected via libinjection'),
+  },
+  { query: 'file=../../etc/passwd', rule: crit(930120, 'OS File Access Attempt') },
+  {
+    query: 'cmd=;cat /etc/passwd',
+    rule: crit(932160, 'Remote Command Execution: Unix Shell Code Found'),
+  },
 ];
+const SAMPLE_SCANNER_RULE = crit(913100, 'Found User-Agent associated with security scanner');
+// Rules too weak alone to reach the inbound threshold (5): only logged
+const SAMPLE_WEAK_RULES: SampleCoreRule[] = [
+  { id: 920350, severity: 'warning', message: 'Host header is a numeric IP address' },
+  { id: 920300, severity: 'notice', message: 'Request Missing an Accept Header' },
+  { id: 920320, severity: 'notice', message: 'Missing User Agent Header' },
+];
+// The anomaly score from which CRS denies a request
+const SAMPLE_INBOUND_THRESHOLD = 5;
 
 const pick = <T>(list: T[], k: number) => list[k % list.length] as T;
+
+// A small hash of a string, to pick a sample value spread over the requests
+const hashOf = (value: string) => [...value].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7);
 
 // The n-th sample request of a resource in the bucket starting at time
 function sampleIngressEvent(resourceId: string, time: Date, millis: number, n: number) {
   const seed = Math.floor(time.getTime() / millis) + n * 7;
+  const path = pick(SAMPLE_PATHS, seed + n);
+  // The probes of the admin page carry an attack, that CRS denies
+  const admin = path === SAMPLE_ADMIN_PATH;
   return {
     id: `req_SAMPLE${String(seed).padStart(10, '0')}${String(n).padStart(4, '0')}`,
     method: pick(SAMPLE_METHODS, seed),
     scheme: 'https',
     host: 'shop.example.com',
-    path: pick(SAMPLE_PATHS, seed + n),
-    queries: seed % 3 === 0 ? `q=shoes&page=${(seed % 5) + 1}` : '',
+    path,
+    queries: admin
+      ? pick(SAMPLE_ATTACKS, seed).query
+      : seed % 3 === 0
+        ? `q=shoes&page=${(seed % 5) + 1}`
+        : '',
     headers: `Host: shop.example.com\nAccept: */*\nUser-Agent: ${pick(SAMPLE_AGENTS, seed)}\n`,
     protocol: seed % 2 === 0 ? 'HTTP/2.0' : 'HTTP/1.1',
     remoteAddress: `${pick(SAMPLE_IPS, seed + n)}:${40000 + (seed % 20000)}`,
-    status: pick(SAMPLE_STATUSES, seed * 5 + n),
+    status: admin ? 403 : pick(SAMPLE_STATUSES, seed * 5 + n),
     userAgent: pick(SAMPLE_AGENTS, seed),
     asn: 13335 + (seed % 4),
     country: pick(SAMPLE_COUNTRIES, seed + n),
@@ -163,7 +202,7 @@ const requestOf = (e: IngressEvent) => ({
 
 // The secrule match of a sample request blocked by a secrule
 function sampleSecRuleOf(e: IngressEvent): SecRuleEvent | null {
-  if (e.status !== 403 || e.path === '/wp-admin.php') return null;
+  if (e.status !== 403 || e.path === SAMPLE_ADMIN_PATH) return null;
   const login = e.path === '/login';
   return {
     ...requestOf(e),
@@ -190,19 +229,38 @@ function sampleRateLimitOf(e: IngressEvent): SecRuleEvent | null {
   };
 }
 
-// The core rule match of a sample request to the admin page
+// The CRS rules a sample request matches: an attack on the admin page,
+// with the scanner rule for curl, and now and then a weak rule alone on
+// another request it lets through
+function sampleCoreRulesOf(e: IngressEvent): SampleCoreRule[] {
+  if (e.path === SAMPLE_ADMIN_PATH) {
+    const attack = SAMPLE_ATTACKS.find((a) => a.query === e.queries);
+    const rules = attack ? [attack.rule] : [];
+    if (e.userAgent.startsWith('curl/')) rules.push(SAMPLE_SCANNER_RULE);
+    return rules;
+  }
+  if (e.status === 403 || e.status === 429 || e.timestamp % 5 !== 0) return [];
+  return [pick(SAMPLE_WEAK_RULES, hashOf(e.id))];
+}
+
+// The core rule match of a sample request: denied over the threshold, else
+// only logged
 function sampleCoreRuleOf(e: IngressEvent): CoreRuleEvent | null {
-  if (e.status !== 403 || e.path !== '/wp-admin.php') return null;
-  const rules = SAMPLE_CORE_RULES.slice(0, 1 + (e.timestamp % 3));
+  const rules = sampleCoreRulesOf(e);
+  if (rules.length === 0) return null;
+  const totalScore = rules.reduce((total, r) => total + SEVERITY_SCORE[r.severity], 0);
   return {
     ...requestOf(e),
-    id: e.id.replace('req_', 'crevt_'),
+    id: e.id.replace('req_', 'rsevt_'),
     matchedRuleIds: rules.map((r) => r.id),
-    severities: rules.map(() => 'critical'),
+    severities: rules.map((r) => r.severity),
     messages: rules.map((r) => r.message),
-    totalScore: rules.length * 5,
+    totalScore,
     service: RuleService.RULE_SERVICE_CORE_RULESETS,
-    behavior: RuleBehavior.RULE_BEHAVIOR_DENY,
+    behavior:
+      totalScore >= SAMPLE_INBOUND_THRESHOLD
+        ? RuleBehavior.RULE_BEHAVIOR_DENY
+        : RuleBehavior.RULE_BEHAVIOR_LOG,
   };
 }
 

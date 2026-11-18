@@ -47,14 +47,14 @@ const (
 )
 
 const (
-	CoreRuleset_OwnerCreatedAt  = "owner_created_at"
-	CoreRuleset_OwnerUpdatedAt  = "owner_updated_at"
-	CoreRuleset_OwnerResourceId = "owner_resource_id"
-	CoreRuleset_OwnerTenantId   = "owner_tenant_id"
-	CoreRuleset_Id              = "id"
-	CoreRuleset_Name            = "name"
-	CoreRuleset_Description     = "description"
-	CoreRuleset_Content         = "content"
+	Ruleset_OwnerCreatedAt  = "owner_created_at"
+	Ruleset_OwnerUpdatedAt  = "owner_updated_at"
+	Ruleset_OwnerResourceId = "owner_resource_id"
+	Ruleset_OwnerTenantId   = "owner_tenant_id"
+	Ruleset_Id              = "id"
+	Ruleset_Name            = "name"
+	Ruleset_Description     = "description"
+	Ruleset_CoreRuleset     = "core_ruleset"
 )
 
 // SecRuleColumns returns the columns of SecRule, in the order ScanOneSecRule scans them.
@@ -254,22 +254,22 @@ func ScanRateLimit[R interface {
 	return ms, rows.Err()
 }
 
-// CoreRulesetColumns returns the columns of CoreRuleset, in the order ScanOneCoreRuleset scans them.
-func CoreRulesetColumns() []string {
+// RulesetColumns returns the columns of Ruleset, in the order ScanOneRuleset scans them.
+func RulesetColumns() []string {
 	return []string{
-		CoreRuleset_OwnerCreatedAt,
-		CoreRuleset_OwnerUpdatedAt,
-		CoreRuleset_OwnerResourceId,
-		CoreRuleset_OwnerTenantId,
-		CoreRuleset_Id,
-		CoreRuleset_Name,
-		CoreRuleset_Description,
-		CoreRuleset_Content,
+		Ruleset_OwnerCreatedAt,
+		Ruleset_OwnerUpdatedAt,
+		Ruleset_OwnerResourceId,
+		Ruleset_OwnerTenantId,
+		Ruleset_Id,
+		Ruleset_Name,
+		Ruleset_Description,
+		Ruleset_CoreRuleset,
 	}
 }
 
-// CoreRulesetValues returns the values of m, in the order of CoreRulesetColumns.
-func CoreRulesetValues(m *CoreRuleset) ([]any, error) {
+// RulesetValues returns the values of m, in the order of RulesetColumns.
+func RulesetValues(m *Ruleset) ([]any, error) {
 	var colOwnerCreatedAt any
 	if v := m.GetOwner().GetCreatedAt(); v != nil {
 		colOwnerCreatedAt = v.AsTime()
@@ -278,13 +278,13 @@ func CoreRulesetValues(m *CoreRuleset) ([]any, error) {
 	if v := m.GetOwner().GetUpdatedAt(); v != nil {
 		colOwnerUpdatedAt = v.AsTime()
 	}
-	var colContent []byte
-	if v := m.GetContent(); v != nil {
+	var colCoreRuleset []byte
+	if v := m.GetCoreRuleset(); v != nil {
 		b, err := protojson.Marshal(v)
 		if err != nil {
 			return nil, err
 		}
-		colContent = b
+		colCoreRuleset = b
 	}
 	return []any{
 		colOwnerCreatedAt,
@@ -294,19 +294,19 @@ func CoreRulesetValues(m *CoreRuleset) ([]any, error) {
 		m.GetId(),
 		m.GetName(),
 		m.GetDescription(),
-		colContent,
+		colCoreRuleset,
 	}, nil
 }
 
-// ScanOneCoreRuleset scans row, holding the columns of CoreRulesetColumns, into a CoreRuleset.
-func ScanOneCoreRuleset[R interface{ Scan(dest ...any) error }](row R) (*CoreRuleset, error) {
-	m := &CoreRuleset{Owner: &v1.Owner{}}
+// ScanOneRuleset scans row, holding the columns of RulesetColumns, into a Ruleset.
+func ScanOneRuleset[R interface{ Scan(dest ...any) error }](row R) (*Ruleset, error) {
+	m := &Ruleset{Owner: &v1.Owner{}}
 	var (
 		colOwnerCreatedAt  time.Time
 		colOwnerUpdatedAt  time.Time
 		colOwnerResourceId *string
 		colOwnerTenantId   *string
-		colContent         []byte
+		colCoreRuleset     []byte
 	)
 	if err := row.Scan(
 		&colOwnerCreatedAt,
@@ -316,7 +316,7 @@ func ScanOneCoreRuleset[R interface{ Scan(dest ...any) error }](row R) (*CoreRul
 		&m.Id,
 		&m.Name,
 		&m.Description,
-		&colContent,
+		&colCoreRuleset,
 	); err != nil {
 		return nil, err
 	}
@@ -328,24 +328,24 @@ func ScanOneCoreRuleset[R interface{ Scan(dest ...any) error }](row R) (*CoreRul
 	if colOwnerTenantId != nil {
 		m.Owner.TenantId = *colOwnerTenantId
 	}
-	if len(colContent) != 0 {
-		m.Content = &v11.CoreRuleset{}
-		if err := (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(colContent, m.Content); err != nil {
+	if len(colCoreRuleset) != 0 {
+		m.CoreRuleset = &v11.CoreRuleset{}
+		if err := (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(colCoreRuleset, m.CoreRuleset); err != nil {
 			return nil, err
 		}
 	}
 	return m, nil
 }
 
-// ScanCoreRuleset scans each row of rows with ScanOneCoreRuleset.
-func ScanCoreRuleset[R interface {
+// ScanRuleset scans each row of rows with ScanOneRuleset.
+func ScanRuleset[R interface {
 	Next() bool
 	Scan(dest ...any) error
 	Err() error
-}](rows R) ([]*CoreRuleset, error) {
-	var ms []*CoreRuleset
+}](rows R) ([]*Ruleset, error) {
+	var ms []*Ruleset
 	for rows.Next() {
-		m, err := ScanOneCoreRuleset(rows)
+		m, err := ScanOneRuleset(rows)
 		if err != nil {
 			return nil, err
 		}

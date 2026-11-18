@@ -6,12 +6,13 @@ import { Button } from '@sentinez/ui/components/button';
 import { toast } from '@/lib/toast';
 import {
   CoreRulesetFields,
+  CrsNotice,
   CoreRulesetFormValue,
   coreRulesetOf,
   createEmptyCoreRulesetForm,
   validateCoreRulesetForm,
 } from '../../components';
-import { createCoreRuleset } from '@/lib/api/security';
+import { createRuleset } from '@/lib/api/security';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 import { useResourceId } from '@/hooks/use-resource-id';
 import { useState } from 'react';
@@ -36,8 +37,8 @@ export default function CreateRulesetPage() {
 
     setSaving(true);
     try {
-      await createCoreRuleset({
-        coreRuleset: { ...coreRulesetOf(form), owner: { resourceId, tenantId } },
+      await createRuleset({
+        ruleset: { ...coreRulesetOf(form), owner: { resourceId, tenantId } },
       });
       toast.success(t('created'));
       router.back();
@@ -61,6 +62,7 @@ export default function CreateRulesetPage() {
         </div>
       </PageLayoutHeader>
       <PageLayoutContent size="sm">
+        <CrsNotice />
         <CoreRulesetFields value={form} onChange={patchForm} idPrefix="create" />
       </PageLayoutContent>
     </PageLayout>

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package coreruleset
+package ruleset
 
 import (
 	"strings"
@@ -28,7 +28,7 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-type listReq = securitypb.ListCoreRulesetsRequest
+type listReq = securitypb.ListRulesetsRequest
 
 // nolint:funlen
 func TestListConditions(t *testing.T) {
@@ -64,7 +64,7 @@ func TestListConditions(t *testing.T) {
 				corerulesetpb.EngineMode_ENGINE_MODE_DETECTION_ONLY,
 			}},
 			wantSQL: "SELECT 1 WHERE " +
-				"(content @> ?::jsonb OR content @> ?::jsonb)",
+				"(core_ruleset @> ?::jsonb OR core_ruleset @> ?::jsonb)",
 			wantArgs: []any{
 				`{"mode":"ENGINE_MODE_ON"}`,
 				`{"mode":"ENGINE_MODE_DETECTION_ONLY"}`,
@@ -75,7 +75,7 @@ func TestListConditions(t *testing.T) {
 			give: &listReq{Versions: []corerulesetpb.Version{
 				corerulesetpb.Version_VERSION_V4_17_0,
 			}},
-			wantSQL:  "SELECT 1 WHERE (content @> ?::jsonb)",
+			wantSQL:  "SELECT 1 WHERE (core_ruleset @> ?::jsonb)",
 			wantArgs: []any{`{"version":"VERSION_V4_17_0"}`},
 		},
 		{
@@ -83,13 +83,13 @@ func TestListConditions(t *testing.T) {
 			give: &listReq{Statuses: []typepb.Status{
 				typepb.Status_STATUS_ACTIVE,
 			}},
-			wantSQL:  "SELECT 1 WHERE (content @> ?::jsonb)",
+			wantSQL:  "SELECT 1 WHERE (core_ruleset @> ?::jsonb)",
 			wantArgs: []any{`{"status":"STATUS_ACTIVE"}`},
 		},
 		{
 			name:     "paranoia level",
 			give:     &listReq{ParanoiaLevel: 2},
-			wantSQL:  "SELECT 1 WHERE (content @> ?::jsonb)",
+			wantSQL:  "SELECT 1 WHERE (core_ruleset @> ?::jsonb)",
 			wantArgs: []any{`{"paranoia_level":2}`},
 		},
 		{
@@ -98,7 +98,7 @@ func TestListConditions(t *testing.T) {
 				corerulesetpb.Category_CATEGORY_XSS,
 				corerulesetpb.Category_CATEGORY_SQLI,
 			}},
-			wantSQL: "SELECT 1 WHERE (content @> ?::jsonb)",
+			wantSQL: "SELECT 1 WHERE (core_ruleset @> ?::jsonb)",
 			wantArgs: []any{
 				`{"categories":["CATEGORY_XSS","CATEGORY_SQLI"]}`,
 			},
@@ -106,13 +106,13 @@ func TestListConditions(t *testing.T) {
 		{
 			name:     "exclusion tag",
 			give:     &listReq{ExclusionTags: []string{"attack-sqli"}},
-			wantSQL:  "SELECT 1 WHERE (content @> ?::jsonb)",
+			wantSQL:  "SELECT 1 WHERE (core_ruleset @> ?::jsonb)",
 			wantArgs: []any{`{"exclusions":[{"tags":["attack-sqli"]}]}`},
 		},
 		{
 			name:    "exclusion rule",
 			give:    &listReq{ExclusionRuleIds: []uint32{942100}},
-			wantSQL: "SELECT 1 WHERE (content @> ?::jsonb)",
+			wantSQL: "SELECT 1 WHERE (core_ruleset @> ?::jsonb)",
 			wantArgs: []any{
 				`{"exclusions":[{"targets":[{"rule_id":942100}]}]}`,
 			},
@@ -120,7 +120,7 @@ func TestListConditions(t *testing.T) {
 		{
 			name:     "override rule",
 			give:     &listReq{OverrideRuleIds: []uint32{920420}},
-			wantSQL:  "SELECT 1 WHERE (content @> ?::jsonb)",
+			wantSQL:  "SELECT 1 WHERE (core_ruleset @> ?::jsonb)",
 			wantArgs: []any{`{"overrides":[{"id":920420}]}`},
 		},
 		{
@@ -133,7 +133,7 @@ func TestListConditions(t *testing.T) {
 				},
 			},
 			wantSQL: "SELECT 1 WHERE name ILIKE ? " +
-				"AND (content @> ?::jsonb) AND (content @> ?::jsonb)",
+				"AND (core_ruleset @> ?::jsonb) AND (core_ruleset @> ?::jsonb)",
 			wantArgs: []any{
 				"%prod%", `{"mode":"ENGINE_MODE_ON"}`, `{"paranoia_level":1}`,
 			},
@@ -172,7 +172,7 @@ func normalize(args []any) []any {
 	return out
 }
 
-func TestContentRoundTrip(t *testing.T) {
+func TestCoreRulesetRoundTrip(t *testing.T) {
 	give := &corerulesetpb.CoreRuleset{
 		Mode:          corerulesetpb.EngineMode_ENGINE_MODE_ON,
 		ParanoiaLevel: 2,
@@ -181,14 +181,14 @@ func TestContentRoundTrip(t *testing.T) {
 		},
 	}
 
-	data, err := marshalContent(give)
+	data, err := marshalCoreRuleset(give)
 	require.NoError(t, err)
 
 	got := &corerulesetpb.CoreRuleset{}
 	require.NoError(t, protojson.Unmarshal([]byte(data), got))
 	assert.True(t, proto.Equal(give, got))
 
-	empty, err := marshalContent(nil)
+	empty, err := marshalCoreRuleset(nil)
 	require.NoError(t, err)
 	assert.Equal(t, "{}", empty)
 }

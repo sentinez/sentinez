@@ -96,8 +96,8 @@ type authRateLimits struct {
 }
 
 type authCoreRulesets struct {
-	coreRulesetRepo
-	*rows[*securitypb.CoreRuleset]
+	rulesetRepo
+	*rows[*securitypb.Ruleset]
 }
 
 // fixture is a service whose caller, _userId, has role in _tenantId and no
@@ -183,8 +183,8 @@ func newFixture(t *testing.T, role typepb.Role) *fixture {
 				_ruleId:     {Id: _ruleId, Owner: ownedBy(_resourceId)},
 				_foreignRul: {Id: _foreignRul, Owner: ownedBy(_foreignId)},
 			}}},
-		crs: &authCoreRulesets{rows: &rows[*securitypb.CoreRuleset]{
-			byId: map[string]*securitypb.CoreRuleset{
+		crs: &authCoreRulesets{rows: &rows[*securitypb.Ruleset]{
+			byId: map[string]*securitypb.Ruleset{
 				_ruleId:     {Id: _ruleId, Owner: ownedBy(_resourceId)},
 				_foreignRul: {Id: _foreignRul, Owner: ownedBy(_foreignId)},
 			}}},
@@ -369,9 +369,9 @@ func validLimit(resourceId string) *securitypb.RateLimit {
 	}
 }
 
-func validCrs(resourceId string) *securitypb.CoreRuleset {
-	return &securitypb.CoreRuleset{
-		Content: &coreRulesetpb.CoreRuleset{}, Owner: ownedBy(resourceId),
+func validCrs(resourceId string) *securitypb.Ruleset {
+	return &securitypb.Ruleset{
+		CoreRuleset: &coreRulesetpb.CoreRuleset{}, Owner: ownedBy(resourceId),
 	}
 }
 
@@ -409,28 +409,28 @@ var _limitAndCrsAccess = []struct {
 		}, codes.NotFound},
 	{"get a foreign core ruleset", typepb.Role_ROLE_ADMIN,
 		func(s *SecurityService, c context.Context) error {
-			_, err := s.GetCoreRuleset(c,
-				&securitypb.GetCoreRulesetRequest{Id: _foreignRul})
+			_, err := s.GetRuleset(c,
+				&securitypb.GetRulesetRequest{Id: _foreignRul})
 			return err
 		}, codes.NotFound},
 	{"member can not delete a core ruleset", typepb.Role_ROLE_MEMBER,
 		func(s *SecurityService, c context.Context) error {
-			_, err := s.DeleteCoreRuleset(c,
-				&securitypb.DeleteCoreRulesetRequest{Id: _ruleId})
+			_, err := s.DeleteRuleset(c,
+				&securitypb.DeleteRulesetRequest{Id: _ruleId})
 			return err
 		}, codes.PermissionDenied},
 	{"create a core ruleset on a foreign resource", typepb.Role_ROLE_ADMIN,
 		func(s *SecurityService, c context.Context) error {
-			_, err := s.CreateCoreRuleset(c,
-				&securitypb.CreateCoreRulesetRequest{
-					CoreRuleset: validCrs(_foreignId)})
+			_, err := s.CreateRuleset(c,
+				&securitypb.CreateRulesetRequest{
+					Ruleset: validCrs(_foreignId)})
 			return err
 		}, codes.NotFound},
 	{"leader creates a core ruleset", typepb.Role_ROLE_LEADER,
 		func(s *SecurityService, c context.Context) error {
-			_, err := s.CreateCoreRuleset(c,
-				&securitypb.CreateCoreRulesetRequest{
-					CoreRuleset: validCrs(_resourceId)})
+			_, err := s.CreateRuleset(c,
+				&securitypb.CreateRulesetRequest{
+					Ruleset: validCrs(_resourceId)})
 			return err
 		}, codes.OK},
 }

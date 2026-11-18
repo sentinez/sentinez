@@ -20,345 +20,15 @@
     "application/json"
   ],
   "paths": {
-    "/security/coreruleset": {
-      "post": {
-        "summary": "CreateCoreRuleset creates a new OWASP CRS configuration",
-        "operationId": "SecurityService_CreateCoreRuleset",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1CreateCoreRulesetResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1CreateCoreRulesetRequest"
-            }
-          }
-        ],
-        "tags": [
-          "SecurityService"
-        ]
-      }
-    },
-    "/security/coreruleset/{id}": {
-      "get": {
-        "summary": "GetCoreRuleset retrieves an OWASP CRS configuration by ID",
-        "operationId": "SecurityService_GetCoreRuleset",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1GetCoreRulesetResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "SecurityService"
-        ]
-      },
-      "delete": {
-        "summary": "DeleteCoreRuleset removes an OWASP CRS configuration by ID",
-        "operationId": "SecurityService_DeleteCoreRuleset",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1DeleteCoreRulesetResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "SecurityService"
-        ]
-      },
-      "put": {
-        "summary": "UpdateCoreRuleset updates an existing OWASP CRS configuration",
-        "operationId": "SecurityService_UpdateCoreRuleset",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1UpdateCoreRulesetResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/SecurityServiceUpdateCoreRulesetBody"
-            }
-          }
-        ],
-        "tags": [
-          "SecurityService"
-        ]
-      }
-    },
-    "/security/corerulesets": {
-      "get": {
-        "summary": "ListCoreRulesets lists OWASP CRS configurations, filtered by their\nname or by the fields of their content",
-        "operationId": "SecurityService_ListCoreRulesets",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ListCoreRulesetsResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "page.index",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int32"
-          },
-          {
-            "name": "page.size",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int32"
-          },
-          {
-            "name": "page.total",
-            "in": "query",
-            "required": false,
-            "type": "boolean"
-          },
-          {
-            "name": "name",
-            "description": "Case-insensitive part of the name.",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "ids",
-            "in": "query",
-            "required": false,
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
-          },
-          {
-            "name": "resourceIds",
-            "description": "metadata.resource_id of the rows, any of them.",
-            "in": "query",
-            "required": false,
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
-          },
-          {
-            "name": "modes",
-            "description": " - ENGINE_MODE_UNSPECIFIED: = OFF\n - ENGINE_MODE_DETECTION_ONLY: log only, never block",
-            "in": "query",
-            "required": false,
-            "type": "array",
-            "items": {
-              "type": "string",
-              "enum": [
-                "ENGINE_MODE_UNSPECIFIED",
-                "ENGINE_MODE_OFF",
-                "ENGINE_MODE_DETECTION_ONLY",
-                "ENGINE_MODE_ON"
-              ]
-            },
-            "collectionFormat": "multi"
-          },
-          {
-            "name": "versions",
-            "description": " - VERSION_UNSPECIFIED: = latest supported",
-            "in": "query",
-            "required": false,
-            "type": "array",
-            "items": {
-              "type": "string",
-              "enum": [
-                "VERSION_UNSPECIFIED",
-                "VERSION_V4_16_0",
-                "VERSION_V4_17_0"
-              ]
-            },
-            "collectionFormat": "multi"
-          },
-          {
-            "name": "statuses",
-            "in": "query",
-            "required": false,
-            "type": "array",
-            "items": {
-              "type": "string",
-              "enum": [
-                "STATUS_UNSPECIFIED",
-                "STATUS_ACTIVE",
-                "STATUS_DISABLE"
-              ]
-            },
-            "collectionFormat": "multi"
-          },
-          {
-            "name": "paranoiaLevel",
-            "description": "content.paranoia_level, 0 = any.",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int64"
-          },
-          {
-            "name": "categories",
-            "description": "Rule groups all listed in content.categories.\n\n - CATEGORY_COMMON_EXCEPTIONS: ====== REQUEST PHASE ======\n\n905\n - CATEGORY_METHOD_ENFORCEMENT: 911\n - CATEGORY_SCANNER_DETECTION: 913\n - CATEGORY_PROTOCOL_ENFORCEMENT: 920\n - CATEGORY_PROTOCOL_ATTACK: 921\n - CATEGORY_MULTIPART_ATTACK: 922\n - CATEGORY_LFI: 930\n - CATEGORY_RFI: 931\n - CATEGORY_RCE: 932\n - CATEGORY_PHP: 933\n - CATEGORY_GENERIC: 934\n - CATEGORY_XSS: 941\n - CATEGORY_SQLI: 942\n - CATEGORY_SESSION_FIXATION: 943\n - CATEGORY_JAVA: 944\n - CATEGORY_DATA_LEAKAGES: ====== RESPONSE PHASE ======\n\n950\n - CATEGORY_DATA_LEAKAGES_SQL: 951\n - CATEGORY_DATA_LEAKAGES_JAVA: 952\n - CATEGORY_DATA_LEAKAGES_PHP: 953\n - CATEGORY_DATA_LEAKAGES_IIS: 954\n - CATEGORY_WEB_SHELLS: 955\n - CATEGORY_DATA_LEAKAGES_RUBY: 956",
-            "in": "query",
-            "required": false,
-            "type": "array",
-            "items": {
-              "type": "string",
-              "enum": [
-                "CATEGORY_UNSPECIFIED",
-                "CATEGORY_COMMON_EXCEPTIONS",
-                "CATEGORY_METHOD_ENFORCEMENT",
-                "CATEGORY_SCANNER_DETECTION",
-                "CATEGORY_PROTOCOL_ENFORCEMENT",
-                "CATEGORY_PROTOCOL_ATTACK",
-                "CATEGORY_MULTIPART_ATTACK",
-                "CATEGORY_LFI",
-                "CATEGORY_RFI",
-                "CATEGORY_RCE",
-                "CATEGORY_PHP",
-                "CATEGORY_GENERIC",
-                "CATEGORY_XSS",
-                "CATEGORY_SQLI",
-                "CATEGORY_SESSION_FIXATION",
-                "CATEGORY_JAVA",
-                "CATEGORY_DATA_LEAKAGES",
-                "CATEGORY_DATA_LEAKAGES_SQL",
-                "CATEGORY_DATA_LEAKAGES_JAVA",
-                "CATEGORY_DATA_LEAKAGES_PHP",
-                "CATEGORY_DATA_LEAKAGES_IIS",
-                "CATEGORY_WEB_SHELLS",
-                "CATEGORY_DATA_LEAKAGES_RUBY"
-              ]
-            },
-            "collectionFormat": "multi"
-          },
-          {
-            "name": "exclusionTags",
-            "description": "Tags excluded by content.exclusions.",
-            "in": "query",
-            "required": false,
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
-          },
-          {
-            "name": "exclusionRuleIds",
-            "description": "Rules with a variable excluded by content.exclusions.",
-            "in": "query",
-            "required": false,
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "format": "int64"
-            },
-            "collectionFormat": "multi"
-          },
-          {
-            "name": "overrideRuleIds",
-            "description": "Rules with a state changed by content.overrides.",
-            "in": "query",
-            "required": false,
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "format": "int64"
-            },
-            "collectionFormat": "multi"
-          }
-        ],
-        "tags": [
-          "SecurityService"
-        ]
-      }
-    },
     "/security/crs/rules": {
       "get": {
-        "summary": "ListRuleInfos searches the OWASP CRS catalog: the rules a CoreRuleset\ncan exclude or override, with their tags",
-        "operationId": "SecurityService_ListRuleInfos",
+        "summary": "ListCRSRuleInfos searches the OWASP CRS catalog: the rules a Ruleset\ncan exclude or override, with their tags",
+        "operationId": "SecurityService_ListCRSRuleInfos",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1ListRuleInfosResponse"
+              "$ref": "#/definitions/v1ListCRSRuleInfosResponse"
             }
           },
           "default": {
@@ -504,13 +174,13 @@
     },
     "/security/crs/rules/{id}": {
       "get": {
-        "summary": "GetRuleInfo retrieves a rule of the OWASP CRS catalog by ID",
-        "operationId": "SecurityService_GetRuleInfo",
+        "summary": "GetCRSRuleInfo retrieves a rule of the OWASP CRS catalog by ID",
+        "operationId": "SecurityService_GetCRSRuleInfo",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1GetRuleInfoResponse"
+              "$ref": "#/definitions/v1GetCRSRuleInfoResponse"
             }
           },
           "default": {
@@ -549,13 +219,13 @@
     },
     "/security/crs/tags": {
       "get": {
-        "summary": "ListRuleTags lists the tags carried by the rules of the OWASP CRS\ncatalog: the values a CoreRuleset can exclude, or ListRuleInfos can\nfilter by",
-        "operationId": "SecurityService_ListRuleTags",
+        "summary": "ListCRSRuleTags lists the tags carried by the rules of the OWASP CRS\ncatalog: the values a Ruleset can exclude, or ListCRSRuleInfos can\nfilter by",
+        "operationId": "SecurityService_ListCRSRuleTags",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1ListRuleTagsResponse"
+              "$ref": "#/definitions/v1ListCRSRuleTagsResponse"
             }
           },
           "default": {
@@ -608,7 +278,7 @@
           },
           {
             "name": "includeSystem",
-            "description": "Tags only carried by system rules (init, evaluation, flow control)\nare left out unless asked for, as ListRuleInfos does.",
+            "description": "Tags only carried by system rules (init, evaluation, flow control)\nare left out unless asked for, as ListCRSRuleInfos does.",
             "in": "query",
             "required": false,
             "type": "boolean"
@@ -806,6 +476,338 @@
             "type": "array",
             "items": {
               "type": "string"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      }
+    },
+    "/security/ruleset": {
+      "post": {
+        "summary": "CreateRuleset creates a new OWASP CRS configuration",
+        "operationId": "SecurityService_CreateRuleset",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateRulesetResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateRulesetRequest"
+            }
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      }
+    },
+    "/security/ruleset/{id}": {
+      "get": {
+        "summary": "GetRuleset retrieves an OWASP CRS configuration by ID",
+        "operationId": "SecurityService_GetRuleset",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetRulesetResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      },
+      "delete": {
+        "summary": "DeleteRuleset removes an OWASP CRS configuration by ID",
+        "operationId": "SecurityService_DeleteRuleset",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeleteRulesetResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      },
+      "put": {
+        "summary": "UpdateRuleset updates an existing OWASP CRS configuration",
+        "operationId": "SecurityService_UpdateRuleset",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdateRulesetResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SecurityServiceUpdateRulesetBody"
+            }
+          }
+        ],
+        "tags": [
+          "SecurityService"
+        ]
+      }
+    },
+    "/security/rulesets": {
+      "get": {
+        "summary": "ListRulesets lists OWASP CRS configurations, filtered by their\nname or by the fields of their core_ruleset",
+        "operationId": "SecurityService_ListRulesets",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListRulesetsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page.index",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.total",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "name",
+            "description": "Case-insensitive part of the name.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "ids",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "resourceIds",
+            "description": "metadata.resource_id of the rows, any of them.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "modes",
+            "description": " - ENGINE_MODE_UNSPECIFIED: = OFF\n - ENGINE_MODE_DETECTION_ONLY: log only, never block",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ENGINE_MODE_UNSPECIFIED",
+                "ENGINE_MODE_OFF",
+                "ENGINE_MODE_DETECTION_ONLY",
+                "ENGINE_MODE_ON"
+              ]
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "versions",
+            "description": " - VERSION_UNSPECIFIED: = latest supported",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "VERSION_UNSPECIFIED",
+                "VERSION_V4_16_0",
+                "VERSION_V4_17_0"
+              ]
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "statuses",
+            "description": " - STATUS_PENDING: Asked to be active, but waiting for what it needs to be served, as a\nresource for certificates that fit its TLS mode: served as disabled,\nand made active once it has them.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "STATUS_UNSPECIFIED",
+                "STATUS_ACTIVE",
+                "STATUS_DISABLE",
+                "STATUS_PENDING"
+              ]
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "paranoiaLevel",
+            "description": "core_ruleset.paranoia_level, 0 = any.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "categories",
+            "description": "Rule groups all listed in core_ruleset.categories.\n\n - CATEGORY_COMMON_EXCEPTIONS: ====== REQUEST PHASE ======\n\n905\n - CATEGORY_METHOD_ENFORCEMENT: 911\n - CATEGORY_SCANNER_DETECTION: 913\n - CATEGORY_PROTOCOL_ENFORCEMENT: 920\n - CATEGORY_PROTOCOL_ATTACK: 921\n - CATEGORY_MULTIPART_ATTACK: 922\n - CATEGORY_LFI: 930\n - CATEGORY_RFI: 931\n - CATEGORY_RCE: 932\n - CATEGORY_PHP: 933\n - CATEGORY_GENERIC: 934\n - CATEGORY_XSS: 941\n - CATEGORY_SQLI: 942\n - CATEGORY_SESSION_FIXATION: 943\n - CATEGORY_JAVA: 944\n - CATEGORY_DATA_LEAKAGES: ====== RESPONSE PHASE ======\n\n950\n - CATEGORY_DATA_LEAKAGES_SQL: 951\n - CATEGORY_DATA_LEAKAGES_JAVA: 952\n - CATEGORY_DATA_LEAKAGES_PHP: 953\n - CATEGORY_DATA_LEAKAGES_IIS: 954\n - CATEGORY_WEB_SHELLS: 955\n - CATEGORY_DATA_LEAKAGES_RUBY: 956",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "CATEGORY_UNSPECIFIED",
+                "CATEGORY_COMMON_EXCEPTIONS",
+                "CATEGORY_METHOD_ENFORCEMENT",
+                "CATEGORY_SCANNER_DETECTION",
+                "CATEGORY_PROTOCOL_ENFORCEMENT",
+                "CATEGORY_PROTOCOL_ATTACK",
+                "CATEGORY_MULTIPART_ATTACK",
+                "CATEGORY_LFI",
+                "CATEGORY_RFI",
+                "CATEGORY_RCE",
+                "CATEGORY_PHP",
+                "CATEGORY_GENERIC",
+                "CATEGORY_XSS",
+                "CATEGORY_SQLI",
+                "CATEGORY_SESSION_FIXATION",
+                "CATEGORY_JAVA",
+                "CATEGORY_DATA_LEAKAGES",
+                "CATEGORY_DATA_LEAKAGES_SQL",
+                "CATEGORY_DATA_LEAKAGES_JAVA",
+                "CATEGORY_DATA_LEAKAGES_PHP",
+                "CATEGORY_DATA_LEAKAGES_IIS",
+                "CATEGORY_WEB_SHELLS",
+                "CATEGORY_DATA_LEAKAGES_RUBY"
+              ]
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "exclusionTags",
+            "description": "Tags excluded by core_ruleset.exclusions.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "exclusionRuleIds",
+            "description": "Rules with a variable excluded by core_ruleset.exclusions.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "overrideRuleIds",
+            "description": "Rules with a state changed by core_ruleset.overrides.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
             },
             "collectionFormat": "multi"
           }
@@ -1036,18 +1038,6 @@
     }
   },
   "definitions": {
-    "SecurityServiceUpdateCoreRulesetBody": {
-      "type": "object",
-      "properties": {
-        "coreRuleset": {
-          "$ref": "#/definitions/appssecurityv1CoreRuleset"
-        },
-        "updateMask": {
-          "type": "string",
-          "description": "Fields of core_ruleset to update, among name, description and\ncontent (\"*\" for all of them); without one, those set in core_ruleset.\nA named field unset in core_ruleset is cleared."
-        }
-      }
-    },
     "SecurityServiceUpdateRateLimitBody": {
       "type": "object",
       "properties": {
@@ -1060,6 +1050,18 @@
         }
       }
     },
+    "SecurityServiceUpdateRulesetBody": {
+      "type": "object",
+      "properties": {
+        "ruleset": {
+          "$ref": "#/definitions/v1Ruleset"
+        },
+        "updateMask": {
+          "type": "string",
+          "description": "Fields of ruleset to update, among name, description and\ncore_ruleset (\"*\" for all of them); without one, those set in ruleset.\nA named field unset in ruleset is cleared."
+        }
+      }
+    },
     "SecurityServiceUpdateSecRuleBody": {
       "type": "object",
       "properties": {
@@ -1069,26 +1071,6 @@
         "updateMask": {
           "type": "string",
           "description": "Fields of sec_rule to update, among name, description, expr, status,\npriority and action (\"*\" for all of them); without one, those set in\nsec_rule. A named field unset in sec_rule is cleared."
-        }
-      }
-    },
-    "appssecurityv1CoreRuleset": {
-      "type": "object",
-      "properties": {
-        "owner": {
-          "$ref": "#/definitions/v1Owner"
-        },
-        "id": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "content": {
-          "$ref": "#/definitions/typescorerulesetv1CoreRuleset"
         }
       }
     },
@@ -1138,73 +1120,16 @@
       },
       "title": "A complete rule definition"
     },
-    "typescorerulesetv1CoreRuleset": {
-      "type": "object",
-      "properties": {
-        "mode": {
-          "$ref": "#/definitions/v1EngineMode",
-          "title": "@gotags: yaml:\"mode\""
-        },
-        "version": {
-          "$ref": "#/definitions/v1Version",
-          "title": "@gotags: yaml:\"version\""
-        },
-        "paranoiaLevel": {
-          "type": "integer",
-          "format": "int64",
-          "description": "tx.blocking_paranoia_level, 0 = default (1).\n\n@gotags: yaml:\"paranoiaLevel\""
-        },
-        "detectionParanoiaLevel": {
-          "type": "integer",
-          "format": "int64",
-          "description": "tx.detection_paranoia_level, 0 = same as paranoia_level.\n\n@gotags: yaml:\"detectionParanoiaLevel\""
-        },
-        "threshold": {
-          "$ref": "#/definitions/v1AnomalyThreshold",
-          "title": "@gotags: yaml:\"threshold\""
-        },
-        "categories": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v1Category"
-          },
-          "description": "Enabled rule groups, empty = all.\n\n@gotags: yaml:\"categories\""
-        },
-        "request": {
-          "$ref": "#/definitions/v1RequestPolicy",
-          "title": "@gotags: yaml:\"request\""
-        },
-        "exclusions": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1Exclusion"
-          },
-          "title": "@gotags: yaml:\"exclusions\""
-        },
-        "overrides": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1RuleOverride"
-          },
-          "title": "@gotags: yaml:\"overrides\""
-        },
-        "status": {
-          "$ref": "#/definitions/typesv1Status",
-          "title": "@gotags: yaml:\"status\""
-        }
-      },
-      "description": "CoreRuleset OWASP CRS configuration of a server (namespace)."
-    },
     "typesv1Status": {
       "type": "string",
       "enum": [
         "STATUS_UNSPECIFIED",
         "STATUS_ACTIVE",
-        "STATUS_DISABLE"
+        "STATUS_DISABLE",
+        "STATUS_PENDING"
       ],
-      "default": "STATUS_UNSPECIFIED"
+      "default": "STATUS_UNSPECIFIED",
+      "description": " - STATUS_PENDING: Asked to be active, but waiting for what it needs to be served, as a\nresource for certificates that fit its TLS mode: served as disabled,\nand made active once it has them."
     },
     "v1ActionValue": {
       "type": "object",
@@ -1317,21 +1242,64 @@
       },
       "title": "A logical condition expression"
     },
-    "v1CreateCoreRulesetRequest": {
+    "v1CoreRuleset": {
       "type": "object",
       "properties": {
-        "coreRuleset": {
-          "$ref": "#/definitions/appssecurityv1CoreRuleset"
+        "mode": {
+          "$ref": "#/definitions/v1EngineMode",
+          "title": "@gotags: yaml:\"mode\""
+        },
+        "version": {
+          "$ref": "#/definitions/v1Version",
+          "title": "@gotags: yaml:\"version\""
+        },
+        "paranoiaLevel": {
+          "type": "integer",
+          "format": "int64",
+          "description": "tx.blocking_paranoia_level, 0 = default (1).\n\n@gotags: yaml:\"paranoiaLevel\""
+        },
+        "detectionParanoiaLevel": {
+          "type": "integer",
+          "format": "int64",
+          "description": "tx.detection_paranoia_level, 0 = same as paranoia_level.\n\n@gotags: yaml:\"detectionParanoiaLevel\""
+        },
+        "threshold": {
+          "$ref": "#/definitions/v1AnomalyThreshold",
+          "title": "@gotags: yaml:\"threshold\""
+        },
+        "categories": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Category"
+          },
+          "description": "Enabled rule groups, empty = all.\n\n@gotags: yaml:\"categories\""
+        },
+        "request": {
+          "$ref": "#/definitions/v1RequestPolicy",
+          "title": "@gotags: yaml:\"request\""
+        },
+        "exclusions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Exclusion"
+          },
+          "title": "@gotags: yaml:\"exclusions\""
+        },
+        "overrides": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1RuleOverride"
+          },
+          "title": "@gotags: yaml:\"overrides\""
+        },
+        "status": {
+          "$ref": "#/definitions/typesv1Status",
+          "title": "@gotags: yaml:\"status\""
         }
-      }
-    },
-    "v1CreateCoreRulesetResponse": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        }
-      }
+      },
+      "description": "CoreRuleset OWASP CRS configuration of a server (namespace)."
     },
     "v1CreateRateLimitRequest": {
       "type": "object",
@@ -1342,6 +1310,22 @@
       }
     },
     "v1CreateRateLimitResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      }
+    },
+    "v1CreateRulesetRequest": {
+      "type": "object",
+      "properties": {
+        "ruleset": {
+          "$ref": "#/definitions/v1Ruleset"
+        }
+      }
+    },
+    "v1CreateRulesetResponse": {
       "type": "object",
       "properties": {
         "id": {
@@ -1365,10 +1349,10 @@
         }
       }
     },
-    "v1DeleteCoreRulesetResponse": {
+    "v1DeleteRateLimitResponse": {
       "type": "object"
     },
-    "v1DeleteRateLimitResponse": {
+    "v1DeleteRulesetResponse": {
       "type": "object"
     },
     "v1DeleteSecRuleResponse": {
@@ -1454,11 +1438,11 @@
       "default": "FIELD_SOURCE_UNSPECIFIED",
       "title": "The possible sources from which a field can be extracted in a request"
     },
-    "v1GetCoreRulesetResponse": {
+    "v1GetCRSRuleInfoResponse": {
       "type": "object",
       "properties": {
-        "coreRuleset": {
-          "$ref": "#/definitions/appssecurityv1CoreRuleset"
+        "rule": {
+          "$ref": "#/definitions/v1RuleInfo"
         }
       }
     },
@@ -1470,11 +1454,11 @@
         }
       }
     },
-    "v1GetRuleInfoResponse": {
+    "v1GetRulesetResponse": {
       "type": "object",
       "properties": {
-        "rule": {
-          "$ref": "#/definitions/v1RuleInfo"
+        "ruleset": {
+          "$ref": "#/definitions/v1Ruleset"
         }
       }
     },
@@ -1486,19 +1470,38 @@
         }
       }
     },
-    "v1ListCoreRulesetsResponse": {
+    "v1ListCRSRuleInfosResponse": {
       "type": "object",
       "properties": {
-        "coreRulesets": {
+        "rules": {
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/appssecurityv1CoreRuleset"
+            "$ref": "#/definitions/v1RuleInfo"
           }
         },
         "total": {
           "type": "string",
-          "format": "int64"
+          "format": "int64",
+          "description": "Number of rules matching the filters, whatever the page."
+        }
+      }
+    },
+    "v1ListCRSRuleTagsResponse": {
+      "type": "object",
+      "properties": {
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1RuleTag"
+          },
+          "description": "Sorted by name."
+        },
+        "total": {
+          "type": "string",
+          "format": "int64",
+          "description": "Number of tags matching the filters, whatever the page."
         }
       }
     },
@@ -1518,38 +1521,19 @@
         }
       }
     },
-    "v1ListRuleInfosResponse": {
+    "v1ListRulesetsResponse": {
       "type": "object",
       "properties": {
-        "rules": {
+        "rulesets": {
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/v1RuleInfo"
+            "$ref": "#/definitions/v1Ruleset"
           }
         },
         "total": {
           "type": "string",
-          "format": "int64",
-          "description": "Number of rules matching the filters, whatever the page."
-        }
-      }
-    },
-    "v1ListRuleTagsResponse": {
-      "type": "object",
-      "properties": {
-        "tags": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1RuleTag"
-          },
-          "description": "Sorted by name."
-        },
-        "total": {
-          "type": "string",
-          "format": "int64",
-          "description": "Number of tags matching the filters, whatever the page."
+          "format": "int64"
         }
       }
     },
@@ -1784,6 +1768,26 @@
       },
       "description": "RuleTag tag of the OWASP CRS catalog, ex: \"attack-sqli\"."
     },
+    "v1Ruleset": {
+      "type": "object",
+      "properties": {
+        "owner": {
+          "$ref": "#/definitions/v1Owner"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "coreRuleset": {
+          "$ref": "#/definitions/v1CoreRuleset"
+        }
+      }
+    },
     "v1SecRule": {
       "type": "object",
       "properties": {
@@ -1828,19 +1832,19 @@
         }
       }
     },
-    "v1UpdateCoreRulesetResponse": {
-      "type": "object",
-      "properties": {
-        "coreRuleset": {
-          "$ref": "#/definitions/appssecurityv1CoreRuleset"
-        }
-      }
-    },
     "v1UpdateRateLimitResponse": {
       "type": "object",
       "properties": {
         "rateLimit": {
           "$ref": "#/definitions/v1RateLimit"
+        }
+      }
+    },
+    "v1UpdateRulesetResponse": {
+      "type": "object",
+      "properties": {
+        "ruleset": {
+          "$ref": "#/definitions/v1Ruleset"
         }
       }
     },

@@ -52,16 +52,16 @@ const (
 	TenantResource Prefix = "rsrc"  // resource owned by a tenant
 	CaCertificate  Prefix = "cacrt" // CA certificate of a resource
 
-	// ── Security (security.secrules, .ratelimits, .corerulesets) ──
-	SecRule     Prefix = "srule" // WAF SecRule
-	Condition   Prefix = "cond"  // SecRule expression condition
-	RateLimit   Prefix = "rlim"  // rate limit
-	CoreRuleset Prefix = "crs"   // OWASP core ruleset
+	// ── Security (security.secrules, .ratelimits, .ruleset) ──
+	SecRule   Prefix = "srule" // WAF SecRule
+	Condition Prefix = "cond"  // SecRule expression condition
+	RateLimit Prefix = "rlim"  // rate limit
+	Ruleset   Prefix = "rs"    // ruleset
 
 	// ── Analytic (analytic.activities, .secrules, .corerulesets) ──
-	Activity         Prefix = "actv"  // tenant activity
-	SecRuleEvent     Prefix = "srevt" // SecRule match event
-	CoreRulesetEvent Prefix = "crevt" // core ruleset match event
+	Activity     Prefix = "actv"  // tenant activity
+	SecRuleEvent Prefix = "srevt" // SecRule match event
+	RulesetEvent Prefix = "rsevt" // ruleset match event
 
 	// ── Identity & access ──
 	Team          Prefix = "team" // team

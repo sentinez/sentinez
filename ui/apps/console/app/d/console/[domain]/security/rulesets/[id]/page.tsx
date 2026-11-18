@@ -7,20 +7,21 @@ import { toast } from '@/lib/toast';
 import IsLoading from '@sentinez/ui/components/common/loading';
 import {
   CoreRulesetFields,
+  CrsNotice,
   CoreRulesetFormValue,
   coreRulesetFormOf,
   coreRulesetOf,
   createEmptyCoreRulesetForm,
   validateCoreRulesetForm,
 } from '../../components';
-import { getCoreRuleset, updateCoreRuleset } from '@/lib/api/security';
+import { getRuleset, updateRuleset } from '@/lib/api/security';
 import type { UpdateMask } from '@/lib/api/mask';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 import { useEffect, useState } from 'react';
 
 // the fields the form edits, in lowerCamelCase as the JSON of the mask
 // names them: protojson rejects `*` and snake_case paths
-const UPDATE_MASK: UpdateMask = ['name', 'description', 'content'];
+const UPDATE_MASK: UpdateMask = ['name', 'description', 'coreRuleset'];
 
 export default function EditRulesetPage({ params }: { params: Promise<{ id: string }> }) {
   const t = useTranslations('Rulesets');
@@ -38,8 +39,8 @@ export default function EditRulesetPage({ params }: { params: Promise<{ id: stri
       try {
         const { id } = await params;
         setId(id);
-        const { coreRuleset } = await getCoreRuleset({ id });
-        if (coreRuleset) setForm(coreRulesetFormOf(coreRuleset));
+        const { ruleset } = await getRuleset({ id });
+        if (ruleset) setForm(coreRulesetFormOf(ruleset));
       } catch {
         toast.error(t('loadDetailFailed'));
       } finally {
@@ -59,9 +60,9 @@ export default function EditRulesetPage({ params }: { params: Promise<{ id: stri
 
     setSaving(true);
     try {
-      await updateCoreRuleset({
+      await updateRuleset({
         id,
-        coreRuleset: coreRulesetOf(form, id),
+        ruleset: coreRulesetOf(form, id),
         updateMask: UPDATE_MASK,
       });
       toast.success(t('updated'));
@@ -90,6 +91,7 @@ export default function EditRulesetPage({ params }: { params: Promise<{ id: stri
         </div>
       </PageLayoutHeader>
       <PageLayoutContent size="sm">
+        <CrsNotice />
         <CoreRulesetFields value={form} onChange={patchForm} idPrefix="edit" />
       </PageLayoutContent>
     </PageLayout>

@@ -1,4 +1,4 @@
-import { CoreRuleset } from '@sentinez/proto/sentinez/apps/security/v1/model';
+import { Ruleset } from '@sentinez/proto/sentinez/apps/security/v1/model';
 import {
   Category,
   EngineMode,
@@ -123,9 +123,9 @@ const scopeOf = (expr?: Expression) => ({
   expr: expr?.orCondition.length ? expr : createEmptyExpression(),
 });
 
-/** CoreRuleset (API) -> form value */
-export function coreRulesetFormOf(r: CoreRuleset): CoreRulesetFormValue {
-  const c = r.content;
+/** Ruleset (API) -> form value */
+export function coreRulesetFormOf(r: Ruleset): CoreRulesetFormValue {
+  const c = r.coreRuleset;
   return {
     name: r.name,
     description: r.description,
@@ -169,13 +169,13 @@ const ruleOverrideOf = (o: RuleOverrideFormValue): RuleOverride => ({
   expr: o.scoped ? o.expr : undefined,
 });
 
-/** Form value -> CoreRuleset (API) */
-export function coreRulesetOf(f: CoreRulesetFormValue, id = ''): CoreRuleset {
+/** Form value -> Ruleset (API) */
+export function coreRulesetOf(f: CoreRulesetFormValue, id = ''): Ruleset {
   return {
     id,
     name: f.name.trim(),
     description: f.description,
-    content: {
+    coreRuleset: {
       mode: f.mode,
       version: f.version,
       paranoiaLevel: f.paranoiaLevel,

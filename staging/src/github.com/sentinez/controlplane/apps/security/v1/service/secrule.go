@@ -17,8 +17,8 @@ package securitysvc
 import (
 	"context"
 
-	"github.com/sentinez/controlplane/apps/security/v1/repos/coreruleset"
 	"github.com/sentinez/controlplane/apps/security/v1/repos/ratelimit"
+	"github.com/sentinez/controlplane/apps/security/v1/repos/ruleset"
 	"github.com/sentinez/controlplane/apps/security/v1/repos/secrule"
 	"github.com/sentinez/controlplane/pkg/auditchange"
 	"github.com/sentinez/controlplane/pkg/authz"
@@ -37,25 +37,25 @@ func New(
 	config *settingpb.Config,
 	secRuleRepo secrule.ISecRule,
 	rateLimitRepo ratelimit.IRateLimit,
-	coreRulesetRepo coreruleset.ICoreRuleset,
+	rulesetRepo ruleset.IRuleset,
 	az *authz.Authorizer,
 ) *SecurityService {
 	return &SecurityService{
-		config:          config,
-		secRuleRepo:     secRuleRepo,
-		rateLimitRepo:   rateLimitRepo,
-		coreRulesetRepo: coreRulesetRepo,
-		authz:           az,
+		config:        config,
+		secRuleRepo:   secRuleRepo,
+		rateLimitRepo: rateLimitRepo,
+		rulesetRepo:   rulesetRepo,
+		authz:         az,
 	}
 }
 
 // SecurityService handles security operations.
 type SecurityService struct {
-	config          *settingpb.Config
-	secRuleRepo     secrule.ISecRule
-	rateLimitRepo   ratelimit.IRateLimit
-	coreRulesetRepo coreruleset.ICoreRuleset
-	authz           *authz.Authorizer
+	config        *settingpb.Config
+	secRuleRepo   secrule.ISecRule
+	rateLimitRepo ratelimit.IRateLimit
+	rulesetRepo   ruleset.IRuleset
+	authz         *authz.Authorizer
 }
 
 // newOwner checks the caller may write the resource of owner and returns

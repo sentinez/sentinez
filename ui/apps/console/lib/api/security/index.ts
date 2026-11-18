@@ -1,38 +1,38 @@
-import { CoreRuleset, RateLimit, SecRule } from '@sentinez/proto/sentinez/apps/security/v1/model';
+import { Ruleset, RateLimit, SecRule } from '@sentinez/proto/sentinez/apps/security/v1/model';
 import {
-  CreateCoreRulesetRequest,
-  CreateCoreRulesetResponse,
+  CreateRulesetRequest,
+  CreateRulesetResponse,
   CreateRateLimitRequest,
   CreateRateLimitResponse,
   CreateSecRuleRequest,
   CreateSecRuleResponse,
-  DeleteCoreRulesetRequest,
-  DeleteCoreRulesetResponse,
+  DeleteRulesetRequest,
+  DeleteRulesetResponse,
   DeleteRateLimitRequest,
   DeleteRateLimitResponse,
   DeleteSecRuleRequest,
   DeleteSecRuleResponse,
-  GetCoreRulesetRequest,
-  GetCoreRulesetResponse,
+  GetRulesetRequest,
+  GetRulesetResponse,
   GetRateLimitRequest,
   GetRateLimitResponse,
-  GetRuleInfoRequest,
-  GetRuleInfoResponse,
+  GetCRSRuleInfoRequest,
+  GetCRSRuleInfoResponse,
   GetSecRuleRequest,
   GetSecRuleResponse,
-  ListCoreRulesetsRequest,
-  ListCoreRulesetsResponse,
+  ListRulesetsRequest,
+  ListRulesetsResponse,
   ListRateLimitsRequest,
   ListRateLimitsResponse,
-  ListRuleInfosRequest,
-  ListRuleInfosResponse,
-  ListRuleTagsRequest,
-  ListRuleTagsResponse,
+  ListCRSRuleInfosRequest,
+  ListCRSRuleInfosResponse,
+  ListCRSRuleTagsRequest,
+  ListCRSRuleTagsResponse,
   ListSecRulesRequest,
   ListSecRulesResponse,
   StatusResponse,
-  UpdateCoreRulesetRequest,
-  UpdateCoreRulesetResponse,
+  UpdateRulesetRequest,
+  UpdateRulesetResponse,
   UpdateRateLimitRequest,
   UpdateRateLimitResponse,
   UpdateSecRuleRequest,
@@ -299,12 +299,12 @@ let sampleRateLimitStore: RateLimit[] = [
   ),
 ];
 
-export const SAMPLE_CORE_RULESETS: CoreRuleset[] = [
+export const SAMPLE_RULESETS: Ruleset[] = [
   {
-    id: 'sample-coreruleset-1',
+    id: 'sample-ruleset-1',
     name: 'Default protection',
     description: 'Sample: blocking, paranoia level 1, every rule group',
-    content: {
+    coreRuleset: {
       mode: 'ENGINE_MODE_ON',
       version: 'VERSION_V4_17_0',
       paranoiaLevel: 1,
@@ -314,10 +314,10 @@ export const SAMPLE_CORE_RULESETS: CoreRuleset[] = [
     },
   },
   {
-    id: 'sample-coreruleset-2',
+    id: 'sample-ruleset-2',
     name: 'Strict API',
     description: 'Sample: paranoia level 3, SQLi/XSS/RCE only, tuned exclusions and overrides',
-    content: {
+    coreRuleset: {
       mode: 'ENGINE_MODE_ON',
       version: 'VERSION_V4_17_0',
       paranoiaLevel: 3,
@@ -342,19 +342,19 @@ export const SAMPLE_CORE_RULESETS: CoreRuleset[] = [
     },
   },
   {
-    id: 'sample-coreruleset-3',
+    id: 'sample-ruleset-3',
     name: 'Staging (detection only)',
     description: 'Sample: logs matches without blocking, disabled',
-    content: {
+    coreRuleset: {
       mode: 'ENGINE_MODE_DETECTION_ONLY',
       version: 'VERSION_V4_16_0',
       paranoiaLevel: 2,
       status: 'STATUS_DISABLE',
     },
   },
-].map((r) => ofResource(CoreRuleset.fromJSON(r)));
+].map((r) => ofResource(Ruleset.fromJSON(r)));
 
-let sampleCoreRulesetStore: CoreRuleset[] = [...SAMPLE_CORE_RULESETS];
+let sampleRulesetStore: Ruleset[] = [...SAMPLE_RULESETS];
 
 export const SAMPLE_RULE_INFOS: RuleInfo[] = [
   {
@@ -434,17 +434,17 @@ const anyOf = <T>(filter: T[] | undefined, value: T) => !filter?.length || filte
 const includesText = (text: string, part?: string) =>
   !part || text.toLowerCase().includes(part.toLowerCase());
 
-const filterCoreRulesets = (req: Partial<ListCoreRulesetsRequest>) =>
-  byResources(byIds(sampleCoreRulesetStore, req.ids), req.resourceIds).filter(
+const filterRulesets = (req: Partial<ListRulesetsRequest>) =>
+  byResources(byIds(sampleRulesetStore, req.ids), req.resourceIds).filter(
     (r) =>
       includesText(r.name, req.name) &&
-      anyOf(req.modes, r.content?.mode) &&
-      anyOf(req.versions, r.content?.version) &&
-      anyOf(req.statuses, r.content?.status) &&
-      (!req.paranoiaLevel || r.content?.paranoiaLevel === req.paranoiaLevel),
+      anyOf(req.modes, r.coreRuleset?.mode) &&
+      anyOf(req.versions, r.coreRuleset?.version) &&
+      anyOf(req.statuses, r.coreRuleset?.status) &&
+      (!req.paranoiaLevel || r.coreRuleset?.paranoiaLevel === req.paranoiaLevel),
   );
 
-const filterRuleInfos = (req: Partial<ListRuleInfosRequest>) =>
+const filterCRSRuleInfos = (req: Partial<ListCRSRuleInfosRequest>) =>
   SAMPLE_RULE_INFOS.filter(
     (r) =>
       (req.includeSystem || !r.system) &&
@@ -461,7 +461,7 @@ const filterRuleInfos = (req: Partial<ListRuleInfosRequest>) =>
         String(r.id).startsWith(req.search ?? '')),
   );
 
-const sampleRuleTags = (req: Partial<ListRuleTagsRequest>) => {
+const sampleCRSRuleTags = (req: Partial<ListCRSRuleTagsRequest>) => {
   const counts = new Map<string, number>();
   for (const rule of SAMPLE_RULE_INFOS) {
     if (rule.system && !req.includeSystem) continue;
@@ -670,146 +670,145 @@ export async function deleteRateLimit(
   });
 }
 
-// GET /security/corerulesets
-export async function listCoreRulesets(
-  req: Partial<ListCoreRulesetsRequest> = {},
+// GET /security/rulesets
+export async function listRulesets(
+  req: Partial<ListRulesetsRequest> = {},
   options?: ApiOptions,
-): Promise<ListCoreRulesetsResponse> {
-  return withFallback('listCoreRulesets', () => {
-    const list = filterCoreRulesets(req);
-    return { coreRulesets: paginate(list, req.page), total: list.length };
+): Promise<ListRulesetsResponse> {
+  return withFallback('listRulesets', () => {
+    const list = filterRulesets(req);
+    return { rulesets: paginate(list, req.page), total: list.length };
   })(async () => {
-    const resp = await axios.get(`${API_BASE_PATH}/security/corerulesets`, {
-      params: toQuery(ListCoreRulesetsRequest.toJSON(ListCoreRulesetsRequest.fromPartial(req))),
+    const resp = await axios.get(`${API_BASE_PATH}/security/rulesets`, {
+      params: toQuery(ListRulesetsRequest.toJSON(ListRulesetsRequest.fromPartial(req))),
       // repeat the keys of repeated filters (collectionFormat: multi)
       paramsSerializer: { indexes: null },
       signal: options?.signal,
     });
-    return ListCoreRulesetsResponse.fromJSON(resp.data ?? {});
+    return ListRulesetsResponse.fromJSON(resp.data ?? {});
   });
 }
 
-// GET /security/coreruleset/{id}
-export async function getCoreRuleset(
-  req: GetCoreRulesetRequest,
+// GET /security/ruleset/{id}
+export async function getRuleset(
+  req: GetRulesetRequest,
   options?: ApiOptions,
-): Promise<GetCoreRulesetResponse> {
-  return withFallback<GetCoreRulesetResponse>('getCoreRuleset', () => ({
-    coreRuleset: sampleCoreRulesetStore.find((r) => r.id === req.id) ?? sampleCoreRulesetStore[0],
+): Promise<GetRulesetResponse> {
+  return withFallback<GetRulesetResponse>('getRuleset', () => ({
+    ruleset: sampleRulesetStore.find((r) => r.id === req.id) ?? sampleRulesetStore[0],
   }))(async () => {
-    const endpoint = `${API_BASE_PATH}/security/coreruleset/${encodeURIComponent(req.id)}`;
+    const endpoint = `${API_BASE_PATH}/security/ruleset/${encodeURIComponent(req.id)}`;
     const resp = await axios.get(endpoint, { signal: options?.signal });
-    return GetCoreRulesetResponse.fromJSON(resp.data ?? {});
+    return GetRulesetResponse.fromJSON(resp.data ?? {});
   });
 }
 
-// POST /security/coreruleset
-export async function createCoreRuleset(
-  req: CreateCoreRulesetRequest,
+// POST /security/ruleset
+export async function createRuleset(
+  req: CreateRulesetRequest,
   options?: ApiOptions,
-): Promise<CreateCoreRulesetResponse> {
-  return withFallback('createCoreRuleset', () => {
-    const id = `sample-coreruleset-${Date.now()}`;
-    sampleCoreRulesetStore = [
-      ...sampleCoreRulesetStore,
-      CoreRuleset.fromPartial({ ...req.coreRuleset, id }),
-    ];
+): Promise<CreateRulesetResponse> {
+  return withFallback('createRuleset', () => {
+    const id = `sample-ruleset-${Date.now()}`;
+    sampleRulesetStore = [...sampleRulesetStore, Ruleset.fromPartial({ ...req.ruleset, id })];
     return { id };
   })(async () => {
     const resp = await axios.post(
-      `${API_BASE_PATH}/security/coreruleset`,
-      CreateCoreRulesetRequest.toJSON(req),
+      `${API_BASE_PATH}/security/ruleset`,
+      CreateRulesetRequest.toJSON(req),
       { signal: options?.signal },
     );
-    return CreateCoreRulesetResponse.fromJSON(resp.data ?? {});
+    return CreateRulesetResponse.fromJSON(resp.data ?? {});
   });
 }
 
-// PUT /security/coreruleset/{id}
-export async function updateCoreRuleset(
-  req: UpdateCoreRulesetRequest,
+// PUT /security/ruleset/{id}
+export async function updateRuleset(
+  req: UpdateRulesetRequest,
   options?: ApiOptions,
-): Promise<UpdateCoreRulesetResponse> {
-  return withFallback<UpdateCoreRulesetResponse>('updateCoreRuleset', () => {
-    const owner = sampleCoreRulesetStore.find((r) => r.id === req.id)?.owner;
-    const next = CoreRuleset.fromPartial({ ...req.coreRuleset, id: req.id, owner });
-    sampleCoreRulesetStore = sampleCoreRulesetStore.map((r) => (r.id === req.id ? next : r));
-    return { coreRuleset: next };
+): Promise<UpdateRulesetResponse> {
+  return withFallback<UpdateRulesetResponse>('updateRuleset', () => {
+    const owner = sampleRulesetStore.find((r) => r.id === req.id)?.owner;
+    const next = Ruleset.fromPartial({ ...req.ruleset, id: req.id, owner });
+    sampleRulesetStore = sampleRulesetStore.map((r) => (r.id === req.id ? next : r));
+    return { ruleset: next };
   })(async () => {
     const resp = await axios.put(
-      `${API_BASE_PATH}/security/coreruleset/${encodeURIComponent(req.id)}`,
-      UpdateCoreRulesetRequest.toJSON(req),
+      `${API_BASE_PATH}/security/ruleset/${encodeURIComponent(req.id)}`,
+      UpdateRulesetRequest.toJSON(req),
       { signal: options?.signal },
     );
-    return UpdateCoreRulesetResponse.fromJSON(resp.data ?? {});
+    return UpdateRulesetResponse.fromJSON(resp.data ?? {});
   });
 }
 
-// DELETE /security/coreruleset/{id}
-export async function deleteCoreRuleset(
-  req: DeleteCoreRulesetRequest,
+// DELETE /security/ruleset/{id}
+export async function deleteRuleset(
+  req: DeleteRulesetRequest,
   options?: ApiOptions,
-): Promise<DeleteCoreRulesetResponse> {
-  return withFallback<DeleteCoreRulesetResponse>('deleteCoreRuleset', () => {
-    sampleCoreRulesetStore = sampleCoreRulesetStore.filter((r) => r.id !== req.id);
+): Promise<DeleteRulesetResponse> {
+  return withFallback<DeleteRulesetResponse>('deleteRuleset', () => {
+    sampleRulesetStore = sampleRulesetStore.filter((r) => r.id !== req.id);
     return {};
   })(async () => {
-    const endpoint = `${API_BASE_PATH}/security/coreruleset/${encodeURIComponent(req.id)}`;
+    const endpoint = `${API_BASE_PATH}/security/ruleset/${encodeURIComponent(req.id)}`;
     const resp = await axios.delete(endpoint, { signal: options?.signal });
-    return DeleteCoreRulesetResponse.fromJSON(resp.data ?? {});
+    return DeleteRulesetResponse.fromJSON(resp.data ?? {});
   });
 }
 
 // GET /security/crs/rules
-export async function listRuleInfos(
-  req: Partial<ListRuleInfosRequest> = {},
+export async function listCRSRuleInfos(
+  req: Partial<ListCRSRuleInfosRequest> = {},
   options?: ApiOptions,
-): Promise<ListRuleInfosResponse> {
-  return withFallback('listRuleInfos', () => {
-    const list = filterRuleInfos(req);
+): Promise<ListCRSRuleInfosResponse> {
+  return withFallback('listCRSRuleInfos', () => {
+    const list = filterCRSRuleInfos(req);
     return { rules: paginate(list, req.page), total: list.length };
   })(async () => {
     const resp = await axios.get(`${API_BASE_PATH}/security/crs/rules`, {
-      params: toQuery(ListRuleInfosRequest.toJSON(ListRuleInfosRequest.fromPartial(req))),
+      params: toQuery(ListCRSRuleInfosRequest.toJSON(ListCRSRuleInfosRequest.fromPartial(req))),
       // repeat the keys of repeated filters (collectionFormat: multi)
       paramsSerializer: { indexes: null },
       signal: options?.signal,
     });
-    return ListRuleInfosResponse.fromJSON(resp.data ?? {});
+    return ListCRSRuleInfosResponse.fromJSON(resp.data ?? {});
   });
 }
 
 // GET /security/crs/tags
-export async function listRuleTags(
-  req: Partial<ListRuleTagsRequest> = {},
+export async function listCRSRuleTags(
+  req: Partial<ListCRSRuleTagsRequest> = {},
   options?: ApiOptions,
-): Promise<ListRuleTagsResponse> {
-  return withFallback('listRuleTags', () => {
-    const list = sampleRuleTags(req);
+): Promise<ListCRSRuleTagsResponse> {
+  return withFallback('listCRSRuleTags', () => {
+    const list = sampleCRSRuleTags(req);
     return { tags: paginate(list, req.page), total: list.length };
   })(async () => {
     const resp = await axios.get(`${API_BASE_PATH}/security/crs/tags`, {
-      params: toQuery(ListRuleTagsRequest.toJSON(ListRuleTagsRequest.fromPartial(req))),
+      params: toQuery(ListCRSRuleTagsRequest.toJSON(ListCRSRuleTagsRequest.fromPartial(req))),
       signal: options?.signal,
     });
-    return ListRuleTagsResponse.fromJSON(resp.data ?? {});
+    return ListCRSRuleTagsResponse.fromJSON(resp.data ?? {});
   });
 }
 
 // GET /security/crs/rules/{id}
-export async function getRuleInfo(
-  req: Partial<GetRuleInfoRequest> & Pick<GetRuleInfoRequest, 'id'>,
+export async function getCRSRuleInfo(
+  req: Partial<GetCRSRuleInfoRequest> & Pick<GetCRSRuleInfoRequest, 'id'>,
   options?: ApiOptions,
-): Promise<GetRuleInfoResponse> {
-  return withFallback<GetRuleInfoResponse>('getRuleInfo', () => ({
+): Promise<GetCRSRuleInfoResponse> {
+  return withFallback<GetCRSRuleInfoResponse>('getCRSRuleInfo', () => ({
     rule: SAMPLE_RULE_INFOS.find((r) => r.id === req.id),
   }))(async () => {
     const resp = await axios.get(`${API_BASE_PATH}/security/crs/rules/${req.id}`, {
       // `id` is the path param: zero it so toJSON leaves it out of the query
-      params: toQuery(GetRuleInfoRequest.toJSON(GetRuleInfoRequest.fromPartial({ ...req, id: 0 }))),
+      params: toQuery(
+        GetCRSRuleInfoRequest.toJSON(GetCRSRuleInfoRequest.fromPartial({ ...req, id: 0 })),
+      ),
       signal: options?.signal,
     });
-    return GetRuleInfoResponse.fromJSON(resp.data ?? {});
+    return GetCRSRuleInfoResponse.fromJSON(resp.data ?? {});
   });
 }
 

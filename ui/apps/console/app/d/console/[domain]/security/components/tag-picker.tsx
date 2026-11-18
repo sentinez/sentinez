@@ -18,7 +18,7 @@ import { Input } from '@sentinez/ui/components/input';
 import { RuleTag } from '@sentinez/proto/sentinez/apps/security/v1/security';
 import { Version } from '@sentinez/proto/sentinez/types/coreruleset/v1/setting';
 import { useDebounced } from '@/hooks/use-debounced';
-import { listRuleTags } from '@/lib/api/security';
+import { listCRSRuleTags } from '@/lib/api/security';
 import { toast } from '@/lib/toast';
 import { PICKER_PAGE_SIZE, PickerPager } from './rule-picker';
 
@@ -49,7 +49,7 @@ export function TagPicker({ version, selected, onToggle, onClose }: Props) {
       version,
       search: query,
     };
-    listRuleTags(request, { signal: controller.signal })
+    listCRSRuleTags(request, { signal: controller.signal })
       .then((res) => {
         setTags(res.tags);
         setTotal(res.total);

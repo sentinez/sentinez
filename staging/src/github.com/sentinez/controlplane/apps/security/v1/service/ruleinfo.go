@@ -29,25 +29,25 @@ import (
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
 
-// ── RuleInfo ───────────────────────────────────────────────────────────
+// ── CRSRuleInfo ────────────────────────────────────────────────────────
 
-// GetRuleInfo retrieves a rule of the OWASP CRS catalog by ID
-func (srv *SecurityService) GetRuleInfo(_ context.Context,
-	req *securitypb.GetRuleInfoRequest,
-) (*securitypb.GetRuleInfoResponse, error) {
+// GetCRSRuleInfo retrieves a rule of the OWASP CRS catalog by ID
+func (srv *SecurityService) GetCRSRuleInfo(_ context.Context,
+	req *securitypb.GetCRSRuleInfoRequest,
+) (*securitypb.GetCRSRuleInfoResponse, error) {
 	rule, ok := catalog.Rule(req.GetVersion(), req.GetId())
 	if !ok {
 		return nil, szerror.StatusNotFoundF(
 			"rule not found: id=%d", req.GetId())
 	}
 
-	return &securitypb.GetRuleInfoResponse{Rule: rule}, nil
+	return &securitypb.GetCRSRuleInfoResponse{Rule: rule}, nil
 }
 
-// ListRuleInfos searches the OWASP CRS catalog, sorted by rule ID
-func (srv *SecurityService) ListRuleInfos(_ context.Context,
-	req *securitypb.ListRuleInfosRequest,
-) (*securitypb.ListRuleInfosResponse, error) {
+// ListCRSRuleInfos searches the OWASP CRS catalog, sorted by rule ID
+func (srv *SecurityService) ListCRSRuleInfos(_ context.Context,
+	req *securitypb.ListCRSRuleInfosRequest,
+) (*securitypb.ListCRSRuleInfosResponse, error) {
 	match := ruleInfoMatcher(req)
 
 	var rules []*corerulesetpb.RuleInfo
@@ -57,16 +57,16 @@ func (srv *SecurityService) ListRuleInfos(_ context.Context,
 		}
 	}
 
-	return &securitypb.ListRuleInfosResponse{
+	return &securitypb.ListCRSRuleInfosResponse{
 		Rules: pageOf(rules, req.GetPage()),
 		Total: int64(len(rules)),
 	}, nil
 }
 
-// ListRuleTags lists the tags of the OWASP CRS catalog, sorted by name
-func (srv *SecurityService) ListRuleTags(_ context.Context,
-	req *securitypb.ListRuleTagsRequest,
-) (*securitypb.ListRuleTagsResponse, error) {
+// ListCRSRuleTags lists the tags of the OWASP CRS catalog, sorted by name
+func (srv *SecurityService) ListCRSRuleTags(_ context.Context,
+	req *securitypb.ListCRSRuleTagsRequest,
+) (*securitypb.ListCRSRuleTagsResponse, error) {
 	search := strings.ToLower(strings.TrimSpace(req.GetSearch()))
 	counts := make(map[string]uint32)
 
@@ -89,7 +89,7 @@ func (srv *SecurityService) ListRuleTags(_ context.Context,
 		})
 	}
 
-	return &securitypb.ListRuleTagsResponse{
+	return &securitypb.ListCRSRuleTagsResponse{
 		Tags:  pageOf(tags, req.GetPage()),
 		Total: int64(len(tags)),
 	}, nil
@@ -98,7 +98,7 @@ func (srv *SecurityService) ListRuleTags(_ context.Context,
 // ruleInfoMatcher reports whether a rule passes every filter of the
 // request.
 func ruleInfoMatcher(
-	req *securitypb.ListRuleInfosRequest,
+	req *securitypb.ListCRSRuleInfosRequest,
 ) func(*corerulesetpb.RuleInfo) bool {
 	search := strings.ToLower(strings.TrimSpace(req.GetSearch()))
 

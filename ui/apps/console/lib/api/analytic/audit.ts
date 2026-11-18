@@ -91,14 +91,14 @@ const sampleCalls = (tenantId: string): SampleCall[] => [
     change: [{ field: 'name', before: 'store', after: 'shop' }],
   },
   {
-    method: '/sentinez.apps.security.v1.SecurityService/UpdateCoreRuleset',
+    method: '/sentinez.apps.security.v1.SecurityService/UpdateRuleset',
     request: {
-      id: 'crs_sample',
-      coreRuleset: { content: SAMPLE_CRS_AFTER },
-      updateMask: 'content',
+      id: 'rs_sample',
+      ruleset: { coreRuleset: SAMPLE_CRS_AFTER },
+      updateMask: 'coreRuleset',
     },
     resourceId: 'rsrc_sample',
-    change: [{ field: 'content', before: SAMPLE_CRS_BEFORE, after: SAMPLE_CRS_AFTER }],
+    change: [{ field: 'core_ruleset', before: SAMPLE_CRS_BEFORE, after: SAMPLE_CRS_AFTER }],
   },
   {
     method: '/sentinez.apps.iam.v1.IdentityAccessManagementService/Login',

@@ -60,7 +60,7 @@ func scannedColumnsTests() []scannedColumnsTest {
 		{"resources", TenantResources(), tenantpb.ResourceColumns()},
 		{"secrules", SecuritySecRules(), securitypb.SecRuleColumns()},
 		{"ratelimits", SecurityRateLimits(), securitypb.RateLimitColumns()},
-		{"rulesets", SecurityCoreRulesets(), securitypb.CoreRulesetColumns()},
+		{"rulesets", SecurityCoreRulesets(), securitypb.RulesetColumns()},
 		{"activities", AnalyticActivities(), analyticpb.ActivityColumns()},
 		{"secrule evt", AnalyticSecRulesEvent(), _secRuleEventColumns},
 		{"ratelimit evt", AnalyticRateLimiterEvent(), _secRuleEventColumns},
