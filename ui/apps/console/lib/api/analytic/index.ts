@@ -38,6 +38,7 @@ export {
   spanOf,
   type ApiOptions,
 } from './common';
+export * from './audit';
 export * from './events';
 export type { Pages };
 

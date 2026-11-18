@@ -19,10 +19,12 @@ import (
 	"errors"
 	"time"
 
+	"github.com/sentinez/controlplane/pkg/auditchange"
 	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/pkg/szerror"
 	"github.com/sentinez/pkg/szprotobuf"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
+	"google.golang.org/protobuf/proto"
 )
 
 var errNonPositiveDuration = errors.New("must be greater than 0")
@@ -112,6 +114,7 @@ func (srv *SecurityService) UpdateRateLimit(ctx context.Context,
 		return nil, err
 	}
 
+	before := proto.CloneOf(dbRL)
 	paths, err := szprotobuf.ApplyMask(dbRL, req.GetRateLimit(),
 		req.GetUpdateMask(), _rateLimitUpdatable...)
 	if err != nil {
@@ -125,6 +128,8 @@ func (srv *SecurityService) UpdateRateLimit(ctx context.Context,
 	if err = srv.rateLimitRepo.Update(ctx, dbRL, paths); err != nil {
 		return nil, err
 	}
+
+	auditchange.Set(ctx, before, dbRL, paths)
 
 	return &securitypb.
 		UpdateRateLimitResponse{RateLimit: srv.mapRateLimit(ctx, dbRL)}, nil

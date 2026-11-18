@@ -68,12 +68,12 @@ func pointsQueryTests() []queryTest {
 			giveKey: "status",
 			give: &Filter{
 				ResourceIds: []string{"r1", "r2"},
-				TenantId:    "t1",
+				TenantIds:   []string{"t1"},
 			},
 			wantSql: "SELECT bucket, resource_id, status, " +
 				"sum(total)::BIGINT FROM v " +
 				"WHERE bucket >= ? AND bucket < ? " +
-				"AND resource_id IN (?,?) AND tenant_id = ? " +
+				"AND resource_id IN (?,?) AND tenant_id IN (?) " +
 				"GROUP BY bucket, resource_id, status " +
 				"ORDER BY bucket, resource_id",
 			wantArgs: []any{int64(1000), int64(3000), "r1", "r2", "t1"},

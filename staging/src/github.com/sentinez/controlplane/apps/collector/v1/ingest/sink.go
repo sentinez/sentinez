@@ -21,12 +21,14 @@ import (
 	"strconv"
 
 	"github.com/sentinez/controlplane/pkg/pools"
+	auditlogpool "github.com/sentinez/controlplane/pkg/pools/auditlog"
 	crspool "github.com/sentinez/controlplane/pkg/pools/coreruleset"
 	httpegresspool "github.com/sentinez/controlplane/pkg/pools/httpegress"
 	httpingresspool "github.com/sentinez/controlplane/pkg/pools/httpingress"
 	secrulepool "github.com/sentinez/controlplane/pkg/pools/secrule"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szprefix"
+	auditpb "github.com/sentinez/sentinez/api/proto/sentinez/types/audit/v1"
 	crspb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
@@ -79,6 +81,13 @@ func NewHttpIngressEventSink(create CreateFn[httppb.IngressEvent]) Sink {
 func NewHttpEgressEventSink(create CreateFn[httppb.EgressEvent]) Sink {
 	return newSink(httpegresspool.Pool(), szprefix.Request, create,
 		func(e *httppb.EgressEvent, id string) { e.Id = id })
+}
+
+// NewAuditLogSink returns the sink of the auditpb.AuditLog records of the
+// audited control plane calls, inserted by create.
+func NewAuditLogSink(create CreateFn[auditpb.AuditLog]) Sink {
+	return newSink(auditlogpool.Pool(), szprefix.AuditLog, create,
+		func(e *auditpb.AuditLog, id string) { e.Id = id })
 }
 
 // sink decodes the records in events of pool; an event without id gets

@@ -38,67 +38,88 @@ service AnalyticService {
 
   rpc ListActivities(ListActivitiesRequest) returns (ListActivitiesResponse) {
     option (google.api.http) = {get: "/analytic/activities"};
-    option (sentinez.types.v1.x_method) = {ignore: true};
+    option (sentinez.types.v1.x_method) = {ignore_control_plane: true};
   }
 
   rpc ListHttpIngressEvents(ListHttpIngressEventsRequest) returns (ListHttpIngressEventsResponse) {
     option (google.api.http) = {get: "/analytic/events/http-ingress"};
-    option (sentinez.types.v1.x_method) = {ignore: true};
+    option (sentinez.types.v1.x_method) = {ignore_control_plane: true};
   }
 
   rpc ListHttpEgressEvents(ListHttpEgressEventsRequest) returns (ListHttpEgressEventsResponse) {
     option (google.api.http) = {get: "/analytic/events/http-egress"};
-    option (sentinez.types.v1.x_method) = {ignore: true};
+    option (sentinez.types.v1.x_method) = {ignore_control_plane: true};
   }
 
   // GetEgressLatency measures the latency of the requests proxied to
   // each upstream over a range: average, median, p95, p99 and maximum.
   rpc GetEgressLatency(GetEgressLatencyRequest) returns (GetEgressLatencyResponse) {
     option (google.api.http) = {get: "/analytic/events/http-egress/latency"};
-    option (sentinez.types.v1.x_method) = {ignore: true};
+    option (sentinez.types.v1.x_method) = {ignore_control_plane: true};
   }
 
   rpc ListSecRuleEvents(ListSecRuleEventsRequest) returns (ListSecRuleEventsResponse) {
     option (google.api.http) = {get: "/analytic/events/secrule"};
-    option (sentinez.types.v1.x_method) = {ignore: true};
+    option (sentinez.types.v1.x_method) = {ignore_control_plane: true};
   }
 
   rpc ListRateLimitEvents(ListRateLimitEventsRequest) returns (ListRateLimitEventsResponse) {
     option (google.api.http) = {get: "/analytic/events/ratelimit"};
-    option (sentinez.types.v1.x_method) = {ignore: true};
+    option (sentinez.types.v1.x_method) = {ignore_control_plane: true};
   }
 
   rpc ListCoreRuleEvents(ListCoreRuleEventsRequest) returns (ListCoreRuleEventsResponse) {
     option (google.api.http) = {get: "/analytic/events/coreruleset"};
-    option (sentinez.types.v1.x_method) = {ignore: true};
+    option (sentinez.types.v1.x_method) = {ignore_control_plane: true};
   }
 
   // GetEventHistogram counts the events of a kind per time bucket,
   // resource and key.
   rpc GetEventHistogram(GetEventHistogramRequest) returns (GetEventHistogramResponse) {
     option (google.api.http) = {get: "/analytic/events/histogram"};
-    option (sentinez.types.v1.x_method) = {ignore: true};
+    option (sentinez.types.v1.x_method) = {ignore_control_plane: true};
   }
 
   // GetUniqueVisitorHistogram counts the distinct client ips of the
   // requests received by the edge per time bucket and resource.
   rpc GetUniqueVisitorHistogram(GetUniqueVisitorHistogramRequest) returns (GetUniqueVisitorHistogramResponse) {
     option (google.api.http) = {get: "/analytic/visitors/histogram"};
-    option (sentinez.types.v1.x_method) = {ignore: true};
+    option (sentinez.types.v1.x_method) = {ignore_control_plane: true};
   }
 
   // GetEventTopValues counts the most frequent values of fields of the
   // events of a kind over a time range, and their share of its events.
   rpc GetEventTopValues(GetEventTopValuesRequest) returns (GetEventTopValuesResponse) {
     option (google.api.http) = {get: "/analytic/events/top-values"};
-    option (sentinez.types.v1.x_method) = {ignore: true};
+    option (sentinez.types.v1.x_method) = {ignore_control_plane: true};
   }
 
   // ListVisitors counts the requests received by the edge per time
   // bucket, resource and client ip.
   rpc ListVisitors(ListVisitorsRequest) returns (ListVisitorsResponse) {
     option (google.api.http) = {get: "/analytic/visitors"};
-    option (sentinez.types.v1.x_method) = {ignore: true};
+    option (sentinez.types.v1.x_method) = {ignore_control_plane: true};
+  }
+
+  // ListAuditLogs lists the audit logs of the control plane calls of the
+  // tenants of the caller, the latest first.
+  rpc ListAuditLogs(ListAuditLogsRequest) returns (ListAuditLogsResponse) {
+    option (google.api.http) = {get: "/analytic/audit-logs"};
+    option (sentinez.types.v1.x_method) = {ignore_control_plane: true};
+  }
+
+  // GetAuditLogHistogram counts the audit logs of the tenants of the
+  // caller per time bucket, resource and grpc code.
+  rpc GetAuditLogHistogram(GetAuditLogHistogramRequest) returns (GetAuditLogHistogramResponse) {
+    option (google.api.http) = {get: "/analytic/audit-logs/histogram"};
+    option (sentinez.types.v1.x_method) = {ignore_control_plane: true};
+  }
+
+  // GetAuditLogTopValues counts the most frequent values of fields of the
+  // audit logs of the tenants of the caller over a time range.
+  rpc GetAuditLogTopValues(GetAuditLogTopValuesRequest) returns (GetAuditLogTopValuesResponse) {
+    option (google.api.http) = {get: "/analytic/audit-logs/top-values"};
+    option (sentinez.types.v1.x_method) = {ignore_control_plane: true};
   }
 }
 

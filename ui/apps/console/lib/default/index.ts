@@ -72,6 +72,12 @@ export const dashboard: {
           icon: Building2,
           items: [],
         },
+        {
+          titleKey: 'activity',
+          url: '/d/console/activity',
+          icon: ShieldAlert,
+          items: [],
+        },
       ],
     },
     {
@@ -195,11 +201,6 @@ export const dashboard: {
               icon: BrickWallFire,
             },
           ],
-        },
-        {
-          titleKey: 'activity',
-          url: '/d/console/analytic/activity',
-          icon: ShieldAlert,
         },
       ],
     },

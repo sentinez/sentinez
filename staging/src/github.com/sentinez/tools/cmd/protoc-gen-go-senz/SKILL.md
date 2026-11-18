@@ -111,11 +111,11 @@ Install the plugin so `protoc-gen-go-senz` is on `PATH` (`cd staging/src/github.
 protoc --go-senz_out="$SENTINEZ_GEN_OUT" "$(pwd)"/*.proto
 ```
 
-It creates `<file>_senz.pb.go` next to the other generated files (e.g. `api/proto/sentinez/apps/iam/v1/iam_senz.pb.go`). Never edit it by hand. Generated files import `typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"`, which defines `XMeta`, `XMessage`, `XField`, `XMethod`, `Zone` and `Console` (`types/v1/options.proto`, `known.proto`).
+It creates `<file>_senz.pb.go` next to the other generated files (e.g. `api/proto/sentinez/apps/iam/v1/iam_senz.pb.go`). Never edit it by hand. Generated files import `typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"`, which defines `XMeta`, `XMessage`, `XField`, `XMethod`, `Zone` and `ControlPlane` (`types/v1/options.proto`, `known.proto`).
 
 ### 5. Method Metadata Accessors
 For methods annotated with `(sentinez.types.v1.x_method)`, the plugin generates a function returning the method metadata.
-If `ignore` is false and `consoles` is empty, no getter is generated. `Ignore: true` is emitted only when set, and `Consoles` only when non-empty. Handlers use these getters for permission checks, e.g. `ss.Check(iampb.GetIdentityAccessManagementServiceListUsers())`.
+If none of `ignore_control_plane`, `public` and `audit` is set and `control_planes` is empty, no getter is generated. `IgnoreControlPlane`, `Public`, `Audit` and `AuditNoOwner` are emitted only when true, and `ControlPlanes` only when non-empty. Handlers use these getters for permission checks, e.g. `ss.Check(iampb.GetIdentityAccessManagementServiceListUsers())`.
 
 **Format:** `Get<GoServiceName><MethodName>` (`GoServiceName` is the generated Go name of the proto service, e.g. `GreeterService`)
 
@@ -124,8 +124,7 @@ If `ignore` is false and `consoles` is empty, no getter is generated. `Ignore: t
 service GreeterService {
   rpc SayHello (HelloRequest) returns (HelloReply) {
     option (sentinez.types.v1.x_method) = {
-      ignore: false
-      consoles: [CONSOLE_PORTAL, CONSOLE_ADMIN] // or `ignore: true`
+      control_planes: [CONTROL_PLANE_PORTAL, CONTROL_PLANE_ADMIN] // or `ignore_control_plane: true`
     };
   }
 }
@@ -135,9 +134,9 @@ service GreeterService {
 ```go
 func GetGreeterServiceSayHello() *typepb.XMethod {
 	return &typepb.XMethod{
-		Consoles: []typepb.Console{
-			typepb.Console_CONSOLE_PORTAL,
-			typepb.Console_CONSOLE_ADMIN,
+		ControlPlanes: []typepb.ControlPlane{
+			typepb.ControlPlane_CONTROL_PLANE_PORTAL,
+			typepb.ControlPlane_CONTROL_PLANE_ADMIN,
 		},
 	}
 }

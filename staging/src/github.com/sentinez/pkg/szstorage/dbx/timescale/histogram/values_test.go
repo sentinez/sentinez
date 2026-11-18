@@ -47,10 +47,10 @@ func valuesQueryTests() []queryTest {
 		},
 		{
 			name: "filter",
-			give: &Filter{TenantId: "t1"},
+			give: &Filter{TenantIds: []string{"t1"}},
 			wantSql: "SELECT bucket, resource_id, ip, " +
 				"sum(total)::BIGINT FROM v " +
-				"WHERE bucket >= ? AND bucket < ? AND tenant_id = ? " +
+				"WHERE bucket >= ? AND bucket < ? AND tenant_id IN (?) " +
 				"GROUP BY bucket, resource_id, ip " +
 				"ORDER BY bucket, resource_id, " +
 				"sum(total)::BIGINT DESC, ip",

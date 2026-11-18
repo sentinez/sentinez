@@ -27,6 +27,7 @@ const ROOT_PAGES = [
   ['11-domain-new', '/d/console/domain/new'],
   ['12-member-list', '/d/console/member'],
   ['13-member-new', '/d/console/member/new'],
+  ['14-activity', '/d/console/activity'],
   ['60-setting-account', '/d/setting/account'],
   ['61-setting-tenant', '/d/setting/tenant'],
 ];
@@ -46,7 +47,6 @@ const DOMAIN_PAGES = [
   ['37-security-rulesets-new', '/security/rulesets/new'],
   ['38-security-rulesets-detail', '/security/rulesets', 'detail'],
   ['40-delivery-cdn', '/delivery/cdn'],
-  ['50-analytic-activity', '/analytic/activity'],
   ['52-analytic-logs-ingress', '/analytic/logs/ingress'],
   ['53-analytic-logs-egress', '/analytic/logs/egress'],
   ['54-analytic-logs-sec-rule', '/analytic/logs/sec-rule'],

@@ -45,6 +45,10 @@ var (
 	_ = typepb.HistogramResolution(0)
 
 	_ = typepb.HistogramInterval(0)
+
+	_ = typepb.HistogramResolution(0)
+
+	_ = typepb.HistogramInterval(0)
 )
 
 // Validate checks the field values on EventSelection with the rules defined in
@@ -2367,3 +2371,560 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetEgressLatencyResponseValidationError{}
+
+// Validate checks the field values on ListAuditLogsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *ListAuditLogsRequest) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if v, ok := interface{}(m.GetPage()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ListAuditLogsRequestValidationError{
+				field:  "Page",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetFrom()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ListAuditLogsRequestValidationError{
+				field:  "From",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetTo()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ListAuditLogsRequestValidationError{
+				field:  "To",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for WithoutTenant
+
+	return nil
+}
+
+// ListAuditLogsRequestValidationError is the validation error returned by
+// ListAuditLogsRequest.Validate if the designated constraints aren't met.
+type ListAuditLogsRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListAuditLogsRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListAuditLogsRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListAuditLogsRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListAuditLogsRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListAuditLogsRequestValidationError) ErrorName() string {
+	return "ListAuditLogsRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListAuditLogsRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListAuditLogsRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListAuditLogsRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListAuditLogsRequestValidationError{}
+
+// Validate checks the field values on ListAuditLogsResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *ListAuditLogsResponse) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	for idx, item := range m.GetLogs() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListAuditLogsResponseValidationError{
+					field:  fmt.Sprintf("Logs[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ListAuditLogsResponseValidationError is the validation error returned by
+// ListAuditLogsResponse.Validate if the designated constraints aren't met.
+type ListAuditLogsResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListAuditLogsResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListAuditLogsResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListAuditLogsResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListAuditLogsResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListAuditLogsResponseValidationError) ErrorName() string {
+	return "ListAuditLogsResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListAuditLogsResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListAuditLogsResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListAuditLogsResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListAuditLogsResponseValidationError{}
+
+// Validate checks the field values on GetAuditLogHistogramRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *GetAuditLogHistogramRequest) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Resolution
+
+	if v, ok := interface{}(m.GetFrom()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetAuditLogHistogramRequestValidationError{
+				field:  "From",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetTo()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetAuditLogHistogramRequestValidationError{
+				field:  "To",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for WithoutTenant
+
+	return nil
+}
+
+// GetAuditLogHistogramRequestValidationError is the validation error returned
+// by GetAuditLogHistogramRequest.Validate if the designated constraints
+// aren't met.
+type GetAuditLogHistogramRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetAuditLogHistogramRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetAuditLogHistogramRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetAuditLogHistogramRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetAuditLogHistogramRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetAuditLogHistogramRequestValidationError) ErrorName() string {
+	return "GetAuditLogHistogramRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetAuditLogHistogramRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetAuditLogHistogramRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetAuditLogHistogramRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetAuditLogHistogramRequestValidationError{}
+
+// Validate checks the field values on GetAuditLogHistogramResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *GetAuditLogHistogramResponse) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	for idx, item := range m.GetPoints() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetAuditLogHistogramResponseValidationError{
+					field:  fmt.Sprintf("Points[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for Interval
+
+	if v, ok := interface{}(m.GetFrom()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetAuditLogHistogramResponseValidationError{
+				field:  "From",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetTo()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetAuditLogHistogramResponseValidationError{
+				field:  "To",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Truncated
+
+	return nil
+}
+
+// GetAuditLogHistogramResponseValidationError is the validation error returned
+// by GetAuditLogHistogramResponse.Validate if the designated constraints
+// aren't met.
+type GetAuditLogHistogramResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetAuditLogHistogramResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetAuditLogHistogramResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetAuditLogHistogramResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetAuditLogHistogramResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetAuditLogHistogramResponseValidationError) ErrorName() string {
+	return "GetAuditLogHistogramResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetAuditLogHistogramResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetAuditLogHistogramResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetAuditLogHistogramResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetAuditLogHistogramResponseValidationError{}
+
+// Validate checks the field values on GetAuditLogTopValuesRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *GetAuditLogTopValuesRequest) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if v, ok := interface{}(m.GetFrom()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetAuditLogTopValuesRequestValidationError{
+				field:  "From",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetTo()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetAuditLogTopValuesRequestValidationError{
+				field:  "To",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Limit
+
+	// no validation rules for WithoutTenant
+
+	return nil
+}
+
+// GetAuditLogTopValuesRequestValidationError is the validation error returned
+// by GetAuditLogTopValuesRequest.Validate if the designated constraints
+// aren't met.
+type GetAuditLogTopValuesRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetAuditLogTopValuesRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetAuditLogTopValuesRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetAuditLogTopValuesRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetAuditLogTopValuesRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetAuditLogTopValuesRequestValidationError) ErrorName() string {
+	return "GetAuditLogTopValuesRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetAuditLogTopValuesRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetAuditLogTopValuesRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetAuditLogTopValuesRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetAuditLogTopValuesRequestValidationError{}
+
+// Validate checks the field values on GetAuditLogTopValuesResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *GetAuditLogTopValuesResponse) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Total
+
+	for idx, item := range m.GetFields() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetAuditLogTopValuesResponseValidationError{
+					field:  fmt.Sprintf("Fields[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// GetAuditLogTopValuesResponseValidationError is the validation error returned
+// by GetAuditLogTopValuesResponse.Validate if the designated constraints
+// aren't met.
+type GetAuditLogTopValuesResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetAuditLogTopValuesResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetAuditLogTopValuesResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetAuditLogTopValuesResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetAuditLogTopValuesResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetAuditLogTopValuesResponseValidationError) ErrorName() string {
+	return "GetAuditLogTopValuesResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetAuditLogTopValuesResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetAuditLogTopValuesResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetAuditLogTopValuesResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetAuditLogTopValuesResponseValidationError{}

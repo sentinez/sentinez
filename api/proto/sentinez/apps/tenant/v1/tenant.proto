@@ -75,6 +75,7 @@ service TenantService {
         CONTROL_PLANE_PORTAL,
         CONTROL_PLANE_ADMIN
       ]
+      audit: true
     };
   }
 
@@ -131,6 +132,7 @@ service TenantService {
         CONTROL_PLANE_PORTAL,
         CONTROL_PLANE_ADMIN
       ]
+      audit: true
     };
   }
 
@@ -142,6 +144,7 @@ service TenantService {
         CONTROL_PLANE_PORTAL,
         CONTROL_PLANE_ADMIN
       ]
+      audit: true
     };
   }
 
@@ -154,6 +157,7 @@ service TenantService {
         CONTROL_PLANE_PORTAL,
         CONTROL_PLANE_ADMIN
       ]
+      audit: true
     };
   }
 
@@ -186,6 +190,7 @@ service TenantService {
         CONTROL_PLANE_ADMIN
       ]
       audit: true
+      audit_no_owner: true
     };
   }
 
@@ -199,6 +204,7 @@ service TenantService {
         CONTROL_PLANE_ADMIN
       ]
       audit: true
+      audit_no_owner: true
     };
   }
 
@@ -211,6 +217,7 @@ service TenantService {
         CONTROL_PLANE_PORTAL,
         CONTROL_PLANE_ADMIN
       ]
+      audit: true
     };
   }
 
@@ -223,6 +230,7 @@ service TenantService {
         CONTROL_PLANE_PORTAL,
         CONTROL_PLANE_ADMIN
       ]
+      audit: true
     };
   }
 
@@ -252,6 +260,7 @@ service TenantService {
         CONTROL_PLANE_PORTAL,
         CONTROL_PLANE_ADMIN
       ]
+      audit: true
     };
   }
 
@@ -265,6 +274,7 @@ service TenantService {
         CONTROL_PLANE_ADMIN
       ]
       audit: true
+      audit_no_owner: true
     };
   }
 
@@ -277,6 +287,7 @@ service TenantService {
         CONTROL_PLANE_PORTAL,
         CONTROL_PLANE_ADMIN
       ]
+      audit: true
     };
   }
 
@@ -334,6 +345,7 @@ service TenantService {
         CONTROL_PLANE_PORTAL,
         CONTROL_PLANE_ADMIN
       ]
+      audit: true
     };
   }
 }
@@ -359,19 +371,25 @@ message GetResourceResponse {
 }
 
 message DeleteResourceRequest {
-  string id = 1 [(buf.validate.field) = {
-    required: true
-    string: {prefix: "rsrc_"}
-  }];
+  string id = 1 [
+    (sentinez.types.v1.x_field).audit.resource_id = true,
+    (buf.validate.field) = {
+      required: true
+      string: {prefix: "rsrc_"}
+    }
+  ];
 }
 
 message DeleteResourceResponse {}
 
 message UpdateResourceRequest {
-  string id = 1 [(buf.validate.field) = {
-    required: true
-    string: {prefix: "rsrc_"}
-  }];
+  string id = 1 [
+    (sentinez.types.v1.x_field).audit.resource_id = true,
+    (buf.validate.field) = {
+      required: true
+      string: {prefix: "rsrc_"}
+    }
+  ];
   // The fields to write, those update_mask names; its id and tenant_id
   // are ignored.
   sentinez.apps.tenant.v1.Resource resource = 2 [(buf.validate.field).required = true];
@@ -388,10 +406,13 @@ message CreateResourceRequest {
   sentinez.dmz.edge.v1.Resource resource = 1 [(buf.validate.field).required = true];
   sentinez.types.v1.Status status = 2;
 
-  string tenant_id = 3 [(buf.validate.field) = {
-    required: true
-    string: {prefix: "tnt_"}
-  }];
+  string tenant_id = 3 [
+    (sentinez.types.v1.x_field).audit.tenant_id = true,
+    (buf.validate.field) = {
+      required: true
+      string: {prefix: "tnt_"}
+    }
+  ];
 }
 
 message CreateResourceResponse {
@@ -482,10 +503,13 @@ message CreateMemberRequest {
     required: true
     string: {prefix: "user_"}
   }];
-  string tenant_id = 2 [(buf.validate.field) = {
-    required: true
-    string: {prefix: "tnt_"}
-  }];
+  string tenant_id = 2 [
+    (sentinez.types.v1.x_field).audit.tenant_id = true,
+    (buf.validate.field) = {
+      required: true
+      string: {prefix: "tnt_"}
+    }
+  ];
   repeated sentinez.types.v1.Role roles = 3 [(buf.validate.field) = {
     repeated: {
       unique: true
@@ -538,19 +562,25 @@ message GetTenantResponse {
 }
 
 message DeleteTenantRequest {
-  string id = 1 [(buf.validate.field) = {
-    required: true
-    string: {prefix: "tnt_"}
-  }];
+  string id = 1 [
+    (sentinez.types.v1.x_field).audit.tenant_id = true,
+    (buf.validate.field) = {
+      required: true
+      string: {prefix: "tnt_"}
+    }
+  ];
 }
 
 message DeleteTenantResponse {}
 
 message UpdateTenantRequest {
-  string id = 1 [(buf.validate.field) = {
-    required: true
-    string: {prefix: "tnt_"}
-  }];
+  string id = 1 [
+    (sentinez.types.v1.x_field).audit.tenant_id = true,
+    (buf.validate.field) = {
+      required: true
+      string: {prefix: "tnt_"}
+    }
+  ];
   // The fields to write, those update_mask names; its id is ignored.
   sentinez.apps.tenant.v1.Tenant tenant = 2 [(buf.validate.field).required = true];
   // Fields of tenant to update, among name, description and plan ("*"
@@ -599,10 +629,13 @@ message ListTenantResponse {
 }
 
 message CreateCaCertificateRequest {
-  string resource_id = 1 [(buf.validate.field) = {
-    required: true
-    string: {prefix: "rsrc_"}
-  }];
+  string resource_id = 1 [
+    (sentinez.types.v1.x_field).audit.resource_id = true,
+    (buf.validate.field) = {
+      required: true
+      string: {prefix: "rsrc_"}
+    }
+  ];
 
   // Named after the common name of each certificate when empty; numbered
   // (" #1", " #2" ...) when the bundle holds several.

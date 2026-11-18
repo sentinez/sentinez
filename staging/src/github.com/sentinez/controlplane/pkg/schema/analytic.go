@@ -21,6 +21,7 @@ import (
 	"github.com/sentinez/pkg/szstorage/dbx/timescale"
 	"github.com/sentinez/pkg/sztable"
 	analyticpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
+	auditpb "github.com/sentinez/sentinez/api/proto/sentinez/types/audit/v1"
 	crspb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
@@ -179,6 +180,41 @@ func AnalyticHttpEgressEvent() dbx.Schema {
 			{Column: httppb.EgressEvent_Timestamp, Method: dbx.BTree},
 			resourceTime(httppb.EgressEvent_ResourceId,
 				httppb.EgressEvent_Timestamp),
+		},
+	}
+}
+
+// AnalyticAuditLogsEvent the schema of the sztable.AnalyticAuditLogsEvent
+// table: the auditpb.AuditLog records of the sztopic.EventActivityAuditLog
+// topic, one per call of an audited control plane method.
+func AnalyticAuditLogsEvent() dbx.Schema {
+	return dbx.Schema{
+		Table: sztable.AnalyticAuditLogsEvent,
+		Columns: []dbx.Column{
+			{Name: auditpb.AuditLog_Id, Type: dbx.Text},
+			{Name: auditpb.AuditLog_Method, Type: dbx.Text},
+			{Name: auditpb.AuditLog_UserId, Type: dbx.Text},
+			{Name: auditpb.AuditLog_Name, Type: dbx.Text},
+			{Name: auditpb.AuditLog_ControlPlane, Type: dbx.Int4},
+			{Name: auditpb.AuditLog_RemoteAddr, Type: dbx.Text},
+			{Name: auditpb.AuditLog_UserAgent, Type: dbx.Text},
+			{Name: auditpb.AuditLog_Request, Type: dbx.JSONB},
+			{Name: auditpb.AuditLog_Code, Type: dbx.Int4},
+			{Name: auditpb.AuditLog_Error, Type: dbx.Text},
+			{Name: auditpb.AuditLog_Latency, Type: dbx.Interval},
+			{Name: auditpb.AuditLog_TenantId, Type: dbx.Text},
+			{Name: auditpb.AuditLog_Timestamp, Type: dbx.Int8},
+			{Name: auditpb.AuditLog_ResourceId, Type: dbx.Text},
+			{Name: auditpb.AuditLog_Change, Type: dbx.JSONB},
+		},
+		Indexes: []dbx.Index{
+			{Column: auditpb.AuditLog_Timestamp, Method: dbx.BTree},
+			resourceTime(auditpb.AuditLog_ResourceId,
+				auditpb.AuditLog_Timestamp),
+			resourceTime(auditpb.AuditLog_TenantId,
+				auditpb.AuditLog_Timestamp),
+			resourceTime(auditpb.AuditLog_UserId,
+				auditpb.AuditLog_Timestamp),
 		},
 	}
 }

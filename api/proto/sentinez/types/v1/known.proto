@@ -58,6 +58,10 @@ enum Status {
   STATUS_UNSPECIFIED = 0;
   STATUS_ACTIVE = 1;
   STATUS_DISABLE = 2;
+  // Asked to be active, but waiting for what it needs to be served, as a
+  // resource for certificates that fit its TLS mode: served as disabled,
+  // and made active once it has them.
+  STATUS_PENDING = 3;
 }
 
 enum Plan {

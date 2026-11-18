@@ -7,7 +7,6 @@ import {
   GetEventHistogramResponse,
   GetEventTopValuesRequest,
   GetEventTopValuesResponse,
-  type FieldTopValues,
   type HistogramPoint,
   type UpstreamLatency,
   ListCoreRuleEventsRequest,
@@ -30,9 +29,14 @@ import { paginate } from '@/lib/api/pages';
 import { SAMPLE_TENANT_ID } from '@/lib/api/tenant';
 import {
   type ApiOptions,
+  type SampleRecord,
   DAY_MILLIS,
   HOUR_MILLIS,
+  countPoints,
+  countTopValues,
   getJSON,
+  matchesFilters,
+  ofRequests,
   RESOLUTION_BUCKETS,
   SAMPLE_IPS,
   intervalOf,
@@ -204,23 +208,6 @@ function sampleCoreRuleOf(e: IngressEvent): CoreRuleEvent | null {
 
 const present = <T>(v: T | null): v is T => v !== null;
 
-// Whether a sample event is of one of the requests, as the API filters
-// request_ids: every one when empty
-const ofRequests =
-  <T>(requestIds: string[], requestOf: (e: T) => string) =>
-  (e: T) =>
-    requestIds.length === 0 || requestIds.includes(requestOf(e));
-
-// Whether a sample record holds the values of the field filters, as the
-// API filters them: an element of a repeated field
-const matchesFilters = (r: SampleRecord, filters: string[]) =>
-  filters.every((f) => {
-    const at = f.indexOf(':');
-    const want = f.slice(at + 1);
-    const value = r.fields[f.slice(0, at)];
-    return Array.isArray(value) ? value.includes(want) : value === want;
-  });
-
 // Whether the event of kind of a sample request holds the field filters
 const ofFilters = (kind: EventKind, filters: string[]) => (e: IngressEvent) => {
   if (filters.length === 0) return true;
@@ -236,14 +223,6 @@ const sampleEgressOfSelection = (sel: EventSelection): EgressEvent[] =>
     .map(sampleEgressOf)
     .filter(present)
     .filter(ofRequests(sel.requestIds, (e) => e.id));
-
-// SampleRecord a sample event as the histogram and the top values count it
-type SampleRecord = {
-  time: number;
-  resourceId: string;
-  key: number;
-  fields: Record<string, string | string[]>;
-};
 
 // The records of the events of kind derived from the sample requests, the
 // fields named as the API names them, in the order of a top without any
@@ -337,19 +316,7 @@ function sampleHistogram(req: GetEventHistogramRequest): HistogramPoint[] {
     ofRequests(req.requestIds, (e) => e.id),
   );
   const records = sampleRecordsOf(req.kind, requests).filter((r) => matchesFilters(r, req.filters));
-  for (const r of records) {
-    const start = Math.floor(r.time / millis) * millis;
-    const id = `${start}|${r.resourceId}|${r.key}`;
-    const point = points.get(id) ?? {
-      time: new Date(start),
-      resourceId: r.resourceId,
-      key: r.key,
-      total: 0,
-    };
-    point.total++;
-    points.set(id, point);
-  }
-  return [...points.values()];
+  return countPoints(points, records, millis);
 }
 
 // The sample top values, the way the API counts them: the hour before `to`
@@ -361,23 +328,7 @@ function sampleTopValues(req: GetEventTopValuesRequest): GetEventTopValuesRespon
     ofRequests(req.requestIds, (e) => e.id),
   );
   const records = sampleRecordsOf(req.kind, requests).filter((r) => matchesFilters(r, req.filters));
-  const limit = Math.min(req.limit > 0 ? req.limit : 5, 20);
-  const names = req.fields.length ? req.fields : Object.keys(records[0]?.fields ?? {});
-  const fields: FieldTopValues[] = names.map((field) => {
-    const counts = new Map<string, number>();
-    for (const r of records) {
-      const raw = r.fields[field] ?? '';
-      for (const value of new Set(Array.isArray(raw) ? raw : [raw])) {
-        if (value) counts.set(value, (counts.get(value) ?? 0) + 1);
-      }
-    }
-    const values = [...counts.entries()]
-      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-      .slice(0, limit)
-      .map(([value, total]) => ({ value, total, share: total / records.length }));
-    return { field, values };
-  });
-  return { total: records.length, fields };
+  return countTopValues(records, req.fields, req.limit);
 }
 
 // GET /analytic/events/histogram

@@ -51,6 +51,11 @@ func (svc *Service) CreateCaCertificate(ctx context.Context,
 		return nil, err
 	}
 
+	// a pending resource is active once its certificates fit its TLS mode
+	if err = svc.recheckStatus(ctx, resource); err != nil {
+		return nil, err
+	}
+
 	return &tenantpb.CreateCaCertificateResponse{CaCertificates: created}, nil
 }
 
@@ -73,13 +78,23 @@ func (svc *Service) DeleteCaCertificate(ctx context.Context,
 	req *tenantpb.DeleteCaCertificateRequest,
 ) (*tenantpb.DeleteCaCertificateResponse, error) {
 
-	_, err := svc.getCaCertificate(ctx, req.GetId(), authz.Write)
+	cert, err := svc.getCaCertificate(ctx, req.GetId(), authz.Write)
 	if err != nil {
 		return nil, err
 	}
 
 	if err = svc.cacert.Delete(ctx, req.GetId()); err != nil {
 		return nil, fmt.Errorf("cacert.Delete: %w", err)
+	}
+
+	rsc, err := svc.resource.Get(ctx, cert.GetOwner().GetResourceId())
+	if err != nil {
+		return nil, fmt.Errorf("resource.Get: %w", err)
+	}
+
+	// an active resource is pending once its certificates no longer fit
+	if err = svc.recheckStatus(ctx, rsc); err != nil {
+		return nil, err
 	}
 
 	return &tenantpb.DeleteCaCertificateResponse{}, nil

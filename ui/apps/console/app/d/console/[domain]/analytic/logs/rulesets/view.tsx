@@ -1,9 +1,9 @@
 'use client';
 
-import { EventExplorer } from '../_explorer/event-explorer';
-import { useCoreRuleConfig } from '../_explorer/kinds/core-rule';
+import { DomainEventExplorer } from '../domain-explorer';
+import { useCoreRuleConfig } from '@/components/event-explorer/kinds/core-rule';
 
 export default function View() {
   const config = useCoreRuleConfig();
-  return <EventExplorer config={config} />;
+  return <DomainEventExplorer config={config} />;
 }

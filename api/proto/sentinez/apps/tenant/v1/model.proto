@@ -37,12 +37,16 @@ message Resource {
 
   sentinez.types.v1.Metadata metadata = 1 [(sentinez.types.v1.x_field).flatten = true];
 
-  string id = 2 [(buf.validate.field) = {
-    required: true
-    string: {prefix: "rsrc_"}
-  }];
+  string id = 2 [
+    (sentinez.types.v1.x_field).audit.resource_id = true,
+    (buf.validate.field) = {
+      required: true
+      string: {prefix: "rsrc_"}
+    }
+  ];
 
   string tenant_id = 3 [
+    (sentinez.types.v1.x_field).audit.tenant_id = true,
     (buf.validate.field) = {
       required: true
       string: {prefix: "tnt_"}
@@ -65,6 +69,13 @@ message Resource {
   // Routes of the domain to the origins, stored as JSONB.
   repeated sentinez.dmz.edge.v1.Location locations = 6;
 
+  // Active only when the certificates of the resource fit its tls_mode,
+  // valid now: none for passthrough; else a server certificate for the
+  // domain with its private key and, when the edge re-encrypts
+  // (re-encrypt, unspecified), a valid upstream CA and upstream client
+  // certificate if it has any. The service stores a resource asked active
+  // without them as pending, and settles it again whenever a certificate
+  // of it is uploaded (pending to active) or deleted (active to pending).
   sentinez.types.v1.Status status = 7;
 
   // How the edge carries the TLS of the domain to its upstreams; NULL in
@@ -83,10 +94,13 @@ message Tenant {
 
   sentinez.types.v1.Metadata metadata = 1 [(sentinez.types.v1.x_field).flatten = true];
 
-  string id = 2 [(buf.validate.field) = {
-    required: true
-    string: {prefix: "tnt_"}
-  }];
+  string id = 2 [
+    (sentinez.types.v1.x_field).audit.tenant_id = true,
+    (buf.validate.field) = {
+      required: true
+      string: {prefix: "tnt_"}
+    }
+  ];
 
   string name = 3 [
     (buf.validate.field).string.max_len = 64,
@@ -117,10 +131,13 @@ message Member {
     string: {prefix: "user_"}
   }];
 
-  string tenant_id = 4 [(buf.validate.field) = {
-    required: true
-    string: {prefix: "tnt_"}
-  }];
+  string tenant_id = 4 [
+    (sentinez.types.v1.x_field).audit.tenant_id = true,
+    (buf.validate.field) = {
+      required: true
+      string: {prefix: "tnt_"}
+    }
+  ];
 
   repeated sentinez.types.v1.Role roles = 5 [(buf.validate.field).repeated.unique = true];
 }

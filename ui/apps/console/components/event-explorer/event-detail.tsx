@@ -15,7 +15,7 @@ import {
 import { toast } from '@/lib/toast';
 import { InfoRow } from '@/components/info-card';
 import { RequestLink } from './request-link';
-import type { DetailSection, EventConfig } from './types';
+import type { DetailConfig, DetailSection } from './types';
 
 type View = 'table' | 'json';
 
@@ -45,7 +45,7 @@ function Section({ title, pairs }: DetailSection) {
 }
 
 interface Props<T> {
-  config: EventConfig<T>;
+  config: DetailConfig<T>;
   event: T | null;
   onClose: () => void;
 }

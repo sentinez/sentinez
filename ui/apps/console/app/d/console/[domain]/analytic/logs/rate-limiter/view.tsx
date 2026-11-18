@@ -1,9 +1,9 @@
 'use client';
 
-import { EventExplorer } from '../_explorer/event-explorer';
-import { useSecRuleConfig } from '../_explorer/kinds/sec-rule';
+import { DomainEventExplorer } from '../domain-explorer';
+import { useSecRuleConfig } from '@/components/event-explorer/kinds/sec-rule';
 
 export default function View() {
   const config = useSecRuleConfig('rateLimit');
-  return <EventExplorer config={config} />;
+  return <DomainEventExplorer config={config} />;
 }

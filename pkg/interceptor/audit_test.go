@@ -19,9 +19,11 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/sentinez/controlplane/pkg/auditowner"
 	"github.com/sentinez/controlplane/pkg/headers"
 	"github.com/sentinez/pkg/szlog"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
+	secpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	auditpb "github.com/sentinez/sentinez/api/proto/sentinez/types/audit/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/stretchr/testify/assert"
@@ -37,6 +39,9 @@ const (
 	_iamService   = "/sentinez.apps.iam.v1.IdentityAccessManagementService/"
 	_loginMethod  = _iamService + "Login"
 	_statusMethod = _iamService + "Status"
+
+	_createSecRuleMethod = "/sentinez.apps.security.v1.SecurityService/" +
+		"CreateSecRule"
 )
 
 // recorder is a szlog.Log keeping the events logged at info.
@@ -81,6 +86,26 @@ func TestAuditRecordsAuditedMethod(t *testing.T) {
 	assert.Equal(t, "REDACTED",
 		got.GetRequest().GetFields()["password"].GetStringValue())
 	assert.Equal(t, "hunter22", req.GetPassword(), "request kept")
+}
+
+func TestAuditRecordsCheckedOwner(t *testing.T) {
+	r := &recorder{}
+	ctx := headers.WithAuth(context.Background(), &headers.Auth{})
+	req := &secpb.CreateSecRuleRequest{SecRule: &secpb.SecRule{
+		Owner: &typepb.Owner{TenantId: "tnt_req", ResourceId: "res_req"},
+	}}
+	info := &grpc.UnaryServerInfo{FullMethod: _createSecRuleMethod}
+
+	_, err := Audit(r)(ctx, req, info,
+		func(ctx context.Context, _ any) (any, error) {
+			auditowner.Set(ctx, "tnt_db", "")
+			return nil, nil
+		})
+
+	require.NoError(t, err)
+	require.Len(t, r.entries, 1)
+	assert.Equal(t, "tnt_db", r.entries[0].GetTenantId())
+	assert.Equal(t, "res_req", r.entries[0].GetResourceId())
 }
 
 func TestAuditRecordsFailedCall(t *testing.T) {

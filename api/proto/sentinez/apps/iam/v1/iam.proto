@@ -64,6 +64,7 @@ service IdentityAccessManagementService {
     option (sentinez.types.v1.x_method) = {
       control_planes: [CONTROL_PLANE_ADMIN]
       audit: true
+      audit_no_owner: true
     };
   }
 
@@ -72,7 +73,11 @@ service IdentityAccessManagementService {
   rpc ListAccounts(ListAccountsRequest) returns (ListAccountsResponse) {
     option (google.api.http) = {get: "/iam/accounts"};
 
-    option (sentinez.types.v1.x_method) = {ignore: true};
+    option (sentinez.types.v1.x_method) = {
+      ignore_control_plane: true
+      audit: true
+      audit_no_owner: true
+    };
   }
 
   rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
@@ -83,13 +88,15 @@ service IdentityAccessManagementService {
         CONTROL_PLANE_PORTAL,
         CONTROL_PLANE_ADMIN
       ]
+      audit: true
+      audit_no_owner: true
     };
   }
 
   rpc Status(StatusRequest) returns (StatusResponse) {
     option (google.api.http) = {get: "/iam/status"};
 
-    option (sentinez.types.v1.x_method) = {ignore: true};
+    option (sentinez.types.v1.x_method) = {ignore_control_plane: true};
   }
 
   rpc CreateAccount(CreateAccountRequest) returns (CreateAccountResponse) {
@@ -101,13 +108,18 @@ service IdentityAccessManagementService {
     option (sentinez.types.v1.x_method) = {
       public: true
       audit: true
+      audit_no_owner: true
     };
   }
 
   rpc GetUser(GetUserRequest) returns (GetUserResponse) {
     option (google.api.http) = {get: "/iam/user"};
 
-    option (sentinez.types.v1.x_method) = {ignore: true};
+    option (sentinez.types.v1.x_method) = {
+      ignore_control_plane: true
+      audit: true
+      audit_no_owner: true
+    };
   }
 
   // UpdateUser renames the signed-in user. Only the name can change.
@@ -118,8 +130,9 @@ service IdentityAccessManagementService {
     };
 
     option (sentinez.types.v1.x_method) = {
-      ignore: true
+      ignore_control_plane: true
       audit: true
+      audit_no_owner: true
     };
   }
 
@@ -129,6 +142,7 @@ service IdentityAccessManagementService {
     option (sentinez.types.v1.x_method) = {
       control_planes: [CONTROL_PLANE_ADMIN]
       audit: true
+      audit_no_owner: true
     };
   }
 
@@ -141,6 +155,7 @@ service IdentityAccessManagementService {
     option (sentinez.types.v1.x_method) = {
       public: true
       audit: true
+      audit_no_owner: true
     };
   }
 
@@ -159,6 +174,7 @@ service IdentityAccessManagementService {
     option (sentinez.types.v1.x_method) = {
       public: true
       audit: true
+      audit_no_owner: true
     };
   }
 
@@ -167,7 +183,7 @@ service IdentityAccessManagementService {
   rpc PasskeyLinkChallenge(PasskeyLinkChallengeRequest) returns (PasskeyLinkChallengeResponse) {
     option (google.api.http) = {get: "/iam/passkey/link/challenge"};
 
-    option (sentinez.types.v1.x_method) = {ignore: true};
+    option (sentinez.types.v1.x_method) = {ignore_control_plane: true};
   }
 
   rpc PasskeyLoginChallenge(PasskeyLoginChallengeRequest) returns (PasskeyLoginChallengeResponse) {
@@ -185,6 +201,7 @@ service IdentityAccessManagementService {
     option (sentinez.types.v1.x_method) = {
       public: true
       audit: true
+      audit_no_owner: true
     };
   }
 }

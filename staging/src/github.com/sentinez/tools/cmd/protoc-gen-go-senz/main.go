@@ -30,6 +30,9 @@ func main() {
 				continue
 			}
 
+			if err := senz.CheckAuditOwners(f); err != nil {
+				return err
+			}
 			_ = senz.GenerateSentinezOptionFile(gen, f)
 		}
 		return nil

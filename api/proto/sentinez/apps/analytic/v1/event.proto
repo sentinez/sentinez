@@ -17,6 +17,7 @@ syntax = "proto3";
 package sentinez.apps.analytic.v1;
 
 import "google/protobuf/timestamp.proto";
+import "sentinez/types/audit/v1/audit.proto";
 import "sentinez/types/coreruleset/v1/event.proto";
 import "sentinez/types/net/http/v1/event.proto";
 import "sentinez/types/secrule/v1/event.proto";
@@ -341,4 +342,92 @@ message GetEgressLatencyResponse {
   // The range measured.
   google.protobuf.Timestamp from = 2;
   google.protobuf.Timestamp to = 3;
+}
+
+// ListAuditLogsRequest selects the audit logs of a list, the latest first.
+message ListAuditLogsRequest {
+  sentinez.types.v1.Pages page = 1;
+  // Tenants of the logs, any of them; all those of the caller when empty.
+  repeated string tenant_ids = 2;
+  // Resources of the logs, any of them; all when empty.
+  repeated string resource_ids = 3;
+  // Bound the time of the logs, from inclusive, to exclusive.
+  google.protobuf.Timestamp from = 4;
+  google.protobuf.Timestamp to = 5;
+  // Ids of the logs, any of them; all when empty.
+  repeated string request_ids = 6;
+  // Field filters, all of them, each "field:value": method, user_id,
+  // code, control_plane, tenant_id, remote_addr or user_agent.
+  repeated string filters = 7;
+  // Only the logs of no tenant, tenant_ids ignored: the calls about none,
+  // such as the logins and those refused before their tenant was known.
+  // The admin control plane only.
+  bool without_tenant = 8;
+}
+
+message ListAuditLogsResponse {
+  repeated sentinez.types.audit.v1.AuditLog logs = 1;
+}
+
+message GetAuditLogHistogramRequest {
+  sentinez.types.v1.HistogramResolution resolution = 1;
+  // Tenants of the logs, any of them; all those of the caller when empty.
+  repeated string tenant_ids = 2;
+  // Resources of the logs, any of them; all when empty.
+  repeated string resource_ids = 3;
+  // The buckets, as GetEventHistogramRequest.from and to: at most the 90
+  // days the logs are kept.
+  google.protobuf.Timestamp from = 4;
+  google.protobuf.Timestamp to = 5;
+  // Ids of the logs, any of them; all when empty.
+  repeated string request_ids = 6;
+  // Field filters, all of them, each "field:value" (see
+  // ListAuditLogsRequest.filters).
+  repeated string filters = 7;
+  // Only the logs of no tenant, tenant_ids ignored: the calls about none,
+  // such as the logins and those refused before their tenant was known.
+  // The admin control plane only.
+  bool without_tenant = 8;
+}
+
+message GetAuditLogHistogramResponse {
+  // As GetEventHistogramResponse.points, the key the grpc code of the
+  // calls.
+  repeated HistogramPoint points = 1;
+  sentinez.types.v1.HistogramInterval interval = 2;
+  google.protobuf.Timestamp from = 3;
+  google.protobuf.Timestamp to = 4;
+  bool truncated = 5;
+}
+
+message GetAuditLogTopValuesRequest {
+  // Tenants of the logs, any of them; all those of the caller when empty.
+  repeated string tenant_ids = 1;
+  // Resources of the logs, any of them; all when empty.
+  repeated string resource_ids = 2;
+  // Bound the time of the logs, from inclusive, to exclusive: to now when
+  // unset, from the hour before to when unset.
+  google.protobuf.Timestamp from = 3;
+  google.protobuf.Timestamp to = 4;
+  // The fields to count, in this order, each once: method, user_id, code,
+  // control_plane, tenant_id, remote_addr, user_agent; all when empty.
+  repeated string fields = 5;
+  // The values per field: 5 when 0, at most 20.
+  int32 limit = 6;
+  // Field filters, all of them, each "field:value" (see
+  // ListAuditLogsRequest.filters).
+  repeated string filters = 7;
+  // Ids of the logs, any of them; all when empty.
+  repeated string request_ids = 8;
+  // Only the logs of no tenant, tenant_ids ignored: the calls about none,
+  // such as the logins and those refused before their tenant was known.
+  // The admin control plane only.
+  bool without_tenant = 9;
+}
+
+message GetAuditLogTopValuesResponse {
+  // The logs of the range.
+  int64 total = 1;
+  // One per field of the request, in its order.
+  repeated FieldTopValues fields = 2;
 }

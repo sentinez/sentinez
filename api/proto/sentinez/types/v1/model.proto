@@ -42,6 +42,7 @@ message Owner {
   google.protobuf.Timestamp updated_at = 2;
 
   string resource_id = 3 [
+    (sentinez.types.v1.x_field).audit.resource_id = true,
     (buf.validate.field) = {
       required: true
       string: {prefix: "rsrc_"}
@@ -50,6 +51,7 @@ message Owner {
   ];
 
   string tenant_id = 4 [
+    (sentinez.types.v1.x_field).audit.tenant_id = true,
     (buf.validate.field) = {
       required: true
       string: {prefix: "tnt_"}

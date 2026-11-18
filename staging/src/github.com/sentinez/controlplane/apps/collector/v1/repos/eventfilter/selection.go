@@ -37,8 +37,8 @@ type Selection interface {
 	GetTo() *timestamppb.Timestamp
 }
 
-// FilterOf the Filter of sel, without page; an ErrInvalidFilter when one
-// of its filters is not "field:value".
+// FilterOf the Filter of sel, without page nor tenants; an
+// ErrInvalidFilter when one of its filters is not "field:value".
 func FilterOf(sel Selection) (*Filter, error) {
 	matches, err := MatchesOf(sel.GetFilters())
 	if err != nil {

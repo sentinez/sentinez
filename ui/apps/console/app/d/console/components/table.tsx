@@ -46,6 +46,8 @@ import type { Pages } from '@/lib/api/pages';
 import type { Resource } from '@sentinez/proto/sentinez/apps/tenant/v1/model';
 import { statusToJSON } from '@sentinez/proto/sentinez/types/v1/known';
 import { listResources } from '@/lib/api/tenant';
+import { TlsMode } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
+import { useTlsModes } from '@/hooks/use-tls-modes';
 import { VISITORS_RESOLUTION, getUniqueVisitorHistogram } from '@/lib/api/analytic';
 import axios from 'axios';
 import { PageLayoutToolbar } from '@/components/page-layout';
@@ -58,16 +60,24 @@ function rowOf(r: Resource, visitors: VisitorBucket[] = []): Payment {
     id: r.id,
     status: enumLabel(statusToJSON(r.status), 'STATUS_') as Payment['status'],
     name: r.domain ?? '',
+    tlsMode: r.tlsMode,
     visitors,
   };
 }
 
 export type Payment = {
   id: string;
-  status: 'active' | 'disable' | 'success' | 'failed';
+  status: 'active' | 'disable' | 'pending' | 'success' | 'failed';
   name: string;
+  tlsMode: TlsMode;
   visitors: VisitorBucket[];
 };
+
+/** The label of a TLS mode */
+function TlsModeLabel({ mode }: { mode: TlsMode }) {
+  const { labelOf } = useTlsModes();
+  return <span className="text-sm">{labelOf(mode)}</span>;
+}
 
 // The unique visitors of the last 24 hours of each resource, one bucket
 // per interval of the resolution (0 without visitors, filled by the API);
@@ -126,6 +136,12 @@ export const getColumns = (t: DomainTranslator): ColumnDef<Payment>[] => [
         <BadgeStatus status={row.getValue('status')} value={row.getValue('status')} />
       </div>
     ),
+  },
+  {
+    accessorKey: 'tlsMode',
+    meta: { label: t('tlsMode') },
+    header: () => <div>{t('tlsMode')}</div>,
+    cell: ({ row }) => <TlsModeLabel mode={row.original.tlsMode} />,
   },
   {
     accessorKey: 'unique visitor',

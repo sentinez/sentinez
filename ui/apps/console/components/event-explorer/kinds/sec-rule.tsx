@@ -20,6 +20,7 @@ import {
   ruleRequestFields,
   ruleRequestOf,
   ruleRequestRows,
+  eventApis,
 } from './shared';
 
 // SecRuleKind the two tables of secrulepb.SecRuleEvent
@@ -60,7 +61,7 @@ export function useSecRuleConfig(which: SecRuleKind): EventConfig<SecRuleEvent> 
       <Badge variant={ACTION_TYPE_BADGE_VARIANT[typeOf(e)]}>{actionTypeLabel(typeOf(e))}</Badge>
     );
     return {
-      kind: spec.kind,
+      ...eventApis(spec.kind),
       title: t(`${which}.title`),
       subtitle: t(`${which}.subtitle`),
       list: spec.list,

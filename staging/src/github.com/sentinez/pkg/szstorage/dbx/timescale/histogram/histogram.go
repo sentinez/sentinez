@@ -202,7 +202,7 @@ type Filter struct {
 	// Resolution picked by the range when zero (Filter.resolution).
 	Resolution  typepb.HistogramResolution
 	ResourceIds []string
-	TenantId    string
+	TenantIds   []string
 	// From and To the range of the buckets, and the one picking the
 	// Resolution when zero. The buckets start before To (exclusive), else
 	// end with the current one, and start at From rounded down to a
@@ -667,8 +667,8 @@ func (f *Filter) apply(b sq.SelectBuilder) sq.SelectBuilder {
 	if len(f.ResourceIds) > 0 {
 		b = b.Where(sq.Eq{typepb.Owner_ResourceId: f.ResourceIds})
 	}
-	if f.TenantId != "" {
-		b = b.Where(sq.Eq{typepb.Owner_TenantId: f.TenantId})
+	if len(f.TenantIds) > 0 {
+		b = b.Where(sq.Eq{typepb.Owner_TenantId: f.TenantIds})
 	}
 
 	return b

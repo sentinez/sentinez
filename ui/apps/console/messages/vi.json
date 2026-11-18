@@ -240,7 +240,10 @@
     "createTitle": "Tạo tài nguyên",
     "createSubtitle": "Thêm một tên miền để edge bảo vệ và phục vụ.",
     "created": "Tạo tài nguyên thành công",
-    "createFailed": "Tạo tài nguyên thất bại"
+    "createFailed": "Tạo tài nguyên thất bại",
+    "tlsMode": "Chế độ TLS",
+    "createdPending": "Đã tạo tài nguyên, đang chờ chứng chỉ",
+    "tlsPending": "Tài nguyên tự bật khi chứng chỉ phù hợp với chế độ TLS: cần chứng chỉ server của tên miền kèm private key với mọi chế độ trừ passthrough, và CA upstream cùng chứng chỉ client (nếu có) còn hạn khi mã hoá lại. Tải chúng lên ở mục Chứng chỉ."
   },
   "ResourceFields": {
     "name": "Tên",
@@ -263,7 +266,8 @@
     "planPro": "Pro",
     "planProDescription": "Dành cho website có lưu lượng lớn.",
     "statusActiveDescription": "Edge phục vụ lưu lượng cho tên miền này.",
-    "statusDisableDescription": "Tài nguyên được giữ lại nhưng edge không phục vụ."
+    "statusDisableDescription": "Tài nguyên được giữ lại nhưng edge không phục vụ.",
+    "tlsMode": "Chế độ TLS"
   },
   "Resource": {
     "title": "Tài nguyên",
@@ -296,7 +300,8 @@
     "p95": "p95",
     "p99": "p99",
     "max": "Lớn nhất",
-    "noLatency": "Không có request nào được chuyển tới upstream trong 24 giờ qua."
+    "noLatency": "Không có request nào được chuyển tới upstream trong 24 giờ qua.",
+    "tlsMode": "Chế độ TLS:"
   },
   "ResourceSetting": {
     "title": "Cấu hình",
@@ -334,7 +339,11 @@
     "removeLocation": "Xóa location",
     "noLocationsEdit": "Chưa có location: thêm một location để chuyển tiếp request của tên miền này.",
     "saved": "Đã lưu cấu hình",
-    "saveFailed": "Không lưu được cấu hình"
+    "saveFailed": "Không lưu được cấu hình",
+    "tls": "Trạng thái và TLS",
+    "tlsDescription": "Khi bật, tên miền chỉ được phục vụ khi chứng chỉ phù hợp với chế độ TLS; trước đó nó ở trạng thái đang chờ và edge không phục vụ.",
+    "savedPending": "Đã lưu: tên miền đang chờ chứng chỉ",
+    "tlsPending": "Đang chờ: tên miền tự bật khi chứng chỉ phù hợp với chế độ TLS: cần chứng chỉ server của tên miền kèm private key với mọi chế độ trừ passthrough, và CA upstream cùng chứng chỉ client (nếu có) còn hạn khi mã hoá lại."
   },
   "Delivery": {
     "cdnTitle": "Quy tắc CDN",
@@ -445,7 +454,8 @@
   "Enum": {
     "status": {
       "active": "Hoạt động",
-      "disable": "Vô hiệu"
+      "disable": "Vô hiệu",
+      "pending": "Đang chờ"
     },
     "statusDescription": {
       "active": "Quy tắc được đánh giá với các request đến.",
@@ -865,5 +875,37 @@
       "setHeaders": "Header do edge đặt"
     },
     "streamed": "stream"
+  },
+  "AuditLog": {
+    "title": "Nhật ký kiểm toán",
+    "subtitle": "Các thay đổi qua console và API trên tenant và các domain của nó",
+    "scope": {
+      "label": "Nhật ký",
+      "tenant": "Tenant đang chọn",
+      "none": "Không có tenant"
+    },
+    "changes": "Thay đổi",
+    "request": "Request",
+    "unset": "không đặt",
+    "unchangedLines": "{count} dòng không đổi",
+    "column": {
+      "code": "Kết quả",
+      "method": "Method",
+      "user": "Người dùng",
+      "userId": "ID người dùng",
+      "name": "Tên",
+      "resource": "Resource",
+      "tenant": "Tenant",
+      "remoteAddr": "Địa chỉ",
+      "userAgent": "User agent",
+      "controlPlane": "Control plane",
+      "latency": "Độ trễ",
+      "error": "Lỗi"
+    },
+    "series": {
+      "ok": "Thành công",
+      "client": "Bị từ chối",
+      "server": "Lỗi server"
+    }
   }
 }

@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 
+	auditlogsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/auditlogs"
 	coreruleeventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/coreruleevents"
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventfilter"
 	httpegresseventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/httpegressevents"
@@ -29,6 +30,7 @@ import (
 	"github.com/sentinez/pkg/szerror"
 	"github.com/sentinez/pkg/szstorage/dbx/timescale/histogram"
 	analyticpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
+	auditpb "github.com/sentinez/sentinez/api/proto/sentinez/types/audit/v1"
 	crspb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
@@ -74,15 +76,16 @@ type Events struct {
 	SecRule     Reader[secrulepb.SecRuleEvent]
 	RateLimit   Reader[secrulepb.SecRuleEvent]
 	CoreRule    Reader[crspb.CoreRuleEvent]
+	// AuditLog the audit logs of the control plane calls, listed by
+	// tenant: not an EventKind, whose reads are scoped by resource.
+	AuditLog Reader[auditpb.AuditLog]
 }
 
 // New returns the Events of the tables of the collector; the tables and
 // their histograms are synced on the way, as the collector does.
 func New(ctx context.Context, appConf *settingpb.Config) (*Events, error) {
-	var (
-		events Events
-		err    error
-	)
+	events := &Events{}
+	var err error
 
 	events.HttpIngress, err = httpingresseventrepo.New(ctx, appConf)
 	if err != nil {
@@ -109,7 +112,12 @@ func New(ctx context.Context, appConf *settingpb.Config) (*Events, error) {
 		return nil, fmt.Errorf("core rule: %w", err)
 	}
 
-	return &events, nil
+	events.AuditLog, err = auditlogsrepo.New(ctx, appConf)
+	if err != nil {
+		return nil, fmt.Errorf("audit log: %w", err)
+	}
+
+	return events, nil
 }
 
 // Histogram the points of the histogram of kind, split by the key of its

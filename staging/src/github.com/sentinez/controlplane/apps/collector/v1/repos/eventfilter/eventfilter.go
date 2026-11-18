@@ -16,6 +16,7 @@
 package eventfilter
 
 import (
+	"fmt"
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
@@ -26,8 +27,10 @@ import (
 // Columns the columns of an event table the Filter applies to.
 type Columns struct {
 	// RequestId the request id of the events: the id of an http event.
-	RequestId   string
-	ResourceId  string
+	RequestId  string
+	ResourceId string
+	// TenantId the tenant of the events; a Filter of TenantIds needs it.
+	TenantId    string
 	MatchedTime string
 	// Fields those a Match may filter, and their top values count, in
 	// this order.
@@ -39,6 +42,8 @@ type Columns struct {
 type Filter struct {
 	RequestIds  []string
 	ResourceIds []string
+	// TenantIds needs the Columns.TenantId, an ErrUnknownField without.
+	TenantIds []string
 	// Matches all of them, on fields of the Columns.
 	Matches []Match
 	// From and To bound the matched time, From inclusive, To exclusive.
@@ -93,8 +98,8 @@ func (f *Filter) Cond(cols Columns) (sq.Sqlizer, error) {
 	return sq.And(conds), nil
 }
 
-// conds the conditions of f, nil included: its matches, requests,
-// resources and time range.
+// conds the conditions of f, nil included: its matches, tenants,
+// requests, resources and time range.
 func (f *Filter) conds(cols Columns) ([]sq.Sqlizer, error) {
 	if f == nil {
 		return nil, nil
@@ -112,6 +117,13 @@ func (f *Filter) conds(cols Columns) ([]sq.Sqlizer, error) {
 			return nil, err
 		}
 		conds = append(conds, cond)
+	}
+
+	if len(f.TenantIds) > 0 {
+		if cols.TenantId == "" {
+			return nil, fmt.Errorf("%w: tenant", ErrUnknownField)
+		}
+		conds = append(conds, sq.Eq{cols.TenantId: f.TenantIds})
 	}
 
 	return append(conds, f.scope(cols)...), nil

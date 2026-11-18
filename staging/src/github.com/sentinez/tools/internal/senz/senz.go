@@ -265,7 +265,7 @@ func generateMethodRequirementGetters(g *protogen.GeneratedFile, file *protogen.
 	for _, service := range file.Services {
 		for _, method := range service.Methods {
 			xmethod := getXMethod(method)
-			if xmethod == nil || (!xmethod.Ignore && !xmethod.Public &&
+			if xmethod == nil || (!xmethod.IgnoreControlPlane && !xmethod.Public &&
 				!xmethod.Audit && len(xmethod.GetControlPlanes()) == 0) {
 				continue
 			}
@@ -284,8 +284,8 @@ func writeMethodRequirementGetter(g *protogen.GeneratedFile, service *protogen.S
 	g.P("func ", funcName, "() *", xmethodType, " {")
 	g.P("\treturn &", xmethodType, "{")
 
-	if xmethod.Ignore {
-		g.P("\t\tIgnore: true,")
+	if xmethod.IgnoreControlPlane {
+		g.P("\t\tIgnoreControlPlane: true,")
 	}
 
 	if xmethod.Public {
@@ -294,6 +294,10 @@ func writeMethodRequirementGetter(g *protogen.GeneratedFile, service *protogen.S
 
 	if xmethod.Audit {
 		g.P("\t\tAudit: true,")
+	}
+
+	if xmethod.AuditNoOwner {
+		g.P("\t\tAuditNoOwner: true,")
 	}
 
 	if len(xmethod.GetControlPlanes()) > 0 {

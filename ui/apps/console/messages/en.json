@@ -240,7 +240,10 @@
     "createTitle": "Create Resource",
     "createSubtitle": "Add a domain for the edge to protect and serve.",
     "created": "Resource created successfully",
-    "createFailed": "Failed to create resource"
+    "createFailed": "Failed to create resource",
+    "tlsMode": "TLS mode",
+    "createdPending": "Resource created, pending its certificate",
+    "tlsPending": "It becomes active on its own once its certificates fit its TLS mode: a server certificate for the domain, with its private key, for any mode but passthrough, and valid upstream CAs and client certificate, if any, when it re-encrypts. Upload them in Certificates."
   },
   "ResourceFields": {
     "name": "Name",
@@ -263,7 +266,8 @@
     "planPro": "Pro",
     "planProDescription": "For high-traffic sites.",
     "statusActiveDescription": "The edge serves traffic for this domain.",
-    "statusDisableDescription": "The resource is kept but the edge does not serve it."
+    "statusDisableDescription": "The resource is kept but the edge does not serve it.",
+    "tlsMode": "TLS mode"
   },
   "Resource": {
     "title": "Resource",
@@ -296,7 +300,8 @@
     "p95": "p95",
     "p99": "p99",
     "max": "Max",
-    "noLatency": "No request was proxied to an upstream over the last 24 hours."
+    "noLatency": "No request was proxied to an upstream over the last 24 hours.",
+    "tlsMode": "TLS Mode:"
   },
   "ResourceSetting": {
     "title": "Setting",
@@ -334,7 +339,11 @@
     "removeLocation": "Remove location",
     "noLocationsEdit": "No location: add one to proxy the requests of this domain.",
     "saved": "Setting saved",
-    "saveFailed": "Failed to save the setting"
+    "saveFailed": "Failed to save the setting",
+    "tls": "Status and TLS",
+    "tlsDescription": "Active, the domain is served once its certificates fit its TLS mode; until then it is pending, and the edge does not serve it.",
+    "savedPending": "Saved: the domain is pending its certificate",
+    "tlsPending": "Pending: it becomes active on its own once its certificates fit its TLS mode: a server certificate for the domain, with its private key, for any mode but passthrough, and valid upstream CAs and client certificate, if any, when it re-encrypts."
   },
   "Delivery": {
     "cdnTitle": "CDN Rule",
@@ -445,7 +454,8 @@
   "Enum": {
     "status": {
       "active": "Active",
-      "disable": "Disable"
+      "disable": "Disable",
+      "pending": "Pending"
     },
     "statusDescription": {
       "active": "The rule is evaluated against incoming requests.",
@@ -865,5 +875,37 @@
       "setHeaders": "Headers set by the edge"
     },
     "streamed": "streamed"
+  },
+  "AuditLog": {
+    "title": "Audit log",
+    "subtitle": "Changes made through the console and the API to the tenant and its domains",
+    "scope": {
+      "label": "Logs",
+      "tenant": "Selected tenant",
+      "none": "Without tenant"
+    },
+    "changes": "Changes",
+    "request": "Request",
+    "unset": "unset",
+    "unchangedLines": "{count, plural, one {# unchanged line} other {# unchanged lines}}",
+    "column": {
+      "code": "Result",
+      "method": "Method",
+      "user": "User",
+      "userId": "User ID",
+      "name": "Name",
+      "resource": "Resource",
+      "tenant": "Tenant",
+      "remoteAddr": "Remote address",
+      "userAgent": "User agent",
+      "controlPlane": "Control plane",
+      "latency": "Latency",
+      "error": "Error"
+    },
+    "series": {
+      "ok": "OK",
+      "client": "Refused",
+      "server": "Failed"
+    }
   }
 }

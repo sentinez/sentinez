@@ -22,6 +22,7 @@ import (
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
+	auditpb "github.com/sentinez/sentinez/api/proto/sentinez/types/audit/v1"
 	crspb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
@@ -66,6 +67,7 @@ func scannedColumnsTests() []scannedColumnsTest {
 		{"corerule evt", AnalyticCoreRulesetsEvent(), _coreRuleEventColumns},
 		{"ingress evt", AnalyticHttpIngressEvent(), _ingressEventColumns},
 		{"egress evt", AnalyticHttpEgressEvent(), _egressEventColumns},
+		{"audit logs", AnalyticAuditLogsEvent(), auditpb.AuditLogColumns()},
 	}
 }
 
@@ -102,6 +104,7 @@ func TestEventResourceTimeIndex(t *testing.T) {
 		{"corerule", AnalyticCoreRulesetsEvent(), "matched_time"},
 		{"ingress", AnalyticHttpIngressEvent(), "timestamp"},
 		{"egress", AnalyticHttpEgressEvent(), "timestamp"},
+		{"audit logs", AnalyticAuditLogsEvent(), "timestamp"},
 	}
 
 	for _, tt := range tests {

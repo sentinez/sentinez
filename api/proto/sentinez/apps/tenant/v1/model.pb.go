@@ -115,7 +115,14 @@ type Resource struct {
 	Domain string `protobuf:"bytes,5,opt,name=domain,proto3" json:"domain,omitempty"`
 	// Routes of the domain to the origins, stored as JSONB.
 	Locations []*v11.Location `protobuf:"bytes,6,rep,name=locations,proto3" json:"locations,omitempty"`
-	Status    v1.Status       `protobuf:"varint,7,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`
+	// Active only when the certificates of the resource fit its tls_mode,
+	// valid now: none for passthrough; else a server certificate for the
+	// domain with its private key and, when the edge re-encrypts
+	// (re-encrypt, unspecified), a valid upstream CA and upstream client
+	// certificate if it has any. The service stores a resource asked active
+	// without them as pending, and settles it again whenever a certificate
+	// of it is uploaded (pending to active) or deleted (active to pending).
+	Status v1.Status `protobuf:"varint,7,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`
 	// How the edge carries the TLS of the domain to its upstreams; NULL in
 	// the rows stored before it, read as unspecified.
 	TlsMode       v11.TlsMode `protobuf:"varint,8,opt,name=tls_mode,json=tlsMode,proto3,enum=sentinez.dmz.edge.v1.TlsMode" json:"tls_mode,omitempty"`
@@ -558,27 +565,27 @@ var File_sentinez_apps_tenant_v1_model_proto protoreflect.FileDescriptor
 
 const file_sentinez_apps_tenant_v1_model_proto_rawDesc = "" +
 	"\n" +
-	"#sentinez/apps/tenant/v1/model.proto\x12\x17sentinez.apps.tenant.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\"sentinez/dmz/edge/v1/setting.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"\xf6\x03\n" +
+	"#sentinez/apps/tenant/v1/model.proto\x12\x17sentinez.apps.tenant.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\"sentinez/dmz/edge/v1/setting.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"\x82\x04\n" +
 	"\bResource\x12?\n" +
-	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataB\x06\xca\xf0\x19\x02\b\x01R\bmetadata\x12\x1f\n" +
-	"\x02id\x18\x02 \x01(\tB\x0f\xbaH\f\xc8\x01\x01r\a:\x05rsrc_R\x02id\x121\n" +
-	"\ttenant_id\x18\x03 \x01(\tB\x14\xbaH\v\xc8\x01\x01r\x06:\x04tnt_\xca\xf0\x19\x02 \x01R\btenantId\x12,\n" +
+	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataB\x06\xca\xf0\x19\x02\b\x01R\bmetadata\x12'\n" +
+	"\x02id\x18\x02 \x01(\tB\x17\xbaH\f\xc8\x01\x01r\a:\x05rsrc_\xca\xf0\x19\x04*\x02\x10\x01R\x02id\x125\n" +
+	"\ttenant_id\x18\x03 \x01(\tB\x18\xbaH\v\xc8\x01\x01r\x06:\x04tnt_\xca\xf0\x19\x06 \x01*\x02\b\x01R\btenantId\x12,\n" +
 	"\x04name\x18\x04 \x01(\tB\x18\xbaH\x15\xd8\x01\x01r\x102\x0e^[a-zA-Z0-9-]+R\x04name\x12b\n" +
 	"\x06domain\x18\x05 \x01(\tBJ\xbaHG\xd8\x01\x01rB2@^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,63}$R\x06domain\x12<\n" +
 	"\tlocations\x18\x06 \x03(\v2\x1e.sentinez.dmz.edge.v1.LocationR\tlocations\x121\n" +
 	"\x06status\x18\a \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12H\n" +
-	"\btls_mode\x18\b \x01(\x0e2\x1d.sentinez.dmz.edge.v1.TlsModeB\x0e\xbaH\x05\x82\x01\x02\x10\x01\xca\xf0\x19\x02 \x01R\atlsMode:\b\xca\xf3\x18\x04\b\x01\x18\x01\"\xff\x01\n" +
+	"\btls_mode\x18\b \x01(\x0e2\x1d.sentinez.dmz.edge.v1.TlsModeB\x0e\xbaH\x05\x82\x01\x02\x10\x01\xca\xf0\x19\x02 \x01R\atlsMode:\b\xca\xf3\x18\x04\b\x01\x18\x01\"\x87\x02\n" +
 	"\x06Tenant\x12?\n" +
-	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataB\x06\xca\xf0\x19\x02\b\x01R\bmetadata\x12\x1e\n" +
-	"\x02id\x18\x02 \x01(\tB\x0e\xbaH\v\xc8\x01\x01r\x06:\x04tnt_R\x02id\x12!\n" +
+	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataB\x06\xca\xf0\x19\x02\b\x01R\bmetadata\x12&\n" +
+	"\x02id\x18\x02 \x01(\tB\x16\xbaH\v\xc8\x01\x01r\x06:\x04tnt_\xca\xf0\x19\x04*\x02\b\x01R\x02id\x12!\n" +
 	"\x04name\x18\x03 \x01(\tB\r\xbaH\x04r\x02\x18@\xca\xf0\x19\x02 \x01R\x04name\x120\n" +
 	"\vdescription\x18\x04 \x01(\tB\x0e\xbaH\x05r\x03\x18\xff\x01\xca\xf0\x19\x02 \x01R\vdescription\x125\n" +
-	"\x04plan\x18\x05 \x01(\x0e2\x17.sentinez.types.v1.PlanB\b\xbaH\x05\x82\x01\x02\x10\x01R\x04plan:\b\xca\xf3\x18\x04\b\x01\x18\x01\"\x83\x02\n" +
+	"\x04plan\x18\x05 \x01(\x0e2\x17.sentinez.types.v1.PlanB\b\xbaH\x05\x82\x01\x02\x10\x01R\x04plan:\b\xca\xf3\x18\x04\b\x01\x18\x01\"\x8b\x02\n" +
 	"\x06Member\x12?\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1b.sentinez.types.v1.MetadataB\x06\xca\xf0\x19\x02\b\x01R\bmetadata\x12\x1e\n" +
 	"\x02id\x18\x02 \x01(\tB\x0e\xbaH\v\xc8\x01\x01r\x06:\x04mem_R\x02id\x12(\n" +
-	"\auser_id\x18\x03 \x01(\tB\x0f\xbaH\f\xc8\x01\x01r\a:\x05user_R\x06userId\x12+\n" +
-	"\ttenant_id\x18\x04 \x01(\tB\x0e\xbaH\v\xc8\x01\x01r\x06:\x04tnt_R\btenantId\x127\n" +
+	"\auser_id\x18\x03 \x01(\tB\x0f\xbaH\f\xc8\x01\x01r\a:\x05user_R\x06userId\x123\n" +
+	"\ttenant_id\x18\x04 \x01(\tB\x16\xbaH\v\xc8\x01\x01r\x06:\x04tnt_\xca\xf0\x19\x04*\x02\b\x01R\btenantId\x127\n" +
 	"\x05roles\x18\x05 \x03(\x0e2\x17.sentinez.types.v1.RoleB\b\xbaH\x05\x92\x01\x02\x18\x01R\x05roles:\b\xca\xf3\x18\x04\b\x01\x18\x01\"\xff\x05\n" +
 	"\rCaCertificate\x126\n" +
 	"\x05owner\x18\x01 \x01(\v2\x18.sentinez.types.v1.OwnerB\x06\xca\xf0\x19\x02\b\x01R\x05owner\x12 \n" +

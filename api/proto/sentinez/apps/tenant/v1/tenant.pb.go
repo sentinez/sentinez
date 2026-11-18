@@ -2134,20 +2134,20 @@ const file_sentinez_apps_tenant_v1_tenant_proto_rawDesc = "" +
 	"\x1bGetResourceByDomainResponse\x12=\n" +
 	"\bresource\x18\x01 \x01(\v2!.sentinez.apps.tenant.v1.ResourceR\bresource\"T\n" +
 	"\x13GetResourceResponse\x12=\n" +
-	"\bresource\x18\x01 \x01(\v2!.sentinez.apps.tenant.v1.ResourceR\bresource\"8\n" +
-	"\x15DeleteResourceRequest\x12\x1f\n" +
-	"\x02id\x18\x01 \x01(\tB\x0f\xbaH\f\xc8\x01\x01r\a:\x05rsrc_R\x02id\"\x18\n" +
-	"\x16DeleteResourceResponse\"\xbc\x01\n" +
-	"\x15UpdateResourceRequest\x12\x1f\n" +
-	"\x02id\x18\x01 \x01(\tB\x0f\xbaH\f\xc8\x01\x01r\a:\x05rsrc_R\x02id\x12E\n" +
+	"\bresource\x18\x01 \x01(\v2!.sentinez.apps.tenant.v1.ResourceR\bresource\"@\n" +
+	"\x15DeleteResourceRequest\x12'\n" +
+	"\x02id\x18\x01 \x01(\tB\x17\xbaH\f\xc8\x01\x01r\a:\x05rsrc_\xca\xf0\x19\x04*\x02\x10\x01R\x02id\"\x18\n" +
+	"\x16DeleteResourceResponse\"\xc4\x01\n" +
+	"\x15UpdateResourceRequest\x12'\n" +
+	"\x02id\x18\x01 \x01(\tB\x17\xbaH\f\xc8\x01\x01r\a:\x05rsrc_\xca\xf0\x19\x04*\x02\x10\x01R\x02id\x12E\n" +
 	"\bresource\x18\x02 \x01(\v2!.sentinez.apps.tenant.v1.ResourceB\x06\xbaH\x03\xc8\x01\x01R\bresource\x12;\n" +
 	"\vupdate_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
 	"updateMask\"\x18\n" +
-	"\x16UpdateResourceResponse\"\xbb\x01\n" +
+	"\x16UpdateResourceResponse\"\xc3\x01\n" +
 	"\x15CreateResourceRequest\x12B\n" +
 	"\bresource\x18\x01 \x01(\v2\x1e.sentinez.dmz.edge.v1.ResourceB\x06\xbaH\x03\xc8\x01\x01R\bresource\x121\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12+\n" +
-	"\ttenant_id\x18\x03 \x01(\tB\x0e\xbaH\v\xc8\x01\x01r\x06:\x04tnt_R\btenantId\"W\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x123\n" +
+	"\ttenant_id\x18\x03 \x01(\tB\x16\xbaH\v\xc8\x01\x01r\x06:\x04tnt_\xca\xf0\x19\x04*\x02\b\x01R\btenantId\"W\n" +
 	"\x16CreateResourceResponse\x12=\n" +
 	"\bresource\x18\x01 \x01(\v2!.sentinez.apps.tenant.v1.ResourceR\bresource\"\xdd\x02\n" +
 	"\x13ListResourceRequest\x12,\n" +
@@ -2173,10 +2173,10 @@ const file_sentinez_apps_tenant_v1_tenant_proto_rawDesc = "" +
 	"\x13UpdateMemberRequest\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xbaH\v\xc8\x01\x01r\x06:\x04mem_R\x02id\x12B\n" +
 	"\x05roles\x18\x02 \x03(\x0e2\x17.sentinez.types.v1.RoleB\x13\xbaH\x10\x92\x01\r\b\x01\x18\x01\"\a\x82\x01\x04\x10\x01 \x00R\x05roles\"\x16\n" +
-	"\x14UpdateMemberResponse\"\xb0\x01\n" +
+	"\x14UpdateMemberResponse\"\xb8\x01\n" +
 	"\x13CreateMemberRequest\x12(\n" +
-	"\auser_id\x18\x01 \x01(\tB\x0f\xbaH\f\xc8\x01\x01r\a:\x05user_R\x06userId\x12+\n" +
-	"\ttenant_id\x18\x02 \x01(\tB\x0e\xbaH\v\xc8\x01\x01r\x06:\x04tnt_R\btenantId\x12B\n" +
+	"\auser_id\x18\x01 \x01(\tB\x0f\xbaH\f\xc8\x01\x01r\a:\x05user_R\x06userId\x123\n" +
+	"\ttenant_id\x18\x02 \x01(\tB\x16\xbaH\v\xc8\x01\x01r\x06:\x04tnt_\xca\xf0\x19\x04*\x02\b\x01R\btenantId\x12B\n" +
 	"\x05roles\x18\x03 \x03(\x0e2\x17.sentinez.types.v1.RoleB\x13\xbaH\x10\x92\x01\r\b\x01\x18\x01\"\a\x82\x01\x04\x10\x01 \x00R\x05roles\"O\n" +
 	"\x14CreateMemberResponse\x127\n" +
 	"\x06member\x18\x01 \x01(\v2\x1f.sentinez.apps.tenant.v1.MemberR\x06member\"\x9e\x01\n" +
@@ -2191,12 +2191,12 @@ const file_sentinez_apps_tenant_v1_tenant_proto_rawDesc = "" +
 	"\x10GetTenantRequest\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xbaH\v\xc8\x01\x01r\x06:\x04tnt_R\x02id\"L\n" +
 	"\x11GetTenantResponse\x127\n" +
-	"\x06tenant\x18\x01 \x01(\v2\x1f.sentinez.apps.tenant.v1.TenantR\x06tenant\"5\n" +
-	"\x13DeleteTenantRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\tB\x0e\xbaH\v\xc8\x01\x01r\x06:\x04tnt_R\x02id\"\x16\n" +
-	"\x14DeleteTenantResponse\"\xb3\x01\n" +
-	"\x13UpdateTenantRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\tB\x0e\xbaH\v\xc8\x01\x01r\x06:\x04tnt_R\x02id\x12?\n" +
+	"\x06tenant\x18\x01 \x01(\v2\x1f.sentinez.apps.tenant.v1.TenantR\x06tenant\"=\n" +
+	"\x13DeleteTenantRequest\x12&\n" +
+	"\x02id\x18\x01 \x01(\tB\x16\xbaH\v\xc8\x01\x01r\x06:\x04tnt_\xca\xf0\x19\x04*\x02\b\x01R\x02id\"\x16\n" +
+	"\x14DeleteTenantResponse\"\xbb\x01\n" +
+	"\x13UpdateTenantRequest\x12&\n" +
+	"\x02id\x18\x01 \x01(\tB\x16\xbaH\v\xc8\x01\x01r\x06:\x04tnt_\xca\xf0\x19\x04*\x02\b\x01R\x02id\x12?\n" +
 	"\x06tenant\x18\x02 \x01(\v2\x1f.sentinez.apps.tenant.v1.TenantB\x06\xbaH\x03\xc8\x01\x01R\x06tenant\x12;\n" +
 	"\vupdate_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
 	"updateMask\"\x16\n" +
@@ -2215,9 +2215,9 @@ const file_sentinez_apps_tenant_v1_tenant_proto_rawDesc = "" +
 	"\x03ids\x18\x04 \x03(\tB\x12\xbaH\x0f\x92\x01\f\x18\x01\"\br\x06:\x04tnt_R\x03ids\"e\n" +
 	"\x12ListTenantResponse\x12\x14\n" +
 	"\x05total\x18\x01 \x01(\x03R\x05total\x129\n" +
-	"\atenants\x18\x02 \x03(\v2\x1f.sentinez.apps.tenant.v1.TenantR\atenants\"\xe5\x02\n" +
-	"\x1aCreateCaCertificateRequest\x120\n" +
-	"\vresource_id\x18\x01 \x01(\tB\x0f\xbaH\f\xc8\x01\x01r\a:\x05rsrc_R\n" +
+	"\atenants\x18\x02 \x03(\v2\x1f.sentinez.apps.tenant.v1.TenantR\atenants\"\xed\x02\n" +
+	"\x1aCreateCaCertificateRequest\x128\n" +
+	"\vresource_id\x18\x01 \x01(\tB\x17\xbaH\f\xc8\x01\x01r\a:\x05rsrc_\xca\xf0\x19\x04*\x02\x10\x01R\n" +
 	"resourceId\x12\x1b\n" +
 	"\x04name\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x18xR\x04name\x12*\n" +
 	"\vdescription\x18\x03 \x01(\tB\b\xbaH\x05r\x03\x18\xff\x01R\vdescription\x12M\n" +
@@ -2243,31 +2243,31 @@ const file_sentinez_apps_tenant_v1_tenant_proto_rawDesc = "" +
 	"\bprovider\x18\x05 \x01(\tB\b\xbaH\x05r\x03\x18\xff\x01R\bprovider\"\x82\x01\n" +
 	"\x19ListCaCertificateResponse\x12\x14\n" +
 	"\x05total\x18\x01 \x01(\x03R\x05total\x12O\n" +
-	"\x0fca_certificates\x18\x02 \x03(\v2&.sentinez.apps.tenant.v1.CaCertificateR\x0ecaCertificates2\xd4\x18\n" +
+	"\x0fca_certificates\x18\x02 \x03(\v2&.sentinez.apps.tenant.v1.CaCertificateR\x0ecaCertificates2\xec\x18\n" +
 	"\rTenantService\x12w\n" +
-	"\x06Status\x12&.sentinez.apps.tenant.v1.StatusRequest\x1a'.sentinez.apps.tenant.v1.StatusResponse\"\x1c\x8a\xb5\x18\x02\x18\x01\x82\xd3\xe4\x93\x02\x10\x12\x0e/tenant/status\x12\x8e\x01\n" +
-	"\fListResource\x12,.sentinez.apps.tenant.v1.ListResourceRequest\x1a-.sentinez.apps.tenant.v1.ListResourceResponse\"!\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x13\x12\x11/tenant/resources\x12\x98\x01\n" +
+	"\x06Status\x12&.sentinez.apps.tenant.v1.StatusRequest\x1a'.sentinez.apps.tenant.v1.StatusResponse\"\x1c\x8a\xb5\x18\x02\x18\x01\x82\xd3\xe4\x93\x02\x10\x12\x0e/tenant/status\x12\x90\x01\n" +
+	"\fListResource\x12,.sentinez.apps.tenant.v1.ListResourceRequest\x1a-.sentinez.apps.tenant.v1.ListResourceResponse\"#\x8a\xb5\x18\x06\x12\x02\x01\x02 \x01\x82\xd3\xe4\x93\x02\x13\x12\x11/tenant/resources\x12\x98\x01\n" +
 	"\x0eCreateResource\x12..sentinez.apps.tenant.v1.CreateResourceRequest\x1a/.sentinez.apps.tenant.v1.CreateResourceResponse\"%\x8a\xb5\x18\x06\x12\x02\x01\x02 \x01\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/tenant/resource\x12\x98\x01\n" +
 	"\x0eUpdateResource\x12..sentinez.apps.tenant.v1.UpdateResourceRequest\x1a/.sentinez.apps.tenant.v1.UpdateResourceResponse\"%\x8a\xb5\x18\x06\x12\x02\x01\x02 \x01\x82\xd3\xe4\x93\x02\x15:\x01*\x1a\x10/tenant/resource\x12\x95\x01\n" +
-	"\x0eDeleteResource\x12..sentinez.apps.tenant.v1.DeleteResourceRequest\x1a/.sentinez.apps.tenant.v1.DeleteResourceResponse\"\"\x8a\xb5\x18\x06\x12\x02\x01\x02 \x01\x82\xd3\xe4\x93\x02\x12*\x10/tenant/resource\x12\x8a\x01\n" +
-	"\vGetResource\x12+.sentinez.apps.tenant.v1.GetResourceRequest\x1a,.sentinez.apps.tenant.v1.GetResourceResponse\" \x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x12\x12\x10/tenant/resource\x12\xb4\x01\n" +
-	"\x13GetResourceByDomain\x123.sentinez.apps.tenant.v1.GetResourceByDomainRequest\x1a4.sentinez.apps.tenant.v1.GetResourceByDomainResponse\"2\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02$\x12\"/tenant/resource/{resource_domain}\x12\x86\x01\n" +
+	"\x0eDeleteResource\x12..sentinez.apps.tenant.v1.DeleteResourceRequest\x1a/.sentinez.apps.tenant.v1.DeleteResourceResponse\"\"\x8a\xb5\x18\x06\x12\x02\x01\x02 \x01\x82\xd3\xe4\x93\x02\x12*\x10/tenant/resource\x12\x8c\x01\n" +
+	"\vGetResource\x12+.sentinez.apps.tenant.v1.GetResourceRequest\x1a,.sentinez.apps.tenant.v1.GetResourceResponse\"\"\x8a\xb5\x18\x06\x12\x02\x01\x02 \x01\x82\xd3\xe4\x93\x02\x12\x12\x10/tenant/resource\x12\xb6\x01\n" +
+	"\x13GetResourceByDomain\x123.sentinez.apps.tenant.v1.GetResourceByDomainRequest\x1a4.sentinez.apps.tenant.v1.GetResourceByDomainResponse\"4\x8a\xb5\x18\x06\x12\x02\x01\x02 \x01\x82\xd3\xe4\x93\x02$\x12\"/tenant/resource/{resource_domain}\x12\x88\x01\n" +
 	"\n" +
-	"ListMember\x12*.sentinez.apps.tenant.v1.ListMemberRequest\x1a+.sentinez.apps.tenant.v1.ListMemberResponse\"\x1f\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x11\x12\x0f/tenant/members\x12\x90\x01\n" +
-	"\fCreateMember\x12,.sentinez.apps.tenant.v1.CreateMemberRequest\x1a-.sentinez.apps.tenant.v1.CreateMemberResponse\"#\x8a\xb5\x18\x06\x12\x02\x01\x02 \x01\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/tenant/member\x12\x90\x01\n" +
-	"\fUpdateMember\x12,.sentinez.apps.tenant.v1.UpdateMemberRequest\x1a-.sentinez.apps.tenant.v1.UpdateMemberResponse\"#\x8a\xb5\x18\x06\x12\x02\x01\x02 \x01\x82\xd3\xe4\x93\x02\x13:\x01*\x1a\x0e/tenant/member\x12\x8d\x01\n" +
-	"\fDeleteMember\x12,.sentinez.apps.tenant.v1.DeleteMemberRequest\x1a-.sentinez.apps.tenant.v1.DeleteMemberResponse\" \x8a\xb5\x18\x06\x12\x02\x01\x02 \x01\x82\xd3\xe4\x93\x02\x10*\x0e/tenant/member\x12\x82\x01\n" +
-	"\tGetMember\x12).sentinez.apps.tenant.v1.GetMemberRequest\x1a*.sentinez.apps.tenant.v1.GetMemberResponse\"\x1e\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x10\x12\x0e/tenant/member\x12\xa2\x01\n" +
-	"\x11ListCaCertificate\x121.sentinez.apps.tenant.v1.ListCaCertificateRequest\x1a2.sentinez.apps.tenant.v1.ListCaCertificateResponse\"&\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x18\x12\x16/tenant/cacertificates\x12\xac\x01\n" +
-	"\x13CreateCaCertificate\x123.sentinez.apps.tenant.v1.CreateCaCertificateRequest\x1a4.sentinez.apps.tenant.v1.CreateCaCertificateResponse\"*\x8a\xb5\x18\x06\x12\x02\x01\x02 \x01\x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/tenant/cacertificate\x12\x9e\x01\n" +
-	"\x10GetCaCertificate\x120.sentinez.apps.tenant.v1.GetCaCertificateRequest\x1a1.sentinez.apps.tenant.v1.GetCaCertificateResponse\"%\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x17\x12\x15/tenant/cacertificate\x12\xa9\x01\n" +
-	"\x13DeleteCaCertificate\x123.sentinez.apps.tenant.v1.DeleteCaCertificateRequest\x1a4.sentinez.apps.tenant.v1.DeleteCaCertificateResponse\"'\x8a\xb5\x18\x06\x12\x02\x01\x02 \x01\x82\xd3\xe4\x93\x02\x17*\x15/tenant/cacertificate\x12\x86\x01\n" +
+	"ListMember\x12*.sentinez.apps.tenant.v1.ListMemberRequest\x1a+.sentinez.apps.tenant.v1.ListMemberResponse\"!\x8a\xb5\x18\x06\x12\x02\x01\x02 \x01\x82\xd3\xe4\x93\x02\x11\x12\x0f/tenant/members\x12\x90\x01\n" +
+	"\fCreateMember\x12,.sentinez.apps.tenant.v1.CreateMemberRequest\x1a-.sentinez.apps.tenant.v1.CreateMemberResponse\"#\x8a\xb5\x18\x06\x12\x02\x01\x02 \x01\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/tenant/member\x12\x92\x01\n" +
+	"\fUpdateMember\x12,.sentinez.apps.tenant.v1.UpdateMemberRequest\x1a-.sentinez.apps.tenant.v1.UpdateMemberResponse\"%\x8a\xb5\x18\b\x12\x02\x01\x02 \x01(\x01\x82\xd3\xe4\x93\x02\x13:\x01*\x1a\x0e/tenant/member\x12\x8f\x01\n" +
+	"\fDeleteMember\x12,.sentinez.apps.tenant.v1.DeleteMemberRequest\x1a-.sentinez.apps.tenant.v1.DeleteMemberResponse\"\"\x8a\xb5\x18\b\x12\x02\x01\x02 \x01(\x01\x82\xd3\xe4\x93\x02\x10*\x0e/tenant/member\x12\x84\x01\n" +
+	"\tGetMember\x12).sentinez.apps.tenant.v1.GetMemberRequest\x1a*.sentinez.apps.tenant.v1.GetMemberResponse\" \x8a\xb5\x18\x06\x12\x02\x01\x02 \x01\x82\xd3\xe4\x93\x02\x10\x12\x0e/tenant/member\x12\xa4\x01\n" +
+	"\x11ListCaCertificate\x121.sentinez.apps.tenant.v1.ListCaCertificateRequest\x1a2.sentinez.apps.tenant.v1.ListCaCertificateResponse\"(\x8a\xb5\x18\x06\x12\x02\x01\x02 \x01\x82\xd3\xe4\x93\x02\x18\x12\x16/tenant/cacertificates\x12\xac\x01\n" +
+	"\x13CreateCaCertificate\x123.sentinez.apps.tenant.v1.CreateCaCertificateRequest\x1a4.sentinez.apps.tenant.v1.CreateCaCertificateResponse\"*\x8a\xb5\x18\x06\x12\x02\x01\x02 \x01\x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/tenant/cacertificate\x12\xa0\x01\n" +
+	"\x10GetCaCertificate\x120.sentinez.apps.tenant.v1.GetCaCertificateRequest\x1a1.sentinez.apps.tenant.v1.GetCaCertificateResponse\"'\x8a\xb5\x18\x06\x12\x02\x01\x02 \x01\x82\xd3\xe4\x93\x02\x17\x12\x15/tenant/cacertificate\x12\xab\x01\n" +
+	"\x13DeleteCaCertificate\x123.sentinez.apps.tenant.v1.DeleteCaCertificateRequest\x1a4.sentinez.apps.tenant.v1.DeleteCaCertificateResponse\")\x8a\xb5\x18\b\x12\x02\x01\x02 \x01(\x01\x82\xd3\xe4\x93\x02\x17*\x15/tenant/cacertificate\x12\x88\x01\n" +
 	"\n" +
-	"ListTenant\x12*.sentinez.apps.tenant.v1.ListTenantRequest\x1a+.sentinez.apps.tenant.v1.ListTenantResponse\"\x1f\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x11\x12\x0f/tenant/tenants\x12\x90\x01\n" +
+	"ListTenant\x12*.sentinez.apps.tenant.v1.ListTenantRequest\x1a+.sentinez.apps.tenant.v1.ListTenantResponse\"!\x8a\xb5\x18\x06\x12\x02\x01\x02 \x01\x82\xd3\xe4\x93\x02\x11\x12\x0f/tenant/tenants\x12\x90\x01\n" +
 	"\fCreateTenant\x12,.sentinez.apps.tenant.v1.CreateTenantRequest\x1a-.sentinez.apps.tenant.v1.CreateTenantResponse\"#\x8a\xb5\x18\x06\x12\x02\x01\x02 \x01\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/tenant/tenant\x12\x90\x01\n" +
 	"\fUpdateTenant\x12,.sentinez.apps.tenant.v1.UpdateTenantRequest\x1a-.sentinez.apps.tenant.v1.UpdateTenantResponse\"#\x8a\xb5\x18\x06\x12\x02\x01\x02 \x01\x82\xd3\xe4\x93\x02\x13:\x01*\x1a\x0e/tenant/tenant\x12\x8d\x01\n" +
-	"\fDeleteTenant\x12,.sentinez.apps.tenant.v1.DeleteTenantRequest\x1a-.sentinez.apps.tenant.v1.DeleteTenantResponse\" \x8a\xb5\x18\x06\x12\x02\x01\x02 \x01\x82\xd3\xe4\x93\x02\x10*\x0e/tenant/tenant\x12\x82\x01\n" +
-	"\tGetTenant\x12).sentinez.apps.tenant.v1.GetTenantRequest\x1a*.sentinez.apps.tenant.v1.GetTenantResponse\"\x1e\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x10\x12\x0e/tenant/tenantB\xe3\x01\x92Ad\x12\x15\n" +
+	"\fDeleteTenant\x12,.sentinez.apps.tenant.v1.DeleteTenantRequest\x1a-.sentinez.apps.tenant.v1.DeleteTenantResponse\" \x8a\xb5\x18\x06\x12\x02\x01\x02 \x01\x82\xd3\xe4\x93\x02\x10*\x0e/tenant/tenant\x12\x84\x01\n" +
+	"\tGetTenant\x12).sentinez.apps.tenant.v1.GetTenantRequest\x1a*.sentinez.apps.tenant.v1.GetTenantResponse\" \x8a\xb5\x18\x06\x12\x02\x01\x02 \x01\x82\xd3\xe4\x93\x02\x10\x12\x0e/tenant/tenantB\xe3\x01\x92Ad\x12\x15\n" +
 	"\x0eTenant Service2\x031.0*\x02\x01\x022\x10application/jsonZ#\n" +
 	"!\n" +
 	"\n" +

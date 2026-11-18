@@ -38,66 +38,84 @@ func GetAnalyticServiceStatus() *v1.XMethod {
 
 func GetAnalyticServiceListActivities() *v1.XMethod {
 	return &v1.XMethod{
-		Ignore: true,
+		IgnoreControlPlane: true,
 	}
 }
 
 func GetAnalyticServiceListHttpIngressEvents() *v1.XMethod {
 	return &v1.XMethod{
-		Ignore: true,
+		IgnoreControlPlane: true,
 	}
 }
 
 func GetAnalyticServiceListHttpEgressEvents() *v1.XMethod {
 	return &v1.XMethod{
-		Ignore: true,
+		IgnoreControlPlane: true,
 	}
 }
 
 func GetAnalyticServiceGetEgressLatency() *v1.XMethod {
 	return &v1.XMethod{
-		Ignore: true,
+		IgnoreControlPlane: true,
 	}
 }
 
 func GetAnalyticServiceListSecRuleEvents() *v1.XMethod {
 	return &v1.XMethod{
-		Ignore: true,
+		IgnoreControlPlane: true,
 	}
 }
 
 func GetAnalyticServiceListRateLimitEvents() *v1.XMethod {
 	return &v1.XMethod{
-		Ignore: true,
+		IgnoreControlPlane: true,
 	}
 }
 
 func GetAnalyticServiceListCoreRuleEvents() *v1.XMethod {
 	return &v1.XMethod{
-		Ignore: true,
+		IgnoreControlPlane: true,
 	}
 }
 
 func GetAnalyticServiceGetEventHistogram() *v1.XMethod {
 	return &v1.XMethod{
-		Ignore: true,
+		IgnoreControlPlane: true,
 	}
 }
 
 func GetAnalyticServiceGetUniqueVisitorHistogram() *v1.XMethod {
 	return &v1.XMethod{
-		Ignore: true,
+		IgnoreControlPlane: true,
 	}
 }
 
 func GetAnalyticServiceGetEventTopValues() *v1.XMethod {
 	return &v1.XMethod{
-		Ignore: true,
+		IgnoreControlPlane: true,
 	}
 }
 
 func GetAnalyticServiceListVisitors() *v1.XMethod {
 	return &v1.XMethod{
-		Ignore: true,
+		IgnoreControlPlane: true,
+	}
+}
+
+func GetAnalyticServiceListAuditLogs() *v1.XMethod {
+	return &v1.XMethod{
+		IgnoreControlPlane: true,
+	}
+}
+
+func GetAnalyticServiceGetAuditLogHistogram() *v1.XMethod {
+	return &v1.XMethod{
+		IgnoreControlPlane: true,
+	}
+}
+
+func GetAnalyticServiceGetAuditLogTopValues() *v1.XMethod {
+	return &v1.XMethod{
+		IgnoreControlPlane: true,
 	}
 }

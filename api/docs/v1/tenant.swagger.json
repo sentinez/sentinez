@@ -575,13 +575,15 @@
           },
           {
             "name": "status",
+            "description": " - STATUS_PENDING: Asked to be active, but waiting for what it needs to be served, as a\nresource for certificates that fit its TLS mode: served as disabled,\nand made active once it has them.",
             "in": "query",
             "required": false,
             "type": "string",
             "enum": [
               "STATUS_UNSPECIFIED",
               "STATUS_ACTIVE",
-              "STATUS_DISABLE"
+              "STATUS_DISABLE",
+              "STATUS_PENDING"
             ],
             "default": "STATUS_UNSPECIFIED"
           },
@@ -865,7 +867,8 @@
           "description": "Routes of the domain to the origins, stored as JSONB."
         },
         "status": {
-          "$ref": "#/definitions/typesv1Status"
+          "$ref": "#/definitions/typesv1Status",
+          "description": "Active only when the certificates of the resource fit its tls_mode,\nvalid now: none for passthrough; else a server certificate for the\ndomain with its private key and, when the edge re-encrypts\n(re-encrypt, unspecified), a valid upstream CA and upstream client\ncertificate if it has any. The service stores a resource asked active\nwithout them as pending, and settles it again whenever a certificate\nof it is uploaded (pending to active) or deleted (active to pending)."
         },
         "tlsMode": {
           "$ref": "#/definitions/v1TlsMode",
@@ -982,9 +985,11 @@
       "enum": [
         "STATUS_UNSPECIFIED",
         "STATUS_ACTIVE",
-        "STATUS_DISABLE"
+        "STATUS_DISABLE",
+        "STATUS_PENDING"
       ],
-      "default": "STATUS_UNSPECIFIED"
+      "default": "STATUS_UNSPECIFIED",
+      "description": " - STATUS_PENDING: Asked to be active, but waiting for what it needs to be served, as a\nresource for certificates that fit its TLS mode: served as disabled,\nand made active once it has them."
     },
     "v1BalanceStrategy": {
       "type": "string",

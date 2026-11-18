@@ -206,6 +206,10 @@ const (
 	Status_STATUS_UNSPECIFIED Status = 0
 	Status_STATUS_ACTIVE      Status = 1
 	Status_STATUS_DISABLE     Status = 2
+	// Asked to be active, but waiting for what it needs to be served, as a
+	// resource for certificates that fit its TLS mode: served as disabled,
+	// and made active once it has them.
+	Status_STATUS_PENDING Status = 3
 )
 
 // Enum value maps for Status.
@@ -214,11 +218,13 @@ var (
 		0: "STATUS_UNSPECIFIED",
 		1: "STATUS_ACTIVE",
 		2: "STATUS_DISABLE",
+		3: "STATUS_PENDING",
 	}
 	Status_value = map[string]int32{
 		"STATUS_UNSPECIFIED": 0,
 		"STATUS_ACTIVE":      1,
 		"STATUS_DISABLE":     2,
+		"STATUS_PENDING":     3,
 	}
 )
 
@@ -716,11 +722,12 @@ const file_sentinez_types_v1_known_proto_rawDesc = "" +
 	"\x19CONTROL_PLANE_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14CONTROL_PLANE_PORTAL\x10\x01\x12\x17\n" +
 	"\x13CONTROL_PLANE_ADMIN\x10\x02\x12\x19\n" +
-	"\x15CONTROL_PLANE_SERVICE\x10\x03*G\n" +
+	"\x15CONTROL_PLANE_SERVICE\x10\x03*[\n" +
 	"\x06Status\x12\x16\n" +
 	"\x12STATUS_UNSPECIFIED\x10\x00\x12\x11\n" +
 	"\rSTATUS_ACTIVE\x10\x01\x12\x12\n" +
-	"\x0eSTATUS_DISABLE\x10\x02*L\n" +
+	"\x0eSTATUS_DISABLE\x10\x02\x12\x12\n" +
+	"\x0eSTATUS_PENDING\x10\x03*L\n" +
 	"\x04Plan\x12\x14\n" +
 	"\x10PLAN_UNSPECIFIED\x10\x00\x12\r\n" +
 	"\tPLAN_FREE\x10\x01\x12\x11\n" +

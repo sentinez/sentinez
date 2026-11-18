@@ -64,7 +64,7 @@ service ExampleService {
 
   rpc Ignored(google.protobuf.Empty) returns (google.protobuf.Empty) {
     option (sentinez.types.v1.x_method) = {
-      ignore: true
+      ignore_control_plane: true
     };
   }
 }

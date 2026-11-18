@@ -18,29 +18,56 @@ package sentinez.types.audit.v1;
 
 import "google/protobuf/duration.proto";
 import "google/protobuf/struct.proto";
-import "google/protobuf/timestamp.proto";
 import "sentinez/types/v1/known.proto";
+import "sentinez/types/v1/options.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/types/audit/v1;auditpb";
 
 // AuditLog is one call of a method that sets x_method.audit.
 message AuditLog {
+  option (sentinez.types.v1.x_message) = {
+    database_model: true
+    scanner: true
+  };
+
   // id is prefixed "aud_".
   string id = 1;
-  google.protobuf.Timestamp time = 2;
   // method is the full gRPC method, "/pkg.Service/Method".
-  string method = 3;
-  string user_id = 4;
-  string name = 5;
-  sentinez.types.v1.ControlPlane control_plane = 6;
-  string remote_addr = 7;
-  string user_agent = 8;
+  string method = 2;
+  string user_id = 3;
+  string name = 4;
+  sentinez.types.v1.ControlPlane control_plane = 5;
+  string remote_addr = 6;
+  string user_agent = 7;
   // request is the request as protojson, its debug_redact fields hidden.
-  google.protobuf.Struct request = 9;
+  google.protobuf.Struct request = 8 [(sentinez.types.v1.x_field).codec = COLUMN_CODEC_PROTOJSON];
   // code is the grpc code of the call, 0 when it succeeded.
-  uint32 code = 10;
-  string error = 11;
-  google.protobuf.Duration latency = 12;
+  uint32 code = 9;
+  string error = 10;
+  google.protobuf.Duration latency = 11;
   // tenant_id is the one the request or response carries.
-  string tenant_id = 13;
+  string tenant_id = 12;
+  // timestamp is the start of the call, in unix milliseconds.
+  int64 timestamp = 13;
+  // resource_id is the one the request or response carries.
+  string resource_id = 14;
+  // change is what an update that succeeded changed; unset for any other
+  // call.
+  Change change = 15 [(sentinez.types.v1.x_field).codec = COLUMN_CODEC_PROTOJSON];
+}
+
+// Change the fields an update wrote whose value it changed.
+message Change {
+  repeated FieldChange fields = 1;
+}
+
+// FieldChange a field an update changed. Its values are protojson, hidden
+// when the field sets debug_redact.
+message FieldChange {
+  // field is the name of the field, as in the .proto.
+  string field = 1;
+  // before is its value before the update, unset when it was unset.
+  google.protobuf.Value before = 2;
+  // after is its value after the update, unset when it is unset.
+  google.protobuf.Value after = 3;
 }

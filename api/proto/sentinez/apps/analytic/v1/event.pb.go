@@ -21,6 +21,7 @@
 package analyticpb
 
 import (
+	v14 "github.com/sentinez/sentinez/api/proto/sentinez/types/audit/v1"
 	v13 "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	v11 "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 	v12 "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
@@ -1994,11 +1995,528 @@ func (x *GetEgressLatencyResponse) GetTo() *timestamppb.Timestamp {
 	return nil
 }
 
+// ListAuditLogsRequest selects the audit logs of a list, the latest first.
+type ListAuditLogsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Page  *v1.Pages              `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
+	// Tenants of the logs, any of them; all those of the caller when empty.
+	TenantIds []string `protobuf:"bytes,2,rep,name=tenant_ids,json=tenantIds,proto3" json:"tenant_ids,omitempty"`
+	// Resources of the logs, any of them; all when empty.
+	ResourceIds []string `protobuf:"bytes,3,rep,name=resource_ids,json=resourceIds,proto3" json:"resource_ids,omitempty"`
+	// Bound the time of the logs, from inclusive, to exclusive.
+	From *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=from,proto3" json:"from,omitempty"`
+	To   *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=to,proto3" json:"to,omitempty"`
+	// Ids of the logs, any of them; all when empty.
+	RequestIds []string `protobuf:"bytes,6,rep,name=request_ids,json=requestIds,proto3" json:"request_ids,omitempty"`
+	// Field filters, all of them, each "field:value": method, user_id,
+	// code, control_plane, tenant_id, remote_addr or user_agent.
+	Filters []string `protobuf:"bytes,7,rep,name=filters,proto3" json:"filters,omitempty"`
+	// Only the logs of no tenant, tenant_ids ignored: the calls about none,
+	// such as the logins and those refused before their tenant was known.
+	// The admin control plane only.
+	WithoutTenant bool `protobuf:"varint,8,opt,name=without_tenant,json=withoutTenant,proto3" json:"without_tenant,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListAuditLogsRequest) Reset() {
+	*x = ListAuditLogsRequest{}
+	mi := &file_sentinez_apps_analytic_v1_event_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListAuditLogsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListAuditLogsRequest) ProtoMessage() {}
+
+func (x *ListAuditLogsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_apps_analytic_v1_event_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListAuditLogsRequest.ProtoReflect.Descriptor instead.
+func (*ListAuditLogsRequest) Descriptor() ([]byte, []int) {
+	return file_sentinez_apps_analytic_v1_event_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *ListAuditLogsRequest) GetPage() *v1.Pages {
+	if x != nil {
+		return x.Page
+	}
+	return nil
+}
+
+func (x *ListAuditLogsRequest) GetTenantIds() []string {
+	if x != nil {
+		return x.TenantIds
+	}
+	return nil
+}
+
+func (x *ListAuditLogsRequest) GetResourceIds() []string {
+	if x != nil {
+		return x.ResourceIds
+	}
+	return nil
+}
+
+func (x *ListAuditLogsRequest) GetFrom() *timestamppb.Timestamp {
+	if x != nil {
+		return x.From
+	}
+	return nil
+}
+
+func (x *ListAuditLogsRequest) GetTo() *timestamppb.Timestamp {
+	if x != nil {
+		return x.To
+	}
+	return nil
+}
+
+func (x *ListAuditLogsRequest) GetRequestIds() []string {
+	if x != nil {
+		return x.RequestIds
+	}
+	return nil
+}
+
+func (x *ListAuditLogsRequest) GetFilters() []string {
+	if x != nil {
+		return x.Filters
+	}
+	return nil
+}
+
+func (x *ListAuditLogsRequest) GetWithoutTenant() bool {
+	if x != nil {
+		return x.WithoutTenant
+	}
+	return false
+}
+
+type ListAuditLogsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Logs          []*v14.AuditLog        `protobuf:"bytes,1,rep,name=logs,proto3" json:"logs,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListAuditLogsResponse) Reset() {
+	*x = ListAuditLogsResponse{}
+	mi := &file_sentinez_apps_analytic_v1_event_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListAuditLogsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListAuditLogsResponse) ProtoMessage() {}
+
+func (x *ListAuditLogsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_apps_analytic_v1_event_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListAuditLogsResponse.ProtoReflect.Descriptor instead.
+func (*ListAuditLogsResponse) Descriptor() ([]byte, []int) {
+	return file_sentinez_apps_analytic_v1_event_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *ListAuditLogsResponse) GetLogs() []*v14.AuditLog {
+	if x != nil {
+		return x.Logs
+	}
+	return nil
+}
+
+type GetAuditLogHistogramRequest struct {
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	Resolution v1.HistogramResolution `protobuf:"varint,1,opt,name=resolution,proto3,enum=sentinez.types.v1.HistogramResolution" json:"resolution,omitempty"`
+	// Tenants of the logs, any of them; all those of the caller when empty.
+	TenantIds []string `protobuf:"bytes,2,rep,name=tenant_ids,json=tenantIds,proto3" json:"tenant_ids,omitempty"`
+	// Resources of the logs, any of them; all when empty.
+	ResourceIds []string `protobuf:"bytes,3,rep,name=resource_ids,json=resourceIds,proto3" json:"resource_ids,omitempty"`
+	// The buckets, as GetEventHistogramRequest.from and to: at most the 90
+	// days the logs are kept.
+	From *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=from,proto3" json:"from,omitempty"`
+	To   *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=to,proto3" json:"to,omitempty"`
+	// Ids of the logs, any of them; all when empty.
+	RequestIds []string `protobuf:"bytes,6,rep,name=request_ids,json=requestIds,proto3" json:"request_ids,omitempty"`
+	// Field filters, all of them, each "field:value" (see
+	// ListAuditLogsRequest.filters).
+	Filters []string `protobuf:"bytes,7,rep,name=filters,proto3" json:"filters,omitempty"`
+	// Only the logs of no tenant, tenant_ids ignored: the calls about none,
+	// such as the logins and those refused before their tenant was known.
+	// The admin control plane only.
+	WithoutTenant bool `protobuf:"varint,8,opt,name=without_tenant,json=withoutTenant,proto3" json:"without_tenant,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetAuditLogHistogramRequest) Reset() {
+	*x = GetAuditLogHistogramRequest{}
+	mi := &file_sentinez_apps_analytic_v1_event_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAuditLogHistogramRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAuditLogHistogramRequest) ProtoMessage() {}
+
+func (x *GetAuditLogHistogramRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_apps_analytic_v1_event_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAuditLogHistogramRequest.ProtoReflect.Descriptor instead.
+func (*GetAuditLogHistogramRequest) Descriptor() ([]byte, []int) {
+	return file_sentinez_apps_analytic_v1_event_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *GetAuditLogHistogramRequest) GetResolution() v1.HistogramResolution {
+	if x != nil {
+		return x.Resolution
+	}
+	return v1.HistogramResolution(0)
+}
+
+func (x *GetAuditLogHistogramRequest) GetTenantIds() []string {
+	if x != nil {
+		return x.TenantIds
+	}
+	return nil
+}
+
+func (x *GetAuditLogHistogramRequest) GetResourceIds() []string {
+	if x != nil {
+		return x.ResourceIds
+	}
+	return nil
+}
+
+func (x *GetAuditLogHistogramRequest) GetFrom() *timestamppb.Timestamp {
+	if x != nil {
+		return x.From
+	}
+	return nil
+}
+
+func (x *GetAuditLogHistogramRequest) GetTo() *timestamppb.Timestamp {
+	if x != nil {
+		return x.To
+	}
+	return nil
+}
+
+func (x *GetAuditLogHistogramRequest) GetRequestIds() []string {
+	if x != nil {
+		return x.RequestIds
+	}
+	return nil
+}
+
+func (x *GetAuditLogHistogramRequest) GetFilters() []string {
+	if x != nil {
+		return x.Filters
+	}
+	return nil
+}
+
+func (x *GetAuditLogHistogramRequest) GetWithoutTenant() bool {
+	if x != nil {
+		return x.WithoutTenant
+	}
+	return false
+}
+
+type GetAuditLogHistogramResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// As GetEventHistogramResponse.points, the key the grpc code of the
+	// calls.
+	Points        []*HistogramPoint      `protobuf:"bytes,1,rep,name=points,proto3" json:"points,omitempty"`
+	Interval      v1.HistogramInterval   `protobuf:"varint,2,opt,name=interval,proto3,enum=sentinez.types.v1.HistogramInterval" json:"interval,omitempty"`
+	From          *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=from,proto3" json:"from,omitempty"`
+	To            *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=to,proto3" json:"to,omitempty"`
+	Truncated     bool                   `protobuf:"varint,5,opt,name=truncated,proto3" json:"truncated,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetAuditLogHistogramResponse) Reset() {
+	*x = GetAuditLogHistogramResponse{}
+	mi := &file_sentinez_apps_analytic_v1_event_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAuditLogHistogramResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAuditLogHistogramResponse) ProtoMessage() {}
+
+func (x *GetAuditLogHistogramResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_apps_analytic_v1_event_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAuditLogHistogramResponse.ProtoReflect.Descriptor instead.
+func (*GetAuditLogHistogramResponse) Descriptor() ([]byte, []int) {
+	return file_sentinez_apps_analytic_v1_event_proto_rawDescGZIP(), []int{29}
+}
+
+func (x *GetAuditLogHistogramResponse) GetPoints() []*HistogramPoint {
+	if x != nil {
+		return x.Points
+	}
+	return nil
+}
+
+func (x *GetAuditLogHistogramResponse) GetInterval() v1.HistogramInterval {
+	if x != nil {
+		return x.Interval
+	}
+	return v1.HistogramInterval(0)
+}
+
+func (x *GetAuditLogHistogramResponse) GetFrom() *timestamppb.Timestamp {
+	if x != nil {
+		return x.From
+	}
+	return nil
+}
+
+func (x *GetAuditLogHistogramResponse) GetTo() *timestamppb.Timestamp {
+	if x != nil {
+		return x.To
+	}
+	return nil
+}
+
+func (x *GetAuditLogHistogramResponse) GetTruncated() bool {
+	if x != nil {
+		return x.Truncated
+	}
+	return false
+}
+
+type GetAuditLogTopValuesRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Tenants of the logs, any of them; all those of the caller when empty.
+	TenantIds []string `protobuf:"bytes,1,rep,name=tenant_ids,json=tenantIds,proto3" json:"tenant_ids,omitempty"`
+	// Resources of the logs, any of them; all when empty.
+	ResourceIds []string `protobuf:"bytes,2,rep,name=resource_ids,json=resourceIds,proto3" json:"resource_ids,omitempty"`
+	// Bound the time of the logs, from inclusive, to exclusive: to now when
+	// unset, from the hour before to when unset.
+	From *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=from,proto3" json:"from,omitempty"`
+	To   *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=to,proto3" json:"to,omitempty"`
+	// The fields to count, in this order, each once: method, user_id, code,
+	// control_plane, tenant_id, remote_addr, user_agent; all when empty.
+	Fields []string `protobuf:"bytes,5,rep,name=fields,proto3" json:"fields,omitempty"`
+	// The values per field: 5 when 0, at most 20.
+	Limit int32 `protobuf:"varint,6,opt,name=limit,proto3" json:"limit,omitempty"`
+	// Field filters, all of them, each "field:value" (see
+	// ListAuditLogsRequest.filters).
+	Filters []string `protobuf:"bytes,7,rep,name=filters,proto3" json:"filters,omitempty"`
+	// Ids of the logs, any of them; all when empty.
+	RequestIds []string `protobuf:"bytes,8,rep,name=request_ids,json=requestIds,proto3" json:"request_ids,omitempty"`
+	// Only the logs of no tenant, tenant_ids ignored: the calls about none,
+	// such as the logins and those refused before their tenant was known.
+	// The admin control plane only.
+	WithoutTenant bool `protobuf:"varint,9,opt,name=without_tenant,json=withoutTenant,proto3" json:"without_tenant,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetAuditLogTopValuesRequest) Reset() {
+	*x = GetAuditLogTopValuesRequest{}
+	mi := &file_sentinez_apps_analytic_v1_event_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAuditLogTopValuesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAuditLogTopValuesRequest) ProtoMessage() {}
+
+func (x *GetAuditLogTopValuesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_apps_analytic_v1_event_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAuditLogTopValuesRequest.ProtoReflect.Descriptor instead.
+func (*GetAuditLogTopValuesRequest) Descriptor() ([]byte, []int) {
+	return file_sentinez_apps_analytic_v1_event_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *GetAuditLogTopValuesRequest) GetTenantIds() []string {
+	if x != nil {
+		return x.TenantIds
+	}
+	return nil
+}
+
+func (x *GetAuditLogTopValuesRequest) GetResourceIds() []string {
+	if x != nil {
+		return x.ResourceIds
+	}
+	return nil
+}
+
+func (x *GetAuditLogTopValuesRequest) GetFrom() *timestamppb.Timestamp {
+	if x != nil {
+		return x.From
+	}
+	return nil
+}
+
+func (x *GetAuditLogTopValuesRequest) GetTo() *timestamppb.Timestamp {
+	if x != nil {
+		return x.To
+	}
+	return nil
+}
+
+func (x *GetAuditLogTopValuesRequest) GetFields() []string {
+	if x != nil {
+		return x.Fields
+	}
+	return nil
+}
+
+func (x *GetAuditLogTopValuesRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *GetAuditLogTopValuesRequest) GetFilters() []string {
+	if x != nil {
+		return x.Filters
+	}
+	return nil
+}
+
+func (x *GetAuditLogTopValuesRequest) GetRequestIds() []string {
+	if x != nil {
+		return x.RequestIds
+	}
+	return nil
+}
+
+func (x *GetAuditLogTopValuesRequest) GetWithoutTenant() bool {
+	if x != nil {
+		return x.WithoutTenant
+	}
+	return false
+}
+
+type GetAuditLogTopValuesResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The logs of the range.
+	Total int64 `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
+	// One per field of the request, in its order.
+	Fields        []*FieldTopValues `protobuf:"bytes,2,rep,name=fields,proto3" json:"fields,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetAuditLogTopValuesResponse) Reset() {
+	*x = GetAuditLogTopValuesResponse{}
+	mi := &file_sentinez_apps_analytic_v1_event_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAuditLogTopValuesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAuditLogTopValuesResponse) ProtoMessage() {}
+
+func (x *GetAuditLogTopValuesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_apps_analytic_v1_event_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAuditLogTopValuesResponse.ProtoReflect.Descriptor instead.
+func (*GetAuditLogTopValuesResponse) Descriptor() ([]byte, []int) {
+	return file_sentinez_apps_analytic_v1_event_proto_rawDescGZIP(), []int{31}
+}
+
+func (x *GetAuditLogTopValuesResponse) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+func (x *GetAuditLogTopValuesResponse) GetFields() []*FieldTopValues {
+	if x != nil {
+		return x.Fields
+	}
+	return nil
+}
+
 var File_sentinez_apps_analytic_v1_event_proto protoreflect.FileDescriptor
 
 const file_sentinez_apps_analytic_v1_event_proto_rawDesc = "" +
 	"\n" +
-	"%sentinez/apps/analytic/v1/event.proto\x12\x19sentinez.apps.analytic.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a)sentinez/types/coreruleset/v1/event.proto\x1a&sentinez/types/net/http/v1/event.proto\x1a%sentinez/types/secrule/v1/event.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\"\xca\x01\n" +
+	"%sentinez/apps/analytic/v1/event.proto\x12\x19sentinez.apps.analytic.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a#sentinez/types/audit/v1/audit.proto\x1a)sentinez/types/coreruleset/v1/event.proto\x1a&sentinez/types/net/http/v1/event.proto\x1a%sentinez/types/secrule/v1/event.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\"\xca\x01\n" +
 	"\x0eEventSelection\x12!\n" +
 	"\fresource_ids\x18\x01 \x03(\tR\vresourceIds\x12\x1f\n" +
 	"\vrequest_ids\x18\x02 \x03(\tR\n" +
@@ -2150,7 +2668,54 @@ const file_sentinez_apps_analytic_v1_event_proto_rawDesc = "" +
 	"\x18GetEgressLatencyResponse\x12H\n" +
 	"\tupstreams\x18\x01 \x03(\v2*.sentinez.apps.analytic.v1.UpstreamLatencyR\tupstreams\x12.\n" +
 	"\x04from\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
-	"\x02to\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x02to*\xae\x01\n" +
+	"\x02to\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\"\xc4\x02\n" +
+	"\x14ListAuditLogsRequest\x12,\n" +
+	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12\x1d\n" +
+	"\n" +
+	"tenant_ids\x18\x02 \x03(\tR\ttenantIds\x12!\n" +
+	"\fresource_ids\x18\x03 \x03(\tR\vresourceIds\x12.\n" +
+	"\x04from\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
+	"\x02to\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\x12\x1f\n" +
+	"\vrequest_ids\x18\x06 \x03(\tR\n" +
+	"requestIds\x12\x18\n" +
+	"\afilters\x18\a \x03(\tR\afilters\x12%\n" +
+	"\x0ewithout_tenant\x18\b \x01(\bR\rwithoutTenant\"N\n" +
+	"\x15ListAuditLogsResponse\x125\n" +
+	"\x04logs\x18\x01 \x03(\v2!.sentinez.types.audit.v1.AuditLogR\x04logs\"\xe5\x02\n" +
+	"\x1bGetAuditLogHistogramRequest\x12F\n" +
+	"\n" +
+	"resolution\x18\x01 \x01(\x0e2&.sentinez.types.v1.HistogramResolutionR\n" +
+	"resolution\x12\x1d\n" +
+	"\n" +
+	"tenant_ids\x18\x02 \x03(\tR\ttenantIds\x12!\n" +
+	"\fresource_ids\x18\x03 \x03(\tR\vresourceIds\x12.\n" +
+	"\x04from\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
+	"\x02to\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\x12\x1f\n" +
+	"\vrequest_ids\x18\x06 \x03(\tR\n" +
+	"requestIds\x12\x18\n" +
+	"\afilters\x18\a \x03(\tR\afilters\x12%\n" +
+	"\x0ewithout_tenant\x18\b \x01(\bR\rwithoutTenant\"\x9d\x02\n" +
+	"\x1cGetAuditLogHistogramResponse\x12A\n" +
+	"\x06points\x18\x01 \x03(\v2).sentinez.apps.analytic.v1.HistogramPointR\x06points\x12@\n" +
+	"\binterval\x18\x02 \x01(\x0e2$.sentinez.types.v1.HistogramIntervalR\binterval\x12.\n" +
+	"\x04from\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
+	"\x02to\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\x12\x1c\n" +
+	"\ttruncated\x18\x05 \x01(\bR\ttruncated\"\xcb\x02\n" +
+	"\x1bGetAuditLogTopValuesRequest\x12\x1d\n" +
+	"\n" +
+	"tenant_ids\x18\x01 \x03(\tR\ttenantIds\x12!\n" +
+	"\fresource_ids\x18\x02 \x03(\tR\vresourceIds\x12.\n" +
+	"\x04from\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
+	"\x02to\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\x12\x16\n" +
+	"\x06fields\x18\x05 \x03(\tR\x06fields\x12\x14\n" +
+	"\x05limit\x18\x06 \x01(\x05R\x05limit\x12\x18\n" +
+	"\afilters\x18\a \x03(\tR\afilters\x12\x1f\n" +
+	"\vrequest_ids\x18\b \x03(\tR\n" +
+	"requestIds\x12%\n" +
+	"\x0ewithout_tenant\x18\t \x01(\bR\rwithoutTenant\"w\n" +
+	"\x1cGetAuditLogTopValuesResponse\x12\x14\n" +
+	"\x05total\x18\x01 \x01(\x03R\x05total\x12A\n" +
+	"\x06fields\x18\x02 \x03(\v2).sentinez.apps.analytic.v1.FieldTopValuesR\x06fields*\xae\x01\n" +
 	"\tEventKind\x12\x1a\n" +
 	"\x16EVENT_KIND_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17EVENT_KIND_HTTP_INGRESS\x10\x01\x12\x1a\n" +
@@ -2172,7 +2737,7 @@ func file_sentinez_apps_analytic_v1_event_proto_rawDescGZIP() []byte {
 }
 
 var file_sentinez_apps_analytic_v1_event_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_sentinez_apps_analytic_v1_event_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
+var file_sentinez_apps_analytic_v1_event_proto_msgTypes = make([]protoimpl.MessageInfo, 32)
 var file_sentinez_apps_analytic_v1_event_proto_goTypes = []any{
 	(EventKind)(0),                            // 0: sentinez.apps.analytic.v1.EventKind
 	(*EventSelection)(nil),                    // 1: sentinez.apps.analytic.v1.EventSelection
@@ -2201,76 +2766,97 @@ var file_sentinez_apps_analytic_v1_event_proto_goTypes = []any{
 	(*GetEgressLatencyRequest)(nil),           // 24: sentinez.apps.analytic.v1.GetEgressLatencyRequest
 	(*UpstreamLatency)(nil),                   // 25: sentinez.apps.analytic.v1.UpstreamLatency
 	(*GetEgressLatencyResponse)(nil),          // 26: sentinez.apps.analytic.v1.GetEgressLatencyResponse
-	(*timestamppb.Timestamp)(nil),             // 27: google.protobuf.Timestamp
-	(*v1.Pages)(nil),                          // 28: sentinez.types.v1.Pages
-	(*v11.IngressEvent)(nil),                  // 29: sentinez.types.net.http.v1.IngressEvent
-	(*v11.EgressEvent)(nil),                   // 30: sentinez.types.net.http.v1.EgressEvent
-	(*v12.SecRuleEvent)(nil),                  // 31: sentinez.types.secrule.v1.SecRuleEvent
-	(*v13.CoreRuleEvent)(nil),                 // 32: sentinez.types.coreruleset.v1.CoreRuleEvent
-	(v1.HistogramResolution)(0),               // 33: sentinez.types.v1.HistogramResolution
-	(v1.HistogramInterval)(0),                 // 34: sentinez.types.v1.HistogramInterval
+	(*ListAuditLogsRequest)(nil),              // 27: sentinez.apps.analytic.v1.ListAuditLogsRequest
+	(*ListAuditLogsResponse)(nil),             // 28: sentinez.apps.analytic.v1.ListAuditLogsResponse
+	(*GetAuditLogHistogramRequest)(nil),       // 29: sentinez.apps.analytic.v1.GetAuditLogHistogramRequest
+	(*GetAuditLogHistogramResponse)(nil),      // 30: sentinez.apps.analytic.v1.GetAuditLogHistogramResponse
+	(*GetAuditLogTopValuesRequest)(nil),       // 31: sentinez.apps.analytic.v1.GetAuditLogTopValuesRequest
+	(*GetAuditLogTopValuesResponse)(nil),      // 32: sentinez.apps.analytic.v1.GetAuditLogTopValuesResponse
+	(*timestamppb.Timestamp)(nil),             // 33: google.protobuf.Timestamp
+	(*v1.Pages)(nil),                          // 34: sentinez.types.v1.Pages
+	(*v11.IngressEvent)(nil),                  // 35: sentinez.types.net.http.v1.IngressEvent
+	(*v11.EgressEvent)(nil),                   // 36: sentinez.types.net.http.v1.EgressEvent
+	(*v12.SecRuleEvent)(nil),                  // 37: sentinez.types.secrule.v1.SecRuleEvent
+	(*v13.CoreRuleEvent)(nil),                 // 38: sentinez.types.coreruleset.v1.CoreRuleEvent
+	(v1.HistogramResolution)(0),               // 39: sentinez.types.v1.HistogramResolution
+	(v1.HistogramInterval)(0),                 // 40: sentinez.types.v1.HistogramInterval
+	(*v14.AuditLog)(nil),                      // 41: sentinez.types.audit.v1.AuditLog
 }
 var file_sentinez_apps_analytic_v1_event_proto_depIdxs = []int32{
-	27, // 0: sentinez.apps.analytic.v1.EventSelection.from:type_name -> google.protobuf.Timestamp
-	27, // 1: sentinez.apps.analytic.v1.EventSelection.to:type_name -> google.protobuf.Timestamp
-	28, // 2: sentinez.apps.analytic.v1.ListHttpIngressEventsRequest.page:type_name -> sentinez.types.v1.Pages
-	27, // 3: sentinez.apps.analytic.v1.ListHttpIngressEventsRequest.from:type_name -> google.protobuf.Timestamp
-	27, // 4: sentinez.apps.analytic.v1.ListHttpIngressEventsRequest.to:type_name -> google.protobuf.Timestamp
-	28, // 5: sentinez.apps.analytic.v1.ListHttpEgressEventsRequest.page:type_name -> sentinez.types.v1.Pages
-	27, // 6: sentinez.apps.analytic.v1.ListHttpEgressEventsRequest.from:type_name -> google.protobuf.Timestamp
-	27, // 7: sentinez.apps.analytic.v1.ListHttpEgressEventsRequest.to:type_name -> google.protobuf.Timestamp
-	28, // 8: sentinez.apps.analytic.v1.ListSecRuleEventsRequest.page:type_name -> sentinez.types.v1.Pages
-	27, // 9: sentinez.apps.analytic.v1.ListSecRuleEventsRequest.from:type_name -> google.protobuf.Timestamp
-	27, // 10: sentinez.apps.analytic.v1.ListSecRuleEventsRequest.to:type_name -> google.protobuf.Timestamp
-	28, // 11: sentinez.apps.analytic.v1.ListRateLimitEventsRequest.page:type_name -> sentinez.types.v1.Pages
-	27, // 12: sentinez.apps.analytic.v1.ListRateLimitEventsRequest.from:type_name -> google.protobuf.Timestamp
-	27, // 13: sentinez.apps.analytic.v1.ListRateLimitEventsRequest.to:type_name -> google.protobuf.Timestamp
-	28, // 14: sentinez.apps.analytic.v1.ListCoreRuleEventsRequest.page:type_name -> sentinez.types.v1.Pages
-	27, // 15: sentinez.apps.analytic.v1.ListCoreRuleEventsRequest.from:type_name -> google.protobuf.Timestamp
-	27, // 16: sentinez.apps.analytic.v1.ListCoreRuleEventsRequest.to:type_name -> google.protobuf.Timestamp
-	29, // 17: sentinez.apps.analytic.v1.ListHttpIngressEventsResponse.events:type_name -> sentinez.types.net.http.v1.IngressEvent
-	30, // 18: sentinez.apps.analytic.v1.ListHttpEgressEventsResponse.events:type_name -> sentinez.types.net.http.v1.EgressEvent
-	31, // 19: sentinez.apps.analytic.v1.ListSecRuleEventsResponse.events:type_name -> sentinez.types.secrule.v1.SecRuleEvent
-	31, // 20: sentinez.apps.analytic.v1.ListRateLimitEventsResponse.events:type_name -> sentinez.types.secrule.v1.SecRuleEvent
-	32, // 21: sentinez.apps.analytic.v1.ListCoreRuleEventsResponse.events:type_name -> sentinez.types.coreruleset.v1.CoreRuleEvent
+	33, // 0: sentinez.apps.analytic.v1.EventSelection.from:type_name -> google.protobuf.Timestamp
+	33, // 1: sentinez.apps.analytic.v1.EventSelection.to:type_name -> google.protobuf.Timestamp
+	34, // 2: sentinez.apps.analytic.v1.ListHttpIngressEventsRequest.page:type_name -> sentinez.types.v1.Pages
+	33, // 3: sentinez.apps.analytic.v1.ListHttpIngressEventsRequest.from:type_name -> google.protobuf.Timestamp
+	33, // 4: sentinez.apps.analytic.v1.ListHttpIngressEventsRequest.to:type_name -> google.protobuf.Timestamp
+	34, // 5: sentinez.apps.analytic.v1.ListHttpEgressEventsRequest.page:type_name -> sentinez.types.v1.Pages
+	33, // 6: sentinez.apps.analytic.v1.ListHttpEgressEventsRequest.from:type_name -> google.protobuf.Timestamp
+	33, // 7: sentinez.apps.analytic.v1.ListHttpEgressEventsRequest.to:type_name -> google.protobuf.Timestamp
+	34, // 8: sentinez.apps.analytic.v1.ListSecRuleEventsRequest.page:type_name -> sentinez.types.v1.Pages
+	33, // 9: sentinez.apps.analytic.v1.ListSecRuleEventsRequest.from:type_name -> google.protobuf.Timestamp
+	33, // 10: sentinez.apps.analytic.v1.ListSecRuleEventsRequest.to:type_name -> google.protobuf.Timestamp
+	34, // 11: sentinez.apps.analytic.v1.ListRateLimitEventsRequest.page:type_name -> sentinez.types.v1.Pages
+	33, // 12: sentinez.apps.analytic.v1.ListRateLimitEventsRequest.from:type_name -> google.protobuf.Timestamp
+	33, // 13: sentinez.apps.analytic.v1.ListRateLimitEventsRequest.to:type_name -> google.protobuf.Timestamp
+	34, // 14: sentinez.apps.analytic.v1.ListCoreRuleEventsRequest.page:type_name -> sentinez.types.v1.Pages
+	33, // 15: sentinez.apps.analytic.v1.ListCoreRuleEventsRequest.from:type_name -> google.protobuf.Timestamp
+	33, // 16: sentinez.apps.analytic.v1.ListCoreRuleEventsRequest.to:type_name -> google.protobuf.Timestamp
+	35, // 17: sentinez.apps.analytic.v1.ListHttpIngressEventsResponse.events:type_name -> sentinez.types.net.http.v1.IngressEvent
+	36, // 18: sentinez.apps.analytic.v1.ListHttpEgressEventsResponse.events:type_name -> sentinez.types.net.http.v1.EgressEvent
+	37, // 19: sentinez.apps.analytic.v1.ListSecRuleEventsResponse.events:type_name -> sentinez.types.secrule.v1.SecRuleEvent
+	37, // 20: sentinez.apps.analytic.v1.ListRateLimitEventsResponse.events:type_name -> sentinez.types.secrule.v1.SecRuleEvent
+	38, // 21: sentinez.apps.analytic.v1.ListCoreRuleEventsResponse.events:type_name -> sentinez.types.coreruleset.v1.CoreRuleEvent
 	0,  // 22: sentinez.apps.analytic.v1.GetEventHistogramRequest.kind:type_name -> sentinez.apps.analytic.v1.EventKind
-	33, // 23: sentinez.apps.analytic.v1.GetEventHistogramRequest.resolution:type_name -> sentinez.types.v1.HistogramResolution
-	27, // 24: sentinez.apps.analytic.v1.GetEventHistogramRequest.from:type_name -> google.protobuf.Timestamp
-	27, // 25: sentinez.apps.analytic.v1.GetEventHistogramRequest.to:type_name -> google.protobuf.Timestamp
-	27, // 26: sentinez.apps.analytic.v1.HistogramPoint.time:type_name -> google.protobuf.Timestamp
+	39, // 23: sentinez.apps.analytic.v1.GetEventHistogramRequest.resolution:type_name -> sentinez.types.v1.HistogramResolution
+	33, // 24: sentinez.apps.analytic.v1.GetEventHistogramRequest.from:type_name -> google.protobuf.Timestamp
+	33, // 25: sentinez.apps.analytic.v1.GetEventHistogramRequest.to:type_name -> google.protobuf.Timestamp
+	33, // 26: sentinez.apps.analytic.v1.HistogramPoint.time:type_name -> google.protobuf.Timestamp
 	13, // 27: sentinez.apps.analytic.v1.GetEventHistogramResponse.points:type_name -> sentinez.apps.analytic.v1.HistogramPoint
-	34, // 28: sentinez.apps.analytic.v1.GetEventHistogramResponse.interval:type_name -> sentinez.types.v1.HistogramInterval
-	27, // 29: sentinez.apps.analytic.v1.GetEventHistogramResponse.from:type_name -> google.protobuf.Timestamp
-	27, // 30: sentinez.apps.analytic.v1.GetEventHistogramResponse.to:type_name -> google.protobuf.Timestamp
-	33, // 31: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramRequest.resolution:type_name -> sentinez.types.v1.HistogramResolution
-	27, // 32: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramRequest.from:type_name -> google.protobuf.Timestamp
-	27, // 33: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramRequest.to:type_name -> google.protobuf.Timestamp
+	40, // 28: sentinez.apps.analytic.v1.GetEventHistogramResponse.interval:type_name -> sentinez.types.v1.HistogramInterval
+	33, // 29: sentinez.apps.analytic.v1.GetEventHistogramResponse.from:type_name -> google.protobuf.Timestamp
+	33, // 30: sentinez.apps.analytic.v1.GetEventHistogramResponse.to:type_name -> google.protobuf.Timestamp
+	39, // 31: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramRequest.resolution:type_name -> sentinez.types.v1.HistogramResolution
+	33, // 32: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramRequest.from:type_name -> google.protobuf.Timestamp
+	33, // 33: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramRequest.to:type_name -> google.protobuf.Timestamp
 	13, // 34: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramResponse.points:type_name -> sentinez.apps.analytic.v1.HistogramPoint
-	34, // 35: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramResponse.interval:type_name -> sentinez.types.v1.HistogramInterval
-	27, // 36: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramResponse.from:type_name -> google.protobuf.Timestamp
-	27, // 37: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramResponse.to:type_name -> google.protobuf.Timestamp
-	33, // 38: sentinez.apps.analytic.v1.ListVisitorsRequest.resolution:type_name -> sentinez.types.v1.HistogramResolution
-	27, // 39: sentinez.apps.analytic.v1.ListVisitorsRequest.from:type_name -> google.protobuf.Timestamp
-	27, // 40: sentinez.apps.analytic.v1.ListVisitorsRequest.to:type_name -> google.protobuf.Timestamp
-	27, // 41: sentinez.apps.analytic.v1.VisitorPoint.time:type_name -> google.protobuf.Timestamp
+	40, // 35: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramResponse.interval:type_name -> sentinez.types.v1.HistogramInterval
+	33, // 36: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramResponse.from:type_name -> google.protobuf.Timestamp
+	33, // 37: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramResponse.to:type_name -> google.protobuf.Timestamp
+	39, // 38: sentinez.apps.analytic.v1.ListVisitorsRequest.resolution:type_name -> sentinez.types.v1.HistogramResolution
+	33, // 39: sentinez.apps.analytic.v1.ListVisitorsRequest.from:type_name -> google.protobuf.Timestamp
+	33, // 40: sentinez.apps.analytic.v1.ListVisitorsRequest.to:type_name -> google.protobuf.Timestamp
+	33, // 41: sentinez.apps.analytic.v1.VisitorPoint.time:type_name -> google.protobuf.Timestamp
 	18, // 42: sentinez.apps.analytic.v1.ListVisitorsResponse.visitors:type_name -> sentinez.apps.analytic.v1.VisitorPoint
-	34, // 43: sentinez.apps.analytic.v1.ListVisitorsResponse.interval:type_name -> sentinez.types.v1.HistogramInterval
-	27, // 44: sentinez.apps.analytic.v1.ListVisitorsResponse.from:type_name -> google.protobuf.Timestamp
-	27, // 45: sentinez.apps.analytic.v1.ListVisitorsResponse.to:type_name -> google.protobuf.Timestamp
+	40, // 43: sentinez.apps.analytic.v1.ListVisitorsResponse.interval:type_name -> sentinez.types.v1.HistogramInterval
+	33, // 44: sentinez.apps.analytic.v1.ListVisitorsResponse.from:type_name -> google.protobuf.Timestamp
+	33, // 45: sentinez.apps.analytic.v1.ListVisitorsResponse.to:type_name -> google.protobuf.Timestamp
 	0,  // 46: sentinez.apps.analytic.v1.GetEventTopValuesRequest.kind:type_name -> sentinez.apps.analytic.v1.EventKind
-	27, // 47: sentinez.apps.analytic.v1.GetEventTopValuesRequest.from:type_name -> google.protobuf.Timestamp
-	27, // 48: sentinez.apps.analytic.v1.GetEventTopValuesRequest.to:type_name -> google.protobuf.Timestamp
+	33, // 47: sentinez.apps.analytic.v1.GetEventTopValuesRequest.from:type_name -> google.protobuf.Timestamp
+	33, // 48: sentinez.apps.analytic.v1.GetEventTopValuesRequest.to:type_name -> google.protobuf.Timestamp
 	21, // 49: sentinez.apps.analytic.v1.FieldTopValues.values:type_name -> sentinez.apps.analytic.v1.FieldValue
 	22, // 50: sentinez.apps.analytic.v1.GetEventTopValuesResponse.fields:type_name -> sentinez.apps.analytic.v1.FieldTopValues
 	1,  // 51: sentinez.apps.analytic.v1.GetEgressLatencyRequest.selection:type_name -> sentinez.apps.analytic.v1.EventSelection
 	25, // 52: sentinez.apps.analytic.v1.GetEgressLatencyResponse.upstreams:type_name -> sentinez.apps.analytic.v1.UpstreamLatency
-	27, // 53: sentinez.apps.analytic.v1.GetEgressLatencyResponse.from:type_name -> google.protobuf.Timestamp
-	27, // 54: sentinez.apps.analytic.v1.GetEgressLatencyResponse.to:type_name -> google.protobuf.Timestamp
-	55, // [55:55] is the sub-list for method output_type
-	55, // [55:55] is the sub-list for method input_type
-	55, // [55:55] is the sub-list for extension type_name
-	55, // [55:55] is the sub-list for extension extendee
-	0,  // [0:55] is the sub-list for field type_name
+	33, // 53: sentinez.apps.analytic.v1.GetEgressLatencyResponse.from:type_name -> google.protobuf.Timestamp
+	33, // 54: sentinez.apps.analytic.v1.GetEgressLatencyResponse.to:type_name -> google.protobuf.Timestamp
+	34, // 55: sentinez.apps.analytic.v1.ListAuditLogsRequest.page:type_name -> sentinez.types.v1.Pages
+	33, // 56: sentinez.apps.analytic.v1.ListAuditLogsRequest.from:type_name -> google.protobuf.Timestamp
+	33, // 57: sentinez.apps.analytic.v1.ListAuditLogsRequest.to:type_name -> google.protobuf.Timestamp
+	41, // 58: sentinez.apps.analytic.v1.ListAuditLogsResponse.logs:type_name -> sentinez.types.audit.v1.AuditLog
+	39, // 59: sentinez.apps.analytic.v1.GetAuditLogHistogramRequest.resolution:type_name -> sentinez.types.v1.HistogramResolution
+	33, // 60: sentinez.apps.analytic.v1.GetAuditLogHistogramRequest.from:type_name -> google.protobuf.Timestamp
+	33, // 61: sentinez.apps.analytic.v1.GetAuditLogHistogramRequest.to:type_name -> google.protobuf.Timestamp
+	13, // 62: sentinez.apps.analytic.v1.GetAuditLogHistogramResponse.points:type_name -> sentinez.apps.analytic.v1.HistogramPoint
+	40, // 63: sentinez.apps.analytic.v1.GetAuditLogHistogramResponse.interval:type_name -> sentinez.types.v1.HistogramInterval
+	33, // 64: sentinez.apps.analytic.v1.GetAuditLogHistogramResponse.from:type_name -> google.protobuf.Timestamp
+	33, // 65: sentinez.apps.analytic.v1.GetAuditLogHistogramResponse.to:type_name -> google.protobuf.Timestamp
+	33, // 66: sentinez.apps.analytic.v1.GetAuditLogTopValuesRequest.from:type_name -> google.protobuf.Timestamp
+	33, // 67: sentinez.apps.analytic.v1.GetAuditLogTopValuesRequest.to:type_name -> google.protobuf.Timestamp
+	22, // 68: sentinez.apps.analytic.v1.GetAuditLogTopValuesResponse.fields:type_name -> sentinez.apps.analytic.v1.FieldTopValues
+	69, // [69:69] is the sub-list for method output_type
+	69, // [69:69] is the sub-list for method input_type
+	69, // [69:69] is the sub-list for extension type_name
+	69, // [69:69] is the sub-list for extension extendee
+	0,  // [0:69] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_apps_analytic_v1_event_proto_init() }
@@ -2284,7 +2870,7 @@ func file_sentinez_apps_analytic_v1_event_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_apps_analytic_v1_event_proto_rawDesc), len(file_sentinez_apps_analytic_v1_event_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   26,
+			NumMessages:   32,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

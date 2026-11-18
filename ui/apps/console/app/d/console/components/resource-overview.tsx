@@ -8,6 +8,7 @@ import { cn } from '@sentinez/ui/lib/utils';
 import type { Resource } from '@sentinez/proto/sentinez/apps/tenant/v1/model';
 import BadgeStatus from '@/components/badge-status';
 import { statusLabel } from '@/lib/type/security';
+import { useTlsModes } from '@/hooks/use-tls-modes';
 
 /** The ids, names, status and timestamps of the resource, as a grid of short fields */
 export function ResourceOverview({ resource }: { resource: Resource }) {
@@ -24,6 +25,7 @@ export function ResourceOverview({ resource }: { resource: Resource }) {
         })
       : tc('notAvailable');
   const status = statusLabel(resource.status);
+  const { labelOf } = useTlsModes();
 
   return (
     <OverviewCard>
@@ -32,14 +34,19 @@ export function ResourceOverview({ resource }: { resource: Resource }) {
       <OverviewField label={t('status')}>
         <BadgeStatus status={status} value={status} />
       </OverviewField>
-      <OverviewField label={t('updatedAt')}>{formatDate(resource.metadata?.updatedAt)}</OverviewField>
+      <OverviewField label={t('tlsMode')}>{labelOf(resource.tlsMode)}</OverviewField>
+      <OverviewField label={t('updatedAt')}>
+        {formatDate(resource.metadata?.updatedAt)}
+      </OverviewField>
       <OverviewField label={t('id')} mono>
         {resource.id}
       </OverviewField>
       <OverviewField label={t('tenantId')} mono>
         {resource.tenantId}
       </OverviewField>
-      <OverviewField label={t('createdAt')}>{formatDate(resource.metadata?.createdAt)}</OverviewField>
+      <OverviewField label={t('createdAt')}>
+        {formatDate(resource.metadata?.createdAt)}
+      </OverviewField>
     </OverviewCard>
   );
 }

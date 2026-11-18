@@ -9,7 +9,7 @@ import { listHttpIngressEvents, type ApiOptions } from '@/lib/api/analytic';
 import { StatusBadge } from '../status-badge';
 import { headerPairsOf, queryParamsOf, statusClassOf } from '../status';
 import type { EventConfig, ListRequest } from '../types';
-import { MonoCell, PathCell, columnOf, statusSeries } from './shared';
+import { MonoCell, PathCell, columnOf, statusSeries, eventApis } from './shared';
 
 const list = async (req: ListRequest, options?: ApiOptions) =>
   (await listHttpIngressEvents(req, options)).events;
@@ -20,7 +20,7 @@ export function useIngressConfig(): EventConfig<IngressEvent> {
   return useMemo(() => {
     const c = columnOf(t);
     return {
-      kind: EventKind.EVENT_KIND_HTTP_INGRESS,
+      ...eventApis(EventKind.EVENT_KIND_HTTP_INGRESS),
       title: t('ingress.title'),
       subtitle: t('ingress.subtitle'),
       list,

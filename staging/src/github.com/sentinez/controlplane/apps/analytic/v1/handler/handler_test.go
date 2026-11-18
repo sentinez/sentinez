@@ -88,6 +88,20 @@ var _noResourceCalls = []struct {
 		_, err := h.ListActivities(c, &pb.ListActivitiesRequest{})
 		return err
 	}},
+	{"audit logs", func(h *AnalyticHandler, c context.Context) error {
+		_, err := h.ListAuditLogs(c, &pb.ListAuditLogsRequest{})
+		return err
+	}},
+	{"audit log histogram", func(h *AnalyticHandler, c context.Context) error {
+		_, err := h.GetAuditLogHistogram(c,
+			&pb.GetAuditLogHistogramRequest{})
+		return err
+	}},
+	{"audit log top values", func(h *AnalyticHandler, c context.Context) error {
+		_, err := h.GetAuditLogTopValues(c,
+			&pb.GetAuditLogTopValuesRequest{})
+		return err
+	}},
 }
 
 func TestCallerWithoutResourcesSeesNothing(t *testing.T) {

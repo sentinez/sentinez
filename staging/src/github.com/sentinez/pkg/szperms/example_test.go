@@ -60,7 +60,7 @@ func ExampleAllow_consoleMismatch() {
 
 func ExampleAllow_ignoredMethod() {
 	ignoredMethod := &typepb.XMethod{
-		Ignore: true,
+		IgnoreControlPlane: true,
 	}
 
 	// Even if user has no matching console, ignored methods allow access

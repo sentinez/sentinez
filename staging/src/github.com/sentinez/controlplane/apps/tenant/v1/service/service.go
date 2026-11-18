@@ -23,6 +23,7 @@ import (
 	memberrepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/members"
 	resourcerepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/resources"
 	tenantrepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/tenants"
+	"github.com/sentinez/controlplane/pkg/auditchange"
 	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/pkg/szerror"
 	"github.com/sentinez/pkg/szlog"
@@ -31,6 +32,7 @@ import (
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
+	"google.golang.org/protobuf/proto"
 )
 
 var _ tenantpb.TenantServiceServer = (*Service)(nil)
@@ -158,6 +160,12 @@ func (svc *Service) CreateResource(ctx context.Context,
 	rsc.Status = req.GetStatus()
 	rsc.TenantId = req.GetTenantId()
 
+	// a new resource has no certificate: only passthrough is active, any
+	// other mode pending until its certificates are uploaded
+	if _, err = svc.settleStatus(ctx, rsc); err != nil {
+		return nil, err
+	}
+
 	resp, err := svc.resource.Create(ctx, rsc)
 	if err != nil {
 		return nil, err
@@ -191,6 +199,7 @@ func (svc *Service) UpdateResource(ctx context.Context,
 		return nil, err
 	}
 
+	before := proto.CloneOf(rsc)
 	paths, err := szprotobuf.ApplyMask(rsc, req.GetResource(),
 		req.GetUpdateMask(), _resourceUpdatable...)
 	if err != nil {
@@ -201,10 +210,16 @@ func (svc *Service) UpdateResource(ctx context.Context,
 		return nil, err
 	}
 
+	if paths, err = svc.settleUpdate(ctx, rsc, paths); err != nil {
+		return nil, err
+	}
+
 	err = svc.resource.Update(ctx, rsc, paths)
 	if err != nil {
 		return nil, fmt.Errorf("resource.Update: %w", err)
 	}
+
+	auditchange.Set(ctx, before, rsc, paths)
 
 	return &tenantpb.UpdateResourceResponse{}, nil
 }

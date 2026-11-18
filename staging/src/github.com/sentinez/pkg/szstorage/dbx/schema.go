@@ -77,16 +77,18 @@ type ColumnType string
 
 const (
 	Timestamp ColumnType = "TIMESTAMPTZ"
-	Text      ColumnType = "TEXT"
-	TextArr   ColumnType = "TEXT[]"
-	IntArr    ColumnType = "INTEGER[]"
-	ByteA     ColumnType = "BYTEA"
-	Int4      ColumnType = "INTEGER"
-	Int8      ColumnType = "BIGINT"
-	Float4    ColumnType = "REAL"
-	Float8    ColumnType = "DOUBLE PRECISION"
-	Bool      ColumnType = "BOOLEAN"
-	JSONB     ColumnType = "JSONB"
+	// Interval scans into a time.Duration.
+	Interval ColumnType = "INTERVAL"
+	Text     ColumnType = "TEXT"
+	TextArr  ColumnType = "TEXT[]"
+	IntArr   ColumnType = "INTEGER[]"
+	ByteA    ColumnType = "BYTEA"
+	Int4     ColumnType = "INTEGER"
+	Int8     ColumnType = "BIGINT"
+	Float4   ColumnType = "REAL"
+	Float8   ColumnType = "DOUBLE PRECISION"
+	Bool     ColumnType = "BOOLEAN"
+	JSONB    ColumnType = "JSONB"
 )
 
 // Index an index of a Schema over Column, or over Columns when set.

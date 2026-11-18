@@ -45,6 +45,7 @@ export const STATUS_LABEL: Record<Status, string> = {
   [Status.STATUS_UNSPECIFIED]: 'Unspecified',
   [Status.STATUS_ACTIVE]: 'Active',
   [Status.STATUS_DISABLE]: 'Disable',
+  [Status.STATUS_PENDING]: 'Pending',
   [Status.UNRECOGNIZED]: 'Unknown',
 };
 

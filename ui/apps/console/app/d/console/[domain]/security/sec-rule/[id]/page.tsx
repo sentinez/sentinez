@@ -14,12 +14,13 @@ import {
   validateSecRuleForm,
 } from '../../components';
 import { getSecRule, updateSecRule } from '@/lib/api/security';
-import { MASK_ALL, type UpdateMask } from '@/lib/api/mask';
+import type { UpdateMask } from '@/lib/api/mask';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 import { useEffect, useState } from 'react';
 
-// the form edits every field: the server names them
-const UPDATE_MASK: UpdateMask = [MASK_ALL];
+// the fields the form edits, in lowerCamelCase as the JSON of the mask
+// names them: protojson rejects `*` and snake_case paths
+const UPDATE_MASK: UpdateMask = ['name', 'description', 'expr', 'status', 'priority', 'action'];
 
 export default function EditSecRulePage({ params }: { params: Promise<{ id: string }> }) {
   const t = useTranslations('SecRule');

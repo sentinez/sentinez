@@ -26,7 +26,6 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	structpb "google.golang.org/protobuf/types/known/structpb"
-	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -43,23 +42,29 @@ const (
 type AuditLog struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// id is prefixed "aud_".
-	Id   string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Time *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=time,proto3" json:"time,omitempty"`
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// method is the full gRPC method, "/pkg.Service/Method".
-	Method       string          `protobuf:"bytes,3,opt,name=method,proto3" json:"method,omitempty"`
-	UserId       string          `protobuf:"bytes,4,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Name         string          `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`
-	ControlPlane v1.ControlPlane `protobuf:"varint,6,opt,name=control_plane,json=controlPlane,proto3,enum=sentinez.types.v1.ControlPlane" json:"control_plane,omitempty"`
-	RemoteAddr   string          `protobuf:"bytes,7,opt,name=remote_addr,json=remoteAddr,proto3" json:"remote_addr,omitempty"`
-	UserAgent    string          `protobuf:"bytes,8,opt,name=user_agent,json=userAgent,proto3" json:"user_agent,omitempty"`
+	Method       string          `protobuf:"bytes,2,opt,name=method,proto3" json:"method,omitempty"`
+	UserId       string          `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Name         string          `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
+	ControlPlane v1.ControlPlane `protobuf:"varint,5,opt,name=control_plane,json=controlPlane,proto3,enum=sentinez.types.v1.ControlPlane" json:"control_plane,omitempty"`
+	RemoteAddr   string          `protobuf:"bytes,6,opt,name=remote_addr,json=remoteAddr,proto3" json:"remote_addr,omitempty"`
+	UserAgent    string          `protobuf:"bytes,7,opt,name=user_agent,json=userAgent,proto3" json:"user_agent,omitempty"`
 	// request is the request as protojson, its debug_redact fields hidden.
-	Request *structpb.Struct `protobuf:"bytes,9,opt,name=request,proto3" json:"request,omitempty"`
+	Request *structpb.Struct `protobuf:"bytes,8,opt,name=request,proto3" json:"request,omitempty"`
 	// code is the grpc code of the call, 0 when it succeeded.
-	Code    uint32               `protobuf:"varint,10,opt,name=code,proto3" json:"code,omitempty"`
-	Error   string               `protobuf:"bytes,11,opt,name=error,proto3" json:"error,omitempty"`
-	Latency *durationpb.Duration `protobuf:"bytes,12,opt,name=latency,proto3" json:"latency,omitempty"`
+	Code    uint32               `protobuf:"varint,9,opt,name=code,proto3" json:"code,omitempty"`
+	Error   string               `protobuf:"bytes,10,opt,name=error,proto3" json:"error,omitempty"`
+	Latency *durationpb.Duration `protobuf:"bytes,11,opt,name=latency,proto3" json:"latency,omitempty"`
 	// tenant_id is the one the request or response carries.
-	TenantId      string `protobuf:"bytes,13,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	TenantId string `protobuf:"bytes,12,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
+	// timestamp is the start of the call, in unix milliseconds.
+	Timestamp int64 `protobuf:"varint,13,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	// resource_id is the one the request or response carries.
+	ResourceId string `protobuf:"bytes,14,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
+	// change is what an update that succeeded changed; unset for any other
+	// call.
+	Change        *Change `protobuf:"bytes,15,opt,name=change,proto3" json:"change,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -99,13 +104,6 @@ func (x *AuditLog) GetId() string {
 		return x.Id
 	}
 	return ""
-}
-
-func (x *AuditLog) GetTime() *timestamppb.Timestamp {
-	if x != nil {
-		return x.Time
-	}
-	return nil
 }
 
 func (x *AuditLog) GetMethod() string {
@@ -185,28 +183,168 @@ func (x *AuditLog) GetTenantId() string {
 	return ""
 }
 
+func (x *AuditLog) GetTimestamp() int64 {
+	if x != nil {
+		return x.Timestamp
+	}
+	return 0
+}
+
+func (x *AuditLog) GetResourceId() string {
+	if x != nil {
+		return x.ResourceId
+	}
+	return ""
+}
+
+func (x *AuditLog) GetChange() *Change {
+	if x != nil {
+		return x.Change
+	}
+	return nil
+}
+
+// Change the fields an update wrote whose value it changed.
+type Change struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Fields        []*FieldChange         `protobuf:"bytes,1,rep,name=fields,proto3" json:"fields,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Change) Reset() {
+	*x = Change{}
+	mi := &file_sentinez_types_audit_v1_audit_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Change) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Change) ProtoMessage() {}
+
+func (x *Change) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_types_audit_v1_audit_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Change.ProtoReflect.Descriptor instead.
+func (*Change) Descriptor() ([]byte, []int) {
+	return file_sentinez_types_audit_v1_audit_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *Change) GetFields() []*FieldChange {
+	if x != nil {
+		return x.Fields
+	}
+	return nil
+}
+
+// FieldChange a field an update changed. Its values are protojson, hidden
+// when the field sets debug_redact.
+type FieldChange struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// field is the name of the field, as in the .proto.
+	Field string `protobuf:"bytes,1,opt,name=field,proto3" json:"field,omitempty"`
+	// before is its value before the update, unset when it was unset.
+	Before *structpb.Value `protobuf:"bytes,2,opt,name=before,proto3" json:"before,omitempty"`
+	// after is its value after the update, unset when it is unset.
+	After         *structpb.Value `protobuf:"bytes,3,opt,name=after,proto3" json:"after,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FieldChange) Reset() {
+	*x = FieldChange{}
+	mi := &file_sentinez_types_audit_v1_audit_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FieldChange) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FieldChange) ProtoMessage() {}
+
+func (x *FieldChange) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_types_audit_v1_audit_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FieldChange.ProtoReflect.Descriptor instead.
+func (*FieldChange) Descriptor() ([]byte, []int) {
+	return file_sentinez_types_audit_v1_audit_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *FieldChange) GetField() string {
+	if x != nil {
+		return x.Field
+	}
+	return ""
+}
+
+func (x *FieldChange) GetBefore() *structpb.Value {
+	if x != nil {
+		return x.Before
+	}
+	return nil
+}
+
+func (x *FieldChange) GetAfter() *structpb.Value {
+	if x != nil {
+		return x.After
+	}
+	return nil
+}
+
 var File_sentinez_types_audit_v1_audit_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_audit_v1_audit_proto_rawDesc = "" +
 	"\n" +
-	"#sentinez/types/audit/v1/audit.proto\x12\x17sentinez.types.audit.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1dsentinez/types/v1/known.proto\"\xc4\x03\n" +
+	"#sentinez/types/audit/v1/audit.proto\x12\x17sentinez.types.audit.v1\x1a\x1egoogle/protobuf/duration.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1fsentinez/types/v1/options.proto\"\xa6\x04\n" +
 	"\bAuditLog\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12.\n" +
-	"\x04time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\x04time\x12\x16\n" +
-	"\x06method\x18\x03 \x01(\tR\x06method\x12\x17\n" +
-	"\auser_id\x18\x04 \x01(\tR\x06userId\x12\x12\n" +
-	"\x04name\x18\x05 \x01(\tR\x04name\x12D\n" +
-	"\rcontrol_plane\x18\x06 \x01(\x0e2\x1f.sentinez.types.v1.ControlPlaneR\fcontrolPlane\x12\x1f\n" +
-	"\vremote_addr\x18\a \x01(\tR\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
+	"\x06method\x18\x02 \x01(\tR\x06method\x12\x17\n" +
+	"\auser_id\x18\x03 \x01(\tR\x06userId\x12\x12\n" +
+	"\x04name\x18\x04 \x01(\tR\x04name\x12D\n" +
+	"\rcontrol_plane\x18\x05 \x01(\x0e2\x1f.sentinez.types.v1.ControlPlaneR\fcontrolPlane\x12\x1f\n" +
+	"\vremote_addr\x18\x06 \x01(\tR\n" +
 	"remoteAddr\x12\x1d\n" +
 	"\n" +
-	"user_agent\x18\b \x01(\tR\tuserAgent\x121\n" +
-	"\arequest\x18\t \x01(\v2\x17.google.protobuf.StructR\arequest\x12\x12\n" +
-	"\x04code\x18\n" +
-	" \x01(\rR\x04code\x12\x14\n" +
-	"\x05error\x18\v \x01(\tR\x05error\x123\n" +
-	"\alatency\x18\f \x01(\v2\x19.google.protobuf.DurationR\alatency\x12\x1b\n" +
-	"\ttenant_id\x18\r \x01(\tR\btenantIdBHZFgithub.com/sentinez/sentinez/api/proto/sentinez/types/audit/v1;auditpbb\x06proto3"
+	"user_agent\x18\a \x01(\tR\tuserAgent\x129\n" +
+	"\arequest\x18\b \x01(\v2\x17.google.protobuf.StructB\x06\xca\xf0\x19\x02\x18\x02R\arequest\x12\x12\n" +
+	"\x04code\x18\t \x01(\rR\x04code\x12\x14\n" +
+	"\x05error\x18\n" +
+	" \x01(\tR\x05error\x123\n" +
+	"\alatency\x18\v \x01(\v2\x19.google.protobuf.DurationR\alatency\x12\x1b\n" +
+	"\ttenant_id\x18\f \x01(\tR\btenantId\x12\x1c\n" +
+	"\ttimestamp\x18\r \x01(\x03R\ttimestamp\x12\x1f\n" +
+	"\vresource_id\x18\x0e \x01(\tR\n" +
+	"resourceId\x12?\n" +
+	"\x06change\x18\x0f \x01(\v2\x1f.sentinez.types.audit.v1.ChangeB\x06\xca\xf0\x19\x02\x18\x02R\x06change:\b\xca\xf3\x18\x04\b\x01\x18\x01\"F\n" +
+	"\x06Change\x12<\n" +
+	"\x06fields\x18\x01 \x03(\v2$.sentinez.types.audit.v1.FieldChangeR\x06fields\"\x81\x01\n" +
+	"\vFieldChange\x12\x14\n" +
+	"\x05field\x18\x01 \x01(\tR\x05field\x12.\n" +
+	"\x06before\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x06before\x12,\n" +
+	"\x05after\x18\x03 \x01(\v2\x16.google.protobuf.ValueR\x05afterBHZFgithub.com/sentinez/sentinez/api/proto/sentinez/types/audit/v1;auditpbb\x06proto3"
 
 var (
 	file_sentinez_types_audit_v1_audit_proto_rawDescOnce sync.Once
@@ -220,24 +358,29 @@ func file_sentinez_types_audit_v1_audit_proto_rawDescGZIP() []byte {
 	return file_sentinez_types_audit_v1_audit_proto_rawDescData
 }
 
-var file_sentinez_types_audit_v1_audit_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_sentinez_types_audit_v1_audit_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_sentinez_types_audit_v1_audit_proto_goTypes = []any{
-	(*AuditLog)(nil),              // 0: sentinez.types.audit.v1.AuditLog
-	(*timestamppb.Timestamp)(nil), // 1: google.protobuf.Timestamp
-	(v1.ControlPlane)(0),          // 2: sentinez.types.v1.ControlPlane
-	(*structpb.Struct)(nil),       // 3: google.protobuf.Struct
-	(*durationpb.Duration)(nil),   // 4: google.protobuf.Duration
+	(*AuditLog)(nil),            // 0: sentinez.types.audit.v1.AuditLog
+	(*Change)(nil),              // 1: sentinez.types.audit.v1.Change
+	(*FieldChange)(nil),         // 2: sentinez.types.audit.v1.FieldChange
+	(v1.ControlPlane)(0),        // 3: sentinez.types.v1.ControlPlane
+	(*structpb.Struct)(nil),     // 4: google.protobuf.Struct
+	(*durationpb.Duration)(nil), // 5: google.protobuf.Duration
+	(*structpb.Value)(nil),      // 6: google.protobuf.Value
 }
 var file_sentinez_types_audit_v1_audit_proto_depIdxs = []int32{
-	1, // 0: sentinez.types.audit.v1.AuditLog.time:type_name -> google.protobuf.Timestamp
-	2, // 1: sentinez.types.audit.v1.AuditLog.control_plane:type_name -> sentinez.types.v1.ControlPlane
-	3, // 2: sentinez.types.audit.v1.AuditLog.request:type_name -> google.protobuf.Struct
-	4, // 3: sentinez.types.audit.v1.AuditLog.latency:type_name -> google.protobuf.Duration
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	3, // 0: sentinez.types.audit.v1.AuditLog.control_plane:type_name -> sentinez.types.v1.ControlPlane
+	4, // 1: sentinez.types.audit.v1.AuditLog.request:type_name -> google.protobuf.Struct
+	5, // 2: sentinez.types.audit.v1.AuditLog.latency:type_name -> google.protobuf.Duration
+	1, // 3: sentinez.types.audit.v1.AuditLog.change:type_name -> sentinez.types.audit.v1.Change
+	2, // 4: sentinez.types.audit.v1.Change.fields:type_name -> sentinez.types.audit.v1.FieldChange
+	6, // 5: sentinez.types.audit.v1.FieldChange.before:type_name -> google.protobuf.Value
+	6, // 6: sentinez.types.audit.v1.FieldChange.after:type_name -> google.protobuf.Value
+	7, // [7:7] is the sub-list for method output_type
+	7, // [7:7] is the sub-list for method input_type
+	7, // [7:7] is the sub-list for extension type_name
+	7, // [7:7] is the sub-list for extension extendee
+	0, // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_types_audit_v1_audit_proto_init() }
@@ -251,7 +394,7 @@ func file_sentinez_types_audit_v1_audit_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_types_audit_v1_audit_proto_rawDesc), len(file_sentinez_types_audit_v1_audit_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   1,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

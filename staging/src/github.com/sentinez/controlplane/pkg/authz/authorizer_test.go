@@ -20,7 +20,9 @@ import (
 	"testing"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/sentinez/controlplane/pkg/auditowner"
 	"github.com/sentinez/controlplane/pkg/headers/headerstest"
+	analyticpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
@@ -399,6 +401,42 @@ func TestScopedTenants(t *testing.T) {
 	assert.Equal(t, []string{"tnt_a", "tnt_c"}, give.GetTenantIds())
 }
 
+func TestScopedTenantless(t *testing.T) {
+	az, _ := newAuthorizer()
+	give := &analyticpb.ListAuditLogsRequest{
+		TenantIds: []string{"tnt_a"}, WithoutTenant: true,
+	}
+
+	got, ok, err := ScopedTenantless(asAdmin(), az, give)
+
+	require.NoError(t, err)
+	assert.True(t, ok)
+	assert.Equal(t, []string{""}, got.GetTenantIds())
+}
+
+func TestScopedTenantless_UserDenied(t *testing.T) {
+	az, _ := newAuthorizer()
+	give := &analyticpb.ListAuditLogsRequest{WithoutTenant: true}
+
+	_, ok, err := ScopedTenantless(asUser("user_1"), az, give)
+
+	assert.False(t, ok)
+	assert.Equal(t, codes.PermissionDenied, status.Code(err))
+}
+
+func TestScopedTenantless_WithTenant(t *testing.T) {
+	az, _ := newAuthorizer()
+	give := &analyticpb.ListAuditLogsRequest{
+		TenantIds: []string{"tnt_a", "tnt_c"},
+	}
+
+	got, ok, err := ScopedTenantless(asUser("user_1"), az, give)
+
+	require.NoError(t, err)
+	assert.True(t, ok)
+	assert.Equal(t, []string{"tnt_a"}, got.GetTenantIds())
+}
+
 func TestRequireOwner(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -423,4 +461,16 @@ func TestRequireOwner(t *testing.T) {
 			assert.Equal(t, tt.wantCode, status.Code(err))
 		})
 	}
+}
+
+func TestRequireOwnerRecordsOwner(t *testing.T) {
+	ctx, owner := auditowner.With(headerstest.Admin(context.Background()))
+
+	err := New(nil, nil).RequireOwner(ctx,
+		&typepb.Owner{TenantId: "tnt_1", ResourceId: "rsrc_1"}, Write)
+
+	require.NoError(t, err)
+	tenantId, resourceId := owner.Ids()
+	assert.Equal(t, "tnt_1", tenantId)
+	assert.Equal(t, "rsrc_1", resourceId)
 }

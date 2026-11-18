@@ -6,12 +6,17 @@ export const filterValueOf = (value: string): string => value.replace(/\s+/g, ''
 // A request id, as the edge makes them (an optional prefix, a ULID)
 const REQUEST_ID = /^(?:[a-zA-Z0-9-]+-)?req_[0-9A-HJKMNP-TV-Z]{26}$/;
 
+// The terms of a filter that are ids of the pattern, as terms of their own
+export const idsMatching =
+  (pattern: RegExp) =>
+  (query: string): string[] =>
+    query.split(/\s+/).filter((term) => pattern.test(term));
+
 /**
  * The request ids a filter names, as terms of their own: the list asks the
  * API for their events, which may be on any page.
  */
-export const requestIdsOf = (query: string): string[] =>
-  query.split(/\s+/).filter((term) => REQUEST_ID.test(term));
+export const requestIdsOf = idsMatching(REQUEST_ID);
 
 // The terms of a filter: lowercase, split on whitespace
 export const termsOf = (query: string): string[] =>

@@ -67,6 +67,5 @@ give the list page's path.
 
 ## Known gaps
 
-- `analytic/activity` is still a placeholder page, so its screenshot shows
-  only skeleton rows. `delivery/cdn` has a title and no content yet.
+- `delivery/cdn` has a title and no content yet.
 - The member detail page is not captured: the member list has no link to it.

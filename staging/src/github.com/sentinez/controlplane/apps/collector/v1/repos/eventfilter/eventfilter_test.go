@@ -28,6 +28,7 @@ import (
 var _cols = Columns{
 	RequestId:   "request_id",
 	ResourceId:  "resource_id",
+	TenantId:    "tenant_id",
 	MatchedTime: "matched_time",
 	Fields: []Field{
 		TypedColumn("status", dbx.Int4),
@@ -214,4 +215,25 @@ func TestWhereRejectsUnknownField(t *testing.T) {
 	_, err := give.Where(sq.Select("id").From("t"), _cols)
 
 	assert.ErrorIs(t, err, ErrUnknownField)
+}
+
+func TestWhereTenants(t *testing.T) {
+	give := &Filter{TenantIds: []string{"tnt_1", "tnt_2"}}
+
+	b, err := give.Where(sq.Select("id").From("t"), _cols)
+	require.NoError(t, err)
+
+	gotSQL, gotArgs, err := b.ToSql()
+	require.NoError(t, err)
+	assert.Equal(t, "SELECT id FROM t WHERE tenant_id IN (?,?)", gotSQL)
+	assert.Equal(t, []any{"tnt_1", "tnt_2"}, gotArgs)
+}
+
+func TestWhereTenantsWithoutColumn(t *testing.T) {
+	give := &Filter{TenantIds: []string{"tnt_1"}}
+	cols := _cols
+	cols.TenantId = ""
+
+	_, err := give.Where(sq.Select("id").From("t"), cols)
+	require.ErrorIs(t, err, ErrUnknownField)
 }

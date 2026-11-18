@@ -16,6 +16,7 @@ package tenantsvc
 
 import (
 	"testing"
+	"time"
 
 	resourcemock "github.com/sentinez/controlplane/apps/tenant/v1/repos/resources/mock"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
@@ -87,7 +88,9 @@ func TestUpdateResourceImpliedMask(t *testing.T) {
 	want.Domain = "new.example.com"
 
 	svc := New(nil, resourcesWith(t, want,
-		[]string{tenantpb.Resource_Domain}), nil, nil, nil)
+		[]string{tenantpb.Resource_Domain}), nil, nil,
+		certsOf(t, serverFor(t, want.GetDomain())))
+	svc.now = func() time.Time { return _now }
 	_, err := svc.UpdateResource(asAdmin(t), &tenantpb.UpdateResourceRequest{
 		Id: _resourceId,
 		// the edge matches the domain in lower case

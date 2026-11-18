@@ -20,12 +20,14 @@ import (
 	"github.com/sentinez/controlplane/apps/security/v1/repos/coreruleset"
 	"github.com/sentinez/controlplane/apps/security/v1/repos/ratelimit"
 	"github.com/sentinez/controlplane/apps/security/v1/repos/secrule"
+	"github.com/sentinez/controlplane/pkg/auditchange"
 	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/pkg/szerror"
 	"github.com/sentinez/pkg/szprotobuf"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	"google.golang.org/protobuf/proto"
 )
 
 var _ securitypb.SecurityServiceServer = (*SecurityService)(nil)
@@ -181,6 +183,7 @@ func (srv *SecurityService) UpdateSecRule(ctx context.Context,
 		return nil, err
 	}
 
+	before := proto.CloneOf(dbRB)
 	paths, err := szprotobuf.ApplyMask(dbRB, req.GetSecRule(),
 		req.GetUpdateMask(), _secRuleUpdatable...)
 	if err != nil {
@@ -190,6 +193,8 @@ func (srv *SecurityService) UpdateSecRule(ctx context.Context,
 	if err = srv.secRuleRepo.Update(ctx, dbRB, paths); err != nil {
 		return nil, err
 	}
+
+	auditchange.Set(ctx, before, dbRB, paths)
 
 	return &securitypb.
 		UpdateSecRuleResponse{SecRule: srv.mapSecRule(ctx, dbRB)}, nil

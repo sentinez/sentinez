@@ -46,16 +46,6 @@ func (m *AuditLog) Validate() error {
 
 	// no validation rules for Id
 
-	if v, ok := interface{}(m.GetTime()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return AuditLogValidationError{
-				field:  "Time",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
 	// no validation rules for Method
 
 	// no validation rules for UserId
@@ -93,6 +83,20 @@ func (m *AuditLog) Validate() error {
 	}
 
 	// no validation rules for TenantId
+
+	// no validation rules for Timestamp
+
+	// no validation rules for ResourceId
+
+	if v, ok := interface{}(m.GetChange()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return AuditLogValidationError{
+				field:  "Change",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	return nil
 }
@@ -150,3 +154,169 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = AuditLogValidationError{}
+
+// Validate checks the field values on Change with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *Change) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	for idx, item := range m.GetFields() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeValidationError{
+					field:  fmt.Sprintf("Fields[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ChangeValidationError is the validation error returned by Change.Validate if
+// the designated constraints aren't met.
+type ChangeValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ChangeValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ChangeValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ChangeValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ChangeValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ChangeValidationError) ErrorName() string { return "ChangeValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ChangeValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sChange.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ChangeValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ChangeValidationError{}
+
+// Validate checks the field values on FieldChange with the rules defined in
+// the proto definition for this message. If any rules are violated, an error
+// is returned.
+func (m *FieldChange) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Field
+
+	if v, ok := interface{}(m.GetBefore()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return FieldChangeValidationError{
+				field:  "Before",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetAfter()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return FieldChangeValidationError{
+				field:  "After",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	return nil
+}
+
+// FieldChangeValidationError is the validation error returned by
+// FieldChange.Validate if the designated constraints aren't met.
+type FieldChangeValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e FieldChangeValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e FieldChangeValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e FieldChangeValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e FieldChangeValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e FieldChangeValidationError) ErrorName() string { return "FieldChangeValidationError" }
+
+// Error satisfies the builtin error interface
+func (e FieldChangeValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sFieldChange.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = FieldChangeValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = FieldChangeValidationError{}

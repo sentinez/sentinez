@@ -49,12 +49,18 @@ export function PageLayoutHeader({ children, title, subtitle }: PageLayoutHeader
 }
 
 /**
- * The body of a page: left-aligned, as wide as the header (`max-w-7xl`), padded
- * and spacing its children. Put the content in it directly: no wrapper with its
- * own `max-w-*`, `mx-auto` or vertical padding, they break the alignment.
+ * The body of a page: narrower than the header (`max-w-5xl` in its
+ * `max-w-7xl`) and centred under it, padded and spacing its children; the
+ * whole width when the page is narrower. Put the content in it directly: no
+ * wrapper with its own `max-w-*`, `mx-auto` or vertical padding, they break
+ * the alignment.
  */
 export function PageLayoutContent({ children }: Readonly<{ children: ReactNode }>) {
-  return <div className="flex w-full max-w-7xl flex-col gap-6 p-4">{children}</div>;
+  return (
+    <div className="w-full max-w-7xl">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-4">{children}</div>
+    </div>
+  );
 }
 
 /**

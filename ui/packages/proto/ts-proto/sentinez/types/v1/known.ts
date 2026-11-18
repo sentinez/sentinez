@@ -116,6 +116,11 @@ export enum ControlPlane {
   CONTROL_PLANE_UNSPECIFIED = 0,
   CONTROL_PLANE_PORTAL = 1,
   CONTROL_PLANE_ADMIN = 2,
+  /**
+   * CONTROL_PLANE_SERVICE - SERVICE is an internal service (eg the edge) calling another one; its
+   * tokens are signed with SENZ_SERVICE_KEY, never with SENZ_SECRET_KEY.
+   */
+  CONTROL_PLANE_SERVICE = 3,
   UNRECOGNIZED = -1,
 }
 
@@ -130,6 +135,9 @@ export function controlPlaneFromJSON(object: any): ControlPlane {
     case 2:
     case "CONTROL_PLANE_ADMIN":
       return ControlPlane.CONTROL_PLANE_ADMIN;
+    case 3:
+    case "CONTROL_PLANE_SERVICE":
+      return ControlPlane.CONTROL_PLANE_SERVICE;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -145,6 +153,8 @@ export function controlPlaneToJSON(object: ControlPlane): string {
       return "CONTROL_PLANE_PORTAL";
     case ControlPlane.CONTROL_PLANE_ADMIN:
       return "CONTROL_PLANE_ADMIN";
+    case ControlPlane.CONTROL_PLANE_SERVICE:
+      return "CONTROL_PLANE_SERVICE";
     case ControlPlane.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
@@ -155,6 +165,12 @@ export enum Status {
   STATUS_UNSPECIFIED = 0,
   STATUS_ACTIVE = 1,
   STATUS_DISABLE = 2,
+  /**
+   * STATUS_PENDING - Asked to be active, but waiting for what it needs to be served, as a
+   * resource for certificates that fit its TLS mode: served as disabled,
+   * and made active once it has them.
+   */
+  STATUS_PENDING = 3,
   UNRECOGNIZED = -1,
 }
 
@@ -169,6 +185,9 @@ export function statusFromJSON(object: any): Status {
     case 2:
     case "STATUS_DISABLE":
       return Status.STATUS_DISABLE;
+    case 3:
+    case "STATUS_PENDING":
+      return Status.STATUS_PENDING;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -184,6 +203,8 @@ export function statusToJSON(object: Status): string {
       return "STATUS_ACTIVE";
     case Status.STATUS_DISABLE:
       return "STATUS_DISABLE";
+    case Status.STATUS_PENDING:
+      return "STATUS_PENDING";
     case Status.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
@@ -243,6 +264,7 @@ export enum LogType {
   LOG_TYPE_RATE_LIMIT = 4,
   LOG_TYPE_CDN_RULE = 5,
   LOG_TYPE_HTTP_EGRESS = 6,
+  LOG_TYPE_AUDIT = 7,
   UNRECOGNIZED = -1,
 }
 
@@ -269,6 +291,9 @@ export function logTypeFromJSON(object: any): LogType {
     case 6:
     case "LOG_TYPE_HTTP_EGRESS":
       return LogType.LOG_TYPE_HTTP_EGRESS;
+    case 7:
+    case "LOG_TYPE_AUDIT":
+      return LogType.LOG_TYPE_AUDIT;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -292,6 +317,8 @@ export function logTypeToJSON(object: LogType): string {
       return "LOG_TYPE_CDN_RULE";
     case LogType.LOG_TYPE_HTTP_EGRESS:
       return "LOG_TYPE_HTTP_EGRESS";
+    case LogType.LOG_TYPE_AUDIT:
+      return "LOG_TYPE_AUDIT";
     case LogType.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
