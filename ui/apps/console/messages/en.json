@@ -36,7 +36,20 @@
     "welcome": "Welcome back, {name}"
   },
   "Loading": {
-    "text": "The Sentinéz is loading..."
+    "text": "The Sentinéz is loading...",
+    "holiday": {
+      "newYear": "Happy New Year!",
+      "tet": "Happy Lunar New Year — wishing you peace and prosperity!",
+      "womenDay": "Happy International Women's Day!",
+      "hungKings": "Hung Kings' Commemoration Day",
+      "reunification": "Happy Reunification Day & Labour Day!",
+      "childrenDay": "Happy International Children's Day!",
+      "nationalDay": "Happy Vietnam National Day!",
+      "midAutumn": "Happy Mid-Autumn Festival!",
+      "vietnameseWomenDay": "Happy Vietnamese Women's Day!",
+      "teachersDay": "Happy Vietnamese Teachers' Day!",
+      "christmas": "Merry Christmas!"
+    }
   },
   "NotFound": {
     "title": "Not Found!",

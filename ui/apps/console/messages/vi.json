@@ -36,7 +36,20 @@
     "welcome": "Chào mừng trở lại, {name}"
   },
   "Loading": {
-    "text": "Sentinéz đang tải..."
+    "text": "Sentinéz đang tải...",
+    "holiday": {
+      "newYear": "Chúc mừng năm mới!",
+      "tet": "Chúc mừng năm mới — Xuân an khang, vạn sự như ý!",
+      "womenDay": "Chúc mừng ngày Quốc tế Phụ nữ 8/3!",
+      "hungKings": "Giỗ Tổ Hùng Vương — Mùng 10 tháng 3",
+      "reunification": "Mừng ngày Thống nhất 30/4 & Quốc tế Lao động 1/5!",
+      "childrenDay": "Chúc mừng ngày Quốc tế Thiếu nhi 1/6!",
+      "nationalDay": "Mừng Quốc khánh 2/9!",
+      "midAutumn": "Trung thu vui vẻ, trăng tròn sum vầy!",
+      "vietnameseWomenDay": "Chúc mừng ngày Phụ nữ Việt Nam 20/10!",
+      "teachersDay": "Tri ân thầy cô — Ngày Nhà giáo Việt Nam 20/11!",
+      "christmas": "Giáng sinh an lành!"
+    }
   },
   "NotFound": {
     "title": "Không tìm thấy!",

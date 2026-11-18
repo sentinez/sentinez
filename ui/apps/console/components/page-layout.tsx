@@ -48,17 +48,33 @@ export function PageLayoutHeader({ children, title, subtitle }: PageLayoutHeader
   );
 }
 
+/** The widths of `PageLayoutContent`, from large to small. */
+export type PageLayoutContentSize = 'xl' | 'lg' | 'md' | 'sm';
+
+const contentSizes: Record<PageLayoutContentSize, string> = {
+  xl: 'max-w-7xl',
+  lg: 'max-w-5xl',
+  md: 'max-w-3xl',
+  sm: 'max-w-xl',
+};
+
 /**
- * The body of a page: narrower than the header (`max-w-5xl` in its
- * `max-w-7xl`) and centred under it, padded and spacing its children; the
- * whole width when the page is narrower. Put the content in it directly: no
- * wrapper with its own `max-w-*`, `mx-auto` or vertical padding, they break
- * the alignment.
+ * The body of a page, centred under the header (`max-w-7xl`), padded and
+ * spacing its children; the whole width when the page is narrower. `size`
+ * sets its width, from large to small: `xl` the whole width of the header
+ * (list pages, event logs and their histogram), `lg` the default (details),
+ * `md`, and `sm` for the create and update forms. Put the content in it directly: no wrapper with
+ * its own `max-w-*`, `mx-auto` or vertical padding, they break the alignment.
  */
-export function PageLayoutContent({ children }: Readonly<{ children: ReactNode }>) {
+export function PageLayoutContent({
+  children,
+  size = 'lg',
+}: Readonly<{ children: ReactNode; size?: PageLayoutContentSize }>) {
   return (
     <div className="w-full max-w-7xl">
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-4">{children}</div>
+      <div className={cn('mx-auto flex w-full flex-col gap-6 p-4', contentSizes[size])}>
+        {children}
+      </div>
     </div>
   );
 }

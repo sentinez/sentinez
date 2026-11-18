@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 
 import { Resource as EdgeResource } from '@sentinez/proto/sentinez/dmz/edge/v1/setting';
+import { CodeBlock } from '@/components/code-block';
 
 /** The edge setting of a resource as raw JSON, folded until asked for */
 export function ResourceSettingJson({ resource }: { resource?: EdgeResource }) {
@@ -20,11 +21,7 @@ export function ResourceSettingJson({ resource }: { resource?: EdgeResource }) {
       <summary className="w-fit cursor-pointer rounded-md text-sm text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring">
         {t('showJson')}
       </summary>
-      {open && (
-        <pre className="bg-muted text-foreground mt-2 max-h-96 overflow-auto rounded-md p-3 text-xs">
-          {JSON.stringify(EdgeResource.toJSON(resource), null, 2)}
-        </pre>
-      )}
+      {open && <CodeBlock className="mt-2" value={EdgeResource.toJSON(resource)} />}
     </details>
   );
 }

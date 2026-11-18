@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { ArrowUpRight } from 'lucide-react';
+import SwarmCursor from '@/components/swarm-cursor/swarm-cursor';
 
 const TYPEWRITER_TEXT = 'INTELLIGENT SECURITY FOR THE MODERN WEB.';
 
@@ -43,49 +44,21 @@ const CARDS = [
 ];
 
 export default function Page() {
-  const [displayed, setDisplayed] = useState('');
-  const [cursorVisible, setCursorVisible] = useState(true);
-  const [langIndex, setLangIndex] = useState(0);
-
-  useEffect(() => {
-    let i = 0;
-    const interval = setInterval(() => {
-      if (i < TYPEWRITER_TEXT.length) {
-        setDisplayed(TYPEWRITER_TEXT.slice(0, i + 1));
-        i++;
-      } else {
-        clearInterval(interval);
-      }
-    }, 38);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    const blink = setInterval(() => {
-      setCursorVisible((v) => !v);
-    }, 530);
-    return () => clearInterval(blink);
-  }, []);
-
-  useEffect(() => {
-    const langTimer = setInterval(() => {
-      setLangIndex((prev) => (prev + 1) % MULTI_LANG_TEXTS.length);
-    }, 2500);
-    return () => clearInterval(langTimer);
-  }, []);
-
+  // Root: the swarm follows the cursor behind the page and pours around the
+  // nav cards while one is hovered.
   return (
-    <>
-      {/* Root */}
-      <div
-        className="text-[#0a0a0a] min-h-svh flex flex-col overflow-x-hidden [font-family:'Phudu',sans-serif]
+    <SwarmCursor
+      lightMode
+      accentColor="#0057ff"
+      className="text-[#0a0a0a] [font-family:'Phudu',sans-serif]
         bg-gradient-to-r
         from-white
         via-gray-200
         to-white
         bg-[length:200%_200%]
         animate-gradient"
-      >
+    >
+      <div className="flex min-h-svh flex-col">
         {/* Header — logo | card nav | studio */}
         <header className="flex flex-col md:flex-row items-stretch justify-between border-b border-black/[0.08]">
           {/* Top bar on mobile (Logo + Studio stamp) */}
@@ -149,30 +122,79 @@ export default function Page() {
         <main className="flex-1 flex flex-col items-center justify-center text-center px-4 py-8 md:px-6 md:py-12">
           <h1 className="[font-family:'Phudu',sans-serif] text-[clamp(2.5rem,8vw,8rem)] font-semibold leading-[0.95] tracking-[-0.03em] uppercase flex flex-col items-center max-w-full">
             <span className="text-[#0504aa]">SENTINÉZ</span>
-            <span className="relative h-[1.3em] w-full flex items-center justify-center overflow-hidden max-w-full">
-              <AnimatePresence mode="wait">
-                <motion.span
-                  key={langIndex}
-                  initial={{ y: 25, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -25, opacity: 0 }}
-                  transition={{ duration: 0.4, ease: 'easeInOut' }}
-                  className="text-[#0a0a0a] text-[clamp(1.5rem,5.5vw,5.5rem)] whitespace-nowrap block"
-                >
-                  {MULTI_LANG_TEXTS[langIndex]}
-                </motion.span>
-              </AnimatePresence>
-            </span>
+            <LangRotator />
           </h1>
-          <p className="mt-6 md:mt-8 [font-family:'Phudu',sans-serif] text-[clamp(0.6rem,1.5vw,0.85rem)] tracking-[0.15em] md:tracking-[0.2em] text-[#999] uppercase min-h-[1.4em] max-w-full px-2 break-words">
-            {displayed}
-            <span
-              aria-hidden="true"
-              className={`inline-block w-[0.65em] h-[0.9em] bg-[#0057ff] ml-0.5 align-middle transition-opacity duration-100 ${cursorVisible ? 'opacity-100' : 'opacity-0'}`}
-            />
-          </p>
+          <Typewriter />
         </main>
       </div>
-    </>
+    </SwarmCursor>
+  );
+}
+
+/**
+ * The tagline in each language in turn. Its own component, so the timer
+ * re-renders this line only, not the page and the swarm around it.
+ */
+function LangRotator() {
+  const [langIndex, setLangIndex] = useState(0);
+
+  useEffect(() => {
+    const langTimer = setInterval(() => {
+      setLangIndex((prev) => (prev + 1) % MULTI_LANG_TEXTS.length);
+    }, 2500);
+    return () => clearInterval(langTimer);
+  }, []);
+
+  return (
+    <span className="relative h-[1.3em] w-full flex items-center justify-center overflow-hidden max-w-full">
+      <AnimatePresence mode="wait">
+        <motion.span
+          key={langIndex}
+          initial={{ y: 25, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: -25, opacity: 0 }}
+          transition={{ duration: 0.4, ease: 'easeInOut' }}
+          className="text-[#0a0a0a] text-[clamp(1.5rem,5.5vw,5.5rem)] whitespace-nowrap block"
+        >
+          {MULTI_LANG_TEXTS[langIndex]}
+        </motion.span>
+      </AnimatePresence>
+    </span>
+  );
+}
+
+/** The typed subtitle and its blinking cursor; like LangRotator, it re-renders alone. */
+function Typewriter() {
+  const [displayed, setDisplayed] = useState('');
+  const [cursorVisible, setCursorVisible] = useState(true);
+
+  useEffect(() => {
+    let i = 0;
+    const interval = setInterval(() => {
+      if (i < TYPEWRITER_TEXT.length) {
+        setDisplayed(TYPEWRITER_TEXT.slice(0, i + 1));
+        i++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 38);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const blink = setInterval(() => {
+      setCursorVisible((v) => !v);
+    }, 530);
+    return () => clearInterval(blink);
+  }, []);
+
+  return (
+    <p className="mt-6 md:mt-8 [font-family:'Phudu',sans-serif] text-[clamp(0.6rem,1.5vw,0.85rem)] tracking-[0.15em] md:tracking-[0.2em] text-[#999] uppercase min-h-[1.4em] max-w-full px-2 break-words">
+      {displayed}
+      <span
+        aria-hidden="true"
+        className={`inline-block w-[0.65em] h-[0.9em] bg-[#0057ff] ml-0.5 align-middle transition-opacity duration-100 ${cursorVisible ? 'opacity-100' : 'opacity-0'}`}
+      />
+    </p>
   );
 }

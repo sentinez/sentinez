@@ -17,39 +17,3 @@
 .animate-gradient {
   animation: gradient 3s ease infinite;
 }
-
-.animated-gradient {
-  position: relative;
-  background: linear-gradient(45deg, #7ca5de 0%, #357de5 50%, #6bd1a9 100%);
-  background-size: 200% 200%;
-  animation: gradient-shift 8s ease alternate infinite;
-  overflow: hidden;
-}
-
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* Faint grid that fades out from the centre; set --grid-color to tint it */
-.grid-backdrop {
-  --grid-color: var(--border);
-  background-image:
-    linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse at center, black 25%, transparent 72%);
-}
-
-/* Slow drift and pulse, for a decorative glow */
-@keyframes glow-drift {
-  0% {
-    transform: translate(-8%, -4%) scale(0.95);
-    opacity: 0.7;
-  }
-  100% {
-    transform: translate(8%, 4%) scale(1.08);
-    opacity: 1;
-  }
-}

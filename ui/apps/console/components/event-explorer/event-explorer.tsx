@@ -281,7 +281,7 @@ export function EventExplorer<T>({
         </div>
       </PageLayoutHeader>
 
-      <PageLayoutContent>
+      <PageLayoutContent size="xl">
         <Card className="gap-2 py-4">
           <CardHeader className="flex flex-wrap items-center gap-x-3 gap-y-2 px-3 sm:px-4">
             <div className="flex shrink-0 items-baseline gap-2">

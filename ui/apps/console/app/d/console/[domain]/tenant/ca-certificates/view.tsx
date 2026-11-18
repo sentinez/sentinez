@@ -255,7 +255,7 @@ export default function View() {
         </Button>
       </PageLayoutHeader>
 
-      <PageLayoutContent>
+      <PageLayoutContent size="xl">
         <div className="w-full">
           <PageLayoutToolbar>
             <Input

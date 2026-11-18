@@ -89,7 +89,7 @@ export default function EditRulesetPage({ params }: { params: Promise<{ id: stri
           </Button>
         </div>
       </PageLayoutHeader>
-      <PageLayoutContent>
+      <PageLayoutContent size="sm">
         <CoreRulesetFields value={form} onChange={patchForm} idPrefix="edit" />
       </PageLayoutContent>
     </PageLayout>

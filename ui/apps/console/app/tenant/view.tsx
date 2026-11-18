@@ -12,8 +12,10 @@ import { Input } from '@sentinez/ui/components/input';
 import { cn } from '@sentinez/ui/lib/utils';
 import { Search } from 'lucide-react';
 import Image from 'next/image';
+import { useTheme } from 'next-themes';
 import { useTranslations } from 'next-intl';
 
+import LetterGlitch from '@/components/letter-glitch/letter-glitch';
 import Language from '@/components/language';
 import { RefreshButton } from '@/components/refresh-button';
 import { UserMenu } from '@/components/user-menu';
@@ -148,12 +150,21 @@ export default function View() {
   );
 }
 
-/** A faint grid under a soft glow, both fading out */
+/**
+ * The glitching letters of the auth page, toned down behind the cards: dark
+ * ink on the light theme, light letters on the dark one. The cursor still
+ * stirs them: they listen on the window, not on this layer. Nothing renders
+ * until the theme is known, so the dark theme does not start light.
+ */
 function TenantBackdrop() {
+  const { resolvedTheme } = useTheme();
+
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-      <div className="grid-backdrop absolute inset-0 opacity-60" />
-      <div className="absolute inset-0 m-auto size-[42rem] rounded-full bg-[radial-gradient(circle,color-mix(in_oklch,var(--primary)_14%,transparent),transparent_70%)] motion-safe:animate-[glow-drift_12s_ease-in-out_infinite_alternate]" />
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-0 -z-10 overflow-hidden opacity-60"
+    >
+      {resolvedTheme && <LetterGlitch lightMode={resolvedTheme !== 'dark'} />}
     </div>
   );
 }

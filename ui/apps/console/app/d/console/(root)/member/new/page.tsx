@@ -67,7 +67,7 @@ export default function InviteMemberPage() {
           </Button>
         </div>
       </PageLayoutHeader>
-      <PageLayoutContent>
+      <PageLayoutContent size="sm">
         <MemberFields value={form} onChange={patchForm} idPrefix="invite" />
       </PageLayoutContent>
     </PageLayout>
