@@ -35,7 +35,9 @@ var _ ISecRulesetEvent = (*SecRulesetEvents)(nil)
 // _spec the reader of the events: their histogram is split by behavior.
 var _spec = eventreader.Spec[rulesetpb.SecRulesetEvent]{
 	Hypertable: schema.EventHypertable(
-		schema.AnalyticSecRulesetsEvent(), rulesetpb.SecRulesetEvent_MatchedTime),
+		schema.AnalyticSecRulesetsEvent(),
+		rulesetpb.SecRulesetEvent_MatchedTime,
+	),
 	Key: rulesetpb.SecRulesetEvent_Behavior,
 	Columns: eventfilter.Columns{
 		RequestId:   rulesetpb.SecRulesetEvent_RequestId,
@@ -53,7 +55,8 @@ var _spec = eventreader.Spec[rulesetpb.SecRulesetEvent]{
 // _fields the fields of the events filters match and top values count,
 // in this order.
 var _fields = []eventfilter.Field{
-	eventfilter.TypedColumn(rulesetpb.SecRulesetEvent_MatchedRuleIds, dbx.IntArr),
+	eventfilter.TypedColumn(
+		rulesetpb.SecRulesetEvent_MatchedRuleIds, dbx.IntArr),
 	eventfilter.TypedColumn(rulesetpb.SecRulesetEvent_Severities, dbx.TextArr),
 	eventfilter.TypedColumn(rulesetpb.SecRulesetEvent_Behavior, dbx.Int4),
 	eventfilter.TypedColumn(rulesetpb.SecRulesetEvent_TotalScore, dbx.Int4),

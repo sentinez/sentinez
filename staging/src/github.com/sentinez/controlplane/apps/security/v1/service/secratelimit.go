@@ -132,7 +132,9 @@ func (srv *SecurityService) UpdateSecRateLimit(ctx context.Context,
 	auditchange.Set(ctx, before, dbRL, paths)
 
 	return &securitypb.
-		UpdateSecRateLimitResponse{Secratelimit: srv.mapRateLimit(ctx, dbRL)}, nil
+		UpdateSecRateLimitResponse{
+		Secratelimit: srv.mapRateLimit(ctx, dbRL),
+	}, nil
 }
 
 func (srv *SecurityService) DeleteSecRateLimit(ctx context.Context,

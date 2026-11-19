@@ -44,7 +44,8 @@ type ISecRateLimit interface {
 var _ ISecRateLimit = (*SecRateLimit)(nil)
 
 // New creates a SecRateLimit repository backed by Postgres.
-func New(ctx context.Context, appConf *settingpb.Config) (ISecRateLimit, error) {
+func New(ctx context.Context,
+	appConf *settingpb.Config) (ISecRateLimit, error) {
 	storage, err := postgres.New[securitypb.SecRateLimit](ctx, appConf,
 		schema.SecuritySecRateLimits())
 	if err != nil {
@@ -92,7 +93,8 @@ func (r *SecRateLimit) List(ctx context.Context,
 	}
 	szlog.Debug("[security.secratelimits] query: ", query, " args: ", args)
 
-	models, err := r.storage.CollectRows(ctx, builder, securitypb.ScanSecRateLimit)
+	models, err := r.storage.
+		CollectRows(ctx, builder, securitypb.ScanSecRateLimit)
 	if err != nil {
 		return nil, 0, err
 	}

@@ -59,9 +59,10 @@ const (
 	SecRuleset   Prefix = "srs"   // ruleset
 
 	// ── Analytic (analytic.activities, .secrules, .secrulesets) ──
-	Activity        Prefix = "actv"  // tenant activity
-	SecRuleEvent    Prefix = "srevt" // SecRule match event
-	SecRulesetEvent Prefix = "rsevt" // ruleset match event (5 letters max, so not "srsevt")
+	Activity     Prefix = "actv"  // tenant activity
+	SecRuleEvent Prefix = "srevt" // SecRule match event
+	// SecRulesetEvent ruleset match event (5 letters max, so not "srsevt").
+	SecRulesetEvent Prefix = "rsevt"
 
 	// ── Identity & access ──
 	Team          Prefix = "team" // team

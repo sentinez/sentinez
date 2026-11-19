@@ -77,7 +77,8 @@ func (srv *AnalyticService) ListSecRateLimitEvents(ctx context.Context,
 
 // ListSecRulesetEvents implements pb.AnalyticServiceServer.
 func (srv *AnalyticService) ListSecRulesetEvents(ctx context.Context,
-	req *pb.ListSecRulesetEventsRequest) (*pb.ListSecRulesetEventsResponse, error) {
+	req *pb.ListSecRulesetEventsRequest,
+) (*pb.ListSecRulesetEventsResponse, error) {
 	events, err := listEvents(ctx, req, srv.events.SecRuleset.List)
 	if err != nil {
 		return nil, err
