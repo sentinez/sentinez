@@ -16,11 +16,11 @@ package szcrs
 
 import (
 	"fmt"
-	"net/netip"
 	"regexp"
 	"strings"
 
 	crslang "github.com/coreruleset/crslang/types"
+	"github.com/sentinez/core/szrule"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	"google.golang.org/protobuf/types/known/structpb"
 )
@@ -274,7 +274,7 @@ func ipLink(c *rulepb.Condition) ([]*crslang.SecRule, error) {
 	}
 
 	for _, v := range values {
-		if !validIP(v) {
+		if !szrule.ValidIP(v) {
 			return nil, fmt.Errorf(
 				"%w: expression address %q", ErrInvalidSetting, v,
 			)
@@ -329,16 +329,6 @@ func stringValues(list *structpb.ListValue) []string {
 	}
 
 	return values
-}
-
-func validIP(s string) bool {
-	if _, err := netip.ParseAddr(s); err == nil {
-		return true
-	}
-
-	_, err := netip.ParsePrefix(s)
-
-	return err == nil
 }
 
 // validateOperand rejects what could escape the quoting of a directive
