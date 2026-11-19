@@ -167,7 +167,8 @@ buffers.
 ## 3.4 Middleware chain
 
 Built in [internal/handlers/handlers.go](../internal/handlers/handlers.go) with
-`chains.Build(envplugin.NewEnv(mem, opts...), Stage, plugins()...)`. Each
+`chains.Build(envplugin.NewEnv(mem, opts...), wrap, plugins()...)`, where
+`wrap` is `Stage` around the Lua hooks of the stage (see below). Each
 plugin implements `chains.Plugin` (`ID()`, `Handle(ctx, next)`) and, when it
 needs dependencies, `Provision(*envplugin.Env)`: the
 [Env](../internal/envplugin/env.go) resolves the options once and hands out
@@ -176,21 +177,32 @@ the sub-stores of `MemStore`, the secret key and event loggers
 is wrapped by `handlers.Stage`, which tags errors with the plugin `ID()`
 (`sztracer.StageError{Stage, Elapsed, Err}`) and logs them once, at the
 stage that produced them; the stage names are exported constants (e.g.
-`secure.WAFId`). A panic of a plugin is recovered by its `Stage` too: logged once with the stage and the stack, then answered with a `500` page, so the outer plugins (e.g. `LOG`) still record the request; `http.ErrAbortHandler`, the reverse proxy aborting a response, is panicked again for the server. The edge closes the chain (`Chain.Close`) on shutdown.
+`secure.SecRuleId`). A panic of a plugin is recovered by its `Stage` too: logged once with the stage and the stack, then answered with a `500` page, so the outer plugins (e.g. `LOG`) still record the request; `http.ErrAbortHandler`, the reverse proxy aborting a response, is panicked again for the server. The edge closes the chain (`Chain.Close`) on shutdown.
 
 | Order | Stage | Plugin | Behavior |
 |---|---|---|---|
 | 0 | `TRC` | `trace.Tracer` | Generates request ID `senz:req:<xid>` when the context has none |
 | 1 | `LOG` | `logging.Logging` | Calls `next` first, then logs an `httppb.IngressEvent` (JSON, kind `LOG_TYPE_HTTP_INGRESS`, the ingress) and, when `ROU` proxied the request, an `httppb.EgressEvent` of the proxy → upstream origin leg (kind `LOG_TYPE_HTTP_EGRESS`: upstream, origin status, content type/length, latency, and the headers the edge set on the upstream request via `szhttp.SetUpstreamHeader`, sorted by name with credential headers omitted) |
 | 2 | `DMA` | `secure.DomainBased` | The host (port stripped, lower case) is the namespace: it must be the `ingress.resource.domain` of a loaded setting. Otherwise → `403`. A domain in `TLS_MODE_PASSTHROUGH` → `421` (see 3.6). Sets `X().Namespace` and the tenant/resource ids of the setting |
-| 3 | `PUB` | `cdn.Public` | Serves the images embedded in the binary under `/cdn/sentinez/public/`; a load failure at provisioning stops the edge |
-| 4 | `CDN` | `cdn.Cache` | If the namespace has an active CDN rule whose expression matches: look up the cache by `method+scheme+host+path+query+Accept-Encoding`; hit → return the cached response with `X-Cache: HIT`; miss → continue and store cacheable responses (TTL 1h, see [04-rule-engine.md](04-rule-engine.md#44-cdn-rules)) |
-| 5 | `LMT` | `secure.Limiter` | for each limiter whose required `ingress.expr` matches (priority order, like `RUL`): `limiter.Allow(IP)`; exceeded → `429` |
-| 6 | `ROM` | `room.WaitingRoom` | Placeholder, just forwards |
-| 7 | `STC` | `static.Static` | After the rest of the chain, if the path has a static extension (`.css .js .png ...`) sets `Cache-Control: public, max-age=3600, immutable` |
-| 8 | `RUL` | `secure.SecRule` | Walks the active SecRules by descending priority; the first matching rule with action `BLOCK` → `403`; other actions are only debug-logged and evaluation continues |
-| 9 | `WAF` | `secure.WAF` | Coraza transaction: `ExecIngress` (headers/body) → rest of chain → `ExecEgress` (response). Blocked with status 403 → 403 page. Finally logs a `secrulepb.Event` (`LOG_TYPE_SECRULESET`) if the transaction was interrupted |
-| 10 | `ROU` | `routing.StandardRouter` | Ends the chain: finds the route, rewrites the path, sets headers, calls `ReverseProxy.Serve` of the namespace's proxy to the upstream; none → `502` |
+| 3 | `CDN` | `cdn.Cache` | If the namespace has an active CDN rule whose expression matches: look up the cache by `method+scheme+host+path+query+Accept-Encoding`; hit → return the cached response with `X-Cache: HIT`; miss → continue and store cacheable responses (TTL 1h, see [04-rule-engine.md](04-rule-engine.md#44-cdn-rules)) |
+| 4 | `LMT` | `secure.Limiter` | for each limiter whose required `ingress.expr` matches (priority order, like `RUL`): `limiter.Allow(IP)`; exceeded → `429` |
+| 5 | `ROM` | `room.WaitingRoom` | Placeholder, just forwards |
+| 6 | `STC` | `static.Static` | After the rest of the chain, if the path has a static extension (`.css .js .png ...`) sets `Cache-Control: public, max-age=3600, immutable` |
+| 7 | `RUL` | `secure.SecRule` | Walks the active SecRules by descending priority; the first matching rule with action `BLOCK` → `403`; other actions are only debug-logged and evaluation continues |
+| 8 | `RST` | `secure.Rulesets` | Coraza transaction: `ExecIngress` (headers/body) → rest of chain → `ExecEgress` (response). Blocked with status 403 → 403 page. Finally logs a `secrulepb.Event` (`LOG_TYPE_SECRULESET`) if the transaction was interrupted |
+| 9 | `ROU` | `routing.StandardRouter` | Ends the chain: finds the route, rewrites the path, sets headers, calls `ReverseProxy.Serve` of the namespace's proxy to the upstream; none → `502` |
+
+The stages after `DMA` also run the Lua hooks of the namespace: the wrap
+of the chain is `Stage(id, hooks.Wrap(id, h))`, with `hooks` of
+[internal/handlers/script](../internal/handlers/script/). A script of the
+setting (`scripting.scripts`, compiled into
+[internal/memory/scripts](../internal/memory/scripts/)) hooks a global
+function before or after a stage with `---@stage before/<stage>` or
+`after/<stage>`, by the names `cache`, `sec_rate_limit`, `waiting_room`,
+`static`, `sec_rule`, `sec_ruleset` and `router`. A before hook may answer
+the request, which skips the stage; an after hook runs once the stage and
+the ones after it returned. A failing script is logged and skipped. See
+the [scripting README](../staging/src/github.com/sentinez/scripting/README.md).
 
 Error responses (`400/403/404/429/500`) are rendered with `templ` templates
 ([core/internal/render](../staging/src/github.com/sentinez/core/internal/render/))

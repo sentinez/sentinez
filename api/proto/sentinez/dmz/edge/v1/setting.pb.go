@@ -291,10 +291,10 @@ func (x *Setting) GetScripting() *Scripting {
 	return nil
 }
 
-// Scripting the Lua scripts of a domain. The annotations of a global
-// function hook it to stages of the edge chain: ---@module names them by
-// plugin id (CDN, LMT, ROM, STC, RUL, RST, ROU), ---@types before or after
-// when it runs.
+// Scripting the Lua scripts of a domain. A ---@stage <phase>/<stage> line
+// hooks the global function it precedes before or after a stage of the
+// edge chain: cache, sec_rate_limit, waiting_room, static, sec_rule,
+// sec_ruleset or router.
 type Scripting struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Scripts       []*Script              `protobuf:"bytes,1,rep,name=scripts,proto3" json:"scripts,omitempty" yaml:"scripts"` // @gotags: yaml:"scripts"

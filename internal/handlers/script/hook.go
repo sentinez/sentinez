@@ -43,10 +43,10 @@ func New(store *scripts.Scripts) *Hooks {
 // the stage id around it. A stage scripts may not hook (szlua.Stages) is
 // returned as is.
 //
-// The hooks of @types before run before the plugin: a script answering
-// the request ends it there. The ones of @types after run when the
-// plugin, and the ones after it, returned: the response is written, they
-// only observe.
+// The hooks of ---@stage before/<stage> run before the plugin: a script
+// answering the request ends it there. The ones of after/<stage> run when
+// the plugin, and the ones after it, returned: the response is written,
+// they only observe.
 func (h *Hooks) Wrap(id string, next chains.Handler) chains.Handler {
 	if !slices.Contains(szlua.Stages(), id) {
 		return next

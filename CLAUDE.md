@@ -20,6 +20,7 @@ This is a **multi-module monorepo** using `replace` directives in the root [go.m
 | ↳ `bpf` | eBPF programs (cilium/ebpf) |
 | ↳ `contrib/httphz` | HTTP helpers |
 | ↳ `tools` | Code gen / rule parser tooling |
+| ↳ `scripting` | Lua runtime of the edge (`szlua`, gopher-lua): sandbox, hooks declared by `---@stage before|after/<stage>` (the stage names map to the chain plugin ids in `szlua._stages`, checked against `plugins()` by `internal/handlers/script_stages_test.go`), `ctx` and `log` APIs; LuaLS types in `szlua/meta/sentinez.lua`. The edge side: `internal/memory/scripts` (compiled per namespace) and `internal/handlers/script` (the chain wrap) |
 | `ui/` | pnpm + turbo workspace: `apps/{console,web,template}`, `packages/{ui,proto,eslint-config,tsconfig}` |
 | `deploy/` | caddy, nginx, docker, monitoring configs, `ruleroot` (CRS rules), `hosts` (the local domain names, for /etc/hosts) |
 | `_submodules/` | git submodules: coreruleset, googleapis, grpc-gateway, opentelemetry-proto, protovalidate (`git submodule update --init --recursive`) |
@@ -41,7 +42,7 @@ make sz.<svc>.image.build    # docker image (apiserver, edge, greeter, centralda
 make compose.up / compose.down
 make consul.proxy.put        # put cmd/szedge/v1/proxy.yaml at Consul key sentinez/proxy.yaml (szapiserver imports it at startup)
 make test.cover              # go test ./... -cover in every module (hack/gotest.sh)
-make lint                    # golangci-lint across root + core/pkg/controlplane/httphz, plus buf lint
+make lint                    # golangci-lint in every module of hack/gomodules.sh, plus buf lint
 make lint.core | lint.pkg | lint.controlplane | lint.proto
 make fmt                     # fmt.go + fmt.proto
 make fmt.go                  # gofmt -w every tracked .go file (fmt.go.check: list, fail if any)

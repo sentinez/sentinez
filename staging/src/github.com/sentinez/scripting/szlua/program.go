@@ -134,8 +134,8 @@ func (p *Program) Call(ctx context.Context, phase Phase, stage string,
 	if err := p.run(ctx, L, funcs, c); err != nil {
 		L.Close()
 
-		return false, fmt.Errorf("script %s: @types %s %s: %w",
-			p.name, phase, stage, err)
+		return false, fmt.Errorf("script %s: %s/%s: %w",
+			p.name, phase, stageName(stage), err)
 	}
 
 	p.release(L)

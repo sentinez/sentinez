@@ -349,11 +349,10 @@ setting:
   # ----------------------------------------------------------
   # SCRIPTING — LUA HOOKS
   # ----------------------------------------------------------
-  # The annotations of a global function hook it, whatever its name, to
-  # stages of the edge chain: ---@module <stage> names them, ---@types
-  # before|after when it runs. Stages, in chain order: CDN (cache),
-  # LMT (rate limiter), ROM (waiting room), STC (static files),
-  # RUL (secrules), RST (rulesets), ROU (router).
+  # A ---@stage <phase>/<stage> line hooks the global function it
+  # precedes, whatever its name, before or after a stage of the edge
+  # chain: cache, sec_rate_limit, waiting_room, static, sec_rule,
+  # sec_ruleset, router (in chain order). One line per phase and stage.
   # ctx reads the request (method, path, host, ip, header, query),
   # sets headers (set_header: sent upstream, set_response_header)
   # and answers it (respond(status, body), before only).
@@ -368,8 +367,7 @@ setting:
       - id: "script_example"
         name: "tag requests"
         source: |
-          ---@module ROU
-          ---@types before
+          ---@stage before/router
           ---@param ctx sz.Context
           function tag_edge(ctx)
             log.debug("tag", ctx:host(), ctx:path())

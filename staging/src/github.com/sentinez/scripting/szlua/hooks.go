@@ -15,7 +15,6 @@
 package szlua
 
 import (
-	"errors"
 	"fmt"
 	"regexp"
 	"slices"
@@ -48,158 +47,173 @@ func (p Phase) String() string {
 	return "Phase(" + strconv.Itoa(int(p)) + ")"
 }
 
-// _stages the stages of the edge chain a hook may annotate, by the id of
-// their plugin, in chain order: CDN cache, LMT rate limiter, ROM waiting
-// room, STC static files, RUL secrules, RST rulesets (OWASP CRS), ROU
-// router. The stages before the namespace of the request is known (TRC,
-// LOG, DMA) have no hooks. The edge tests it against its chain.
-var _stages = []string{"CDN", "LMT", "ROM", "STC", "RUL", "RST", "ROU"}
+// stage a stage of the edge chain a hook may annotate.
+type stage struct {
+	// name the name of the annotations: ---@stage before/<name>.
+	name string
+	// id the id of the plugin of the stage, Stage of the chain.
+	id string
+}
 
-// Stages returns the stages a hook may annotate.
-func Stages() []string { return slices.Clone(_stages) }
+// _stages the stages of the edge chain a hook may annotate, in chain
+// order. The stages before the namespace of the request is known (TRC,
+// LOG, DMA) have no hooks. The edge tests the ids against its chain.
+var _stages = []stage{
+	{name: "cache", id: "CDN"},          // cdn.Cache
+	{name: "sec_rate_limit", id: "LMT"}, // secure.Limiter
+	{name: "waiting_room", id: "ROM"},   // room.WaitingRoom
+	{name: "static", id: "STC"},         // static.Static
+	{name: "sec_rule", id: "RUL"},       // secure.SecRule
+	{name: "sec_ruleset", id: "RST"},    // secure.Rulesets
+	{name: "router", id: "ROU"},         // routing.StandardRouter
+}
 
-// hook a stage and the phase of it a function runs at.
+// Stages returns the ids of the stages a hook may annotate, in chain
+// order: the ids Has and Call take.
+func Stages() []string {
+	ids := make([]string, 0, len(_stages))
+	for _, s := range _stages {
+		ids = append(ids, s.id)
+	}
+
+	return ids
+}
+
+// stageName the name of the stage id, the id when it is none.
+func stageName(id string) string {
+	i := slices.IndexFunc(_stages, func(s stage) bool { return s.id == id })
+	if i < 0 {
+		return id
+	}
+
+	return _stages[i].name
+}
+
+// stageNames the names of the stages, for the errors.
+func stageNames() string {
+	names := make([]string, 0, len(_stages))
+	for _, s := range _stages {
+		names = append(names, s.name)
+	}
+
+	return strings.Join(names, ", ")
+}
+
+// hook a stage, by id, and the phase of it a function runs at.
 type hook struct {
 	phase Phase
 	stage string
 }
 
-// _annotation ---@module <stage>... or ---@types before|after...
-var _annotation = regexp.MustCompile(`^\s*---\s*@(module|types)\b(.*)$`)
-
-// block the annotations of the comments preceding a line of code.
-type block struct {
-	line   int // of its first annotation, 1-based
-	stages []string
-	phases []Phase
-	// unknown the first @module name that is no stage.
-	unknown string
-}
+// _annotation ---@stage <phase>/<stage>
+var _annotation = regexp.MustCompile(`^\s*---\s*@stage\b(.*)$`)
 
 // parseHooks the global functions each hook of source runs, in source
-// order. The comments preceding a global function name the stages it
-// hooks with @module and when with @types, other comments aside:
+// order. A ---@stage phase/stage comment hooks the global function it
+// precedes, other comments aside; a function may have several:
 //
-//	---@module RUL
-//	---@module 'RST'
-//	---@types before
+//	---@stage before/sec_rule
+//	---@stage after/router
 //	function check(ctx) end
-//
-// A name may be quoted, as LuaLS writes it. A @module naming no
-// stage, without @types, is the LuaLS one: it is left alone.
 func parseHooks(source string,
 	chunk []ast.Stmt) (map[hook][]string, error) {
 
 	funcs := globalFuncs(chunk)
 	hooks := make(map[hook][]string)
 
-	var b block
+	var p pending
 	for i, line := range strings.Split(source, "\n") {
 		s := strings.TrimSpace(line)
-		if s == "" || strings.HasPrefix(s, "--") {
-			if err := b.read(s, i+1); err != nil {
+		if s != "" && !strings.HasPrefix(s, "--") {
+			if err := p.bind(hooks, funcs[i+1]); err != nil {
 				return nil, err
 			}
 
 			continue
 		}
 
-		if err := b.bind(hooks, funcs[i+1]); err != nil {
-			return nil, err
+		h, ok, err := parseStage(s)
+		if err != nil {
+			return nil, fmt.Errorf("line %d: %w", i+1, err)
 		}
 
-		b = block{}
+		if ok {
+			p.add(h, i+1)
+		}
 	}
 
-	return hooks, b.bind(hooks, "")
+	return hooks, p.bind(hooks, "")
 }
 
-// read adds the annotation of the comment s, of line n, to b.
-func (b *block) read(s string, n int) error {
+// pending the hooks of the comments above a line of code.
+type pending struct {
+	hooks []hook
+	line  int // of the first of them, 1-based
+}
+
+func (p *pending) add(h hook, line int) {
+	if len(p.hooks) == 0 {
+		p.line = line
+	}
+
+	p.hooks = append(p.hooks, h)
+}
+
+// parseStage the hook of the comment s, false when it is no @stage.
+func parseStage(s string) (hook, bool, error) {
 	m := _annotation.FindStringSubmatch(s)
 	if m == nil {
+		return hook{}, false, nil
+	}
+
+	phase, name, ok := strings.Cut(strings.TrimSpace(m[1]), "/")
+	if !ok || strings.ContainsAny(name, " \t") {
+		return hook{}, false, fmt.Errorf("@stage takes phase/stage, "+
+			"e.g. before/sec_rule, got %q", strings.TrimSpace(m[1]))
+	}
+
+	h := hook{phase: Before}
+	switch phase {
+	case "before":
+	case "after":
+		h.phase = After
+	default:
+		return hook{}, false, fmt.Errorf(
+			"@stage: phase %q, before or after", phase)
+	}
+
+	i := slices.IndexFunc(_stages, func(s stage) bool {
+		return s.name == name
+	})
+	if i < 0 {
+		return hook{}, false, fmt.Errorf(
+			"@stage: unknown stage %q, one of %s", name, stageNames())
+	}
+
+	h.stage = _stages[i].id
+
+	return h, true, nil
+}
+
+// bind the pending hooks to the global function fn, "" when the code
+// after them is no global function, and clears them.
+func (p *pending) bind(hooks map[hook][]string, fn string) error {
+	if len(p.hooks) == 0 {
 		return nil
 	}
 
-	names := strings.Fields(strings.NewReplacer(`'`, " ", `"`, " ").
-		Replace(m[2]))
-	if len(names) == 0 {
-		return fmt.Errorf("line %d: @%s names nothing", n, m[1])
+	if fn == "" {
+		return fmt.Errorf("line %d: @stage must precede a global "+
+			"function: function name(ctx)", p.line)
 	}
 
-	if b.line == 0 {
-		b.line = n
-	}
-
-	if m[1] == "types" {
-		return b.readPhases(names, n)
-	}
-
-	for _, name := range names {
-		if slices.Contains(_stages, name) {
-			b.stages = append(b.stages, name)
-		} else if b.unknown == "" {
-			b.unknown = name
+	for _, h := range p.hooks {
+		if !slices.Contains(hooks[h], fn) {
+			hooks[h] = append(hooks[h], fn)
 		}
 	}
 
-	return nil
-}
-
-func (b *block) readPhases(names []string, n int) error {
-	for _, name := range names {
-		switch name {
-		case "before":
-			b.phases = append(b.phases, Before)
-		case "after":
-			b.phases = append(b.phases, After)
-		default:
-			return fmt.Errorf("line %d: @types %q: before or after",
-				n, name)
-		}
-	}
-
-	return nil
-}
-
-// bind the hooks of b to the global function fn, "" when the code after b
-// is no global function.
-func (b *block) bind(hooks map[hook][]string, fn string) error {
-	if len(b.phases) == 0 && len(b.stages) == 0 {
-		return nil
-	}
-
-	if err := b.check(fn); err != nil {
-		return fmt.Errorf("line %d: %w", b.line, err)
-	}
-
-	for _, p := range b.phases {
-		for _, c := range b.stages {
-			h := hook{phase: p, stage: c}
-			if !slices.Contains(hooks[h], fn) {
-				hooks[h] = append(hooks[h], fn)
-			}
-		}
-	}
-
-	return nil
-}
-
-func (b *block) check(fn string) error {
-	switch {
-	case len(b.phases) == 0:
-		return fmt.Errorf("@module %s needs @types before or after",
-			strings.Join(b.stages, " "))
-	case b.unknown != "":
-		return fmt.Errorf("@module: unknown stage %q, one of %s",
-			b.unknown, strings.Join(_stages, ", "))
-	case len(b.stages) == 0:
-		return fmt.Errorf("@types needs a @module stage, one of %s",
-			strings.Join(_stages, ", "))
-	case fn == "":
-		return errors.New("a hook must be a global function: " +
-			"function name(ctx)")
-	}
+	p.hooks = nil
 
 	return nil
 }

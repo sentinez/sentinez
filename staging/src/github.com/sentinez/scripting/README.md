@@ -9,14 +9,13 @@
 This module runs the Lua scripts of the edge in a sandbox.
 
 `szlua` compiles a script (`Compile`) and calls its hooks (`Program.Call`).
-The annotations of a global function hook it, whatever its name, to
-stages of the edge handler chain: `@module` names the stages, `@types` when
-it runs.
+A `---@stage <phase>/<stage>` line hooks the global function it
+precedes, whatever its name, to a stage of the edge handler chain, as
+`SEC("fentry/...")` does in eBPF:
 
 ```lua
----@module RUL
----@module RST
----@types before
+---@stage before/sec_rule
+---@stage before/sec_ruleset
 ---@param ctx sz.Context
 function deny_debug(ctx)
   if ctx:header("X-Debug") == "1" then
@@ -24,43 +23,42 @@ function deny_debug(ctx)
   end
 end
 
----@module ROU
----@types before after
+---@stage before/router
+---@stage after/router
 ---@param ctx sz.Context
 function tag(ctx)
   ctx:set_header("X-Edge", "sentinez")
 end
 ```
 
-- `---@module <stage>...`: the stages the function hooks, on one line or
-  several, quoted or not (`---@module 'RST'`).
-- `---@types before`: runs before the stage; `ctx:respond` ends the
-  request there and the stage is skipped.
-- `---@types after`: runs once the stage, and the ones after it, returned.
+- `before/<stage>`: runs before the stage; `ctx:respond` ends the request
+  there and the stage is skipped.
+- `after/<stage>`: runs once the stage, and the ones after it, returned.
   The response is written: it only observes.
-- The annotations must precede a global function (`function name(ctx)`),
-  other comments aside, or the script does not compile; so do a stage
-  without `@types` and `@types` without a stage. A `@module` naming no
-  stage, without `@types`, is the LuaLS one and is left alone.
-  A function without annotations is not a hook, whatever its name.
+- One stage and phase per line; a function may have several lines.
+- The lines must precede a global function (`function name(ctx)`), other
+  comments aside, or the script does not compile; so does a line of an
+  unknown phase or stage. A function without one is not a hook, whatever
+  its name.
 - The hooks of a stage run in source order, until one responds.
 
-The stages are the ids of the plugins of the edge chain
-(`internal/handlers/handlers.go`), in chain order:
+The stages, in the order of the edge chain
+(`internal/handlers/handlers.go`):
 
-| Stage | Plugin |
-|---|---|
-| `CDN` | CDN cache |
-| `LMT` | rate limiter |
-| `ROM` | waiting room |
-| `STC` | static files |
-| `RUL` | secrules |
-| `RST` | rulesets (OWASP CRS) |
-| `ROU` | router, to the upstream |
+| Stage | Id | Plugin |
+|---|---|---|
+| `cache` | `CDN` | `cdn.Cache` |
+| `sec_rate_limit` | `LMT` | `secure.Limiter` |
+| `waiting_room` | `ROM` | `room.WaitingRoom` |
+| `static` | `STC` | `static.Static` |
+| `sec_rule` | `RUL` | `secure.SecRule` |
+| `sec_ruleset` | `RST` | `secure.Rulesets` (OWASP CRS) |
+| `router` | `ROU` | `routing.StandardRouter`, to the upstream |
 
 The stages before the namespace of the request is known (`TRC`, `LOG`,
-`DMA`) have no hooks. `szlua.Stages` lists them; a test of the edge
-(`TestScriptStagesAreTheChain`) checks it against the chain.
+`DMA`) have no hooks. `szlua.Stages` returns the ids, the ones `Has` and
+`Call` take; a test of the edge (`TestScriptStagesAreTheChain`) checks
+them against the chain.
 
 | `ctx` | |
 |---|---|
@@ -82,8 +80,7 @@ and the name of the script: the arguments, joined by tabs like `print`.
 `log` table passed as first argument is left out.
 
 ```lua
----@module RUL
----@types before
+---@stage before/sec_rule
 function audit(ctx)
   log.debug("path", ctx:path(), "ip", ctx:ip())
   if ctx:header("X-Debug") == "1" then

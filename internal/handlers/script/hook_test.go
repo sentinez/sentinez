@@ -76,8 +76,7 @@ func TestWrapSkipsStagesWithoutHooks(t *testing.T) {
 
 func TestBeforeRespondEndsRequest(t *testing.T) {
 	store := storeOf(t, `
----@module RUL
----@types before
+---@stage before/sec_rule
 function deny(ctx) ctx:respond(403, "no") end
 `)
 	f := newFixture(t, _ns)
@@ -92,8 +91,7 @@ function deny(ctx) ctx:respond(403, "no") end
 
 func TestBeforeSetsHeaderAndContinues(t *testing.T) {
 	store := storeOf(t, `
----@module ROU
----@types before
+---@stage before/router
 function tag(ctx) ctx:set_header("X-Edge", "sz") end
 `)
 	f := newFixture(t, _ns)
@@ -108,8 +106,7 @@ function tag(ctx) ctx:set_header("X-Edge", "sz") end
 
 func TestHookOfAnotherStageDoesNotRun(t *testing.T) {
 	store := storeOf(t, `
----@module RUL
----@types before
+---@stage before/sec_rule
 function deny(ctx) ctx:respond(403, "no") end
 `)
 	f := newFixture(t, _ns)
@@ -122,8 +119,7 @@ function deny(ctx) ctx:respond(403, "no") end
 
 func TestOtherNamespaceHasNoHooks(t *testing.T) {
 	store := storeOf(t, `
----@module RUL
----@types before
+---@stage before/sec_rule
 function deny(ctx) ctx:respond(403, "no") end
 `)
 	f := newFixture(t, "other.example.com")
@@ -136,8 +132,7 @@ function deny(ctx) ctx:respond(403, "no") end
 
 func TestFailingScriptFailsOpen(t *testing.T) {
 	store := storeOf(t, `
----@module RUL
----@types before
+---@stage before/sec_rule
 function boom(ctx) error("boom") end
 `)
 	f := newFixture(t, _ns)
@@ -150,8 +145,7 @@ function boom(ctx) error("boom") end
 
 func TestAfterRunsAfterStageAndCannotRespond(t *testing.T) {
 	store := storeOf(t, `
----@module RUL
----@types after
+---@stage after/sec_rule
 function late(ctx) ctx:respond(500, "late") end
 `)
 	f := newFixture(t, _ns)
@@ -165,8 +159,7 @@ function late(ctx) ctx:respond(500, "late") end
 
 func TestLogReachesTheEdge(t *testing.T) {
 	store := storeOf(t, `
----@module ROU
----@types before
+---@stage before/router
 function f(ctx) log.info("hello", ctx:path()) log:debug("dbg") end
 `)
 	f := newFixture(t, _ns)

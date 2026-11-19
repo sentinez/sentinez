@@ -12,12 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package szlua runs the Lua scripts of the edge. The annotations of a
-// global function hook it to stages of the edge handler chain,
-// whatever its name: @module names the stages, @types when it runs.
+// Package szlua runs the Lua scripts of the edge. A ---@stage line hooks
+// the global function it precedes, whatever its name, to a stage of the
+// edge handler chain, before or after it:
 //
-//	---@module RUL
-//	---@types before
+//	---@stage before/sec_rule
 //	function deny_debug(ctx)
 //	  if ctx:header("X-Debug") == "1" then ctx:respond(403) end
 //	end

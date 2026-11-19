@@ -23,13 +23,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// callHook compiles a script whose @types before ROU hook runs body, and
+// callHook compiles a script whose before/router hook runs body, and
 // calls it.
 func callHook(t *testing.T, body string) *fakeExchange {
 	t.Helper()
 
 	p, err := Compile("t.lua",
-		"---@module ROU\n---@types before\nfunction f(ctx)\n"+body+"\nend")
+		"---@stage before/router\nfunction f(ctx)\n"+body+"\nend")
 	require.NoError(t, err)
 
 	ex := newFake()
@@ -87,8 +87,7 @@ func TestLogInScriptBodyIsDropped(t *testing.T) {
 	p, err := Compile("t.lua", `
 log.info("loaded")
 log:debug("loaded")
----@module ROU
----@types before
+---@stage before/router
 function f(ctx) end
 `)
 	require.NoError(t, err)
@@ -101,7 +100,7 @@ function f(ctx) end
 
 func TestLogIsNotAFunction(t *testing.T) {
 	p, err := Compile("t.lua",
-		"---@module ROU\n---@types before\nfunction f(ctx) "+
+		"---@stage before/router\nfunction f(ctx) "+
 			`log("info", "x")`+" end")
 	require.NoError(t, err)
 
