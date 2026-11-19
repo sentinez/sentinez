@@ -16,7 +16,7 @@ import { Label } from '@sentinez/ui/components/label';
 import { Textarea } from '@sentinez/ui/components/textarea';
 import { Category } from '@sentinez/proto/sentinez/types/ruleset/v1/setting';
 import { useSecurityOptions } from '@/hooks/use-security-options';
-import { HTTP_METHODS, SelectOption } from '@/lib/type/security';
+import { HTTP_METHODS, isManagedProvider, SelectOption } from '@/lib/type/security';
 import { RulesetFormValue } from './ruleset-form';
 import { ExclusionsEditor, OverridesEditor, SwitchField } from './ruleset-rules';
 import { useCRSRuleInfos } from './rule-picker';
@@ -197,8 +197,8 @@ function CategoryGroup({
   );
 }
 
-/** Form fields matching v1Ruleset in security.swagger.json */
-export function RulesetFields({ value, onChange, idPrefix = 'ruleset' }: Props) {
+/** Fields of the OWASP CRS setting */
+function CrsSections({ value, onChange, idPrefix }: Required<Props>) {
   const t = useTranslations('RulesetFields');
   const options = useSecurityOptions();
 
@@ -223,40 +223,7 @@ export function RulesetFields({ value, onChange, idPrefix = 'ruleset' }: Props) 
     });
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="grid gap-2">
-        <Label htmlFor={`${idPrefix}-name`}>{t('name')}</Label>
-        <Input
-          id={`${idPrefix}-name`}
-          placeholder={t('namePlaceholder')}
-          value={value.name}
-          onChange={(e) => onChange({ name: e.target.value })}
-        />
-      </div>
-      <div className="grid gap-2">
-        <Label htmlFor={`${idPrefix}-description`}>{t('description')}</Label>
-        <Textarea
-          id={`${idPrefix}-description`}
-          placeholder={t('description')}
-          value={value.description}
-          onChange={(e) => onChange({ description: e.target.value })}
-        />
-      </div>
-      <FieldGrid>
-        <OptionSelect
-          label={t('status')}
-          value={value.status}
-          options={options.statusOptions}
-          onChange={(status) => onChange({ status })}
-        />
-        <OptionSelect
-          label={t('mode')}
-          value={value.mode}
-          options={options.engineModeOptions}
-          onChange={(mode) => onChange({ mode })}
-        />
-      </FieldGrid>
-
+    <>
       <Section title={t('engine')} hint={t('engineHint')}>
         <OptionSelect
           label={t('version')}
@@ -384,6 +351,63 @@ export function RulesetFields({ value, onChange, idPrefix = 'ruleset' }: Props) 
           idPrefix={`${idPrefix}-override`}
         />
       </Section>
+    </>
+  );
+}
+
+/** Form fields matching v1Ruleset in security.swagger.json */
+export function RulesetFields({ value, onChange, idPrefix = 'ruleset' }: Props) {
+  const t = useTranslations('RulesetFields');
+  const options = useSecurityOptions();
+  const managed = isManagedProvider(value.provider);
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="grid gap-2">
+        <Label htmlFor={`${idPrefix}-name`}>{t('name')}</Label>
+        <Input
+          id={`${idPrefix}-name`}
+          placeholder={t('namePlaceholder')}
+          value={value.name}
+          onChange={(e) => onChange({ name: e.target.value })}
+        />
+      </div>
+      <div className="grid gap-2">
+        <Label htmlFor={`${idPrefix}-description`}>{t('description')}</Label>
+        <Textarea
+          id={`${idPrefix}-description`}
+          placeholder={t('description')}
+          value={value.description}
+          onChange={(e) => onChange({ description: e.target.value })}
+        />
+      </div>
+      <FieldGrid>
+        <OptionSelect
+          label={t('status')}
+          value={value.status}
+          options={options.statusOptions}
+          onChange={(status) => onChange({ status })}
+        />
+        <OptionSelect
+          label={t('provider')}
+          value={value.provider}
+          options={options.providerOptions}
+          onChange={(provider) => onChange({ provider })}
+        />
+      </FieldGrid>
+      {/* the mode of the provider the ruleset uses */}
+      <OptionSelect
+        label={t('mode')}
+        value={managed ? value.managedMode : value.mode}
+        options={options.engineModeOptions}
+        onChange={(mode) => onChange(managed ? { managedMode: mode } : { mode })}
+      />
+
+      {managed ? (
+        <p className="text-sm text-muted-foreground">{t('managedHint')}</p>
+      ) : (
+        <CrsSections value={value} onChange={onChange} idPrefix={idPrefix} />
+      )}
     </div>
   );
 }

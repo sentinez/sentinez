@@ -367,6 +367,7 @@
     "subtitle": "Quản lý các bộ quy tắc OWASP Core Rule Set đang hoạt động.",
     "name": "Tên",
     "description": "Mô tả",
+    "provider": "Nhà cung cấp",
     "mode": "Chế độ",
     "version": "Phiên bản CRS",
     "paranoiaLevel": "Paranoia",
@@ -375,6 +376,7 @@
     "allGroups": "Tất cả",
     "groupsCount": "{count, plural, other {# nhóm}}",
     "status": "Trạng thái",
+    "notApplicable": "—",
     "allModes": "Mọi chế độ",
     "allStatuses": "Mọi trạng thái",
     "copyId": "Sao chép ID bộ quy tắc",
@@ -402,7 +404,9 @@
     "namePlaceholder": "Tên bộ quy tắc",
     "description": "Mô tả",
     "status": "Trạng thái",
+    "provider": "Nhà cung cấp",
     "mode": "Chế độ engine",
+    "managedHint": "Ruleset managed do nhà cung cấp duy trì: ở đây chỉ chọn chế độ engine. Các thiết lập CRS vẫn được giữ để dùng lại khi chuyển về OWASP.",
     "engine": "Engine",
     "engineHint": "Phiên bản CRS, mức độ nghiêm ngặt của quy tắc và thời điểm chặn request.",
     "version": "Phiên bản CRS",
@@ -527,6 +531,14 @@
       "ip": "IP nguồn",
       "ja4": "JA4",
       "tls": "TLS"
+    },
+    "provider": {
+      "owasp": "OWASP CRS",
+      "managed": "Managed"
+    },
+    "providerDescription": {
+      "owasp": "Bộ OWASP Core Rule Set, cấu hình theo các thiết lập CRS.",
+      "managed": "Ruleset managed do nhà cung cấp khác duy trì."
     },
     "engineMode": {
       "on": "Chặn",

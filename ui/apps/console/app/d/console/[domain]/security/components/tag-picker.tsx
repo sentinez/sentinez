@@ -16,15 +16,15 @@ import {
 } from '@sentinez/ui/components/dialog';
 import { Input } from '@sentinez/ui/components/input';
 import { RuleTag } from '@sentinez/proto/sentinez/apps/security/v1/security';
-import { Version } from '@sentinez/proto/sentinez/types/ruleset/v1/setting';
+import { CRSVersion } from '@sentinez/proto/sentinez/types/ruleset/v1/setting';
 import { useDebounced } from '@/hooks/use-debounced';
 import { listCRSRuleTags } from '@/lib/api/security';
 import { toast } from '@/lib/toast';
 import { PICKER_PAGE_SIZE, PickerPager } from './rule-picker';
 
 interface Props {
-  /** Catalog version, VERSION_UNSPECIFIED = latest supported */
-  version: Version;
+  /** Catalog version, CRS_VERSION_UNSPECIFIED = latest supported */
+  version: CRSVersion;
   selected: string[];
   onToggle: (tag: string) => void;
   onClose: () => void;

@@ -11,13 +11,16 @@ import {
   Category,
   categoryFromJSON,
   categoryToJSON,
+  CRSVersion,
+  cRSVersionFromJSON,
+  cRSVersionToJSON,
   EngineMode,
   engineModeFromJSON,
   engineModeToJSON,
+  Provider,
+  providerFromJSON,
+  providerToJSON,
   RuleInfo,
-  Version,
-  versionFromJSON,
-  versionToJSON,
 } from "../../../types/ruleset/v1/setting";
 import { Status, statusFromJSON, statusToJSON } from "../../../types/v1/known";
 import { Pages } from "../../../types/v1/model";
@@ -183,19 +186,24 @@ export interface ListSecRulesetsRequest {
   ids: string[];
   /** metadata.resource_id of the rows, any of them. */
   resourceIds: string[];
+  /** setting.crs.mode or setting.managed.mode. */
   modes: EngineMode[];
-  versions: Version[];
+  /** setting.crs.version. */
+  versions: CRSVersion[];
+  /** setting.status. */
   statuses: Status[];
-  /** ruleset.paranoia_level, 0 = any. */
+  /** setting.crs.paranoia_level, 0 = any. */
   paranoiaLevel: number;
-  /** Rule groups all listed in ruleset.categories. */
+  /** Rule groups all listed in setting.crs.categories. */
   categories: Category[];
-  /** Tags excluded by ruleset.exclusions. */
+  /** Tags excluded by setting.crs.exclusions. */
   exclusionTags: string[];
-  /** Rules with a variable excluded by ruleset.exclusions. */
+  /** Rules with a variable excluded by setting.crs.exclusions. */
   exclusionRuleIds: number[];
-  /** Rules with a state changed by ruleset.overrides. */
+  /** Rules with a state changed by setting.crs.overrides. */
   overrideRuleIds: number[];
+  /** setting.provider; PROVIDER_OWASP also matches an unset provider. */
+  providers: Provider[];
 }
 
 export interface ListSecRulesetsResponse {
@@ -206,7 +214,7 @@ export interface ListSecRulesetsResponse {
 export interface GetCRSRuleInfoRequest {
   id: number;
   /** CRS version of the catalog, unspecified = latest supported. */
-  version: Version;
+  version: CRSVersion;
 }
 
 export interface GetCRSRuleInfoResponse {
@@ -222,7 +230,7 @@ export interface ListCRSRuleInfosRequest {
     | Pages
     | undefined;
   /** CRS version of the catalog, unspecified = latest supported. */
-  version: Version;
+  version: CRSVersion;
   /**
    * Case-insensitive part of the message or of a tag, or the leading
    * digits of the ID (ex: "9421").
@@ -260,7 +268,7 @@ export interface ListCRSRuleTagsRequest {
     | Pages
     | undefined;
   /** CRS version of the catalog, unspecified = latest supported. */
-  version: Version;
+  version: CRSVersion;
   /** Case-insensitive part of the tag, ex: "attack". */
   search: string;
   /**
@@ -2381,6 +2389,7 @@ function createBaseListSecRulesetsRequest(): ListSecRulesetsRequest {
     exclusionTags: [],
     exclusionRuleIds: [],
     overrideRuleIds: [],
+    providers: [],
   };
 }
 
@@ -2432,6 +2441,11 @@ export const ListSecRulesetsRequest: MessageFns<ListSecRulesetsRequest> = {
     writer.uint32(218).fork();
     for (const v of message.overrideRuleIds) {
       writer.uint32(v);
+    }
+    writer.join();
+    writer.uint32(226).fork();
+    for (const v of message.providers) {
+      writer.int32(v);
     }
     writer.join();
     return writer;
@@ -2606,6 +2620,24 @@ export const ListSecRulesetsRequest: MessageFns<ListSecRulesetsRequest> = {
 
             break;
           }
+          case 28: {
+            if (tag === 224) {
+              message.providers.push(reader.int32() as any);
+
+              continue;
+            }
+
+            if (tag === 226) {
+              const end2 = reader.uint32() + reader.pos;
+              while (reader.pos < end2) {
+                message.providers.push(reader.int32() as any);
+              }
+
+              continue;
+            }
+
+            break;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -2629,7 +2661,9 @@ export const ListSecRulesetsRequest: MessageFns<ListSecRulesetsRequest> = {
         ? object.resource_ids.map((e: any) => globalThis.String(e))
         : [],
       modes: globalThis.Array.isArray(object?.modes) ? object.modes.map((e: any) => engineModeFromJSON(e)) : [],
-      versions: globalThis.Array.isArray(object?.versions) ? object.versions.map((e: any) => versionFromJSON(e)) : [],
+      versions: globalThis.Array.isArray(object?.versions)
+        ? object.versions.map((e: any) => cRSVersionFromJSON(e))
+        : [],
       statuses: globalThis.Array.isArray(object?.statuses) ? object.statuses.map((e: any) => statusFromJSON(e)) : [],
       paranoiaLevel: isSet(object.paranoiaLevel)
         ? globalThis.Number(object.paranoiaLevel)
@@ -2654,6 +2688,9 @@ export const ListSecRulesetsRequest: MessageFns<ListSecRulesetsRequest> = {
         : globalThis.Array.isArray(object?.override_rule_ids)
         ? object.override_rule_ids.map((e: any) => globalThis.Number(e))
         : [],
+      providers: globalThis.Array.isArray(object?.providers)
+        ? object.providers.map((e: any) => providerFromJSON(e))
+        : [],
     };
   },
 
@@ -2675,7 +2712,7 @@ export const ListSecRulesetsRequest: MessageFns<ListSecRulesetsRequest> = {
       obj.modes = message.modes.map((e) => engineModeToJSON(e));
     }
     if (message.versions?.length) {
-      obj.versions = message.versions.map((e) => versionToJSON(e));
+      obj.versions = message.versions.map((e) => cRSVersionToJSON(e));
     }
     if (message.statuses?.length) {
       obj.statuses = message.statuses.map((e) => statusToJSON(e));
@@ -2694,6 +2731,9 @@ export const ListSecRulesetsRequest: MessageFns<ListSecRulesetsRequest> = {
     }
     if (message.overrideRuleIds?.length) {
       obj.overrideRuleIds = message.overrideRuleIds.map((e) => Math.round(e));
+    }
+    if (message.providers?.length) {
+      obj.providers = message.providers.map((e) => providerToJSON(e));
     }
     return obj;
   },
@@ -2715,6 +2755,7 @@ export const ListSecRulesetsRequest: MessageFns<ListSecRulesetsRequest> = {
     message.exclusionTags = object.exclusionTags?.map((e) => e) || [];
     message.exclusionRuleIds = object.exclusionRuleIds?.map((e) => e) || [];
     message.overrideRuleIds = object.overrideRuleIds?.map((e) => e) || [];
+    message.providers = object.providers?.map((e) => e) || [];
     return message;
   },
 };
@@ -2865,7 +2906,7 @@ export const GetCRSRuleInfoRequest: MessageFns<GetCRSRuleInfoRequest> = {
   fromJSON(object: any): GetCRSRuleInfoRequest {
     return {
       id: isSet(object.id) ? globalThis.Number(object.id) : 0,
-      version: isSet(object.version) ? versionFromJSON(object.version) : 0,
+      version: isSet(object.version) ? cRSVersionFromJSON(object.version) : 0,
     };
   },
 
@@ -2875,7 +2916,7 @@ export const GetCRSRuleInfoRequest: MessageFns<GetCRSRuleInfoRequest> = {
       obj.id = Math.round(message.id);
     }
     if (message.version !== 0) {
-      obj.version = versionToJSON(message.version);
+      obj.version = cRSVersionToJSON(message.version);
     }
     return obj;
   },
@@ -3140,7 +3181,7 @@ export const ListCRSRuleInfosRequest: MessageFns<ListCRSRuleInfosRequest> = {
   fromJSON(object: any): ListCRSRuleInfosRequest {
     return {
       page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined,
-      version: isSet(object.version) ? versionFromJSON(object.version) : 0,
+      version: isSet(object.version) ? cRSVersionFromJSON(object.version) : 0,
       search: isSet(object.search) ? globalThis.String(object.search) : "",
       ids: globalThis.Array.isArray(object?.ids) ? object.ids.map((e: any) => globalThis.Number(e)) : [],
       categories: globalThis.Array.isArray(object?.categories)
@@ -3169,7 +3210,7 @@ export const ListCRSRuleInfosRequest: MessageFns<ListCRSRuleInfosRequest> = {
       obj.page = Pages.toJSON(message.page);
     }
     if (message.version !== 0) {
-      obj.version = versionToJSON(message.version);
+      obj.version = cRSVersionToJSON(message.version);
     }
     if (message.search !== "") {
       obj.search = message.search;
@@ -3468,7 +3509,7 @@ export const ListCRSRuleTagsRequest: MessageFns<ListCRSRuleTagsRequest> = {
   fromJSON(object: any): ListCRSRuleTagsRequest {
     return {
       page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined,
-      version: isSet(object.version) ? versionFromJSON(object.version) : 0,
+      version: isSet(object.version) ? cRSVersionFromJSON(object.version) : 0,
       search: isSet(object.search) ? globalThis.String(object.search) : "",
       includeSystem: isSet(object.includeSystem)
         ? globalThis.Boolean(object.includeSystem)
@@ -3484,7 +3525,7 @@ export const ListCRSRuleTagsRequest: MessageFns<ListCRSRuleTagsRequest> = {
       obj.page = Pages.toJSON(message.page);
     }
     if (message.version !== 0) {
-      obj.version = versionToJSON(message.version);
+      obj.version = cRSVersionToJSON(message.version);
     }
     if (message.search !== "") {
       obj.search = message.search;

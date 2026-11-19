@@ -21,7 +21,7 @@ import { useEffect, useState } from 'react';
 
 // the fields the form edits, in lowerCamelCase as the JSON of the mask
 // names them: protojson rejects `*` and snake_case paths
-const UPDATE_MASK: UpdateMask = ['name', 'description', 'ruleset'];
+const UPDATE_MASK: UpdateMask = ['name', 'description', 'setting'];
 
 export default function EditRulesetPage({ params }: { params: Promise<{ id: string }> }) {
   const t = useTranslations('Rulesets');

@@ -3,13 +3,20 @@ import {
   Category,
   EngineMode,
   Exclusion,
+  Provider,
   RuleOverride,
   RuleState,
-  Version,
+  CRSVersion,
 } from '@sentinez/proto/sentinez/types/ruleset/v1/setting';
 import { AndCondition, Expression } from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
-import { CRS_RULE_ID_MAX, CRS_RULE_ID_MIN, CRS_UNSUPPORTED_SOURCES } from '@/lib/type/security';
+import {
+  CRS_RULE_ID_MAX,
+  CRS_RULE_ID_MIN,
+  CRS_UNSUPPORTED_SOURCES,
+  isManagedProvider,
+  providerOf,
+} from '@/lib/type/security';
 import { createEmptyExpression } from './query-builder';
 import type { ValidationTranslator } from './sec-rule-fields';
 
@@ -41,8 +48,8 @@ export interface RulesetFormValue {
   description: string;
   status: Status;
   mode: EngineMode;
-  /** VERSION_UNSPECIFIED = latest supported */
-  version: Version;
+  /** CRS_VERSION_UNSPECIFIED = latest supported */
+  version: CRSVersion;
   /** 0 = default (1) */
   paranoiaLevel: number;
   /** 0 = same as paranoiaLevel */
@@ -64,6 +71,10 @@ export interface RulesetFormValue {
   allowedContentTypes: string;
   exclusions: ExclusionFormValue[];
   overrides: RuleOverrideFormValue[];
+  /** PROVIDER_MANAGED: the CRS fields are kept but not edited */
+  provider: Provider;
+  /** Engine mode of the managed ruleset */
+  managedMode: EngineMode;
 }
 
 export const splitList = (text: string) => text.split(/[\s,]+/).filter(Boolean);
@@ -101,7 +112,7 @@ export function createEmptyRulesetForm(): RulesetFormValue {
     description: '',
     status: Status.STATUS_ACTIVE,
     mode: EngineMode.ENGINE_MODE_DETECTION_ONLY,
-    version: Version.VERSION_UNSPECIFIED,
+    version: CRSVersion.CRS_VERSION_UNSPECIFIED,
     paranoiaLevel: 1,
     detectionParanoiaLevel: 0,
     inboundThreshold: 0,
@@ -115,6 +126,8 @@ export function createEmptyRulesetForm(): RulesetFormValue {
     allowedContentTypes: '',
     exclusions: [],
     overrides: [],
+    provider: Provider.PROVIDER_OWASP,
+    managedMode: EngineMode.ENGINE_MODE_DETECTION_ONLY,
   };
 }
 
@@ -125,14 +138,14 @@ const scopeOf = (expr?: Expression) => ({
 
 /** SecRuleset (API) -> form value */
 export function rulesetFormOf(r: SecRuleset): RulesetFormValue {
-  const c = r.setting;
+  const c = r.setting?.crs;
   return {
     name: r.name,
     description: r.description,
-    status: c?.status || Status.STATUS_ACTIVE,
+    status: r.setting?.status || Status.STATUS_ACTIVE,
     // unspecified is treated as off by the edge
     mode: c?.mode || EngineMode.ENGINE_MODE_OFF,
-    version: c?.version ?? Version.VERSION_UNSPECIFIED,
+    version: c?.version ?? CRSVersion.CRS_VERSION_UNSPECIFIED,
     paranoiaLevel: c?.paranoiaLevel ?? 0,
     detectionParanoiaLevel: c?.detectionParanoiaLevel ?? 0,
     inboundThreshold: c?.threshold?.inbound ?? 0,
@@ -154,6 +167,8 @@ export function rulesetFormOf(r: SecRuleset): RulesetFormValue {
       state: o.state || RuleState.RULE_STATE_DISABLED,
       ...scopeOf(o.expr),
     })),
+    provider: providerOf(r.setting),
+    managedMode: r.setting?.managed?.mode || EngineMode.ENGINE_MODE_OFF,
   };
 }
 
@@ -176,25 +191,29 @@ export function rulesetOf(f: RulesetFormValue, id = ''): SecRuleset {
     name: f.name.trim(),
     description: f.description,
     setting: {
-      mode: f.mode,
-      version: f.version,
-      paranoiaLevel: f.paranoiaLevel,
-      detectionParanoiaLevel: f.detectionParanoiaLevel,
-      threshold: {
-        inbound: f.inboundThreshold,
-        outbound: f.outboundThreshold,
-        earlyBlocking: f.earlyBlocking,
-      },
-      categories: f.allCategories ? [] : f.categories,
-      request: {
-        bodyAccess: f.bodyAccess,
-        bodyLimitBytes: f.bodyLimitBytes,
-        allowedMethods: f.allowedMethods,
-        allowedContentTypes: splitList(f.allowedContentTypes),
-      },
-      exclusions: f.exclusions.map(exclusionOf),
-      overrides: f.overrides.map(ruleOverrideOf),
       status: f.status,
+      provider: f.provider,
+      crs: {
+        mode: f.mode,
+        version: f.version,
+        paranoiaLevel: f.paranoiaLevel,
+        detectionParanoiaLevel: f.detectionParanoiaLevel,
+        threshold: {
+          inbound: f.inboundThreshold,
+          outbound: f.outboundThreshold,
+          earlyBlocking: f.earlyBlocking,
+        },
+        categories: f.allCategories ? [] : f.categories,
+        request: {
+          bodyAccess: f.bodyAccess,
+          bodyLimitBytes: f.bodyLimitBytes,
+          allowedMethods: f.allowedMethods,
+          allowedContentTypes: splitList(f.allowedContentTypes),
+        },
+        exclusions: f.exclusions.map(exclusionOf),
+        overrides: f.overrides.map(ruleOverrideOf),
+      },
+      managed: { mode: f.managedMode },
     },
   };
 }
@@ -224,6 +243,8 @@ function validateRuleOverride(o: RuleOverrideFormValue, n: number, t: Validation
 /** Returns an error message, or null when the form is valid */
 export function validateRulesetForm(f: RulesetFormValue, t: ValidationTranslator): string | null {
   if (!f.name.trim()) return t('nameRequired');
+  // the CRS fields are not used by a managed ruleset
+  if (isManagedProvider(f.provider)) return null;
   if (!isCount(f.inboundThreshold) || !isCount(f.outboundThreshold)) return t('anomalyThreshold');
   if (!f.allCategories && !f.categories.length) return t('categoriesRequired');
   if (!isCount(f.bodyLimitBytes)) return t('bodyLimit');

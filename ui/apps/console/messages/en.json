@@ -367,6 +367,7 @@
     "subtitle": "Manage the active OWASP CRS rulesets.",
     "name": "Name",
     "description": "Description",
+    "provider": "Provider",
     "mode": "Mode",
     "version": "CRS version",
     "paranoiaLevel": "Paranoia",
@@ -375,6 +376,7 @@
     "allGroups": "All",
     "groupsCount": "{count, plural, one {# group} other {# groups}}",
     "status": "Status",
+    "notApplicable": "—",
     "allModes": "All modes",
     "allStatuses": "All statuses",
     "copyId": "Copy Ruleset ID",
@@ -402,7 +404,9 @@
     "namePlaceholder": "Ruleset name",
     "description": "Description",
     "status": "Status",
+    "provider": "Provider",
     "mode": "Engine mode",
+    "managedHint": "The managed ruleset is maintained by its provider: only its engine mode is set here. The CRS settings are kept for when you switch back to OWASP.",
     "engine": "Engine",
     "engineHint": "CRS version, how strict the rules are and when a request is blocked.",
     "version": "CRS version",
@@ -527,6 +531,14 @@
       "ip": "Source IP",
       "ja4": "JA4",
       "tls": "TLS"
+    },
+    "provider": {
+      "owasp": "OWASP CRS",
+      "managed": "Managed"
+    },
+    "providerDescription": {
+      "owasp": "The OWASP Core Rule Set, configured by the CRS settings.",
+      "managed": "A managed ruleset maintained by another provider."
     },
     "engineMode": {
       "on": "Blocking",

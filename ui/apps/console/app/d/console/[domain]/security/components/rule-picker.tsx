@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@sentinez/ui/components/select';
-import { Category, RuleInfo, Version } from '@sentinez/proto/sentinez/types/ruleset/v1/setting';
+import { Category, RuleInfo, CRSVersion } from '@sentinez/proto/sentinez/types/ruleset/v1/setting';
 import { useDebounced } from '@/hooks/use-debounced';
 import { useSecurityOptions } from '@/hooks/use-security-options';
 import { listCRSRuleInfos } from '@/lib/api/security';
@@ -44,7 +44,7 @@ export interface RuleCatalog {
 }
 
 /** Catalog entries of the given rule IDs, to show what a typed ID refers to */
-export function useCRSRuleInfos(ids: number[], version: Version): RuleCatalog {
+export function useCRSRuleInfos(ids: number[], version: CRSVersion): RuleCatalog {
   const key = useMemo(
     () => [...new Set(ids.filter(isCrsRuleId))].sort((a, b) => a - b).join(','),
     [ids],
@@ -111,8 +111,8 @@ export function PickerPager({
 }
 
 interface Props {
-  /** Catalog version, VERSION_UNSPECIFIED = latest supported */
-  version: Version;
+  /** Catalog version, CRS_VERSION_UNSPECIFIED = latest supported */
+  version: CRSVersion;
   onSelect: (rule: RuleInfo) => void;
   onClose: () => void;
 }

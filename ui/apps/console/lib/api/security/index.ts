@@ -39,6 +39,7 @@ import {
   UpdateSecRuleResponse,
 } from '@sentinez/proto/sentinez/apps/security/v1/security';
 import { RuleInfo } from '@sentinez/proto/sentinez/types/ruleset/v1/setting';
+import { providerOf } from '@/lib/type/security';
 import {
   ActionType,
   FieldSource,
@@ -305,12 +306,15 @@ export const SAMPLE_RULESETS: SecRuleset[] = [
     name: 'Default protection',
     description: 'Sample: blocking, paranoia level 1, every rule group',
     setting: {
-      mode: 'ENGINE_MODE_ON',
-      version: 'VERSION_V4_17_0',
-      paranoiaLevel: 1,
-      threshold: { inbound: 5, outbound: 4 },
-      request: { bodyAccess: true, allowedMethods: ['GET', 'HEAD', 'POST', 'OPTIONS'] },
       status: 'STATUS_ACTIVE',
+      provider: 'PROVIDER_OWASP',
+      crs: {
+        mode: 'ENGINE_MODE_ON',
+        version: 'CRS_VERSION_V4_17_0',
+        paranoiaLevel: 1,
+        threshold: { inbound: 5, outbound: 4 },
+        request: { bodyAccess: true, allowedMethods: ['GET', 'HEAD', 'POST', 'OPTIONS'] },
+      },
     },
   },
   {
@@ -318,27 +322,30 @@ export const SAMPLE_RULESETS: SecRuleset[] = [
     name: 'Strict API',
     description: 'Sample: paranoia level 3, SQLi/XSS/RCE only, tuned exclusions and overrides',
     setting: {
-      mode: 'ENGINE_MODE_ON',
-      version: 'VERSION_V4_17_0',
-      paranoiaLevel: 3,
-      detectionParanoiaLevel: 4,
-      threshold: { inbound: 5, outbound: 4, earlyBlocking: true },
-      categories: ['CATEGORY_RCE', 'CATEGORY_XSS', 'CATEGORY_SQLI'],
-      request: {
-        bodyAccess: true,
-        bodyLimitBytes: '1048576',
-        allowedMethods: ['GET', 'POST', 'PUT', 'DELETE'],
-        allowedContentTypes: ['application/json'],
-      },
-      exclusions: [
-        { tags: ['attack-protocol'] },
-        { targets: [{ ruleId: 942100, variable: 'ARGS:password' }] },
-      ],
-      overrides: [
-        { id: 942100, state: 'RULE_STATE_DETECTION_ONLY' },
-        { id: 941100, state: 'RULE_STATE_DISABLED' },
-      ],
       status: 'STATUS_ACTIVE',
+      provider: 'PROVIDER_OWASP',
+      crs: {
+        mode: 'ENGINE_MODE_ON',
+        version: 'CRS_VERSION_V4_17_0',
+        paranoiaLevel: 3,
+        detectionParanoiaLevel: 4,
+        threshold: { inbound: 5, outbound: 4, earlyBlocking: true },
+        categories: ['CATEGORY_RCE', 'CATEGORY_XSS', 'CATEGORY_SQLI'],
+        request: {
+          bodyAccess: true,
+          bodyLimitBytes: '1048576',
+          allowedMethods: ['GET', 'POST', 'PUT', 'DELETE'],
+          allowedContentTypes: ['application/json'],
+        },
+        exclusions: [
+          { tags: ['attack-protocol'] },
+          { targets: [{ ruleId: 942100, variable: 'ARGS:password' }] },
+        ],
+        overrides: [
+          { id: 942100, state: 'RULE_STATE_DETECTION_ONLY' },
+          { id: 941100, state: 'RULE_STATE_DISABLED' },
+        ],
+      },
     },
   },
   {
@@ -346,10 +353,13 @@ export const SAMPLE_RULESETS: SecRuleset[] = [
     name: 'Staging (detection only)',
     description: 'Sample: logs matches without blocking, disabled',
     setting: {
-      mode: 'ENGINE_MODE_DETECTION_ONLY',
-      version: 'VERSION_V4_16_0',
-      paranoiaLevel: 2,
       status: 'STATUS_DISABLE',
+      provider: 'PROVIDER_OWASP',
+      crs: {
+        mode: 'ENGINE_MODE_DETECTION_ONLY',
+        version: 'CRS_VERSION_V4_16_0',
+        paranoiaLevel: 2,
+      },
     },
   },
 ].map((r) => ofResource(SecRuleset.fromJSON(r)));
@@ -438,10 +448,12 @@ const filterRulesets = (req: Partial<ListSecRulesetsRequest>) =>
   byResources(byIds(sampleRulesetStore, req.ids), req.resourceIds).filter(
     (r) =>
       includesText(r.name, req.name) &&
-      anyOf(req.modes, r.setting?.mode) &&
-      anyOf(req.versions, r.setting?.version) &&
+      (!req.modes?.length ||
+        req.modes.some((m) => m === r.setting?.crs?.mode || m === r.setting?.managed?.mode)) &&
+      anyOf(req.providers, providerOf(r.setting)) &&
+      anyOf(req.versions, r.setting?.crs?.version) &&
       anyOf(req.statuses, r.setting?.status) &&
-      (!req.paranoiaLevel || r.setting?.paranoiaLevel === req.paranoiaLevel),
+      (!req.paranoiaLevel || r.setting?.crs?.paranoiaLevel === req.paranoiaLevel),
   );
 
 const filterCRSRuleInfos = (req: Partial<ListCRSRuleInfosRequest>) =>

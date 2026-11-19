@@ -7,7 +7,7 @@ import { Button } from '@sentinez/ui/components/button';
 import { Input } from '@sentinez/ui/components/input';
 import { Label } from '@sentinez/ui/components/label';
 import { Switch } from '@sentinez/ui/components/switch';
-import { Version } from '@sentinez/proto/sentinez/types/ruleset/v1/setting';
+import { CRSVersion } from '@sentinez/proto/sentinez/types/ruleset/v1/setting';
 import { Expression } from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import { useSecurityOptions } from '@/hooks/use-security-options';
 import { CRS_RULE_ID_MAX, CRS_RULE_ID_MIN } from '@/lib/type/security';
@@ -64,7 +64,7 @@ function RuleIdField({
   value: number;
   onChange: (ruleId: number) => void;
   catalog: RuleCatalog;
-  version: Version;
+  version: CRSVersion;
 }) {
   const t = useTranslations('RulesetFields');
   const [picking, setPicking] = useState(false);
@@ -120,7 +120,7 @@ function TagsField({
   id: string;
   value: string;
   onChange: (tags: string) => void;
-  version: Version;
+  version: CRSVersion;
 }) {
   const t = useTranslations('RulesetFields');
   const [picking, setPicking] = useState(false);
@@ -218,7 +218,7 @@ interface ListProps<T> {
   value: T[];
   onChange: (value: T[]) => void;
   catalog: RuleCatalog;
-  version: Version;
+  version: CRSVersion;
   idPrefix: string;
 }
 

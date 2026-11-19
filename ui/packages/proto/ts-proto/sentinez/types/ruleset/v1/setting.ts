@@ -11,6 +11,45 @@ import { Status, statusFromJSON, statusToJSON } from "../../v1/known";
 
 export const protobufPackage = "sentinez.types.ruleset.v1";
 
+export enum Provider {
+  PROVIDER_UNSPECIFIED = 0,
+  PROVIDER_OWASP = 1,
+  PROVIDER_MANAGED = 2,
+  UNRECOGNIZED = -1,
+}
+
+export function providerFromJSON(object: any): Provider {
+  switch (object) {
+    case 0:
+    case "PROVIDER_UNSPECIFIED":
+      return Provider.PROVIDER_UNSPECIFIED;
+    case 1:
+    case "PROVIDER_OWASP":
+      return Provider.PROVIDER_OWASP;
+    case 2:
+    case "PROVIDER_MANAGED":
+      return Provider.PROVIDER_MANAGED;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return Provider.UNRECOGNIZED;
+  }
+}
+
+export function providerToJSON(object: Provider): string {
+  switch (object) {
+    case Provider.PROVIDER_UNSPECIFIED:
+      return "PROVIDER_UNSPECIFIED";
+    case Provider.PROVIDER_OWASP:
+      return "PROVIDER_OWASP";
+    case Provider.PROVIDER_MANAGED:
+      return "PROVIDER_MANAGED";
+    case Provider.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 export enum EngineMode {
   /** ENGINE_MODE_UNSPECIFIED - = OFF */
   ENGINE_MODE_UNSPECIFIED = 0,
@@ -58,41 +97,41 @@ export function engineModeToJSON(object: EngineMode): string {
   }
 }
 
-export enum Version {
-  /** VERSION_UNSPECIFIED - = latest supported */
-  VERSION_UNSPECIFIED = 0,
-  VERSION_V4_16_0 = 1,
-  VERSION_V4_17_0 = 2,
+export enum CRSVersion {
+  /** CRS_VERSION_UNSPECIFIED - = latest supported */
+  CRS_VERSION_UNSPECIFIED = 0,
+  CRS_VERSION_V4_16_0 = 1,
+  CRS_VERSION_V4_17_0 = 2,
   UNRECOGNIZED = -1,
 }
 
-export function versionFromJSON(object: any): Version {
+export function cRSVersionFromJSON(object: any): CRSVersion {
   switch (object) {
     case 0:
-    case "VERSION_UNSPECIFIED":
-      return Version.VERSION_UNSPECIFIED;
+    case "CRS_VERSION_UNSPECIFIED":
+      return CRSVersion.CRS_VERSION_UNSPECIFIED;
     case 1:
-    case "VERSION_V4_16_0":
-      return Version.VERSION_V4_16_0;
+    case "CRS_VERSION_V4_16_0":
+      return CRSVersion.CRS_VERSION_V4_16_0;
     case 2:
-    case "VERSION_V4_17_0":
-      return Version.VERSION_V4_17_0;
+    case "CRS_VERSION_V4_17_0":
+      return CRSVersion.CRS_VERSION_V4_17_0;
     case -1:
     case "UNRECOGNIZED":
     default:
-      return Version.UNRECOGNIZED;
+      return CRSVersion.UNRECOGNIZED;
   }
 }
 
-export function versionToJSON(object: Version): string {
+export function cRSVersionToJSON(object: CRSVersion): string {
   switch (object) {
-    case Version.VERSION_UNSPECIFIED:
-      return "VERSION_UNSPECIFIED";
-    case Version.VERSION_V4_16_0:
-      return "VERSION_V4_16_0";
-    case Version.VERSION_V4_17_0:
-      return "VERSION_V4_17_0";
-    case Version.UNRECOGNIZED:
+    case CRSVersion.CRS_VERSION_UNSPECIFIED:
+      return "CRS_VERSION_UNSPECIFIED";
+    case CRSVersion.CRS_VERSION_V4_16_0:
+      return "CRS_VERSION_V4_16_0";
+    case CRSVersion.CRS_VERSION_V4_17_0:
+      return "CRS_VERSION_V4_17_0";
+    case CRSVersion.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
   }
@@ -328,12 +367,29 @@ export function ruleStateToJSON(object: RuleState): string {
   }
 }
 
-/** Setting OWASP CRS configuration of a server (namespace). */
+/**
+ * Setting the rulesets of a server (namespace): OWASP CRS and the managed
+ * rulesets of other providers.
+ */
 export interface Setting {
+  /** @gotags: yaml:"status" */
+  status: Status;
+  /** @gotags: yaml:"provider" */
+  provider: Provider;
+  /** @gotags: yaml:"crs" */
+  crs?:
+    | Crs
+    | undefined;
+  /** @gotags: yaml:"managed" */
+  managed?: Managed | undefined;
+}
+
+/** Crs OWASP Core Rule Set configuration. */
+export interface Crs {
   /** @gotags: yaml:"mode" */
   mode: EngineMode;
   /** @gotags: yaml:"version" */
-  version: Version;
+  version: CRSVersion;
   /** tx.blocking_paranoia_level, 0 = default (1). */
   paranoiaLevel: number;
   /** tx.detection_paranoia_level, 0 = same as paranoia_level. */
@@ -352,8 +408,12 @@ export interface Setting {
   exclusions: Exclusion[];
   /** @gotags: yaml:"overrides" */
   overrides: RuleOverride[];
-  /** @gotags: yaml:"status" */
-  status: Status;
+}
+
+/** Managed a ruleset maintained by a provider other than OWASP. */
+export interface Managed {
+  /** @gotags: yaml:"mode" */
+  mode: EngineMode;
 }
 
 /** AnomalyThreshold tx.*_anomaly_score_threshold, 0 = CRS default. */
@@ -433,6 +493,125 @@ export interface RuleInfo {
 }
 
 function createBaseSetting(): Setting {
+  return { status: 0, provider: 0, crs: undefined, managed: undefined };
+}
+
+export const Setting: MessageFns<Setting> = {
+  encode(message: Setting, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.status !== 0) {
+      writer.uint32(8).int32(message.status);
+    }
+    if (message.provider !== 0) {
+      writer.uint32(16).int32(message.provider);
+    }
+    if (message.crs !== undefined) {
+      Crs.encode(message.crs, writer.uint32(26).fork()).join();
+    }
+    if (message.managed !== undefined) {
+      Managed.encode(message.managed, writer.uint32(34).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Setting {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSetting();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.status = reader.int32() as any;
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.provider = reader.int32() as any;
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.crs = Crs.decode(reader, reader.uint32());
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.managed = Managed.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): Setting {
+    return {
+      status: isSet(object.status) ? statusFromJSON(object.status) : 0,
+      provider: isSet(object.provider) ? providerFromJSON(object.provider) : 0,
+      crs: isSet(object.crs) ? Crs.fromJSON(object.crs) : undefined,
+      managed: isSet(object.managed) ? Managed.fromJSON(object.managed) : undefined,
+    };
+  },
+
+  toJSON(message: Setting): unknown {
+    const obj: any = {};
+    if (message.status !== 0) {
+      obj.status = statusToJSON(message.status);
+    }
+    if (message.provider !== 0) {
+      obj.provider = providerToJSON(message.provider);
+    }
+    if (message.crs !== undefined) {
+      obj.crs = Crs.toJSON(message.crs);
+    }
+    if (message.managed !== undefined) {
+      obj.managed = Managed.toJSON(message.managed);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Setting>, I>>(base?: I): Setting {
+    return Setting.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Setting>, I>>(object: I): Setting {
+    const message = createBaseSetting();
+    message.status = object.status ?? 0;
+    message.provider = object.provider ?? 0;
+    message.crs = (object.crs !== undefined && object.crs !== null) ? Crs.fromPartial(object.crs) : undefined;
+    message.managed = (object.managed !== undefined && object.managed !== null)
+      ? Managed.fromPartial(object.managed)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseCrs(): Crs {
   return {
     mode: 0,
     version: 0,
@@ -443,12 +622,11 @@ function createBaseSetting(): Setting {
     request: undefined,
     exclusions: [],
     overrides: [],
-    status: 0,
   };
 }
 
-export const Setting: MessageFns<Setting> = {
-  encode(message: Setting, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const Crs: MessageFns<Crs> = {
+  encode(message: Crs, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.mode !== 0) {
       writer.uint32(8).int32(message.mode);
     }
@@ -476,13 +654,10 @@ export const Setting: MessageFns<Setting> = {
     for (const v of message.overrides) {
       RuleOverride.encode(v!, writer.uint32(74).fork()).join();
     }
-    if (message.status !== 0) {
-      writer.uint32(80).int32(message.status);
-    }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): Setting {
+  decode(input: BinaryReader | Uint8Array, length?: number): Crs {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -491,7 +666,7 @@ export const Setting: MessageFns<Setting> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseSetting();
+      const message = createBaseCrs();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -577,14 +752,6 @@ export const Setting: MessageFns<Setting> = {
             message.overrides.push(RuleOverride.decode(reader, reader.uint32()));
             continue;
           }
-          case 10: {
-            if (tag !== 80) {
-              break;
-            }
-
-            message.status = reader.int32() as any;
-            continue;
-          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -597,10 +764,10 @@ export const Setting: MessageFns<Setting> = {
     }
   },
 
-  fromJSON(object: any): Setting {
+  fromJSON(object: any): Crs {
     return {
       mode: isSet(object.mode) ? engineModeFromJSON(object.mode) : 0,
-      version: isSet(object.version) ? versionFromJSON(object.version) : 0,
+      version: isSet(object.version) ? cRSVersionFromJSON(object.version) : 0,
       paranoiaLevel: isSet(object.paranoiaLevel)
         ? globalThis.Number(object.paranoiaLevel)
         : isSet(object.paranoia_level)
@@ -622,17 +789,16 @@ export const Setting: MessageFns<Setting> = {
       overrides: globalThis.Array.isArray(object?.overrides)
         ? object.overrides.map((e: any) => RuleOverride.fromJSON(e))
         : [],
-      status: isSet(object.status) ? statusFromJSON(object.status) : 0,
     };
   },
 
-  toJSON(message: Setting): unknown {
+  toJSON(message: Crs): unknown {
     const obj: any = {};
     if (message.mode !== 0) {
       obj.mode = engineModeToJSON(message.mode);
     }
     if (message.version !== 0) {
-      obj.version = versionToJSON(message.version);
+      obj.version = cRSVersionToJSON(message.version);
     }
     if (message.paranoiaLevel !== 0) {
       obj.paranoiaLevel = Math.round(message.paranoiaLevel);
@@ -655,17 +821,14 @@ export const Setting: MessageFns<Setting> = {
     if (message.overrides?.length) {
       obj.overrides = message.overrides.map((e) => RuleOverride.toJSON(e));
     }
-    if (message.status !== 0) {
-      obj.status = statusToJSON(message.status);
-    }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<Setting>, I>>(base?: I): Setting {
-    return Setting.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<Crs>, I>>(base?: I): Crs {
+    return Crs.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<Setting>, I>>(object: I): Setting {
-    const message = createBaseSetting();
+  fromPartial<I extends Exact<DeepPartial<Crs>, I>>(object: I): Crs {
+    const message = createBaseCrs();
     message.mode = object.mode ?? 0;
     message.version = object.version ?? 0;
     message.paranoiaLevel = object.paranoiaLevel ?? 0;
@@ -679,7 +842,73 @@ export const Setting: MessageFns<Setting> = {
       : undefined;
     message.exclusions = object.exclusions?.map((e) => Exclusion.fromPartial(e)) || [];
     message.overrides = object.overrides?.map((e) => RuleOverride.fromPartial(e)) || [];
-    message.status = object.status ?? 0;
+    return message;
+  },
+};
+
+function createBaseManaged(): Managed {
+  return { mode: 0 };
+}
+
+export const Managed: MessageFns<Managed> = {
+  encode(message: Managed, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.mode !== 0) {
+      writer.uint32(8).int32(message.mode);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Managed {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseManaged();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.mode = reader.int32() as any;
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): Managed {
+    return { mode: isSet(object.mode) ? engineModeFromJSON(object.mode) : 0 };
+  },
+
+  toJSON(message: Managed): unknown {
+    const obj: any = {};
+    if (message.mode !== 0) {
+      obj.mode = engineModeToJSON(message.mode);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Managed>, I>>(base?: I): Managed {
+    return Managed.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Managed>, I>>(object: I): Managed {
+    const message = createBaseManaged();
+    message.mode = object.mode ?? 0;
     return message;
   },
 };
