@@ -6,7 +6,7 @@ import { ReactNode, useEffect, useState } from 'react';
 import { Progress } from '@sentinez/ui/components/progress';
 import { Field, FieldLabel } from '@sentinez/ui/components/field';
 import { useTranslations } from 'next-intl';
-import { Holiday, HolidayEffect, holidayById, holidayOn } from '@/components/holiday-effect';
+import { Holiday, holidayById, holidayOn } from '@/components/holiday';
 
 const _timeoutMillis = 900;
 const _holidayTimeoutMillis = 1800;
@@ -66,7 +66,6 @@ export function IsLoading({ holiday }: { holiday?: Holiday }) {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-background z-50 font-['Phudu',sans-serif]">
-      {holiday && <HolidayEffect holiday={holiday} />}
       <div className="relative flex flex-col items-center gap-4">
         <div className="flex items-center">
           <motion.div

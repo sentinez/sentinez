@@ -143,11 +143,14 @@ export function OptionSelect<T extends number>({
 }) {
   const selected = options.find((o) => o.value === value);
   return (
-    <div className="grid gap-2 content-start">
+    <div className="grid grid-cols-1 gap-2 content-start">
       <Label>{label}</Label>
       <Select value={String(value)} onValueChange={(v) => onChange(Number(v) as T)}>
         <SelectTrigger className="w-full">
-          <SelectValue />
+          {/* the value is a flex box, which cannot end its text with an ellipsis */}
+          <SelectValue>
+            <span className="truncate">{selected?.label}</span>
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           {options.map((o) => (
@@ -292,7 +295,7 @@ export function SecRuleFields({ value, onChange, idPrefix = 'rule', actionOption
         />
 
         {needsValue && !isMap && (
-          <div className="grid gap-2 content-start">
+          <div className="grid grid-cols-1 gap-2 content-start">
             <Label htmlFor={`${idPrefix}-action-value`}>{t('actionValue')}</Label>
             <Input
               id={`${idPrefix}-action-value`}

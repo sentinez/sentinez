@@ -1,8 +1,3 @@
-'use client';
-
-import { motion, useReducedMotion } from 'motion/react';
-import { useMemo } from 'react';
-
 /** Holidays the loading screen decorates, in calendar order. */
 export type HolidayId =
   | 'newYear'
@@ -19,10 +14,6 @@ export type HolidayId =
 
 export type Holiday = {
   id: HolidayId;
-  /** Particles drawn at random, emoji so no asset is needed. */
-  particles: string[];
-  /** fall: petals, snow; rise: lanterns, balloons, fireworks. */
-  drift: 'fall' | 'rise';
   /** Tailwind text color of the greeting. */
   color: string;
 };
@@ -39,79 +30,57 @@ type Rule = Holiday & {
 const _rules: Rule[] = [
   {
     id: 'tet',
-    particles: ['🌼', '🌸', '🧧', '🌼', '🌸'],
-    drift: 'fall',
     color: 'text-red-600',
     // From the 28th of the last lunar month to the 7th of the first.
     lunar: ({ month, day }) => (month === 12 && day >= 28) || (month === 1 && day <= 7),
   },
   {
     id: 'newYear',
-    particles: ['🎆', '🎇', '✨', '🎉'],
-    drift: 'rise',
     color: 'text-amber-500',
     solar: ({ month, day }) => (month === 12 && day === 31) || (month === 1 && day === 1),
   },
   {
     id: 'womenDay',
-    particles: ['🌹', '💐', '🌷', '💝'],
-    drift: 'fall',
     color: 'text-rose-500',
     solar: ({ month, day }) => month === 3 && day === 8,
   },
   {
     id: 'hungKings',
-    particles: ['🥁', '🌾', '🐉', '🏯'],
-    drift: 'fall',
     color: 'text-amber-600',
     lunar: ({ month, day }) => month === 3 && day === 10,
   },
   {
     id: 'reunification',
-    particles: ['⭐', '🎉', '🎊', '⭐'],
-    drift: 'fall',
     color: 'text-red-600',
     solar: ({ month, day }) => (month === 4 && day === 30) || (month === 5 && day === 1),
   },
   {
     id: 'childrenDay',
-    particles: ['🎈', '🧸', '🍭', '🎈', '🪁'],
-    drift: 'rise',
     color: 'text-sky-500',
     solar: ({ month, day }) => month === 6 && day === 1,
   },
   {
     id: 'nationalDay',
-    particles: ['⭐', '🎆', '🎇', '⭐'],
-    drift: 'rise',
     color: 'text-red-600',
     solar: ({ month, day }) => month === 9 && day >= 1 && day <= 2,
   },
   {
     id: 'midAutumn',
-    particles: ['🏮', '🥮', '🌕', '🏮', '⭐'],
-    drift: 'rise',
     color: 'text-orange-500',
     lunar: ({ month, day }) => month === 8 && day >= 14 && day <= 15,
   },
   {
     id: 'vietnameseWomenDay',
-    particles: ['💐', '🌷', '🌹', '💝'],
-    drift: 'fall',
     color: 'text-pink-500',
     solar: ({ month, day }) => month === 10 && day === 20,
   },
   {
     id: 'teachersDay',
-    particles: ['💐', '📚', '✏️', '🌻', '🎓'],
-    drift: 'fall',
     color: 'text-emerald-600',
     solar: ({ month, day }) => month === 11 && day === 20,
   },
   {
     id: 'christmas',
-    particles: ['❄️', '❄️', '🎄', '🎁', '⛄'],
-    drift: 'fall',
     color: 'text-green-600',
     solar: ({ month, day }) => month === 12 && day >= 24 && day <= 25,
   },
@@ -153,56 +122,6 @@ export function holidayOn(date: Date): Holiday | undefined {
 /** holidayById looks a holiday up by id, for previews (`?holiday=tet`). */
 export function holidayById(id: string | null): Holiday | undefined {
   return _rules.find((r) => r.id === id);
-}
-
-/** HolidayEffect draws the particles of a holiday over the whole screen. */
-export function HolidayEffect({ holiday, count = 22 }: { holiday: Holiday; count?: number }) {
-  const reduceMotion = useReducedMotion();
-  const particles = useMemo(
-    () =>
-      Array.from({ length: count }, (_, i) => ({
-        key: i,
-        glyph: holiday.particles[i % holiday.particles.length],
-        left: Math.random() * 100,
-        size: 16 + Math.random() * 18,
-        delay: Math.random() * 1.2,
-        duration: 3 + Math.random() * 3,
-        sway: (Math.random() - 0.5) * 80,
-        spin: (Math.random() - 0.5) * 360,
-      })),
-    [holiday, count],
-  );
-
-  if (reduceMotion) return null;
-
-  const [from, to] = holiday.drift === 'fall' ? ['-10vh', '110vh'] : ['110vh', '-10vh'];
-
-  return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-      {particles.map((p) => (
-        <motion.span
-          key={p.key}
-          className="absolute top-0 select-none"
-          style={{ left: `${p.left}%`, fontSize: p.size }}
-          initial={{ y: from, x: 0, rotate: 0, opacity: 0 }}
-          animate={{
-            y: to,
-            x: [0, p.sway, 0],
-            rotate: holiday.drift === 'fall' ? p.spin : 0,
-            opacity: [0, 1, 1, 0],
-          }}
-          transition={{
-            duration: p.duration,
-            delay: p.delay,
-            ease: 'linear',
-            repeat: Infinity,
-          }}
-        >
-          {p.glyph}
-        </motion.span>
-      ))}
-    </div>
-  );
 }
 
 /** holidayOfDay returns the holiday falling on the given day, if any. */

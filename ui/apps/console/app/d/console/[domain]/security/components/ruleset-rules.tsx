@@ -72,7 +72,7 @@ function RuleIdField({
   const unknown = !info && catalog.ready && isCrsRuleId(value);
 
   return (
-    <div className="grid gap-2 content-start">
+    <div className="grid grid-cols-1 gap-2 content-start">
       <Label htmlFor={id}>{t('ruleId')}</Label>
       <div className="flex gap-2">
         <Input
@@ -248,7 +248,7 @@ function ExclusionTargets({
             catalog={catalog}
             version={version}
           />
-          <div className="grid gap-2 content-start">
+          <div className="grid grid-cols-1 gap-2 content-start">
             <Label htmlFor={`${idPrefix}-${i}-variable`}>{t('variable')}</Label>
             <Input
               id={`${idPrefix}-${i}-variable`}

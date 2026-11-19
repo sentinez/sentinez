@@ -15,7 +15,9 @@ import {
   CRS_RULE_ID_MIN,
   CRS_UNSUPPORTED_SOURCES,
   isManagedProvider,
+  MANAGED_SOURCE,
   providerOf,
+  type RulesetSource,
 } from '@/lib/type/security';
 import { createEmptyExpression } from './query-builder';
 import type { ValidationTranslator } from './sec-rule-fields';
@@ -76,6 +78,12 @@ export interface RulesetFormValue {
   /** Engine mode of the managed ruleset */
   managedMode: EngineMode;
 }
+
+/** The provider and CRS version a source picked in the form sets */
+export const sourcePatch = (source: RulesetSource): Partial<RulesetFormValue> =>
+  source === MANAGED_SOURCE
+    ? { provider: Provider.PROVIDER_MANAGED }
+    : { provider: Provider.PROVIDER_OWASP, version: source };
 
 export const splitList = (text: string) => text.split(/[\s,]+/).filter(Boolean);
 

@@ -9,15 +9,17 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@sentinez/ui/components/dropdown-menu';
 import { Input } from '@sentinez/ui/components/input';
 import { Label } from '@sentinez/ui/components/label';
 import { Textarea } from '@sentinez/ui/components/textarea';
+import { cn } from '@sentinez/ui/lib/utils';
 import { Category } from '@sentinez/proto/sentinez/types/ruleset/v1/setting';
 import { useSecurityOptions } from '@/hooks/use-security-options';
-import { HTTP_METHODS, isManagedProvider, SelectOption } from '@/lib/type/security';
-import { RulesetFormValue } from './ruleset-form';
+import { HTTP_METHODS, isManagedProvider, SelectOption, sourceOf } from '@/lib/type/security';
+import { RulesetFormValue, sourcePatch } from './ruleset-form';
 import { ExclusionsEditor, OverridesEditor, SwitchField } from './ruleset-rules';
 import { useCRSRuleInfos } from './rule-picker';
 import { OptionSelect } from './sec-rule-fields';
@@ -57,7 +59,7 @@ function CountField({
   onChange: (value: number) => void;
 }) {
   return (
-    <div className="grid gap-2 content-start">
+    <div className="grid grid-cols-1 gap-2 content-start">
       <Label htmlFor={id}>{label}</Label>
       <Input
         id={id}
@@ -90,7 +92,7 @@ function ListField({
   onChange: (value: string) => void;
 }) {
   return (
-    <div className="grid gap-2 content-start">
+    <div className="grid grid-cols-1 gap-2 content-start">
       <Label htmlFor={id}>{label}</Label>
       <Input
         id={id}
@@ -111,6 +113,7 @@ function MethodSelect({
   label,
   hint,
   placeholder,
+  allLabel,
   value,
   onChange,
 }: {
@@ -118,6 +121,8 @@ function MethodSelect({
   label: string;
   hint: string;
   placeholder: string;
+  /** Label of the item selecting every method, also shown when all are */
+  allLabel: string;
   value: string[];
   onChange: (value: string[]) => void;
 }) {
@@ -125,9 +130,12 @@ function MethodSelect({
   // keep the display order whatever the order of selection
   const toggle = (method: string, checked: boolean) =>
     onChange(methods.filter((m) => (m === method ? checked : value.includes(m))));
+  const picked = methods.filter((m) => value.includes(m));
+  const all = picked.length === methods.length;
+  const selected = picked.join(', ');
 
   return (
-    <div className="grid gap-2 content-start">
+    <div className="grid grid-cols-1 gap-2 content-start">
       <Label htmlFor={id}>{label}</Label>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -135,15 +143,26 @@ function MethodSelect({
             id={id}
             type="button"
             variant="outline"
-            className="w-full justify-between font-normal"
+            className="w-full min-w-0 justify-between font-normal"
+            title={selected || undefined}
           >
-            <span className={value.length ? 'truncate' : 'truncate text-muted-foreground'}>
-              {value.length ? methods.filter((m) => value.includes(m)).join(', ') : placeholder}
+            <span
+              className={cn('min-w-0 truncate text-left', !value.length && 'text-muted-foreground')}
+            >
+              {all ? allLabel : selected || placeholder}
             </span>
             <ChevronDownIcon className="size-4 opacity-50" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-(--radix-dropdown-menu-trigger-width)">
+          <DropdownMenuCheckboxItem
+            checked={all}
+            onCheckedChange={(checked) => onChange(checked === true ? methods : [])}
+            onSelect={(e) => e.preventDefault()}
+          >
+            {allLabel}
+          </DropdownMenuCheckboxItem>
+          <DropdownMenuSeparator />
           {methods.map((method) => (
             <DropdownMenuCheckboxItem
               key={method}
@@ -225,12 +244,6 @@ function CrsSections({ value, onChange, idPrefix }: Required<Props>) {
   return (
     <>
       <Section title={t('engine')} hint={t('engineHint')}>
-        <OptionSelect
-          label={t('version')}
-          value={value.version}
-          options={options.crsVersionOptions}
-          onChange={(version) => onChange({ version })}
-        />
         <FieldGrid>
           <OptionSelect
             label={t('paranoiaLevel')}
@@ -318,6 +331,7 @@ function CrsSections({ value, onChange, idPrefix }: Required<Props>) {
             label={t('allowedMethods')}
             hint={t('allowedMethodsHint')}
             placeholder={t('allowedMethodsDefault')}
+            allLabel={t('allowedMethodsAll')}
             value={value.allowedMethods}
             onChange={(allowedMethods) => onChange({ allowedMethods })}
           />
@@ -388,11 +402,12 @@ export function RulesetFields({ value, onChange, idPrefix = 'ruleset' }: Props) 
           options={options.statusOptions}
           onChange={(status) => onChange({ status })}
         />
+        {/* the provider, with the CRS version of OWASP */}
         <OptionSelect
           label={t('provider')}
-          value={value.provider}
-          options={options.providerOptions}
-          onChange={(provider) => onChange({ provider })}
+          value={sourceOf(value.provider, value.version)}
+          options={options.sourceOptions}
+          onChange={(source) => onChange(sourcePatch(source))}
         />
       </FieldGrid>
       {/* the mode of the provider the ruleset uses */}
