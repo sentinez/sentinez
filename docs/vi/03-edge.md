@@ -160,7 +160,8 @@ có thể truyền buffer lấy từ pool.
 ## 3.4 Chain middleware
 
 Dựng trong [internal/handlers/handlers.go](../../internal/handlers/handlers.go) bằng
-`chains.Build(envplugin.NewEnv(mem, opts...), Stage, plugins()...)`. Mỗi
+`chains.Build(envplugin.NewEnv(mem, opts...), wrap, plugins()...)`, với
+`wrap` là `Stage` bọc quanh các hook Lua của stage (xem bên dưới). Mỗi
 plugin cài `chains.Plugin` (`ID()`, `Handle(ctx, next)`) và, nếu cần
 dependency, `Provision(*envplugin.Env)`:
 [Env](../../internal/envplugin/env.go) resolve option một lần và cấp các
@@ -168,7 +169,7 @@ sub-store của `MemStore`, secret key và logger sự kiện (`Env.Logger(kind)
 nên plugin không nhận tham số constructor. Mỗi plugin được bọc bởi
 `handlers.Stage` để gắn `ID()` của plugin vào lỗi
 (`sztracer.StageError{Stage, Elapsed, Err}`) và log một lần duy nhất ở stage
-gây lỗi; tên stage là hằng exported (vd `secure.WAFId`). Panic của plugin cũng được `Stage` của nó bắt: log một lần kèm stage và stack, rồi trả trang `500`, nên các plugin bên ngoài (vd `LOG`) vẫn ghi lại request; `http.ErrAbortHandler`, khi reverse proxy huỷ response, được panic lại cho server. Edge đóng chain
+gây lỗi; tên stage là hằng exported (vd `secure.SecRuleId`). Panic của plugin cũng được `Stage` của nó bắt: log một lần kèm stage và stack, rồi trả trang `500`, nên các plugin bên ngoài (vd `LOG`) vẫn ghi lại request; `http.ErrAbortHandler`, khi reverse proxy huỷ response, được panic lại cho server. Edge đóng chain
 (`Chain.Close`) khi shutdown.
 
 | Thứ tự | Stage | Plugin | Hành vi |
@@ -176,14 +177,25 @@ gây lỗi; tên stage là hằng exported (vd `secure.WAFId`). Panic của plug
 | 0 | `TRC` | `trace.Tracer` | Sinh request ID `senz:req:<xid>` nếu context chưa có |
 | 1 | `LOG` | `logging.Logging` | Gọi `next` trước, sau đó log `httppb.IngressEvent` (JSON, kind `LOG_TYPE_HTTP_INGRESS`, chiều ingress) và, nếu `ROU` đã proxy request, một `httppb.EgressEvent` cho chặng proxy → upstream origin (kind `LOG_TYPE_HTTP_EGRESS`: upstream, status của origin, content type/length, latency, cùng các header do edge thiết lập gửi tới upstream qua `szhttp.SetUpstreamHeader`, được sắp xếp theo tên và lược bỏ header nhạy cảm) |
 | 2 | `DMA` | `secure.DomainBased` | Host (bỏ port, chữ thường) là namespace: phải là `ingress.resource.domain` của một setting đã nạp. Sai → `403`. Domain ở `TLS_MODE_PASSTHROUGH` → `421` (xem 3.6). Gán `X().Namespace` và tenant/resource id của setting |
-| 3 | `PUB` | `cdn.Public` | Phục vụ ảnh embed trong binary dưới `/cdn/sentinez/public/`; nạp ảnh lỗi lúc provision thì edge không khởi động |
-| 4 | `CDN` | `cdn.Cache` | Nếu có CDN rule active cho namespace và expression khớp: tra cache theo key `method+scheme+host+path+query+Accept-Encoding`; hit → trả response với `X-Cache: HIT`; miss → chạy tiếp và lưu response cache được (TTL 1h, xem [04-rule-engine.md](04-rule-engine.md#44-cdn-rules)) |
-| 5 | `LMT` | `secure.Limiter` | với mỗi limiter có `ingress.expr` (bắt buộc) khớp, theo priority như `RUL`: `limiter.Allow(IP)`; vượt → `429` |
-| 6 | `ROM` | `room.WaitingRoom` | Placeholder, chỉ chuyển tiếp |
-| 7 | `STC` | `static.Static` | Sau khi chạy tiếp, nếu path có đuôi tĩnh (`.css .js .png ...`) thì set `Cache-Control: public, max-age=3600, immutable` |
-| 8 | `RUL` | `secure.SecRule` | Duyệt các SecRule active theo priority giảm dần; rule đầu tiên khớp có action `BLOCK` → `403`; action khác chỉ log debug và đi tiếp |
-| 9 | `WAF` | `secure.WAF` | Coraza transaction: `ExecIngress` (header/body) → chạy tiếp → `ExecEgress` (response). Bị chặn với status 403 → trang 403. Cuối cùng log `secrulepb.Event` (`LOG_TYPE_SECRULESET`) nếu bị interrupt |
-| 10 | `ROU` | `routing.StandardRouter` | Kết thúc chain: tìm route, rewrite path, set header, gọi `ReverseProxy.Serve` của proxy tới upstream thuộc namespace; không có → `502` |
+| 3 | `CDN` | `cdn.Cache` | Nếu có CDN rule active cho namespace và expression khớp: tra cache theo key `method+scheme+host+path+query+Accept-Encoding`; hit → trả response với `X-Cache: HIT`; miss → chạy tiếp và lưu response cache được (TTL 1h, xem [04-rule-engine.md](04-rule-engine.md#44-cdn-rules)) |
+| 4 | `LMT` | `secure.Limiter` | với mỗi limiter có `ingress.expr` (bắt buộc) khớp, theo priority như `RUL`: `limiter.Allow(IP)`; vượt → `429` |
+| 5 | `ROM` | `room.WaitingRoom` | Placeholder, chỉ chuyển tiếp |
+| 6 | `STC` | `static.Static` | Sau khi chạy tiếp, nếu path có đuôi tĩnh (`.css .js .png ...`) thì set `Cache-Control: public, max-age=3600, immutable` |
+| 7 | `RUL` | `secure.SecRule` | Duyệt các SecRule active theo priority giảm dần; rule đầu tiên khớp có action `BLOCK` → `403`; action khác chỉ log debug và đi tiếp |
+| 8 | `RST` | `secure.Rulesets` | Coraza transaction: `ExecIngress` (header/body) → chạy tiếp → `ExecEgress` (response). Bị chặn với status 403 → trang 403. Cuối cùng log `secrulepb.Event` (`LOG_TYPE_SECRULESET`) nếu bị interrupt |
+| 9 | `ROU` | `routing.StandardRouter` | Kết thúc chain: tìm route, rewrite path, set header, gọi `ReverseProxy.Serve` của proxy tới upstream thuộc namespace; không có → `502` |
+
+Các stage sau `DMA` còn chạy hook Lua của namespace: wrap của chain là
+`Stage(id, hooks.Wrap(id, h))`, với `hooks` thuộc
+[internal/handlers/script](../../internal/handlers/script/). Script của
+setting (`scripting.scripts`, được compile vào
+[internal/memory/scripts](../../internal/memory/scripts/)) gắn một hàm
+global vào trước hoặc sau một stage bằng `---@stage before/<stage>` hoặc
+`after/<stage>`, với các tên `cache`, `sec_rate_limit`, `waiting_room`,
+`static`, `sec_rule`, `sec_ruleset` và `router`. Hook `before` có thể trả
+lời request, khi đó stage bị bỏ qua; hook `after` chạy khi stage và các
+stage sau nó đã trả về. Script lỗi được log rồi bỏ qua. Xem
+[README của scripting](../../staging/src/github.com/sentinez/scripting/README.md).
 
 Response lỗi (`400/403/404/429/500`) được render bằng template `templ`
 ([core/internal/render](../../staging/src/github.com/sentinez/core/internal/render/))
