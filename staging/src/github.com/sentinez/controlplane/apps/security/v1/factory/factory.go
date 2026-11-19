@@ -19,9 +19,9 @@ import (
 	"fmt"
 
 	securityhdl "github.com/sentinez/controlplane/apps/security/v1/handler"
-	"github.com/sentinez/controlplane/apps/security/v1/repos/coreruleset"
-	"github.com/sentinez/controlplane/apps/security/v1/repos/ratelimit"
+	"github.com/sentinez/controlplane/apps/security/v1/repos/secratelimit"
 	"github.com/sentinez/controlplane/apps/security/v1/repos/secrule"
+	"github.com/sentinez/controlplane/apps/security/v1/repos/secruleset"
 	securitysvc "github.com/sentinez/controlplane/apps/security/v1/service"
 	tenantfac "github.com/sentinez/controlplane/apps/tenant/v1/factory"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
@@ -49,14 +49,14 @@ func NewDefaultService(ctx context.Context,
 		return nil, fmt.Errorf("secrule repo: %w", err)
 	}
 
-	rateLimitRepo, err := ratelimit.New(ctx, appConf)
+	secRateLimitRepo, err := secratelimit.New(ctx, appConf)
 	if err != nil {
 		return nil, fmt.Errorf("ratelimit repo: %w", err)
 	}
 
-	coreRulesetRepo, err := coreruleset.New(ctx, appConf)
+	secRulesetRepo, err := secruleset.New(ctx, appConf)
 	if err != nil {
-		return nil, fmt.Errorf("coreruleset repo: %w", err)
+		return nil, fmt.Errorf("ruleset repo: %w", err)
 	}
 
 	// who may touch a rule follows the memberships of the tenants
@@ -66,7 +66,7 @@ func NewDefaultService(ctx context.Context,
 	}
 
 	return securitysvc.New(
-		appConf, secRuleRepo, rateLimitRepo, coreRulesetRepo,
+		appConf, secRuleRepo, secRateLimitRepo, secRulesetRepo,
 		az,
 	), nil
 }

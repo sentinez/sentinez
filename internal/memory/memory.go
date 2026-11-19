@@ -35,10 +35,10 @@ import (
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/memory/cdnrules"
 	"github.com/sentinez/sentinez/internal/memory/certificates"
-	"github.com/sentinez/sentinez/internal/memory/ratelimiter"
 	"github.com/sentinez/sentinez/internal/memory/routes"
-	"github.com/sentinez/sentinez/internal/memory/rulesets"
+	"github.com/sentinez/sentinez/internal/memory/secratelimits"
 	"github.com/sentinez/sentinez/internal/memory/secrules"
+	"github.com/sentinez/sentinez/internal/memory/secrulesets"
 	"github.com/sentinez/sentinez/internal/memory/settings"
 	"github.com/sentinez/sentinez/internal/memory/upstream"
 	"github.com/sentinez/sentinez/pkg/cluster"
@@ -88,13 +88,13 @@ func newMemStore(shared *cluster.Cluster, sealer *crypto.Sealer,
 		owners:       make(map[string]string),
 		locals:       szsync.NewMap[string, *edgepb.Setting](),
 		setting:      settings.New(),
-		limiter:      ratelimiter.New(),
+		limiter:      secratelimits.New(),
 		revProxy:     upstream.New(),
 		plainProxy:   szsync.NewMap[string, szhttp.ReverseProxy](),
 		passthrough:  szsync.NewMap[string, []string](),
 		route:        routes.New(),
 		secRule:      secrules.New(),
-		rulesets:     rulesets.New(),
+		rulesets:     secrulesets.New(),
 		cdnRules:     cdnrules.New(),
 		certificates: certificates.New(),
 		sealer:       sealer,
@@ -117,7 +117,7 @@ type MemStore struct {
 	locals *szsync.Map[string, *edgepb.Setting]
 
 	setting  *settings.Setting
-	limiter  *ratelimiter.Limiter
+	limiter  *secratelimits.Limiter
 	revProxy *upstream.ReverseProxy
 	// plainProxy the proxies without upstream TLS settings, by target:
 	// shared by every namespace dialing that target
@@ -127,7 +127,7 @@ type MemStore struct {
 	passthrough  *szsync.Map[string, []string]
 	route        *routes.Router
 	secRule      *secrules.SecRule
-	rulesets     *rulesets.Rulesets
+	rulesets     *secrulesets.Rulesets
 	cdnRules     *cdnrules.Rule
 	certificates *certificates.Certificates
 	// sealer opens the certificates of the settings; nil without
@@ -151,7 +151,7 @@ func (m *MemStore) Shutdown(ctx context.Context) error {
 	return _shared.Shutdown(ctx)
 }
 
-func (m *MemStore) Rulesets() *rulesets.Rulesets {
+func (m *MemStore) Rulesets() *secrulesets.Rulesets {
 	if m == nil {
 		return nil
 	}
@@ -192,7 +192,7 @@ func (m *MemStore) Cluster() *cluster.Cluster {
 	return _shared
 }
 
-func (m *MemStore) Limiter() *ratelimiter.Limiter {
+func (m *MemStore) Limiter() *secratelimits.Limiter {
 	if m == nil {
 		return nil
 	}
@@ -376,7 +376,7 @@ func upstreamServers(res *edgepb.Resource) []*edgepb.Upstream {
 
 func (m *MemStore) LoadRateLimiter(s *edgepb.Setting) error {
 	limiters := s.GetSecurity().GetLimiters()
-	entries := make([]ratelimiter.Entry, 0, len(limiters))
+	entries := make([]secratelimits.Entry, 0, len(limiters))
 
 	for i, l := range limiters {
 		// a nil expr matches every request: a limiter must say what it counts
@@ -406,7 +406,7 @@ func (m *MemStore) LoadRateLimiter(s *edgepb.Setting) error {
 func (m *MemStore) LoadRulesets(s *edgepb.Setting) error {
 	ns := s.GetIngress().GetResource().GetDomain()
 
-	err := m.rulesets.Store(ns, s.GetSecurity().GetCoreRuleset())
+	err := m.rulesets.Store(ns, s.GetSecurity().GetRuleset())
 	if err != nil {
 		return fmt.Errorf("rulesets: init coraza waf: %w", err)
 	}
@@ -415,8 +415,8 @@ func (m *MemStore) LoadRulesets(s *edgepb.Setting) error {
 }
 
 func (m *MemStore) LoadSecRule(s *edgepb.Setting) error {
-	rules := make([]*secrulepb.SecRule, 0, len(s.GetSecurity().GetSecRules()))
-	for _, rule := range s.GetSecurity().GetSecRules() {
+	rules := make([]*secrulepb.SecRule, 0, len(s.GetSecurity().GetSecrules()))
+	for _, rule := range s.GetSecurity().GetSecrules() {
 		rules = append(rules, rule.GetIngress())
 	}
 
@@ -425,20 +425,20 @@ func (m *MemStore) LoadSecRule(s *edgepb.Setting) error {
 	return nil
 }
 
-func newLimiterEntry(l *edgepb.RateLimit) (ratelimiter.Entry, error) {
+func newLimiterEntry(l *edgepb.RateLimit) (secratelimits.Entry, error) {
 	size, err := time.ParseDuration(l.GetTimeWindow())
 	if err != nil {
-		return ratelimiter.Entry{}, fmt.Errorf("time window: %w", err)
+		return secratelimits.Entry{}, fmt.Errorf("time window: %w", err)
 	}
 
 	timeout, err := time.ParseDuration(l.GetTimeout())
 	if err != nil {
-		return ratelimiter.Entry{}, fmt.Errorf("timeout: %w", err)
+		return secratelimits.Entry{}, fmt.Errorf("timeout: %w", err)
 	}
 
 	rule := l.GetIngress()
 
-	return ratelimiter.Entry{
+	return secratelimits.Entry{
 		Eval:    szrule.NewEval(rule.GetId(), rule.GetExpr()),
 		Rule:    rule,
 		Limiter: szlimiter.NewRateLimiter(timeout, size, l.GetMaxRequests()),

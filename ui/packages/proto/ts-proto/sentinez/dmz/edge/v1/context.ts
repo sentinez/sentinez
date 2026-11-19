@@ -22,8 +22,8 @@ export interface Context {
 
 export interface ContextExtra {
   namespace: string;
-  secRuleMatchedIds: string[];
-  secRuleMatchedNames: string[];
+  secruleMatchedIds: string[];
+  secruleMatchedNames: string[];
   rulesetsMatchedIds: string[];
   rulesetsMatchedNames: string[];
   rulesetsMatchedSeverity: string[];
@@ -190,8 +190,8 @@ export const Context: MessageFns<Context> = {
 function createBaseContextExtra(): ContextExtra {
   return {
     namespace: "",
-    secRuleMatchedIds: [],
-    secRuleMatchedNames: [],
+    secruleMatchedIds: [],
+    secruleMatchedNames: [],
     rulesetsMatchedIds: [],
     rulesetsMatchedNames: [],
     rulesetsMatchedSeverity: [],
@@ -209,10 +209,10 @@ export const ContextExtra: MessageFns<ContextExtra> = {
     if (message.namespace !== "") {
       writer.uint32(10).string(message.namespace);
     }
-    for (const v of message.secRuleMatchedIds) {
+    for (const v of message.secruleMatchedIds) {
       writer.uint32(82).string(v!);
     }
-    for (const v of message.secRuleMatchedNames) {
+    for (const v of message.secruleMatchedNames) {
       writer.uint32(90).string(v!);
     }
     for (const v of message.rulesetsMatchedIds) {
@@ -271,7 +271,7 @@ export const ContextExtra: MessageFns<ContextExtra> = {
               break;
             }
 
-            message.secRuleMatchedIds.push(reader.string());
+            message.secruleMatchedIds.push(reader.string());
             continue;
           }
           case 11: {
@@ -279,7 +279,7 @@ export const ContextExtra: MessageFns<ContextExtra> = {
               break;
             }
 
-            message.secRuleMatchedNames.push(reader.string());
+            message.secruleMatchedNames.push(reader.string());
             continue;
           }
           case 12: {
@@ -375,15 +375,15 @@ export const ContextExtra: MessageFns<ContextExtra> = {
   fromJSON(object: any): ContextExtra {
     return {
       namespace: isSet(object.namespace) ? globalThis.String(object.namespace) : "",
-      secRuleMatchedIds: globalThis.Array.isArray(object?.secRuleMatchedIds)
-        ? object.secRuleMatchedIds.map((e: any) => globalThis.String(e))
-        : globalThis.Array.isArray(object?.sec_rule_matched_ids)
-        ? object.sec_rule_matched_ids.map((e: any) => globalThis.String(e))
+      secruleMatchedIds: globalThis.Array.isArray(object?.secruleMatchedIds)
+        ? object.secruleMatchedIds.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.secrule_matched_ids)
+        ? object.secrule_matched_ids.map((e: any) => globalThis.String(e))
         : [],
-      secRuleMatchedNames: globalThis.Array.isArray(object?.secRuleMatchedNames)
-        ? object.secRuleMatchedNames.map((e: any) => globalThis.String(e))
-        : globalThis.Array.isArray(object?.sec_rule_matched_names)
-        ? object.sec_rule_matched_names.map((e: any) => globalThis.String(e))
+      secruleMatchedNames: globalThis.Array.isArray(object?.secruleMatchedNames)
+        ? object.secruleMatchedNames.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.secrule_matched_names)
+        ? object.secrule_matched_names.map((e: any) => globalThis.String(e))
         : [],
       rulesetsMatchedIds: globalThis.Array.isArray(object?.rulesetsMatchedIds)
         ? object.rulesetsMatchedIds.map((e: any) => globalThis.String(e))
@@ -465,11 +465,11 @@ export const ContextExtra: MessageFns<ContextExtra> = {
     if (message.namespace !== "") {
       obj.namespace = message.namespace;
     }
-    if (message.secRuleMatchedIds?.length) {
-      obj.secRuleMatchedIds = message.secRuleMatchedIds;
+    if (message.secruleMatchedIds?.length) {
+      obj.secruleMatchedIds = message.secruleMatchedIds;
     }
-    if (message.secRuleMatchedNames?.length) {
-      obj.secRuleMatchedNames = message.secRuleMatchedNames;
+    if (message.secruleMatchedNames?.length) {
+      obj.secruleMatchedNames = message.secruleMatchedNames;
     }
     if (message.rulesetsMatchedIds?.length) {
       obj.rulesetsMatchedIds = message.rulesetsMatchedIds;
@@ -519,8 +519,8 @@ export const ContextExtra: MessageFns<ContextExtra> = {
   fromPartial<I extends Exact<DeepPartial<ContextExtra>, I>>(object: I): ContextExtra {
     const message = createBaseContextExtra();
     message.namespace = object.namespace ?? "";
-    message.secRuleMatchedIds = object.secRuleMatchedIds?.map((e) => e) || [];
-    message.secRuleMatchedNames = object.secRuleMatchedNames?.map((e) => e) || [];
+    message.secruleMatchedIds = object.secruleMatchedIds?.map((e) => e) || [];
+    message.secruleMatchedNames = object.secruleMatchedNames?.map((e) => e) || [];
     message.rulesetsMatchedIds = object.rulesetsMatchedIds?.map((e) => e) || [];
     message.rulesetsMatchedNames = object.rulesetsMatchedNames?.map((e) => e) || [];
     message.rulesetsMatchedSeverity = object.rulesetsMatchedSeverity?.map((e) => e) || [];

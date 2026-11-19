@@ -29,7 +29,7 @@ import (
 	"text/template"
 
 	"github.com/sentinez/core/szmodsec/ruleparser"
-	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 	templatez "github.com/sentinez/tools/internal/template"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -60,8 +60,8 @@ func normalizeVersion(input string) string {
 
 // ruleFile is the data rendered by the rules template.
 type ruleFile struct {
-	*rulepb.CoreRulesets
-	Infos []*rulepb.RuleInfo
+	*rulesetpb.Rulesets
+	Infos []*rulesetpb.RuleInfo
 }
 
 func generateRulesGoFile(outputPath string, data *ruleFile) error {
@@ -122,14 +122,14 @@ func parse(filePath string) (*ruleFile, error) {
 		return nil, err
 	}
 
-	rules := rulepb.CoreRulesets{Name: PascalCaseFileName(filePath)}
+	rules := rulesetpb.Rulesets{Name: PascalCaseFileName(filePath)}
 	if err = json.Unmarshal(data, &rules); err != nil {
 		return nil, err
 	}
 
 	return &ruleFile{
-		CoreRulesets: &rules,
-		Infos:        ruleInfos(filePath, result.Rules),
+		Rulesets: &rules,
+		Infos:    ruleInfos(filePath, result.Rules),
 	}, nil
 }
 

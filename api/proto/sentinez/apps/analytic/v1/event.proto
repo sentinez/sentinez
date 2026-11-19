@@ -18,8 +18,8 @@ package sentinez.apps.analytic.v1;
 
 import "google/protobuf/timestamp.proto";
 import "sentinez/types/audit/v1/audit.proto";
-import "sentinez/types/coreruleset/v1/event.proto";
 import "sentinez/types/net/http/v1/event.proto";
+import "sentinez/types/ruleset/v1/event.proto";
 import "sentinez/types/secrule/v1/event.proto";
 import "sentinez/types/v1/known.proto";
 import "sentinez/types/v1/model.proto";
@@ -34,11 +34,11 @@ enum EventKind {
   // Requests proxied to the origins; keyed by the status of the origin.
   EVENT_KIND_HTTP_EGRESS = 2;
   // Matched SecRules; keyed by the action.
-  EVENT_KIND_SEC_RULE = 3;
+  EVENT_KIND_SECRULE = 3;
   // Exceeded rate limiters; keyed by the action.
-  EVENT_KIND_RATE_LIMIT = 4;
-  // Matched core ruleset rules; keyed by the behavior.
-  EVENT_KIND_CORE_RULE = 5;
+  EVENT_KIND_SECRATELIMIT = 4;
+  // Matched ruleset rules; keyed by the behavior.
+  EVENT_KIND_SECRULESET = 5;
 }
 
 // EventSelection selects the events of a kind: those of any of the
@@ -107,8 +107,8 @@ message ListSecRuleEventsRequest {
   repeated string filters = 6;
 }
 
-// ListRateLimitEventsRequest selects the events of a list, the latest first.
-message ListRateLimitEventsRequest {
+// ListSecRateLimitEventsRequest selects the events of a list, the latest first.
+message ListSecRateLimitEventsRequest {
   sentinez.types.v1.Pages page = 1;
   // Resources of the events, any of them; all when empty.
   repeated string resource_ids = 2;
@@ -123,8 +123,8 @@ message ListRateLimitEventsRequest {
   repeated string filters = 6;
 }
 
-// ListCoreRuleEventsRequest selects the events of a list, the latest first.
-message ListCoreRuleEventsRequest {
+// ListSecRulesetEventsRequest selects the events of a list, the latest first.
+message ListSecRulesetEventsRequest {
   sentinez.types.v1.Pages page = 1;
   // Resources of the events, any of them; all when empty.
   repeated string resource_ids = 2;
@@ -151,12 +151,12 @@ message ListSecRuleEventsResponse {
   repeated sentinez.types.secrule.v1.SecRuleEvent events = 1;
 }
 
-message ListRateLimitEventsResponse {
+message ListSecRateLimitEventsResponse {
   repeated sentinez.types.secrule.v1.SecRuleEvent events = 1;
 }
 
-message ListCoreRuleEventsResponse {
-  repeated sentinez.types.coreruleset.v1.CoreRuleEvent events = 1;
+message ListSecRulesetEventsResponse {
+  repeated sentinez.types.ruleset.v1.SecRulesetEvent events = 1;
 }
 
 message GetEventHistogramRequest {
@@ -280,7 +280,7 @@ message GetEventTopValuesRequest {
   //   - sec rule, rate limit: matched_secrule_ids, action (its type, a
   //     rule.v1.ActionType number), request_ip, request_domain,
   //     request_path.
-  //   - core rule: matched_rule_ids, severities, behavior, total_score,
+  //   - ruleset: matched_rule_ids, severities, behavior, total_score,
   //     request_ip, request_domain, request_path.
   // An event counts once per element of a repeated field it holds.
   repeated string fields = 5;

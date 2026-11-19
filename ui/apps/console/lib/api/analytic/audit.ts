@@ -64,12 +64,12 @@ const SAMPLE_CRS_AFTER = SAMPLE_CRS_BEFORE.replace(
 const sampleCalls = (tenantId: string): SampleCall[] => [
   {
     method: '/sentinez.apps.security.v1.SecurityService/CreateSecRule',
-    request: { secRule: { name: 'block-admin', owner: { resourceId: 'rsrc_sample' } } },
+    request: { secrule: { name: 'block-admin', owner: { resourceId: 'rsrc_sample' } } },
     resourceId: 'rsrc_sample',
   },
   {
-    method: '/sentinez.apps.security.v1.SecurityService/UpdateRateLimit',
-    request: { id: 'srule_sample-api-limit', updateMask: 'timeWindow' },
+    method: '/sentinez.apps.security.v1.SecurityService/UpdateSecRateLimit',
+    request: { id: 'srlim_sample-api-limit', updateMask: 'timeWindow' },
     resourceId: 'rsrc_sample',
     change: [{ field: 'time_window', before: '60s', after: '30s' }],
   },
@@ -91,14 +91,14 @@ const sampleCalls = (tenantId: string): SampleCall[] => [
     change: [{ field: 'name', before: 'store', after: 'shop' }],
   },
   {
-    method: '/sentinez.apps.security.v1.SecurityService/UpdateCoreRuleset',
+    method: '/sentinez.apps.security.v1.SecurityService/UpdateSecRuleset',
     request: {
-      id: 'crs_sample',
-      coreRuleset: { content: SAMPLE_CRS_AFTER },
-      updateMask: 'content',
+      id: 'srs_sample',
+      secruleset: { setting: SAMPLE_CRS_AFTER },
+      updateMask: 'setting',
     },
     resourceId: 'rsrc_sample',
-    change: [{ field: 'content', before: SAMPLE_CRS_BEFORE, after: SAMPLE_CRS_AFTER }],
+    change: [{ field: 'setting', before: SAMPLE_CRS_BEFORE, after: SAMPLE_CRS_AFTER }],
   },
   {
     method: '/sentinez.apps.iam.v1.IdentityAccessManagementService/Login',

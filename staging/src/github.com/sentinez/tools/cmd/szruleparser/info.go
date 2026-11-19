@@ -20,7 +20,7 @@ import (
 	"strings"
 
 	"github.com/sentinez/core/szmodsec/ruleparser"
-	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 )
 
 const _paranoiaTag = "paranoia-level/"
@@ -30,44 +30,44 @@ var _fileNumber = regexp.MustCompile(`^(?:REQUEST|RESPONSE)[-_](\d{3})[-_]`)
 
 // _categories maps the CRS file number to its rule group. Files that are
 // not listed (901, 949, 959, 980, setup, ...) only hold system rules.
-var _categories = map[string]rulepb.Category{
-	"905": rulepb.Category_CATEGORY_COMMON_EXCEPTIONS,
-	"911": rulepb.Category_CATEGORY_METHOD_ENFORCEMENT,
-	"913": rulepb.Category_CATEGORY_SCANNER_DETECTION,
-	"920": rulepb.Category_CATEGORY_PROTOCOL_ENFORCEMENT,
-	"921": rulepb.Category_CATEGORY_PROTOCOL_ATTACK,
-	"922": rulepb.Category_CATEGORY_MULTIPART_ATTACK,
-	"930": rulepb.Category_CATEGORY_LFI,
-	"931": rulepb.Category_CATEGORY_RFI,
-	"932": rulepb.Category_CATEGORY_RCE,
-	"933": rulepb.Category_CATEGORY_PHP,
-	"934": rulepb.Category_CATEGORY_GENERIC,
-	"941": rulepb.Category_CATEGORY_XSS,
-	"942": rulepb.Category_CATEGORY_SQLI,
-	"943": rulepb.Category_CATEGORY_SESSION_FIXATION,
-	"944": rulepb.Category_CATEGORY_JAVA,
-	"950": rulepb.Category_CATEGORY_DATA_LEAKAGES,
-	"951": rulepb.Category_CATEGORY_DATA_LEAKAGES_SQL,
-	"952": rulepb.Category_CATEGORY_DATA_LEAKAGES_JAVA,
-	"953": rulepb.Category_CATEGORY_DATA_LEAKAGES_PHP,
-	"954": rulepb.Category_CATEGORY_DATA_LEAKAGES_IIS,
-	"955": rulepb.Category_CATEGORY_WEB_SHELLS,
-	"956": rulepb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
+var _categories = map[string]rulesetpb.Category{
+	"905": rulesetpb.Category_CATEGORY_COMMON_EXCEPTIONS,
+	"911": rulesetpb.Category_CATEGORY_METHOD_ENFORCEMENT,
+	"913": rulesetpb.Category_CATEGORY_SCANNER_DETECTION,
+	"920": rulesetpb.Category_CATEGORY_PROTOCOL_ENFORCEMENT,
+	"921": rulesetpb.Category_CATEGORY_PROTOCOL_ATTACK,
+	"922": rulesetpb.Category_CATEGORY_MULTIPART_ATTACK,
+	"930": rulesetpb.Category_CATEGORY_LFI,
+	"931": rulesetpb.Category_CATEGORY_RFI,
+	"932": rulesetpb.Category_CATEGORY_RCE,
+	"933": rulesetpb.Category_CATEGORY_PHP,
+	"934": rulesetpb.Category_CATEGORY_GENERIC,
+	"941": rulesetpb.Category_CATEGORY_XSS,
+	"942": rulesetpb.Category_CATEGORY_SQLI,
+	"943": rulesetpb.Category_CATEGORY_SESSION_FIXATION,
+	"944": rulesetpb.Category_CATEGORY_JAVA,
+	"950": rulesetpb.Category_CATEGORY_DATA_LEAKAGES,
+	"951": rulesetpb.Category_CATEGORY_DATA_LEAKAGES_SQL,
+	"952": rulesetpb.Category_CATEGORY_DATA_LEAKAGES_JAVA,
+	"953": rulesetpb.Category_CATEGORY_DATA_LEAKAGES_PHP,
+	"954": rulesetpb.Category_CATEGORY_DATA_LEAKAGES_IIS,
+	"955": rulesetpb.Category_CATEGORY_WEB_SHELLS,
+	"956": rulesetpb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
 }
 
-func categoryOf(filePath string) rulepb.Category {
+func categoryOf(filePath string) rulesetpb.Category {
 	match := _fileNumber.FindStringSubmatch(normalizeFineName(filePath))
 	if match == nil {
-		return rulepb.Category_CATEGORY_UNSPECIFIED
+		return rulesetpb.Category_CATEGORY_UNSPECIFIED
 	}
 	return _categories[match[1]]
 }
 
 // ruleInfos builds the catalog of the rules that have an ID.
-func ruleInfos(filePath string, rules []ruleparser.Rule) []*rulepb.RuleInfo {
+func ruleInfos(filePath string, rules []ruleparser.Rule) []*rulesetpb.RuleInfo {
 	category := categoryOf(filePath)
 
-	infos := make([]*rulepb.RuleInfo, 0, len(rules))
+	infos := make([]*rulesetpb.RuleInfo, 0, len(rules))
 	for _, rule := range rules {
 		if info := ruleInfo(category, rule); info != nil {
 			infos = append(infos, info)
@@ -77,8 +77,8 @@ func ruleInfos(filePath string, rules []ruleparser.Rule) []*rulepb.RuleInfo {
 }
 
 func ruleInfo(
-	category rulepb.Category, rule ruleparser.Rule,
-) *rulepb.RuleInfo {
+	category rulesetpb.Category, rule ruleparser.Rule,
+) *rulesetpb.RuleInfo {
 	if rule.Actions == nil {
 		return nil
 	}
@@ -93,7 +93,7 @@ func ruleInfo(
 		strings.TrimPrefix(rule.Level, _paranoiaTag), 10, 32)
 	msg := first(fields["msg"])
 
-	return &rulepb.RuleInfo{
+	return &rulesetpb.RuleInfo{
 		Id:            uint32(id),
 		Category:      category,
 		ParanoiaLevel: uint32(level),
@@ -102,7 +102,7 @@ func ruleInfo(
 		Tags:          fields["tag"],
 		// Rules without a message never report a match on their own:
 		// they are flow control or helpers that other rules depend on.
-		System: category == rulepb.Category_CATEGORY_UNSPECIFIED ||
+		System: category == rulesetpb.Category_CATEGORY_UNSPECIFIED ||
 			msg == "",
 	}
 }

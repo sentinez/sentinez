@@ -21,7 +21,7 @@ import (
 	"strconv"
 	"strings"
 
-	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 )
 
 const _levelTagPrefix = "paranoia-level/"
@@ -38,25 +38,25 @@ type RulesetsLoader struct {
 	// IDs of the rules loaded so far.
 	ids map[uint32]struct{}
 	// Rule state overrides applied while loading, key: rule ID.
-	states map[uint32]corerulesetpb.RuleState
+	states map[uint32]rulesetpb.RuleState
 	// Blocking paranoia level, rules above it are skipped by the CRS.
 	level uint32
 }
 
 // NewRulesetsLoader returns a loader applying the rule overrides of the
 // setting to the rules it loads.
-func NewRulesetsLoader(setting *corerulesetpb.CoreRuleset) *RulesetsLoader {
+func NewRulesetsLoader(crs *rulesetpb.Crs) *RulesetsLoader {
 	return &RulesetsLoader{
 		ids:    make(map[uint32]struct{}),
-		states: ruleStates(setting),
-		level:  blockingLevel(setting),
+		states: ruleStates(crs),
+		level:  blockingLevel(crs),
 	}
 }
 
 // Load appends the rules in order. Rules forced on above the paranoia
 // level are hoisted in front of the others, out of reach of the
 // paranoia level skip rules of their file.
-func (rl *RulesetsLoader) Load(rulesetsFn []func() *corerulesetpb.CoreRule) {
+func (rl *RulesetsLoader) Load(rulesetsFn []func() *rulesetpb.Rule) {
 	rest := make([][]byte, 0, len(rulesetsFn))
 
 	for _, fn := range rulesetsFn {
@@ -73,9 +73,9 @@ func (rl *RulesetsLoader) Load(rulesetsFn []func() *corerulesetpb.CoreRule) {
 		}
 
 		switch rl.states[id] {
-		case corerulesetpb.RuleState_RULE_STATE_DETECTION_ONLY:
+		case rulesetpb.RuleState_RULE_STATE_DETECTION_ONLY:
 			conf = detectionOnly(conf)
-		case corerulesetpb.RuleState_RULE_STATE_ENABLED:
+		case rulesetpb.RuleState_RULE_STATE_ENABLED:
 			if ruleLevel(rule) > rl.level {
 				rl.write(forceEnabled(conf))
 				continue
@@ -132,7 +132,7 @@ func forceEnabled(conf []byte) []byte {
 }
 
 // ruleId 0 = not a rule (marker, directive).
-func ruleId(rule *corerulesetpb.CoreRule) uint32 {
+func ruleId(rule *rulesetpb.Rule) uint32 {
 	ids := rule.GetActions().GetFields().GetId()
 	if len(ids) == 0 {
 		return 0
@@ -147,7 +147,7 @@ func ruleId(rule *corerulesetpb.CoreRule) uint32 {
 }
 
 // ruleLevel paranoia level of the rule, 0 = none.
-func ruleLevel(rule *corerulesetpb.CoreRule) uint32 {
+func ruleLevel(rule *rulesetpb.Rule) uint32 {
 	level, ok := strings.CutPrefix(rule.GetLevel(), _levelTagPrefix)
 	if !ok {
 		return 0

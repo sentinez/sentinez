@@ -66,13 +66,13 @@ func GetAnalyticServiceListSecRuleEvents() *v1.XMethod {
 	}
 }
 
-func GetAnalyticServiceListRateLimitEvents() *v1.XMethod {
+func GetAnalyticServiceListSecRateLimitEvents() *v1.XMethod {
 	return &v1.XMethod{
 		IgnoreControlPlane: true,
 	}
 }
 
-func GetAnalyticServiceListCoreRuleEvents() *v1.XMethod {
+func GetAnalyticServiceListSecRulesetEvents() *v1.XMethod {
 	return &v1.XMethod{
 		IgnoreControlPlane: true,
 	}

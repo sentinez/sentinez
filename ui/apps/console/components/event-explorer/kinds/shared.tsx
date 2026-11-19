@@ -89,7 +89,7 @@ export function PathCell({ host, path, query }: { host?: string; path: string; q
 
 /**
  * Links to the rules of ids, the page of each under the security section
- * of the domain (`sec-rule` or `rate-limiter`); a click does not open the
+ * of the domain (`sec-rule` or `sec-rate-limit`); a click does not open the
  * row it is in.
  */
 export function RuleLinks({ ids, href }: { ids: string[]; href: (id: string) => string }) {
@@ -106,7 +106,7 @@ export function RuleLinks({ ids, href }: { ids: string[]; href: (id: string) => 
 }
 
 // RuleRequest the fields of the request a rule event (SecRuleEvent,
-// CoreRuleEvent) carries
+// SecRulesetEvent) carries
 export type RuleRequest = {
   requestId: string;
   requestIp: string;

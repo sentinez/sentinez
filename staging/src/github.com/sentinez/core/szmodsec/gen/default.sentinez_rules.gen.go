@@ -3,14 +3,14 @@
 package gen
 
 import (
-	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 )
 
 const DefaultVersion = ""
 
-var DefaultOrder = []func() *rulepb.CoreRule{}
+var DefaultOrder = []func() *rulesetpb.Rule{}
 
-var Default = map[string]*rulepb.CoreRule{}
+var Default = map[string]*rulesetpb.Rule{}
 
 // DefaultInfo is the catalog of the rules above that have an ID.
-var DefaultInfo = []*rulepb.RuleInfo{}
+var DefaultInfo = []*rulesetpb.RuleInfo{}

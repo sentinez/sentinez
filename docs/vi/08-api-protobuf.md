@@ -23,7 +23,7 @@ api/proto/sentinez/
     ├── rule/v1/             # Expression, Condition, Operator, Action
     ├── secrule/v1/          # SecRule runtime, Event WAF
     ├── cdn/v1/              # CDN rule
-    ├── coreruleset/v1/      # CoreRulesets (đầu ra rule parser)
+    ├── ruleset/v1/          # Rulesets (đầu ra rule parser)
     ├── net/v1/              # Transport (conn_id, SNI)
     └── net/http/v1/         # Request, RequestEvent, Event
 ```
@@ -73,7 +73,7 @@ Cách scan một field, đặt bằng `x_field`:
 | `google.protobuf.Timestamp` / `Duration` | `time.Time` / `time.Duration`, rồi chuyển đổi |
 | message khác, không codec | flatten thành các cột của field con |
 | `codec = COLUMN_CODEC_PROTO` | một cột protobuf nhị phân (`proto.Unmarshal`), ví dụ `Resource.server` |
-| `codec = COLUMN_CODEC_PROTOJSON` | một cột protobuf JSON (`protojson.Unmarshal`, bỏ field lạ), ví dụ `CoreRuleset.content` |
+| `codec = COLUMN_CODEC_PROTOJSON` | một cột protobuf JSON (`protojson.Unmarshal`, bỏ field lạ), ví dụ `SecRuleset.setting` |
 | `codec = COLUMN_CODEC_DRIVER` | một cột driver tự scan vào field (ví dụ JSONB), ví dụ `SecRule.expr`, `SecRuleEvent.action` |
 | `ignore = true` | không lưu, bị bỏ qua (ví dụ `SecRule.action_value`, `expr_preview`) |
 | `nullable = true` | scalar đơn có cột có thể `NULL`, scan thành zero value (ví dụ `Owner.tenant_id`, `Tenant.name`) |
@@ -101,7 +101,7 @@ Mỗi thư mục domain có `generate.sh` gọi `protoc` với include
 
 Feature `pool` của vtproto chỉ bật cho các event được pool, mỗi message ghi
 bằng một `--go-vtproto_opt=pool=<import path>.<Message>` trong
-`generate.sh` của nó: `secrule.v1.SecRuleEvent`, `coreruleset.v1.CoreRuleEvent`,
+`generate.sh` của nó: `secrule.v1.SecRuleEvent`, `ruleset.v1.SecRulesetEvent`,
 `net.http.v1.IngressEvent` và `rule.v1.MatchedRules`. Feature này sinh `ResetVT`
 (`Reset` nhưng giữ dung lượng các trường repeated), cùng
 `<Msg>FromVTPool`/`ReturnToVTPool` trên một pool của message.
@@ -153,8 +153,8 @@ header `Authorization: Bearer <JWT>`.
 | GET | `/analytic/events/http-ingress` | `AnalyticService.ListHttpIngressEvents` | ignore |
 | GET | `/analytic/events/http-egress` | `AnalyticService.ListHttpEgressEvents` | ignore |
 | GET | `/analytic/events/secrule` | `AnalyticService.ListSecRuleEvents` | ignore |
-| GET | `/analytic/events/ratelimit` | `AnalyticService.ListRateLimitEvents` | ignore |
-| GET | `/analytic/events/coreruleset` | `AnalyticService.ListCoreRuleEvents` | ignore |
+| GET | `/analytic/events/secratelimit` | `AnalyticService.ListSecRateLimitEvents` | ignore |
+| GET | `/analytic/events/secruleset` | `AnalyticService.ListSecRulesetEvents` | ignore |
 | GET | `/analytic/events/histogram` | `AnalyticService.GetEventHistogram` | ignore |
 | GET | `/analytic/events/top-values` | `AnalyticService.GetEventTopValues` | ignore |
 | GET | `/analytic/events/http-egress/latency` | `AnalyticService.GetEgressLatency` | ignore |
@@ -208,14 +208,14 @@ lời gọi reverse proxy, để log egress dùng.
 |---|---|---|
 | `net.http.v1.IngressEvent` | `LOG_TYPE_HTTP_INGRESS` | Node `LOG` ở edge, middleware `Logging` ở apiserver |
 | `net.http.v1.EgressEvent` | `LOG_TYPE_HTTP_EGRESS` | Node `LOG` ở edge, với request được proxy tới upstream origin; cùng `id` với event ingress của nó. Trường `headers` ghi nhận các header được gửi tới upstream |
-| `secrule.v1.Event` | `LOG_TYPE_CORE_RULESETS` | Node `WAF` khi transaction bị interrupt |
+| `secrule.v1.Event` | `LOG_TYPE_SECRULESET` | Node `WAF` khi transaction bị interrupt |
 
 `ContextExtra` (`dmz/edge/v1/context.proto`) lưu metadata theo từng request của edge,
 bao gồm `set_headers` (trường 20), được điền qua `szhttp.SetUpstreamHeader` khi
 edge thêm hoặc sửa đổi header chuyển tiếp tới origin.
 
 Event được tái sử dụng qua pool trong
-`pkg/pools/{ingress,egress,secrule,coreruleset,matchedrule}`: mỗi wrapper giữ sẵn
+`pkg/pools/{ingress,egress,secrule,secruleset,matchedrule}`: mỗi wrapper giữ sẵn
 message của nó, và `Release` gọi `ResetVT` nên các trường repeated giữ
 dung lượng. `LogCloser` tự trả object về pool sau khi log. Collector có
 pool riêng, xem [07-controlplane.md](07-controlplane.md#pool-event).

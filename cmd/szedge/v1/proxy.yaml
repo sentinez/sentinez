@@ -106,120 +106,129 @@ setting:
   # for each user or tenant.
   # ----------------------------------------------------------
   security:
-    # OWASP Core Rule Set (CRS), one configuration per namespace.
-    core_ruleset:
+    # Rulesets of the namespace: OWASP CRS and managed rulesets.
+    ruleset:
       status: STATUS_ACTIVE
-      # ENGINE_MODE_OFF | ENGINE_MODE_DETECTION_ONLY (log only) |
-      # ENGINE_MODE_ON (block)
-      mode: ENGINE_MODE_ON
-      # VERSION_V4_16_0 (no 956 Ruby group) | VERSION_V4_17_0 (default)
-      version: VERSION_V4_17_0
+      # PROVIDER_OWASP (default) runs the CRS below | PROVIDER_MANAGED
+      # (managed ruleset, not loaded by the edge yet).
+      provider: PROVIDER_OWASP
+      # OWASP Core Rule Set (CRS).
+      crs:
+        # ENGINE_MODE_OFF | ENGINE_MODE_DETECTION_ONLY (log only) |
+        # ENGINE_MODE_ON (block)
+        mode: ENGINE_MODE_ON
+        # CRS_VERSION_V4_16_0 (no 956 Ruby group) | CRS_VERSION_V4_17_0 (default)
+        version: CRS_VERSION_V4_17_0
 
-      # 1 (fewest false positives) .. 4 (strictest).
-      paranoiaLevel: 1
-      # Rules up to this level are logged but only count toward
-      # blocking up to paranoiaLevel. 0 = same as paranoiaLevel.
-      detectionParanoiaLevel: 2
+        # 1 (fewest false positives) .. 4 (strictest).
+        paranoiaLevel: 1
+        # Rules up to this level are logged but only count toward
+        # blocking up to paranoiaLevel. 0 = same as paranoiaLevel.
+        detectionParanoiaLevel: 2
 
-      # Anomaly score needed to block; a critical match scores 5.
-      # 0 keeps the value of setup.conf (inbound 10, outbound 5).
-      threshold:
-        inbound: 5
-        outbound: 4
-        earlyBlocking: true
+        # Anomaly score needed to block; a critical match scores 5.
+        # 0 keeps the value of setup.conf (inbound 10, outbound 5).
+        threshold:
+          inbound: 5
+          outbound: 4
+          earlyBlocking: true
 
-      # Enabled rule groups, empty = all.
-      categories:
-        - CATEGORY_METHOD_ENFORCEMENT    # 911
-        - CATEGORY_SCANNER_DETECTION     # 913
-        - CATEGORY_PROTOCOL_ENFORCEMENT  # 920
-        - CATEGORY_PROTOCOL_ATTACK       # 921
-        - CATEGORY_LFI                   # 930
-        - CATEGORY_RFI                   # 931
-        - CATEGORY_RCE                   # 932
-        - CATEGORY_XSS                   # 941
-        - CATEGORY_SQLI                  # 942
-        # - CATEGORY_COMMON_EXCEPTIONS   # 905
-        # - CATEGORY_MULTIPART_ATTACK    # 922
-        # - CATEGORY_PHP                 # 933
-        # - CATEGORY_GENERIC             # 934
-        # - CATEGORY_SESSION_FIXATION    # 943
-        # - CATEGORY_JAVA                # 944
-        # - CATEGORY_DATA_LEAKAGES       # 950 (response)
-        # - CATEGORY_DATA_LEAKAGES_SQL   # 951 (response)
-        # - CATEGORY_DATA_LEAKAGES_JAVA  # 952 (response)
-        # - CATEGORY_DATA_LEAKAGES_PHP   # 953 (response)
-        # - CATEGORY_DATA_LEAKAGES_IIS   # 954 (response)
-        # - CATEGORY_WEB_SHELLS          # 955 (response)
-        # - CATEGORY_DATA_LEAKAGES_RUBY  # 956 (response)
+        # Enabled rule groups, empty = all.
+        categories:
+          - CATEGORY_METHOD_ENFORCEMENT    # 911
+          - CATEGORY_SCANNER_DETECTION     # 913
+          - CATEGORY_PROTOCOL_ENFORCEMENT  # 920
+          - CATEGORY_PROTOCOL_ATTACK       # 921
+          - CATEGORY_LFI                   # 930
+          - CATEGORY_RFI                   # 931
+          - CATEGORY_RCE                   # 932
+          - CATEGORY_XSS                   # 941
+          - CATEGORY_SQLI                  # 942
+          # - CATEGORY_COMMON_EXCEPTIONS   # 905
+          # - CATEGORY_MULTIPART_ATTACK    # 922
+          # - CATEGORY_PHP                 # 933
+          # - CATEGORY_GENERIC             # 934
+          # - CATEGORY_SESSION_FIXATION    # 943
+          # - CATEGORY_JAVA                # 944
+          # - CATEGORY_DATA_LEAKAGES       # 950 (response)
+          # - CATEGORY_DATA_LEAKAGES_SQL   # 951 (response)
+          # - CATEGORY_DATA_LEAKAGES_JAVA  # 952 (response)
+          # - CATEGORY_DATA_LEAKAGES_PHP   # 953 (response)
+          # - CATEGORY_DATA_LEAKAGES_IIS   # 954 (response)
+          # - CATEGORY_WEB_SHELLS          # 955 (response)
+          # - CATEGORY_DATA_LEAKAGES_RUBY  # 956 (response)
 
-      request:
-        # Inspect request bodies (POST forms, JSON, XML).
-        bodyAccess: true
-        bodyLimitBytes: 13107200  # 12.5 MiB, 0 = default
-        allowedMethods: [GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS]
-        # Empty keeps the content types of setup.conf.
-        # allowedContentTypes:
-        #   - application/json
-        #   - application/x-www-form-urlencoded
-        #   - multipart/form-data
+        request:
+          # Inspect request bodies (POST forms, JSON, XML).
+          bodyAccess: true
+          bodyLimitBytes: 13107200  # 12.5 MiB, 0 = default
+          allowedMethods: [GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS]
+          # Empty keeps the content types of setup.conf.
+          # allowedContentTypes:
+          #   - application/json
+          #   - application/x-www-form-urlencoded
+          #   - multipart/form-data
 
-      # False-positive tuning. Without an expression it applies to
-      # the whole namespace, with one only to the requests matching
-      # it (same syntax as sec_rules; the BODY, JA4 and TLS sources
-      # are not supported).
-      exclusions:
-        # Skip every SQLi rule under /api/search.
-        - tags: [attack-sqli]
-          expr:
-            orCondition:
-              - rules:
-                - condition:
-                    source: FIELD_SOURCE_PATH
-                    operator: OPERATOR_PREFIX
-                    value: "/api/search"
-        # Do not inspect the "password" argument with rule 942100.
-        - targets:
-            - ruleId: 942100
-              variable: ARGS:password
-        # Skip the RCE rules for POSTs coming from 10.0.0.10.
-        - tags: [attack-rce]
-          expr:
-            orCondition:
-              - rules:
-                - condition:
-                    source: FIELD_SOURCE_IP
-                    key: "10.0.0.10"
-                    operator: OPERATOR_EQ
-                    value: "10.0.0.10"
+        # False-positive tuning. Without an expression it applies to
+        # the whole namespace, with one only to the requests matching
+        # it (same syntax as secrules; the BODY, JA4 and TLS sources
+        # are not supported).
+        exclusions:
+          # Skip every SQLi rule under /api/search.
+          - tags: [attack-sqli]
+            expr:
+              orCondition:
+                - rules:
+                  - condition:
+                      source: FIELD_SOURCE_PATH
+                      operator: OPERATOR_PREFIX
+                      value: "/api/search"
+          # Do not inspect the "password" argument with rule 942100.
+          - targets:
+              - ruleId: 942100
+                variable: ARGS:password
+          # Skip the RCE rules for POSTs coming from 10.0.0.10.
+          - tags: [attack-rce]
+            expr:
+              orCondition:
+                - rules:
+                  - condition:
+                      source: FIELD_SOURCE_IP
+                      key: "10.0.0.10"
+                      operator: OPERATOR_EQ
+                      value: "10.0.0.10"
 
-                - condition:
-                    source: FIELD_SOURCE_METHOD
-                    key: "POST"
-                    operator: OPERATOR_EQ
-                    value: "POST"
+                  - condition:
+                      source: FIELD_SOURCE_METHOD
+                      key: "POST"
+                      operator: OPERATOR_EQ
+                      value: "POST"
 
-      # Per-rule state. Only DISABLED can be scoped to an expression
-      # (same as exclusions), the other states are global.
-      overrides:
-        # Remove the rule under /webhook only.
-        - id: 920420
-          state: RULE_STATE_DISABLED
-          expr:
-            orCondition:
-              - rules:
-                - condition:
-                    source: FIELD_SOURCE_PATH
-                    operator: OPERATOR_PREFIX
-                    value: "/webhook"
-        # Keep logging the rule, never count it toward blocking.
-        - id: 942430
-          state: RULE_STATE_DETECTION_ONLY
-        # Force a paranoia level 2 rule on at paranoiaLevel 1.
-        - id: 942130
-          state: RULE_STATE_ENABLED
+        # Per-rule state. Only DISABLED can be scoped to an expression
+        # (same as exclusions), the other states are global.
+        overrides:
+          # Remove the rule under /webhook only.
+          - id: 920420
+            state: RULE_STATE_DISABLED
+            expr:
+              orCondition:
+                - rules:
+                  - condition:
+                      source: FIELD_SOURCE_PATH
+                      operator: OPERATOR_PREFIX
+                      value: "/webhook"
+          # Keep logging the rule, never count it toward blocking.
+          - id: 942430
+            state: RULE_STATE_DETECTION_ONLY
+          # Force a paranoia level 2 rule on at paranoiaLevel 1.
+          - id: 942130
+            state: RULE_STATE_ENABLED
 
-    sec_rules:
+      # Managed ruleset, used with provider PROVIDER_MANAGED.
+      # managed:
+      #   mode: ENGINE_MODE_DETECTION_ONLY
+
+    secrules:
       - ingress:
           name: "Complex Logic: (Path AND Method) OR IP"
           status: STATUS_ACTIVE
@@ -271,7 +280,7 @@ setting:
           action:
             type: ACTION_TYPE_CHALLENGE
 
-    # Like sec_rules, every limiter needs an ingress expr: it only counts
+    # Like secrules, every limiter needs an ingress expr: it only counts
     # the requests the expr matches (the edge refuses to start without).
     limiters:
       - ingress:
@@ -322,7 +331,7 @@ setting:
                     value: "GET"
 
                 # Never cache the challenged page: the cache runs
-                # before the sec_rules and would skip the challenge.
+                # before the secrules and would skip the challenge.
                 - condition:
                     source: FIELD_SOURCE_PATH
                     key: "/login"

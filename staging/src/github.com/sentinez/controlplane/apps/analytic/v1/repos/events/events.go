@@ -21,18 +21,18 @@ import (
 	"fmt"
 
 	auditlogsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/auditlogs"
-	coreruleeventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/coreruleevents"
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventfilter"
 	httpegresseventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/httpegressevents"
 	httpingresseventrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/httpingressevent"
 	secruleeventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/secruleevents"
+	secruleseteventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/secrulesetevents"
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/topvalues"
 	"github.com/sentinez/pkg/szerror"
 	"github.com/sentinez/pkg/szstorage/dbx/timescale/histogram"
 	analyticpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	auditpb "github.com/sentinez/sentinez/api/proto/sentinez/types/audit/v1"
-	crspb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
@@ -71,11 +71,11 @@ type EgressReader interface {
 
 // Events the readers of every event table.
 type Events struct {
-	HttpIngress IngressReader
-	HttpEgress  EgressReader
-	SecRule     Reader[secrulepb.SecRuleEvent]
-	RateLimit   Reader[secrulepb.SecRuleEvent]
-	CoreRule    Reader[crspb.CoreRuleEvent]
+	HttpIngress  IngressReader
+	HttpEgress   EgressReader
+	SecRule      Reader[secrulepb.SecRuleEvent]
+	SecRateLimit Reader[secrulepb.SecRuleEvent]
+	SecRuleset   Reader[rulesetpb.SecRulesetEvent]
 	// AuditLog the audit logs of the control plane calls, listed by
 	// tenant: not an EventKind, whose reads are scoped by resource.
 	AuditLog Reader[auditpb.AuditLog]
@@ -102,14 +102,14 @@ func New(ctx context.Context, appConf *settingpb.Config) (*Events, error) {
 		return nil, fmt.Errorf("secrule: %w", err)
 	}
 
-	events.RateLimit, err = secruleeventsrepo.NewRateLimits(ctx, appConf)
+	events.SecRateLimit, err = secruleeventsrepo.NewSecRateLimits(ctx, appConf)
 	if err != nil {
 		return nil, fmt.Errorf("rate limit: %w", err)
 	}
 
-	events.CoreRule, err = coreruleeventsrepo.New(ctx, appConf)
+	events.SecRuleset, err = secruleseteventsrepo.New(ctx, appConf)
 	if err != nil {
-		return nil, fmt.Errorf("core rule: %w", err)
+		return nil, fmt.Errorf("ruleset: %w", err)
 	}
 
 	events.AuditLog, err = auditlogsrepo.New(ctx, appConf)
@@ -154,12 +154,12 @@ func (e *Events) reader(kind analyticpb.EventKind) (kindReader, error) {
 		return e.HttpIngress, nil
 	case analyticpb.EventKind_EVENT_KIND_HTTP_EGRESS:
 		return e.HttpEgress, nil
-	case analyticpb.EventKind_EVENT_KIND_SEC_RULE:
+	case analyticpb.EventKind_EVENT_KIND_SECRULE:
 		return e.SecRule, nil
-	case analyticpb.EventKind_EVENT_KIND_RATE_LIMIT:
-		return e.RateLimit, nil
-	case analyticpb.EventKind_EVENT_KIND_CORE_RULE:
-		return e.CoreRule, nil
+	case analyticpb.EventKind_EVENT_KIND_SECRATELIMIT:
+		return e.SecRateLimit, nil
+	case analyticpb.EventKind_EVENT_KIND_SECRULESET:
+		return e.SecRuleset, nil
 	default:
 		return nil, szerror.StatusInvalidArgumentF(
 			"invalid event kind %s", kind)

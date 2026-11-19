@@ -40,49 +40,49 @@ func SecuritySecRules() dbx.Schema {
 	}
 }
 
-// SecurityRateLimits the schema of the sztable.SecurityRateLimits table.
-func SecurityRateLimits() dbx.Schema {
+// SecuritySecRateLimits the schema of the sztable.SecuritySecRateLimits table.
+func SecuritySecRateLimits() dbx.Schema {
 	return dbx.Schema{
-		Table:     sztable.SecurityRateLimits,
-		CreatedAt: securitypb.RateLimit_OwnerCreatedAt,
-		UpdatedAt: securitypb.RateLimit_OwnerUpdatedAt,
+		Table:     sztable.SecuritySecRateLimits,
+		CreatedAt: securitypb.SecRateLimit_OwnerCreatedAt,
+		UpdatedAt: securitypb.SecRateLimit_OwnerUpdatedAt,
 		Columns: []dbx.Column{
-			{Name: securitypb.RateLimit_Id, Type: dbx.Text},
-			{Name: securitypb.RateLimit_Name, Type: dbx.Text},
-			{Name: securitypb.RateLimit_Description, Type: dbx.Text},
-			{Name: securitypb.RateLimit_Expr, Type: dbx.JSONB},
-			{Name: securitypb.RateLimit_Status, Type: dbx.Int4},
-			{Name: securitypb.RateLimit_Priority, Type: dbx.Int4},
-			{Name: securitypb.RateLimit_Action, Type: dbx.Text},
-			{Name: securitypb.RateLimit_TimeWindow, Type: dbx.Text},
-			{Name: securitypb.RateLimit_MaxRequests, Type: dbx.Int8},
-			{Name: securitypb.RateLimit_Timeout, Type: dbx.Text},
-			{Name: securitypb.RateLimit_OwnerResourceId, Type: dbx.Text},
-			{Name: securitypb.RateLimit_OwnerTenantId, Type: dbx.Text},
+			{Name: securitypb.SecRateLimit_Id, Type: dbx.Text},
+			{Name: securitypb.SecRateLimit_Name, Type: dbx.Text},
+			{Name: securitypb.SecRateLimit_Description, Type: dbx.Text},
+			{Name: securitypb.SecRateLimit_Expr, Type: dbx.JSONB},
+			{Name: securitypb.SecRateLimit_Status, Type: dbx.Int4},
+			{Name: securitypb.SecRateLimit_Priority, Type: dbx.Int4},
+			{Name: securitypb.SecRateLimit_Action, Type: dbx.Text},
+			{Name: securitypb.SecRateLimit_TimeWindow, Type: dbx.Text},
+			{Name: securitypb.SecRateLimit_MaxRequests, Type: dbx.Int8},
+			{Name: securitypb.SecRateLimit_Timeout, Type: dbx.Text},
+			{Name: securitypb.SecRateLimit_OwnerResourceId, Type: dbx.Text},
+			{Name: securitypb.SecRateLimit_OwnerTenantId, Type: dbx.Text},
 		},
 	}
 }
 
-// SecurityCoreRulesets the schema of the sztable.SecurityCoreRulesets table.
-func SecurityCoreRulesets() dbx.Schema {
+// SecuritySecRulesets the schema of the sztable.SecuritySecRulesets table.
+func SecuritySecRulesets() dbx.Schema {
 	return dbx.Schema{
-		Table:     sztable.SecurityCoreRulesets,
-		CreatedAt: securitypb.CoreRuleset_OwnerCreatedAt,
-		UpdatedAt: securitypb.CoreRuleset_OwnerUpdatedAt,
+		Table:     sztable.SecuritySecRulesets,
+		CreatedAt: securitypb.SecRuleset_OwnerCreatedAt,
+		UpdatedAt: securitypb.SecRuleset_OwnerUpdatedAt,
 		Columns: []dbx.Column{
-			{Name: securitypb.CoreRuleset_Id, Type: dbx.Text},
-			{Name: securitypb.CoreRuleset_Name, Type: dbx.Text},
-			{Name: securitypb.CoreRuleset_Description, Type: dbx.Text},
-			{Name: securitypb.CoreRuleset_Content, Type: dbx.JSONB},
+			{Name: securitypb.SecRuleset_Id, Type: dbx.Text},
+			{Name: securitypb.SecRuleset_Name, Type: dbx.Text},
+			{Name: securitypb.SecRuleset_Description, Type: dbx.Text},
+			{Name: securitypb.SecRuleset_Setting, Type: dbx.JSONB},
 			{
-				Name: securitypb.CoreRuleset_OwnerResourceId,
+				Name: securitypb.SecRuleset_OwnerResourceId,
 				Type: dbx.Text,
 			},
-			{Name: securitypb.CoreRuleset_OwnerTenantId, Type: dbx.Text},
+			{Name: securitypb.SecRuleset_OwnerTenantId, Type: dbx.Text},
 		},
 		// The list filters on content are JSONB containments.
 		Indexes: []dbx.Index{
-			{Column: securitypb.CoreRuleset_Content, Method: dbx.GIN},
+			{Column: securitypb.SecRuleset_Setting, Method: dbx.GIN},
 		},
 	}
 }

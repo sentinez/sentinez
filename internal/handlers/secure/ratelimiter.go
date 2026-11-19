@@ -21,7 +21,7 @@ import (
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/envplugin"
-	memlimiter "github.com/sentinez/sentinez/internal/memory/ratelimiter"
+	"github.com/sentinez/sentinez/internal/memory/secratelimits"
 	"github.com/sentinez/sentinez/pkg/pools/matchedrule"
 )
 
@@ -41,7 +41,7 @@ var _rateLimited = &rulepb.Action{
 }
 
 type Limiter struct {
-	store *memlimiter.Limiter
+	store *secratelimits.Limiter
 	log   szlog.LogCloser
 }
 
@@ -49,7 +49,7 @@ func (*Limiter) ID() string { return LimiterId }
 
 func (l *Limiter) Provision(env *envplugin.Env) error {
 	l.store = env.Store().Limiter()
-	l.log = env.Logger(typepb.LogType_LOG_TYPE_RATE_LIMIT)
+	l.log = env.Logger(typepb.LogType_LOG_TYPE_SECRATELIMIT)
 	return nil
 }
 
@@ -80,7 +80,7 @@ func (l *Limiter) Handle(ctx szhttp.Context, next chains.Handler) error {
 // the limiters matched by mr, the rejecting one last.
 func (l *Limiter) logExceeded(ctx szhttp.Context, mr *rulepb.MatchedRules) {
 	event := newSecRuleEvent(ctx,
-		rulepb.RuleService_RULE_SERVICE_RATE_LIMIT, _rateLimited, mr)
+		rulepb.RuleService_RULE_SERVICE_SECRATELIMIT, _rateLimited, mr)
 
 	// Info releases the event back to the pool.
 	l.log.Info("ratelimiter: exceeded", event, event)

@@ -3,12 +3,12 @@
 package gen
 
 import (
-	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 )
 
 const Response955WebShellsVersion = "OWASP_CRS/4.17.0"
 
-var Response955WebShellsOrder = []func() *rulepb.CoreRule{
+var Response955WebShellsOrder = []func() *rulesetpb.Rule{
 	R955010,
 	R955011,
 	R955012,
@@ -48,7 +48,7 @@ var Response955WebShellsOrder = []func() *rulepb.CoreRule{
 	Response955WebShellsMaker_36,
 }
 
-var Response955WebShells = map[string]*rulepb.CoreRule{
+var Response955WebShells = map[string]*rulesetpb.Rule{
 	"955010": R955010(),
 
 	"955011": R955011(),
@@ -125,28 +125,28 @@ var Response955WebShells = map[string]*rulepb.CoreRule{
 }
 
 // Response955WebShellsInfo is the catalog of the rules above that have an ID.
-var Response955WebShellsInfo = []*rulepb.RuleInfo{
+var Response955WebShellsInfo = []*rulesetpb.RuleInfo{
 	{
 		Id:       955010,
-		Category: rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category: rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		Tags:     []string{"OWASP_CRS", "OWASP_CRS/WEB-SHELLS"},
 		System:   true,
 	},
 	{
 		Id:       955011,
-		Category: rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category: rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		Tags:     []string{"OWASP_CRS"},
 		System:   true,
 	},
 	{
 		Id:       955012,
-		Category: rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category: rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		Tags:     []string{"OWASP_CRS"},
 		System:   true,
 	},
 	{
 		Id:            955100,
-		Category:      rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category:      rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		ParanoiaLevel: 1,
 		Severity:      "CRITICAL",
 		Msg:           "PHP Web shell detected",
@@ -154,7 +154,7 @@ var Response955WebShellsInfo = []*rulepb.RuleInfo{
 	},
 	{
 		Id:            955110,
-		Category:      rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category:      rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		ParanoiaLevel: 1,
 		Severity:      "CRITICAL",
 		Msg:           "r57 web shell",
@@ -162,7 +162,7 @@ var Response955WebShellsInfo = []*rulepb.RuleInfo{
 	},
 	{
 		Id:            955120,
-		Category:      rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category:      rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		ParanoiaLevel: 1,
 		Severity:      "CRITICAL",
 		Msg:           "WSO web shell",
@@ -170,7 +170,7 @@ var Response955WebShellsInfo = []*rulepb.RuleInfo{
 	},
 	{
 		Id:            955130,
-		Category:      rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category:      rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		ParanoiaLevel: 1,
 		Severity:      "CRITICAL",
 		Msg:           "b4tm4n web shell",
@@ -178,7 +178,7 @@ var Response955WebShellsInfo = []*rulepb.RuleInfo{
 	},
 	{
 		Id:            955140,
-		Category:      rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category:      rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		ParanoiaLevel: 1,
 		Severity:      "CRITICAL",
 		Msg:           "Mini Shell web shell",
@@ -186,7 +186,7 @@ var Response955WebShellsInfo = []*rulepb.RuleInfo{
 	},
 	{
 		Id:            955150,
-		Category:      rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category:      rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		ParanoiaLevel: 1,
 		Severity:      "CRITICAL",
 		Msg:           "Ashiyane web shell",
@@ -194,7 +194,7 @@ var Response955WebShellsInfo = []*rulepb.RuleInfo{
 	},
 	{
 		Id:            955160,
-		Category:      rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category:      rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		ParanoiaLevel: 1,
 		Severity:      "CRITICAL",
 		Msg:           "Symlink_Sa web shell",
@@ -202,7 +202,7 @@ var Response955WebShellsInfo = []*rulepb.RuleInfo{
 	},
 	{
 		Id:            955170,
-		Category:      rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category:      rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		ParanoiaLevel: 1,
 		Severity:      "CRITICAL",
 		Msg:           "CasuS web shell",
@@ -210,7 +210,7 @@ var Response955WebShellsInfo = []*rulepb.RuleInfo{
 	},
 	{
 		Id:            955180,
-		Category:      rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category:      rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		ParanoiaLevel: 1,
 		Severity:      "CRITICAL",
 		Msg:           "GRP WebShell",
@@ -218,7 +218,7 @@ var Response955WebShellsInfo = []*rulepb.RuleInfo{
 	},
 	{
 		Id:            955190,
-		Category:      rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category:      rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		ParanoiaLevel: 1,
 		Severity:      "CRITICAL",
 		Msg:           "NGHshell web shell",
@@ -226,7 +226,7 @@ var Response955WebShellsInfo = []*rulepb.RuleInfo{
 	},
 	{
 		Id:            955200,
-		Category:      rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category:      rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		ParanoiaLevel: 1,
 		Severity:      "CRITICAL",
 		Msg:           "SimAttacker web shell",
@@ -234,7 +234,7 @@ var Response955WebShellsInfo = []*rulepb.RuleInfo{
 	},
 	{
 		Id:            955210,
-		Category:      rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category:      rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		ParanoiaLevel: 1,
 		Severity:      "CRITICAL",
 		Msg:           "Unknown web shell",
@@ -242,7 +242,7 @@ var Response955WebShellsInfo = []*rulepb.RuleInfo{
 	},
 	{
 		Id:            955220,
-		Category:      rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category:      rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		ParanoiaLevel: 1,
 		Severity:      "CRITICAL",
 		Msg:           "lama\\'s\\'hell web shell",
@@ -250,7 +250,7 @@ var Response955WebShellsInfo = []*rulepb.RuleInfo{
 	},
 	{
 		Id:            955230,
-		Category:      rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category:      rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		ParanoiaLevel: 1,
 		Severity:      "CRITICAL",
 		Msg:           "lostDC web shell",
@@ -258,7 +258,7 @@ var Response955WebShellsInfo = []*rulepb.RuleInfo{
 	},
 	{
 		Id:            955240,
-		Category:      rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category:      rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		ParanoiaLevel: 1,
 		Severity:      "CRITICAL",
 		Msg:           "Unknown web shell",
@@ -266,7 +266,7 @@ var Response955WebShellsInfo = []*rulepb.RuleInfo{
 	},
 	{
 		Id:            955250,
-		Category:      rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category:      rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		ParanoiaLevel: 1,
 		Severity:      "CRITICAL",
 		Msg:           "Unknown web shell",
@@ -274,7 +274,7 @@ var Response955WebShellsInfo = []*rulepb.RuleInfo{
 	},
 	{
 		Id:            955260,
-		Category:      rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category:      rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		ParanoiaLevel: 1,
 		Severity:      "CRITICAL",
 		Msg:           "Ru24PostWebShell web shell",
@@ -282,7 +282,7 @@ var Response955WebShellsInfo = []*rulepb.RuleInfo{
 	},
 	{
 		Id:            955270,
-		Category:      rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category:      rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		ParanoiaLevel: 1,
 		Severity:      "CRITICAL",
 		Msg:           "s72 Shell web shell",
@@ -290,7 +290,7 @@ var Response955WebShellsInfo = []*rulepb.RuleInfo{
 	},
 	{
 		Id:            955280,
-		Category:      rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category:      rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		ParanoiaLevel: 1,
 		Severity:      "CRITICAL",
 		Msg:           "PhpSpy web shell",
@@ -298,7 +298,7 @@ var Response955WebShellsInfo = []*rulepb.RuleInfo{
 	},
 	{
 		Id:            955290,
-		Category:      rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category:      rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		ParanoiaLevel: 1,
 		Severity:      "CRITICAL",
 		Msg:           "g00nshell web shell",
@@ -306,7 +306,7 @@ var Response955WebShellsInfo = []*rulepb.RuleInfo{
 	},
 	{
 		Id:            955300,
-		Category:      rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category:      rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		ParanoiaLevel: 1,
 		Severity:      "CRITICAL",
 		Msg:           "PuNkHoLic shell web shell",
@@ -314,7 +314,7 @@ var Response955WebShellsInfo = []*rulepb.RuleInfo{
 	},
 	{
 		Id:            955310,
-		Category:      rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category:      rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		ParanoiaLevel: 1,
 		Severity:      "CRITICAL",
 		Msg:           "azrail web shell",
@@ -322,7 +322,7 @@ var Response955WebShellsInfo = []*rulepb.RuleInfo{
 	},
 	{
 		Id:            955320,
-		Category:      rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category:      rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		ParanoiaLevel: 1,
 		Severity:      "CRITICAL",
 		Msg:           "SmEvK_PaThAn Shell web shell",
@@ -330,7 +330,7 @@ var Response955WebShellsInfo = []*rulepb.RuleInfo{
 	},
 	{
 		Id:            955330,
-		Category:      rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category:      rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		ParanoiaLevel: 1,
 		Severity:      "CRITICAL",
 		Msg:           "Shell I web shell",
@@ -338,7 +338,7 @@ var Response955WebShellsInfo = []*rulepb.RuleInfo{
 	},
 	{
 		Id:            955340,
-		Category:      rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category:      rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		ParanoiaLevel: 1,
 		Severity:      "CRITICAL",
 		Msg:           "b374k m1n1 web shell",
@@ -346,7 +346,7 @@ var Response955WebShellsInfo = []*rulepb.RuleInfo{
 	},
 	{
 		Id:            955400,
-		Category:      rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category:      rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		ParanoiaLevel: 1,
 		Severity:      "CRITICAL",
 		Msg:           "ASP Web shell detected",
@@ -354,19 +354,19 @@ var Response955WebShellsInfo = []*rulepb.RuleInfo{
 	},
 	{
 		Id:       955013,
-		Category: rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category: rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		Tags:     []string{"OWASP_CRS"},
 		System:   true,
 	},
 	{
 		Id:       955014,
-		Category: rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category: rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		Tags:     []string{"OWASP_CRS"},
 		System:   true,
 	},
 	{
 		Id:            955350,
-		Category:      rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category:      rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		ParanoiaLevel: 2,
 		Severity:      "CRITICAL",
 		Msg:           "webadmin.php file manager",
@@ -374,36 +374,36 @@ var Response955WebShellsInfo = []*rulepb.RuleInfo{
 	},
 	{
 		Id:       955015,
-		Category: rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category: rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		Tags:     []string{"OWASP_CRS"},
 		System:   true,
 	},
 	{
 		Id:       955016,
-		Category: rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category: rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		Tags:     []string{"OWASP_CRS"},
 		System:   true,
 	},
 	{
 		Id:       955017,
-		Category: rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category: rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		Tags:     []string{"OWASP_CRS"},
 		System:   true,
 	},
 	{
 		Id:       955018,
-		Category: rulepb.Category_CATEGORY_WEB_SHELLS,
+		Category: rulesetpb.Category_CATEGORY_WEB_SHELLS,
 		Tags:     []string{"OWASP_CRS"},
 		System:   true,
 	},
 }
 
 // R955010 returns rule with ID 955010
-func R955010() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955010() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9IRUFERVJTOkNvbnRlbnQtRW5jb2RpbmcgIkBwbSBnemlwIGNvbXByZXNzIGRlZmxhdGUgYnIgenN0ZCIgXAogICAgImlkOjk1NTAxMCxcCiAgICBwaGFzZTo0LFwKICAgIHBhc3MsXAogICAgbm9sb2csXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHZlcjonT1dBU1BfQ1JTLzQuMTcuMCcsXAogICAgc2tpcEFmdGVyOkVORC1SRVNQT05TRS05NTUtV0VCLVNIRUxMUyI=",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955010"}, Phase: []string{"4"}, Tag: []string{"OWASP_CRS", "OWASP_CRS/WEB-SHELLS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955010"}, Phase: []string{"4"}, Tag: []string{"OWASP_CRS", "OWASP_CRS/WEB-SHELLS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9IRUFERVJTOkNvbnRlbnQtRW5jb2RpbmcgIkBwbSBnemlwIGNvbXByZXNzIGRlZmxhdGUgYnIgenN0ZCIgXAogICAgImlkOjk1NTAxMCxcCiAgICBwaGFzZTo0LFwKICAgIHBhc3MsXAogICAgbm9sb2csXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHZlcjonT1dBU1BfQ1JTLzQuMTcuMCcsXAogICAgc2tpcEFmdGVyOkVORC1SRVNQT05TRS05NTUtV0VCLVNIRUxMUyI=",
 		Level:         "",
@@ -411,11 +411,11 @@ func R955010() *rulepb.CoreRule {
 }
 
 // R955011 returns rule with ID 955011
-func R955011() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955011() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAxIiAiaWQ6OTU1MDExLHBoYXNlOjMscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1NS1XRUItU0hFTExTIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955011"}, Phase: []string{"3"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955011"}, Phase: []string{"3"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAxIiAiaWQ6OTU1MDExLHBoYXNlOjMscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1NS1XRUItU0hFTExTIg==",
 		Level:         "",
@@ -423,11 +423,11 @@ func R955011() *rulepb.CoreRule {
 }
 
 // R955012 returns rule with ID 955012
-func R955012() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955012() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAxIiAiaWQ6OTU1MDEyLHBoYXNlOjQscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1NS1XRUItU0hFTExTIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955012"}, Phase: []string{"4"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955012"}, Phase: []string{"4"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAxIiAiaWQ6OTU1MDEyLHBoYXNlOjQscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1NS1XRUItU0hFTExTIg==",
 		Level:         "",
@@ -435,11 +435,11 @@ func R955012() *rulepb.CoreRule {
 }
 
 // R955100 returns rule with ID 955100
-func R955100() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955100() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcG1Gcm9tRmlsZSB3ZWItc2hlbGxzLXBocC5kYXRhIiBcCiAgICAiaWQ6OTU1MTAwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidQSFAgV2ViIHNoZWxsIGRldGVjdGVkJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955100"}, Msg: []string{"PHP Web shell detected"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955100"}, Msg: []string{"PHP Web shell detected"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcG1Gcm9tRmlsZSB3ZWItc2hlbGxzLXBocC5kYXRhIiBcCiAgICAiaWQ6OTU1MTAwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidQSFAgV2ViIHNoZWxsIGRldGVjdGVkJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/1",
@@ -447,11 +447,11 @@ func R955100() *rulepb.CoreRule {
 }
 
 // R955110 returns rule with ID 955110
-func R955110() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955110() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggPHRpdGxlPnI1NyBTaGVsbCBWZXJzaW9uIFswLTkuXSs8L3RpdGxlPnw8dGl0bGU+cjU3IHNoZWxsPC90aXRsZT4iIFwKICAgICJpZDo5NTUxMTAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J3I1NyB3ZWIgc2hlbGwnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4wfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidsYW5ndWFnZS1waHAnLFwKICAgIHRhZzoncGxhdGZvcm0tbXVsdGknLFwKICAgIHRhZzonYXR0YWNrLXJjZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8xJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvV0VCLVNIRUxMUycsXAogICAgdGFnOidjYXBlYy8xMDAwLzIyNS8xMjIvMTcvNjUwJyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE3LjAnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgc2V0dmFyOid0eC5vdXRib3VuZF9hbm9tYWx5X3Njb3JlX3BsMT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955110"}, Msg: []string{"r57 web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955110"}, Msg: []string{"r57 web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggPHRpdGxlPnI1NyBTaGVsbCBWZXJzaW9uIFswLTkuXSs8L3RpdGxlPnw8dGl0bGU+cjU3IHNoZWxsPC90aXRsZT4iIFwKICAgICJpZDo5NTUxMTAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J3I1NyB3ZWIgc2hlbGwnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4wfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidsYW5ndWFnZS1waHAnLFwKICAgIHRhZzoncGxhdGZvcm0tbXVsdGknLFwKICAgIHRhZzonYXR0YWNrLXJjZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8xJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvV0VCLVNIRUxMUycsXAogICAgdGFnOidjYXBlYy8xMDAwLzIyNS8xMjIvMTcvNjUwJyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE3LjAnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgc2V0dmFyOid0eC5vdXRib3VuZF9hbm9tYWx5X3Njb3JlX3BsMT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
 		Level:         "paranoia-level/1",
@@ -459,11 +459,11 @@ func R955110() *rulepb.CoreRule {
 }
 
 // R955120 returns rule with ID 955120
-func R955120() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955120() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggXjxodG1sPjxoZWFkPjxtZXRhIGh0dHAtZXF1aXY9J0NvbnRlbnQtVHlwZScgY29udGVudD0ndGV4dC9odG1sOyBjaGFyc2V0PSg/OldpbmRvd3MtMTI1MXxVVEYtOCk/Jz48dGl0bGU+Lio/KD86IC0pPyBXW1NzXVtPb10gWzAtOS5dKzwvdGl0bGU+IiBcCiAgICAiaWQ6OTU1MTIwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidXU08gd2ViIHNoZWxsJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955120"}, Msg: []string{"WSO web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955120"}, Msg: []string{"WSO web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggXjxodG1sPjxoZWFkPjxtZXRhIGh0dHAtZXF1aXY9J0NvbnRlbnQtVHlwZScgY29udGVudD0ndGV4dC9odG1sOyBjaGFyc2V0PSg/OldpbmRvd3MtMTI1MXxVVEYtOCk/Jz48dGl0bGU+Lio/KD86IC0pPyBXW1NzXVtPb10gWzAtOS5dKzwvdGl0bGU+IiBcCiAgICAiaWQ6OTU1MTIwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidXU08gd2ViIHNoZWxsJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/1",
@@ -471,11 +471,11 @@ func R955120() *rulepb.CoreRule {
 }
 
 // R955130 returns rule with ID 955130
-func R955130() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955130() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggQjRUTTROIFNIM0xMPC90aXRsZT5bXjxdKjxtZXRhIG5hbWU9J2F1dGhvcicgY29udGVudD0nazRtcHIzdCcvPiIgXAogICAgImlkOjk1NTEzMCxcCiAgICBwaGFzZTo0LFwKICAgIGJsb2NrLFwKICAgIGNhcHR1cmUsXAogICAgdDpub25lLFwKICAgIG1zZzonYjR0bTRuIHdlYiBzaGVsbCcsXAogICAgbG9nZGF0YTonTWF0Y2hlZCBEYXRhOiAle1RYLjB9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2xhbmd1YWdlLXBocCcsXAogICAgdGFnOidwbGF0Zm9ybS1tdWx0aScsXAogICAgdGFnOidhdHRhY2stcmNlJyxcCiAgICB0YWc6J3BhcmFub2lhLWxldmVsLzEnLFwKICAgIHRhZzonT1dBU1BfQ1JTJyxcCiAgICB0YWc6J09XQVNQX0NSUy9XRUItU0hFTExTJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMjI1LzEyMi8xNy82NTAnLFwKICAgIHZlcjonT1dBU1BfQ1JTLzQuMTcuMCcsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyI=",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955130"}, Msg: []string{"b4tm4n web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955130"}, Msg: []string{"b4tm4n web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggQjRUTTROIFNIM0xMPC90aXRsZT5bXjxdKjxtZXRhIG5hbWU9J2F1dGhvcicgY29udGVudD0nazRtcHIzdCcvPiIgXAogICAgImlkOjk1NTEzMCxcCiAgICBwaGFzZTo0LFwKICAgIGJsb2NrLFwKICAgIGNhcHR1cmUsXAogICAgdDpub25lLFwKICAgIG1zZzonYjR0bTRuIHdlYiBzaGVsbCcsXAogICAgbG9nZGF0YTonTWF0Y2hlZCBEYXRhOiAle1RYLjB9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2xhbmd1YWdlLXBocCcsXAogICAgdGFnOidwbGF0Zm9ybS1tdWx0aScsXAogICAgdGFnOidhdHRhY2stcmNlJyxcCiAgICB0YWc6J3BhcmFub2lhLWxldmVsLzEnLFwKICAgIHRhZzonT1dBU1BfQ1JTJyxcCiAgICB0YWc6J09XQVNQX0NSUy9XRUItU0hFTExTJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMjI1LzEyMi8xNy82NTAnLFwKICAgIHZlcjonT1dBU1BfQ1JTLzQuMTcuMCcsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyI=",
 		Level:         "paranoia-level/1",
@@ -483,11 +483,11 @@ func R955130() *rulepb.CoreRule {
 }
 
 // R955140 returns rule with ID 955140
-func R955140() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955140() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggPHRpdGxlPk1pbmkgU2hlbGw8L3RpdGxlPlteRF0qRGV2ZWxvcGVkIEJ5IExhbWVIYWNrZXIiIFwKICAgICJpZDo5NTUxNDAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J01pbmkgU2hlbGwgd2ViIHNoZWxsJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955140"}, Msg: []string{"Mini Shell web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955140"}, Msg: []string{"Mini Shell web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggPHRpdGxlPk1pbmkgU2hlbGw8L3RpdGxlPlteRF0qRGV2ZWxvcGVkIEJ5IExhbWVIYWNrZXIiIFwKICAgICJpZDo5NTUxNDAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J01pbmkgU2hlbGwgd2ViIHNoZWxsJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/1",
@@ -495,11 +495,11 @@ func R955140() *rulepb.CoreRule {
 }
 
 // R955150 returns rule with ID 955150
-func R955150() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955150() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggPHRpdGxlPlwuOjogW15+XSp+IEFzaGl5YW5lIFYgWzAtOS5dKyA6OlwuPC90aXRsZT4iIFwKICAgICJpZDo5NTUxNTAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J0FzaGl5YW5lIHdlYiBzaGVsbCcsXAogICAgbG9nZGF0YTonTWF0Y2hlZCBEYXRhOiAle1RYLjB9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2xhbmd1YWdlLXBocCcsXAogICAgdGFnOidwbGF0Zm9ybS1tdWx0aScsXAogICAgdGFnOidhdHRhY2stcmNlJyxcCiAgICB0YWc6J3BhcmFub2lhLWxldmVsLzEnLFwKICAgIHRhZzonT1dBU1BfQ1JTJyxcCiAgICB0YWc6J09XQVNQX0NSUy9XRUItU0hFTExTJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMjI1LzEyMi8xNy82NTAnLFwKICAgIHZlcjonT1dBU1BfQ1JTLzQuMTcuMCcsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyI=",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955150"}, Msg: []string{"Ashiyane web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955150"}, Msg: []string{"Ashiyane web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggPHRpdGxlPlwuOjogW15+XSp+IEFzaGl5YW5lIFYgWzAtOS5dKyA6OlwuPC90aXRsZT4iIFwKICAgICJpZDo5NTUxNTAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J0FzaGl5YW5lIHdlYiBzaGVsbCcsXAogICAgbG9nZGF0YTonTWF0Y2hlZCBEYXRhOiAle1RYLjB9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2xhbmd1YWdlLXBocCcsXAogICAgdGFnOidwbGF0Zm9ybS1tdWx0aScsXAogICAgdGFnOidhdHRhY2stcmNlJyxcCiAgICB0YWc6J3BhcmFub2lhLWxldmVsLzEnLFwKICAgIHRhZzonT1dBU1BfQ1JTJyxcCiAgICB0YWc6J09XQVNQX0NSUy9XRUItU0hFTExTJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMjI1LzEyMi8xNy82NTAnLFwKICAgIHZlcjonT1dBU1BfQ1JTLzQuMTcuMCcsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyI=",
 		Level:         "paranoia-level/1",
@@ -507,11 +507,11 @@ func R955150() *rulepb.CoreRule {
 }
 
 // R955160 returns rule with ID 955160
-func R955160() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955160() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggPHRpdGxlPlN5bWxpbmtfU2EgWzAtOS5dKzwvdGl0bGU+IiBcCiAgICAiaWQ6OTU1MTYwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidTeW1saW5rX1NhIHdlYiBzaGVsbCcsXAogICAgbG9nZGF0YTonTWF0Y2hlZCBEYXRhOiAle1RYLjB9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2xhbmd1YWdlLXBocCcsXAogICAgdGFnOidwbGF0Zm9ybS1tdWx0aScsXAogICAgdGFnOidhdHRhY2stcmNlJyxcCiAgICB0YWc6J3BhcmFub2lhLWxldmVsLzEnLFwKICAgIHRhZzonT1dBU1BfQ1JTJyxcCiAgICB0YWc6J09XQVNQX0NSUy9XRUItU0hFTExTJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMjI1LzEyMi8xNy82NTAnLFwKICAgIHZlcjonT1dBU1BfQ1JTLzQuMTcuMCcsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyI=",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955160"}, Msg: []string{"Symlink_Sa web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955160"}, Msg: []string{"Symlink_Sa web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggPHRpdGxlPlN5bWxpbmtfU2EgWzAtOS5dKzwvdGl0bGU+IiBcCiAgICAiaWQ6OTU1MTYwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidTeW1saW5rX1NhIHdlYiBzaGVsbCcsXAogICAgbG9nZGF0YTonTWF0Y2hlZCBEYXRhOiAle1RYLjB9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2xhbmd1YWdlLXBocCcsXAogICAgdGFnOidwbGF0Zm9ybS1tdWx0aScsXAogICAgdGFnOidhdHRhY2stcmNlJyxcCiAgICB0YWc6J3BhcmFub2lhLWxldmVsLzEnLFwKICAgIHRhZzonT1dBU1BfQ1JTJyxcCiAgICB0YWc6J09XQVNQX0NSUy9XRUItU0hFTExTJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMjI1LzEyMi8xNy82NTAnLFwKICAgIHZlcjonT1dBU1BfQ1JTLzQuMTcuMCcsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyI=",
 		Level:         "paranoia-level/1",
@@ -519,11 +519,11 @@ func R955160() *rulepb.CoreRule {
 }
 
 // R955170 returns rule with ID 955170
-func R955170() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955170() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggPHRpdGxlPkNhc3VTIFswLTkuXSsgYnkgTWFmaUFCb1k8L3RpdGxlPiIgXAogICAgImlkOjk1NTE3MCxcCiAgICBwaGFzZTo0LFwKICAgIGJsb2NrLFwKICAgIGNhcHR1cmUsXAogICAgdDpub25lLFwKICAgIG1zZzonQ2FzdVMgd2ViIHNoZWxsJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955170"}, Msg: []string{"CasuS web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955170"}, Msg: []string{"CasuS web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggPHRpdGxlPkNhc3VTIFswLTkuXSsgYnkgTWFmaUFCb1k8L3RpdGxlPiIgXAogICAgImlkOjk1NTE3MCxcCiAgICBwaGFzZTo0LFwKICAgIGJsb2NrLFwKICAgIGNhcHR1cmUsXAogICAgdDpub25lLFwKICAgIG1zZzonQ2FzdVMgd2ViIHNoZWxsJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/1",
@@ -531,11 +531,11 @@ func R955170() *rulepb.CoreRule {
 }
 
 // R955180 returns rule with ID 955180
-func R955180() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955180() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggXjxodG1sPlxyXG48aGVhZD5cclxuPHRpdGxlPkdSUCBXZWJTaGVsbCBbMC05Ll0rICIgXAogICAgImlkOjk1NTE4MCxcCiAgICBwaGFzZTo0LFwKICAgIGJsb2NrLFwKICAgIGNhcHR1cmUsXAogICAgdDpub25lLFwKICAgIG1zZzonR1JQIFdlYlNoZWxsJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955180"}, Msg: []string{"GRP WebShell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955180"}, Msg: []string{"GRP WebShell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggXjxodG1sPlxyXG48aGVhZD5cclxuPHRpdGxlPkdSUCBXZWJTaGVsbCBbMC05Ll0rICIgXAogICAgImlkOjk1NTE4MCxcCiAgICBwaGFzZTo0LFwKICAgIGJsb2NrLFwKICAgIGNhcHR1cmUsXAogICAgdDpub25lLFwKICAgIG1zZzonR1JQIFdlYlNoZWxsJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/1",
@@ -543,11 +543,11 @@ func R955180() *rulepb.CoreRule {
 }
 
 // R955190 returns rule with ID 955190
-func R955190() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955190() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggPHNtYWxsPk5HSHNoZWxsIFswLTkuXSsgYnkgQ3I0c2g8L2JvZHk+PC9odG1sPlxuJCIgXAogICAgImlkOjk1NTE5MCxcCiAgICBwaGFzZTo0LFwKICAgIGJsb2NrLFwKICAgIGNhcHR1cmUsXAogICAgdDpub25lLFwKICAgIG1zZzonTkdIc2hlbGwgd2ViIHNoZWxsJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955190"}, Msg: []string{"NGHshell web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955190"}, Msg: []string{"NGHshell web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggPHNtYWxsPk5HSHNoZWxsIFswLTkuXSsgYnkgQ3I0c2g8L2JvZHk+PC9odG1sPlxuJCIgXAogICAgImlkOjk1NTE5MCxcCiAgICBwaGFzZTo0LFwKICAgIGJsb2NrLFwKICAgIGNhcHR1cmUsXAogICAgdDpub25lLFwKICAgIG1zZzonTkdIc2hlbGwgd2ViIHNoZWxsJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/1",
@@ -555,11 +555,11 @@ func R955190() *rulepb.CoreRule {
 }
 
 // R955200 returns rule with ID 955200
-func R955200() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955200() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggPHRpdGxlPlNpbUF0dGFja2VyIC0gKD86VmVyc2lvbnxWcnNpb24pIDogWzAtOS5dKyAtICIgXAogICAgImlkOjk1NTIwMCxcCiAgICBwaGFzZTo0LFwKICAgIGJsb2NrLFwKICAgIGNhcHR1cmUsXAogICAgdDpub25lLFwKICAgIG1zZzonU2ltQXR0YWNrZXIgd2ViIHNoZWxsJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955200"}, Msg: []string{"SimAttacker web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955200"}, Msg: []string{"SimAttacker web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggPHRpdGxlPlNpbUF0dGFja2VyIC0gKD86VmVyc2lvbnxWcnNpb24pIDogWzAtOS5dKyAtICIgXAogICAgImlkOjk1NTIwMCxcCiAgICBwaGFzZTo0LFwKICAgIGJsb2NrLFwKICAgIGNhcHR1cmUsXAogICAgdDpub25lLFwKICAgIG1zZzonU2ltQXR0YWNrZXIgd2ViIHNoZWxsJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/1",
@@ -567,11 +567,11 @@ func R955200() *rulepb.CoreRule {
 }
 
 // R955210 returns rule with ID 955210
-func R955210() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955210() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggXjwhRE9DVFlQRSBodG1sPlxuPGh0bWw+XG48IS0tIEJ5IEFydHl1bSBbXjxdKjx0aXRsZT5XZWIgU2hlbGw8L3RpdGxlPiIgXAogICAgImlkOjk1NTIxMCxcCiAgICBwaGFzZTo0LFwKICAgIGJsb2NrLFwKICAgIGNhcHR1cmUsXAogICAgdDpub25lLFwKICAgIG1zZzonVW5rbm93biB3ZWIgc2hlbGwnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4wfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidsYW5ndWFnZS1waHAnLFwKICAgIHRhZzoncGxhdGZvcm0tbXVsdGknLFwKICAgIHRhZzonYXR0YWNrLXJjZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8xJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvV0VCLVNIRUxMUycsXAogICAgdGFnOidjYXBlYy8xMDAwLzIyNS8xMjIvMTcvNjUwJyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE3LjAnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgc2V0dmFyOid0eC5vdXRib3VuZF9hbm9tYWx5X3Njb3JlX3BsMT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955210"}, Msg: []string{"Unknown web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955210"}, Msg: []string{"Unknown web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggXjwhRE9DVFlQRSBodG1sPlxuPGh0bWw+XG48IS0tIEJ5IEFydHl1bSBbXjxdKjx0aXRsZT5XZWIgU2hlbGw8L3RpdGxlPiIgXAogICAgImlkOjk1NTIxMCxcCiAgICBwaGFzZTo0LFwKICAgIGJsb2NrLFwKICAgIGNhcHR1cmUsXAogICAgdDpub25lLFwKICAgIG1zZzonVW5rbm93biB3ZWIgc2hlbGwnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4wfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidsYW5ndWFnZS1waHAnLFwKICAgIHRhZzoncGxhdGZvcm0tbXVsdGknLFwKICAgIHRhZzonYXR0YWNrLXJjZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8xJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvV0VCLVNIRUxMUycsXAogICAgdGFnOidjYXBlYy8xMDAwLzIyNS8xMjIvMTcvNjUwJyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE3LjAnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgc2V0dmFyOid0eC5vdXRib3VuZF9hbm9tYWx5X3Njb3JlX3BsMT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
 		Level:         "paranoia-level/1",
@@ -579,11 +579,11 @@ func R955210() *rulepb.CoreRule {
 }
 
 // R955220 returns rule with ID 955220
-func R955220() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955220() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggPHRpdGxlPmxhbWEncydoZWxsIHYuIFswLTkuXSs8L3RpdGxlPiIgXAogICAgImlkOjk1NTIyMCxcCiAgICBwaGFzZTo0LFwKICAgIGJsb2NrLFwKICAgIGNhcHR1cmUsXAogICAgdDpub25lLFwKICAgIG1zZzonbGFtYVwnc1wnaGVsbCB3ZWIgc2hlbGwnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4wfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidsYW5ndWFnZS1waHAnLFwKICAgIHRhZzoncGxhdGZvcm0tbXVsdGknLFwKICAgIHRhZzonYXR0YWNrLXJjZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8xJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvV0VCLVNIRUxMUycsXAogICAgdGFnOidjYXBlYy8xMDAwLzIyNS8xMjIvMTcvNjUwJyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE3LjAnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgc2V0dmFyOid0eC5vdXRib3VuZF9hbm9tYWx5X3Njb3JlX3BsMT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955220"}, Msg: []string{"lama\\'s\\'hell web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955220"}, Msg: []string{"lama\\'s\\'hell web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggPHRpdGxlPmxhbWEncydoZWxsIHYuIFswLTkuXSs8L3RpdGxlPiIgXAogICAgImlkOjk1NTIyMCxcCiAgICBwaGFzZTo0LFwKICAgIGJsb2NrLFwKICAgIGNhcHR1cmUsXAogICAgdDpub25lLFwKICAgIG1zZzonbGFtYVwnc1wnaGVsbCB3ZWIgc2hlbGwnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4wfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidsYW5ndWFnZS1waHAnLFwKICAgIHRhZzoncGxhdGZvcm0tbXVsdGknLFwKICAgIHRhZzonYXR0YWNrLXJjZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8xJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvV0VCLVNIRUxMUycsXAogICAgdGFnOidjYXBlYy8xMDAwLzIyNS8xMjIvMTcvNjUwJyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE3LjAnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgc2V0dmFyOid0eC5vdXRib3VuZF9hbm9tYWx5X3Njb3JlX3BsMT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
 		Level:         "paranoia-level/1",
@@ -591,11 +591,11 @@ func R955220() *rulepb.CoreRule {
 }
 
 // R955230 returns rule with ID 955230
-func R955230() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955230() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggXiAqPGh0bWw+XG5bIF0rPGhlYWQ+XG5bIF0rPHRpdGxlPmxvc3REQyAtICIgXAogICAgImlkOjk1NTIzMCxcCiAgICBwaGFzZTo0LFwKICAgIGJsb2NrLFwKICAgIGNhcHR1cmUsXAogICAgdDpub25lLFwKICAgIG1zZzonbG9zdERDIHdlYiBzaGVsbCcsXAogICAgbG9nZGF0YTonTWF0Y2hlZCBEYXRhOiAle1RYLjB9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2xhbmd1YWdlLXBocCcsXAogICAgdGFnOidwbGF0Zm9ybS1tdWx0aScsXAogICAgdGFnOidhdHRhY2stcmNlJyxcCiAgICB0YWc6J3BhcmFub2lhLWxldmVsLzEnLFwKICAgIHRhZzonT1dBU1BfQ1JTJyxcCiAgICB0YWc6J09XQVNQX0NSUy9XRUItU0hFTExTJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMjI1LzEyMi8xNy82NTAnLFwKICAgIHZlcjonT1dBU1BfQ1JTLzQuMTcuMCcsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyI=",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955230"}, Msg: []string{"lostDC web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955230"}, Msg: []string{"lostDC web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggXiAqPGh0bWw+XG5bIF0rPGhlYWQ+XG5bIF0rPHRpdGxlPmxvc3REQyAtICIgXAogICAgImlkOjk1NTIzMCxcCiAgICBwaGFzZTo0LFwKICAgIGJsb2NrLFwKICAgIGNhcHR1cmUsXAogICAgdDpub25lLFwKICAgIG1zZzonbG9zdERDIHdlYiBzaGVsbCcsXAogICAgbG9nZGF0YTonTWF0Y2hlZCBEYXRhOiAle1RYLjB9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2xhbmd1YWdlLXBocCcsXAogICAgdGFnOidwbGF0Zm9ybS1tdWx0aScsXAogICAgdGFnOidhdHRhY2stcmNlJyxcCiAgICB0YWc6J3BhcmFub2lhLWxldmVsLzEnLFwKICAgIHRhZzonT1dBU1BfQ1JTJyxcCiAgICB0YWc6J09XQVNQX0NSUy9XRUItU0hFTExTJyxcCiAgICB0YWc6J2NhcGVjLzEwMDAvMjI1LzEyMi8xNy82NTAnLFwKICAgIHZlcjonT1dBU1BfQ1JTLzQuMTcuMCcsXAogICAgc2V2ZXJpdHk6J0NSSVRJQ0FMJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmNyaXRpY2FsX2Fub21hbHlfc2NvcmV9JyI=",
 		Level:         "paranoia-level/1",
@@ -603,11 +603,11 @@ func R955230() *rulepb.CoreRule {
 }
 
 // R955240 returns rule with ID 955240
-func R955240() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955240() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggXjx0aXRsZT5QSFAgV2ViIFNoZWxsPC90aXRsZT5cclxuPGh0bWw+XHJcbjxib2R5PlxyXG4gICAgPCEtLSBSZXBsYWNlcyBjb21tYW5kIHdpdGggQmFzZTY0LWVuY29kZWQgRGF0YSAtLT4iIFwKICAgICJpZDo5NTUyNDAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J1Vua25vd24gd2ViIHNoZWxsJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955240"}, Msg: []string{"Unknown web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955240"}, Msg: []string{"Unknown web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggXjx0aXRsZT5QSFAgV2ViIFNoZWxsPC90aXRsZT5cclxuPGh0bWw+XHJcbjxib2R5PlxyXG4gICAgPCEtLSBSZXBsYWNlcyBjb21tYW5kIHdpdGggQmFzZTY0LWVuY29kZWQgRGF0YSAtLT4iIFwKICAgICJpZDo5NTUyNDAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J1Vua25vd24gd2ViIHNoZWxsJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/1",
@@ -615,11 +615,11 @@ func R955240() *rulepb.CoreRule {
 }
 
 // R955250 returns rule with ID 955250
-func R955250() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955250() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggXjxodG1sPlxuPGhlYWQ+XG48ZGl2IGFsaWduPVwibGVmdFwiPjxmb250IHNpemU9XCIxXCI+SW5wdXQgY29tbWFuZCA6PC9mb250PjwvZGl2PlxuPGZvcm0gbmFtZT1cImNtZFwiIG1ldGhvZD1cIlBPU1RcIiBlbmN0eXBlPVwibXVsdGlwYXJ0L2Zvcm0tZGF0YVwiPiIgXAogICAgImlkOjk1NTI1MCxcCiAgICBwaGFzZTo0LFwKICAgIGJsb2NrLFwKICAgIGNhcHR1cmUsXAogICAgdDpub25lLFwKICAgIG1zZzonVW5rbm93biB3ZWIgc2hlbGwnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4wfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidsYW5ndWFnZS1waHAnLFwKICAgIHRhZzoncGxhdGZvcm0tbXVsdGknLFwKICAgIHRhZzonYXR0YWNrLXJjZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8xJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvV0VCLVNIRUxMUycsXAogICAgdGFnOidjYXBlYy8xMDAwLzIyNS8xMjIvMTcvNjUwJyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE3LjAnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgc2V0dmFyOid0eC5vdXRib3VuZF9hbm9tYWx5X3Njb3JlX3BsMT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955250"}, Msg: []string{"Unknown web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955250"}, Msg: []string{"Unknown web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggXjxodG1sPlxuPGhlYWQ+XG48ZGl2IGFsaWduPVwibGVmdFwiPjxmb250IHNpemU9XCIxXCI+SW5wdXQgY29tbWFuZCA6PC9mb250PjwvZGl2PlxuPGZvcm0gbmFtZT1cImNtZFwiIG1ldGhvZD1cIlBPU1RcIiBlbmN0eXBlPVwibXVsdGlwYXJ0L2Zvcm0tZGF0YVwiPiIgXAogICAgImlkOjk1NTI1MCxcCiAgICBwaGFzZTo0LFwKICAgIGJsb2NrLFwKICAgIGNhcHR1cmUsXAogICAgdDpub25lLFwKICAgIG1zZzonVW5rbm93biB3ZWIgc2hlbGwnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4wfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidsYW5ndWFnZS1waHAnLFwKICAgIHRhZzoncGxhdGZvcm0tbXVsdGknLFwKICAgIHRhZzonYXR0YWNrLXJjZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8xJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvV0VCLVNIRUxMUycsXAogICAgdGFnOidjYXBlYy8xMDAwLzIyNS8xMjIvMTcvNjUwJyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE3LjAnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgc2V0dmFyOid0eC5vdXRib3VuZF9hbm9tYWx5X3Njb3JlX3BsMT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
 		Level:         "paranoia-level/1",
@@ -627,11 +627,11 @@ func R955250() *rulepb.CoreRule {
 }
 
 // R955260 returns rule with ID 955260
-func R955260() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955260() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggXjxodG1sPlxuPGhlYWQ+XG48dGl0bGU+UnUyNFBvc3RXZWJTaGVsbCAiIFwKICAgICJpZDo5NTUyNjAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J1J1MjRQb3N0V2ViU2hlbGwgd2ViIHNoZWxsJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955260"}, Msg: []string{"Ru24PostWebShell web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955260"}, Msg: []string{"Ru24PostWebShell web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggXjxodG1sPlxuPGhlYWQ+XG48dGl0bGU+UnUyNFBvc3RXZWJTaGVsbCAiIFwKICAgICJpZDo5NTUyNjAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J1J1MjRQb3N0V2ViU2hlbGwgd2ViIHNoZWxsJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/1",
@@ -639,11 +639,11 @@ func R955260() *rulepb.CoreRule {
 }
 
 // R955270 returns rule with ID 955270
-func R955270() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955270() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggPHRpdGxlPnM3MiBTaGVsbCB2WzAtOS5dKyBDb2RpbmYgYnkgQ3JAenlfS2luZzwvdGl0bGU+IiBcCiAgICAiaWQ6OTU1MjcwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidzNzIgU2hlbGwgd2ViIHNoZWxsJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955270"}, Msg: []string{"s72 Shell web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955270"}, Msg: []string{"s72 Shell web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggPHRpdGxlPnM3MiBTaGVsbCB2WzAtOS5dKyBDb2RpbmYgYnkgQ3JAenlfS2luZzwvdGl0bGU+IiBcCiAgICAiaWQ6OTU1MjcwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidzNzIgU2hlbGwgd2ViIHNoZWxsJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/1",
@@ -651,11 +651,11 @@ func R955270() *rulepb.CoreRule {
 }
 
 // R955280 returns rule with ID 955280
-func R955280() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955280() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggXjxodG1sPlxyXG48aGVhZD5cclxuPG1ldGEgaHR0cC1lcXVpdj1cIkNvbnRlbnQtVHlwZVwiIGNvbnRlbnQ9XCJ0ZXh0L2h0bWw7IGNoYXJzZXQ9Z2IyMzEyXCI+XHJcbjx0aXRsZT5QaHBTcHkgVmVyIFswLTldKzwvdGl0bGU+IiBcCiAgICAiaWQ6OTU1MjgwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidQaHBTcHkgd2ViIHNoZWxsJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955280"}, Msg: []string{"PhpSpy web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955280"}, Msg: []string{"PhpSpy web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggXjxodG1sPlxyXG48aGVhZD5cclxuPG1ldGEgaHR0cC1lcXVpdj1cIkNvbnRlbnQtVHlwZVwiIGNvbnRlbnQ9XCJ0ZXh0L2h0bWw7IGNoYXJzZXQ9Z2IyMzEyXCI+XHJcbjx0aXRsZT5QaHBTcHkgVmVyIFswLTldKzwvdGl0bGU+IiBcCiAgICAiaWQ6OTU1MjgwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidQaHBTcHkgd2ViIHNoZWxsJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/1",
@@ -663,11 +663,11 @@ func R955280() *rulepb.CoreRule {
 }
 
 // R955290 returns rule with ID 955290
-func R955290() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955290() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggXiA8aHRtbD5cblxuPGhlYWQ+XG5cbjx0aXRsZT5nMDBuc2hlbGwgdlswLTkuXSsgIiBcCiAgICAiaWQ6OTU1MjkwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidnMDBuc2hlbGwgd2ViIHNoZWxsJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955290"}, Msg: []string{"g00nshell web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955290"}, Msg: []string{"g00nshell web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggXiA8aHRtbD5cblxuPGhlYWQ+XG5cbjx0aXRsZT5nMDBuc2hlbGwgdlswLTkuXSsgIiBcCiAgICAiaWQ6OTU1MjkwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidnMDBuc2hlbGwgd2ViIHNoZWxsJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/1",
@@ -675,11 +675,11 @@ func R955290() *rulepb.CoreRule {
 }
 
 // R955300 returns rule with ID 955300
-func R955300() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955300() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAY29udGFpbnMgPHRpdGxlPnB1bmtob2xpY3NoZWxsPC90aXRsZT4iIFwKICAgICJpZDo5NTUzMDAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSx0OnJlbW92ZVdoaXRlc3BhY2UsdDpsb3dlcmNhc2UsXAogICAgbXNnOidQdU5rSG9MaWMgc2hlbGwgd2ViIHNoZWxsJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955300"}, Msg: []string{"PuNkHoLic shell web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none", "removeWhitespace", "lowercase"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955300"}, Msg: []string{"PuNkHoLic shell web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none", "removeWhitespace", "lowercase"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAY29udGFpbnMgPHRpdGxlPnB1bmtob2xpY3NoZWxsPC90aXRsZT4iIFwKICAgICJpZDo5NTUzMDAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSx0OnJlbW92ZVdoaXRlc3BhY2UsdDpsb3dlcmNhc2UsXAogICAgbXNnOidQdU5rSG9MaWMgc2hlbGwgd2ViIHNoZWxsJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/1",
@@ -687,11 +687,11 @@ func R955300() *rulepb.CoreRule {
 }
 
 // R955310 returns rule with ID 955310
-func R955310() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955310() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggXjxodG1sPlxuICAgICAgPGhlYWQ+XG4gICAgICAgICAgICAgPHRpdGxlPmF6cmFpbCBbMC05Ll0rIGJ5IEMtVy1NPC90aXRsZT4iIFwKICAgICJpZDo5NTUzMTAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J2F6cmFpbCB3ZWIgc2hlbGwnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4wfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidsYW5ndWFnZS1waHAnLFwKICAgIHRhZzoncGxhdGZvcm0tbXVsdGknLFwKICAgIHRhZzonYXR0YWNrLXJjZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8xJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvV0VCLVNIRUxMUycsXAogICAgdGFnOidjYXBlYy8xMDAwLzIyNS8xMjIvMTcvNjUwJyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE3LjAnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgc2V0dmFyOid0eC5vdXRib3VuZF9hbm9tYWx5X3Njb3JlX3BsMT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955310"}, Msg: []string{"azrail web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955310"}, Msg: []string{"azrail web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggXjxodG1sPlxuICAgICAgPGhlYWQ+XG4gICAgICAgICAgICAgPHRpdGxlPmF6cmFpbCBbMC05Ll0rIGJ5IEMtVy1NPC90aXRsZT4iIFwKICAgICJpZDo5NTUzMTAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J2F6cmFpbCB3ZWIgc2hlbGwnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4wfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidsYW5ndWFnZS1waHAnLFwKICAgIHRhZzoncGxhdGZvcm0tbXVsdGknLFwKICAgIHRhZzonYXR0YWNrLXJjZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8xJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvV0VCLVNIRUxMUycsXAogICAgdGFnOidjYXBlYy8xMDAwLzIyNS8xMjIvMTcvNjUwJyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE3LjAnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgc2V0dmFyOid0eC5vdXRib3VuZF9hbm9tYWx5X3Njb3JlX3BsMT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
 		Level:         "paranoia-level/1",
@@ -699,11 +699,11 @@ func R955310() *rulepb.CoreRule {
 }
 
 // R955320 returns rule with ID 955320
-func R955320() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955320() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggPlNtRXZLX1BhVGhBbiBTaGVsbCB2WzAtOV0rIGNvZGVkIGJ5IDxhIGhyZWY9IiBcCiAgICAiaWQ6OTU1MzIwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidTbUV2S19QYVRoQW4gU2hlbGwgd2ViIHNoZWxsJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955320"}, Msg: []string{"SmEvK_PaThAn Shell web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955320"}, Msg: []string{"SmEvK_PaThAn Shell web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggPlNtRXZLX1BhVGhBbiBTaGVsbCB2WzAtOV0rIGNvZGVkIGJ5IDxhIGhyZWY9IiBcCiAgICAiaWQ6OTU1MzIwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidTbUV2S19QYVRoQW4gU2hlbGwgd2ViIHNoZWxsJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/1",
@@ -711,11 +711,11 @@ func R955320() *rulepb.CoreRule {
 }
 
 // R955330 returns rule with ID 955330
-func R955330() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955330() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggXjxodG1sPlxuPHRpdGxlPltefl0qfiBTaGVsbCBJPC90aXRsZT5cbjxoZWFkPlxuPHN0eWxlPiIgXAogICAgImlkOjk1NTMzMCxcCiAgICBwaGFzZTo0LFwKICAgIGJsb2NrLFwKICAgIGNhcHR1cmUsXAogICAgdDpub25lLFwKICAgIG1zZzonU2hlbGwgSSB3ZWIgc2hlbGwnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4wfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidsYW5ndWFnZS1waHAnLFwKICAgIHRhZzoncGxhdGZvcm0tbXVsdGknLFwKICAgIHRhZzonYXR0YWNrLXJjZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8xJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvV0VCLVNIRUxMUycsXAogICAgdGFnOidjYXBlYy8xMDAwLzIyNS8xMjIvMTcvNjUwJyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE3LjAnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgc2V0dmFyOid0eC5vdXRib3VuZF9hbm9tYWx5X3Njb3JlX3BsMT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955330"}, Msg: []string{"Shell I web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955330"}, Msg: []string{"Shell I web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggXjxodG1sPlxuPHRpdGxlPltefl0qfiBTaGVsbCBJPC90aXRsZT5cbjxoZWFkPlxuPHN0eWxlPiIgXAogICAgImlkOjk1NTMzMCxcCiAgICBwaGFzZTo0LFwKICAgIGJsb2NrLFwKICAgIGNhcHR1cmUsXAogICAgdDpub25lLFwKICAgIG1zZzonU2hlbGwgSSB3ZWIgc2hlbGwnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4wfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidsYW5ndWFnZS1waHAnLFwKICAgIHRhZzoncGxhdGZvcm0tbXVsdGknLFwKICAgIHRhZzonYXR0YWNrLXJjZScsXAogICAgdGFnOidwYXJhbm9pYS1sZXZlbC8xJyxcCiAgICB0YWc6J09XQVNQX0NSUycsXAogICAgdGFnOidPV0FTUF9DUlMvV0VCLVNIRUxMUycsXAogICAgdGFnOidjYXBlYy8xMDAwLzIyNS8xMjIvMTcvNjUwJyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE3LjAnLFwKICAgIHNldmVyaXR5OidDUklUSUNBTCcsXAogICAgc2V0dmFyOid0eC5vdXRib3VuZF9hbm9tYWx5X3Njb3JlX3BsMT0rJXt0eC5jcml0aWNhbF9hbm9tYWx5X3Njb3JlfSci",
 		Level:         "paranoia-level/1",
@@ -723,11 +723,11 @@ func R955330() *rulepb.CoreRule {
 }
 
 // R955340 returns rule with ID 955340
-func R955340() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955340() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggXiA8aHRtbD48aGVhZD48dGl0bGU+OjogYjM3NGsgbTFuMSBbMC05Ll0rIDo6PC90aXRsZT4iIFwKICAgICJpZDo5NTUzNDAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J2IzNzRrIG0xbjEgd2ViIHNoZWxsJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955340"}, Msg: []string{"b374k m1n1 web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955340"}, Msg: []string{"b374k m1n1 web shell"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggXiA8aHRtbD48aGVhZD48dGl0bGU+OjogYjM3NGsgbTFuMSBbMC05Ll0rIDo6PC90aXRsZT4iIFwKICAgICJpZDo5NTUzNDAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J2IzNzRrIG0xbjEgd2ViIHNoZWxsJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/1",
@@ -735,11 +735,11 @@ func R955340() *rulepb.CoreRule {
 }
 
 // R955400 returns rule with ID 955400
-func R955400() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955400() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcG1Gcm9tRmlsZSB3ZWItc2hlbGxzLWFzcC5kYXRhIiBcCiAgICAiaWQ6OTU1NDAwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidBU1AgV2ViIHNoZWxsIGRldGVjdGVkJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955400"}, Msg: []string{"ASP Web shell detected"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955400"}, Msg: []string{"ASP Web shell detected"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcG1Gcm9tRmlsZSB3ZWItc2hlbGxzLWFzcC5kYXRhIiBcCiAgICAiaWQ6OTU1NDAwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidBU1AgV2ViIHNoZWxsIGRldGVjdGVkJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDE9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/1",
@@ -747,11 +747,11 @@ func R955400() *rulepb.CoreRule {
 }
 
 // R955013 returns rule with ID 955013
-func R955013() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955013() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAyIiAiaWQ6OTU1MDEzLHBoYXNlOjMscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1NS1XRUItU0hFTExTIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955013"}, Phase: []string{"3"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955013"}, Phase: []string{"3"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAyIiAiaWQ6OTU1MDEzLHBoYXNlOjMscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1NS1XRUItU0hFTExTIg==",
 		Level:         "",
@@ -759,11 +759,11 @@ func R955013() *rulepb.CoreRule {
 }
 
 // R955014 returns rule with ID 955014
-func R955014() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955014() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAyIiAiaWQ6OTU1MDE0LHBoYXNlOjQscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1NS1XRUItU0hFTExTIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955014"}, Phase: []string{"4"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955014"}, Phase: []string{"4"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAyIiAiaWQ6OTU1MDE0LHBoYXNlOjQscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1NS1XRUItU0hFTExTIg==",
 		Level:         "",
@@ -771,11 +771,11 @@ func R955014() *rulepb.CoreRule {
 }
 
 // R955350 returns rule with ID 955350
-func R955350() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955350() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAY29udGFpbnMgPGgxIHN0eWxlPVwibWFyZ2luLWJvdHRvbTogMFwiPndlYmFkbWluLnBocDwvaDE+IiBcCiAgICAiaWQ6OTU1MzUwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOid3ZWJhZG1pbi5waHAgZmlsZSBtYW5hZ2VyJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMicsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDI9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955350"}, Msg: []string{"webadmin.php file manager"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/2", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl2=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955350"}, Msg: []string{"webadmin.php file manager"}, Phase: []string{"4"}, Tag: []string{"language-php", "platform-multi", "attack-rce", "paranoia-level/2", "OWASP_CRS", "OWASP_CRS/WEB-SHELLS", "capec/1000/225/122/17/650"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"CRITICAL"}, Setvar: []string{"tx.outbound_anomaly_score_pl2=+%{tx.critical_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAY29udGFpbnMgPGgxIHN0eWxlPVwibWFyZ2luLWJvdHRvbTogMFwiPndlYmFkbWluLnBocDwvaDE+IiBcCiAgICAiaWQ6OTU1MzUwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOid3ZWJhZG1pbi5waHAgZmlsZSBtYW5hZ2VyJyxcCiAgICBsb2dkYXRhOidNYXRjaGVkIERhdGE6ICV7VFguMH0gZm91bmQgd2l0aGluICV7TUFUQ0hFRF9WQVJfTkFNRX0nLFwKICAgIHRhZzonbGFuZ3VhZ2UtcGhwJyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1yY2UnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMicsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL1dFQi1TSEVMTFMnLFwKICAgIHRhZzonY2FwZWMvMTAwMC8yMjUvMTIyLzE3LzY1MCcsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBzZXZlcml0eTonQ1JJVElDQUwnLFwKICAgIHNldHZhcjondHgub3V0Ym91bmRfYW5vbWFseV9zY29yZV9wbDI9KyV7dHguY3JpdGljYWxfYW5vbWFseV9zY29yZX0nIg==",
 		Level:         "paranoia-level/2",
@@ -783,11 +783,11 @@ func R955350() *rulepb.CoreRule {
 }
 
 // R955015 returns rule with ID 955015
-func R955015() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955015() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAzIiAiaWQ6OTU1MDE1LHBoYXNlOjMscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1NS1XRUItU0hFTExTIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955015"}, Phase: []string{"3"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955015"}, Phase: []string{"3"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAzIiAiaWQ6OTU1MDE1LHBoYXNlOjMscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1NS1XRUItU0hFTExTIg==",
 		Level:         "",
@@ -795,11 +795,11 @@ func R955015() *rulepb.CoreRule {
 }
 
 // R955016 returns rule with ID 955016
-func R955016() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955016() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAzIiAiaWQ6OTU1MDE2LHBoYXNlOjQscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1NS1XRUItU0hFTExTIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955016"}, Phase: []string{"4"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955016"}, Phase: []string{"4"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAzIiAiaWQ6OTU1MDE2LHBoYXNlOjQscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1NS1XRUItU0hFTExTIg==",
 		Level:         "",
@@ -807,11 +807,11 @@ func R955016() *rulepb.CoreRule {
 }
 
 // R955017 returns rule with ID 955017
-func R955017() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955017() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCA0IiAiaWQ6OTU1MDE3LHBoYXNlOjMscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1NS1XRUItU0hFTExTIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955017"}, Phase: []string{"3"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955017"}, Phase: []string{"3"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCA0IiAiaWQ6OTU1MDE3LHBoYXNlOjMscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1NS1XRUItU0hFTExTIg==",
 		Level:         "",
@@ -819,11 +819,11 @@ func R955017() *rulepb.CoreRule {
 }
 
 // R955018 returns rule with ID 955018
-func R955018() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R955018() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCA0IiAiaWQ6OTU1MDE4LHBoYXNlOjQscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1NS1XRUItU0hFTExTIg==",
-			Fields:    &rulepb.RuleActionField{Id: []string{"955018"}, Phase: []string{"4"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"955018"}, Phase: []string{"4"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCA0IiAiaWQ6OTU1MDE4LHBoYXNlOjQscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1NS1XRUItU0hFTExTIg==",
 		Level:         "",
@@ -831,11 +831,11 @@ func R955018() *rulepb.CoreRule {
 }
 
 // Response955WebShellsMaker_36 returns rule without ID
-func Response955WebShellsMaker_36() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func Response955WebShellsMaker_36() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjTWFya2VyICJFTkQtUkVTUE9OU0UtOTU1LVdFQi1TSEVMTFMi",
-			Fields:    &rulepb.RuleActionField{},
+			Fields:    &rulesetpb.RuleActionField{},
 		},
 		Configuration: "U2VjTWFya2VyICJFTkQtUkVTUE9OU0UtOTU1LVdFQi1TSEVMTFMi",
 		Level:         "",

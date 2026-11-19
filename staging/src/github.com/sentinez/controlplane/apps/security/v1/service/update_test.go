@@ -39,16 +39,16 @@ func TestUpdateSecRuleWritesTheMask(t *testing.T) {
 	resp, err := f.svc.UpdateSecRule(ctx,
 		&securitypb.UpdateSecRuleRequest{
 			Id:         _ruleId,
-			SecRule:    &securitypb.SecRule{Name: "block", Priority: 1},
+			Secrule:    &securitypb.SecRule{Name: "block", Priority: 1},
 			UpdateMask: maskOf(securitypb.SecRule_Name),
 		})
 
 	require.NoError(t, err)
 	assert.Equal(t, [][]string{{securitypb.SecRule_Name}}, f.rules.updated)
-	assert.Equal(t, "block", resp.GetSecRule().GetName())
-	assert.Equal(t, int32(7), resp.GetSecRule().GetPriority())
+	assert.Equal(t, "block", resp.GetSecrule().GetName())
+	assert.Equal(t, int32(7), resp.GetSecrule().GetPriority())
 	assert.Equal(t, _resourceId,
-		resp.GetSecRule().GetOwner().GetResourceId())
+		resp.GetSecrule().GetOwner().GetResourceId())
 
 	before, after, paths := change.Get()
 	assert.NotEqual(t, "block", before.(*securitypb.SecRule).GetName())
@@ -62,7 +62,7 @@ func TestUpdateSecRuleOwnerNotUpdatable(t *testing.T) {
 	_, err := f.svc.UpdateSecRule(portalUser(t),
 		&securitypb.UpdateSecRuleRequest{
 			Id:         _ruleId,
-			SecRule:    &securitypb.SecRule{Owner: ownedBy(_foreignId)},
+			Secrule:    &securitypb.SecRule{Owner: ownedBy(_foreignId)},
 			UpdateMask: maskOf("owner"),
 		})
 
@@ -76,11 +76,11 @@ func TestUpdateRateLimitValidatesTheResult(t *testing.T) {
 	stored.MaxRequests, stored.TimeWindow = 10, "1m"
 
 	// max_requests cleared: the rule left has none
-	_, err := f.svc.UpdateRateLimit(portalUser(t),
-		&securitypb.UpdateRateLimitRequest{
-			Id:         _ruleId,
-			RateLimit:  &securitypb.RateLimit{Name: "api"},
-			UpdateMask: maskOf(securitypb.RateLimit_MaxRequests),
+	_, err := f.svc.UpdateSecRateLimit(portalUser(t),
+		&securitypb.UpdateSecRateLimitRequest{
+			Id:           _ruleId,
+			Secratelimit: &securitypb.SecRateLimit{Name: "api"},
+			UpdateMask:   maskOf(securitypb.SecRateLimit_MaxRequests),
 		})
 
 	assert.Equal(t, codes.InvalidArgument, status.Code(err))

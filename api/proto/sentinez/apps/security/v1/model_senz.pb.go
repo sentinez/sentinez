@@ -4,7 +4,7 @@
 package securitypb
 
 import (
-	v11 "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	v11 "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	protojson "google.golang.org/protobuf/encoding/protojson"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -28,33 +28,33 @@ const (
 )
 
 const (
-	RateLimit_OwnerCreatedAt  = "owner_created_at"
-	RateLimit_OwnerUpdatedAt  = "owner_updated_at"
-	RateLimit_OwnerResourceId = "owner_resource_id"
-	RateLimit_OwnerTenantId   = "owner_tenant_id"
-	RateLimit_Id              = "id"
-	RateLimit_Name            = "name"
-	RateLimit_Description     = "description"
-	RateLimit_Expr            = "expr"
-	RateLimit_Action          = "action"
-	RateLimit_ActionValue     = "action_value"
-	RateLimit_Status          = "status"
-	RateLimit_Priority        = "priority"
-	RateLimit_TimeWindow      = "time_window"
-	RateLimit_MaxRequests     = "max_requests"
-	RateLimit_Timeout         = "timeout"
-	RateLimit_ExprPreview     = "expr_preview"
+	SecRateLimit_OwnerCreatedAt  = "owner_created_at"
+	SecRateLimit_OwnerUpdatedAt  = "owner_updated_at"
+	SecRateLimit_OwnerResourceId = "owner_resource_id"
+	SecRateLimit_OwnerTenantId   = "owner_tenant_id"
+	SecRateLimit_Id              = "id"
+	SecRateLimit_Name            = "name"
+	SecRateLimit_Description     = "description"
+	SecRateLimit_Expr            = "expr"
+	SecRateLimit_Action          = "action"
+	SecRateLimit_ActionValue     = "action_value"
+	SecRateLimit_Status          = "status"
+	SecRateLimit_Priority        = "priority"
+	SecRateLimit_TimeWindow      = "time_window"
+	SecRateLimit_MaxRequests     = "max_requests"
+	SecRateLimit_Timeout         = "timeout"
+	SecRateLimit_ExprPreview     = "expr_preview"
 )
 
 const (
-	CoreRuleset_OwnerCreatedAt  = "owner_created_at"
-	CoreRuleset_OwnerUpdatedAt  = "owner_updated_at"
-	CoreRuleset_OwnerResourceId = "owner_resource_id"
-	CoreRuleset_OwnerTenantId   = "owner_tenant_id"
-	CoreRuleset_Id              = "id"
-	CoreRuleset_Name            = "name"
-	CoreRuleset_Description     = "description"
-	CoreRuleset_Content         = "content"
+	SecRuleset_OwnerCreatedAt  = "owner_created_at"
+	SecRuleset_OwnerUpdatedAt  = "owner_updated_at"
+	SecRuleset_OwnerResourceId = "owner_resource_id"
+	SecRuleset_OwnerTenantId   = "owner_tenant_id"
+	SecRuleset_Id              = "id"
+	SecRuleset_Name            = "name"
+	SecRuleset_Description     = "description"
+	SecRuleset_Setting         = "setting"
 )
 
 // SecRuleColumns returns the columns of SecRule, in the order ScanOneSecRule scans them.
@@ -151,28 +151,28 @@ func ScanSecRule[R interface {
 	return ms, rows.Err()
 }
 
-// RateLimitColumns returns the columns of RateLimit, in the order ScanOneRateLimit scans them.
-func RateLimitColumns() []string {
+// SecRateLimitColumns returns the columns of SecRateLimit, in the order ScanOneSecRateLimit scans them.
+func SecRateLimitColumns() []string {
 	return []string{
-		RateLimit_OwnerCreatedAt,
-		RateLimit_OwnerUpdatedAt,
-		RateLimit_OwnerResourceId,
-		RateLimit_OwnerTenantId,
-		RateLimit_Id,
-		RateLimit_Name,
-		RateLimit_Description,
-		RateLimit_Expr,
-		RateLimit_Action,
-		RateLimit_Status,
-		RateLimit_Priority,
-		RateLimit_TimeWindow,
-		RateLimit_MaxRequests,
-		RateLimit_Timeout,
+		SecRateLimit_OwnerCreatedAt,
+		SecRateLimit_OwnerUpdatedAt,
+		SecRateLimit_OwnerResourceId,
+		SecRateLimit_OwnerTenantId,
+		SecRateLimit_Id,
+		SecRateLimit_Name,
+		SecRateLimit_Description,
+		SecRateLimit_Expr,
+		SecRateLimit_Action,
+		SecRateLimit_Status,
+		SecRateLimit_Priority,
+		SecRateLimit_TimeWindow,
+		SecRateLimit_MaxRequests,
+		SecRateLimit_Timeout,
 	}
 }
 
-// RateLimitValues returns the values of m, in the order of RateLimitColumns.
-func RateLimitValues(m *RateLimit) ([]any, error) {
+// SecRateLimitValues returns the values of m, in the order of SecRateLimitColumns.
+func SecRateLimitValues(m *SecRateLimit) ([]any, error) {
 	var colOwnerCreatedAt any
 	if v := m.GetOwner().GetCreatedAt(); v != nil {
 		colOwnerCreatedAt = v.AsTime()
@@ -199,9 +199,9 @@ func RateLimitValues(m *RateLimit) ([]any, error) {
 	}, nil
 }
 
-// ScanOneRateLimit scans row, holding the columns of RateLimitColumns, into a RateLimit.
-func ScanOneRateLimit[R interface{ Scan(dest ...any) error }](row R) (*RateLimit, error) {
-	m := &RateLimit{Owner: &v1.Owner{}}
+// ScanOneSecRateLimit scans row, holding the columns of SecRateLimitColumns, into a SecRateLimit.
+func ScanOneSecRateLimit[R interface{ Scan(dest ...any) error }](row R) (*SecRateLimit, error) {
+	m := &SecRateLimit{Owner: &v1.Owner{}}
 	var (
 		colOwnerCreatedAt  time.Time
 		colOwnerUpdatedAt  time.Time
@@ -237,15 +237,15 @@ func ScanOneRateLimit[R interface{ Scan(dest ...any) error }](row R) (*RateLimit
 	return m, nil
 }
 
-// ScanRateLimit scans each row of rows with ScanOneRateLimit.
-func ScanRateLimit[R interface {
+// ScanSecRateLimit scans each row of rows with ScanOneSecRateLimit.
+func ScanSecRateLimit[R interface {
 	Next() bool
 	Scan(dest ...any) error
 	Err() error
-}](rows R) ([]*RateLimit, error) {
-	var ms []*RateLimit
+}](rows R) ([]*SecRateLimit, error) {
+	var ms []*SecRateLimit
 	for rows.Next() {
-		m, err := ScanOneRateLimit(rows)
+		m, err := ScanOneSecRateLimit(rows)
 		if err != nil {
 			return nil, err
 		}
@@ -254,22 +254,22 @@ func ScanRateLimit[R interface {
 	return ms, rows.Err()
 }
 
-// CoreRulesetColumns returns the columns of CoreRuleset, in the order ScanOneCoreRuleset scans them.
-func CoreRulesetColumns() []string {
+// SecRulesetColumns returns the columns of SecRuleset, in the order ScanOneSecRuleset scans them.
+func SecRulesetColumns() []string {
 	return []string{
-		CoreRuleset_OwnerCreatedAt,
-		CoreRuleset_OwnerUpdatedAt,
-		CoreRuleset_OwnerResourceId,
-		CoreRuleset_OwnerTenantId,
-		CoreRuleset_Id,
-		CoreRuleset_Name,
-		CoreRuleset_Description,
-		CoreRuleset_Content,
+		SecRuleset_OwnerCreatedAt,
+		SecRuleset_OwnerUpdatedAt,
+		SecRuleset_OwnerResourceId,
+		SecRuleset_OwnerTenantId,
+		SecRuleset_Id,
+		SecRuleset_Name,
+		SecRuleset_Description,
+		SecRuleset_Setting,
 	}
 }
 
-// CoreRulesetValues returns the values of m, in the order of CoreRulesetColumns.
-func CoreRulesetValues(m *CoreRuleset) ([]any, error) {
+// SecRulesetValues returns the values of m, in the order of SecRulesetColumns.
+func SecRulesetValues(m *SecRuleset) ([]any, error) {
 	var colOwnerCreatedAt any
 	if v := m.GetOwner().GetCreatedAt(); v != nil {
 		colOwnerCreatedAt = v.AsTime()
@@ -278,13 +278,13 @@ func CoreRulesetValues(m *CoreRuleset) ([]any, error) {
 	if v := m.GetOwner().GetUpdatedAt(); v != nil {
 		colOwnerUpdatedAt = v.AsTime()
 	}
-	var colContent []byte
-	if v := m.GetContent(); v != nil {
+	var colSetting []byte
+	if v := m.GetSetting(); v != nil {
 		b, err := protojson.Marshal(v)
 		if err != nil {
 			return nil, err
 		}
-		colContent = b
+		colSetting = b
 	}
 	return []any{
 		colOwnerCreatedAt,
@@ -294,19 +294,19 @@ func CoreRulesetValues(m *CoreRuleset) ([]any, error) {
 		m.GetId(),
 		m.GetName(),
 		m.GetDescription(),
-		colContent,
+		colSetting,
 	}, nil
 }
 
-// ScanOneCoreRuleset scans row, holding the columns of CoreRulesetColumns, into a CoreRuleset.
-func ScanOneCoreRuleset[R interface{ Scan(dest ...any) error }](row R) (*CoreRuleset, error) {
-	m := &CoreRuleset{Owner: &v1.Owner{}}
+// ScanOneSecRuleset scans row, holding the columns of SecRulesetColumns, into a SecRuleset.
+func ScanOneSecRuleset[R interface{ Scan(dest ...any) error }](row R) (*SecRuleset, error) {
+	m := &SecRuleset{Owner: &v1.Owner{}}
 	var (
 		colOwnerCreatedAt  time.Time
 		colOwnerUpdatedAt  time.Time
 		colOwnerResourceId *string
 		colOwnerTenantId   *string
-		colContent         []byte
+		colSetting         []byte
 	)
 	if err := row.Scan(
 		&colOwnerCreatedAt,
@@ -316,7 +316,7 @@ func ScanOneCoreRuleset[R interface{ Scan(dest ...any) error }](row R) (*CoreRul
 		&m.Id,
 		&m.Name,
 		&m.Description,
-		&colContent,
+		&colSetting,
 	); err != nil {
 		return nil, err
 	}
@@ -328,24 +328,24 @@ func ScanOneCoreRuleset[R interface{ Scan(dest ...any) error }](row R) (*CoreRul
 	if colOwnerTenantId != nil {
 		m.Owner.TenantId = *colOwnerTenantId
 	}
-	if len(colContent) != 0 {
-		m.Content = &v11.CoreRuleset{}
-		if err := (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(colContent, m.Content); err != nil {
+	if len(colSetting) != 0 {
+		m.Setting = &v11.Setting{}
+		if err := (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(colSetting, m.Setting); err != nil {
 			return nil, err
 		}
 	}
 	return m, nil
 }
 
-// ScanCoreRuleset scans each row of rows with ScanOneCoreRuleset.
-func ScanCoreRuleset[R interface {
+// ScanSecRuleset scans each row of rows with ScanOneSecRuleset.
+func ScanSecRuleset[R interface {
 	Next() bool
 	Scan(dest ...any) error
 	Err() error
-}](rows R) ([]*CoreRuleset, error) {
-	var ms []*CoreRuleset
+}](rows R) ([]*SecRuleset, error) {
+	var ms []*SecRuleset
 	for rows.Next() {
-		m, err := ScanOneCoreRuleset(rows)
+		m, err := ScanOneSecRuleset(rows)
 		if err != nil {
 			return nil, err
 		}

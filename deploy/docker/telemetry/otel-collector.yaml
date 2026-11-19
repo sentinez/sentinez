@@ -41,12 +41,12 @@ connectors:
         pipelines: [logs/http]
       - statement: route() where attributes["kind"] == "LOG_TYPE_HTTP_EGRESS"
         pipelines: [logs/egress]
-      - statement: route() where attributes["kind"] == "LOG_TYPE_CORE_RULESETS"
-        pipelines: [logs/rulesets]
-      - statement: route() where attributes["kind"] == "LOG_TYPE_SEC_RULE"
+      - statement: route() where attributes["kind"] == "LOG_TYPE_SECRULESET"
+        pipelines: [logs/secruleset]
+      - statement: route() where attributes["kind"] == "LOG_TYPE_SECRULE"
         pipelines: [logs/secrule]
-      - statement: route() where attributes["kind"] == "LOG_TYPE_RATE_LIMIT"
-        pipelines: [logs/ratelimit]
+      - statement: route() where attributes["kind"] == "LOG_TYPE_SECRATELIMIT"
+        pipelines: [logs/secratelimit]
       - statement: route() where attributes["kind"] == "LOG_TYPE_CDN_RULE"
         pipelines: [logs/cdn]
 
@@ -74,15 +74,15 @@ exporters:
   kafka/logs_egress:
     <<: *kafka_logs
     topic: sentinez.event.http.egress.otlp
-  kafka/logs_rulesets:
+  kafka/logs_secruleset:
     <<: *kafka_logs
-    topic: sentinez.event.http.rulesets.otlp
+    topic: sentinez.event.http.secruleset.otlp
   kafka/logs_secrule:
     <<: *kafka_logs
     topic: sentinez.event.http.secrule.otlp
-  kafka/logs_ratelimit:
+  kafka/logs_secratelimit:
     <<: *kafka_logs
-    topic: sentinez.event.http.ratelimit.otlp
+    topic: sentinez.event.http.secratelimit.otlp
   kafka/logs_cdn:
     <<: *kafka_logs
     topic: sentinez.event.http.cdnrule.otlp
@@ -143,18 +143,18 @@ service:
       receivers: [routing/logs]
       processors: [batch]
       exporters: [kafka/logs_egress]
-    logs/rulesets:
+    logs/secruleset:
       receivers: [routing/logs]
       processors: [batch]
-      exporters: [kafka/logs_rulesets]
+      exporters: [kafka/logs_secruleset]
     logs/secrule:
       receivers: [routing/logs]
       processors: [batch]
       exporters: [kafka/logs_secrule]
-    logs/ratelimit:
+    logs/secratelimit:
       receivers: [routing/logs]
       processors: [batch]
-      exporters: [kafka/logs_ratelimit]
+      exporters: [kafka/logs_secratelimit]
     logs/cdn:
       receivers: [routing/logs]
       processors: [batch]

@@ -20,7 +20,7 @@ import (
 	"testing"
 
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
-	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -28,13 +28,13 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type listRules = securitypb.ListRuleInfosRequest
+type listRules = securitypb.ListCRSRuleInfosRequest
 
 func listRuleIds(t *testing.T, req *listRules) ([]uint32, int64) {
 	t.Helper()
 
 	resp, err := New(nil, nil, nil, nil, nil).
-		ListRuleInfos(context.Background(), req)
+		ListCRSRuleInfos(context.Background(), req)
 	require.NoError(t, err)
 
 	ids := make([]uint32, 0, len(resp.GetRules()))
@@ -46,8 +46,8 @@ func listRuleIds(t *testing.T, req *listRules) ([]uint32, int64) {
 }
 
 // nolint:funlen
-func TestListRuleInfos(t *testing.T) {
-	sqli := []corerulesetpb.Category{corerulesetpb.Category_CATEGORY_SQLI}
+func TestListCRSRuleInfos(t *testing.T) {
+	sqli := []rulesetpb.Category{rulesetpb.Category_CATEGORY_SQLI}
 
 	tests := []struct {
 		name      string
@@ -119,9 +119,9 @@ func TestListRuleInfos(t *testing.T) {
 		{
 			name: "version",
 			give: &listRules{
-				Version: corerulesetpb.Version_VERSION_V4_16_0,
-				Categories: []corerulesetpb.Category{
-					corerulesetpb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
+				Version: rulesetpb.CRSVersion_CRS_VERSION_V4_16_0,
+				Categories: []rulesetpb.Category{
+					rulesetpb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
 				},
 			},
 			wantIds: []uint32{},
@@ -143,13 +143,13 @@ func TestListRuleInfos(t *testing.T) {
 	}
 }
 
-type listTags = securitypb.ListRuleTagsRequest
+type listTags = securitypb.ListCRSRuleTagsRequest
 
 func listTagNames(t *testing.T, req *listTags) ([]string, int64) {
 	t.Helper()
 
 	resp, err := New(nil, nil, nil, nil, nil).
-		ListRuleTags(context.Background(), req)
+		ListCRSRuleTags(context.Background(), req)
 	require.NoError(t, err)
 
 	names := make([]string, 0, len(resp.GetTags()))
@@ -161,7 +161,7 @@ func listTagNames(t *testing.T, req *listTags) ([]string, int64) {
 	return names, resp.GetTotal()
 }
 
-func TestListRuleTags(t *testing.T) {
+func TestListCRSRuleTags(t *testing.T) {
 	tests := []struct {
 		name      string
 		give      *listTags
@@ -196,15 +196,15 @@ func TestListRuleTags(t *testing.T) {
 	}
 }
 
-func TestListRuleTagsCount(t *testing.T) {
+func TestListCRSRuleTagsCount(t *testing.T) {
 	srv := New(nil, nil, nil, nil, nil)
 
-	tags, err := srv.ListRuleTags(context.Background(),
+	tags, err := srv.ListCRSRuleTags(context.Background(),
 		&listTags{Search: "crs/attack-sqli"})
 	require.NoError(t, err)
 	require.Len(t, tags.GetTags(), 1)
 
-	rules, err := srv.ListRuleInfos(context.Background(),
+	rules, err := srv.ListCRSRuleInfos(context.Background(),
 		&listRules{Tags: []string{"OWASP_CRS/ATTACK-SQLI"}})
 	require.NoError(t, err)
 
@@ -212,7 +212,7 @@ func TestListRuleTagsCount(t *testing.T) {
 		rules.GetTotal(), int64(tags.GetTags()[0].GetRuleCount()))
 }
 
-func TestListRuleTagsSystem(t *testing.T) {
+func TestListCRSRuleTagsSystem(t *testing.T) {
 	without, _ := listTagNames(t, &listTags{})
 	with, _ := listTagNames(t, &listTags{IncludeSystem: true})
 
@@ -221,18 +221,18 @@ func TestListRuleTagsSystem(t *testing.T) {
 	assert.True(t, slices.IsSorted(without))
 }
 
-func TestGetRuleInfo(t *testing.T) {
+func TestGetCRSRuleInfo(t *testing.T) {
 	srv := New(nil, nil, nil, nil, nil)
 
-	resp, err := srv.GetRuleInfo(context.Background(),
-		&securitypb.GetRuleInfoRequest{Id: 942100})
+	resp, err := srv.GetCRSRuleInfo(context.Background(),
+		&securitypb.GetCRSRuleInfoRequest{Id: 942100})
 	require.NoError(t, err)
 	assert.Equal(t, uint32(942100), resp.GetRule().GetId())
 	assert.Equal(t,
-		corerulesetpb.Category_CATEGORY_SQLI, resp.GetRule().GetCategory())
+		rulesetpb.Category_CATEGORY_SQLI, resp.GetRule().GetCategory())
 	assert.Contains(t, resp.GetRule().GetTags(), "attack-sqli")
 
-	_, err = srv.GetRuleInfo(context.Background(),
-		&securitypb.GetRuleInfoRequest{Id: 999999})
+	_, err = srv.GetCRSRuleInfo(context.Background(),
+		&securitypb.GetCRSRuleInfoRequest{Id: 999999})
 	assert.Equal(t, codes.NotFound, status.Code(err))
 }

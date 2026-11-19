@@ -8,7 +8,7 @@ import { EventKind } from '@sentinez/proto/sentinez/apps/analytic/v1/event';
 import { ActionType } from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import { SecRuleEvent } from '@sentinez/proto/sentinez/types/secrule/v1/event';
 import { useSecurityOptions } from '@/hooks/use-security-options';
-import { listRateLimitEvents, listSecRuleEvents, type ApiOptions } from '@/lib/api/analytic';
+import { listSecRateLimitEvents, listSecRuleEvents, type ApiOptions } from '@/lib/api/analytic';
 import { ACTION_TYPE_BADGE_VARIANT } from '@/lib/type/security';
 import type { EventConfig, ListRequest } from '../types';
 import { useDomain } from '@/hooks/use-domain';
@@ -28,7 +28,7 @@ export type SecRuleKind = 'secRule' | 'rateLimit';
 
 const KINDS = {
   secRule: {
-    kind: EventKind.EVENT_KIND_SEC_RULE,
+    kind: EventKind.EVENT_KIND_SECRULE,
     list: async (req: ListRequest, options?: ApiOptions) =>
       (await listSecRuleEvents(req, options)).events,
     // the security page of the matched rules
@@ -37,10 +37,10 @@ const KINDS = {
     color: STATUS_COLORS.s5xx,
   },
   rateLimit: {
-    kind: EventKind.EVENT_KIND_RATE_LIMIT,
+    kind: EventKind.EVENT_KIND_SECRATELIMIT,
     list: async (req: ListRequest, options?: ApiOptions) =>
-      (await listRateLimitEvents(req, options)).events,
-    rulePage: 'rate-limiter',
+      (await listSecRateLimitEvents(req, options)).events,
+    rulePage: 'sec-rate-limit',
     rulesColumn: 'rateLimiters',
     color: STATUS_COLORS.s4xx,
   },

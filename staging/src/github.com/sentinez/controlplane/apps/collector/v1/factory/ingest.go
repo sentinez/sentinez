@@ -23,10 +23,10 @@ import (
 
 	"github.com/sentinez/controlplane/apps/collector/v1/ingest"
 	auditlogsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/auditlogs"
-	coreruleeventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/coreruleevents"
 	httpegresseventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/httpegressevents"
 	httpingresseventrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/httpingressevent"
 	secruleeventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/secruleevents"
+	secruleseteventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/secrulesetevents"
 	"github.com/sentinez/pkg/szkafka"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/sztopic"
@@ -94,11 +94,11 @@ func newEdgeSinks(ctx context.Context,
 	if err != nil {
 		return nil, err
 	}
-	rateLimits, err := secruleeventsrepo.NewRateLimits(ctx, conf)
+	secRateLimits, err := secruleeventsrepo.NewSecRateLimits(ctx, conf)
 	if err != nil {
 		return nil, err
 	}
-	coreRules, err := coreruleeventsrepo.New(ctx, conf)
+	secRulesets, err := secruleseteventsrepo.New(ctx, conf)
 	if err != nil {
 		return nil, err
 	}
@@ -114,10 +114,10 @@ func newEdgeSinks(ctx context.Context,
 	return map[sztopic.Topic]ingest.Sink{
 		sztopic.EventHTTPSecRule: ingest.NewSecRuleEventSink(
 			secRules.Create),
-		sztopic.EventHTTPRateLimit: ingest.NewSecRuleEventSink(
-			rateLimits.Create),
-		sztopic.EventHTTPRulesets: ingest.NewCoreRuleEventSink(
-			coreRules.Create),
+		sztopic.EventHTTPSecRateLimit: ingest.NewSecRuleEventSink(
+			secRateLimits.Create),
+		sztopic.EventHTTPSecRuleset: ingest.NewSecRulesetEventSink(
+			secRulesets.Create),
 		sztopic.EventHTTPIngress: ingest.NewHttpIngressEventSink(
 			ingress.Create),
 		sztopic.EventHTTPEgress: ingest.NewHttpEgressEventSink(

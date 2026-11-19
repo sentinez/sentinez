@@ -1,0 +1,147 @@
+// Copyright 2025 Duc-Hung Ho.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package secrulesets
+
+import (
+	"fmt"
+	"io/fs"
+	"sync"
+
+	"github.com/corazawaf/coraza/v3"
+	"github.com/sentinez/core/szcrs"
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/szsync"
+	"github.com/sentinez/sentinez"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
+	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+)
+
+var (
+	_once         sync.Once
+	_rulesetsInst *Rulesets
+)
+
+func New() *Rulesets {
+	_once.Do(func() {
+		_rulesetsInst = &Rulesets{
+			space: szsync.NewMap[string, coraza.WAF](),
+		}
+	})
+
+	return _rulesetsInst
+}
+
+type Rulesets struct {
+	// key: namespace, the resource domain of the server (dev.sentinez.vn)
+	space *szsync.Map[string, coraza.WAF]
+}
+
+// Store builds the WAF of namespace from setting. A setting without a
+// CRS to run removes it: the request then skips the WAF.
+func (rs *Rulesets) Store(
+	namespace string, setting *rulesetpb.Setting,
+) error {
+
+	if rs == nil {
+		return nil
+	}
+
+	if !runsCrs(setting) {
+		rs.space.Delete(namespace)
+		return nil
+	}
+
+	waf, err := newWAF(setting.GetCrs())
+	if err != nil {
+		return err
+	}
+
+	rs.space.Store(namespace, waf)
+	if waf != nil {
+		szlog.Infof("edge: WAF initialized successfully, ns=%s", namespace)
+	}
+
+	return nil
+}
+
+func (rs *Rulesets) Load(namespace string) (coraza.WAF, bool) {
+	if rs == nil {
+		return nil, false
+	}
+
+	value, ok := rs.space.Load(namespace)
+	if !ok {
+		return nil, false
+	}
+
+	return value, true
+}
+
+func (rs *Rulesets) LoadContext(ctx szhttp.Context) (coraza.WAF, bool) {
+	if rs == nil {
+		return nil, false
+	}
+
+	szlog.Debugf("edge: namespace: hit WAF cached %s", ctx.X().GetNamespace())
+	return rs.Load(ctx.X().GetNamespace())
+}
+
+// runsCrs reports whether the edge runs the OWASP CRS of setting: it is
+// active, its provider is OWASP (unset = OWASP) and its engine is on.
+func runsCrs(setting *rulesetpb.Setting) bool {
+	if setting.GetStatus() != typepb.Status_STATUS_ACTIVE {
+		return false
+	}
+
+	switch setting.GetProvider() {
+	case rulesetpb.Provider_PROVIDER_UNSPECIFIED,
+		rulesetpb.Provider_PROVIDER_OWASP:
+		return szcrs.Enabled(setting.GetCrs())
+	}
+
+	return false
+}
+
+// newWAF builds the coraza.WAF of crs from the embedded CRS of its
+// version.
+func newWAF(crs *rulesetpb.Crs) (coraza.WAF, error) {
+	rootFs, err := crsMap(crs.GetVersion())
+	if err != nil {
+		return nil, err
+	}
+
+	return szcrs.NewWAF(rootFs, crs)
+}
+
+func crsMap(version rulesetpb.CRSVersion) (fs.FS, error) {
+	switch version {
+	case rulesetpb.CRSVersion_CRS_VERSION_V4_16_0:
+		return sentinez.WAF4160(), nil
+	case rulesetpb.CRSVersion_CRS_VERSION_V4_17_0:
+		return sentinez.WAF4170(), nil
+	}
+
+	return nil, fmt.Errorf("waf: ruleset version invalid")
+}
+
+// Delete removes what namespace holds.
+func (rs *Rulesets) Delete(namespace string) {
+	if rs == nil {
+		return
+	}
+
+	rs.space.Delete(namespace)
+}

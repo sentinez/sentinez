@@ -36,9 +36,9 @@ const (
 	// at the end of the channel shows in no gap, and this finds it.
 	DefaultResync = 5 * time.Minute
 
-	_retryMin = time.Second
-	_retryMax = 30 * time.Second
-	_retryHot = 100 * time.Millisecond
+	_retryStart = time.Second
+	_retryMax   = 30 * time.Second
+	_retryHot   = 100 * time.Millisecond
 )
 
 // errResync ends a session: the edge must load the tables again.
@@ -129,11 +129,11 @@ func (f *Follower) Close() {
 func (f *Follower) run(ctx context.Context) {
 	defer f.wg.Done()
 
-	wait := _retryMin
+	wait := _retryStart
 	for ctx.Err() == nil {
 		err := f.session(ctx)
 		if errors.Is(err, errResync) {
-			wait = _retryMin
+			wait = _retryStart
 			sleep(ctx, _retryHot)
 
 			continue

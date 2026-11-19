@@ -21,7 +21,7 @@ import "google/api/annotations.proto";
 import "google/protobuf/field_mask.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "sentinez/apps/security/v1/model.proto";
-import "sentinez/types/coreruleset/v1/setting.proto";
+import "sentinez/types/ruleset/v1/setting.proto";
 import "sentinez/types/v1/known.proto";
 import "sentinez/types/v1/model.proto";
 import "sentinez/types/v1/options.proto";
@@ -106,36 +106,36 @@ service SecurityService {
 
   // ── RateLimit ─────────────────────────────────────────────────────────────
 
-  // CreateRateLimit creates a new rate limit rule
-  rpc CreateRateLimit(CreateRateLimitRequest) returns (CreateRateLimitResponse) {
+  // CreateSecRateLimit creates a new rate limit rule
+  rpc CreateSecRateLimit(CreateSecRateLimitRequest) returns (CreateSecRateLimitResponse) {
     option (google.api.http) = {
-      post: "/security/ratelimit"
+      post: "/security/secratelimit"
       body: "*"
     };
 
     option (sentinez.types.v1.x_method) = {audit: true};
   }
 
-  // GetRateLimit retrieves a rate limit rule by ID
-  rpc GetRateLimit(GetRateLimitRequest) returns (GetRateLimitResponse) {
-    option (google.api.http) = {get: "/security/ratelimit/{id}"};
+  // GetSecRateLimit retrieves a rate limit rule by ID
+  rpc GetSecRateLimit(GetSecRateLimitRequest) returns (GetSecRateLimitResponse) {
+    option (google.api.http) = {get: "/security/secratelimit/{id}"};
 
     option (sentinez.types.v1.x_method) = {audit: true};
   }
 
-  // UpdateRateLimit updates an existing rate limit rule
-  rpc UpdateRateLimit(UpdateRateLimitRequest) returns (UpdateRateLimitResponse) {
+  // UpdateSecRateLimit updates an existing rate limit rule
+  rpc UpdateSecRateLimit(UpdateSecRateLimitRequest) returns (UpdateSecRateLimitResponse) {
     option (google.api.http) = {
-      put: "/security/ratelimit/{id}"
+      put: "/security/secratelimit/{id}"
       body: "*"
     };
 
     option (sentinez.types.v1.x_method) = {audit: true};
   }
 
-  // DeleteRateLimit removes a rate limit rule by ID
-  rpc DeleteRateLimit(DeleteRateLimitRequest) returns (DeleteRateLimitResponse) {
-    option (google.api.http) = {delete: "/security/ratelimit/{id}"};
+  // DeleteSecRateLimit removes a rate limit rule by ID
+  rpc DeleteSecRateLimit(DeleteSecRateLimitRequest) returns (DeleteSecRateLimitResponse) {
+    option (google.api.http) = {delete: "/security/secratelimit/{id}"};
 
     option (sentinez.types.v1.x_method) = {
       audit: true
@@ -143,45 +143,45 @@ service SecurityService {
     };
   }
 
-  // ListRateLimits lists rate limit rules with optional filters
-  rpc ListRateLimits(ListRateLimitsRequest) returns (ListRateLimitsResponse) {
-    option (google.api.http) = {get: "/security/ratelimits"};
+  // ListSecRateLimits lists rate limit rules with optional filters
+  rpc ListSecRateLimits(ListSecRateLimitsRequest) returns (ListSecRateLimitsResponse) {
+    option (google.api.http) = {get: "/security/secratelimits"};
 
     option (sentinez.types.v1.x_method) = {audit: true};
   }
 
-  // ── CoreRuleset ───────────────────────────────────────────────────────────
+  // ── Ruleset ───────────────────────────────────────────────────────────────
 
-  // CreateCoreRuleset creates a new OWASP CRS configuration
-  rpc CreateCoreRuleset(CreateCoreRulesetRequest) returns (CreateCoreRulesetResponse) {
+  // CreateSecRuleset creates a new OWASP CRS configuration
+  rpc CreateSecRuleset(CreateSecRulesetRequest) returns (CreateSecRulesetResponse) {
     option (google.api.http) = {
-      post: "/security/coreruleset"
+      post: "/security/secruleset"
       body: "*"
     };
 
     option (sentinez.types.v1.x_method) = {audit: true};
   }
 
-  // GetCoreRuleset retrieves an OWASP CRS configuration by ID
-  rpc GetCoreRuleset(GetCoreRulesetRequest) returns (GetCoreRulesetResponse) {
-    option (google.api.http) = {get: "/security/coreruleset/{id}"};
+  // GetSecRuleset retrieves an OWASP CRS configuration by ID
+  rpc GetSecRuleset(GetSecRulesetRequest) returns (GetSecRulesetResponse) {
+    option (google.api.http) = {get: "/security/secruleset/{id}"};
 
     option (sentinez.types.v1.x_method) = {audit: true};
   }
 
-  // UpdateCoreRuleset updates an existing OWASP CRS configuration
-  rpc UpdateCoreRuleset(UpdateCoreRulesetRequest) returns (UpdateCoreRulesetResponse) {
+  // UpdateSecRuleset updates an existing OWASP CRS configuration
+  rpc UpdateSecRuleset(UpdateSecRulesetRequest) returns (UpdateSecRulesetResponse) {
     option (google.api.http) = {
-      put: "/security/coreruleset/{id}"
+      put: "/security/secruleset/{id}"
       body: "*"
     };
 
     option (sentinez.types.v1.x_method) = {audit: true};
   }
 
-  // DeleteCoreRuleset removes an OWASP CRS configuration by ID
-  rpc DeleteCoreRuleset(DeleteCoreRulesetRequest) returns (DeleteCoreRulesetResponse) {
-    option (google.api.http) = {delete: "/security/coreruleset/{id}"};
+  // DeleteSecRuleset removes an OWASP CRS configuration by ID
+  rpc DeleteSecRuleset(DeleteSecRulesetRequest) returns (DeleteSecRulesetResponse) {
+    option (google.api.http) = {delete: "/security/secruleset/{id}"};
 
     option (sentinez.types.v1.x_method) = {
       audit: true
@@ -189,31 +189,31 @@ service SecurityService {
     };
   }
 
-  // ListCoreRulesets lists OWASP CRS configurations, filtered by their
-  // name or by the fields of their content
-  rpc ListCoreRulesets(ListCoreRulesetsRequest) returns (ListCoreRulesetsResponse) {
-    option (google.api.http) = {get: "/security/corerulesets"};
+  // ListSecRulesets lists OWASP CRS configurations, filtered by their
+  // name or by the fields of their ruleset
+  rpc ListSecRulesets(ListSecRulesetsRequest) returns (ListSecRulesetsResponse) {
+    option (google.api.http) = {get: "/security/secrulesets"};
 
     option (sentinez.types.v1.x_method) = {audit: true};
   }
 
   // ── RuleInfo (OWASP CRS rule catalog) ─────────────────────────────────────
 
-  // GetRuleInfo retrieves a rule of the OWASP CRS catalog by ID
-  rpc GetRuleInfo(GetRuleInfoRequest) returns (GetRuleInfoResponse) {
+  // GetCRSRuleInfo retrieves a rule of the OWASP CRS catalog by ID
+  rpc GetCRSRuleInfo(GetCRSRuleInfoRequest) returns (GetCRSRuleInfoResponse) {
     option (google.api.http) = {get: "/security/crs/rules/{id}"};
   }
 
-  // ListRuleInfos searches the OWASP CRS catalog: the rules a CoreRuleset
+  // ListCRSRuleInfos searches the OWASP CRS catalog: the rules a Ruleset
   // can exclude or override, with their tags
-  rpc ListRuleInfos(ListRuleInfosRequest) returns (ListRuleInfosResponse) {
+  rpc ListCRSRuleInfos(ListCRSRuleInfosRequest) returns (ListCRSRuleInfosResponse) {
     option (google.api.http) = {get: "/security/crs/rules"};
   }
 
-  // ListRuleTags lists the tags carried by the rules of the OWASP CRS
-  // catalog: the values a CoreRuleset can exclude, or ListRuleInfos can
+  // ListCRSRuleTags lists the tags carried by the rules of the OWASP CRS
+  // catalog: the values a Ruleset can exclude, or ListCRSRuleInfos can
   // filter by
-  rpc ListRuleTags(ListRuleTagsRequest) returns (ListRuleTagsResponse) {
+  rpc ListCRSRuleTags(ListCRSRuleTagsRequest) returns (ListCRSRuleTagsResponse) {
     option (google.api.http) = {get: "/security/crs/tags"};
   }
 
@@ -230,7 +230,7 @@ service SecurityService {
 // ── SecRule Messages ─────────────────────────────────────────────────────
 
 message CreateSecRuleRequest {
-  SecRule sec_rule = 1 [(buf.validate.field).required = true];
+  SecRule secrule = 1 [(buf.validate.field).required = true];
 }
 
 message CreateSecRuleResponse {
@@ -242,20 +242,20 @@ message GetSecRuleRequest {
 }
 
 message GetSecRuleResponse {
-  SecRule sec_rule = 1;
+  SecRule secrule = 1;
 }
 
 message UpdateSecRuleRequest {
   string id = 1 [(buf.validate.field).string.min_len = 1];
-  SecRule sec_rule = 2 [(buf.validate.field).required = true];
-  // Fields of sec_rule to update, among name, description, expr, status,
+  SecRule secrule = 2 [(buf.validate.field).required = true];
+  // Fields of secrule to update, among name, description, expr, status,
   // priority and action ("*" for all of them); without one, those set in
-  // sec_rule. A named field unset in sec_rule is cleared.
+  // secrule. A named field unset in secrule is cleared.
   google.protobuf.FieldMask update_mask = 3;
 }
 
 message UpdateSecRuleResponse {
-  SecRule sec_rule = 1;
+  SecRule secrule = 1;
 }
 
 message DeleteSecRuleRequest {
@@ -273,31 +273,31 @@ message ListSecRulesRequest {
 }
 
 message ListSecRulesResponse {
-  repeated SecRule sec_rules = 1;
+  repeated SecRule secrules = 1;
   int64 total = 2;
 }
 
 // ── RateLimit Messages ───────────────────────────────────────────────────
 
-message CreateRateLimitRequest {
-  RateLimit rate_limit = 1 [(buf.validate.field).required = true];
+message CreateSecRateLimitRequest {
+  SecRateLimit secratelimit = 1 [(buf.validate.field).required = true];
 }
 
-message CreateRateLimitResponse {
+message CreateSecRateLimitResponse {
   string id = 1;
 }
 
-message GetRateLimitRequest {
+message GetSecRateLimitRequest {
   string id = 1 [(buf.validate.field).string.min_len = 1];
 }
 
-message GetRateLimitResponse {
-  RateLimit rate_limit = 1;
+message GetSecRateLimitResponse {
+  SecRateLimit secratelimit = 1;
 }
 
-message UpdateRateLimitRequest {
+message UpdateSecRateLimitRequest {
   string id = 1 [(buf.validate.field).string.min_len = 1];
-  RateLimit rate_limit = 2 [(buf.validate.field).required = true];
+  SecRateLimit secratelimit = 2 [(buf.validate.field).required = true];
   // Fields of rate_limit to update, among name, description, expr,
   // status, priority, action, time_window, max_requests and timeout ("*"
   // for all of them); without one, those set in rate_limit. A named field
@@ -305,17 +305,17 @@ message UpdateRateLimitRequest {
   google.protobuf.FieldMask update_mask = 3;
 }
 
-message UpdateRateLimitResponse {
-  RateLimit rate_limit = 1;
+message UpdateSecRateLimitResponse {
+  SecRateLimit secratelimit = 1;
 }
 
-message DeleteRateLimitRequest {
+message DeleteSecRateLimitRequest {
   string id = 1 [(buf.validate.field).string.min_len = 1];
 }
 
-message DeleteRateLimitResponse {}
+message DeleteSecRateLimitResponse {}
 
-message ListRateLimitsRequest {
+message ListSecRateLimitsRequest {
   sentinez.types.v1.Pages page = 1;
   repeated string ids = 10;
 
@@ -323,51 +323,51 @@ message ListRateLimitsRequest {
   repeated string resource_ids = 11;
 }
 
-message ListRateLimitsResponse {
-  repeated RateLimit rate_limits = 1;
+message ListSecRateLimitsResponse {
+  repeated SecRateLimit secratelimits = 1;
   int64 total = 2;
 }
 
-// ── CoreRuleset Messages ─────────────────────────────────────────────────
+// ── Ruleset Messages ─────────────────────────────────────────────────────
 
-message CreateCoreRulesetRequest {
-  CoreRuleset core_ruleset = 1 [(buf.validate.field).required = true];
+message CreateSecRulesetRequest {
+  SecRuleset secruleset = 1 [(buf.validate.field).required = true];
 }
 
-message CreateCoreRulesetResponse {
+message CreateSecRulesetResponse {
   string id = 1;
 }
 
-message GetCoreRulesetRequest {
+message GetSecRulesetRequest {
   string id = 1 [(buf.validate.field).string.min_len = 1];
 }
 
-message GetCoreRulesetResponse {
-  CoreRuleset core_ruleset = 1;
+message GetSecRulesetResponse {
+  SecRuleset secruleset = 1;
 }
 
-message UpdateCoreRulesetRequest {
+message UpdateSecRulesetRequest {
   string id = 1 [(buf.validate.field).string.min_len = 1];
-  CoreRuleset core_ruleset = 2 [(buf.validate.field).required = true];
-  // Fields of core_ruleset to update, among name, description and
-  // content ("*" for all of them); without one, those set in core_ruleset.
-  // A named field unset in core_ruleset is cleared.
+  SecRuleset secruleset = 2 [(buf.validate.field).required = true];
+  // Fields of ruleset to update, among name, description and
+  // ruleset ("*" for all of them); without one, those set in ruleset.
+  // A named field unset in ruleset is cleared.
   google.protobuf.FieldMask update_mask = 3;
 }
 
-message UpdateCoreRulesetResponse {
-  CoreRuleset core_ruleset = 1;
+message UpdateSecRulesetResponse {
+  SecRuleset secruleset = 1;
 }
 
-message DeleteCoreRulesetRequest {
+message DeleteSecRulesetRequest {
   string id = 1 [(buf.validate.field).string.min_len = 1];
 }
 
-message DeleteCoreRulesetResponse {}
+message DeleteSecRulesetResponse {}
 
-// ListCoreRulesetsRequest every filter set must match (AND); the values
+// ListSecRulesetsRequest every filter set must match (AND); the values
 // of a repeated filter are alternatives (OR) unless stated otherwise.
-message ListCoreRulesetsRequest {
+message ListSecRulesetsRequest {
   sentinez.types.v1.Pages page = 1;
 
   // Case-insensitive part of the name.
@@ -378,63 +378,71 @@ message ListCoreRulesetsRequest {
   // metadata.resource_id of the rows, any of them.
   repeated string resource_ids = 11;
 
-  // ── Filters on the fields of content ──
+  // ── Filters on the fields of setting ──
 
-  repeated sentinez.types.coreruleset.v1.EngineMode modes = 20;
-  repeated sentinez.types.coreruleset.v1.Version versions = 21;
+  // setting.crs.mode or setting.managed.mode.
+  repeated sentinez.types.ruleset.v1.EngineMode modes = 20;
+
+  // setting.crs.version.
+  repeated sentinez.types.ruleset.v1.CRSVersion versions = 21;
+
+  // setting.status.
   repeated sentinez.types.v1.Status statuses = 22;
 
-  // content.paranoia_level, 0 = any.
+  // setting.crs.paranoia_level, 0 = any.
   uint32 paranoia_level = 23 [(buf.validate.field).uint32 = {lte: 4}];
 
-  // Rule groups all listed in content.categories.
-  repeated sentinez.types.coreruleset.v1.Category categories = 24;
+  // Rule groups all listed in setting.crs.categories.
+  repeated sentinez.types.ruleset.v1.Category categories = 24;
 
-  // Tags excluded by content.exclusions.
+  // Tags excluded by setting.crs.exclusions.
   repeated string exclusion_tags = 25;
 
-  // Rules with a variable excluded by content.exclusions.
+  // Rules with a variable excluded by setting.crs.exclusions.
   repeated uint32 exclusion_rule_ids = 26;
 
-  // Rules with a state changed by content.overrides.
+  // Rules with a state changed by setting.crs.overrides.
   repeated uint32 override_rule_ids = 27;
+
+  // setting.provider; PROVIDER_OWASP also matches an unset provider.
+  repeated sentinez.types.ruleset.v1.Provider providers = 28;
 }
 
-message ListCoreRulesetsResponse {
-  repeated CoreRuleset core_rulesets = 1;
+message ListSecRulesetsResponse {
+  repeated SecRuleset secrulesets = 1;
   int64 total = 2;
 }
 
 // ── RuleInfo Messages ────────────────────────────────────────────────────
 
-message GetRuleInfoRequest {
+message GetCRSRuleInfoRequest {
   uint32 id = 1 [(buf.validate.field).uint32 = {
     gte: 900000
     lte: 999999
   }];
 
   // CRS version of the catalog, unspecified = latest supported.
-  sentinez.types.coreruleset.v1.Version version = 2;
+  sentinez.types.ruleset.v1.CRSVersion version = 2;
 }
 
-message GetRuleInfoResponse {
-  sentinez.types.coreruleset.v1.RuleInfo rule = 1;
+message GetCRSRuleInfoResponse {
+  sentinez.types.ruleset.v1.RuleInfo rule = 1;
 }
 
-// ListRuleInfosRequest every filter set must match (AND); the values of
+// ListCRSRuleInfosRequest every filter set must match (AND); the values of
 // a repeated filter are alternatives (OR) unless stated otherwise.
-message ListRuleInfosRequest {
+message ListCRSRuleInfosRequest {
   sentinez.types.v1.Pages page = 1;
 
   // CRS version of the catalog, unspecified = latest supported.
-  sentinez.types.coreruleset.v1.Version version = 2;
+  sentinez.types.ruleset.v1.CRSVersion version = 2;
 
   // Case-insensitive part of the message or of a tag, or the leading
   // digits of the ID (ex: "9421").
   string search = 3;
 
   repeated uint32 ids = 10;
-  repeated sentinez.types.coreruleset.v1.Category categories = 11;
+  repeated sentinez.types.ruleset.v1.Category categories = 11;
   repeated uint32 paranoia_levels = 12;
 
   // CRITICAL, ERROR, WARNING, NOTICE; case-insensitive.
@@ -448,8 +456,8 @@ message ListRuleInfosRequest {
   bool include_system = 15;
 }
 
-message ListRuleInfosResponse {
-  repeated sentinez.types.coreruleset.v1.RuleInfo rules = 1;
+message ListCRSRuleInfosResponse {
+  repeated sentinez.types.ruleset.v1.RuleInfo rules = 1;
 
   // Number of rules matching the filters, whatever the page.
   int64 total = 2;
@@ -463,21 +471,21 @@ message RuleTag {
   uint32 rule_count = 2;
 }
 
-message ListRuleTagsRequest {
+message ListCRSRuleTagsRequest {
   sentinez.types.v1.Pages page = 1;
 
   // CRS version of the catalog, unspecified = latest supported.
-  sentinez.types.coreruleset.v1.Version version = 2;
+  sentinez.types.ruleset.v1.CRSVersion version = 2;
 
   // Case-insensitive part of the tag, ex: "attack".
   string search = 3;
 
   // Tags only carried by system rules (init, evaluation, flow control)
-  // are left out unless asked for, as ListRuleInfos does.
+  // are left out unless asked for, as ListCRSRuleInfos does.
   bool include_system = 15;
 }
 
-message ListRuleTagsResponse {
+message ListCRSRuleTagsResponse {
   // Sorted by name.
   repeated RuleTag tags = 1;
 

@@ -3,12 +3,12 @@
 package gen
 
 import (
-	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 )
 
 const Response956DataLeakagesRubyVersion = "OWASP_CRS/4.17.0"
 
-var Response956DataLeakagesRubyOrder = []func() *rulepb.CoreRule{
+var Response956DataLeakagesRubyOrder = []func() *rulesetpb.Rule{
 	R956010,
 	R956011,
 	R956012,
@@ -23,7 +23,7 @@ var Response956DataLeakagesRubyOrder = []func() *rulepb.CoreRule{
 	Response956DataLeakagesRubyMaker_11,
 }
 
-var Response956DataLeakagesRuby = map[string]*rulepb.CoreRule{
+var Response956DataLeakagesRuby = map[string]*rulesetpb.Rule{
 	"956010": R956010(),
 
 	"956011": R956011(),
@@ -50,28 +50,28 @@ var Response956DataLeakagesRuby = map[string]*rulepb.CoreRule{
 }
 
 // Response956DataLeakagesRubyInfo is the catalog of the rules above that have an ID.
-var Response956DataLeakagesRubyInfo = []*rulepb.RuleInfo{
+var Response956DataLeakagesRubyInfo = []*rulesetpb.RuleInfo{
 	{
 		Id:       956010,
-		Category: rulepb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
+		Category: rulesetpb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
 		Tags:     []string{"OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-RUBY"},
 		System:   true,
 	},
 	{
 		Id:       956011,
-		Category: rulepb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
+		Category: rulesetpb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
 		Tags:     []string{"OWASP_CRS"},
 		System:   true,
 	},
 	{
 		Id:       956012,
-		Category: rulepb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
+		Category: rulesetpb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
 		Tags:     []string{"OWASP_CRS"},
 		System:   true,
 	},
 	{
 		Id:            956100,
-		Category:      rulepb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
+		Category:      rulesetpb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
 		ParanoiaLevel: 1,
 		Severity:      "ERROR",
 		Msg:           "RUBY Information Leakage",
@@ -79,7 +79,7 @@ var Response956DataLeakagesRubyInfo = []*rulepb.RuleInfo{
 	},
 	{
 		Id:            956110,
-		Category:      rulepb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
+		Category:      rulesetpb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
 		ParanoiaLevel: 1,
 		Severity:      "ERROR",
 		Msg:           "Ruby source code leakage",
@@ -87,48 +87,48 @@ var Response956DataLeakagesRubyInfo = []*rulepb.RuleInfo{
 	},
 	{
 		Id:       956013,
-		Category: rulepb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
+		Category: rulesetpb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
 		Tags:     []string{"OWASP_CRS"},
 		System:   true,
 	},
 	{
 		Id:       956014,
-		Category: rulepb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
+		Category: rulesetpb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
 		Tags:     []string{"OWASP_CRS"},
 		System:   true,
 	},
 	{
 		Id:       956015,
-		Category: rulepb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
+		Category: rulesetpb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
 		Tags:     []string{"OWASP_CRS"},
 		System:   true,
 	},
 	{
 		Id:       956016,
-		Category: rulepb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
+		Category: rulesetpb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
 		Tags:     []string{"OWASP_CRS"},
 		System:   true,
 	},
 	{
 		Id:       956017,
-		Category: rulepb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
+		Category: rulesetpb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
 		Tags:     []string{"OWASP_CRS"},
 		System:   true,
 	},
 	{
 		Id:       956018,
-		Category: rulepb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
+		Category: rulesetpb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
 		Tags:     []string{"OWASP_CRS"},
 		System:   true,
 	},
 }
 
 // R956010 returns rule with ID 956010
-func R956010() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R956010() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9IRUFERVJTOkNvbnRlbnQtRW5jb2RpbmcgIkBwbSBnemlwIGNvbXByZXNzIGRlZmxhdGUgYnIgenN0ZCIgXAogICAgImlkOjk1NjAxMCxcCiAgICBwaGFzZTo0LFwKICAgIHBhc3MsXAogICAgbm9sb2csXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0RBVEEtTEVBS0FHRVMtUlVCWScsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1Ni1EQVRBLUxFQUtBR0VTLVJVQlki",
-			Fields:    &rulepb.RuleActionField{Id: []string{"956010"}, Phase: []string{"4"}, Tag: []string{"OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-RUBY"}, Ver: []string{"OWASP_CRS/4.17.0"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"956010"}, Phase: []string{"4"}, Tag: []string{"OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-RUBY"}, Ver: []string{"OWASP_CRS/4.17.0"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9IRUFERVJTOkNvbnRlbnQtRW5jb2RpbmcgIkBwbSBnemlwIGNvbXByZXNzIGRlZmxhdGUgYnIgenN0ZCIgXAogICAgImlkOjk1NjAxMCxcCiAgICBwaGFzZTo0LFwKICAgIHBhc3MsXAogICAgbm9sb2csXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0RBVEEtTEVBS0FHRVMtUlVCWScsXAogICAgdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxcCiAgICBza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1Ni1EQVRBLUxFQUtBR0VTLVJVQlki",
 		Level:         "",
@@ -136,11 +136,11 @@ func R956010() *rulepb.CoreRule {
 }
 
 // R956011 returns rule with ID 956011
-func R956011() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R956011() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAxIiAiaWQ6OTU2MDExLHBoYXNlOjMscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1Ni1EQVRBLUxFQUtBR0VTLVJVQlki",
-			Fields:    &rulepb.RuleActionField{Id: []string{"956011"}, Phase: []string{"3"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"956011"}, Phase: []string{"3"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAxIiAiaWQ6OTU2MDExLHBoYXNlOjMscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1Ni1EQVRBLUxFQUtBR0VTLVJVQlki",
 		Level:         "",
@@ -148,11 +148,11 @@ func R956011() *rulepb.CoreRule {
 }
 
 // R956012 returns rule with ID 956012
-func R956012() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R956012() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAxIiAiaWQ6OTU2MDEyLHBoYXNlOjQscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1Ni1EQVRBLUxFQUtBR0VTLVJVQlki",
-			Fields:    &rulepb.RuleActionField{Id: []string{"956012"}, Phase: []string{"4"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"956012"}, Phase: []string{"4"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAxIiAiaWQ6OTU2MDEyLHBoYXNlOjQscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1Ni1EQVRBLUxFQUtBR0VTLVJVQlki",
 		Level:         "",
@@ -160,11 +160,11 @@ func R956012() *rulepb.CoreRule {
 }
 
 // R956100 returns rule with ID 956100
-func R956100() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R956100() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcG1Gcm9tRmlsZSBydWJ5LWVycm9ycy5kYXRhIiBcCiAgICAiaWQ6OTU2MTAwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidSVUJZIEluZm9ybWF0aW9uIExlYWthZ2UnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4wfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidhcHBsaWNhdGlvbi1tdWx0aScsXAogICAgdGFnOidsYW5ndWFnZS1ydWJ5JyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1kaXNjbG9zdXJlJyxcCiAgICB0YWc6J3BhcmFub2lhLWxldmVsLzEnLFwKICAgIHRhZzonT1dBU1BfQ1JTJyxcCiAgICB0YWc6J09XQVNQX0NSUy9EQVRBLUxFQUtBR0VTLVJVQlknLFwKICAgIHRhZzonY2FwZWMvMTAwMC8xMTgvMTE2JyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE3LjAnLFwKICAgIHNldmVyaXR5OidFUlJPUicsXAogICAgc2V0dmFyOid0eC5vdXRib3VuZF9hbm9tYWx5X3Njb3JlX3BsMT0rJXt0eC5lcnJvcl9hbm9tYWx5X3Njb3JlfSci",
-			Fields:    &rulepb.RuleActionField{Id: []string{"956100"}, Msg: []string{"RUBY Information Leakage"}, Phase: []string{"4"}, Tag: []string{"application-multi", "language-ruby", "platform-multi", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-RUBY", "capec/1000/118/116"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"ERROR"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.error_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"956100"}, Msg: []string{"RUBY Information Leakage"}, Phase: []string{"4"}, Tag: []string{"application-multi", "language-ruby", "platform-multi", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-RUBY", "capec/1000/118/116"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"ERROR"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.error_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcG1Gcm9tRmlsZSBydWJ5LWVycm9ycy5kYXRhIiBcCiAgICAiaWQ6OTU2MTAwLFwKICAgIHBoYXNlOjQsXAogICAgYmxvY2ssXAogICAgY2FwdHVyZSxcCiAgICB0Om5vbmUsXAogICAgbXNnOidSVUJZIEluZm9ybWF0aW9uIExlYWthZ2UnLFwKICAgIGxvZ2RhdGE6J01hdGNoZWQgRGF0YTogJXtUWC4wfSBmb3VuZCB3aXRoaW4gJXtNQVRDSEVEX1ZBUl9OQU1FfScsXAogICAgdGFnOidhcHBsaWNhdGlvbi1tdWx0aScsXAogICAgdGFnOidsYW5ndWFnZS1ydWJ5JyxcCiAgICB0YWc6J3BsYXRmb3JtLW11bHRpJyxcCiAgICB0YWc6J2F0dGFjay1kaXNjbG9zdXJlJyxcCiAgICB0YWc6J3BhcmFub2lhLWxldmVsLzEnLFwKICAgIHRhZzonT1dBU1BfQ1JTJyxcCiAgICB0YWc6J09XQVNQX0NSUy9EQVRBLUxFQUtBR0VTLVJVQlknLFwKICAgIHRhZzonY2FwZWMvMTAwMC8xMTgvMTE2JyxcCiAgICB2ZXI6J09XQVNQX0NSUy80LjE3LjAnLFwKICAgIHNldmVyaXR5OidFUlJPUicsXAogICAgc2V0dmFyOid0eC5vdXRib3VuZF9hbm9tYWx5X3Njb3JlX3BsMT0rJXt0eC5lcnJvcl9hbm9tYWx5X3Njb3JlfSci",
 		Level:         "paranoia-level/1",
@@ -172,11 +172,11 @@ func R956100() *rulepb.CoreRule {
 }
 
 // R956110 returns rule with ID 956110
-func R956110() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R956110() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pKSg/OjwlPT9ccyt8I1x7W159XSpcfSkiIFwKICAgICJpZDo5NTYxMTAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J1J1Ynkgc291cmNlIGNvZGUgbGVha2FnZScsXAogICAgbG9nZGF0YTonTWF0Y2hlZCBEYXRhOiAle1RYLjB9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2FwcGxpY2F0aW9uLW11bHRpJyxcCiAgICB0YWc6J2xhbmd1YWdlLXJ1YnknLFwKICAgIHRhZzoncGxhdGZvcm0tbXVsdGknLFwKICAgIHRhZzonYXR0YWNrLWRpc2Nsb3N1cmUnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0RBVEEtTEVBS0FHRVMtUlVCWScsXAogICAgdGFnOidjYXBlYy8xMDAwLzExOC8xMTYnLFwKICAgIHZlcjonT1dBU1BfQ1JTLzQuMTcuMCcsXAogICAgc2V2ZXJpdHk6J0VSUk9SJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmVycm9yX2Fub21hbHlfc2NvcmV9JyI=",
-			Fields:    &rulepb.RuleActionField{Id: []string{"956110"}, Msg: []string{"Ruby source code leakage"}, Phase: []string{"4"}, Tag: []string{"application-multi", "language-ruby", "platform-multi", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-RUBY", "capec/1000/118/116"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"ERROR"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.error_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"956110"}, Msg: []string{"Ruby source code leakage"}, Phase: []string{"4"}, Tag: []string{"application-multi", "language-ruby", "platform-multi", "attack-disclosure", "paranoia-level/1", "OWASP_CRS", "OWASP_CRS/DATA-LEAKAGES-RUBY", "capec/1000/118/116"}, T: []string{"none"}, Ver: []string{"OWASP_CRS/4.17.0"}, Severity: []string{"ERROR"}, Setvar: []string{"tx.outbound_anomaly_score_pl1=+%{tx.error_anomaly_score}"}, Logdata: []string{"Matched Data: %{TX.0} found within %{MATCHED_VAR_NAME}"}},
 		},
 		Configuration: "U2VjUnVsZSBSRVNQT05TRV9CT0RZICJAcnggKD9pKSg/OjwlPT9ccyt8I1x7W159XSpcfSkiIFwKICAgICJpZDo5NTYxMTAsXAogICAgcGhhc2U6NCxcCiAgICBibG9jayxcCiAgICBjYXB0dXJlLFwKICAgIHQ6bm9uZSxcCiAgICBtc2c6J1J1Ynkgc291cmNlIGNvZGUgbGVha2FnZScsXAogICAgbG9nZGF0YTonTWF0Y2hlZCBEYXRhOiAle1RYLjB9IGZvdW5kIHdpdGhpbiAle01BVENIRURfVkFSX05BTUV9JyxcCiAgICB0YWc6J2FwcGxpY2F0aW9uLW11bHRpJyxcCiAgICB0YWc6J2xhbmd1YWdlLXJ1YnknLFwKICAgIHRhZzoncGxhdGZvcm0tbXVsdGknLFwKICAgIHRhZzonYXR0YWNrLWRpc2Nsb3N1cmUnLFwKICAgIHRhZzoncGFyYW5vaWEtbGV2ZWwvMScsXAogICAgdGFnOidPV0FTUF9DUlMnLFwKICAgIHRhZzonT1dBU1BfQ1JTL0RBVEEtTEVBS0FHRVMtUlVCWScsXAogICAgdGFnOidjYXBlYy8xMDAwLzExOC8xMTYnLFwKICAgIHZlcjonT1dBU1BfQ1JTLzQuMTcuMCcsXAogICAgc2V2ZXJpdHk6J0VSUk9SJyxcCiAgICBzZXR2YXI6J3R4Lm91dGJvdW5kX2Fub21hbHlfc2NvcmVfcGwxPSsle3R4LmVycm9yX2Fub21hbHlfc2NvcmV9JyI=",
 		Level:         "paranoia-level/1",
@@ -184,11 +184,11 @@ func R956110() *rulepb.CoreRule {
 }
 
 // R956013 returns rule with ID 956013
-func R956013() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R956013() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAyIiAiaWQ6OTU2MDEzLHBoYXNlOjMscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1Ni1EQVRBLUxFQUtBR0VTLVJVQlki",
-			Fields:    &rulepb.RuleActionField{Id: []string{"956013"}, Phase: []string{"3"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"956013"}, Phase: []string{"3"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAyIiAiaWQ6OTU2MDEzLHBoYXNlOjMscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1Ni1EQVRBLUxFQUtBR0VTLVJVQlki",
 		Level:         "",
@@ -196,11 +196,11 @@ func R956013() *rulepb.CoreRule {
 }
 
 // R956014 returns rule with ID 956014
-func R956014() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R956014() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAyIiAiaWQ6OTU2MDE0LHBoYXNlOjQscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1Ni1EQVRBLUxFQUtBR0VTLVJVQlki",
-			Fields:    &rulepb.RuleActionField{Id: []string{"956014"}, Phase: []string{"4"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"956014"}, Phase: []string{"4"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAyIiAiaWQ6OTU2MDE0LHBoYXNlOjQscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1Ni1EQVRBLUxFQUtBR0VTLVJVQlki",
 		Level:         "",
@@ -208,11 +208,11 @@ func R956014() *rulepb.CoreRule {
 }
 
 // R956015 returns rule with ID 956015
-func R956015() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R956015() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAzIiAiaWQ6OTU2MDE1LHBoYXNlOjMscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1Ni1EQVRBLUxFQUtBR0VTLVJVQlki",
-			Fields:    &rulepb.RuleActionField{Id: []string{"956015"}, Phase: []string{"3"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"956015"}, Phase: []string{"3"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAzIiAiaWQ6OTU2MDE1LHBoYXNlOjMscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1Ni1EQVRBLUxFQUtBR0VTLVJVQlki",
 		Level:         "",
@@ -220,11 +220,11 @@ func R956015() *rulepb.CoreRule {
 }
 
 // R956016 returns rule with ID 956016
-func R956016() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R956016() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAzIiAiaWQ6OTU2MDE2LHBoYXNlOjQscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1Ni1EQVRBLUxFQUtBR0VTLVJVQlki",
-			Fields:    &rulepb.RuleActionField{Id: []string{"956016"}, Phase: []string{"4"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"956016"}, Phase: []string{"4"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCAzIiAiaWQ6OTU2MDE2LHBoYXNlOjQscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1Ni1EQVRBLUxFQUtBR0VTLVJVQlki",
 		Level:         "",
@@ -232,11 +232,11 @@ func R956016() *rulepb.CoreRule {
 }
 
 // R956017 returns rule with ID 956017
-func R956017() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R956017() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCA0IiAiaWQ6OTU2MDE3LHBoYXNlOjMscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1Ni1EQVRBLUxFQUtBR0VTLVJVQlki",
-			Fields:    &rulepb.RuleActionField{Id: []string{"956017"}, Phase: []string{"3"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"956017"}, Phase: []string{"3"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCA0IiAiaWQ6OTU2MDE3LHBoYXNlOjMscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1Ni1EQVRBLUxFQUtBR0VTLVJVQlki",
 		Level:         "",
@@ -244,11 +244,11 @@ func R956017() *rulepb.CoreRule {
 }
 
 // R956018 returns rule with ID 956018
-func R956018() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func R956018() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCA0IiAiaWQ6OTU2MDE4LHBoYXNlOjQscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1Ni1EQVRBLUxFQUtBR0VTLVJVQlki",
-			Fields:    &rulepb.RuleActionField{Id: []string{"956018"}, Phase: []string{"4"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
+			Fields:    &rulesetpb.RuleActionField{Id: []string{"956018"}, Phase: []string{"4"}, Tag: []string{"OWASP_CRS"}, Ver: []string{"OWASP_CRS/4.17.0"}},
 		},
 		Configuration: "U2VjUnVsZSBUWDpERVRFQ1RJT05fUEFSQU5PSUFfTEVWRUwgIkBsdCA0IiAiaWQ6OTU2MDE4LHBoYXNlOjQscGFzcyxub2xvZyx0YWc6J09XQVNQX0NSUycsdmVyOidPV0FTUF9DUlMvNC4xNy4wJyxza2lwQWZ0ZXI6RU5ELVJFU1BPTlNFLTk1Ni1EQVRBLUxFQUtBR0VTLVJVQlki",
 		Level:         "",
@@ -256,11 +256,11 @@ func R956018() *rulepb.CoreRule {
 }
 
 // Response956DataLeakagesRubyMaker_11 returns rule without ID
-func Response956DataLeakagesRubyMaker_11() *rulepb.CoreRule {
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+func Response956DataLeakagesRubyMaker_11() *rulesetpb.Rule {
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: "U2VjTWFya2VyICJFTkQtUkVTUE9OU0UtOTU2LURBVEEtTEVBS0FHRVMtUlVCWSI=",
-			Fields:    &rulepb.RuleActionField{},
+			Fields:    &rulesetpb.RuleActionField{},
 		},
 		Configuration: "U2VjTWFya2VyICJFTkQtUkVTUE9OU0UtOTU2LURBVEEtTEVBS0FHRVMtUlVCWSI=",
 		Level:         "",

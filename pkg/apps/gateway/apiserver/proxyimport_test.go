@@ -79,8 +79,8 @@ func TestStoreProxy(t *testing.T) {
 	assert.Equal(t, &typepb.Owner{
 		TenantId: "tnt_default_admin", ResourceId: "rsrc_default",
 	}, security.owner)
-	require.NotEmpty(t, security.sec.GetSecRules())
-	assert.NotNil(t, security.sec.GetSecRules()[0].GetIngress())
+	require.NotEmpty(t, security.sec.GetSecrules())
+	assert.NotNil(t, security.sec.GetSecrules()[0].GetIngress())
 	assert.NotNil(t, security.sec.GetLimiters()[0].GetIngress())
 }
 

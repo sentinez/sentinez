@@ -25,12 +25,12 @@ func (t Topic) String() string {
 // Edge traffic events, one topic per log type, produced by shared/szkafka.
 // Each record value is the proto event itself (see szkafka.Header*).
 const (
-	EventHTTPIngress   Topic = "sentinez.event.http.ingress"
-	EventHTTPEgress    Topic = "sentinez.event.http.egress"
-	EventHTTPRulesets  Topic = "sentinez.event.http.rulesets"
-	EventHTTPSecRule   Topic = "sentinez.event.http.secrule"
-	EventHTTPRateLimit Topic = "sentinez.event.http.ratelimit"
-	EventHTTPCDNRule   Topic = "sentinez.event.http.cdnrule"
+	EventHTTPIngress      Topic = "sentinez.event.http.ingress"
+	EventHTTPEgress       Topic = "sentinez.event.http.egress"
+	EventHTTPSecRuleset   Topic = "sentinez.event.http.secruleset"
+	EventHTTPSecRule      Topic = "sentinez.event.http.secrule"
+	EventHTTPSecRateLimit Topic = "sentinez.event.http.secratelimit"
+	EventHTTPCDNRule      Topic = "sentinez.event.http.cdnrule"
 
 	EventActivityAuditLog Topic = "sentinez.auditlog.activities"
 )

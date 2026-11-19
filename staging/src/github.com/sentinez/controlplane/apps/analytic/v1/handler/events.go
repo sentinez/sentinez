@@ -75,28 +75,28 @@ func (hdl *AnalyticHandler) ListSecRuleEvents(ctx context.Context,
 	return hdl.service.ListSecRuleEvents(ctx, req)
 }
 
-// ListRateLimitEvents implements pb.AnalyticServiceServer.
-func (hdl *AnalyticHandler) ListRateLimitEvents(ctx context.Context,
-	req *pb.ListRateLimitEventsRequest,
-) (*pb.ListRateLimitEventsResponse, error) {
+// ListSecRateLimitEvents implements pb.AnalyticServiceServer.
+func (hdl *AnalyticHandler) ListSecRateLimitEvents(ctx context.Context,
+	req *pb.ListSecRateLimitEventsRequest,
+) (*pb.ListSecRateLimitEventsResponse, error) {
 	req, ok, err := authz.Scoped(ctx, hdl.authz, req)
 	if err != nil || !ok {
-		return &pb.ListRateLimitEventsResponse{}, err
+		return &pb.ListSecRateLimitEventsResponse{}, err
 	}
 
-	return hdl.service.ListRateLimitEvents(ctx, req)
+	return hdl.service.ListSecRateLimitEvents(ctx, req)
 }
 
-// ListCoreRuleEvents implements pb.AnalyticServiceServer.
-func (hdl *AnalyticHandler) ListCoreRuleEvents(ctx context.Context,
-	req *pb.ListCoreRuleEventsRequest,
-) (*pb.ListCoreRuleEventsResponse, error) {
+// ListSecRulesetEvents implements pb.AnalyticServiceServer.
+func (hdl *AnalyticHandler) ListSecRulesetEvents(ctx context.Context,
+	req *pb.ListSecRulesetEventsRequest,
+) (*pb.ListSecRulesetEventsResponse, error) {
 	req, ok, err := authz.Scoped(ctx, hdl.authz, req)
 	if err != nil || !ok {
-		return &pb.ListCoreRuleEventsResponse{}, err
+		return &pb.ListSecRulesetEventsResponse{}, err
 	}
 
-	return hdl.service.ListCoreRuleEvents(ctx, req)
+	return hdl.service.ListSecRulesetEvents(ctx, req)
 }
 
 // GetEventHistogram implements pb.AnalyticServiceServer.

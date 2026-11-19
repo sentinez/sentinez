@@ -363,10 +363,11 @@
     "cdnSubtitle": "Quản lý các quy tắc mạng phân phối nội dung đang hoạt động"
   },
   "Rulesets": {
-    "title": "Bộ quy tắc bảo mật",
+    "title": "Bộ quy tắc",
     "subtitle": "Quản lý các bộ quy tắc OWASP Core Rule Set đang hoạt động.",
     "name": "Tên",
     "description": "Mô tả",
+    "provider": "Nhà cung cấp",
     "mode": "Chế độ",
     "version": "Phiên bản CRS",
     "paranoiaLevel": "Paranoia",
@@ -375,6 +376,7 @@
     "allGroups": "Tất cả",
     "groupsCount": "{count, plural, other {# nhóm}}",
     "status": "Trạng thái",
+    "notApplicable": "—",
     "allModes": "Mọi chế độ",
     "allStatuses": "Mọi trạng thái",
     "copyId": "Sao chép ID bộ quy tắc",
@@ -392,12 +394,19 @@
     "updated": "Cập nhật bộ quy tắc thành công",
     "saveFailed": "Lưu bộ quy tắc thất bại"
   },
-  "CoreRulesetFields": {
+  "CrsNotice": {
+    "title": "Sử dụng OWASP Core Rule Set",
+    "inUse": "Bộ quy tắc này chạy OWASP Core Rule Set (CRS). Tinh chỉnh bằng các thiết lập bên dưới.",
+    "learnMore": "Tìm hiểu về OWASP CRS"
+  },
+  "RulesetFields": {
     "name": "Tên",
     "namePlaceholder": "Tên bộ quy tắc",
     "description": "Mô tả",
     "status": "Trạng thái",
+    "provider": "Nhà cung cấp",
     "mode": "Chế độ engine",
+    "managedHint": "Ruleset managed do nhà cung cấp duy trì: ở đây chỉ chọn chế độ engine. Các thiết lập CRS vẫn được giữ để dùng lại khi chuyển về OWASP.",
     "engine": "Engine",
     "engineHint": "Phiên bản CRS, mức độ nghiêm ngặt của quy tắc và thời điểm chặn request.",
     "version": "Phiên bản CRS",
@@ -522,6 +531,14 @@
       "ip": "IP nguồn",
       "ja4": "JA4",
       "tls": "TLS"
+    },
+    "provider": {
+      "owasp": "OWASP CRS",
+      "managed": "Managed"
+    },
+    "providerDescription": {
+      "owasp": "Bộ OWASP Core Rule Set, cấu hình theo các thiết lập CRS.",
+      "managed": "Ruleset managed do nhà cung cấp khác duy trì."
     },
     "engineMode": {
       "on": "Chặn",
@@ -722,12 +739,9 @@
     "blockTimeoutHint": "Thời gian client bị chặn sau khi vượt giới hạn."
   },
   "QueryBuilder": {
-    "title": "Biểu thức",
-    "description": "Lắp ghép biểu thức quy tắc bảo mật một cách trực quan.",
     "or": "HOẶC",
     "orGroup": "Nhóm OR",
     "and": "AND",
-    "andGroup": "Nhóm AND",
     "andGroupN": "Nhóm AND {n}",
     "removeGroup": "Xóa nhóm AND {n}",
     "noConditions": "Nhóm này chưa có điều kiện nào.",
@@ -738,7 +752,8 @@
     "keyPlaceholder": "Khóa (ví dụ User-Agent)",
     "operator": "Toán tử",
     "value": "Giá trị",
-    "json": "JSON"
+    "json": "JSON",
+    "addCondition": "Thêm điều kiện"
   },
   "Validation": {
     "nameDescriptionRequired": "Tên và mô tả là bắt buộc",
@@ -836,9 +851,9 @@
       "title": "Giới hạn tốc độ",
       "subtitle": "Các request bị bộ giới hạn tốc độ của tên miền này từ chối"
     },
-    "coreRule": {
+    "ruleset": {
       "title": "Bộ quy tắc",
-      "subtitle": "Các request khớp bộ quy tắc lõi (OWASP CRS) của tên miền này"
+      "subtitle": "Các request khớp bộ quy tắc (OWASP CRS) của tên miền này"
     },
     "series": {
       "s2xx": "2xx",

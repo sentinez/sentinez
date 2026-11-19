@@ -170,9 +170,9 @@ func resourceOf(msg proto.Message) string {
 		return row.GetId()
 	case *securitypb.SecRule:
 		return row.GetOwner().GetResourceId()
-	case *securitypb.RateLimit:
+	case *securitypb.SecRateLimit:
 		return row.GetOwner().GetResourceId()
-	case *securitypb.CoreRuleset:
+	case *securitypb.SecRuleset:
 		return row.GetOwner().GetResourceId()
 	case *tenantpb.CaCertificate:
 		return row.GetOwner().GetResourceId()
@@ -287,25 +287,25 @@ func tlsSlot(t *edgepb.Tls, usage tenantpb.CaCertificateUsage,
 	}
 }
 
-// security the security of resource id from its rows; the core ruleset of
+// security the security of resource id from its rows; the ruleset of
 // base stays when the tables hold none.
 func (c *CentralSink) security(id string, base *edgepb.Security,
 ) *edgepb.Security {
-	sec := &edgepb.Security{CoreRuleset: base.GetCoreRuleset()}
+	sec := &edgepb.Security{Ruleset: base.GetRuleset()}
 
 	for _, msg := range c.sorted(sztable.SecuritySecRules, id) {
-		sec.SecRules = append(sec.SecRules, &edgepb.SecRule{
+		sec.Secrules = append(sec.Secrules, &edgepb.SecRule{
 			Ingress: secRuleOf(msg.(*securitypb.SecRule)),
 		})
 	}
 
-	for _, msg := range c.sorted(sztable.SecurityRateLimits, id) {
+	for _, msg := range c.sorted(sztable.SecuritySecRateLimits, id) {
 		sec.Limiters = append(sec.Limiters, rateLimitOf(
-			msg.(*securitypb.RateLimit)))
+			msg.(*securitypb.SecRateLimit)))
 	}
 
-	for _, msg := range c.sorted(sztable.SecurityCoreRulesets, id) {
-		sec.CoreRuleset = msg.(*securitypb.CoreRuleset).GetContent()
+	for _, msg := range c.sorted(sztable.SecuritySecRulesets, id) {
+		sec.Ruleset = msg.(*securitypb.SecRuleset).GetSetting()
 
 		break
 	}
@@ -362,7 +362,7 @@ func secRuleOf(row securityRow) *secrulepb.SecRule {
 	}
 }
 
-func rateLimitOf(row *securitypb.RateLimit) *edgepb.RateLimit {
+func rateLimitOf(row *securitypb.SecRateLimit) *edgepb.RateLimit {
 	return &edgepb.RateLimit{
 		Ingress:     secRuleOf(row),
 		TimeWindow:  row.GetTimeWindow(),

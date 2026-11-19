@@ -25,7 +25,7 @@ import (
 	"github.com/sentinez/controlplane/pkg/headers/headerstest"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
-	coreRulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -91,13 +91,13 @@ func (f *authSecRules) List(_ context.Context,
 }
 
 type authRateLimits struct {
-	rateLimitRepo
-	*rows[*securitypb.RateLimit]
+	secRateLimitRepo
+	*rows[*securitypb.SecRateLimit]
 }
 
-type authCoreRulesets struct {
-	coreRulesetRepo
-	*rows[*securitypb.CoreRuleset]
+type authRulesets struct {
+	secRulesetRepo
+	*rows[*securitypb.SecRuleset]
 }
 
 // fixture is a service whose caller, _userId, has role in _tenantId and no
@@ -107,7 +107,7 @@ type fixture struct {
 	svc    *SecurityService
 	rules  *authSecRules
 	limits *authRateLimits
-	crs    *authCoreRulesets
+	crs    *authRulesets
 }
 
 func ownedBy(resourceId string) *typepb.Owner {
@@ -178,13 +178,13 @@ func newFixture(t *testing.T, role typepb.Role) *fixture {
 				_ruleId:     {Id: _ruleId, Owner: ownedBy(_resourceId)},
 				_foreignRul: {Id: _foreignRul, Owner: ownedBy(_foreignId)},
 			}}},
-		limits: &authRateLimits{rows: &rows[*securitypb.RateLimit]{
-			byId: map[string]*securitypb.RateLimit{
+		limits: &authRateLimits{rows: &rows[*securitypb.SecRateLimit]{
+			byId: map[string]*securitypb.SecRateLimit{
 				_ruleId:     {Id: _ruleId, Owner: ownedBy(_resourceId)},
 				_foreignRul: {Id: _foreignRul, Owner: ownedBy(_foreignId)},
 			}}},
-		crs: &authCoreRulesets{rows: &rows[*securitypb.CoreRuleset]{
-			byId: map[string]*securitypb.CoreRuleset{
+		crs: &authRulesets{rows: &rows[*securitypb.SecRuleset]{
+			byId: map[string]*securitypb.SecRuleset{
 				_ruleId:     {Id: _ruleId, Owner: ownedBy(_resourceId)},
 				_foreignRul: {Id: _foreignRul, Owner: ownedBy(_foreignId)},
 			}}},
@@ -232,13 +232,13 @@ var _secRuleAccess = []struct {
 	{"member can not create", _member, func(s *SecurityService,
 		c context.Context) error {
 		_, err := s.CreateSecRule(c, &securitypb.CreateSecRuleRequest{
-			SecRule: secRuleOf(_resourceId)})
+			Secrule: secRuleOf(_resourceId)})
 		return err
 	}, codes.PermissionDenied},
 	{"member can not update", _member, func(s *SecurityService,
 		c context.Context) error {
 		_, err := s.UpdateSecRule(c, &securitypb.UpdateSecRuleRequest{
-			Id: _ruleId, SecRule: &securitypb.SecRule{}})
+			Id: _ruleId, Secrule: &securitypb.SecRule{}})
 		return err
 	}, codes.PermissionDenied},
 	{"member can not delete", _member, func(s *SecurityService,
@@ -250,7 +250,7 @@ var _secRuleAccess = []struct {
 	{"leader creates", _leader, func(s *SecurityService,
 		c context.Context) error {
 		_, err := s.CreateSecRule(c, &securitypb.CreateSecRuleRequest{
-			SecRule: secRuleOf(_resourceId)})
+			Secrule: secRuleOf(_resourceId)})
 		return err
 	}, codes.OK},
 	{"leader deletes", _leader, func(s *SecurityService,
@@ -262,7 +262,7 @@ var _secRuleAccess = []struct {
 	{"create on a foreign resource", _leader, func(s *SecurityService,
 		c context.Context) error {
 		_, err := s.CreateSecRule(c, &securitypb.CreateSecRuleRequest{
-			SecRule: secRuleOf(_foreignId)})
+			Secrule: secRuleOf(_foreignId)})
 		return err
 	}, codes.NotFound},
 	{"get a foreign rule", _leader, func(s *SecurityService,
@@ -280,7 +280,7 @@ var _secRuleAccess = []struct {
 	{"update a missing rule", _leader, func(s *SecurityService,
 		c context.Context) error {
 		_, err := s.UpdateSecRule(c, &securitypb.UpdateSecRuleRequest{
-			Id: "rule_x", SecRule: &securitypb.SecRule{}})
+			Id: "rule_x", Secrule: &securitypb.SecRule{}})
 		return err
 	}, codes.NotFound},
 }
@@ -301,7 +301,7 @@ func TestCreateSecRuleTakesTheTenantOfTheResource(t *testing.T) {
 	f := newFixture(t, typepb.Role_ROLE_LEADER)
 
 	_, err := f.svc.CreateSecRule(portalUser(t),
-		&securitypb.CreateSecRuleRequest{SecRule: secRuleOf(_resourceId)})
+		&securitypb.CreateSecRuleRequest{Secrule: secRuleOf(_resourceId)})
 
 	require.NoError(t, err)
 	require.Len(t, f.rules.created, 1)
@@ -363,15 +363,15 @@ func TestListSecRulesAsAdminIsNotScoped(t *testing.T) {
 	assert.Empty(t, f.rules.listed[0].GetResourceIds())
 }
 
-func validLimit(resourceId string) *securitypb.RateLimit {
-	return &securitypb.RateLimit{
+func validLimit(resourceId string) *securitypb.SecRateLimit {
+	return &securitypb.SecRateLimit{
 		TimeWindow: "10s", MaxRequests: 5, Owner: ownedBy(resourceId),
 	}
 }
 
-func validCrs(resourceId string) *securitypb.CoreRuleset {
-	return &securitypb.CoreRuleset{
-		Content: &coreRulesetpb.CoreRuleset{}, Owner: ownedBy(resourceId),
+func validCrs(resourceId string) *securitypb.SecRuleset {
+	return &securitypb.SecRuleset{
+		Setting: &rulesetpb.Setting{}, Owner: ownedBy(resourceId),
 	}
 }
 
@@ -383,59 +383,59 @@ var _limitAndCrsAccess = []struct {
 }{
 	{"get a foreign rate limit", typepb.Role_ROLE_ADMIN,
 		func(s *SecurityService, c context.Context) error {
-			_, err := s.GetRateLimit(c,
-				&securitypb.GetRateLimitRequest{Id: _foreignRul})
+			_, err := s.GetSecRateLimit(c,
+				&securitypb.GetSecRateLimitRequest{Id: _foreignRul})
 			return err
 		}, codes.NotFound},
 	{"delete a foreign rate limit", typepb.Role_ROLE_ADMIN,
 		func(s *SecurityService, c context.Context) error {
-			_, err := s.DeleteRateLimit(c,
-				&securitypb.DeleteRateLimitRequest{Id: _foreignRul})
+			_, err := s.DeleteSecRateLimit(c,
+				&securitypb.DeleteSecRateLimitRequest{Id: _foreignRul})
 			return err
 		}, codes.NotFound},
 	{"member can not create a rate limit", typepb.Role_ROLE_MEMBER,
 		func(s *SecurityService, c context.Context) error {
-			_, err := s.CreateRateLimit(c,
-				&securitypb.CreateRateLimitRequest{
-					RateLimit: validLimit(_resourceId)})
+			_, err := s.CreateSecRateLimit(c,
+				&securitypb.CreateSecRateLimitRequest{
+					Secratelimit: validLimit(_resourceId)})
 			return err
 		}, codes.PermissionDenied},
 	{"create a rate limit on a foreign resource", typepb.Role_ROLE_ADMIN,
 		func(s *SecurityService, c context.Context) error {
-			_, err := s.CreateRateLimit(c,
-				&securitypb.CreateRateLimitRequest{
-					RateLimit: validLimit(_foreignId)})
+			_, err := s.CreateSecRateLimit(c,
+				&securitypb.CreateSecRateLimitRequest{
+					Secratelimit: validLimit(_foreignId)})
 			return err
 		}, codes.NotFound},
-	{"get a foreign core ruleset", typepb.Role_ROLE_ADMIN,
+	{"get a foreign ruleset", typepb.Role_ROLE_ADMIN,
 		func(s *SecurityService, c context.Context) error {
-			_, err := s.GetCoreRuleset(c,
-				&securitypb.GetCoreRulesetRequest{Id: _foreignRul})
+			_, err := s.GetSecRuleset(c,
+				&securitypb.GetSecRulesetRequest{Id: _foreignRul})
 			return err
 		}, codes.NotFound},
-	{"member can not delete a core ruleset", typepb.Role_ROLE_MEMBER,
+	{"member can not delete a ruleset", typepb.Role_ROLE_MEMBER,
 		func(s *SecurityService, c context.Context) error {
-			_, err := s.DeleteCoreRuleset(c,
-				&securitypb.DeleteCoreRulesetRequest{Id: _ruleId})
+			_, err := s.DeleteSecRuleset(c,
+				&securitypb.DeleteSecRulesetRequest{Id: _ruleId})
 			return err
 		}, codes.PermissionDenied},
-	{"create a core ruleset on a foreign resource", typepb.Role_ROLE_ADMIN,
+	{"create a ruleset on a foreign resource", typepb.Role_ROLE_ADMIN,
 		func(s *SecurityService, c context.Context) error {
-			_, err := s.CreateCoreRuleset(c,
-				&securitypb.CreateCoreRulesetRequest{
-					CoreRuleset: validCrs(_foreignId)})
+			_, err := s.CreateSecRuleset(c,
+				&securitypb.CreateSecRulesetRequest{
+					Secruleset: validCrs(_foreignId)})
 			return err
 		}, codes.NotFound},
-	{"leader creates a core ruleset", typepb.Role_ROLE_LEADER,
+	{"leader creates a ruleset", typepb.Role_ROLE_LEADER,
 		func(s *SecurityService, c context.Context) error {
-			_, err := s.CreateCoreRuleset(c,
-				&securitypb.CreateCoreRulesetRequest{
-					CoreRuleset: validCrs(_resourceId)})
+			_, err := s.CreateSecRuleset(c,
+				&securitypb.CreateSecRulesetRequest{
+					Secruleset: validCrs(_resourceId)})
 			return err
 		}, codes.OK},
 }
 
-func TestRateLimitAndCoreRulesetAccess(t *testing.T) {
+func TestRateLimitAndRulesetAccess(t *testing.T) {
 	for _, tt := range _limitAndCrsAccess {
 		t.Run(tt.name, func(t *testing.T) {
 			f := newFixture(t, tt.giveRole)

@@ -6,8 +6,8 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { CoreRuleset as CoreRuleset1 } from "../../../types/coreruleset/v1/setting";
 import { Expression } from "../../../types/rule/v1/rule";
+import { Setting } from "../../../types/ruleset/v1/setting";
 import { Status, statusFromJSON, statusToJSON } from "../../../types/v1/known";
 import { Owner } from "../../../types/v1/model";
 
@@ -26,7 +26,7 @@ export interface SecRule {
   exprPreview: string;
 }
 
-export interface RateLimit {
+export interface SecRateLimit {
   owner?: Owner | undefined;
   id: string;
   name: string;
@@ -55,12 +55,12 @@ export interface ActionValue_MapValueEntry {
   value: string;
 }
 
-export interface CoreRuleset {
+export interface SecRuleset {
   owner?: Owner | undefined;
   id: string;
   name: string;
   description: string;
-  content?: CoreRuleset1 | undefined;
+  setting?: Setting | undefined;
 }
 
 function createBaseSecRule(): SecRule {
@@ -299,7 +299,7 @@ export const SecRule: MessageFns<SecRule> = {
   },
 };
 
-function createBaseRateLimit(): RateLimit {
+function createBaseSecRateLimit(): SecRateLimit {
   return {
     owner: undefined,
     id: "",
@@ -317,8 +317,8 @@ function createBaseRateLimit(): RateLimit {
   };
 }
 
-export const RateLimit: MessageFns<RateLimit> = {
-  encode(message: RateLimit, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const SecRateLimit: MessageFns<SecRateLimit> = {
+  encode(message: SecRateLimit, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.owner !== undefined) {
       Owner.encode(message.owner, writer.uint32(10).fork()).join();
     }
@@ -361,7 +361,7 @@ export const RateLimit: MessageFns<RateLimit> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): RateLimit {
+  decode(input: BinaryReader | Uint8Array, length?: number): SecRateLimit {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -370,7 +370,7 @@ export const RateLimit: MessageFns<RateLimit> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseRateLimit();
+      const message = createBaseSecRateLimit();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -490,7 +490,7 @@ export const RateLimit: MessageFns<RateLimit> = {
     }
   },
 
-  fromJSON(object: any): RateLimit {
+  fromJSON(object: any): SecRateLimit {
     return {
       owner: isSet(object.owner) ? Owner.fromJSON(object.owner) : undefined,
       id: isSet(object.id) ? globalThis.String(object.id) : "",
@@ -524,7 +524,7 @@ export const RateLimit: MessageFns<RateLimit> = {
     };
   },
 
-  toJSON(message: RateLimit): unknown {
+  toJSON(message: SecRateLimit): unknown {
     const obj: any = {};
     if (message.owner !== undefined) {
       obj.owner = Owner.toJSON(message.owner);
@@ -568,11 +568,11 @@ export const RateLimit: MessageFns<RateLimit> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<RateLimit>, I>>(base?: I): RateLimit {
-    return RateLimit.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<SecRateLimit>, I>>(base?: I): SecRateLimit {
+    return SecRateLimit.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<RateLimit>, I>>(object: I): RateLimit {
-    const message = createBaseRateLimit();
+  fromPartial<I extends Exact<DeepPartial<SecRateLimit>, I>>(object: I): SecRateLimit {
+    const message = createBaseSecRateLimit();
     message.owner = (object.owner !== undefined && object.owner !== null) ? Owner.fromPartial(object.owner) : undefined;
     message.id = object.id ?? "";
     message.name = object.name ?? "";
@@ -811,12 +811,12 @@ export const ActionValue_MapValueEntry: MessageFns<ActionValue_MapValueEntry> = 
   },
 };
 
-function createBaseCoreRuleset(): CoreRuleset {
-  return { owner: undefined, id: "", name: "", description: "", content: undefined };
+function createBaseSecRuleset(): SecRuleset {
+  return { owner: undefined, id: "", name: "", description: "", setting: undefined };
 }
 
-export const CoreRuleset: MessageFns<CoreRuleset> = {
-  encode(message: CoreRuleset, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const SecRuleset: MessageFns<SecRuleset> = {
+  encode(message: SecRuleset, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.owner !== undefined) {
       Owner.encode(message.owner, writer.uint32(10).fork()).join();
     }
@@ -829,13 +829,13 @@ export const CoreRuleset: MessageFns<CoreRuleset> = {
     if (message.description !== "") {
       writer.uint32(34).string(message.description);
     }
-    if (message.content !== undefined) {
-      CoreRuleset1.encode(message.content, writer.uint32(42).fork()).join();
+    if (message.setting !== undefined) {
+      Setting.encode(message.setting, writer.uint32(42).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CoreRuleset {
+  decode(input: BinaryReader | Uint8Array, length?: number): SecRuleset {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -844,7 +844,7 @@ export const CoreRuleset: MessageFns<CoreRuleset> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseCoreRuleset();
+      const message = createBaseSecRuleset();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -885,7 +885,7 @@ export const CoreRuleset: MessageFns<CoreRuleset> = {
               break;
             }
 
-            message.content = CoreRuleset1.decode(reader, reader.uint32());
+            message.setting = Setting.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -900,17 +900,17 @@ export const CoreRuleset: MessageFns<CoreRuleset> = {
     }
   },
 
-  fromJSON(object: any): CoreRuleset {
+  fromJSON(object: any): SecRuleset {
     return {
       owner: isSet(object.owner) ? Owner.fromJSON(object.owner) : undefined,
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       description: isSet(object.description) ? globalThis.String(object.description) : "",
-      content: isSet(object.content) ? CoreRuleset1.fromJSON(object.content) : undefined,
+      setting: isSet(object.setting) ? Setting.fromJSON(object.setting) : undefined,
     };
   },
 
-  toJSON(message: CoreRuleset): unknown {
+  toJSON(message: SecRuleset): unknown {
     const obj: any = {};
     if (message.owner !== undefined) {
       obj.owner = Owner.toJSON(message.owner);
@@ -924,23 +924,23 @@ export const CoreRuleset: MessageFns<CoreRuleset> = {
     if (message.description !== "") {
       obj.description = message.description;
     }
-    if (message.content !== undefined) {
-      obj.content = CoreRuleset1.toJSON(message.content);
+    if (message.setting !== undefined) {
+      obj.setting = Setting.toJSON(message.setting);
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CoreRuleset>, I>>(base?: I): CoreRuleset {
-    return CoreRuleset.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<SecRuleset>, I>>(base?: I): SecRuleset {
+    return SecRuleset.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<CoreRuleset>, I>>(object: I): CoreRuleset {
-    const message = createBaseCoreRuleset();
+  fromPartial<I extends Exact<DeepPartial<SecRuleset>, I>>(object: I): SecRuleset {
+    const message = createBaseSecRuleset();
     message.owner = (object.owner !== undefined && object.owner !== null) ? Owner.fromPartial(object.owner) : undefined;
     message.id = object.id ?? "";
     message.name = object.name ?? "";
     message.description = object.description ?? "";
-    message.content = (object.content !== undefined && object.content !== null)
-      ? CoreRuleset1.fromPartial(object.content)
+    message.setting = (object.setting !== undefined && object.setting !== null)
+      ? Setting.fromPartial(object.setting)
       : undefined;
     return message;
   },

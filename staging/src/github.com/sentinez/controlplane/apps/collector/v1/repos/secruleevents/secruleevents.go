@@ -14,7 +14,7 @@
 
 // Package secruleeventsrepo stores the secrulepb.SecRuleEvent records consumed
 // from kafka: the secrule matches (sztopic.EventHTTPSecRule) and the rate
-// limit rejections (sztopic.EventHTTPRateLimit), one table each.
+// limit rejections (sztopic.EventHTTPSecRateLimit), one table each.
 package secruleeventsrepo
 
 import (
@@ -99,11 +99,11 @@ func NewSecRules(ctx context.Context,
 	return newSecRuleEvents(ctx, appConf, schema.AnalyticSecRulesEvent())
 }
 
-// NewRateLimits returns the repo of the sztable.AnalyticRateLimiterEvent
+// NewSecRateLimits returns the repo of the sztable.AnalyticSecRateLimitsEvent
 // hypertable, and of its histograms.
-func NewRateLimits(ctx context.Context,
+func NewSecRateLimits(ctx context.Context,
 	appConf *settingpb.Config) (ISecRuleEvent, error) {
-	return newSecRuleEvents(ctx, appConf, schema.AnalyticRateLimiterEvent())
+	return newSecRuleEvents(ctx, appConf, schema.AnalyticSecRateLimitsEvent())
 }
 
 // newSecRuleEvents returns the repo of the hypertable of sch, and of its

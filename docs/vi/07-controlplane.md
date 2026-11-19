@@ -37,7 +37,7 @@ Scaffold mẫu cho từng lớp nằm trong `hack/.agent/skills/` (`create-servi
     **không xoá/đổi tên/đổi kiểu cột**.
   - Model có metadata được flatten đặt tên cột timestamp theo hằng được
     sinh: `metadata_created_at` (iam users và accounts, tenants, members,
-    resources), `owner_created_at` (secrules, rate limits, core rulesets,
+    resources), `owner_created_at` (secrules, rate limits, rulesets,
     activities).
   - Cùng schema đó dựng được bảng go-memdb (`dbx.MemDBSchema`): centraldata
     giữ mọi bảng controlplane trong bộ nhớ theo cách này.
@@ -64,8 +64,8 @@ Scaffold mẫu cho từng lớp nằm trong `hack/.agent/skills/` (`create-servi
 
 Tên bảng ([pkg/sztable](../../staging/src/github.com/sentinez/pkg/sztable/tables.go)):
 `iam.users`, `iam.accounts`, `tenant.resources`, `analytic.activities`,
-`security.sec_rules`, cùng các bảng event của edge `analytic.secrules.events`,
-`analytic.ratelimiters.events`, `analytic.corerulesets.events`,
+`security.secrules`, cùng các bảng event của edge `analytic.secrules.events`,
+`analytic.secratelimits.events`, `analytic.secrulesets.events`,
 `analytic.httpingress.events`, `analytic.httpegress.events` (xem
 [Collector](#collector-thu-nạp-event-của-edge)).
 
@@ -162,7 +162,7 @@ vai trò. `authz.Authorizer` đọc membership (`tenant.members`) của người
 | Cần | Vai trò (hoặc cao hơn) | Call |
 |---|---|---|
 | đọc | `MEMBER` | xem tenant, member, resource, rule và event |
-| ghi | `LEADER` | tạo/sửa/xoá resource, SecRule, RateLimit, CoreRuleset |
+| ghi | `LEADER` | tạo/sửa/xoá resource, SecRule, SecRateLimit, SecRuleset |
 | quản trị | `ADMIN` | sửa/xoá tenant, tạo/sửa/xoá member |
 | thanh toán | `SUPER_ADMIN` | đổi `plan` của tenant (thứ tenant trả tiền) |
 
@@ -382,7 +382,7 @@ một resource.
 ## 7.5 Security
 
 Proto: [apps/security/v1](../../api/proto/sentinez/apps/security/v1/). Bảng
-`security.sec_rules` (`id, name, description, expr JSONB, status, priority,
+`security.secrules` (`id, name, description, expr JSONB, status, priority,
 action JSONB`).
 
 | RPC | REST |
@@ -394,15 +394,15 @@ action JSONB`).
 | `ListSecRules` | `GET /security/secrules` (lọc `ids`, phân trang) |
 | `Status` | `GET /security/status` |
 
-Service kiểm tra `sec_rule` bắt buộc khi tạo/sửa; `UpdateSecRule` đọc bản
+Service kiểm tra `secrule` bắt buộc khi tạo/sửa; `UpdateSecRule` đọc bản
 ghi rồi ghi các trường mà `update_mask` nêu (xem
 [Cập nhật](#cập-nhật-và-update_mask)). Rule lưu ở đây tới
 edge qua centraldata (xem [CentralData](#centraldata-đồng-bộ-các-bảng-xuống-edge)).
 
 ### Cập nhật và update_mask
 
-`UpdateResource`, `UpdateTenant`, `UpdateSecRule`, `UpdateRateLimit` và
-`UpdateCoreRuleset` nhận model (`resource`, `tenant`, `sec_rule`, ...) và
+`UpdateResource`, `UpdateTenant`, `UpdateSecRule`, `UpdateSecRateLimit` và
+`UpdateSecRuleset` nhận model (`resource`, `tenant`, `secrule`, ...) và
 một `google.protobuf.FieldMask` `update_mask`, đọc theo AIP-134:
 
 - không có path: các trường được set trong model (mask ngầm định)
@@ -432,7 +432,7 @@ nên không nhận mask.
 ### CentralData: đồng bộ các bảng xuống edge
 
 `szcentraldata` giữ các bảng trong `SENZ_SYNC_TABLES` (mặc định:
-`security.secrules`, `security.ratelimits`, `security.corerulesets`,
+`security.secrules`, `security.secratelimits`, `security.secrulesets`,
 `tenant.resources`, `tenant.cacertificates`) trong go-memdb, và edge leader
 của mỗi zone đi theo nó thay cho các edge khác:
 
@@ -524,8 +524,8 @@ bảng event analytic.
 | Topic | Giá trị record | Bảng | Repository |
 |---|---|---|---|
 | `sentinez.event.http.secrule` | `secrulepb.SecRuleEvent` | `analytic.secrules.events` | `secruleeventsrepo.NewSecRules` |
-| `sentinez.event.http.ratelimit` | `secrulepb.SecRuleEvent` | `analytic.ratelimiters.events` | `secruleeventsrepo.NewRateLimits` |
-| `sentinez.event.http.rulesets` | `corerulesetpb.CoreRuleEvent` | `analytic.corerulesets.events` | `coreruleeventsrepo.New` |
+| `sentinez.event.http.secratelimit` | `secrulepb.SecRuleEvent` | `analytic.secratelimits.events` | `secruleeventsrepo.NewSecRateLimits` |
+| `sentinez.event.http.secruleset` | `rulesetpb.SecRulesetEvent` | `analytic.secrulesets.events` | `secruleseteventsrepo.New` |
 | `sentinez.event.http.ingress` | `httppb.IngressEvent` (mỗi request một event, từ handler `logging`) | `analytic.httpingress.events` | `httpingresseventrepo.New` |
 | `sentinez.event.http.egress` | `httppb.EgressEvent` (mỗi request được proxy tới upstream origin một event, từ handler `logging`) | `analytic.httpegress.events` | `httpegresseventsrepo.New` |
 
@@ -553,14 +553,14 @@ khác. Repo insert với `ON CONFLICT (id, <cột thời gian>) DO NOTHING` (xem
 bị đọc lại không tạo bản ghi trùng.
 
 Các bảng ([pkg/schema/analytic.go](../../staging/src/github.com/sentinez/controlplane/pkg/schema/analytic.go):
-`AnalyticSecRulesEvent`, `AnalyticRateLimiterEvent`,
-`AnalyticCoreRulesetsEvent`, `AnalyticHttpIngressEvent`,
+`AnalyticSecRulesEvent`, `AnalyticSecRateLimitsEvent`,
+`AnalyticSecRulesetsEvent`, `AnalyticHttpIngressEvent`,
 `AnalyticHttpEgressEvent`) lấy theo các trường
 của message Kafka: mảng là `TEXT[]`/`INTEGER[]`, `action` và `tags` là
 `JSONB`, enum là `INTEGER`, `matched_time` (mili giây) là `BIGINT`, có index
 `BTREE` trên cột thời gian, index phức hợp trên `(resource_id, <time>)`,
 và `request_id` trên các bảng event quy tắc (`secruleEvents` và
-`AnalyticCoreRulesetsEvent`; bảng HTTP được bao phủ bởi index unique `(id, time)`). Bảng ingress có các trường
+`AnalyticSecRulesetsEvent`; bảng HTTP được bao phủ bởi index unique `(id, time)`). Bảng ingress có các trường
 scalar của `httppb.IngressEvent` (`status` là `INTEGER`, `asn` và `timestamp` (mili
 giây) là `BIGINT`, còn lại là `TEXT`, header không gồm các header chứa
 credential); `resource_id`/
@@ -568,7 +568,7 @@ credential); `resource_id`/
 (`SetResourceId`/`SetTenantId`). Chúng không nằm trong `schema.All()`:
 centraldata không giữ event trong bộ nhớ. Hằng tên cột lấy từ
 `event_senz.pb.go`, sinh bởi `generate.sh` của `types/secrule/v1`,
-`types/coreruleset/v1` và `types/net/http/v1`.
+`types/ruleset/v1` và `types/net/http/v1`.
 
 Bảng egress có một dòng cho mỗi request mà edge proxy tới upstream origin
 (`httppb.EgressEvent`): `id` chính là id của event ingress của request đó,
@@ -644,7 +644,7 @@ cả những dòng chưa được làm mới. Các cột là `bucket` (unix mili
 `resource_id`, `tenant_id`, key và `total`.
 
 Key chia nhỏ số đếm thêm: `status` http với event ingress và egress,
-`behavior` với event core ruleset, không có với event secrule và rate limit
+`behavior` với event ruleset, không có với event secrule và rate limit
 (`Point.Key` bằng 0).
 
 `Histogram.Points(ctx, *Filter{Resolution, ResourceIds, TenantId, From, To})`
@@ -684,8 +684,8 @@ Khi dựng, nó sync bảng và view như collector.
 | `ListHttpIngressEvents` | `GET /analytic/events/http-ingress` | `analytic.httpingress.events` |
 | `ListHttpEgressEvents` | `GET /analytic/events/http-egress` | `analytic.httpegress.events` |
 | `ListSecRuleEvents` | `GET /analytic/events/secrule` | `analytic.secrules.events` |
-| `ListRateLimitEvents` | `GET /analytic/events/ratelimit` | `analytic.ratelimiters.events` |
-| `ListCoreRuleEvents` | `GET /analytic/events/coreruleset` | `analytic.corerulesets.events` |
+| `ListSecRateLimitEvents` | `GET /analytic/events/secratelimit` | `analytic.secratelimits.events` |
+| `ListSecRulesetEvents` | `GET /analytic/events/secruleset` | `analytic.secrulesets.events` |
 | `GetEventHistogram` | `GET /analytic/events/histogram` | các view hoặc bảng của `kind` |
 | `GetEventTopValues` | `GET /analytic/events/top-values` | bảng của `kind` |
 | `GetEgressLatency` | `GET /analytic/events/http-egress/latency` | `analytic.httpegress.events` |
@@ -716,7 +716,7 @@ Sink decode vào các message được tái sử dụng
 | Package | Message | Sink |
 |---|---|---|
 | `pools/secrule` | `secrulepb.SecRuleEvent` | secrule, ratelimit |
-| `pools/coreruleset` | `corerulesetpb.CoreRuleEvent` | rulesets |
+| `pools/secruleset` | `rulesetpb.SecRulesetEvent` | rulesets |
 | `pools/httpingress` | `httppb.IngressEvent` | ingress |
 | `pools/httpegress` | `httppb.EgressEvent` | egress |
 

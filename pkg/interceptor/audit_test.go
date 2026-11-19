@@ -91,7 +91,7 @@ func TestAuditRecordsAuditedMethod(t *testing.T) {
 func TestAuditRecordsCheckedOwner(t *testing.T) {
 	r := &recorder{}
 	ctx := headers.WithAuth(context.Background(), &headers.Auth{})
-	req := &secpb.CreateSecRuleRequest{SecRule: &secpb.SecRule{
+	req := &secpb.CreateSecRuleRequest{Secrule: &secpb.SecRule{
 		Owner: &typepb.Owner{TenantId: "tnt_req", ResourceId: "res_req"},
 	}}
 	info := &grpc.UnaryServerInfo{FullMethod: _createSecRuleMethod}

@@ -28,13 +28,8 @@ import { cn } from '@sentinez/ui/lib/utils';
 import Link from 'next/link';
 import PreviewHeader from './preview-header';
 import PreviewFooter from './preview-footer';
-import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { ChevronLeft, Search } from 'lucide-react';
 import SidebarLoading from './sidebar-loading';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@sentinez/ui/components/collapsible';
 import { ComponentProps, ReactNode, useEffect, useMemo, useState, useTransition } from 'react';
 import { useLocalUser } from '@/components/user-menu';
 
@@ -164,12 +159,15 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
     });
   };
 
+  /** A tab with sub tabs opens its first sub tab. */
   const handlerSidebarChildrenClick = (item: NavItem, index: number) => {
-    router.push(item.url);
+    const firstSubItem = item.items?.[0];
+    router.push(firstSubItem?.url ?? item.url);
 
     startTransitionChildren(() => {
       setTabIndex(index);
-      if (isMobile && (!item.items || item.items.length === 0)) {
+      setSubTabIndex(firstSubItem ? 0 : -1);
+      if (isMobile) {
         setOpenMobile(false);
       }
     });
@@ -330,59 +328,44 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
                   childItems?.map((item, index) => (
                     <SidebarMenuItem key={item.titleKey}>
                       <SidebarMenu>
-                        <Collapsible
-                          key={item.titleKey}
-                          asChild
-                          defaultOpen={item.isActive}
-                          className="group/collapsible"
-                        >
-                          <SidebarMenuItem>
-                            <CollapsibleTrigger asChild>
-                              <SidebarMenuButton
-                                tooltip={t(item.titleKey)}
-                                size="default"
-                                onClick={() => handlerSidebarChildrenClick(item, index)}
-                                className="px-2.5 md:px-2 cursor-pointer"
-                                isActive={tabIndex === index && subTabIndex === -1}
-                              >
-                                {item.icon && <item.icon />}
-                                <span>{t(item.titleKey)}</span>
-                                {!!item.items?.length && (
-                                  <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                                )}
-                              </SidebarMenuButton>
-                            </CollapsibleTrigger>
-                            {!!item.items?.length && (
-                              <CollapsibleContent>
-                                <SidebarMenuSub>
-                                  {item.items.map((subItem, subIndex) => (
-                                    <SidebarMenuSubItem key={subItem.titleKey}>
-                                      <SidebarMenuSubButton
-                                        asChild
-                                        isActive={subTabIndex === subIndex}
-                                        onClick={() =>
-                                          handlerSidebarSubChildrenClick(subItem, subIndex)
-                                        }
-                                        className="px-2.5 md:px-2 cursor-pointer"
+                        {/* A tab with sub tabs always shows them */}
+                        <SidebarMenuItem>
+                          <SidebarMenuButton
+                            tooltip={t(item.titleKey)}
+                            size="default"
+                            onClick={() => handlerSidebarChildrenClick(item, index)}
+                            className="px-2.5 md:px-2 cursor-pointer"
+                            isActive={tabIndex === index && subTabIndex === -1}
+                          >
+                            {item.icon && <item.icon />}
+                            <span>{t(item.titleKey)}</span>
+                          </SidebarMenuButton>
+                          {!!item.items?.length && (
+                            <SidebarMenuSub>
+                              {item.items.map((subItem, subIndex) => (
+                                <SidebarMenuSubItem key={subItem.titleKey}>
+                                  <SidebarMenuSubButton
+                                    asChild
+                                    isActive={subTabIndex === subIndex}
+                                    onClick={() =>
+                                      handlerSidebarSubChildrenClick(subItem, subIndex)
+                                    }
+                                    className="px-2.5 md:px-2 cursor-pointer"
+                                  >
+                                    <div>
+                                      {subItem.icon && <subItem.icon />}
+                                      <span
+                                        className={subTabIndex === subIndex ? 'font-semibold' : ''}
                                       >
-                                        <div>
-                                          {subItem.icon && <subItem.icon />}
-                                          <span
-                                            className={
-                                              subTabIndex === subIndex ? 'font-semibold' : ''
-                                            }
-                                          >
-                                            {t(subItem.titleKey)}
-                                          </span>
-                                        </div>
-                                      </SidebarMenuSubButton>
-                                    </SidebarMenuSubItem>
-                                  ))}
-                                </SidebarMenuSub>
-                              </CollapsibleContent>
-                            )}
-                          </SidebarMenuItem>
-                        </Collapsible>
+                                        {t(subItem.titleKey)}
+                                      </span>
+                                    </div>
+                                  </SidebarMenuSubButton>
+                                </SidebarMenuSubItem>
+                              ))}
+                            </SidebarMenuSub>
+                          )}
+                        </SidebarMenuItem>
                       </SidebarMenu>
                     </SidebarMenuItem>
                   ))

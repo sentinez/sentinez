@@ -273,9 +273,9 @@ export function actionTypeToJSON(object: ActionType): string {
 
 export enum RuleService {
   RULE_SERVICE_UNSPECIFIED = 0,
-  RULE_SERVICE_CORE_RULESETS = 1,
-  RULE_SERVICE_SEC_RULE = 2,
-  RULE_SERVICE_RATE_LIMIT = 3,
+  RULE_SERVICE_SECRULESET = 1,
+  RULE_SERVICE_SECRULE = 2,
+  RULE_SERVICE_SECRATELIMIT = 3,
   UNRECOGNIZED = -1,
 }
 
@@ -285,14 +285,14 @@ export function ruleServiceFromJSON(object: any): RuleService {
     case "RULE_SERVICE_UNSPECIFIED":
       return RuleService.RULE_SERVICE_UNSPECIFIED;
     case 1:
-    case "RULE_SERVICE_CORE_RULESETS":
-      return RuleService.RULE_SERVICE_CORE_RULESETS;
+    case "RULE_SERVICE_SECRULESET":
+      return RuleService.RULE_SERVICE_SECRULESET;
     case 2:
-    case "RULE_SERVICE_SEC_RULE":
-      return RuleService.RULE_SERVICE_SEC_RULE;
+    case "RULE_SERVICE_SECRULE":
+      return RuleService.RULE_SERVICE_SECRULE;
     case 3:
-    case "RULE_SERVICE_RATE_LIMIT":
-      return RuleService.RULE_SERVICE_RATE_LIMIT;
+    case "RULE_SERVICE_SECRATELIMIT":
+      return RuleService.RULE_SERVICE_SECRATELIMIT;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -304,12 +304,12 @@ export function ruleServiceToJSON(object: RuleService): string {
   switch (object) {
     case RuleService.RULE_SERVICE_UNSPECIFIED:
       return "RULE_SERVICE_UNSPECIFIED";
-    case RuleService.RULE_SERVICE_CORE_RULESETS:
-      return "RULE_SERVICE_CORE_RULESETS";
-    case RuleService.RULE_SERVICE_SEC_RULE:
-      return "RULE_SERVICE_SEC_RULE";
-    case RuleService.RULE_SERVICE_RATE_LIMIT:
-      return "RULE_SERVICE_RATE_LIMIT";
+    case RuleService.RULE_SERVICE_SECRULESET:
+      return "RULE_SERVICE_SECRULESET";
+    case RuleService.RULE_SERVICE_SECRULE:
+      return "RULE_SERVICE_SECRULE";
+    case RuleService.RULE_SERVICE_SECRATELIMIT:
+      return "RULE_SERVICE_SECRATELIMIT";
     case RuleService.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";

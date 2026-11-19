@@ -83,7 +83,7 @@ func TestProducerThroughLogger(t *testing.T) {
 		TenantId:          "tn_1",
 		MatchedTime:       1761200000000,
 	}
-	l := szlog.NewLogCloser("test", typepb.LogType_LOG_TYPE_SEC_RULE,
+	l := szlog.NewLogCloser("test", typepb.LogType_LOG_TYPE_SECRULE,
 		szlog.LevelInfo, szlog.WithEventExporter(p))
 	l.Info("secrule: matched", want, io.NopCloser(nil))
 	require.NoError(t, p.Shutdown(context.Background()))
@@ -93,7 +93,7 @@ func TestProducerThroughLogger(t *testing.T) {
 	require.NoError(t, got.UnmarshalVT(rec.Value))
 	assert.True(t, proto.Equal(want, got), "got %v", got)
 	assert.Equal(t, map[string]string{
-		HeaderKind:    "LOG_TYPE_SEC_RULE",
+		HeaderKind:    "LOG_TYPE_SECRULE",
 		HeaderLevel:   "info",
 		HeaderMessage: "secrule: matched",
 		HeaderService: "edge",

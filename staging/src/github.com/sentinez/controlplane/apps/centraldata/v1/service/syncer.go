@@ -38,7 +38,7 @@ const (
 	// DefaultReconcile how often the tables are compared with the memory,
 	// to catch the notifications postgres dropped.
 	DefaultReconcile = time.Minute
-	_retryMin        = time.Second
+	_retryStart      = time.Second
 	_retryMax        = 30 * time.Second
 )
 
@@ -152,7 +152,7 @@ func (s *Syncer) reconnect(ctx context.Context,
 
 	_ = lost.Close(context.Background())
 
-	for wait := _retryMin; ctx.Err() == nil; wait = min(wait*2, _retryMax) {
+	for wait := _retryStart; ctx.Err() == nil; wait = min(wait*2, _retryMax) {
 		sub, err := s.listen(ctx)
 		if err == nil {
 			if err = s.resync(ctx); err == nil {

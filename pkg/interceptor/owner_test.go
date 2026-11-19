@@ -33,7 +33,7 @@ var _ownerCases = []struct {
 	{
 		name: "owner nested in the request",
 		give: []proto.Message{&secpb.CreateSecRuleRequest{
-			SecRule: &secpb.SecRule{Owner: &typepb.Owner{
+			Secrule: &secpb.SecRule{Owner: &typepb.Owner{
 				TenantId: "tnt_1", ResourceId: "res_1",
 			}},
 		}},

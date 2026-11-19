@@ -21,7 +21,7 @@ import (
 
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
-	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
@@ -31,19 +31,19 @@ import (
 var errUnnamedRule = errors.New("rule without a name")
 
 // ImportSecurity stores the security block of a proxy.yaml under owner:
-// the core ruleset (one per resource, named name) and the sec_rules and
+// the ruleset (one per resource, named name) and the secrules and
 // limiters, matched by name against the rules owner already has. Stored
 // rules missing from sec are left untouched. sec must be normalized
 // (sznormalize.NormalizeEdgeSetting) so its rules carry their ids.
 func (srv *SecurityService) ImportSecurity(ctx context.Context,
 	owner *typepb.Owner, name string, sec *edgepb.Security) error {
 
-	err := srv.importCoreRuleset(ctx, owner, name, sec.GetCoreRuleset())
+	err := srv.importRuleset(ctx, owner, name, sec.GetRuleset())
 	if err != nil {
-		return fmt.Errorf("import core ruleset: %w", err)
+		return fmt.Errorf("import ruleset: %w", err)
 	}
 
-	if err := srv.importSecRules(ctx, owner, sec.GetSecRules()); err != nil {
+	if err := srv.importSecRules(ctx, owner, sec.GetSecrules()); err != nil {
 		return fmt.Errorf("import sec rules: %w", err)
 	}
 
@@ -54,32 +54,32 @@ func (srv *SecurityService) ImportSecurity(ctx context.Context,
 	return nil
 }
 
-// importCoreRuleset updates the core ruleset of the resource of owner, or
+// importRuleset updates the ruleset of the resource of owner, or
 // creates it when the resource has none.
-func (srv *SecurityService) importCoreRuleset(ctx context.Context,
+func (srv *SecurityService) importRuleset(ctx context.Context,
 	owner *typepb.Owner, name string,
-	content *corerulesetpb.CoreRuleset) error {
+	content *rulesetpb.Setting) error {
 
 	if content == nil {
 		return nil
 	}
 
-	stored, _, err := srv.coreRulesetRepo.List(ctx,
-		&securitypb.ListCoreRulesetsRequest{
+	stored, _, err := srv.secRulesetRepo.List(ctx,
+		&securitypb.ListSecRulesetsRequest{
 			ResourceIds: []string{owner.GetResourceId()},
 		})
 	if err != nil {
 		return err
 	}
 
-	crs := &securitypb.CoreRuleset{Owner: owner, Name: name, Content: content}
+	crs := &securitypb.SecRuleset{Owner: owner, Name: name, Setting: content}
 	if len(stored) == 0 {
-		_, err = srv.coreRulesetRepo.Create(ctx, crs)
+		_, err = srv.secRulesetRepo.Create(ctx, crs)
 		return err
 	}
 
 	crs.Id = stored[0].GetId()
-	return srv.coreRulesetRepo.Update(ctx, crs, _coreRulesetUpdatable)
+	return srv.secRulesetRepo.Update(ctx, crs, _rulesetUpdatable)
 }
 
 // importSecRules upserts rules by name among the sec rules of owner.
@@ -115,15 +115,15 @@ func (srv *SecurityService) importSecRules(ctx context.Context,
 func (srv *SecurityService) importRateLimits(ctx context.Context,
 	owner *typepb.Owner, limiters []*edgepb.RateLimit) error {
 
-	stored, _, err := srv.rateLimitRepo.List(ctx,
-		&securitypb.ListRateLimitsRequest{
+	stored, _, err := srv.secRateLimitRepo.List(ctx,
+		&securitypb.ListSecRateLimitsRequest{
 			ResourceIds: []string{owner.GetResourceId()},
 		})
 	if err != nil {
 		return err
 	}
 
-	models := make([]*securitypb.RateLimit, 0, len(limiters))
+	models := make([]*securitypb.SecRateLimit, 0, len(limiters))
 	for _, limiter := range limiters {
 		model, err := rateLimitFromEdge(owner, limiter)
 		if err != nil {
@@ -133,13 +133,13 @@ func (srv *SecurityService) importRateLimits(ctx context.Context,
 	}
 
 	return upsertByName(ctx, stored, models,
-		func(ctx context.Context, m *securitypb.RateLimit, id string) error {
+		func(ctx context.Context, m *securitypb.SecRateLimit, id string) error {
 			if id == "" {
-				_, err := srv.rateLimitRepo.Create(ctx, m)
+				_, err := srv.secRateLimitRepo.Create(ctx, m)
 				return err
 			}
 			m.Id = id
-			return srv.rateLimitRepo.Update(ctx, m, _rateLimitUpdatable)
+			return srv.secRateLimitRepo.Update(ctx, m, _rateLimitUpdatable)
 		})
 }
 
@@ -190,10 +190,10 @@ func secRuleFromEdge(owner *typepb.Owner,
 
 // rateLimitFromEdge maps a proxy.yaml limiter to the API model.
 func rateLimitFromEdge(owner *typepb.Owner,
-	limiter *edgepb.RateLimit) (*securitypb.RateLimit, error) {
+	limiter *edgepb.RateLimit) (*securitypb.SecRateLimit, error) {
 
 	rule := limiter.GetIngress()
-	model := &securitypb.RateLimit{
+	model := &securitypb.SecRateLimit{
 		Owner:       owner,
 		Name:        rule.GetName(),
 		Description: rule.GetDescription(),

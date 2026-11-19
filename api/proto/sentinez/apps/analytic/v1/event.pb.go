@@ -22,8 +22,8 @@ package analyticpb
 
 import (
 	v14 "github.com/sentinez/sentinez/api/proto/sentinez/types/audit/v1"
-	v13 "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	v11 "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
+	v13 "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 	v12 "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -51,11 +51,11 @@ const (
 	// Requests proxied to the origins; keyed by the status of the origin.
 	EventKind_EVENT_KIND_HTTP_EGRESS EventKind = 2
 	// Matched SecRules; keyed by the action.
-	EventKind_EVENT_KIND_SEC_RULE EventKind = 3
+	EventKind_EVENT_KIND_SECRULE EventKind = 3
 	// Exceeded rate limiters; keyed by the action.
-	EventKind_EVENT_KIND_RATE_LIMIT EventKind = 4
-	// Matched core ruleset rules; keyed by the behavior.
-	EventKind_EVENT_KIND_CORE_RULE EventKind = 5
+	EventKind_EVENT_KIND_SECRATELIMIT EventKind = 4
+	// Matched ruleset rules; keyed by the behavior.
+	EventKind_EVENT_KIND_SECRULESET EventKind = 5
 )
 
 // Enum value maps for EventKind.
@@ -64,17 +64,17 @@ var (
 		0: "EVENT_KIND_UNSPECIFIED",
 		1: "EVENT_KIND_HTTP_INGRESS",
 		2: "EVENT_KIND_HTTP_EGRESS",
-		3: "EVENT_KIND_SEC_RULE",
-		4: "EVENT_KIND_RATE_LIMIT",
-		5: "EVENT_KIND_CORE_RULE",
+		3: "EVENT_KIND_SECRULE",
+		4: "EVENT_KIND_SECRATELIMIT",
+		5: "EVENT_KIND_SECRULESET",
 	}
 	EventKind_value = map[string]int32{
 		"EVENT_KIND_UNSPECIFIED":  0,
 		"EVENT_KIND_HTTP_INGRESS": 1,
 		"EVENT_KIND_HTTP_EGRESS":  2,
-		"EVENT_KIND_SEC_RULE":     3,
-		"EVENT_KIND_RATE_LIMIT":   4,
-		"EVENT_KIND_CORE_RULE":    5,
+		"EVENT_KIND_SECRULE":      3,
+		"EVENT_KIND_SECRATELIMIT": 4,
+		"EVENT_KIND_SECRULESET":   5,
 	}
 )
 
@@ -464,8 +464,8 @@ func (x *ListSecRuleEventsRequest) GetFilters() []string {
 	return nil
 }
 
-// ListRateLimitEventsRequest selects the events of a list, the latest first.
-type ListRateLimitEventsRequest struct {
+// ListSecRateLimitEventsRequest selects the events of a list, the latest first.
+type ListSecRateLimitEventsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Page  *v1.Pages              `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
 	// Resources of the events, any of them; all when empty.
@@ -483,20 +483,20 @@ type ListRateLimitEventsRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListRateLimitEventsRequest) Reset() {
-	*x = ListRateLimitEventsRequest{}
+func (x *ListSecRateLimitEventsRequest) Reset() {
+	*x = ListSecRateLimitEventsRequest{}
 	mi := &file_sentinez_apps_analytic_v1_event_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListRateLimitEventsRequest) String() string {
+func (x *ListSecRateLimitEventsRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListRateLimitEventsRequest) ProtoMessage() {}
+func (*ListSecRateLimitEventsRequest) ProtoMessage() {}
 
-func (x *ListRateLimitEventsRequest) ProtoReflect() protoreflect.Message {
+func (x *ListSecRateLimitEventsRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_analytic_v1_event_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -508,55 +508,55 @@ func (x *ListRateLimitEventsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListRateLimitEventsRequest.ProtoReflect.Descriptor instead.
-func (*ListRateLimitEventsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListSecRateLimitEventsRequest.ProtoReflect.Descriptor instead.
+func (*ListSecRateLimitEventsRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_analytic_v1_event_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *ListRateLimitEventsRequest) GetPage() *v1.Pages {
+func (x *ListSecRateLimitEventsRequest) GetPage() *v1.Pages {
 	if x != nil {
 		return x.Page
 	}
 	return nil
 }
 
-func (x *ListRateLimitEventsRequest) GetResourceIds() []string {
+func (x *ListSecRateLimitEventsRequest) GetResourceIds() []string {
 	if x != nil {
 		return x.ResourceIds
 	}
 	return nil
 }
 
-func (x *ListRateLimitEventsRequest) GetFrom() *timestamppb.Timestamp {
+func (x *ListSecRateLimitEventsRequest) GetFrom() *timestamppb.Timestamp {
 	if x != nil {
 		return x.From
 	}
 	return nil
 }
 
-func (x *ListRateLimitEventsRequest) GetTo() *timestamppb.Timestamp {
+func (x *ListSecRateLimitEventsRequest) GetTo() *timestamppb.Timestamp {
 	if x != nil {
 		return x.To
 	}
 	return nil
 }
 
-func (x *ListRateLimitEventsRequest) GetRequestIds() []string {
+func (x *ListSecRateLimitEventsRequest) GetRequestIds() []string {
 	if x != nil {
 		return x.RequestIds
 	}
 	return nil
 }
 
-func (x *ListRateLimitEventsRequest) GetFilters() []string {
+func (x *ListSecRateLimitEventsRequest) GetFilters() []string {
 	if x != nil {
 		return x.Filters
 	}
 	return nil
 }
 
-// ListCoreRuleEventsRequest selects the events of a list, the latest first.
-type ListCoreRuleEventsRequest struct {
+// ListSecRulesetEventsRequest selects the events of a list, the latest first.
+type ListSecRulesetEventsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Page  *v1.Pages              `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
 	// Resources of the events, any of them; all when empty.
@@ -574,20 +574,20 @@ type ListCoreRuleEventsRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListCoreRuleEventsRequest) Reset() {
-	*x = ListCoreRuleEventsRequest{}
+func (x *ListSecRulesetEventsRequest) Reset() {
+	*x = ListSecRulesetEventsRequest{}
 	mi := &file_sentinez_apps_analytic_v1_event_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListCoreRuleEventsRequest) String() string {
+func (x *ListSecRulesetEventsRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListCoreRuleEventsRequest) ProtoMessage() {}
+func (*ListSecRulesetEventsRequest) ProtoMessage() {}
 
-func (x *ListCoreRuleEventsRequest) ProtoReflect() protoreflect.Message {
+func (x *ListSecRulesetEventsRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_analytic_v1_event_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -599,47 +599,47 @@ func (x *ListCoreRuleEventsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListCoreRuleEventsRequest.ProtoReflect.Descriptor instead.
-func (*ListCoreRuleEventsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListSecRulesetEventsRequest.ProtoReflect.Descriptor instead.
+func (*ListSecRulesetEventsRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_analytic_v1_event_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *ListCoreRuleEventsRequest) GetPage() *v1.Pages {
+func (x *ListSecRulesetEventsRequest) GetPage() *v1.Pages {
 	if x != nil {
 		return x.Page
 	}
 	return nil
 }
 
-func (x *ListCoreRuleEventsRequest) GetResourceIds() []string {
+func (x *ListSecRulesetEventsRequest) GetResourceIds() []string {
 	if x != nil {
 		return x.ResourceIds
 	}
 	return nil
 }
 
-func (x *ListCoreRuleEventsRequest) GetFrom() *timestamppb.Timestamp {
+func (x *ListSecRulesetEventsRequest) GetFrom() *timestamppb.Timestamp {
 	if x != nil {
 		return x.From
 	}
 	return nil
 }
 
-func (x *ListCoreRuleEventsRequest) GetTo() *timestamppb.Timestamp {
+func (x *ListSecRulesetEventsRequest) GetTo() *timestamppb.Timestamp {
 	if x != nil {
 		return x.To
 	}
 	return nil
 }
 
-func (x *ListCoreRuleEventsRequest) GetRequestIds() []string {
+func (x *ListSecRulesetEventsRequest) GetRequestIds() []string {
 	if x != nil {
 		return x.RequestIds
 	}
 	return nil
 }
 
-func (x *ListCoreRuleEventsRequest) GetFilters() []string {
+func (x *ListSecRulesetEventsRequest) GetFilters() []string {
 	if x != nil {
 		return x.Filters
 	}
@@ -778,27 +778,27 @@ func (x *ListSecRuleEventsResponse) GetEvents() []*v12.SecRuleEvent {
 	return nil
 }
 
-type ListRateLimitEventsResponse struct {
+type ListSecRateLimitEventsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Events        []*v12.SecRuleEvent    `protobuf:"bytes,1,rep,name=events,proto3" json:"events,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListRateLimitEventsResponse) Reset() {
-	*x = ListRateLimitEventsResponse{}
+func (x *ListSecRateLimitEventsResponse) Reset() {
+	*x = ListSecRateLimitEventsResponse{}
 	mi := &file_sentinez_apps_analytic_v1_event_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListRateLimitEventsResponse) String() string {
+func (x *ListSecRateLimitEventsResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListRateLimitEventsResponse) ProtoMessage() {}
+func (*ListSecRateLimitEventsResponse) ProtoMessage() {}
 
-func (x *ListRateLimitEventsResponse) ProtoReflect() protoreflect.Message {
+func (x *ListSecRateLimitEventsResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_analytic_v1_event_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -810,39 +810,39 @@ func (x *ListRateLimitEventsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListRateLimitEventsResponse.ProtoReflect.Descriptor instead.
-func (*ListRateLimitEventsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListSecRateLimitEventsResponse.ProtoReflect.Descriptor instead.
+func (*ListSecRateLimitEventsResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_analytic_v1_event_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *ListRateLimitEventsResponse) GetEvents() []*v12.SecRuleEvent {
+func (x *ListSecRateLimitEventsResponse) GetEvents() []*v12.SecRuleEvent {
 	if x != nil {
 		return x.Events
 	}
 	return nil
 }
 
-type ListCoreRuleEventsResponse struct {
+type ListSecRulesetEventsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Events        []*v13.CoreRuleEvent   `protobuf:"bytes,1,rep,name=events,proto3" json:"events,omitempty"`
+	Events        []*v13.SecRulesetEvent `protobuf:"bytes,1,rep,name=events,proto3" json:"events,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListCoreRuleEventsResponse) Reset() {
-	*x = ListCoreRuleEventsResponse{}
+func (x *ListSecRulesetEventsResponse) Reset() {
+	*x = ListSecRulesetEventsResponse{}
 	mi := &file_sentinez_apps_analytic_v1_event_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListCoreRuleEventsResponse) String() string {
+func (x *ListSecRulesetEventsResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListCoreRuleEventsResponse) ProtoMessage() {}
+func (*ListSecRulesetEventsResponse) ProtoMessage() {}
 
-func (x *ListCoreRuleEventsResponse) ProtoReflect() protoreflect.Message {
+func (x *ListSecRulesetEventsResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_analytic_v1_event_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -854,12 +854,12 @@ func (x *ListCoreRuleEventsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListCoreRuleEventsResponse.ProtoReflect.Descriptor instead.
-func (*ListCoreRuleEventsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListSecRulesetEventsResponse.ProtoReflect.Descriptor instead.
+func (*ListSecRulesetEventsResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_analytic_v1_event_proto_rawDescGZIP(), []int{10}
 }
 
-func (x *ListCoreRuleEventsResponse) GetEvents() []*v13.CoreRuleEvent {
+func (x *ListSecRulesetEventsResponse) GetEvents() []*v13.SecRulesetEvent {
 	if x != nil {
 		return x.Events
 	}
@@ -1518,7 +1518,7 @@ type GetEventTopValuesRequest struct {
 	//   - sec rule, rate limit: matched_secrule_ids, action (its type, a
 	//     rule.v1.ActionType number), request_ip, request_domain,
 	//     request_path.
-	//   - core rule: matched_rule_ids, severities, behavior, total_score,
+	//   - ruleset: matched_rule_ids, severities, behavior, total_score,
 	//     request_ip, request_domain, request_path.
 	//
 	// An event counts once per element of a repeated field it holds.
@@ -2516,7 +2516,7 @@ var File_sentinez_apps_analytic_v1_event_proto protoreflect.FileDescriptor
 
 const file_sentinez_apps_analytic_v1_event_proto_rawDesc = "" +
 	"\n" +
-	"%sentinez/apps/analytic/v1/event.proto\x12\x19sentinez.apps.analytic.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a#sentinez/types/audit/v1/audit.proto\x1a)sentinez/types/coreruleset/v1/event.proto\x1a&sentinez/types/net/http/v1/event.proto\x1a%sentinez/types/secrule/v1/event.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\"\xca\x01\n" +
+	"%sentinez/apps/analytic/v1/event.proto\x12\x19sentinez.apps.analytic.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a#sentinez/types/audit/v1/audit.proto\x1a&sentinez/types/net/http/v1/event.proto\x1a%sentinez/types/ruleset/v1/event.proto\x1a%sentinez/types/secrule/v1/event.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\"\xca\x01\n" +
 	"\x0eEventSelection\x12!\n" +
 	"\fresource_ids\x18\x01 \x03(\tR\vresourceIds\x12\x1f\n" +
 	"\vrequest_ids\x18\x02 \x03(\tR\n" +
@@ -2547,16 +2547,16 @@ const file_sentinez_apps_analytic_v1_event_proto_rawDesc = "" +
 	"\x02to\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\x12\x1f\n" +
 	"\vrequest_ids\x18\x05 \x03(\tR\n" +
 	"requestIds\x12\x18\n" +
-	"\afilters\x18\x06 \x03(\tR\afilters\"\x84\x02\n" +
-	"\x1aListRateLimitEventsRequest\x12,\n" +
+	"\afilters\x18\x06 \x03(\tR\afilters\"\x87\x02\n" +
+	"\x1dListSecRateLimitEventsRequest\x12,\n" +
 	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12!\n" +
 	"\fresource_ids\x18\x02 \x03(\tR\vresourceIds\x12.\n" +
 	"\x04from\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
 	"\x02to\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\x12\x1f\n" +
 	"\vrequest_ids\x18\x05 \x03(\tR\n" +
 	"requestIds\x12\x18\n" +
-	"\afilters\x18\x06 \x03(\tR\afilters\"\x83\x02\n" +
-	"\x19ListCoreRuleEventsRequest\x12,\n" +
+	"\afilters\x18\x06 \x03(\tR\afilters\"\x85\x02\n" +
+	"\x1bListSecRulesetEventsRequest\x12,\n" +
 	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12!\n" +
 	"\fresource_ids\x18\x02 \x03(\tR\vresourceIds\x12.\n" +
 	"\x04from\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
@@ -2569,11 +2569,11 @@ const file_sentinez_apps_analytic_v1_event_proto_rawDesc = "" +
 	"\x1cListHttpEgressEventsResponse\x12?\n" +
 	"\x06events\x18\x01 \x03(\v2'.sentinez.types.net.http.v1.EgressEventR\x06events\"\\\n" +
 	"\x19ListSecRuleEventsResponse\x12?\n" +
-	"\x06events\x18\x01 \x03(\v2'.sentinez.types.secrule.v1.SecRuleEventR\x06events\"^\n" +
-	"\x1bListRateLimitEventsResponse\x12?\n" +
+	"\x06events\x18\x01 \x03(\v2'.sentinez.types.secrule.v1.SecRuleEventR\x06events\"a\n" +
+	"\x1eListSecRateLimitEventsResponse\x12?\n" +
 	"\x06events\x18\x01 \x03(\v2'.sentinez.types.secrule.v1.SecRuleEventR\x06events\"b\n" +
-	"\x1aListCoreRuleEventsResponse\x12D\n" +
-	"\x06events\x18\x01 \x03(\v2,.sentinez.types.coreruleset.v1.CoreRuleEventR\x06events\"\xd6\x02\n" +
+	"\x1cListSecRulesetEventsResponse\x12B\n" +
+	"\x06events\x18\x01 \x03(\v2*.sentinez.types.ruleset.v1.SecRulesetEventR\x06events\"\xd6\x02\n" +
 	"\x18GetEventHistogramRequest\x128\n" +
 	"\x04kind\x18\x01 \x01(\x0e2$.sentinez.apps.analytic.v1.EventKindR\x04kind\x12F\n" +
 	"\n" +
@@ -2715,14 +2715,14 @@ const file_sentinez_apps_analytic_v1_event_proto_rawDesc = "" +
 	"\x0ewithout_tenant\x18\t \x01(\bR\rwithoutTenant\"w\n" +
 	"\x1cGetAuditLogTopValuesResponse\x12\x14\n" +
 	"\x05total\x18\x01 \x01(\x03R\x05total\x12A\n" +
-	"\x06fields\x18\x02 \x03(\v2).sentinez.apps.analytic.v1.FieldTopValuesR\x06fields*\xae\x01\n" +
+	"\x06fields\x18\x02 \x03(\v2).sentinez.apps.analytic.v1.FieldTopValuesR\x06fields*\xb0\x01\n" +
 	"\tEventKind\x12\x1a\n" +
 	"\x16EVENT_KIND_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17EVENT_KIND_HTTP_INGRESS\x10\x01\x12\x1a\n" +
-	"\x16EVENT_KIND_HTTP_EGRESS\x10\x02\x12\x17\n" +
-	"\x13EVENT_KIND_SEC_RULE\x10\x03\x12\x19\n" +
-	"\x15EVENT_KIND_RATE_LIMIT\x10\x04\x12\x18\n" +
-	"\x14EVENT_KIND_CORE_RULE\x10\x05BMZKgithub.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1;analyticpbb\x06proto3"
+	"\x16EVENT_KIND_HTTP_EGRESS\x10\x02\x12\x16\n" +
+	"\x12EVENT_KIND_SECRULE\x10\x03\x12\x1b\n" +
+	"\x17EVENT_KIND_SECRATELIMIT\x10\x04\x12\x19\n" +
+	"\x15EVENT_KIND_SECRULESET\x10\x05BMZKgithub.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1;analyticpbb\x06proto3"
 
 var (
 	file_sentinez_apps_analytic_v1_event_proto_rawDescOnce sync.Once
@@ -2744,13 +2744,13 @@ var file_sentinez_apps_analytic_v1_event_proto_goTypes = []any{
 	(*ListHttpIngressEventsRequest)(nil),      // 2: sentinez.apps.analytic.v1.ListHttpIngressEventsRequest
 	(*ListHttpEgressEventsRequest)(nil),       // 3: sentinez.apps.analytic.v1.ListHttpEgressEventsRequest
 	(*ListSecRuleEventsRequest)(nil),          // 4: sentinez.apps.analytic.v1.ListSecRuleEventsRequest
-	(*ListRateLimitEventsRequest)(nil),        // 5: sentinez.apps.analytic.v1.ListRateLimitEventsRequest
-	(*ListCoreRuleEventsRequest)(nil),         // 6: sentinez.apps.analytic.v1.ListCoreRuleEventsRequest
+	(*ListSecRateLimitEventsRequest)(nil),     // 5: sentinez.apps.analytic.v1.ListSecRateLimitEventsRequest
+	(*ListSecRulesetEventsRequest)(nil),       // 6: sentinez.apps.analytic.v1.ListSecRulesetEventsRequest
 	(*ListHttpIngressEventsResponse)(nil),     // 7: sentinez.apps.analytic.v1.ListHttpIngressEventsResponse
 	(*ListHttpEgressEventsResponse)(nil),      // 8: sentinez.apps.analytic.v1.ListHttpEgressEventsResponse
 	(*ListSecRuleEventsResponse)(nil),         // 9: sentinez.apps.analytic.v1.ListSecRuleEventsResponse
-	(*ListRateLimitEventsResponse)(nil),       // 10: sentinez.apps.analytic.v1.ListRateLimitEventsResponse
-	(*ListCoreRuleEventsResponse)(nil),        // 11: sentinez.apps.analytic.v1.ListCoreRuleEventsResponse
+	(*ListSecRateLimitEventsResponse)(nil),    // 10: sentinez.apps.analytic.v1.ListSecRateLimitEventsResponse
+	(*ListSecRulesetEventsResponse)(nil),      // 11: sentinez.apps.analytic.v1.ListSecRulesetEventsResponse
 	(*GetEventHistogramRequest)(nil),          // 12: sentinez.apps.analytic.v1.GetEventHistogramRequest
 	(*HistogramPoint)(nil),                    // 13: sentinez.apps.analytic.v1.HistogramPoint
 	(*GetEventHistogramResponse)(nil),         // 14: sentinez.apps.analytic.v1.GetEventHistogramResponse
@@ -2777,7 +2777,7 @@ var file_sentinez_apps_analytic_v1_event_proto_goTypes = []any{
 	(*v11.IngressEvent)(nil),                  // 35: sentinez.types.net.http.v1.IngressEvent
 	(*v11.EgressEvent)(nil),                   // 36: sentinez.types.net.http.v1.EgressEvent
 	(*v12.SecRuleEvent)(nil),                  // 37: sentinez.types.secrule.v1.SecRuleEvent
-	(*v13.CoreRuleEvent)(nil),                 // 38: sentinez.types.coreruleset.v1.CoreRuleEvent
+	(*v13.SecRulesetEvent)(nil),               // 38: sentinez.types.ruleset.v1.SecRulesetEvent
 	(v1.HistogramResolution)(0),               // 39: sentinez.types.v1.HistogramResolution
 	(v1.HistogramInterval)(0),                 // 40: sentinez.types.v1.HistogramInterval
 	(*v14.AuditLog)(nil),                      // 41: sentinez.types.audit.v1.AuditLog
@@ -2794,17 +2794,17 @@ var file_sentinez_apps_analytic_v1_event_proto_depIdxs = []int32{
 	34, // 8: sentinez.apps.analytic.v1.ListSecRuleEventsRequest.page:type_name -> sentinez.types.v1.Pages
 	33, // 9: sentinez.apps.analytic.v1.ListSecRuleEventsRequest.from:type_name -> google.protobuf.Timestamp
 	33, // 10: sentinez.apps.analytic.v1.ListSecRuleEventsRequest.to:type_name -> google.protobuf.Timestamp
-	34, // 11: sentinez.apps.analytic.v1.ListRateLimitEventsRequest.page:type_name -> sentinez.types.v1.Pages
-	33, // 12: sentinez.apps.analytic.v1.ListRateLimitEventsRequest.from:type_name -> google.protobuf.Timestamp
-	33, // 13: sentinez.apps.analytic.v1.ListRateLimitEventsRequest.to:type_name -> google.protobuf.Timestamp
-	34, // 14: sentinez.apps.analytic.v1.ListCoreRuleEventsRequest.page:type_name -> sentinez.types.v1.Pages
-	33, // 15: sentinez.apps.analytic.v1.ListCoreRuleEventsRequest.from:type_name -> google.protobuf.Timestamp
-	33, // 16: sentinez.apps.analytic.v1.ListCoreRuleEventsRequest.to:type_name -> google.protobuf.Timestamp
+	34, // 11: sentinez.apps.analytic.v1.ListSecRateLimitEventsRequest.page:type_name -> sentinez.types.v1.Pages
+	33, // 12: sentinez.apps.analytic.v1.ListSecRateLimitEventsRequest.from:type_name -> google.protobuf.Timestamp
+	33, // 13: sentinez.apps.analytic.v1.ListSecRateLimitEventsRequest.to:type_name -> google.protobuf.Timestamp
+	34, // 14: sentinez.apps.analytic.v1.ListSecRulesetEventsRequest.page:type_name -> sentinez.types.v1.Pages
+	33, // 15: sentinez.apps.analytic.v1.ListSecRulesetEventsRequest.from:type_name -> google.protobuf.Timestamp
+	33, // 16: sentinez.apps.analytic.v1.ListSecRulesetEventsRequest.to:type_name -> google.protobuf.Timestamp
 	35, // 17: sentinez.apps.analytic.v1.ListHttpIngressEventsResponse.events:type_name -> sentinez.types.net.http.v1.IngressEvent
 	36, // 18: sentinez.apps.analytic.v1.ListHttpEgressEventsResponse.events:type_name -> sentinez.types.net.http.v1.EgressEvent
 	37, // 19: sentinez.apps.analytic.v1.ListSecRuleEventsResponse.events:type_name -> sentinez.types.secrule.v1.SecRuleEvent
-	37, // 20: sentinez.apps.analytic.v1.ListRateLimitEventsResponse.events:type_name -> sentinez.types.secrule.v1.SecRuleEvent
-	38, // 21: sentinez.apps.analytic.v1.ListCoreRuleEventsResponse.events:type_name -> sentinez.types.coreruleset.v1.CoreRuleEvent
+	37, // 20: sentinez.apps.analytic.v1.ListSecRateLimitEventsResponse.events:type_name -> sentinez.types.secrule.v1.SecRuleEvent
+	38, // 21: sentinez.apps.analytic.v1.ListSecRulesetEventsResponse.events:type_name -> sentinez.types.ruleset.v1.SecRulesetEvent
 	0,  // 22: sentinez.apps.analytic.v1.GetEventHistogramRequest.kind:type_name -> sentinez.apps.analytic.v1.EventKind
 	39, // 23: sentinez.apps.analytic.v1.GetEventHistogramRequest.resolution:type_name -> sentinez.types.v1.HistogramResolution
 	33, // 24: sentinez.apps.analytic.v1.GetEventHistogramRequest.from:type_name -> google.protobuf.Timestamp

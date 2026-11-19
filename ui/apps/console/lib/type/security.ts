@@ -2,8 +2,10 @@ import {
   Category,
   EngineMode,
   RuleState,
-  Version,
-} from '@sentinez/proto/sentinez/types/coreruleset/v1/setting';
+  CRSVersion,
+  Provider,
+  Setting,
+} from '@sentinez/proto/sentinez/types/ruleset/v1/setting';
 import { ActionType, FieldSource, Operator } from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 
@@ -143,6 +145,22 @@ export const ACTION_TYPES: ActionType[] = [
 
 // ─── OWASP Core Rule Set ─────────────────────────────────────────────────────
 
+/** Selectable ruleset providers (key into Enum.provider / Enum.providerDescription) */
+export const PROVIDERS = [
+  { key: 'owasp', value: Provider.PROVIDER_OWASP },
+  { key: 'managed', value: Provider.PROVIDER_MANAGED },
+] as const;
+
+/** Provider of a setting; unset is run as OWASP by the edge */
+export const providerOf = (setting?: Setting) => setting?.provider || Provider.PROVIDER_OWASP;
+
+export const isManagedProvider = (provider?: Provider) => provider === Provider.PROVIDER_MANAGED;
+
+/** Engine mode of the provider the setting uses */
+export const modeOf = (setting?: Setting) =>
+  (isManagedProvider(setting?.provider) ? setting?.managed?.mode : setting?.crs?.mode) ??
+  EngineMode.ENGINE_MODE_UNSPECIFIED;
+
 /** Selectable engine modes (key into Enum.engineMode / Enum.engineModeDescription) */
 export const ENGINE_MODES = [
   { key: 'on', value: EngineMode.ENGINE_MODE_ON },
@@ -159,10 +177,10 @@ export const ENGINE_MODE_BADGE_VARIANT: Record<EngineMode, 'default' | 'secondar
   [EngineMode.UNRECOGNIZED]: 'outline',
 };
 
-/** Pinned CRS versions, newest first; VERSION_UNSPECIFIED means "latest supported" */
+/** Pinned CRS versions, newest first; CRS_VERSION_UNSPECIFIED means "latest supported" */
 export const CRS_VERSIONS = [
-  { label: '4.17.0', value: Version.VERSION_V4_17_0 },
-  { label: '4.16.0', value: Version.VERSION_V4_16_0 },
+  { label: '4.17.0', value: CRSVersion.CRS_VERSION_V4_17_0 },
+  { label: '4.16.0', value: CRSVersion.CRS_VERSION_V4_16_0 },
 ] as const;
 
 /** CRS rule groups in rule-ID order (key into Enum.crsCategory); `code` is the ID prefix */

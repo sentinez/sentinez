@@ -182,7 +182,7 @@ gây lỗi; tên stage là hằng exported (vd `secure.WAFId`). Panic của plug
 | 6 | `ROM` | `room.WaitingRoom` | Placeholder, chỉ chuyển tiếp |
 | 7 | `STC` | `static.Static` | Sau khi chạy tiếp, nếu path có đuôi tĩnh (`.css .js .png ...`) thì set `Cache-Control: public, max-age=3600, immutable` |
 | 8 | `RUL` | `secure.SecRule` | Duyệt các SecRule active theo priority giảm dần; rule đầu tiên khớp có action `BLOCK` → `403`; action khác chỉ log debug và đi tiếp |
-| 9 | `WAF` | `secure.WAF` | Coraza transaction: `ExecIngress` (header/body) → chạy tiếp → `ExecEgress` (response). Bị chặn với status 403 → trang 403. Cuối cùng log `secrulepb.Event` (`LOG_TYPE_CORE_RULESETS`) nếu bị interrupt |
+| 9 | `WAF` | `secure.WAF` | Coraza transaction: `ExecIngress` (header/body) → chạy tiếp → `ExecEgress` (response). Bị chặn với status 403 → trang 403. Cuối cùng log `secrulepb.Event` (`LOG_TYPE_SECRULESET`) nếu bị interrupt |
 | 10 | `ROU` | `routing.StandardRouter` | Kết thúc chain: tìm route, rewrite path, set header, gọi `ReverseProxy.Serve` của proxy tới upstream thuộc namespace; không có → `502` |
 
 Response lỗi (`400/403/404/429/500`) được render bằng template `templ`
@@ -216,40 +216,44 @@ setting:
           proxySetHeaders:
             X-Real-IP: $remote_addr
   security:
-    core_ruleset:                # OWASP CRS, mỗi namespace một cấu hình
+    ruleset:                # các ruleset của namespace
       status: STATUS_ACTIVE
-      mode: ENGINE_MODE_ON       # ENGINE_MODE_OFF | ENGINE_MODE_DETECTION_ONLY | ENGINE_MODE_ON
-      version: VERSION_V4_17_0   # VERSION_V4_16_0 (chỉ RCE, SQLi) | VERSION_V4_17_0 (mặc định)
-      paranoiaLevel: 1           # 1 (ít false positive nhất) .. 4 (chặt nhất)
-      detectionParanoiaLevel: 2  # log tới mức này, chặn tới paranoiaLevel; 0 = bằng nhau
-      threshold:                 # điểm anomaly để chặn, 0 = giá trị setup.conf
-        inbound: 5
-        outbound: 4
-        earlyBlocking: true
-      categories:                # nhóm rule được bật, rỗng = tất cả
-        - CATEGORY_RCE           # 932
-        - CATEGORY_XSS           # 941
-        - CATEGORY_SQLI          # 942
-      request:
-        bodyAccess: true         # kiểm tra request body
-        bodyLimitBytes: 13107200 # 12.5 MiB, 0 = mặc định
-        allowedMethods: [GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS]
-        # allowedContentTypes: [application/json]   # rỗng = giá trị setup.conf
-      exclusions:                # tinh chỉnh false positive
-        - location: /api/search  # bỏ rule SQLi dưới prefix này
-          tags: [attack-sqli]
-        - targets:               # không có location = cả namespace
-            - ruleId: 942100
-              variable: ARGS:password
-      overrides:                 # trạng thái từng rule
-        - id: 920420
-          state: RULE_STATE_DISABLED        # chỉ gỡ dưới /webhook
-          location: /webhook
-        - id: 942430
-          state: RULE_STATE_DETECTION_ONLY  # chỉ log, không tính điểm
-        - id: 942130
-          state: RULE_STATE_ENABLED         # ép bật dù trên paranoiaLevel
-    sec_rules:                   # SecRule
+      provider: PROVIDER_OWASP   # PROVIDER_OWASP (mặc định) | PROVIDER_MANAGED
+      crs:                       # OWASP CRS, mỗi namespace một cấu hình
+        mode: ENGINE_MODE_ON       # ENGINE_MODE_OFF | ENGINE_MODE_DETECTION_ONLY | ENGINE_MODE_ON
+        version: CRS_VERSION_V4_17_0   # CRS_VERSION_V4_16_0 (chỉ RCE, SQLi) | CRS_VERSION_V4_17_0 (mặc định)
+        paranoiaLevel: 1           # 1 (ít false positive nhất) .. 4 (chặt nhất)
+        detectionParanoiaLevel: 2  # log tới mức này, chặn tới paranoiaLevel; 0 = bằng nhau
+        threshold:                 # điểm anomaly để chặn, 0 = giá trị setup.conf
+          inbound: 5
+          outbound: 4
+          earlyBlocking: true
+        categories:                # nhóm rule được bật, rỗng = tất cả
+          - CATEGORY_RCE           # 932
+          - CATEGORY_XSS           # 941
+          - CATEGORY_SQLI          # 942
+        request:
+          bodyAccess: true         # kiểm tra request body
+          bodyLimitBytes: 13107200 # 12.5 MiB, 0 = mặc định
+          allowedMethods: [GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS]
+          # allowedContentTypes: [application/json]   # rỗng = giá trị setup.conf
+        exclusions:                # tinh chỉnh false positive
+          - location: /api/search  # bỏ rule SQLi dưới prefix này
+            tags: [attack-sqli]
+          - targets:               # không có location = cả namespace
+              - ruleId: 942100
+                variable: ARGS:password
+        overrides:                 # trạng thái từng rule
+          - id: 920420
+            state: RULE_STATE_DISABLED        # chỉ gỡ dưới /webhook
+            location: /webhook
+          - id: 942430
+            state: RULE_STATE_DETECTION_ONLY  # chỉ log, không tính điểm
+          - id: 942130
+            state: RULE_STATE_ENABLED         # ép bật dù trên paranoiaLevel
+      # managed:                 # dùng với provider: PROVIDER_MANAGED
+      #   mode: ENGINE_MODE_DETECTION_ONLY
+    secrules:                   # SecRule
       - ingress:
           name: "Block /block"
           status: STATUS_ACTIVE
@@ -278,10 +282,13 @@ setting:
 
 Ghi chú:
 
-- `security.core_ruleset` là một `coreruleset.v1.CoreRuleset`
-  ([setting.proto](../../api/proto/sentinez/types/coreruleset/v1/setting.proto)).
-  `version` chọn bộ rule nhúng trong binary (`VERSION_V4_16_0` chỉ có nhóm RCE
-  và SQLi; không đặt = `VERSION_V4_17_0`). `paranoiaLevel` và
+- `security.ruleset` là một `ruleset.v1.Setting`
+  ([setting.proto](../../api/proto/sentinez/types/ruleset/v1/setting.proto)):
+  `status`, `provider`, khối OWASP CRS `crs` (`ruleset.v1.Crs`) và ruleset
+  `managed` (`ruleset.v1.Managed`). Edge chạy CRS khi `provider` là
+  `PROVIDER_OWASP` hoặc không đặt; `PROVIDER_MANAGED` chưa được nạp. Trong
+  `crs`, `version` chọn bộ rule nhúng trong binary (`CRS_VERSION_V4_16_0`
+  chỉ có nhóm RCE và SQLi; không đặt = `CRS_VERSION_V4_17_0`). `paranoiaLevel` và
   `detectionParanoiaLevel` giới hạn 0–4; rule ID trong `exclusions` và
   `overrides` phải nằm trong 900000–999999; `location` phải bắt đầu bằng `/`.
 - Giá trị `categories` ánh xạ 1:1 với file CRS: nhóm request
@@ -636,7 +643,7 @@ cả hai thì nó mất quorum tới khi chúng chạy lại. Các edge chạy v
 Nó được đóng gói trong `edge.RevProxyService`
 ([pkg/apps/dmz/edge/rev_proxy_service.go](../../pkg/apps/dmz/edge/rev_proxy_service.go)),
 và `main` khởi chạy nó qua app `server.GRPC` trên `defaults.EdgeAddress`. RPC
-`EvalCoreRuleset` (chạy lại một request với một setting CRS) đã bị bỏ cùng
+`EvalRuleset` (chạy lại một request với một setting CRS) đã bị bỏ cùng
 `szcrs.Evaluate`. `internal/dmz/edge/events/{pub,sub}` hiện là package rỗng.
 
 ## 3.10 Chọn engine

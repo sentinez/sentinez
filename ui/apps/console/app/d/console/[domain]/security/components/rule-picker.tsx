@@ -21,12 +21,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@sentinez/ui/components/select';
-import { Category, RuleInfo, Version } from '@sentinez/proto/sentinez/types/coreruleset/v1/setting';
+import { Category, RuleInfo, CRSVersion } from '@sentinez/proto/sentinez/types/ruleset/v1/setting';
 import { useDebounced } from '@/hooks/use-debounced';
 import { useSecurityOptions } from '@/hooks/use-security-options';
-import { listRuleInfos } from '@/lib/api/security';
+import { listCRSRuleInfos } from '@/lib/api/security';
 import { toast } from '@/lib/toast';
-import { isCrsRuleId } from './core-ruleset-form';
+import { isCrsRuleId } from './ruleset-form';
 import { cn } from '@sentinez/ui/lib/utils';
 
 export const PICKER_PAGE_SIZE = 8;
@@ -44,7 +44,7 @@ export interface RuleCatalog {
 }
 
 /** Catalog entries of the given rule IDs, to show what a typed ID refers to */
-export function useRuleInfos(ids: number[], version: Version): RuleCatalog {
+export function useCRSRuleInfos(ids: number[], version: CRSVersion): RuleCatalog {
   const key = useMemo(
     () => [...new Set(ids.filter(isCrsRuleId))].sort((a, b) => a - b).join(','),
     [ids],
@@ -55,7 +55,7 @@ export function useRuleInfos(ids: number[], version: Version): RuleCatalog {
     if (!key) return;
     const controller = new AbortController();
     const request = { ids: key.split(',').map(Number), version, includeSystem: true };
-    listRuleInfos(request, { signal: controller.signal })
+    listCRSRuleInfos(request, { signal: controller.signal })
       .then((res) => setLoaded({ key, infos: new Map(res.rules.map((r) => [r.id, r])) }))
       // the description is a hint only: leave it out when the catalog is unreachable
       .catch(() => {});
@@ -111,15 +111,15 @@ export function PickerPager({
 }
 
 interface Props {
-  /** Catalog version, VERSION_UNSPECIFIED = latest supported */
-  version: Version;
+  /** Catalog version, CRS_VERSION_UNSPECIFIED = latest supported */
+  version: CRSVersion;
   onSelect: (rule: RuleInfo) => void;
   onClose: () => void;
 }
 
 /** Dialog searching the OWASP CRS catalog; mount it only while it is open */
 export function RulePicker({ version, onSelect, onClose }: Props) {
-  const t = useTranslations('CoreRulesetFields');
+  const t = useTranslations('RulesetFields');
   const tc = useTranslations('Common');
   const { crsCategoryOptions } = useSecurityOptions();
   const [search, setSearch] = useState('');
@@ -139,7 +139,7 @@ export function RulePicker({ version, onSelect, onClose }: Props) {
       search: query,
       categories: category ? [category] : [],
     };
-    listRuleInfos(request, { signal: controller.signal })
+    listCRSRuleInfos(request, { signal: controller.signal })
       .then((res) => {
         setRules(res.rules);
         setTotal(res.total);

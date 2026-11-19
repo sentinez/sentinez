@@ -23,7 +23,7 @@ package edgepb
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	v13 "github.com/sentinez/sentinez/api/proto/sentinez/types/cdn/v1"
-	v11 "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	v11 "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 	v12 "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -700,9 +700,9 @@ func (x *Location) GetProxySetHeaders() map[string]string {
 // Security user-specific WAF, rate limiting, or bot protection rules
 type Security struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	CoreRuleset   *v11.CoreRuleset       `protobuf:"bytes,1,opt,name=core_ruleset,json=coreRuleset,proto3" json:"core_ruleset,omitempty" yaml:"core_ruleset"` // @gotags: yaml:"core_ruleset"
-	SecRules      []*SecRule             `protobuf:"bytes,2,rep,name=sec_rules,json=secRules,proto3" json:"sec_rules,omitempty" yaml:"sec_rules"`          // @gotags: yaml:"sec_rules"
-	Limiters      []*RateLimit           `protobuf:"bytes,3,rep,name=limiters,proto3" json:"limiters,omitempty" yaml:"limiters"`                          // @gotags: yaml:"limiters"
+	Ruleset       *v11.Setting           `protobuf:"bytes,1,opt,name=ruleset,proto3" json:"ruleset,omitempty" yaml:"ruleset"`   // @gotags: yaml:"ruleset"
+	Secrules      []*SecRule             `protobuf:"bytes,2,rep,name=secrules,proto3" json:"secrules,omitempty" yaml:"secrules"` // @gotags: yaml:"secrules"
+	Limiters      []*RateLimit           `protobuf:"bytes,3,rep,name=limiters,proto3" json:"limiters,omitempty" yaml:"limiters"` // @gotags: yaml:"limiters"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -737,16 +737,16 @@ func (*Security) Descriptor() ([]byte, []int) {
 	return file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *Security) GetCoreRuleset() *v11.CoreRuleset {
+func (x *Security) GetRuleset() *v11.Setting {
 	if x != nil {
-		return x.CoreRuleset
+		return x.Ruleset
 	}
 	return nil
 }
 
-func (x *Security) GetSecRules() []*SecRule {
+func (x *Security) GetSecrules() []*SecRule {
 	if x != nil {
-		return x.SecRules
+		return x.Secrules
 	}
 	return nil
 }
@@ -1044,7 +1044,7 @@ var File_sentinez_dmz_edge_v1_setting_proto protoreflect.FileDescriptor
 
 const file_sentinez_dmz_edge_v1_setting_proto_rawDesc = "" +
 	"\n" +
-	"\"sentinez/dmz/edge/v1/setting.proto\x12\x14sentinez.dmz.edge.v1\x1a\x1bbuf/validate/validate.proto\x1a sentinez/types/cdn/v1/rule.proto\x1a+sentinez/types/coreruleset/v1/setting.proto\x1a&sentinez/types/secrule/v1/engine.proto\x1a\x1dsentinez/types/v1/known.proto\"\x81\x03\n" +
+	"\"sentinez/dmz/edge/v1/setting.proto\x12\x14sentinez.dmz.edge.v1\x1a\x1bbuf/validate/validate.proto\x1a sentinez/types/cdn/v1/rule.proto\x1a'sentinez/types/ruleset/v1/setting.proto\x1a&sentinez/types/secrule/v1/engine.proto\x1a\x1dsentinez/types/v1/known.proto\"\x81\x03\n" +
 	"\aSetting\x12:\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1e.sentinez.dmz.edge.v1.MetadataR\bmetadata\x127\n" +
 	"\aingress\x18\x02 \x01(\v2\x1d.sentinez.dmz.edge.v1.IngressR\aingress\x12:\n" +
@@ -1084,10 +1084,10 @@ const file_sentinez_dmz_edge_v1_setting_proto_rawDesc = "" +
 	"\x11proxy_set_headers\x18\x05 \x03(\v23.sentinez.dmz.edge.v1.Location.ProxySetHeadersEntryR\x0fproxySetHeaders\x1aB\n" +
 	"\x14ProxySetHeadersEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd2\x01\n" +
-	"\bSecurity\x12M\n" +
-	"\fcore_ruleset\x18\x01 \x01(\v2*.sentinez.types.coreruleset.v1.CoreRulesetR\vcoreRuleset\x12:\n" +
-	"\tsec_rules\x18\x02 \x03(\v2\x1d.sentinez.dmz.edge.v1.SecRuleR\bsecRules\x12;\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc0\x01\n" +
+	"\bSecurity\x12<\n" +
+	"\aruleset\x18\x01 \x01(\v2\".sentinez.types.ruleset.v1.SettingR\aruleset\x129\n" +
+	"\bsecrules\x18\x02 \x03(\v2\x1d.sentinez.dmz.edge.v1.SecRuleR\bsecrules\x12;\n" +
 	"\blimiters\x18\x03 \x03(\v2\x1f.sentinez.dmz.edge.v1.RateLimitR\blimiters\"G\n" +
 	"\aSecRule\x12<\n" +
 	"\aingress\x18\x01 \x01(\v2\".sentinez.types.secrule.v1.SecRuleR\aingress\"\x91\x02\n" +
@@ -1133,28 +1133,28 @@ func file_sentinez_dmz_edge_v1_setting_proto_rawDescGZIP() []byte {
 var file_sentinez_dmz_edge_v1_setting_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
 var file_sentinez_dmz_edge_v1_setting_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_sentinez_dmz_edge_v1_setting_proto_goTypes = []any{
-	(TlsMode)(0),            // 0: sentinez.dmz.edge.v1.TlsMode
-	(BalanceStrategy)(0),    // 1: sentinez.dmz.edge.v1.BalanceStrategy
-	(ProxyProtocol)(0),      // 2: sentinez.dmz.edge.v1.ProxyProtocol
-	(*Setting)(nil),         // 3: sentinez.dmz.edge.v1.Setting
-	(*Ingress)(nil),         // 4: sentinez.dmz.edge.v1.Ingress
-	(*Tls)(nil),             // 5: sentinez.dmz.edge.v1.Tls
-	(*Certificate)(nil),     // 6: sentinez.dmz.edge.v1.Certificate
-	(*Metadata)(nil),        // 7: sentinez.dmz.edge.v1.Metadata
-	(*Resource)(nil),        // 8: sentinez.dmz.edge.v1.Resource
-	(*Location)(nil),        // 9: sentinez.dmz.edge.v1.Location
-	(*Security)(nil),        // 10: sentinez.dmz.edge.v1.Security
-	(*SecRule)(nil),         // 11: sentinez.dmz.edge.v1.SecRule
-	(*RateLimit)(nil),       // 12: sentinez.dmz.edge.v1.RateLimit
-	(*TrafficControl)(nil),  // 13: sentinez.dmz.edge.v1.TrafficControl
-	(*Delivery)(nil),        // 14: sentinez.dmz.edge.v1.Delivery
-	(*Personal)(nil),        // 15: sentinez.dmz.edge.v1.Personal
-	(*Upstream)(nil),        // 16: sentinez.dmz.edge.v1.Upstream
-	nil,                     // 17: sentinez.dmz.edge.v1.Location.ProxySetHeadersEntry
-	(v1.Plan)(0),            // 18: sentinez.types.v1.Plan
-	(*v11.CoreRuleset)(nil), // 19: sentinez.types.coreruleset.v1.CoreRuleset
-	(*v12.SecRule)(nil),     // 20: sentinez.types.secrule.v1.SecRule
-	(*v13.CDN)(nil),         // 21: sentinez.types.cdn.v1.CDN
+	(TlsMode)(0),           // 0: sentinez.dmz.edge.v1.TlsMode
+	(BalanceStrategy)(0),   // 1: sentinez.dmz.edge.v1.BalanceStrategy
+	(ProxyProtocol)(0),     // 2: sentinez.dmz.edge.v1.ProxyProtocol
+	(*Setting)(nil),        // 3: sentinez.dmz.edge.v1.Setting
+	(*Ingress)(nil),        // 4: sentinez.dmz.edge.v1.Ingress
+	(*Tls)(nil),            // 5: sentinez.dmz.edge.v1.Tls
+	(*Certificate)(nil),    // 6: sentinez.dmz.edge.v1.Certificate
+	(*Metadata)(nil),       // 7: sentinez.dmz.edge.v1.Metadata
+	(*Resource)(nil),       // 8: sentinez.dmz.edge.v1.Resource
+	(*Location)(nil),       // 9: sentinez.dmz.edge.v1.Location
+	(*Security)(nil),       // 10: sentinez.dmz.edge.v1.Security
+	(*SecRule)(nil),        // 11: sentinez.dmz.edge.v1.SecRule
+	(*RateLimit)(nil),      // 12: sentinez.dmz.edge.v1.RateLimit
+	(*TrafficControl)(nil), // 13: sentinez.dmz.edge.v1.TrafficControl
+	(*Delivery)(nil),       // 14: sentinez.dmz.edge.v1.Delivery
+	(*Personal)(nil),       // 15: sentinez.dmz.edge.v1.Personal
+	(*Upstream)(nil),       // 16: sentinez.dmz.edge.v1.Upstream
+	nil,                    // 17: sentinez.dmz.edge.v1.Location.ProxySetHeadersEntry
+	(v1.Plan)(0),           // 18: sentinez.types.v1.Plan
+	(*v11.Setting)(nil),    // 19: sentinez.types.ruleset.v1.Setting
+	(*v12.SecRule)(nil),    // 20: sentinez.types.secrule.v1.SecRule
+	(*v13.CDN)(nil),        // 21: sentinez.types.cdn.v1.CDN
 }
 var file_sentinez_dmz_edge_v1_setting_proto_depIdxs = []int32{
 	7,  // 0: sentinez.dmz.edge.v1.Setting.metadata:type_name -> sentinez.dmz.edge.v1.Metadata
@@ -1174,8 +1174,8 @@ var file_sentinez_dmz_edge_v1_setting_proto_depIdxs = []int32{
 	16, // 14: sentinez.dmz.edge.v1.Location.proxy_pass:type_name -> sentinez.dmz.edge.v1.Upstream
 	1,  // 15: sentinez.dmz.edge.v1.Location.balance_strategy:type_name -> sentinez.dmz.edge.v1.BalanceStrategy
 	17, // 16: sentinez.dmz.edge.v1.Location.proxy_set_headers:type_name -> sentinez.dmz.edge.v1.Location.ProxySetHeadersEntry
-	19, // 17: sentinez.dmz.edge.v1.Security.core_ruleset:type_name -> sentinez.types.coreruleset.v1.CoreRuleset
-	11, // 18: sentinez.dmz.edge.v1.Security.sec_rules:type_name -> sentinez.dmz.edge.v1.SecRule
+	19, // 17: sentinez.dmz.edge.v1.Security.ruleset:type_name -> sentinez.types.ruleset.v1.Setting
+	11, // 18: sentinez.dmz.edge.v1.Security.secrules:type_name -> sentinez.dmz.edge.v1.SecRule
 	12, // 19: sentinez.dmz.edge.v1.Security.limiters:type_name -> sentinez.dmz.edge.v1.RateLimit
 	20, // 20: sentinez.dmz.edge.v1.SecRule.ingress:type_name -> sentinez.types.secrule.v1.SecRule
 	20, // 21: sentinez.dmz.edge.v1.RateLimit.ingress:type_name -> sentinez.types.secrule.v1.SecRule

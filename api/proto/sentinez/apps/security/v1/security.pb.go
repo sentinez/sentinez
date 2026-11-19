@@ -23,7 +23,7 @@ package securitypb
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
-	v11 "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	v11 "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -43,7 +43,7 @@ const (
 
 type CreateSecRuleRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	SecRule       *SecRule               `protobuf:"bytes,1,opt,name=sec_rule,json=secRule,proto3" json:"sec_rule,omitempty"`
+	Secrule       *SecRule               `protobuf:"bytes,1,opt,name=secrule,proto3" json:"secrule,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -78,9 +78,9 @@ func (*CreateSecRuleRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *CreateSecRuleRequest) GetSecRule() *SecRule {
+func (x *CreateSecRuleRequest) GetSecrule() *SecRule {
 	if x != nil {
-		return x.SecRule
+		return x.Secrule
 	}
 	return nil
 }
@@ -175,7 +175,7 @@ func (x *GetSecRuleRequest) GetId() string {
 
 type GetSecRuleResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	SecRule       *SecRule               `protobuf:"bytes,1,opt,name=sec_rule,json=secRule,proto3" json:"sec_rule,omitempty"`
+	Secrule       *SecRule               `protobuf:"bytes,1,opt,name=secrule,proto3" json:"secrule,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -210,9 +210,9 @@ func (*GetSecRuleResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *GetSecRuleResponse) GetSecRule() *SecRule {
+func (x *GetSecRuleResponse) GetSecrule() *SecRule {
 	if x != nil {
-		return x.SecRule
+		return x.Secrule
 	}
 	return nil
 }
@@ -220,10 +220,10 @@ func (x *GetSecRuleResponse) GetSecRule() *SecRule {
 type UpdateSecRuleRequest struct {
 	state   protoimpl.MessageState `protogen:"open.v1"`
 	Id      string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	SecRule *SecRule               `protobuf:"bytes,2,opt,name=sec_rule,json=secRule,proto3" json:"sec_rule,omitempty"`
-	// Fields of sec_rule to update, among name, description, expr, status,
+	Secrule *SecRule               `protobuf:"bytes,2,opt,name=secrule,proto3" json:"secrule,omitempty"`
+	// Fields of secrule to update, among name, description, expr, status,
 	// priority and action ("*" for all of them); without one, those set in
-	// sec_rule. A named field unset in sec_rule is cleared.
+	// secrule. A named field unset in secrule is cleared.
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,3,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -266,9 +266,9 @@ func (x *UpdateSecRuleRequest) GetId() string {
 	return ""
 }
 
-func (x *UpdateSecRuleRequest) GetSecRule() *SecRule {
+func (x *UpdateSecRuleRequest) GetSecrule() *SecRule {
 	if x != nil {
-		return x.SecRule
+		return x.Secrule
 	}
 	return nil
 }
@@ -282,7 +282,7 @@ func (x *UpdateSecRuleRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 
 type UpdateSecRuleResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	SecRule       *SecRule               `protobuf:"bytes,1,opt,name=sec_rule,json=secRule,proto3" json:"sec_rule,omitempty"`
+	Secrule       *SecRule               `protobuf:"bytes,1,opt,name=secrule,proto3" json:"secrule,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -317,9 +317,9 @@ func (*UpdateSecRuleResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *UpdateSecRuleResponse) GetSecRule() *SecRule {
+func (x *UpdateSecRuleResponse) GetSecrule() *SecRule {
 	if x != nil {
-		return x.SecRule
+		return x.Secrule
 	}
 	return nil
 }
@@ -467,7 +467,7 @@ func (x *ListSecRulesRequest) GetResourceIds() []string {
 
 type ListSecRulesResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	SecRules      []*SecRule             `protobuf:"bytes,1,rep,name=sec_rules,json=secRules,proto3" json:"sec_rules,omitempty"`
+	Secrules      []*SecRule             `protobuf:"bytes,1,rep,name=secrules,proto3" json:"secrules,omitempty"`
 	Total         int64                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -503,9 +503,9 @@ func (*ListSecRulesResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *ListSecRulesResponse) GetSecRules() []*SecRule {
+func (x *ListSecRulesResponse) GetSecrules() []*SecRule {
 	if x != nil {
-		return x.SecRules
+		return x.Secrules
 	}
 	return nil
 }
@@ -517,27 +517,27 @@ func (x *ListSecRulesResponse) GetTotal() int64 {
 	return 0
 }
 
-type CreateRateLimitRequest struct {
+type CreateSecRateLimitRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RateLimit     *RateLimit             `protobuf:"bytes,1,opt,name=rate_limit,json=rateLimit,proto3" json:"rate_limit,omitempty"`
+	Secratelimit  *SecRateLimit          `protobuf:"bytes,1,opt,name=secratelimit,proto3" json:"secratelimit,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *CreateRateLimitRequest) Reset() {
-	*x = CreateRateLimitRequest{}
+func (x *CreateSecRateLimitRequest) Reset() {
+	*x = CreateSecRateLimitRequest{}
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CreateRateLimitRequest) String() string {
+func (x *CreateSecRateLimitRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CreateRateLimitRequest) ProtoMessage() {}
+func (*CreateSecRateLimitRequest) ProtoMessage() {}
 
-func (x *CreateRateLimitRequest) ProtoReflect() protoreflect.Message {
+func (x *CreateSecRateLimitRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -549,39 +549,39 @@ func (x *CreateRateLimitRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CreateRateLimitRequest.ProtoReflect.Descriptor instead.
-func (*CreateRateLimitRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use CreateSecRateLimitRequest.ProtoReflect.Descriptor instead.
+func (*CreateSecRateLimitRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{10}
 }
 
-func (x *CreateRateLimitRequest) GetRateLimit() *RateLimit {
+func (x *CreateSecRateLimitRequest) GetSecratelimit() *SecRateLimit {
 	if x != nil {
-		return x.RateLimit
+		return x.Secratelimit
 	}
 	return nil
 }
 
-type CreateRateLimitResponse struct {
+type CreateSecRateLimitResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *CreateRateLimitResponse) Reset() {
-	*x = CreateRateLimitResponse{}
+func (x *CreateSecRateLimitResponse) Reset() {
+	*x = CreateSecRateLimitResponse{}
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CreateRateLimitResponse) String() string {
+func (x *CreateSecRateLimitResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CreateRateLimitResponse) ProtoMessage() {}
+func (*CreateSecRateLimitResponse) ProtoMessage() {}
 
-func (x *CreateRateLimitResponse) ProtoReflect() protoreflect.Message {
+func (x *CreateSecRateLimitResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -593,39 +593,39 @@ func (x *CreateRateLimitResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CreateRateLimitResponse.ProtoReflect.Descriptor instead.
-func (*CreateRateLimitResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use CreateSecRateLimitResponse.ProtoReflect.Descriptor instead.
+func (*CreateSecRateLimitResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{11}
 }
 
-func (x *CreateRateLimitResponse) GetId() string {
+func (x *CreateSecRateLimitResponse) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-type GetRateLimitRequest struct {
+type GetSecRateLimitRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetRateLimitRequest) Reset() {
-	*x = GetRateLimitRequest{}
+func (x *GetSecRateLimitRequest) Reset() {
+	*x = GetSecRateLimitRequest{}
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetRateLimitRequest) String() string {
+func (x *GetSecRateLimitRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetRateLimitRequest) ProtoMessage() {}
+func (*GetSecRateLimitRequest) ProtoMessage() {}
 
-func (x *GetRateLimitRequest) ProtoReflect() protoreflect.Message {
+func (x *GetSecRateLimitRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -637,39 +637,39 @@ func (x *GetRateLimitRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetRateLimitRequest.ProtoReflect.Descriptor instead.
-func (*GetRateLimitRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetSecRateLimitRequest.ProtoReflect.Descriptor instead.
+func (*GetSecRateLimitRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{12}
 }
 
-func (x *GetRateLimitRequest) GetId() string {
+func (x *GetSecRateLimitRequest) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-type GetRateLimitResponse struct {
+type GetSecRateLimitResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RateLimit     *RateLimit             `protobuf:"bytes,1,opt,name=rate_limit,json=rateLimit,proto3" json:"rate_limit,omitempty"`
+	Secratelimit  *SecRateLimit          `protobuf:"bytes,1,opt,name=secratelimit,proto3" json:"secratelimit,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetRateLimitResponse) Reset() {
-	*x = GetRateLimitResponse{}
+func (x *GetSecRateLimitResponse) Reset() {
+	*x = GetSecRateLimitResponse{}
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetRateLimitResponse) String() string {
+func (x *GetSecRateLimitResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetRateLimitResponse) ProtoMessage() {}
+func (*GetSecRateLimitResponse) ProtoMessage() {}
 
-func (x *GetRateLimitResponse) ProtoReflect() protoreflect.Message {
+func (x *GetSecRateLimitResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -681,22 +681,22 @@ func (x *GetRateLimitResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetRateLimitResponse.ProtoReflect.Descriptor instead.
-func (*GetRateLimitResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetSecRateLimitResponse.ProtoReflect.Descriptor instead.
+func (*GetSecRateLimitResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{13}
 }
 
-func (x *GetRateLimitResponse) GetRateLimit() *RateLimit {
+func (x *GetSecRateLimitResponse) GetSecratelimit() *SecRateLimit {
 	if x != nil {
-		return x.RateLimit
+		return x.Secratelimit
 	}
 	return nil
 }
 
-type UpdateRateLimitRequest struct {
-	state     protoimpl.MessageState `protogen:"open.v1"`
-	Id        string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	RateLimit *RateLimit             `protobuf:"bytes,2,opt,name=rate_limit,json=rateLimit,proto3" json:"rate_limit,omitempty"`
+type UpdateSecRateLimitRequest struct {
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	Id           string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Secratelimit *SecRateLimit          `protobuf:"bytes,2,opt,name=secratelimit,proto3" json:"secratelimit,omitempty"`
 	// Fields of rate_limit to update, among name, description, expr,
 	// status, priority, action, time_window, max_requests and timeout ("*"
 	// for all of them); without one, those set in rate_limit. A named field
@@ -706,20 +706,20 @@ type UpdateRateLimitRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *UpdateRateLimitRequest) Reset() {
-	*x = UpdateRateLimitRequest{}
+func (x *UpdateSecRateLimitRequest) Reset() {
+	*x = UpdateSecRateLimitRequest{}
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *UpdateRateLimitRequest) String() string {
+func (x *UpdateSecRateLimitRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*UpdateRateLimitRequest) ProtoMessage() {}
+func (*UpdateSecRateLimitRequest) ProtoMessage() {}
 
-func (x *UpdateRateLimitRequest) ProtoReflect() protoreflect.Message {
+func (x *UpdateSecRateLimitRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -731,53 +731,53 @@ func (x *UpdateRateLimitRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UpdateRateLimitRequest.ProtoReflect.Descriptor instead.
-func (*UpdateRateLimitRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use UpdateSecRateLimitRequest.ProtoReflect.Descriptor instead.
+func (*UpdateSecRateLimitRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{14}
 }
 
-func (x *UpdateRateLimitRequest) GetId() string {
+func (x *UpdateSecRateLimitRequest) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *UpdateRateLimitRequest) GetRateLimit() *RateLimit {
+func (x *UpdateSecRateLimitRequest) GetSecratelimit() *SecRateLimit {
 	if x != nil {
-		return x.RateLimit
+		return x.Secratelimit
 	}
 	return nil
 }
 
-func (x *UpdateRateLimitRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
+func (x *UpdateSecRateLimitRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	if x != nil {
 		return x.UpdateMask
 	}
 	return nil
 }
 
-type UpdateRateLimitResponse struct {
+type UpdateSecRateLimitResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RateLimit     *RateLimit             `protobuf:"bytes,1,opt,name=rate_limit,json=rateLimit,proto3" json:"rate_limit,omitempty"`
+	Secratelimit  *SecRateLimit          `protobuf:"bytes,1,opt,name=secratelimit,proto3" json:"secratelimit,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *UpdateRateLimitResponse) Reset() {
-	*x = UpdateRateLimitResponse{}
+func (x *UpdateSecRateLimitResponse) Reset() {
+	*x = UpdateSecRateLimitResponse{}
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *UpdateRateLimitResponse) String() string {
+func (x *UpdateSecRateLimitResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*UpdateRateLimitResponse) ProtoMessage() {}
+func (*UpdateSecRateLimitResponse) ProtoMessage() {}
 
-func (x *UpdateRateLimitResponse) ProtoReflect() protoreflect.Message {
+func (x *UpdateSecRateLimitResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -789,39 +789,39 @@ func (x *UpdateRateLimitResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UpdateRateLimitResponse.ProtoReflect.Descriptor instead.
-func (*UpdateRateLimitResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use UpdateSecRateLimitResponse.ProtoReflect.Descriptor instead.
+func (*UpdateSecRateLimitResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{15}
 }
 
-func (x *UpdateRateLimitResponse) GetRateLimit() *RateLimit {
+func (x *UpdateSecRateLimitResponse) GetSecratelimit() *SecRateLimit {
 	if x != nil {
-		return x.RateLimit
+		return x.Secratelimit
 	}
 	return nil
 }
 
-type DeleteRateLimitRequest struct {
+type DeleteSecRateLimitRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *DeleteRateLimitRequest) Reset() {
-	*x = DeleteRateLimitRequest{}
+func (x *DeleteSecRateLimitRequest) Reset() {
+	*x = DeleteSecRateLimitRequest{}
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *DeleteRateLimitRequest) String() string {
+func (x *DeleteSecRateLimitRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DeleteRateLimitRequest) ProtoMessage() {}
+func (*DeleteSecRateLimitRequest) ProtoMessage() {}
 
-func (x *DeleteRateLimitRequest) ProtoReflect() protoreflect.Message {
+func (x *DeleteSecRateLimitRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -833,38 +833,38 @@ func (x *DeleteRateLimitRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DeleteRateLimitRequest.ProtoReflect.Descriptor instead.
-func (*DeleteRateLimitRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use DeleteSecRateLimitRequest.ProtoReflect.Descriptor instead.
+func (*DeleteSecRateLimitRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{16}
 }
 
-func (x *DeleteRateLimitRequest) GetId() string {
+func (x *DeleteSecRateLimitRequest) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-type DeleteRateLimitResponse struct {
+type DeleteSecRateLimitResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *DeleteRateLimitResponse) Reset() {
-	*x = DeleteRateLimitResponse{}
+func (x *DeleteSecRateLimitResponse) Reset() {
+	*x = DeleteSecRateLimitResponse{}
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *DeleteRateLimitResponse) String() string {
+func (x *DeleteSecRateLimitResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DeleteRateLimitResponse) ProtoMessage() {}
+func (*DeleteSecRateLimitResponse) ProtoMessage() {}
 
-func (x *DeleteRateLimitResponse) ProtoReflect() protoreflect.Message {
+func (x *DeleteSecRateLimitResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -876,12 +876,12 @@ func (x *DeleteRateLimitResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DeleteRateLimitResponse.ProtoReflect.Descriptor instead.
-func (*DeleteRateLimitResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use DeleteSecRateLimitResponse.ProtoReflect.Descriptor instead.
+func (*DeleteSecRateLimitResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{17}
 }
 
-type ListRateLimitsRequest struct {
+type ListSecRateLimitsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Page  *v1.Pages              `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
 	Ids   []string               `protobuf:"bytes,10,rep,name=ids,proto3" json:"ids,omitempty"`
@@ -891,20 +891,20 @@ type ListRateLimitsRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListRateLimitsRequest) Reset() {
-	*x = ListRateLimitsRequest{}
+func (x *ListSecRateLimitsRequest) Reset() {
+	*x = ListSecRateLimitsRequest{}
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListRateLimitsRequest) String() string {
+func (x *ListSecRateLimitsRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListRateLimitsRequest) ProtoMessage() {}
+func (*ListSecRateLimitsRequest) ProtoMessage() {}
 
-func (x *ListRateLimitsRequest) ProtoReflect() protoreflect.Message {
+func (x *ListSecRateLimitsRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -916,54 +916,54 @@ func (x *ListRateLimitsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListRateLimitsRequest.ProtoReflect.Descriptor instead.
-func (*ListRateLimitsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListSecRateLimitsRequest.ProtoReflect.Descriptor instead.
+func (*ListSecRateLimitsRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{18}
 }
 
-func (x *ListRateLimitsRequest) GetPage() *v1.Pages {
+func (x *ListSecRateLimitsRequest) GetPage() *v1.Pages {
 	if x != nil {
 		return x.Page
 	}
 	return nil
 }
 
-func (x *ListRateLimitsRequest) GetIds() []string {
+func (x *ListSecRateLimitsRequest) GetIds() []string {
 	if x != nil {
 		return x.Ids
 	}
 	return nil
 }
 
-func (x *ListRateLimitsRequest) GetResourceIds() []string {
+func (x *ListSecRateLimitsRequest) GetResourceIds() []string {
 	if x != nil {
 		return x.ResourceIds
 	}
 	return nil
 }
 
-type ListRateLimitsResponse struct {
+type ListSecRateLimitsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RateLimits    []*RateLimit           `protobuf:"bytes,1,rep,name=rate_limits,json=rateLimits,proto3" json:"rate_limits,omitempty"`
+	Secratelimits []*SecRateLimit        `protobuf:"bytes,1,rep,name=secratelimits,proto3" json:"secratelimits,omitempty"`
 	Total         int64                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListRateLimitsResponse) Reset() {
-	*x = ListRateLimitsResponse{}
+func (x *ListSecRateLimitsResponse) Reset() {
+	*x = ListSecRateLimitsResponse{}
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListRateLimitsResponse) String() string {
+func (x *ListSecRateLimitsResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListRateLimitsResponse) ProtoMessage() {}
+func (*ListSecRateLimitsResponse) ProtoMessage() {}
 
-func (x *ListRateLimitsResponse) ProtoReflect() protoreflect.Message {
+func (x *ListSecRateLimitsResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -975,46 +975,46 @@ func (x *ListRateLimitsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListRateLimitsResponse.ProtoReflect.Descriptor instead.
-func (*ListRateLimitsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListSecRateLimitsResponse.ProtoReflect.Descriptor instead.
+func (*ListSecRateLimitsResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{19}
 }
 
-func (x *ListRateLimitsResponse) GetRateLimits() []*RateLimit {
+func (x *ListSecRateLimitsResponse) GetSecratelimits() []*SecRateLimit {
 	if x != nil {
-		return x.RateLimits
+		return x.Secratelimits
 	}
 	return nil
 }
 
-func (x *ListRateLimitsResponse) GetTotal() int64 {
+func (x *ListSecRateLimitsResponse) GetTotal() int64 {
 	if x != nil {
 		return x.Total
 	}
 	return 0
 }
 
-type CreateCoreRulesetRequest struct {
+type CreateSecRulesetRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	CoreRuleset   *CoreRuleset           `protobuf:"bytes,1,opt,name=core_ruleset,json=coreRuleset,proto3" json:"core_ruleset,omitempty"`
+	Secruleset    *SecRuleset            `protobuf:"bytes,1,opt,name=secruleset,proto3" json:"secruleset,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *CreateCoreRulesetRequest) Reset() {
-	*x = CreateCoreRulesetRequest{}
+func (x *CreateSecRulesetRequest) Reset() {
+	*x = CreateSecRulesetRequest{}
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CreateCoreRulesetRequest) String() string {
+func (x *CreateSecRulesetRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CreateCoreRulesetRequest) ProtoMessage() {}
+func (*CreateSecRulesetRequest) ProtoMessage() {}
 
-func (x *CreateCoreRulesetRequest) ProtoReflect() protoreflect.Message {
+func (x *CreateSecRulesetRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1026,39 +1026,39 @@ func (x *CreateCoreRulesetRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CreateCoreRulesetRequest.ProtoReflect.Descriptor instead.
-func (*CreateCoreRulesetRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use CreateSecRulesetRequest.ProtoReflect.Descriptor instead.
+func (*CreateSecRulesetRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{20}
 }
 
-func (x *CreateCoreRulesetRequest) GetCoreRuleset() *CoreRuleset {
+func (x *CreateSecRulesetRequest) GetSecruleset() *SecRuleset {
 	if x != nil {
-		return x.CoreRuleset
+		return x.Secruleset
 	}
 	return nil
 }
 
-type CreateCoreRulesetResponse struct {
+type CreateSecRulesetResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *CreateCoreRulesetResponse) Reset() {
-	*x = CreateCoreRulesetResponse{}
+func (x *CreateSecRulesetResponse) Reset() {
+	*x = CreateSecRulesetResponse{}
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CreateCoreRulesetResponse) String() string {
+func (x *CreateSecRulesetResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CreateCoreRulesetResponse) ProtoMessage() {}
+func (*CreateSecRulesetResponse) ProtoMessage() {}
 
-func (x *CreateCoreRulesetResponse) ProtoReflect() protoreflect.Message {
+func (x *CreateSecRulesetResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1070,39 +1070,39 @@ func (x *CreateCoreRulesetResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CreateCoreRulesetResponse.ProtoReflect.Descriptor instead.
-func (*CreateCoreRulesetResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use CreateSecRulesetResponse.ProtoReflect.Descriptor instead.
+func (*CreateSecRulesetResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{21}
 }
 
-func (x *CreateCoreRulesetResponse) GetId() string {
+func (x *CreateSecRulesetResponse) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-type GetCoreRulesetRequest struct {
+type GetSecRulesetRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetCoreRulesetRequest) Reset() {
-	*x = GetCoreRulesetRequest{}
+func (x *GetSecRulesetRequest) Reset() {
+	*x = GetSecRulesetRequest{}
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetCoreRulesetRequest) String() string {
+func (x *GetSecRulesetRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetCoreRulesetRequest) ProtoMessage() {}
+func (*GetSecRulesetRequest) ProtoMessage() {}
 
-func (x *GetCoreRulesetRequest) ProtoReflect() protoreflect.Message {
+func (x *GetSecRulesetRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1114,39 +1114,39 @@ func (x *GetCoreRulesetRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetCoreRulesetRequest.ProtoReflect.Descriptor instead.
-func (*GetCoreRulesetRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetSecRulesetRequest.ProtoReflect.Descriptor instead.
+func (*GetSecRulesetRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{22}
 }
 
-func (x *GetCoreRulesetRequest) GetId() string {
+func (x *GetSecRulesetRequest) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-type GetCoreRulesetResponse struct {
+type GetSecRulesetResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	CoreRuleset   *CoreRuleset           `protobuf:"bytes,1,opt,name=core_ruleset,json=coreRuleset,proto3" json:"core_ruleset,omitempty"`
+	Secruleset    *SecRuleset            `protobuf:"bytes,1,opt,name=secruleset,proto3" json:"secruleset,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetCoreRulesetResponse) Reset() {
-	*x = GetCoreRulesetResponse{}
+func (x *GetSecRulesetResponse) Reset() {
+	*x = GetSecRulesetResponse{}
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetCoreRulesetResponse) String() string {
+func (x *GetSecRulesetResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetCoreRulesetResponse) ProtoMessage() {}
+func (*GetSecRulesetResponse) ProtoMessage() {}
 
-func (x *GetCoreRulesetResponse) ProtoReflect() protoreflect.Message {
+func (x *GetSecRulesetResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1158,44 +1158,44 @@ func (x *GetCoreRulesetResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetCoreRulesetResponse.ProtoReflect.Descriptor instead.
-func (*GetCoreRulesetResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetSecRulesetResponse.ProtoReflect.Descriptor instead.
+func (*GetSecRulesetResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{23}
 }
 
-func (x *GetCoreRulesetResponse) GetCoreRuleset() *CoreRuleset {
+func (x *GetSecRulesetResponse) GetSecruleset() *SecRuleset {
 	if x != nil {
-		return x.CoreRuleset
+		return x.Secruleset
 	}
 	return nil
 }
 
-type UpdateCoreRulesetRequest struct {
-	state       protoimpl.MessageState `protogen:"open.v1"`
-	Id          string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	CoreRuleset *CoreRuleset           `protobuf:"bytes,2,opt,name=core_ruleset,json=coreRuleset,proto3" json:"core_ruleset,omitempty"`
-	// Fields of core_ruleset to update, among name, description and
-	// content ("*" for all of them); without one, those set in core_ruleset.
-	// A named field unset in core_ruleset is cleared.
+type UpdateSecRulesetRequest struct {
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	Id         string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Secruleset *SecRuleset            `protobuf:"bytes,2,opt,name=secruleset,proto3" json:"secruleset,omitempty"`
+	// Fields of ruleset to update, among name, description and
+	// ruleset ("*" for all of them); without one, those set in ruleset.
+	// A named field unset in ruleset is cleared.
 	UpdateMask    *fieldmaskpb.FieldMask `protobuf:"bytes,3,opt,name=update_mask,json=updateMask,proto3" json:"update_mask,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *UpdateCoreRulesetRequest) Reset() {
-	*x = UpdateCoreRulesetRequest{}
+func (x *UpdateSecRulesetRequest) Reset() {
+	*x = UpdateSecRulesetRequest{}
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *UpdateCoreRulesetRequest) String() string {
+func (x *UpdateSecRulesetRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*UpdateCoreRulesetRequest) ProtoMessage() {}
+func (*UpdateSecRulesetRequest) ProtoMessage() {}
 
-func (x *UpdateCoreRulesetRequest) ProtoReflect() protoreflect.Message {
+func (x *UpdateSecRulesetRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1207,53 +1207,53 @@ func (x *UpdateCoreRulesetRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UpdateCoreRulesetRequest.ProtoReflect.Descriptor instead.
-func (*UpdateCoreRulesetRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use UpdateSecRulesetRequest.ProtoReflect.Descriptor instead.
+func (*UpdateSecRulesetRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{24}
 }
 
-func (x *UpdateCoreRulesetRequest) GetId() string {
+func (x *UpdateSecRulesetRequest) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *UpdateCoreRulesetRequest) GetCoreRuleset() *CoreRuleset {
+func (x *UpdateSecRulesetRequest) GetSecruleset() *SecRuleset {
 	if x != nil {
-		return x.CoreRuleset
+		return x.Secruleset
 	}
 	return nil
 }
 
-func (x *UpdateCoreRulesetRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
+func (x *UpdateSecRulesetRequest) GetUpdateMask() *fieldmaskpb.FieldMask {
 	if x != nil {
 		return x.UpdateMask
 	}
 	return nil
 }
 
-type UpdateCoreRulesetResponse struct {
+type UpdateSecRulesetResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	CoreRuleset   *CoreRuleset           `protobuf:"bytes,1,opt,name=core_ruleset,json=coreRuleset,proto3" json:"core_ruleset,omitempty"`
+	Secruleset    *SecRuleset            `protobuf:"bytes,1,opt,name=secruleset,proto3" json:"secruleset,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *UpdateCoreRulesetResponse) Reset() {
-	*x = UpdateCoreRulesetResponse{}
+func (x *UpdateSecRulesetResponse) Reset() {
+	*x = UpdateSecRulesetResponse{}
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *UpdateCoreRulesetResponse) String() string {
+func (x *UpdateSecRulesetResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*UpdateCoreRulesetResponse) ProtoMessage() {}
+func (*UpdateSecRulesetResponse) ProtoMessage() {}
 
-func (x *UpdateCoreRulesetResponse) ProtoReflect() protoreflect.Message {
+func (x *UpdateSecRulesetResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1265,39 +1265,39 @@ func (x *UpdateCoreRulesetResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UpdateCoreRulesetResponse.ProtoReflect.Descriptor instead.
-func (*UpdateCoreRulesetResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use UpdateSecRulesetResponse.ProtoReflect.Descriptor instead.
+func (*UpdateSecRulesetResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{25}
 }
 
-func (x *UpdateCoreRulesetResponse) GetCoreRuleset() *CoreRuleset {
+func (x *UpdateSecRulesetResponse) GetSecruleset() *SecRuleset {
 	if x != nil {
-		return x.CoreRuleset
+		return x.Secruleset
 	}
 	return nil
 }
 
-type DeleteCoreRulesetRequest struct {
+type DeleteSecRulesetRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *DeleteCoreRulesetRequest) Reset() {
-	*x = DeleteCoreRulesetRequest{}
+func (x *DeleteSecRulesetRequest) Reset() {
+	*x = DeleteSecRulesetRequest{}
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *DeleteCoreRulesetRequest) String() string {
+func (x *DeleteSecRulesetRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DeleteCoreRulesetRequest) ProtoMessage() {}
+func (*DeleteSecRulesetRequest) ProtoMessage() {}
 
-func (x *DeleteCoreRulesetRequest) ProtoReflect() protoreflect.Message {
+func (x *DeleteSecRulesetRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1309,38 +1309,38 @@ func (x *DeleteCoreRulesetRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DeleteCoreRulesetRequest.ProtoReflect.Descriptor instead.
-func (*DeleteCoreRulesetRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use DeleteSecRulesetRequest.ProtoReflect.Descriptor instead.
+func (*DeleteSecRulesetRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{26}
 }
 
-func (x *DeleteCoreRulesetRequest) GetId() string {
+func (x *DeleteSecRulesetRequest) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-type DeleteCoreRulesetResponse struct {
+type DeleteSecRulesetResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *DeleteCoreRulesetResponse) Reset() {
-	*x = DeleteCoreRulesetResponse{}
+func (x *DeleteSecRulesetResponse) Reset() {
+	*x = DeleteSecRulesetResponse{}
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *DeleteCoreRulesetResponse) String() string {
+func (x *DeleteSecRulesetResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DeleteCoreRulesetResponse) ProtoMessage() {}
+func (*DeleteSecRulesetResponse) ProtoMessage() {}
 
-func (x *DeleteCoreRulesetResponse) ProtoReflect() protoreflect.Message {
+func (x *DeleteSecRulesetResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1352,52 +1352,57 @@ func (x *DeleteCoreRulesetResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DeleteCoreRulesetResponse.ProtoReflect.Descriptor instead.
-func (*DeleteCoreRulesetResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use DeleteSecRulesetResponse.ProtoReflect.Descriptor instead.
+func (*DeleteSecRulesetResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{27}
 }
 
-// ListCoreRulesetsRequest every filter set must match (AND); the values
+// ListSecRulesetsRequest every filter set must match (AND); the values
 // of a repeated filter are alternatives (OR) unless stated otherwise.
-type ListCoreRulesetsRequest struct {
+type ListSecRulesetsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Page  *v1.Pages              `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
 	// Case-insensitive part of the name.
 	Name string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Ids  []string `protobuf:"bytes,10,rep,name=ids,proto3" json:"ids,omitempty"`
 	// metadata.resource_id of the rows, any of them.
-	ResourceIds []string         `protobuf:"bytes,11,rep,name=resource_ids,json=resourceIds,proto3" json:"resource_ids,omitempty"`
-	Modes       []v11.EngineMode `protobuf:"varint,20,rep,packed,name=modes,proto3,enum=sentinez.types.coreruleset.v1.EngineMode" json:"modes,omitempty"`
-	Versions    []v11.Version    `protobuf:"varint,21,rep,packed,name=versions,proto3,enum=sentinez.types.coreruleset.v1.Version" json:"versions,omitempty"`
-	Statuses    []v1.Status      `protobuf:"varint,22,rep,packed,name=statuses,proto3,enum=sentinez.types.v1.Status" json:"statuses,omitempty"`
-	// content.paranoia_level, 0 = any.
+	ResourceIds []string `protobuf:"bytes,11,rep,name=resource_ids,json=resourceIds,proto3" json:"resource_ids,omitempty"`
+	// setting.crs.mode or setting.managed.mode.
+	Modes []v11.EngineMode `protobuf:"varint,20,rep,packed,name=modes,proto3,enum=sentinez.types.ruleset.v1.EngineMode" json:"modes,omitempty"`
+	// setting.crs.version.
+	Versions []v11.CRSVersion `protobuf:"varint,21,rep,packed,name=versions,proto3,enum=sentinez.types.ruleset.v1.CRSVersion" json:"versions,omitempty"`
+	// setting.status.
+	Statuses []v1.Status `protobuf:"varint,22,rep,packed,name=statuses,proto3,enum=sentinez.types.v1.Status" json:"statuses,omitempty"`
+	// setting.crs.paranoia_level, 0 = any.
 	ParanoiaLevel uint32 `protobuf:"varint,23,opt,name=paranoia_level,json=paranoiaLevel,proto3" json:"paranoia_level,omitempty"`
-	// Rule groups all listed in content.categories.
-	Categories []v11.Category `protobuf:"varint,24,rep,packed,name=categories,proto3,enum=sentinez.types.coreruleset.v1.Category" json:"categories,omitempty"`
-	// Tags excluded by content.exclusions.
+	// Rule groups all listed in setting.crs.categories.
+	Categories []v11.Category `protobuf:"varint,24,rep,packed,name=categories,proto3,enum=sentinez.types.ruleset.v1.Category" json:"categories,omitempty"`
+	// Tags excluded by setting.crs.exclusions.
 	ExclusionTags []string `protobuf:"bytes,25,rep,name=exclusion_tags,json=exclusionTags,proto3" json:"exclusion_tags,omitempty"`
-	// Rules with a variable excluded by content.exclusions.
+	// Rules with a variable excluded by setting.crs.exclusions.
 	ExclusionRuleIds []uint32 `protobuf:"varint,26,rep,packed,name=exclusion_rule_ids,json=exclusionRuleIds,proto3" json:"exclusion_rule_ids,omitempty"`
-	// Rules with a state changed by content.overrides.
+	// Rules with a state changed by setting.crs.overrides.
 	OverrideRuleIds []uint32 `protobuf:"varint,27,rep,packed,name=override_rule_ids,json=overrideRuleIds,proto3" json:"override_rule_ids,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// setting.provider; PROVIDER_OWASP also matches an unset provider.
+	Providers     []v11.Provider `protobuf:"varint,28,rep,packed,name=providers,proto3,enum=sentinez.types.ruleset.v1.Provider" json:"providers,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListCoreRulesetsRequest) Reset() {
-	*x = ListCoreRulesetsRequest{}
+func (x *ListSecRulesetsRequest) Reset() {
+	*x = ListSecRulesetsRequest{}
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListCoreRulesetsRequest) String() string {
+func (x *ListSecRulesetsRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListCoreRulesetsRequest) ProtoMessage() {}
+func (*ListSecRulesetsRequest) ProtoMessage() {}
 
-func (x *ListCoreRulesetsRequest) ProtoReflect() protoreflect.Message {
+func (x *ListSecRulesetsRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1409,117 +1414,124 @@ func (x *ListCoreRulesetsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListCoreRulesetsRequest.ProtoReflect.Descriptor instead.
-func (*ListCoreRulesetsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListSecRulesetsRequest.ProtoReflect.Descriptor instead.
+func (*ListSecRulesetsRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{28}
 }
 
-func (x *ListCoreRulesetsRequest) GetPage() *v1.Pages {
+func (x *ListSecRulesetsRequest) GetPage() *v1.Pages {
 	if x != nil {
 		return x.Page
 	}
 	return nil
 }
 
-func (x *ListCoreRulesetsRequest) GetName() string {
+func (x *ListSecRulesetsRequest) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *ListCoreRulesetsRequest) GetIds() []string {
+func (x *ListSecRulesetsRequest) GetIds() []string {
 	if x != nil {
 		return x.Ids
 	}
 	return nil
 }
 
-func (x *ListCoreRulesetsRequest) GetResourceIds() []string {
+func (x *ListSecRulesetsRequest) GetResourceIds() []string {
 	if x != nil {
 		return x.ResourceIds
 	}
 	return nil
 }
 
-func (x *ListCoreRulesetsRequest) GetModes() []v11.EngineMode {
+func (x *ListSecRulesetsRequest) GetModes() []v11.EngineMode {
 	if x != nil {
 		return x.Modes
 	}
 	return nil
 }
 
-func (x *ListCoreRulesetsRequest) GetVersions() []v11.Version {
+func (x *ListSecRulesetsRequest) GetVersions() []v11.CRSVersion {
 	if x != nil {
 		return x.Versions
 	}
 	return nil
 }
 
-func (x *ListCoreRulesetsRequest) GetStatuses() []v1.Status {
+func (x *ListSecRulesetsRequest) GetStatuses() []v1.Status {
 	if x != nil {
 		return x.Statuses
 	}
 	return nil
 }
 
-func (x *ListCoreRulesetsRequest) GetParanoiaLevel() uint32 {
+func (x *ListSecRulesetsRequest) GetParanoiaLevel() uint32 {
 	if x != nil {
 		return x.ParanoiaLevel
 	}
 	return 0
 }
 
-func (x *ListCoreRulesetsRequest) GetCategories() []v11.Category {
+func (x *ListSecRulesetsRequest) GetCategories() []v11.Category {
 	if x != nil {
 		return x.Categories
 	}
 	return nil
 }
 
-func (x *ListCoreRulesetsRequest) GetExclusionTags() []string {
+func (x *ListSecRulesetsRequest) GetExclusionTags() []string {
 	if x != nil {
 		return x.ExclusionTags
 	}
 	return nil
 }
 
-func (x *ListCoreRulesetsRequest) GetExclusionRuleIds() []uint32 {
+func (x *ListSecRulesetsRequest) GetExclusionRuleIds() []uint32 {
 	if x != nil {
 		return x.ExclusionRuleIds
 	}
 	return nil
 }
 
-func (x *ListCoreRulesetsRequest) GetOverrideRuleIds() []uint32 {
+func (x *ListSecRulesetsRequest) GetOverrideRuleIds() []uint32 {
 	if x != nil {
 		return x.OverrideRuleIds
 	}
 	return nil
 }
 
-type ListCoreRulesetsResponse struct {
+func (x *ListSecRulesetsRequest) GetProviders() []v11.Provider {
+	if x != nil {
+		return x.Providers
+	}
+	return nil
+}
+
+type ListSecRulesetsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	CoreRulesets  []*CoreRuleset         `protobuf:"bytes,1,rep,name=core_rulesets,json=coreRulesets,proto3" json:"core_rulesets,omitempty"`
+	Secrulesets   []*SecRuleset          `protobuf:"bytes,1,rep,name=secrulesets,proto3" json:"secrulesets,omitempty"`
 	Total         int64                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListCoreRulesetsResponse) Reset() {
-	*x = ListCoreRulesetsResponse{}
+func (x *ListSecRulesetsResponse) Reset() {
+	*x = ListSecRulesetsResponse{}
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListCoreRulesetsResponse) String() string {
+func (x *ListSecRulesetsResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListCoreRulesetsResponse) ProtoMessage() {}
+func (*ListSecRulesetsResponse) ProtoMessage() {}
 
-func (x *ListCoreRulesetsResponse) ProtoReflect() protoreflect.Message {
+func (x *ListSecRulesetsResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1531,48 +1543,48 @@ func (x *ListCoreRulesetsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListCoreRulesetsResponse.ProtoReflect.Descriptor instead.
-func (*ListCoreRulesetsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListSecRulesetsResponse.ProtoReflect.Descriptor instead.
+func (*ListSecRulesetsResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{29}
 }
 
-func (x *ListCoreRulesetsResponse) GetCoreRulesets() []*CoreRuleset {
+func (x *ListSecRulesetsResponse) GetSecrulesets() []*SecRuleset {
 	if x != nil {
-		return x.CoreRulesets
+		return x.Secrulesets
 	}
 	return nil
 }
 
-func (x *ListCoreRulesetsResponse) GetTotal() int64 {
+func (x *ListSecRulesetsResponse) GetTotal() int64 {
 	if x != nil {
 		return x.Total
 	}
 	return 0
 }
 
-type GetRuleInfoRequest struct {
+type GetCRSRuleInfoRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Id    uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// CRS version of the catalog, unspecified = latest supported.
-	Version       v11.Version `protobuf:"varint,2,opt,name=version,proto3,enum=sentinez.types.coreruleset.v1.Version" json:"version,omitempty"`
+	Version       v11.CRSVersion `protobuf:"varint,2,opt,name=version,proto3,enum=sentinez.types.ruleset.v1.CRSVersion" json:"version,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetRuleInfoRequest) Reset() {
-	*x = GetRuleInfoRequest{}
+func (x *GetCRSRuleInfoRequest) Reset() {
+	*x = GetCRSRuleInfoRequest{}
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetRuleInfoRequest) String() string {
+func (x *GetCRSRuleInfoRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetRuleInfoRequest) ProtoMessage() {}
+func (*GetCRSRuleInfoRequest) ProtoMessage() {}
 
-func (x *GetRuleInfoRequest) ProtoReflect() protoreflect.Message {
+func (x *GetCRSRuleInfoRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1584,46 +1596,46 @@ func (x *GetRuleInfoRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetRuleInfoRequest.ProtoReflect.Descriptor instead.
-func (*GetRuleInfoRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetCRSRuleInfoRequest.ProtoReflect.Descriptor instead.
+func (*GetCRSRuleInfoRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{30}
 }
 
-func (x *GetRuleInfoRequest) GetId() uint32 {
+func (x *GetCRSRuleInfoRequest) GetId() uint32 {
 	if x != nil {
 		return x.Id
 	}
 	return 0
 }
 
-func (x *GetRuleInfoRequest) GetVersion() v11.Version {
+func (x *GetCRSRuleInfoRequest) GetVersion() v11.CRSVersion {
 	if x != nil {
 		return x.Version
 	}
-	return v11.Version(0)
+	return v11.CRSVersion(0)
 }
 
-type GetRuleInfoResponse struct {
+type GetCRSRuleInfoResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Rule          *v11.RuleInfo          `protobuf:"bytes,1,opt,name=rule,proto3" json:"rule,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetRuleInfoResponse) Reset() {
-	*x = GetRuleInfoResponse{}
+func (x *GetCRSRuleInfoResponse) Reset() {
+	*x = GetCRSRuleInfoResponse{}
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetRuleInfoResponse) String() string {
+func (x *GetCRSRuleInfoResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetRuleInfoResponse) ProtoMessage() {}
+func (*GetCRSRuleInfoResponse) ProtoMessage() {}
 
-func (x *GetRuleInfoResponse) ProtoReflect() protoreflect.Message {
+func (x *GetCRSRuleInfoResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1635,30 +1647,30 @@ func (x *GetRuleInfoResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetRuleInfoResponse.ProtoReflect.Descriptor instead.
-func (*GetRuleInfoResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetCRSRuleInfoResponse.ProtoReflect.Descriptor instead.
+func (*GetCRSRuleInfoResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{31}
 }
 
-func (x *GetRuleInfoResponse) GetRule() *v11.RuleInfo {
+func (x *GetCRSRuleInfoResponse) GetRule() *v11.RuleInfo {
 	if x != nil {
 		return x.Rule
 	}
 	return nil
 }
 
-// ListRuleInfosRequest every filter set must match (AND); the values of
+// ListCRSRuleInfosRequest every filter set must match (AND); the values of
 // a repeated filter are alternatives (OR) unless stated otherwise.
-type ListRuleInfosRequest struct {
+type ListCRSRuleInfosRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Page  *v1.Pages              `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
 	// CRS version of the catalog, unspecified = latest supported.
-	Version v11.Version `protobuf:"varint,2,opt,name=version,proto3,enum=sentinez.types.coreruleset.v1.Version" json:"version,omitempty"`
+	Version v11.CRSVersion `protobuf:"varint,2,opt,name=version,proto3,enum=sentinez.types.ruleset.v1.CRSVersion" json:"version,omitempty"`
 	// Case-insensitive part of the message or of a tag, or the leading
 	// digits of the ID (ex: "9421").
 	Search         string         `protobuf:"bytes,3,opt,name=search,proto3" json:"search,omitempty"`
 	Ids            []uint32       `protobuf:"varint,10,rep,packed,name=ids,proto3" json:"ids,omitempty"`
-	Categories     []v11.Category `protobuf:"varint,11,rep,packed,name=categories,proto3,enum=sentinez.types.coreruleset.v1.Category" json:"categories,omitempty"`
+	Categories     []v11.Category `protobuf:"varint,11,rep,packed,name=categories,proto3,enum=sentinez.types.ruleset.v1.Category" json:"categories,omitempty"`
 	ParanoiaLevels []uint32       `protobuf:"varint,12,rep,packed,name=paranoia_levels,json=paranoiaLevels,proto3" json:"paranoia_levels,omitempty"`
 	// CRITICAL, ERROR, WARNING, NOTICE; case-insensitive.
 	Severities []string `protobuf:"bytes,13,rep,name=severities,proto3" json:"severities,omitempty"`
@@ -1671,20 +1683,20 @@ type ListRuleInfosRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListRuleInfosRequest) Reset() {
-	*x = ListRuleInfosRequest{}
+func (x *ListCRSRuleInfosRequest) Reset() {
+	*x = ListCRSRuleInfosRequest{}
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListRuleInfosRequest) String() string {
+func (x *ListCRSRuleInfosRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListRuleInfosRequest) ProtoMessage() {}
+func (*ListCRSRuleInfosRequest) ProtoMessage() {}
 
-func (x *ListRuleInfosRequest) ProtoReflect() protoreflect.Message {
+func (x *ListCRSRuleInfosRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1696,75 +1708,75 @@ func (x *ListRuleInfosRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListRuleInfosRequest.ProtoReflect.Descriptor instead.
-func (*ListRuleInfosRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListCRSRuleInfosRequest.ProtoReflect.Descriptor instead.
+func (*ListCRSRuleInfosRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{32}
 }
 
-func (x *ListRuleInfosRequest) GetPage() *v1.Pages {
+func (x *ListCRSRuleInfosRequest) GetPage() *v1.Pages {
 	if x != nil {
 		return x.Page
 	}
 	return nil
 }
 
-func (x *ListRuleInfosRequest) GetVersion() v11.Version {
+func (x *ListCRSRuleInfosRequest) GetVersion() v11.CRSVersion {
 	if x != nil {
 		return x.Version
 	}
-	return v11.Version(0)
+	return v11.CRSVersion(0)
 }
 
-func (x *ListRuleInfosRequest) GetSearch() string {
+func (x *ListCRSRuleInfosRequest) GetSearch() string {
 	if x != nil {
 		return x.Search
 	}
 	return ""
 }
 
-func (x *ListRuleInfosRequest) GetIds() []uint32 {
+func (x *ListCRSRuleInfosRequest) GetIds() []uint32 {
 	if x != nil {
 		return x.Ids
 	}
 	return nil
 }
 
-func (x *ListRuleInfosRequest) GetCategories() []v11.Category {
+func (x *ListCRSRuleInfosRequest) GetCategories() []v11.Category {
 	if x != nil {
 		return x.Categories
 	}
 	return nil
 }
 
-func (x *ListRuleInfosRequest) GetParanoiaLevels() []uint32 {
+func (x *ListCRSRuleInfosRequest) GetParanoiaLevels() []uint32 {
 	if x != nil {
 		return x.ParanoiaLevels
 	}
 	return nil
 }
 
-func (x *ListRuleInfosRequest) GetSeverities() []string {
+func (x *ListCRSRuleInfosRequest) GetSeverities() []string {
 	if x != nil {
 		return x.Severities
 	}
 	return nil
 }
 
-func (x *ListRuleInfosRequest) GetTags() []string {
+func (x *ListCRSRuleInfosRequest) GetTags() []string {
 	if x != nil {
 		return x.Tags
 	}
 	return nil
 }
 
-func (x *ListRuleInfosRequest) GetIncludeSystem() bool {
+func (x *ListCRSRuleInfosRequest) GetIncludeSystem() bool {
 	if x != nil {
 		return x.IncludeSystem
 	}
 	return false
 }
 
-type ListRuleInfosResponse struct {
+type ListCRSRuleInfosResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Rules []*v11.RuleInfo        `protobuf:"bytes,1,rep,name=rules,proto3" json:"rules,omitempty"`
 	// Number of rules matching the filters, whatever the page.
@@ -1773,20 +1785,20 @@ type ListRuleInfosResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListRuleInfosResponse) Reset() {
-	*x = ListRuleInfosResponse{}
+func (x *ListCRSRuleInfosResponse) Reset() {
+	*x = ListCRSRuleInfosResponse{}
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListRuleInfosResponse) String() string {
+func (x *ListCRSRuleInfosResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListRuleInfosResponse) ProtoMessage() {}
+func (*ListCRSRuleInfosResponse) ProtoMessage() {}
 
-func (x *ListRuleInfosResponse) ProtoReflect() protoreflect.Message {
+func (x *ListCRSRuleInfosResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1798,19 +1810,19 @@ func (x *ListRuleInfosResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListRuleInfosResponse.ProtoReflect.Descriptor instead.
-func (*ListRuleInfosResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListCRSRuleInfosResponse.ProtoReflect.Descriptor instead.
+func (*ListCRSRuleInfosResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{33}
 }
 
-func (x *ListRuleInfosResponse) GetRules() []*v11.RuleInfo {
+func (x *ListCRSRuleInfosResponse) GetRules() []*v11.RuleInfo {
 	if x != nil {
 		return x.Rules
 	}
 	return nil
 }
 
-func (x *ListRuleInfosResponse) GetTotal() int64 {
+func (x *ListCRSRuleInfosResponse) GetTotal() int64 {
 	if x != nil {
 		return x.Total
 	}
@@ -1871,34 +1883,34 @@ func (x *RuleTag) GetRuleCount() uint32 {
 	return 0
 }
 
-type ListRuleTagsRequest struct {
+type ListCRSRuleTagsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Page  *v1.Pages              `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
 	// CRS version of the catalog, unspecified = latest supported.
-	Version v11.Version `protobuf:"varint,2,opt,name=version,proto3,enum=sentinez.types.coreruleset.v1.Version" json:"version,omitempty"`
+	Version v11.CRSVersion `protobuf:"varint,2,opt,name=version,proto3,enum=sentinez.types.ruleset.v1.CRSVersion" json:"version,omitempty"`
 	// Case-insensitive part of the tag, ex: "attack".
 	Search string `protobuf:"bytes,3,opt,name=search,proto3" json:"search,omitempty"`
 	// Tags only carried by system rules (init, evaluation, flow control)
-	// are left out unless asked for, as ListRuleInfos does.
+	// are left out unless asked for, as ListCRSRuleInfos does.
 	IncludeSystem bool `protobuf:"varint,15,opt,name=include_system,json=includeSystem,proto3" json:"include_system,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListRuleTagsRequest) Reset() {
-	*x = ListRuleTagsRequest{}
+func (x *ListCRSRuleTagsRequest) Reset() {
+	*x = ListCRSRuleTagsRequest{}
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListRuleTagsRequest) String() string {
+func (x *ListCRSRuleTagsRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListRuleTagsRequest) ProtoMessage() {}
+func (*ListCRSRuleTagsRequest) ProtoMessage() {}
 
-func (x *ListRuleTagsRequest) ProtoReflect() protoreflect.Message {
+func (x *ListCRSRuleTagsRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1910,40 +1922,40 @@ func (x *ListRuleTagsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListRuleTagsRequest.ProtoReflect.Descriptor instead.
-func (*ListRuleTagsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListCRSRuleTagsRequest.ProtoReflect.Descriptor instead.
+func (*ListCRSRuleTagsRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{35}
 }
 
-func (x *ListRuleTagsRequest) GetPage() *v1.Pages {
+func (x *ListCRSRuleTagsRequest) GetPage() *v1.Pages {
 	if x != nil {
 		return x.Page
 	}
 	return nil
 }
 
-func (x *ListRuleTagsRequest) GetVersion() v11.Version {
+func (x *ListCRSRuleTagsRequest) GetVersion() v11.CRSVersion {
 	if x != nil {
 		return x.Version
 	}
-	return v11.Version(0)
+	return v11.CRSVersion(0)
 }
 
-func (x *ListRuleTagsRequest) GetSearch() string {
+func (x *ListCRSRuleTagsRequest) GetSearch() string {
 	if x != nil {
 		return x.Search
 	}
 	return ""
 }
 
-func (x *ListRuleTagsRequest) GetIncludeSystem() bool {
+func (x *ListCRSRuleTagsRequest) GetIncludeSystem() bool {
 	if x != nil {
 		return x.IncludeSystem
 	}
 	return false
 }
 
-type ListRuleTagsResponse struct {
+type ListCRSRuleTagsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Sorted by name.
 	Tags []*RuleTag `protobuf:"bytes,1,rep,name=tags,proto3" json:"tags,omitempty"`
@@ -1953,20 +1965,20 @@ type ListRuleTagsResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListRuleTagsResponse) Reset() {
-	*x = ListRuleTagsResponse{}
+func (x *ListCRSRuleTagsResponse) Reset() {
+	*x = ListCRSRuleTagsResponse{}
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListRuleTagsResponse) String() string {
+func (x *ListCRSRuleTagsResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListRuleTagsResponse) ProtoMessage() {}
+func (*ListCRSRuleTagsResponse) ProtoMessage() {}
 
-func (x *ListRuleTagsResponse) ProtoReflect() protoreflect.Message {
+func (x *ListCRSRuleTagsResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_security_v1_security_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1978,19 +1990,19 @@ func (x *ListRuleTagsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListRuleTagsResponse.ProtoReflect.Descriptor instead.
-func (*ListRuleTagsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListCRSRuleTagsResponse.ProtoReflect.Descriptor instead.
+func (*ListCRSRuleTagsResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_security_v1_security_proto_rawDescGZIP(), []int{36}
 }
 
-func (x *ListRuleTagsResponse) GetTags() []*RuleTag {
+func (x *ListCRSRuleTagsResponse) GetTags() []*RuleTag {
 	if x != nil {
 		return x.Tags
 	}
 	return nil
 }
 
-func (x *ListRuleTagsResponse) GetTotal() int64 {
+func (x *ListCRSRuleTagsResponse) GetTotal() int64 {
 	if x != nil {
 		return x.Total
 	}
@@ -2081,22 +2093,22 @@ var File_sentinez_apps_security_v1_security_proto protoreflect.FileDescriptor
 
 const file_sentinez_apps_security_v1_security_proto_rawDesc = "" +
 	"\n" +
-	"(sentinez/apps/security/v1/security.proto\x12\x19sentinez.apps.security.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a google/protobuf/field_mask.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a%sentinez/apps/security/v1/model.proto\x1a+sentinez/types/coreruleset/v1/setting.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"]\n" +
-	"\x14CreateSecRuleRequest\x12E\n" +
-	"\bsec_rule\x18\x01 \x01(\v2\".sentinez.apps.security.v1.SecRuleB\x06\xbaH\x03\xc8\x01\x01R\asecRule\"'\n" +
+	"(sentinez/apps/security/v1/security.proto\x12\x19sentinez.apps.security.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a google/protobuf/field_mask.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a%sentinez/apps/security/v1/model.proto\x1a'sentinez/types/ruleset/v1/setting.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"\\\n" +
+	"\x14CreateSecRuleRequest\x12D\n" +
+	"\asecrule\x18\x01 \x01(\v2\".sentinez.apps.security.v1.SecRuleB\x06\xbaH\x03\xc8\x01\x01R\asecrule\"'\n" +
 	"\x15CreateSecRuleResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\",\n" +
 	"\x11GetSecRuleRequest\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"S\n" +
-	"\x12GetSecRuleResponse\x12=\n" +
-	"\bsec_rule\x18\x01 \x01(\v2\".sentinez.apps.security.v1.SecRuleR\asecRule\"\xb3\x01\n" +
+	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"R\n" +
+	"\x12GetSecRuleResponse\x12<\n" +
+	"\asecrule\x18\x01 \x01(\v2\".sentinez.apps.security.v1.SecRuleR\asecrule\"\xb2\x01\n" +
 	"\x14UpdateSecRuleRequest\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\x12E\n" +
-	"\bsec_rule\x18\x02 \x01(\v2\".sentinez.apps.security.v1.SecRuleB\x06\xbaH\x03\xc8\x01\x01R\asecRule\x12;\n" +
+	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\x12D\n" +
+	"\asecrule\x18\x02 \x01(\v2\".sentinez.apps.security.v1.SecRuleB\x06\xbaH\x03\xc8\x01\x01R\asecrule\x12;\n" +
 	"\vupdate_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
-	"updateMask\"V\n" +
-	"\x15UpdateSecRuleResponse\x12=\n" +
-	"\bsec_rule\x18\x01 \x01(\v2\".sentinez.apps.security.v1.SecRuleR\asecRule\"/\n" +
+	"updateMask\"U\n" +
+	"\x15UpdateSecRuleResponse\x12<\n" +
+	"\asecrule\x18\x01 \x01(\v2\".sentinez.apps.security.v1.SecRuleR\asecrule\"/\n" +
 	"\x14DeleteSecRuleRequest\x12\x17\n" +
 	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"\x17\n" +
 	"\x15DeleteSecRuleResponse\"x\n" +
@@ -2104,137 +2116,141 @@ const file_sentinez_apps_security_v1_security_proto_rawDesc = "" +
 	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12\x10\n" +
 	"\x03ids\x18\n" +
 	" \x03(\tR\x03ids\x12!\n" +
-	"\fresource_ids\x18\v \x03(\tR\vresourceIds\"m\n" +
-	"\x14ListSecRulesResponse\x12?\n" +
-	"\tsec_rules\x18\x01 \x03(\v2\".sentinez.apps.security.v1.SecRuleR\bsecRules\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x03R\x05total\"e\n" +
-	"\x16CreateRateLimitRequest\x12K\n" +
-	"\n" +
-	"rate_limit\x18\x01 \x01(\v2$.sentinez.apps.security.v1.RateLimitB\x06\xbaH\x03\xc8\x01\x01R\trateLimit\")\n" +
-	"\x17CreateRateLimitResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\".\n" +
-	"\x13GetRateLimitRequest\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"[\n" +
-	"\x14GetRateLimitResponse\x12C\n" +
-	"\n" +
-	"rate_limit\x18\x01 \x01(\v2$.sentinez.apps.security.v1.RateLimitR\trateLimit\"\xbb\x01\n" +
-	"\x16UpdateRateLimitRequest\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\x12K\n" +
-	"\n" +
-	"rate_limit\x18\x02 \x01(\v2$.sentinez.apps.security.v1.RateLimitB\x06\xbaH\x03\xc8\x01\x01R\trateLimit\x12;\n" +
+	"\fresource_ids\x18\v \x03(\tR\vresourceIds\"l\n" +
+	"\x14ListSecRulesResponse\x12>\n" +
+	"\bsecrules\x18\x01 \x03(\v2\".sentinez.apps.security.v1.SecRuleR\bsecrules\x12\x14\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\"p\n" +
+	"\x19CreateSecRateLimitRequest\x12S\n" +
+	"\fsecratelimit\x18\x01 \x01(\v2'.sentinez.apps.security.v1.SecRateLimitB\x06\xbaH\x03\xc8\x01\x01R\fsecratelimit\",\n" +
+	"\x1aCreateSecRateLimitResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"1\n" +
+	"\x16GetSecRateLimitRequest\x12\x17\n" +
+	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"f\n" +
+	"\x17GetSecRateLimitResponse\x12K\n" +
+	"\fsecratelimit\x18\x01 \x01(\v2'.sentinez.apps.security.v1.SecRateLimitR\fsecratelimit\"\xc6\x01\n" +
+	"\x19UpdateSecRateLimitRequest\x12\x17\n" +
+	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\x12S\n" +
+	"\fsecratelimit\x18\x02 \x01(\v2'.sentinez.apps.security.v1.SecRateLimitB\x06\xbaH\x03\xc8\x01\x01R\fsecratelimit\x12;\n" +
 	"\vupdate_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
-	"updateMask\"^\n" +
-	"\x17UpdateRateLimitResponse\x12C\n" +
-	"\n" +
-	"rate_limit\x18\x01 \x01(\v2$.sentinez.apps.security.v1.RateLimitR\trateLimit\"1\n" +
-	"\x16DeleteRateLimitRequest\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"\x19\n" +
-	"\x17DeleteRateLimitResponse\"z\n" +
-	"\x15ListRateLimitsRequest\x12,\n" +
+	"updateMask\"i\n" +
+	"\x1aUpdateSecRateLimitResponse\x12K\n" +
+	"\fsecratelimit\x18\x01 \x01(\v2'.sentinez.apps.security.v1.SecRateLimitR\fsecratelimit\"4\n" +
+	"\x19DeleteSecRateLimitRequest\x12\x17\n" +
+	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"\x1c\n" +
+	"\x1aDeleteSecRateLimitResponse\"}\n" +
+	"\x18ListSecRateLimitsRequest\x12,\n" +
 	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12\x10\n" +
 	"\x03ids\x18\n" +
 	" \x03(\tR\x03ids\x12!\n" +
-	"\fresource_ids\x18\v \x03(\tR\vresourceIds\"u\n" +
-	"\x16ListRateLimitsResponse\x12E\n" +
-	"\vrate_limits\x18\x01 \x03(\v2$.sentinez.apps.security.v1.RateLimitR\n" +
-	"rateLimits\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x03R\x05total\"m\n" +
-	"\x18CreateCoreRulesetRequest\x12Q\n" +
-	"\fcore_ruleset\x18\x01 \x01(\v2&.sentinez.apps.security.v1.CoreRulesetB\x06\xbaH\x03\xc8\x01\x01R\vcoreRuleset\"+\n" +
-	"\x19CreateCoreRulesetResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"0\n" +
-	"\x15GetCoreRulesetRequest\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"c\n" +
-	"\x16GetCoreRulesetResponse\x12I\n" +
-	"\fcore_ruleset\x18\x01 \x01(\v2&.sentinez.apps.security.v1.CoreRulesetR\vcoreRuleset\"\xc3\x01\n" +
-	"\x18UpdateCoreRulesetRequest\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\x12Q\n" +
-	"\fcore_ruleset\x18\x02 \x01(\v2&.sentinez.apps.security.v1.CoreRulesetB\x06\xbaH\x03\xc8\x01\x01R\vcoreRuleset\x12;\n" +
+	"\fresource_ids\x18\v \x03(\tR\vresourceIds\"\x80\x01\n" +
+	"\x19ListSecRateLimitsResponse\x12M\n" +
+	"\rsecratelimits\x18\x01 \x03(\v2'.sentinez.apps.security.v1.SecRateLimitR\rsecratelimits\x12\x14\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\"h\n" +
+	"\x17CreateSecRulesetRequest\x12M\n" +
+	"\n" +
+	"secruleset\x18\x01 \x01(\v2%.sentinez.apps.security.v1.SecRulesetB\x06\xbaH\x03\xc8\x01\x01R\n" +
+	"secruleset\"*\n" +
+	"\x18CreateSecRulesetResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"/\n" +
+	"\x14GetSecRulesetRequest\x12\x17\n" +
+	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"^\n" +
+	"\x15GetSecRulesetResponse\x12E\n" +
+	"\n" +
+	"secruleset\x18\x01 \x01(\v2%.sentinez.apps.security.v1.SecRulesetR\n" +
+	"secruleset\"\xbe\x01\n" +
+	"\x17UpdateSecRulesetRequest\x12\x17\n" +
+	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\x12M\n" +
+	"\n" +
+	"secruleset\x18\x02 \x01(\v2%.sentinez.apps.security.v1.SecRulesetB\x06\xbaH\x03\xc8\x01\x01R\n" +
+	"secruleset\x12;\n" +
 	"\vupdate_mask\x18\x03 \x01(\v2\x1a.google.protobuf.FieldMaskR\n" +
-	"updateMask\"f\n" +
-	"\x19UpdateCoreRulesetResponse\x12I\n" +
-	"\fcore_ruleset\x18\x01 \x01(\v2&.sentinez.apps.security.v1.CoreRulesetR\vcoreRuleset\"3\n" +
-	"\x18DeleteCoreRulesetRequest\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"\x1b\n" +
-	"\x19DeleteCoreRulesetResponse\"\xc6\x04\n" +
-	"\x17ListCoreRulesetsRequest\x12,\n" +
+	"updateMask\"a\n" +
+	"\x18UpdateSecRulesetResponse\x12E\n" +
+	"\n" +
+	"secruleset\x18\x01 \x01(\v2%.sentinez.apps.security.v1.SecRulesetR\n" +
+	"secruleset\"2\n" +
+	"\x17DeleteSecRulesetRequest\x12\x17\n" +
+	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"\x1a\n" +
+	"\x18DeleteSecRulesetResponse\"\xff\x04\n" +
+	"\x16ListSecRulesetsRequest\x12,\n" +
 	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x10\n" +
 	"\x03ids\x18\n" +
 	" \x03(\tR\x03ids\x12!\n" +
-	"\fresource_ids\x18\v \x03(\tR\vresourceIds\x12?\n" +
-	"\x05modes\x18\x14 \x03(\x0e2).sentinez.types.coreruleset.v1.EngineModeR\x05modes\x12B\n" +
-	"\bversions\x18\x15 \x03(\x0e2&.sentinez.types.coreruleset.v1.VersionR\bversions\x125\n" +
+	"\fresource_ids\x18\v \x03(\tR\vresourceIds\x12;\n" +
+	"\x05modes\x18\x14 \x03(\x0e2%.sentinez.types.ruleset.v1.EngineModeR\x05modes\x12A\n" +
+	"\bversions\x18\x15 \x03(\x0e2%.sentinez.types.ruleset.v1.CRSVersionR\bversions\x125\n" +
 	"\bstatuses\x18\x16 \x03(\x0e2\x19.sentinez.types.v1.StatusR\bstatuses\x12.\n" +
-	"\x0eparanoia_level\x18\x17 \x01(\rB\a\xbaH\x04*\x02\x18\x04R\rparanoiaLevel\x12G\n" +
+	"\x0eparanoia_level\x18\x17 \x01(\rB\a\xbaH\x04*\x02\x18\x04R\rparanoiaLevel\x12C\n" +
 	"\n" +
-	"categories\x18\x18 \x03(\x0e2'.sentinez.types.coreruleset.v1.CategoryR\n" +
+	"categories\x18\x18 \x03(\x0e2#.sentinez.types.ruleset.v1.CategoryR\n" +
 	"categories\x12%\n" +
 	"\x0eexclusion_tags\x18\x19 \x03(\tR\rexclusionTags\x12,\n" +
 	"\x12exclusion_rule_ids\x18\x1a \x03(\rR\x10exclusionRuleIds\x12*\n" +
-	"\x11override_rule_ids\x18\x1b \x03(\rR\x0foverrideRuleIds\"}\n" +
-	"\x18ListCoreRulesetsResponse\x12K\n" +
-	"\rcore_rulesets\x18\x01 \x03(\v2&.sentinez.apps.security.v1.CoreRulesetR\fcoreRulesets\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x03R\x05total\"u\n" +
-	"\x12GetRuleInfoRequest\x12\x1d\n" +
+	"\x11override_rule_ids\x18\x1b \x03(\rR\x0foverrideRuleIds\x12A\n" +
+	"\tproviders\x18\x1c \x03(\x0e2#.sentinez.types.ruleset.v1.ProviderR\tproviders\"x\n" +
+	"\x17ListSecRulesetsResponse\x12G\n" +
+	"\vsecrulesets\x18\x01 \x03(\v2%.sentinez.apps.security.v1.SecRulesetR\vsecrulesets\x12\x14\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\"w\n" +
+	"\x15GetCRSRuleInfoRequest\x12\x1d\n" +
 	"\x02id\x18\x01 \x01(\rB\r\xbaH\n" +
-	"*\b\x18\xbf\x84=(\xa0\xf76R\x02id\x12@\n" +
-	"\aversion\x18\x02 \x01(\x0e2&.sentinez.types.coreruleset.v1.VersionR\aversion\"R\n" +
-	"\x13GetRuleInfoResponse\x12;\n" +
-	"\x04rule\x18\x01 \x01(\v2'.sentinez.types.coreruleset.v1.RuleInfoR\x04rule\"\xfd\x02\n" +
-	"\x14ListRuleInfosRequest\x12,\n" +
-	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12@\n" +
-	"\aversion\x18\x02 \x01(\x0e2&.sentinez.types.coreruleset.v1.VersionR\aversion\x12\x16\n" +
+	"*\b\x18\xbf\x84=(\xa0\xf76R\x02id\x12?\n" +
+	"\aversion\x18\x02 \x01(\x0e2%.sentinez.types.ruleset.v1.CRSVersionR\aversion\"Q\n" +
+	"\x16GetCRSRuleInfoResponse\x127\n" +
+	"\x04rule\x18\x01 \x01(\v2#.sentinez.types.ruleset.v1.RuleInfoR\x04rule\"\xfb\x02\n" +
+	"\x17ListCRSRuleInfosRequest\x12,\n" +
+	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12?\n" +
+	"\aversion\x18\x02 \x01(\x0e2%.sentinez.types.ruleset.v1.CRSVersionR\aversion\x12\x16\n" +
 	"\x06search\x18\x03 \x01(\tR\x06search\x12\x10\n" +
 	"\x03ids\x18\n" +
-	" \x03(\rR\x03ids\x12G\n" +
+	" \x03(\rR\x03ids\x12C\n" +
 	"\n" +
-	"categories\x18\v \x03(\x0e2'.sentinez.types.coreruleset.v1.CategoryR\n" +
+	"categories\x18\v \x03(\x0e2#.sentinez.types.ruleset.v1.CategoryR\n" +
 	"categories\x12'\n" +
 	"\x0fparanoia_levels\x18\f \x03(\rR\x0eparanoiaLevels\x12\x1e\n" +
 	"\n" +
 	"severities\x18\r \x03(\tR\n" +
 	"severities\x12\x12\n" +
 	"\x04tags\x18\x0e \x03(\tR\x04tags\x12%\n" +
-	"\x0einclude_system\x18\x0f \x01(\bR\rincludeSystem\"l\n" +
-	"\x15ListRuleInfosResponse\x12=\n" +
-	"\x05rules\x18\x01 \x03(\v2'.sentinez.types.coreruleset.v1.RuleInfoR\x05rules\x12\x14\n" +
+	"\x0einclude_system\x18\x0f \x01(\bR\rincludeSystem\"k\n" +
+	"\x18ListCRSRuleInfosResponse\x129\n" +
+	"\x05rules\x18\x01 \x03(\v2#.sentinez.types.ruleset.v1.RuleInfoR\x05rules\x12\x14\n" +
 	"\x05total\x18\x02 \x01(\x03R\x05total\"<\n" +
 	"\aRuleTag\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1d\n" +
 	"\n" +
-	"rule_count\x18\x02 \x01(\rR\truleCount\"\xc4\x01\n" +
-	"\x13ListRuleTagsRequest\x12,\n" +
-	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12@\n" +
-	"\aversion\x18\x02 \x01(\x0e2&.sentinez.types.coreruleset.v1.VersionR\aversion\x12\x16\n" +
+	"rule_count\x18\x02 \x01(\rR\truleCount\"\xc6\x01\n" +
+	"\x16ListCRSRuleTagsRequest\x12,\n" +
+	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12?\n" +
+	"\aversion\x18\x02 \x01(\x0e2%.sentinez.types.ruleset.v1.CRSVersionR\aversion\x12\x16\n" +
 	"\x06search\x18\x03 \x01(\tR\x06search\x12%\n" +
-	"\x0einclude_system\x18\x0f \x01(\bR\rincludeSystem\"d\n" +
-	"\x14ListRuleTagsResponse\x126\n" +
+	"\x0einclude_system\x18\x0f \x01(\bR\rincludeSystem\"g\n" +
+	"\x17ListCRSRuleTagsResponse\x126\n" +
 	"\x04tags\x18\x01 \x03(\v2\".sentinez.apps.security.v1.RuleTagR\x04tags\x12\x14\n" +
 	"\x05total\x18\x02 \x01(\x03R\x05total\"\x0f\n" +
 	"\rStatusRequest\"\"\n" +
 	"\x0eStatusResponse\x12\x10\n" +
-	"\x03msg\x18\x01 \x01(\tR\x03msg2\xa7\x17\n" +
+	"\x03msg\x18\x01 \x01(\tR\x03msg2\xea\x17\n" +
 	"\x0fSecurityService\x12\x96\x01\n" +
 	"\rCreateSecRule\x12/.sentinez.apps.security.v1.CreateSecRuleRequest\x1a0.sentinez.apps.security.v1.CreateSecRuleResponse\"\"\x8a\xb5\x18\x02 \x01\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/security/secrule\x12\x8f\x01\n" +
 	"\n" +
 	"GetSecRule\x12,.sentinez.apps.security.v1.GetSecRuleRequest\x1a-.sentinez.apps.security.v1.GetSecRuleResponse\"$\x8a\xb5\x18\x02 \x01\x82\xd3\xe4\x93\x02\x18\x12\x16/security/secrule/{id}\x12\x9b\x01\n" +
 	"\rUpdateSecRule\x12/.sentinez.apps.security.v1.UpdateSecRuleRequest\x1a0.sentinez.apps.security.v1.UpdateSecRuleResponse\"'\x8a\xb5\x18\x02 \x01\x82\xd3\xe4\x93\x02\x1b:\x01*\x1a\x16/security/secrule/{id}\x12\x9a\x01\n" +
 	"\rDeleteSecRule\x12/.sentinez.apps.security.v1.DeleteSecRuleRequest\x1a0.sentinez.apps.security.v1.DeleteSecRuleResponse\"&\x8a\xb5\x18\x04 \x01(\x01\x82\xd3\xe4\x93\x02\x18*\x16/security/secrule/{id}\x12\x91\x01\n" +
-	"\fListSecRules\x12..sentinez.apps.security.v1.ListSecRulesRequest\x1a/.sentinez.apps.security.v1.ListSecRulesResponse\" \x8a\xb5\x18\x02 \x01\x82\xd3\xe4\x93\x02\x14\x12\x12/security/secrules\x12\x9e\x01\n" +
-	"\x0fCreateRateLimit\x121.sentinez.apps.security.v1.CreateRateLimitRequest\x1a2.sentinez.apps.security.v1.CreateRateLimitResponse\"$\x8a\xb5\x18\x02 \x01\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/security/ratelimit\x12\x97\x01\n" +
-	"\fGetRateLimit\x12..sentinez.apps.security.v1.GetRateLimitRequest\x1a/.sentinez.apps.security.v1.GetRateLimitResponse\"&\x8a\xb5\x18\x02 \x01\x82\xd3\xe4\x93\x02\x1a\x12\x18/security/ratelimit/{id}\x12\xa3\x01\n" +
-	"\x0fUpdateRateLimit\x121.sentinez.apps.security.v1.UpdateRateLimitRequest\x1a2.sentinez.apps.security.v1.UpdateRateLimitResponse\")\x8a\xb5\x18\x02 \x01\x82\xd3\xe4\x93\x02\x1d:\x01*\x1a\x18/security/ratelimit/{id}\x12\xa2\x01\n" +
-	"\x0fDeleteRateLimit\x121.sentinez.apps.security.v1.DeleteRateLimitRequest\x1a2.sentinez.apps.security.v1.DeleteRateLimitResponse\"(\x8a\xb5\x18\x04 \x01(\x01\x82\xd3\xe4\x93\x02\x1a*\x18/security/ratelimit/{id}\x12\x99\x01\n" +
-	"\x0eListRateLimits\x120.sentinez.apps.security.v1.ListRateLimitsRequest\x1a1.sentinez.apps.security.v1.ListRateLimitsResponse\"\"\x8a\xb5\x18\x02 \x01\x82\xd3\xe4\x93\x02\x16\x12\x14/security/ratelimits\x12\xa6\x01\n" +
-	"\x11CreateCoreRuleset\x123.sentinez.apps.security.v1.CreateCoreRulesetRequest\x1a4.sentinez.apps.security.v1.CreateCoreRulesetResponse\"&\x8a\xb5\x18\x02 \x01\x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/security/coreruleset\x12\x9f\x01\n" +
-	"\x0eGetCoreRuleset\x120.sentinez.apps.security.v1.GetCoreRulesetRequest\x1a1.sentinez.apps.security.v1.GetCoreRulesetResponse\"(\x8a\xb5\x18\x02 \x01\x82\xd3\xe4\x93\x02\x1c\x12\x1a/security/coreruleset/{id}\x12\xab\x01\n" +
-	"\x11UpdateCoreRuleset\x123.sentinez.apps.security.v1.UpdateCoreRulesetRequest\x1a4.sentinez.apps.security.v1.UpdateCoreRulesetResponse\"+\x8a\xb5\x18\x02 \x01\x82\xd3\xe4\x93\x02\x1f:\x01*\x1a\x1a/security/coreruleset/{id}\x12\xaa\x01\n" +
-	"\x11DeleteCoreRuleset\x123.sentinez.apps.security.v1.DeleteCoreRulesetRequest\x1a4.sentinez.apps.security.v1.DeleteCoreRulesetResponse\"*\x8a\xb5\x18\x04 \x01(\x01\x82\xd3\xe4\x93\x02\x1c*\x1a/security/coreruleset/{id}\x12\xa1\x01\n" +
-	"\x10ListCoreRulesets\x122.sentinez.apps.security.v1.ListCoreRulesetsRequest\x1a3.sentinez.apps.security.v1.ListCoreRulesetsResponse\"$\x8a\xb5\x18\x02 \x01\x82\xd3\xe4\x93\x02\x18\x12\x16/security/corerulesets\x12\x8e\x01\n" +
-	"\vGetRuleInfo\x12-.sentinez.apps.security.v1.GetRuleInfoRequest\x1a..sentinez.apps.security.v1.GetRuleInfoResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/security/crs/rules/{id}\x12\x8f\x01\n" +
-	"\rListRuleInfos\x12/.sentinez.apps.security.v1.ListRuleInfosRequest\x1a0.sentinez.apps.security.v1.ListRuleInfosResponse\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/security/crs/rules\x12\x8b\x01\n" +
-	"\fListRuleTags\x12..sentinez.apps.security.v1.ListRuleTagsRequest\x1a/.sentinez.apps.security.v1.ListRuleTagsResponse\"\x1a\x82\xd3\xe4\x93\x02\x14\x12\x12/security/crs/tags\x12}\n" +
+	"\fListSecRules\x12..sentinez.apps.security.v1.ListSecRulesRequest\x1a/.sentinez.apps.security.v1.ListSecRulesResponse\" \x8a\xb5\x18\x02 \x01\x82\xd3\xe4\x93\x02\x14\x12\x12/security/secrules\x12\xaa\x01\n" +
+	"\x12CreateSecRateLimit\x124.sentinez.apps.security.v1.CreateSecRateLimitRequest\x1a5.sentinez.apps.security.v1.CreateSecRateLimitResponse\"'\x8a\xb5\x18\x02 \x01\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/security/secratelimit\x12\xa3\x01\n" +
+	"\x0fGetSecRateLimit\x121.sentinez.apps.security.v1.GetSecRateLimitRequest\x1a2.sentinez.apps.security.v1.GetSecRateLimitResponse\")\x8a\xb5\x18\x02 \x01\x82\xd3\xe4\x93\x02\x1d\x12\x1b/security/secratelimit/{id}\x12\xaf\x01\n" +
+	"\x12UpdateSecRateLimit\x124.sentinez.apps.security.v1.UpdateSecRateLimitRequest\x1a5.sentinez.apps.security.v1.UpdateSecRateLimitResponse\",\x8a\xb5\x18\x02 \x01\x82\xd3\xe4\x93\x02 :\x01*\x1a\x1b/security/secratelimit/{id}\x12\xae\x01\n" +
+	"\x12DeleteSecRateLimit\x124.sentinez.apps.security.v1.DeleteSecRateLimitRequest\x1a5.sentinez.apps.security.v1.DeleteSecRateLimitResponse\"+\x8a\xb5\x18\x04 \x01(\x01\x82\xd3\xe4\x93\x02\x1d*\x1b/security/secratelimit/{id}\x12\xa5\x01\n" +
+	"\x11ListSecRateLimits\x123.sentinez.apps.security.v1.ListSecRateLimitsRequest\x1a4.sentinez.apps.security.v1.ListSecRateLimitsResponse\"%\x8a\xb5\x18\x02 \x01\x82\xd3\xe4\x93\x02\x19\x12\x17/security/secratelimits\x12\xa2\x01\n" +
+	"\x10CreateSecRuleset\x122.sentinez.apps.security.v1.CreateSecRulesetRequest\x1a3.sentinez.apps.security.v1.CreateSecRulesetResponse\"%\x8a\xb5\x18\x02 \x01\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/security/secruleset\x12\x9b\x01\n" +
+	"\rGetSecRuleset\x12/.sentinez.apps.security.v1.GetSecRulesetRequest\x1a0.sentinez.apps.security.v1.GetSecRulesetResponse\"'\x8a\xb5\x18\x02 \x01\x82\xd3\xe4\x93\x02\x1b\x12\x19/security/secruleset/{id}\x12\xa7\x01\n" +
+	"\x10UpdateSecRuleset\x122.sentinez.apps.security.v1.UpdateSecRulesetRequest\x1a3.sentinez.apps.security.v1.UpdateSecRulesetResponse\"*\x8a\xb5\x18\x02 \x01\x82\xd3\xe4\x93\x02\x1e:\x01*\x1a\x19/security/secruleset/{id}\x12\xa6\x01\n" +
+	"\x10DeleteSecRuleset\x122.sentinez.apps.security.v1.DeleteSecRulesetRequest\x1a3.sentinez.apps.security.v1.DeleteSecRulesetResponse\")\x8a\xb5\x18\x04 \x01(\x01\x82\xd3\xe4\x93\x02\x1b*\x19/security/secruleset/{id}\x12\x9d\x01\n" +
+	"\x0fListSecRulesets\x121.sentinez.apps.security.v1.ListSecRulesetsRequest\x1a2.sentinez.apps.security.v1.ListSecRulesetsResponse\"#\x8a\xb5\x18\x02 \x01\x82\xd3\xe4\x93\x02\x17\x12\x15/security/secrulesets\x12\x97\x01\n" +
+	"\x0eGetCRSRuleInfo\x120.sentinez.apps.security.v1.GetCRSRuleInfoRequest\x1a1.sentinez.apps.security.v1.GetCRSRuleInfoResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/security/crs/rules/{id}\x12\x98\x01\n" +
+	"\x10ListCRSRuleInfos\x122.sentinez.apps.security.v1.ListCRSRuleInfosRequest\x1a3.sentinez.apps.security.v1.ListCRSRuleInfosResponse\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/security/crs/rules\x12\x94\x01\n" +
+	"\x0fListCRSRuleTags\x121.sentinez.apps.security.v1.ListCRSRuleTagsRequest\x1a2.sentinez.apps.security.v1.ListCRSRuleTagsResponse\"\x1a\x82\xd3\xe4\x93\x02\x14\x12\x12/security/crs/tags\x12}\n" +
 	"\x06Status\x12(.sentinez.apps.security.v1.StatusRequest\x1a).sentinez.apps.security.v1.StatusResponse\"\x1e\x8a\xb5\x18\x02\x18\x01\x82\xd3\xe4\x93\x02\x12\x12\x10/security/statusB\xed\x01\x92Af\x12\x17\n" +
 	"\x10Security Service2\x031.0*\x02\x01\x022\x10application/jsonZ#\n" +
 	"!\n" +
@@ -2259,134 +2275,136 @@ func file_sentinez_apps_security_v1_security_proto_rawDescGZIP() []byte {
 
 var file_sentinez_apps_security_v1_security_proto_msgTypes = make([]protoimpl.MessageInfo, 39)
 var file_sentinez_apps_security_v1_security_proto_goTypes = []any{
-	(*CreateSecRuleRequest)(nil),      // 0: sentinez.apps.security.v1.CreateSecRuleRequest
-	(*CreateSecRuleResponse)(nil),     // 1: sentinez.apps.security.v1.CreateSecRuleResponse
-	(*GetSecRuleRequest)(nil),         // 2: sentinez.apps.security.v1.GetSecRuleRequest
-	(*GetSecRuleResponse)(nil),        // 3: sentinez.apps.security.v1.GetSecRuleResponse
-	(*UpdateSecRuleRequest)(nil),      // 4: sentinez.apps.security.v1.UpdateSecRuleRequest
-	(*UpdateSecRuleResponse)(nil),     // 5: sentinez.apps.security.v1.UpdateSecRuleResponse
-	(*DeleteSecRuleRequest)(nil),      // 6: sentinez.apps.security.v1.DeleteSecRuleRequest
-	(*DeleteSecRuleResponse)(nil),     // 7: sentinez.apps.security.v1.DeleteSecRuleResponse
-	(*ListSecRulesRequest)(nil),       // 8: sentinez.apps.security.v1.ListSecRulesRequest
-	(*ListSecRulesResponse)(nil),      // 9: sentinez.apps.security.v1.ListSecRulesResponse
-	(*CreateRateLimitRequest)(nil),    // 10: sentinez.apps.security.v1.CreateRateLimitRequest
-	(*CreateRateLimitResponse)(nil),   // 11: sentinez.apps.security.v1.CreateRateLimitResponse
-	(*GetRateLimitRequest)(nil),       // 12: sentinez.apps.security.v1.GetRateLimitRequest
-	(*GetRateLimitResponse)(nil),      // 13: sentinez.apps.security.v1.GetRateLimitResponse
-	(*UpdateRateLimitRequest)(nil),    // 14: sentinez.apps.security.v1.UpdateRateLimitRequest
-	(*UpdateRateLimitResponse)(nil),   // 15: sentinez.apps.security.v1.UpdateRateLimitResponse
-	(*DeleteRateLimitRequest)(nil),    // 16: sentinez.apps.security.v1.DeleteRateLimitRequest
-	(*DeleteRateLimitResponse)(nil),   // 17: sentinez.apps.security.v1.DeleteRateLimitResponse
-	(*ListRateLimitsRequest)(nil),     // 18: sentinez.apps.security.v1.ListRateLimitsRequest
-	(*ListRateLimitsResponse)(nil),    // 19: sentinez.apps.security.v1.ListRateLimitsResponse
-	(*CreateCoreRulesetRequest)(nil),  // 20: sentinez.apps.security.v1.CreateCoreRulesetRequest
-	(*CreateCoreRulesetResponse)(nil), // 21: sentinez.apps.security.v1.CreateCoreRulesetResponse
-	(*GetCoreRulesetRequest)(nil),     // 22: sentinez.apps.security.v1.GetCoreRulesetRequest
-	(*GetCoreRulesetResponse)(nil),    // 23: sentinez.apps.security.v1.GetCoreRulesetResponse
-	(*UpdateCoreRulesetRequest)(nil),  // 24: sentinez.apps.security.v1.UpdateCoreRulesetRequest
-	(*UpdateCoreRulesetResponse)(nil), // 25: sentinez.apps.security.v1.UpdateCoreRulesetResponse
-	(*DeleteCoreRulesetRequest)(nil),  // 26: sentinez.apps.security.v1.DeleteCoreRulesetRequest
-	(*DeleteCoreRulesetResponse)(nil), // 27: sentinez.apps.security.v1.DeleteCoreRulesetResponse
-	(*ListCoreRulesetsRequest)(nil),   // 28: sentinez.apps.security.v1.ListCoreRulesetsRequest
-	(*ListCoreRulesetsResponse)(nil),  // 29: sentinez.apps.security.v1.ListCoreRulesetsResponse
-	(*GetRuleInfoRequest)(nil),        // 30: sentinez.apps.security.v1.GetRuleInfoRequest
-	(*GetRuleInfoResponse)(nil),       // 31: sentinez.apps.security.v1.GetRuleInfoResponse
-	(*ListRuleInfosRequest)(nil),      // 32: sentinez.apps.security.v1.ListRuleInfosRequest
-	(*ListRuleInfosResponse)(nil),     // 33: sentinez.apps.security.v1.ListRuleInfosResponse
-	(*RuleTag)(nil),                   // 34: sentinez.apps.security.v1.RuleTag
-	(*ListRuleTagsRequest)(nil),       // 35: sentinez.apps.security.v1.ListRuleTagsRequest
-	(*ListRuleTagsResponse)(nil),      // 36: sentinez.apps.security.v1.ListRuleTagsResponse
-	(*StatusRequest)(nil),             // 37: sentinez.apps.security.v1.StatusRequest
-	(*StatusResponse)(nil),            // 38: sentinez.apps.security.v1.StatusResponse
-	(*SecRule)(nil),                   // 39: sentinez.apps.security.v1.SecRule
-	(*fieldmaskpb.FieldMask)(nil),     // 40: google.protobuf.FieldMask
-	(*v1.Pages)(nil),                  // 41: sentinez.types.v1.Pages
-	(*RateLimit)(nil),                 // 42: sentinez.apps.security.v1.RateLimit
-	(*CoreRuleset)(nil),               // 43: sentinez.apps.security.v1.CoreRuleset
-	(v11.EngineMode)(0),               // 44: sentinez.types.coreruleset.v1.EngineMode
-	(v11.Version)(0),                  // 45: sentinez.types.coreruleset.v1.Version
-	(v1.Status)(0),                    // 46: sentinez.types.v1.Status
-	(v11.Category)(0),                 // 47: sentinez.types.coreruleset.v1.Category
-	(*v11.RuleInfo)(nil),              // 48: sentinez.types.coreruleset.v1.RuleInfo
+	(*CreateSecRuleRequest)(nil),       // 0: sentinez.apps.security.v1.CreateSecRuleRequest
+	(*CreateSecRuleResponse)(nil),      // 1: sentinez.apps.security.v1.CreateSecRuleResponse
+	(*GetSecRuleRequest)(nil),          // 2: sentinez.apps.security.v1.GetSecRuleRequest
+	(*GetSecRuleResponse)(nil),         // 3: sentinez.apps.security.v1.GetSecRuleResponse
+	(*UpdateSecRuleRequest)(nil),       // 4: sentinez.apps.security.v1.UpdateSecRuleRequest
+	(*UpdateSecRuleResponse)(nil),      // 5: sentinez.apps.security.v1.UpdateSecRuleResponse
+	(*DeleteSecRuleRequest)(nil),       // 6: sentinez.apps.security.v1.DeleteSecRuleRequest
+	(*DeleteSecRuleResponse)(nil),      // 7: sentinez.apps.security.v1.DeleteSecRuleResponse
+	(*ListSecRulesRequest)(nil),        // 8: sentinez.apps.security.v1.ListSecRulesRequest
+	(*ListSecRulesResponse)(nil),       // 9: sentinez.apps.security.v1.ListSecRulesResponse
+	(*CreateSecRateLimitRequest)(nil),  // 10: sentinez.apps.security.v1.CreateSecRateLimitRequest
+	(*CreateSecRateLimitResponse)(nil), // 11: sentinez.apps.security.v1.CreateSecRateLimitResponse
+	(*GetSecRateLimitRequest)(nil),     // 12: sentinez.apps.security.v1.GetSecRateLimitRequest
+	(*GetSecRateLimitResponse)(nil),    // 13: sentinez.apps.security.v1.GetSecRateLimitResponse
+	(*UpdateSecRateLimitRequest)(nil),  // 14: sentinez.apps.security.v1.UpdateSecRateLimitRequest
+	(*UpdateSecRateLimitResponse)(nil), // 15: sentinez.apps.security.v1.UpdateSecRateLimitResponse
+	(*DeleteSecRateLimitRequest)(nil),  // 16: sentinez.apps.security.v1.DeleteSecRateLimitRequest
+	(*DeleteSecRateLimitResponse)(nil), // 17: sentinez.apps.security.v1.DeleteSecRateLimitResponse
+	(*ListSecRateLimitsRequest)(nil),   // 18: sentinez.apps.security.v1.ListSecRateLimitsRequest
+	(*ListSecRateLimitsResponse)(nil),  // 19: sentinez.apps.security.v1.ListSecRateLimitsResponse
+	(*CreateSecRulesetRequest)(nil),    // 20: sentinez.apps.security.v1.CreateSecRulesetRequest
+	(*CreateSecRulesetResponse)(nil),   // 21: sentinez.apps.security.v1.CreateSecRulesetResponse
+	(*GetSecRulesetRequest)(nil),       // 22: sentinez.apps.security.v1.GetSecRulesetRequest
+	(*GetSecRulesetResponse)(nil),      // 23: sentinez.apps.security.v1.GetSecRulesetResponse
+	(*UpdateSecRulesetRequest)(nil),    // 24: sentinez.apps.security.v1.UpdateSecRulesetRequest
+	(*UpdateSecRulesetResponse)(nil),   // 25: sentinez.apps.security.v1.UpdateSecRulesetResponse
+	(*DeleteSecRulesetRequest)(nil),    // 26: sentinez.apps.security.v1.DeleteSecRulesetRequest
+	(*DeleteSecRulesetResponse)(nil),   // 27: sentinez.apps.security.v1.DeleteSecRulesetResponse
+	(*ListSecRulesetsRequest)(nil),     // 28: sentinez.apps.security.v1.ListSecRulesetsRequest
+	(*ListSecRulesetsResponse)(nil),    // 29: sentinez.apps.security.v1.ListSecRulesetsResponse
+	(*GetCRSRuleInfoRequest)(nil),      // 30: sentinez.apps.security.v1.GetCRSRuleInfoRequest
+	(*GetCRSRuleInfoResponse)(nil),     // 31: sentinez.apps.security.v1.GetCRSRuleInfoResponse
+	(*ListCRSRuleInfosRequest)(nil),    // 32: sentinez.apps.security.v1.ListCRSRuleInfosRequest
+	(*ListCRSRuleInfosResponse)(nil),   // 33: sentinez.apps.security.v1.ListCRSRuleInfosResponse
+	(*RuleTag)(nil),                    // 34: sentinez.apps.security.v1.RuleTag
+	(*ListCRSRuleTagsRequest)(nil),     // 35: sentinez.apps.security.v1.ListCRSRuleTagsRequest
+	(*ListCRSRuleTagsResponse)(nil),    // 36: sentinez.apps.security.v1.ListCRSRuleTagsResponse
+	(*StatusRequest)(nil),              // 37: sentinez.apps.security.v1.StatusRequest
+	(*StatusResponse)(nil),             // 38: sentinez.apps.security.v1.StatusResponse
+	(*SecRule)(nil),                    // 39: sentinez.apps.security.v1.SecRule
+	(*fieldmaskpb.FieldMask)(nil),      // 40: google.protobuf.FieldMask
+	(*v1.Pages)(nil),                   // 41: sentinez.types.v1.Pages
+	(*SecRateLimit)(nil),               // 42: sentinez.apps.security.v1.SecRateLimit
+	(*SecRuleset)(nil),                 // 43: sentinez.apps.security.v1.SecRuleset
+	(v11.EngineMode)(0),                // 44: sentinez.types.ruleset.v1.EngineMode
+	(v11.CRSVersion)(0),                // 45: sentinez.types.ruleset.v1.CRSVersion
+	(v1.Status)(0),                     // 46: sentinez.types.v1.Status
+	(v11.Category)(0),                  // 47: sentinez.types.ruleset.v1.Category
+	(v11.Provider)(0),                  // 48: sentinez.types.ruleset.v1.Provider
+	(*v11.RuleInfo)(nil),               // 49: sentinez.types.ruleset.v1.RuleInfo
 }
 var file_sentinez_apps_security_v1_security_proto_depIdxs = []int32{
-	39, // 0: sentinez.apps.security.v1.CreateSecRuleRequest.sec_rule:type_name -> sentinez.apps.security.v1.SecRule
-	39, // 1: sentinez.apps.security.v1.GetSecRuleResponse.sec_rule:type_name -> sentinez.apps.security.v1.SecRule
-	39, // 2: sentinez.apps.security.v1.UpdateSecRuleRequest.sec_rule:type_name -> sentinez.apps.security.v1.SecRule
+	39, // 0: sentinez.apps.security.v1.CreateSecRuleRequest.secrule:type_name -> sentinez.apps.security.v1.SecRule
+	39, // 1: sentinez.apps.security.v1.GetSecRuleResponse.secrule:type_name -> sentinez.apps.security.v1.SecRule
+	39, // 2: sentinez.apps.security.v1.UpdateSecRuleRequest.secrule:type_name -> sentinez.apps.security.v1.SecRule
 	40, // 3: sentinez.apps.security.v1.UpdateSecRuleRequest.update_mask:type_name -> google.protobuf.FieldMask
-	39, // 4: sentinez.apps.security.v1.UpdateSecRuleResponse.sec_rule:type_name -> sentinez.apps.security.v1.SecRule
+	39, // 4: sentinez.apps.security.v1.UpdateSecRuleResponse.secrule:type_name -> sentinez.apps.security.v1.SecRule
 	41, // 5: sentinez.apps.security.v1.ListSecRulesRequest.page:type_name -> sentinez.types.v1.Pages
-	39, // 6: sentinez.apps.security.v1.ListSecRulesResponse.sec_rules:type_name -> sentinez.apps.security.v1.SecRule
-	42, // 7: sentinez.apps.security.v1.CreateRateLimitRequest.rate_limit:type_name -> sentinez.apps.security.v1.RateLimit
-	42, // 8: sentinez.apps.security.v1.GetRateLimitResponse.rate_limit:type_name -> sentinez.apps.security.v1.RateLimit
-	42, // 9: sentinez.apps.security.v1.UpdateRateLimitRequest.rate_limit:type_name -> sentinez.apps.security.v1.RateLimit
-	40, // 10: sentinez.apps.security.v1.UpdateRateLimitRequest.update_mask:type_name -> google.protobuf.FieldMask
-	42, // 11: sentinez.apps.security.v1.UpdateRateLimitResponse.rate_limit:type_name -> sentinez.apps.security.v1.RateLimit
-	41, // 12: sentinez.apps.security.v1.ListRateLimitsRequest.page:type_name -> sentinez.types.v1.Pages
-	42, // 13: sentinez.apps.security.v1.ListRateLimitsResponse.rate_limits:type_name -> sentinez.apps.security.v1.RateLimit
-	43, // 14: sentinez.apps.security.v1.CreateCoreRulesetRequest.core_ruleset:type_name -> sentinez.apps.security.v1.CoreRuleset
-	43, // 15: sentinez.apps.security.v1.GetCoreRulesetResponse.core_ruleset:type_name -> sentinez.apps.security.v1.CoreRuleset
-	43, // 16: sentinez.apps.security.v1.UpdateCoreRulesetRequest.core_ruleset:type_name -> sentinez.apps.security.v1.CoreRuleset
-	40, // 17: sentinez.apps.security.v1.UpdateCoreRulesetRequest.update_mask:type_name -> google.protobuf.FieldMask
-	43, // 18: sentinez.apps.security.v1.UpdateCoreRulesetResponse.core_ruleset:type_name -> sentinez.apps.security.v1.CoreRuleset
-	41, // 19: sentinez.apps.security.v1.ListCoreRulesetsRequest.page:type_name -> sentinez.types.v1.Pages
-	44, // 20: sentinez.apps.security.v1.ListCoreRulesetsRequest.modes:type_name -> sentinez.types.coreruleset.v1.EngineMode
-	45, // 21: sentinez.apps.security.v1.ListCoreRulesetsRequest.versions:type_name -> sentinez.types.coreruleset.v1.Version
-	46, // 22: sentinez.apps.security.v1.ListCoreRulesetsRequest.statuses:type_name -> sentinez.types.v1.Status
-	47, // 23: sentinez.apps.security.v1.ListCoreRulesetsRequest.categories:type_name -> sentinez.types.coreruleset.v1.Category
-	43, // 24: sentinez.apps.security.v1.ListCoreRulesetsResponse.core_rulesets:type_name -> sentinez.apps.security.v1.CoreRuleset
-	45, // 25: sentinez.apps.security.v1.GetRuleInfoRequest.version:type_name -> sentinez.types.coreruleset.v1.Version
-	48, // 26: sentinez.apps.security.v1.GetRuleInfoResponse.rule:type_name -> sentinez.types.coreruleset.v1.RuleInfo
-	41, // 27: sentinez.apps.security.v1.ListRuleInfosRequest.page:type_name -> sentinez.types.v1.Pages
-	45, // 28: sentinez.apps.security.v1.ListRuleInfosRequest.version:type_name -> sentinez.types.coreruleset.v1.Version
-	47, // 29: sentinez.apps.security.v1.ListRuleInfosRequest.categories:type_name -> sentinez.types.coreruleset.v1.Category
-	48, // 30: sentinez.apps.security.v1.ListRuleInfosResponse.rules:type_name -> sentinez.types.coreruleset.v1.RuleInfo
-	41, // 31: sentinez.apps.security.v1.ListRuleTagsRequest.page:type_name -> sentinez.types.v1.Pages
-	45, // 32: sentinez.apps.security.v1.ListRuleTagsRequest.version:type_name -> sentinez.types.coreruleset.v1.Version
-	34, // 33: sentinez.apps.security.v1.ListRuleTagsResponse.tags:type_name -> sentinez.apps.security.v1.RuleTag
-	0,  // 34: sentinez.apps.security.v1.SecurityService.CreateSecRule:input_type -> sentinez.apps.security.v1.CreateSecRuleRequest
-	2,  // 35: sentinez.apps.security.v1.SecurityService.GetSecRule:input_type -> sentinez.apps.security.v1.GetSecRuleRequest
-	4,  // 36: sentinez.apps.security.v1.SecurityService.UpdateSecRule:input_type -> sentinez.apps.security.v1.UpdateSecRuleRequest
-	6,  // 37: sentinez.apps.security.v1.SecurityService.DeleteSecRule:input_type -> sentinez.apps.security.v1.DeleteSecRuleRequest
-	8,  // 38: sentinez.apps.security.v1.SecurityService.ListSecRules:input_type -> sentinez.apps.security.v1.ListSecRulesRequest
-	10, // 39: sentinez.apps.security.v1.SecurityService.CreateRateLimit:input_type -> sentinez.apps.security.v1.CreateRateLimitRequest
-	12, // 40: sentinez.apps.security.v1.SecurityService.GetRateLimit:input_type -> sentinez.apps.security.v1.GetRateLimitRequest
-	14, // 41: sentinez.apps.security.v1.SecurityService.UpdateRateLimit:input_type -> sentinez.apps.security.v1.UpdateRateLimitRequest
-	16, // 42: sentinez.apps.security.v1.SecurityService.DeleteRateLimit:input_type -> sentinez.apps.security.v1.DeleteRateLimitRequest
-	18, // 43: sentinez.apps.security.v1.SecurityService.ListRateLimits:input_type -> sentinez.apps.security.v1.ListRateLimitsRequest
-	20, // 44: sentinez.apps.security.v1.SecurityService.CreateCoreRuleset:input_type -> sentinez.apps.security.v1.CreateCoreRulesetRequest
-	22, // 45: sentinez.apps.security.v1.SecurityService.GetCoreRuleset:input_type -> sentinez.apps.security.v1.GetCoreRulesetRequest
-	24, // 46: sentinez.apps.security.v1.SecurityService.UpdateCoreRuleset:input_type -> sentinez.apps.security.v1.UpdateCoreRulesetRequest
-	26, // 47: sentinez.apps.security.v1.SecurityService.DeleteCoreRuleset:input_type -> sentinez.apps.security.v1.DeleteCoreRulesetRequest
-	28, // 48: sentinez.apps.security.v1.SecurityService.ListCoreRulesets:input_type -> sentinez.apps.security.v1.ListCoreRulesetsRequest
-	30, // 49: sentinez.apps.security.v1.SecurityService.GetRuleInfo:input_type -> sentinez.apps.security.v1.GetRuleInfoRequest
-	32, // 50: sentinez.apps.security.v1.SecurityService.ListRuleInfos:input_type -> sentinez.apps.security.v1.ListRuleInfosRequest
-	35, // 51: sentinez.apps.security.v1.SecurityService.ListRuleTags:input_type -> sentinez.apps.security.v1.ListRuleTagsRequest
-	37, // 52: sentinez.apps.security.v1.SecurityService.Status:input_type -> sentinez.apps.security.v1.StatusRequest
-	1,  // 53: sentinez.apps.security.v1.SecurityService.CreateSecRule:output_type -> sentinez.apps.security.v1.CreateSecRuleResponse
-	3,  // 54: sentinez.apps.security.v1.SecurityService.GetSecRule:output_type -> sentinez.apps.security.v1.GetSecRuleResponse
-	5,  // 55: sentinez.apps.security.v1.SecurityService.UpdateSecRule:output_type -> sentinez.apps.security.v1.UpdateSecRuleResponse
-	7,  // 56: sentinez.apps.security.v1.SecurityService.DeleteSecRule:output_type -> sentinez.apps.security.v1.DeleteSecRuleResponse
-	9,  // 57: sentinez.apps.security.v1.SecurityService.ListSecRules:output_type -> sentinez.apps.security.v1.ListSecRulesResponse
-	11, // 58: sentinez.apps.security.v1.SecurityService.CreateRateLimit:output_type -> sentinez.apps.security.v1.CreateRateLimitResponse
-	13, // 59: sentinez.apps.security.v1.SecurityService.GetRateLimit:output_type -> sentinez.apps.security.v1.GetRateLimitResponse
-	15, // 60: sentinez.apps.security.v1.SecurityService.UpdateRateLimit:output_type -> sentinez.apps.security.v1.UpdateRateLimitResponse
-	17, // 61: sentinez.apps.security.v1.SecurityService.DeleteRateLimit:output_type -> sentinez.apps.security.v1.DeleteRateLimitResponse
-	19, // 62: sentinez.apps.security.v1.SecurityService.ListRateLimits:output_type -> sentinez.apps.security.v1.ListRateLimitsResponse
-	21, // 63: sentinez.apps.security.v1.SecurityService.CreateCoreRuleset:output_type -> sentinez.apps.security.v1.CreateCoreRulesetResponse
-	23, // 64: sentinez.apps.security.v1.SecurityService.GetCoreRuleset:output_type -> sentinez.apps.security.v1.GetCoreRulesetResponse
-	25, // 65: sentinez.apps.security.v1.SecurityService.UpdateCoreRuleset:output_type -> sentinez.apps.security.v1.UpdateCoreRulesetResponse
-	27, // 66: sentinez.apps.security.v1.SecurityService.DeleteCoreRuleset:output_type -> sentinez.apps.security.v1.DeleteCoreRulesetResponse
-	29, // 67: sentinez.apps.security.v1.SecurityService.ListCoreRulesets:output_type -> sentinez.apps.security.v1.ListCoreRulesetsResponse
-	31, // 68: sentinez.apps.security.v1.SecurityService.GetRuleInfo:output_type -> sentinez.apps.security.v1.GetRuleInfoResponse
-	33, // 69: sentinez.apps.security.v1.SecurityService.ListRuleInfos:output_type -> sentinez.apps.security.v1.ListRuleInfosResponse
-	36, // 70: sentinez.apps.security.v1.SecurityService.ListRuleTags:output_type -> sentinez.apps.security.v1.ListRuleTagsResponse
-	38, // 71: sentinez.apps.security.v1.SecurityService.Status:output_type -> sentinez.apps.security.v1.StatusResponse
-	53, // [53:72] is the sub-list for method output_type
-	34, // [34:53] is the sub-list for method input_type
-	34, // [34:34] is the sub-list for extension type_name
-	34, // [34:34] is the sub-list for extension extendee
-	0,  // [0:34] is the sub-list for field type_name
+	39, // 6: sentinez.apps.security.v1.ListSecRulesResponse.secrules:type_name -> sentinez.apps.security.v1.SecRule
+	42, // 7: sentinez.apps.security.v1.CreateSecRateLimitRequest.secratelimit:type_name -> sentinez.apps.security.v1.SecRateLimit
+	42, // 8: sentinez.apps.security.v1.GetSecRateLimitResponse.secratelimit:type_name -> sentinez.apps.security.v1.SecRateLimit
+	42, // 9: sentinez.apps.security.v1.UpdateSecRateLimitRequest.secratelimit:type_name -> sentinez.apps.security.v1.SecRateLimit
+	40, // 10: sentinez.apps.security.v1.UpdateSecRateLimitRequest.update_mask:type_name -> google.protobuf.FieldMask
+	42, // 11: sentinez.apps.security.v1.UpdateSecRateLimitResponse.secratelimit:type_name -> sentinez.apps.security.v1.SecRateLimit
+	41, // 12: sentinez.apps.security.v1.ListSecRateLimitsRequest.page:type_name -> sentinez.types.v1.Pages
+	42, // 13: sentinez.apps.security.v1.ListSecRateLimitsResponse.secratelimits:type_name -> sentinez.apps.security.v1.SecRateLimit
+	43, // 14: sentinez.apps.security.v1.CreateSecRulesetRequest.secruleset:type_name -> sentinez.apps.security.v1.SecRuleset
+	43, // 15: sentinez.apps.security.v1.GetSecRulesetResponse.secruleset:type_name -> sentinez.apps.security.v1.SecRuleset
+	43, // 16: sentinez.apps.security.v1.UpdateSecRulesetRequest.secruleset:type_name -> sentinez.apps.security.v1.SecRuleset
+	40, // 17: sentinez.apps.security.v1.UpdateSecRulesetRequest.update_mask:type_name -> google.protobuf.FieldMask
+	43, // 18: sentinez.apps.security.v1.UpdateSecRulesetResponse.secruleset:type_name -> sentinez.apps.security.v1.SecRuleset
+	41, // 19: sentinez.apps.security.v1.ListSecRulesetsRequest.page:type_name -> sentinez.types.v1.Pages
+	44, // 20: sentinez.apps.security.v1.ListSecRulesetsRequest.modes:type_name -> sentinez.types.ruleset.v1.EngineMode
+	45, // 21: sentinez.apps.security.v1.ListSecRulesetsRequest.versions:type_name -> sentinez.types.ruleset.v1.CRSVersion
+	46, // 22: sentinez.apps.security.v1.ListSecRulesetsRequest.statuses:type_name -> sentinez.types.v1.Status
+	47, // 23: sentinez.apps.security.v1.ListSecRulesetsRequest.categories:type_name -> sentinez.types.ruleset.v1.Category
+	48, // 24: sentinez.apps.security.v1.ListSecRulesetsRequest.providers:type_name -> sentinez.types.ruleset.v1.Provider
+	43, // 25: sentinez.apps.security.v1.ListSecRulesetsResponse.secrulesets:type_name -> sentinez.apps.security.v1.SecRuleset
+	45, // 26: sentinez.apps.security.v1.GetCRSRuleInfoRequest.version:type_name -> sentinez.types.ruleset.v1.CRSVersion
+	49, // 27: sentinez.apps.security.v1.GetCRSRuleInfoResponse.rule:type_name -> sentinez.types.ruleset.v1.RuleInfo
+	41, // 28: sentinez.apps.security.v1.ListCRSRuleInfosRequest.page:type_name -> sentinez.types.v1.Pages
+	45, // 29: sentinez.apps.security.v1.ListCRSRuleInfosRequest.version:type_name -> sentinez.types.ruleset.v1.CRSVersion
+	47, // 30: sentinez.apps.security.v1.ListCRSRuleInfosRequest.categories:type_name -> sentinez.types.ruleset.v1.Category
+	49, // 31: sentinez.apps.security.v1.ListCRSRuleInfosResponse.rules:type_name -> sentinez.types.ruleset.v1.RuleInfo
+	41, // 32: sentinez.apps.security.v1.ListCRSRuleTagsRequest.page:type_name -> sentinez.types.v1.Pages
+	45, // 33: sentinez.apps.security.v1.ListCRSRuleTagsRequest.version:type_name -> sentinez.types.ruleset.v1.CRSVersion
+	34, // 34: sentinez.apps.security.v1.ListCRSRuleTagsResponse.tags:type_name -> sentinez.apps.security.v1.RuleTag
+	0,  // 35: sentinez.apps.security.v1.SecurityService.CreateSecRule:input_type -> sentinez.apps.security.v1.CreateSecRuleRequest
+	2,  // 36: sentinez.apps.security.v1.SecurityService.GetSecRule:input_type -> sentinez.apps.security.v1.GetSecRuleRequest
+	4,  // 37: sentinez.apps.security.v1.SecurityService.UpdateSecRule:input_type -> sentinez.apps.security.v1.UpdateSecRuleRequest
+	6,  // 38: sentinez.apps.security.v1.SecurityService.DeleteSecRule:input_type -> sentinez.apps.security.v1.DeleteSecRuleRequest
+	8,  // 39: sentinez.apps.security.v1.SecurityService.ListSecRules:input_type -> sentinez.apps.security.v1.ListSecRulesRequest
+	10, // 40: sentinez.apps.security.v1.SecurityService.CreateSecRateLimit:input_type -> sentinez.apps.security.v1.CreateSecRateLimitRequest
+	12, // 41: sentinez.apps.security.v1.SecurityService.GetSecRateLimit:input_type -> sentinez.apps.security.v1.GetSecRateLimitRequest
+	14, // 42: sentinez.apps.security.v1.SecurityService.UpdateSecRateLimit:input_type -> sentinez.apps.security.v1.UpdateSecRateLimitRequest
+	16, // 43: sentinez.apps.security.v1.SecurityService.DeleteSecRateLimit:input_type -> sentinez.apps.security.v1.DeleteSecRateLimitRequest
+	18, // 44: sentinez.apps.security.v1.SecurityService.ListSecRateLimits:input_type -> sentinez.apps.security.v1.ListSecRateLimitsRequest
+	20, // 45: sentinez.apps.security.v1.SecurityService.CreateSecRuleset:input_type -> sentinez.apps.security.v1.CreateSecRulesetRequest
+	22, // 46: sentinez.apps.security.v1.SecurityService.GetSecRuleset:input_type -> sentinez.apps.security.v1.GetSecRulesetRequest
+	24, // 47: sentinez.apps.security.v1.SecurityService.UpdateSecRuleset:input_type -> sentinez.apps.security.v1.UpdateSecRulesetRequest
+	26, // 48: sentinez.apps.security.v1.SecurityService.DeleteSecRuleset:input_type -> sentinez.apps.security.v1.DeleteSecRulesetRequest
+	28, // 49: sentinez.apps.security.v1.SecurityService.ListSecRulesets:input_type -> sentinez.apps.security.v1.ListSecRulesetsRequest
+	30, // 50: sentinez.apps.security.v1.SecurityService.GetCRSRuleInfo:input_type -> sentinez.apps.security.v1.GetCRSRuleInfoRequest
+	32, // 51: sentinez.apps.security.v1.SecurityService.ListCRSRuleInfos:input_type -> sentinez.apps.security.v1.ListCRSRuleInfosRequest
+	35, // 52: sentinez.apps.security.v1.SecurityService.ListCRSRuleTags:input_type -> sentinez.apps.security.v1.ListCRSRuleTagsRequest
+	37, // 53: sentinez.apps.security.v1.SecurityService.Status:input_type -> sentinez.apps.security.v1.StatusRequest
+	1,  // 54: sentinez.apps.security.v1.SecurityService.CreateSecRule:output_type -> sentinez.apps.security.v1.CreateSecRuleResponse
+	3,  // 55: sentinez.apps.security.v1.SecurityService.GetSecRule:output_type -> sentinez.apps.security.v1.GetSecRuleResponse
+	5,  // 56: sentinez.apps.security.v1.SecurityService.UpdateSecRule:output_type -> sentinez.apps.security.v1.UpdateSecRuleResponse
+	7,  // 57: sentinez.apps.security.v1.SecurityService.DeleteSecRule:output_type -> sentinez.apps.security.v1.DeleteSecRuleResponse
+	9,  // 58: sentinez.apps.security.v1.SecurityService.ListSecRules:output_type -> sentinez.apps.security.v1.ListSecRulesResponse
+	11, // 59: sentinez.apps.security.v1.SecurityService.CreateSecRateLimit:output_type -> sentinez.apps.security.v1.CreateSecRateLimitResponse
+	13, // 60: sentinez.apps.security.v1.SecurityService.GetSecRateLimit:output_type -> sentinez.apps.security.v1.GetSecRateLimitResponse
+	15, // 61: sentinez.apps.security.v1.SecurityService.UpdateSecRateLimit:output_type -> sentinez.apps.security.v1.UpdateSecRateLimitResponse
+	17, // 62: sentinez.apps.security.v1.SecurityService.DeleteSecRateLimit:output_type -> sentinez.apps.security.v1.DeleteSecRateLimitResponse
+	19, // 63: sentinez.apps.security.v1.SecurityService.ListSecRateLimits:output_type -> sentinez.apps.security.v1.ListSecRateLimitsResponse
+	21, // 64: sentinez.apps.security.v1.SecurityService.CreateSecRuleset:output_type -> sentinez.apps.security.v1.CreateSecRulesetResponse
+	23, // 65: sentinez.apps.security.v1.SecurityService.GetSecRuleset:output_type -> sentinez.apps.security.v1.GetSecRulesetResponse
+	25, // 66: sentinez.apps.security.v1.SecurityService.UpdateSecRuleset:output_type -> sentinez.apps.security.v1.UpdateSecRulesetResponse
+	27, // 67: sentinez.apps.security.v1.SecurityService.DeleteSecRuleset:output_type -> sentinez.apps.security.v1.DeleteSecRulesetResponse
+	29, // 68: sentinez.apps.security.v1.SecurityService.ListSecRulesets:output_type -> sentinez.apps.security.v1.ListSecRulesetsResponse
+	31, // 69: sentinez.apps.security.v1.SecurityService.GetCRSRuleInfo:output_type -> sentinez.apps.security.v1.GetCRSRuleInfoResponse
+	33, // 70: sentinez.apps.security.v1.SecurityService.ListCRSRuleInfos:output_type -> sentinez.apps.security.v1.ListCRSRuleInfosResponse
+	36, // 71: sentinez.apps.security.v1.SecurityService.ListCRSRuleTags:output_type -> sentinez.apps.security.v1.ListCRSRuleTagsResponse
+	38, // 72: sentinez.apps.security.v1.SecurityService.Status:output_type -> sentinez.apps.security.v1.StatusResponse
+	54, // [54:73] is the sub-list for method output_type
+	35, // [35:54] is the sub-list for method input_type
+	35, // [35:35] is the sub-list for extension type_name
+	35, // [35:35] is the sub-list for extension extendee
+	0,  // [0:35] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_apps_security_v1_security_proto_init() }

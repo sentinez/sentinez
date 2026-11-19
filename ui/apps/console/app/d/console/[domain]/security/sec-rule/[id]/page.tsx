@@ -39,8 +39,8 @@ export default function EditSecRulePage({ params }: { params: Promise<{ id: stri
       try {
         const { id } = await params;
         setId(id);
-        const { secRule } = await getSecRule({ id });
-        if (secRule) setForm(secRuleFormOf(secRule));
+        const { secrule } = await getSecRule({ id });
+        if (secrule) setForm(secRuleFormOf(secrule));
       } catch {
         toast.error(t('loadDetailFailed'));
       } finally {
@@ -60,7 +60,7 @@ export default function EditSecRulePage({ params }: { params: Promise<{ id: stri
 
     setSaving(true);
     try {
-      await updateSecRule({ id, secRule: secRuleOf(form, id), updateMask: UPDATE_MASK });
+      await updateSecRule({ id, secrule: secRuleOf(form, id), updateMask: UPDATE_MASK });
       toast.success(t('updated'));
       router.back();
     } catch {
