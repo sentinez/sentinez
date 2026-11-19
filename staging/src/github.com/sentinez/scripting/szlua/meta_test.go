@@ -38,8 +38,13 @@ func TestMetaMatchesContext(t *testing.T) {
 	logs := declared(src, `(?m)^function log\.(\w+)\(`)
 	assert.Equal(t, slices.Sorted(maps.Keys(_logFuncs)), logs)
 
+	names := make([]string, 0, len(_stages))
+	for _, s := range _stages {
+		names = append(names, s.name)
+	}
+
 	stages := declared(src, `(?m)^---\| "(\w+)"`)
-	assert.Equal(t, slices.Sorted(slices.Values(_stages)), stages)
+	assert.Equal(t, slices.Sorted(slices.Values(names)), stages)
 }
 
 // declared the sorted names the pattern captures in src.

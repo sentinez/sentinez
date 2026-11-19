@@ -23,23 +23,23 @@ import (
 
 const _hooksScript = `
 -- any comment
----@module RUL 'RST'
+---@stage before/sec_rule
 ---@param ctx sz.Context
----@types before
+---@stage before/sec_ruleset
 function whatever_name(ctx) end
 
----@module "ROU"
----@types after
+---@stage after/router
 function on_router(ctx) end
 
 function before_cache(ctx) end -- a name alone declares nothing
 
----@module STC
----@types before after
+---@stage before/static
+---@stage after/static
 function both(ctx) end
 
 ---@module 'socket'
-local socket = {} -- no stage, no @types: left alone
+---@type table
+local socket = {} -- other annotations: left alone
 `
 
 func TestCompileHooks(t *testing.T) {
@@ -69,38 +69,46 @@ func TestCompileHooks(t *testing.T) {
 	}
 }
 
-func TestCompileInvalidAnnotation(t *testing.T) {
-	tests := []struct {
-		name    string
-		give    string
-		wantErr string
-	}{
-		{"empty types", "---@module RST\n---@types\nfunction f(c) end",
-			"line 2: @types names nothing"},
-		{"empty module", "---@module ''\n---@types after\nfunction f(c) end",
-			"line 1: @module names nothing"},
-		{"bad types", "---@module RST\n---@types during\nfunction f(c) end",
-			`line 2: @types "during": before or after`},
-		{"no types", "---@module RST\nfunction f(c) end",
-			"line 1: @module RST needs @types before or after"},
-		{"no class", "---@types after\nfunction f(c) end",
-			"line 1: @types needs a @module stage"},
-		{"unknown stage", "---@module RST proxy\n---@types after\n" +
-			"function f(c) end", `line 1: @module: unknown stage "proxy"`},
-		{"local function", "---@module RST\n---@types before\n" +
-			"local function f(c) end",
-			"line 1: a hook must be a global function"},
-		{"method", "local M = {}\n---@module RST\n---@types before\n" +
-			"function M.f(c) end", "line 2: a hook must be a global function"},
-		{"at the end", "function f(c) end\n---@module RST\n---@types after",
-			"line 2: a hook must be a global function"},
-	}
+type invalidAnnotationTest struct {
+	name    string
+	give    string
+	wantErr string
+}
 
-	for _, tt := range tests {
+func TestCompileInvalidAnnotation(t *testing.T) {
+	for _, tt := range invalidAnnotationTests() {
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := Compile("t.lua", tt.give)
 			assert.ErrorContains(t, err, tt.wantErr)
 		})
+	}
+}
+
+func invalidAnnotationTests() []invalidAnnotationTest {
+	return []invalidAnnotationTest{
+		{"empty", "---@stage\nfunction f(c) end",
+			`line 1: @stage takes phase/stage, e.g. before/sec_rule, got ""`},
+		{"no slash", "---@stage before\nfunction f(c) end",
+			"line 1: @stage takes phase/stage"},
+		{"two stages", "---@stage before/sec_rule router\n" +
+			"function f(c) end", "line 1: @stage takes phase/stage"},
+		{"bad phase", "---@stage during/router\nfunction f(c) end",
+			`line 1: @stage: phase "during", before or after`},
+		{"stage id", "---@stage before/RUL\nfunction f(c) end",
+			`line 1: @stage: unknown stage "RUL", one of cache, ` +
+				"sec_rate_limit, waiting_room, static, sec_rule, " +
+				"sec_ruleset, router"},
+		{"local function", "---@stage before/router\n" +
+			"local function f(c) end",
+			"line 1: @stage must precede a global function"},
+		{"method", "local M = {}\n---@stage before/router\n" +
+			"function M.f(c) end",
+			"line 2: @stage must precede a global function"},
+		{"at the end", "function f(c) end\n---@stage after/router",
+			"line 2: @stage must precede a global function"},
+		{"first of the block", "-- x\n---@stage after/router\n" +
+			"---@stage before/router\nlocal x = 1",
+			"line 2: @stage must precede a global function"},
 	}
 }
 

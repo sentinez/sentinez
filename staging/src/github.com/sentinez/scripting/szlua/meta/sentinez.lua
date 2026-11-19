@@ -5,31 +5,29 @@
 -- Point the editor at this directory (workspace.library in .luarc.json)
 -- and annotate each hook with ---@param ctx sz.Context.
 --
--- A hook is a global function, of any name, whose annotations name the
--- stages of the edge chain it runs around (@module) and when (@types):
+-- A hook is a global function, of any name, preceded by one
+-- ---@stage <phase>/<stage> line per stage and phase it runs at:
 --
---   ---@module RUL
---   ---@module RST
---   ---@types before
+--   ---@stage before/sec_rule
+--   ---@stage before/sec_ruleset
 --   ---@param ctx sz.Context
 --   function deny_debug(ctx) end
 --
--- The stages are the ids of the plugins of the chain (sz.Stage).
--- @types before: the hook may answer the request with ctx:respond, which
--- skips the stage. @types after: it runs once the response is written,
--- it only observes. The hooks of a stage run in source order.
+-- The stages are sz.Stage. before: the hook may answer the request with
+-- ctx:respond, which skips the stage. after: it runs once the response is
+-- written, it only observes. The hooks of a stage run in source order.
 
 ---The stages of the edge chain a hook may annotate, in chain order. The
 ---ones before the namespace of the request is known (TRC, LOG, DMA) have
 ---no hooks.
 ---@alias sz.Stage
----| "CDN" # CDN cache
----| "LMT" # rate limiter
----| "ROM" # waiting room
----| "STC" # static files
----| "RUL" # secrules
----| "RST" # rulesets (OWASP CRS)
----| "ROU" # router, to the upstream
+---| "cache" # CDN: cdn.Cache
+---| "sec_rate_limit" # LMT: secure.Limiter
+---| "waiting_room" # ROM: room.WaitingRoom
+---| "static" # STC: static.Static
+---| "sec_rule" # RUL: secure.SecRule
+---| "sec_ruleset" # RST: secure.Rulesets (OWASP CRS)
+---| "router" # ROU: routing.StandardRouter, to the upstream
 
 ---Writes lines to the logs of the request, with the request id and the
 ---name of the script: the arguments, as tostring prints them, joined by

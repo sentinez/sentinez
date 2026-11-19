@@ -102,8 +102,7 @@ func TestCompileInvalid(t *testing.T) {
 
 func TestCallReadsAndSets(t *testing.T) {
 	p, err := Compile("t.lua", `
----@module ROU
----@types before
+---@stage before/router
 function tag(ctx)
   if ctx:header("X-Debug") == "1" and ctx:path() == "/api" then
     ctx:set_header("X-Edge", ctx:method() .. ctx:query("a"))
@@ -125,13 +124,10 @@ end
 
 func TestCallRespondStopsTheNextFunctions(t *testing.T) {
 	p, err := Compile("t.lua", `
----@module RUL
----@types before
+---@stage before/sec_rule
 function deny(ctx) ctx:respond(403, "no") end
 
----@module RUL
-
----@types before
+---@stage before/sec_rule
 function never(ctx) ctx:set_header("X-Never", "1") end
 `)
 	require.NoError(t, err)
@@ -148,13 +144,10 @@ function never(ctx) ctx:set_header("X-Never", "1") end
 
 func TestCallRunsInSourceOrder(t *testing.T) {
 	p, err := Compile("t.lua", `
----@module RST
----@types after
+---@stage after/sec_ruleset
 function second(ctx) ctx:set_header("X-Order", ctx:header("X-Order") .. "2") end
 
----@module RST
-
----@types after
+---@stage after/sec_ruleset
 function first(ctx) ctx:set_header("X-Order", "1") end
 `)
 	require.NoError(t, err)
@@ -180,7 +173,7 @@ func TestCallErrors(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			src := "---@module STC\n---@types before\n" +
+			src := "---@stage before/static\n" +
 				"function f(ctx) " + tt.give + " end"
 			p, err := Compile("t.lua", src)
 			require.NoError(t, err)
@@ -196,8 +189,7 @@ func TestCallErrors(t *testing.T) {
 
 func TestCallFunctionRedefinedToNil(t *testing.T) {
 	p, err := Compile("t.lua", `
----@module STC
----@types before
+---@stage before/static
 function f(ctx) f = nil end
 `)
 	require.NoError(t, err)
@@ -212,8 +204,7 @@ function f(ctx) f = nil end
 
 func TestCallTimeout(t *testing.T) {
 	p, err := Compile("t.lua", `
----@module CDN
----@types before
+---@stage before/cache
 function spin(ctx) while true do end end
 `, WithTimeout(20*time.Millisecond))
 	require.NoError(t, err)
@@ -231,8 +222,7 @@ function spin(ctx) while true do end end
 
 func TestCallWithoutHook(t *testing.T) {
 	p, err := Compile("t.lua", `
----@module CDN
----@types before
+---@stage before/cache
 function f(ctx) ctx:respond(403) end
 `)
 	require.NoError(t, err)
@@ -260,8 +250,7 @@ function f(ctx) ctx:respond(403) end
 
 func TestCallConcurrent(t *testing.T) {
 	p, err := Compile("t.lua", `
----@module LMT
----@types before
+---@stage before/sec_rate_limit
 function f(ctx) ctx:set_header("X", ctx:path()) end
 `)
 	require.NoError(t, err)
@@ -283,8 +272,7 @@ function f(ctx) ctx:set_header("X", ctx:path()) end
 
 func TestCallAfterCannotRespond(t *testing.T) {
 	p, err := Compile("t.lua", `
----@module RUL
----@types after
+---@stage after/sec_rule
 function late(ctx) ctx:respond(500, "late") end
 `)
 	require.NoError(t, err)
@@ -295,4 +283,15 @@ function late(ctx) ctx:respond(500, "late") end
 	assert.ErrorContains(t, err, "the stage already ran")
 	assert.False(t, responded)
 	assert.False(t, ex.answered)
+}
+
+func TestCallErrorNamesTheSection(t *testing.T) {
+	p, err := Compile("t.lua", `
+---@stage after/sec_ruleset
+function boom(ctx) error("x") end
+`)
+	require.NoError(t, err)
+
+	_, err = p.Call(context.Background(), After, "RST", newFake())
+	assert.ErrorContains(t, err, "script t.lua: after/sec_ruleset: boom:")
 }
