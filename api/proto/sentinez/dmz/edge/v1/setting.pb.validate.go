@@ -104,6 +104,16 @@ func (m *Setting) Validate() error {
 		}
 	}
 
+	if v, ok := interface{}(m.GetScripting()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return SettingValidationError{
+				field:  "Scripting",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -160,6 +170,157 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = SettingValidationError{}
+
+// Validate checks the field values on Scripting with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *Scripting) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	for idx, item := range m.GetScripts() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ScriptingValidationError{
+					field:  fmt.Sprintf("Scripts[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ScriptingValidationError is the validation error returned by
+// Scripting.Validate if the designated constraints aren't met.
+type ScriptingValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ScriptingValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ScriptingValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ScriptingValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ScriptingValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ScriptingValidationError) ErrorName() string { return "ScriptingValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ScriptingValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sScripting.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ScriptingValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ScriptingValidationError{}
+
+// Validate checks the field values on Script with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *Script) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Id
+
+	// no validation rules for Name
+
+	// no validation rules for Source
+
+	// no validation rules for Disabled
+
+	return nil
+}
+
+// ScriptValidationError is the validation error returned by Script.Validate if
+// the designated constraints aren't met.
+type ScriptValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ScriptValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ScriptValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ScriptValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ScriptValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ScriptValidationError) ErrorName() string { return "ScriptValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ScriptValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sScript.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ScriptValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ScriptValidationError{}
 
 // Validate checks the field values on Ingress with the rules defined in the
 // proto definition for this message. If any rules are violated, an error is returned.
