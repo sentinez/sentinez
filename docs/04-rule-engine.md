@@ -248,4 +248,4 @@ score), IP, domain, transaction ID, request ID, time.
 `security.ruleset` (version, mode, paranoia levels, thresholds,
 categories, exclusions, overrides — see
 [03-edge.md](03-edge.md#35-proxyyaml-configuration)). `version` selects the
-embedded CRS files: `VERSION_V4_16_0`, otherwise **v4.17.0**.
+embedded CRS files: `CRS_VERSION_V4_16_0`, otherwise **v4.17.0**.
