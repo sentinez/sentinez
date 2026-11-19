@@ -67,7 +67,7 @@
     "cdn": "CDN",
     "security": "Security",
     "rateLimiter": "Rate limiter",
-    "secRule": "SecRule",
+    "rule": "Rule",
     "rulesets": "Ruleset",
     "analytic": "Analytic",
     "logs": "Logs",

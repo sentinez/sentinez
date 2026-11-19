@@ -152,7 +152,7 @@ export const dashboard: {
           icon: Signal,
         },
         {
-          titleKey: 'secRule',
+          titleKey: 'rule',
           url: '/d/console/security/sec-rule',
           icon: ShieldCheck,
         },
@@ -191,7 +191,7 @@ export const dashboard: {
               icon: Signal,
             },
             {
-              titleKey: 'secRule',
+              titleKey: 'rule',
               url: '/d/console/analytic/logs/sec-rule',
               icon: ShieldCheck,
             },

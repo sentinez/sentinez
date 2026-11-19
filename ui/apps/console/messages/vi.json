@@ -67,7 +67,7 @@
     "cdn": "CDN",
     "security": "Bảo mật",
     "rateLimiter": "Giới hạn tốc độ",
-    "secRule": "SecRule",
+    "rule": "Quy tắc",
     "rulesets": "Bộ quy tắc",
     "analytic": "Phân tích",
     "logs": "Nhật ký",
