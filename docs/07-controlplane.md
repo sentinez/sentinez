@@ -38,7 +38,7 @@ Scaffolding for each layer lives in `hack/.agent/skills/` (`create-service`,
   - A model whose metadata is flattened names its timestamp columns after
     the generated constants: `metadata_created_at` (iam users and accounts,
     tenants, members, resources), `owner_created_at` (secrules, rate
-    limits, core rulesets, activities).
+    limits, rulesets, activities).
   - The same schema builds a go-memdb table (`dbx.MemDBSchema`): centraldata
     keeps every controlplane table in memory this way.
   - Uses one global `pgxpool.Pool` from `SENZ_POSTGRES_URI`.
@@ -65,8 +65,8 @@ Scaffolding for each layer lives in `hack/.agent/skills/` (`create-service`,
 
 Table names ([pkg/sztable](../staging/src/github.com/sentinez/pkg/sztable/tables.go)):
 `iam.users`, `iam.accounts`, `tenant.resources`, `analytic.activities`,
-`security.sec_rules`, and the edge event tables `analytic.secrules.events`,
-`analytic.ratelimiters.events`, `analytic.corerulesets.events`,
+`security.secrules`, and the edge event tables `analytic.secrules.events`,
+`analytic.ratelimiters.events`, `analytic.rulesets.events`,
 `analytic.httpingress.events`, `analytic.httpegress.events` (see
 [Collector](#collector-edge-event-ingest)).
 
@@ -164,7 +164,7 @@ caller on every call, so a change of role applies at once.
 | Needs | Role (or above) | Calls |
 |---|---|---|
 | read | `MEMBER` | get a tenant, its members, resources, rules and events |
-| write | `LEADER` | create/update/delete a resource, SecRule, RateLimit, CoreRuleset |
+| write | `LEADER` | create/update/delete a resource, SecRule, RateLimit, Ruleset |
 | manage | `ADMIN` | update/delete a tenant, create/update/delete a member |
 | billing | `SUPER_ADMIN` | change the `plan` of a tenant (what it pays for) |
 
@@ -389,7 +389,7 @@ What `CreateCaCertificate` accepts:
 ## 7.5 Security
 
 Protos: [apps/security/v1](../api/proto/sentinez/apps/security/v1/). Table
-`security.sec_rules` (`id, name, description, expr JSONB, status, priority,
+`security.secrules` (`id, name, description, expr JSONB, status, priority,
 action JSONB`).
 
 | RPC | REST |
@@ -401,14 +401,14 @@ action JSONB`).
 | `ListSecRules` | `GET /security/secrules` (filter `ids`, paging) |
 | `Status` | `GET /security/status` |
 
-The service requires `sec_rule` on create/update; `UpdateSecRule` loads the
+The service requires `secrule` on create/update; `UpdateSecRule` loads the
 record and writes the fields its `update_mask` names (see
 [Updates](#updates-and-their-update_mask)). Rules stored here reach the edges through [centraldata](#centraldata-sync-of-the-tables-to-the-edges).
 
 ### Updates and their update_mask
 
 `UpdateResource`, `UpdateTenant`, `UpdateSecRule`, `UpdateRateLimit` and
-`UpdateCoreRuleset` take the model (`resource`, `tenant`, `sec_rule`, ...)
+`UpdateRuleset` take the model (`resource`, `tenant`, `secrule`, ...)
 and a `google.protobuf.FieldMask` `update_mask`, read as AIP-134 reads it:
 
 - no path: the fields set in the model (an implied mask)
@@ -420,7 +420,7 @@ In the JSON body the mask is a string of lowerCamelCase names:
 `"updateMask": "name,timeWindow"`. The service reads the stored row,
 copies the masked fields onto it with `szprotobuf.ApplyMask`, checks the
 result (the domain of a resource and the plan of a tenant are required,
-a rate limit and a core ruleset are validated whole), and the repo's
+a rate limit and a ruleset are validated whole), and the repo's
 `Update(ctx, model, paths)` writes only the columns of those paths
 (`postgres.M.Only`). Each service lists its updatable fields; ids, owners
 and tenants never change. `UpdateMember` and `UpdateUser` set their one
@@ -438,7 +438,7 @@ field (`roles`, `full_name`) and take no mask.
 ### CentralData: sync of the tables to the edges
 
 `szcentraldata` keeps the tables of `SENZ_SYNC_TABLES` (default:
-`security.secrules`, `security.ratelimits`, `security.corerulesets`,
+`security.secrules`, `security.ratelimits`, `security.rulesets`,
 `tenant.resources`, `tenant.cacertificates`) in go-memdb, and the leader
 edge of each zone follows it for the others:
 
@@ -481,7 +481,7 @@ postgres ──trigger: pg_notify(id)──► centraldata ──Olric pub/sub�
   term, so centraldata serves one `Sync` per zone, not one per edge. Its
   `memory.CentralSink` keeps the rows and rebuilds the `edgepb.Setting` of
   each resource whose rows change (the server of the resource, its rules,
-  limiters and core ruleset), on top of the setting already loaded for its
+  limiters and ruleset), on top of the setting already loaded for its
   domain, so the CDN of the file stays. It writes the setting to the
   `SyncMap` `sentinez.dmz.edge.central`, by resource id (unchanged settings
   are not written again), and every edge, the leader too, loads what the map
@@ -534,7 +534,7 @@ batches, in the analytic event tables.
 |---|---|---|---|
 | `sentinez.event.http.secrule` | `secrulepb.SecRuleEvent` | `analytic.secrules.events` | `secruleeventsrepo.NewSecRules` |
 | `sentinez.event.http.ratelimit` | `secrulepb.SecRuleEvent` | `analytic.ratelimiters.events` | `secruleeventsrepo.NewRateLimits` |
-| `sentinez.event.http.rulesets` | `corerulesetpb.CoreRuleEvent` | `analytic.corerulesets.events` | `coreruleeventsrepo.New` |
+| `sentinez.event.http.rulesets` | `rulesetpb.RulesetEvent` | `analytic.rulesets.events` | `ruleseteventsrepo.New` |
 | `sentinez.event.http.ingress` | `httppb.IngressEvent` (one per request, from the `logging` handler) | `analytic.httpingress.events` | `httpingresseventrepo.New` |
 | `sentinez.event.http.egress` | `httppb.EgressEvent` (one per request proxied to its upstream origin, from the `logging` handler) | `analytic.httpegress.events` | `httpegresseventsrepo.New` |
 
@@ -564,13 +564,13 @@ replayed batch stores no duplicate.
 
 Tables ([pkg/schema/analytic.go](../staging/src/github.com/sentinez/controlplane/pkg/schema/analytic.go):
 `AnalyticSecRulesEvent`, `AnalyticRateLimiterEvent`,
-`AnalyticCoreRulesetsEvent`, `AnalyticHttpIngressEvent`,
+`AnalyticRulesetsEvent`, `AnalyticHttpIngressEvent`,
 `AnalyticHttpEgressEvent`) take the fields of
 the Kafka messages: arrays as `TEXT[]`/`INTEGER[]`, `action` and `tags` as
 `JSONB`, enums as `INTEGER`, `matched_time` (milliseconds) as `BIGINT`,
 with `BTREE` indexes on the time column, a composite index on
 `(resource_id, <time>)`, and `request_id` on the rule event tables
-(`secruleEvents` and `AnalyticCoreRulesetsEvent`; HTTP tables are covered
+(`secruleEvents` and `AnalyticRulesetsEvent`; HTTP tables are covered
 by their unique `(id, time)` index). The ingress table
 has the scalar fields of `httppb.IngressEvent` (`status` `INTEGER`, `asn` and
 `timestamp`, in milliseconds, `BIGINT`, the others `TEXT`, headers without
@@ -579,7 +579,7 @@ the credential ones); its
 (`SetResourceId`/`SetTenantId`). They are not in `schema.All()`: centraldata
 does not keep events in memory. The column constants come from
 `event_senz.pb.go`, generated by the `generate.sh` of `types/secrule/v1`,
-`types/coreruleset/v1` and `types/net/http/v1`.
+`types/ruleset/v1` and `types/net/http/v1`.
 
 The egress table has one row per request the edge proxied to its upstream
 origin (`httppb.EgressEvent`): `id` is the one of the request's ingress
@@ -658,7 +658,7 @@ yet. Their columns are `bucket` (unix milliseconds), `resource_id`,
 `tenant_id`, the key and `total`.
 
 The key splits the counts further: the http `status` for the ingress and
-egress events, `behavior` for the core ruleset events, none for the secrule
+egress events, `behavior` for the ruleset events, none for the secrule
 and rate limit events (`Point.Key` is 0).
 
 `Histogram.Points(ctx, *Filter{Resolution, ResourceIds, TenantId, From, To})`
@@ -700,7 +700,7 @@ Building it syncs the tables and views, as the collector does.
 | `ListHttpEgressEvents` | `GET /analytic/events/http-egress` | `analytic.httpegress.events` |
 | `ListSecRuleEvents` | `GET /analytic/events/secrule` | `analytic.secrules.events` |
 | `ListRateLimitEvents` | `GET /analytic/events/ratelimit` | `analytic.ratelimiters.events` |
-| `ListCoreRuleEvents` | `GET /analytic/events/coreruleset` | `analytic.corerulesets.events` |
+| `ListRulesetEvents` | `GET /analytic/events/ruleset` | `analytic.rulesets.events` |
 | `GetEventHistogram` | `GET /analytic/events/histogram` | the views or table of `kind` |
 | `GetEventTopValues` | `GET /analytic/events/top-values` | the table of `kind` |
 | `GetEgressLatency` | `GET /analytic/events/http-egress/latency` | `analytic.httpegress.events` |
@@ -732,7 +732,7 @@ The sinks decode into recycled messages
 | Package | Message | Sinks |
 |---|---|---|
 | `pools/secrule` | `secrulepb.SecRuleEvent` | secrule, ratelimit |
-| `pools/ruleset` | `corerulesetpb.CoreRuleEvent` | rulesets |
+| `pools/ruleset` | `rulesetpb.RulesetEvent` | rulesets |
 | `pools/httpingress` | `httppb.IngressEvent` | ingress |
 | `pools/httpegress` | `httppb.EgressEvent` | egress |
 

@@ -158,14 +158,14 @@ func TestNormalizeKeepsDatabaseRule(t *testing.T) {
 	}
 	runtime := &secrulepb.SecRule{Id: "r1", Expr: exprOf(cond)}
 	setting := &edgepb.Setting{Security: &edgepb.Security{
-		SecRules: []*edgepb.SecRule{{Ingress: runtime}},
+		Secrules: []*edgepb.SecRule{{Ingress: runtime}},
 		Limiters: []*edgepb.RateLimit{{Ingress: runtime}},
 	}}
 
 	NormalizeEdgeSetting(setting)
 
 	sec := setting.GetSecurity()
-	assert.Same(t, runtime, sec.GetSecRules()[0].GetIngress())
+	assert.Same(t, runtime, sec.GetSecrules()[0].GetIngress())
 	assert.Equal(t, "r1", runtime.GetId())
 	assert.Equal(t, "cond_1", cond.GetId())
 	assert.Equal(t, "5s", sec.GetLimiters()[0].GetTimeWindow())

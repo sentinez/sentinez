@@ -16,7 +16,7 @@ import {
 } from '@sentinez/ui/components/dialog';
 import { Input } from '@sentinez/ui/components/input';
 import { RuleTag } from '@sentinez/proto/sentinez/apps/security/v1/security';
-import { Version } from '@sentinez/proto/sentinez/types/coreruleset/v1/setting';
+import { Version } from '@sentinez/proto/sentinez/types/ruleset/v1/setting';
 import { useDebounced } from '@/hooks/use-debounced';
 import { listCRSRuleTags } from '@/lib/api/security';
 import { toast } from '@/lib/toast';
@@ -32,7 +32,7 @@ interface Props {
 
 /** Dialog browsing the tags of the OWASP CRS catalog; mount it only while it is open */
 export function TagPicker({ version, selected, onToggle, onClose }: Props) {
-  const t = useTranslations('CoreRulesetFields');
+  const t = useTranslations('RulesetFields');
   const tc = useTranslations('Common');
   const [search, setSearch] = useState('');
   const query = useDebounced(search);

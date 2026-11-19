@@ -50,7 +50,7 @@ services:
       - ../../../api/proto/sentinez/types/v1:/protofiles/sentinez/types/v1:ro
       - ../../../api/proto/sentinez/types/rule/v1:/protofiles/sentinez/types/rule/v1:ro
       - ../../../api/proto/sentinez/types/secrule/v1:/protofiles/sentinez/types/secrule/v1:ro
-      - ../../../api/proto/sentinez/types/coreruleset/v1:/protofiles/sentinez/types/coreruleset/v1:ro
+      - ../../../api/proto/sentinez/types/ruleset/v1:/protofiles/sentinez/types/ruleset/v1:ro
       - ../../../api/proto/sentinez/types/net/http/v1:/protofiles/sentinez/types/net/http/v1:ro
       - ../../../api/third_party/protovalidate/proto/protovalidate/buf:/protofiles/buf:ro
 

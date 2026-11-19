@@ -8,8 +8,8 @@
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Timestamp } from "../../../../google/protobuf/timestamp";
 import { AuditLog } from "../../../types/audit/v1/audit";
-import { CoreRuleEvent } from "../../../types/coreruleset/v1/event";
 import { EgressEvent, IngressEvent } from "../../../types/net/http/v1/event";
+import { RulesetEvent } from "../../../types/ruleset/v1/event";
 import { SecRuleEvent } from "../../../types/secrule/v1/event";
 import {
   HistogramInterval,
@@ -30,12 +30,12 @@ export enum EventKind {
   EVENT_KIND_HTTP_INGRESS = 1,
   /** EVENT_KIND_HTTP_EGRESS - Requests proxied to the origins; keyed by the status of the origin. */
   EVENT_KIND_HTTP_EGRESS = 2,
-  /** EVENT_KIND_SEC_RULE - Matched SecRules; keyed by the action. */
-  EVENT_KIND_SEC_RULE = 3,
+  /** EVENT_KIND_SECRULE - Matched SecRules; keyed by the action. */
+  EVENT_KIND_SECRULE = 3,
   /** EVENT_KIND_RATE_LIMIT - Exceeded rate limiters; keyed by the action. */
   EVENT_KIND_RATE_LIMIT = 4,
-  /** EVENT_KIND_CORE_RULE - Matched core ruleset rules; keyed by the behavior. */
-  EVENT_KIND_CORE_RULE = 5,
+  /** EVENT_KIND_RULESET - Matched ruleset rules; keyed by the behavior. */
+  EVENT_KIND_RULESET = 5,
   UNRECOGNIZED = -1,
 }
 
@@ -51,14 +51,14 @@ export function eventKindFromJSON(object: any): EventKind {
     case "EVENT_KIND_HTTP_EGRESS":
       return EventKind.EVENT_KIND_HTTP_EGRESS;
     case 3:
-    case "EVENT_KIND_SEC_RULE":
-      return EventKind.EVENT_KIND_SEC_RULE;
+    case "EVENT_KIND_SECRULE":
+      return EventKind.EVENT_KIND_SECRULE;
     case 4:
     case "EVENT_KIND_RATE_LIMIT":
       return EventKind.EVENT_KIND_RATE_LIMIT;
     case 5:
-    case "EVENT_KIND_CORE_RULE":
-      return EventKind.EVENT_KIND_CORE_RULE;
+    case "EVENT_KIND_RULESET":
+      return EventKind.EVENT_KIND_RULESET;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -74,12 +74,12 @@ export function eventKindToJSON(object: EventKind): string {
       return "EVENT_KIND_HTTP_INGRESS";
     case EventKind.EVENT_KIND_HTTP_EGRESS:
       return "EVENT_KIND_HTTP_EGRESS";
-    case EventKind.EVENT_KIND_SEC_RULE:
-      return "EVENT_KIND_SEC_RULE";
+    case EventKind.EVENT_KIND_SECRULE:
+      return "EVENT_KIND_SECRULE";
     case EventKind.EVENT_KIND_RATE_LIMIT:
       return "EVENT_KIND_RATE_LIMIT";
-    case EventKind.EVENT_KIND_CORE_RULE:
-      return "EVENT_KIND_CORE_RULE";
+    case EventKind.EVENT_KIND_RULESET:
+      return "EVENT_KIND_RULESET";
     case EventKind.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
@@ -206,8 +206,8 @@ export interface ListRateLimitEventsRequest {
   filters: string[];
 }
 
-/** ListCoreRuleEventsRequest selects the events of a list, the latest first. */
-export interface ListCoreRuleEventsRequest {
+/** ListRulesetEventsRequest selects the events of a list, the latest first. */
+export interface ListRulesetEventsRequest {
   page?:
     | Pages
     | undefined;
@@ -246,8 +246,8 @@ export interface ListRateLimitEventsResponse {
   events: SecRuleEvent[];
 }
 
-export interface ListCoreRuleEventsResponse {
-  events: CoreRuleEvent[];
+export interface ListRulesetEventsResponse {
+  events: RulesetEvent[];
 }
 
 export interface GetEventHistogramRequest {
@@ -414,7 +414,7 @@ export interface GetEventTopValuesRequest {
    *   - sec rule, rate limit: matched_secrule_ids, action (its type, a
    *     rule.v1.ActionType number), request_ip, request_domain,
    *     request_path.
-   *   - core rule: matched_rule_ids, severities, behavior, total_score,
+   *   - ruleset: matched_rule_ids, severities, behavior, total_score,
    *     request_ip, request_domain, request_path.
    * An event counts once per element of a repeated field it holds.
    */
@@ -1374,12 +1374,12 @@ export const ListRateLimitEventsRequest: MessageFns<ListRateLimitEventsRequest> 
   },
 };
 
-function createBaseListCoreRuleEventsRequest(): ListCoreRuleEventsRequest {
+function createBaseListRulesetEventsRequest(): ListRulesetEventsRequest {
   return { page: undefined, resourceIds: [], from: undefined, to: undefined, requestIds: [], filters: [] };
 }
 
-export const ListCoreRuleEventsRequest: MessageFns<ListCoreRuleEventsRequest> = {
-  encode(message: ListCoreRuleEventsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const ListRulesetEventsRequest: MessageFns<ListRulesetEventsRequest> = {
+  encode(message: ListRulesetEventsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.page !== undefined) {
       Pages.encode(message.page, writer.uint32(10).fork()).join();
     }
@@ -1401,7 +1401,7 @@ export const ListCoreRuleEventsRequest: MessageFns<ListCoreRuleEventsRequest> = 
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ListCoreRuleEventsRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): ListRulesetEventsRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -1410,7 +1410,7 @@ export const ListCoreRuleEventsRequest: MessageFns<ListCoreRuleEventsRequest> = 
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseListCoreRuleEventsRequest();
+      const message = createBaseListRulesetEventsRequest();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -1474,7 +1474,7 @@ export const ListCoreRuleEventsRequest: MessageFns<ListCoreRuleEventsRequest> = 
     }
   },
 
-  fromJSON(object: any): ListCoreRuleEventsRequest {
+  fromJSON(object: any): ListRulesetEventsRequest {
     return {
       page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined,
       resourceIds: globalThis.Array.isArray(object?.resourceIds)
@@ -1493,7 +1493,7 @@ export const ListCoreRuleEventsRequest: MessageFns<ListCoreRuleEventsRequest> = 
     };
   },
 
-  toJSON(message: ListCoreRuleEventsRequest): unknown {
+  toJSON(message: ListRulesetEventsRequest): unknown {
     const obj: any = {};
     if (message.page !== undefined) {
       obj.page = Pages.toJSON(message.page);
@@ -1516,11 +1516,11 @@ export const ListCoreRuleEventsRequest: MessageFns<ListCoreRuleEventsRequest> = 
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ListCoreRuleEventsRequest>, I>>(base?: I): ListCoreRuleEventsRequest {
-    return ListCoreRuleEventsRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<ListRulesetEventsRequest>, I>>(base?: I): ListRulesetEventsRequest {
+    return ListRulesetEventsRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ListCoreRuleEventsRequest>, I>>(object: I): ListCoreRuleEventsRequest {
-    const message = createBaseListCoreRuleEventsRequest();
+  fromPartial<I extends Exact<DeepPartial<ListRulesetEventsRequest>, I>>(object: I): ListRulesetEventsRequest {
+    const message = createBaseListRulesetEventsRequest();
     message.page = (object.page !== undefined && object.page !== null) ? Pages.fromPartial(object.page) : undefined;
     message.resourceIds = object.resourceIds?.map((e) => e) || [];
     message.from = object.from ?? undefined;
@@ -1809,19 +1809,19 @@ export const ListRateLimitEventsResponse: MessageFns<ListRateLimitEventsResponse
   },
 };
 
-function createBaseListCoreRuleEventsResponse(): ListCoreRuleEventsResponse {
+function createBaseListRulesetEventsResponse(): ListRulesetEventsResponse {
   return { events: [] };
 }
 
-export const ListCoreRuleEventsResponse: MessageFns<ListCoreRuleEventsResponse> = {
-  encode(message: ListCoreRuleEventsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const ListRulesetEventsResponse: MessageFns<ListRulesetEventsResponse> = {
+  encode(message: ListRulesetEventsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     for (const v of message.events) {
-      CoreRuleEvent.encode(v!, writer.uint32(10).fork()).join();
+      RulesetEvent.encode(v!, writer.uint32(10).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ListCoreRuleEventsResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): ListRulesetEventsResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -1830,7 +1830,7 @@ export const ListCoreRuleEventsResponse: MessageFns<ListCoreRuleEventsResponse> 
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseListCoreRuleEventsResponse();
+      const message = createBaseListRulesetEventsResponse();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -1839,7 +1839,7 @@ export const ListCoreRuleEventsResponse: MessageFns<ListCoreRuleEventsResponse> 
               break;
             }
 
-            message.events.push(CoreRuleEvent.decode(reader, reader.uint32()));
+            message.events.push(RulesetEvent.decode(reader, reader.uint32()));
             continue;
           }
         }
@@ -1854,26 +1854,26 @@ export const ListCoreRuleEventsResponse: MessageFns<ListCoreRuleEventsResponse> 
     }
   },
 
-  fromJSON(object: any): ListCoreRuleEventsResponse {
+  fromJSON(object: any): ListRulesetEventsResponse {
     return {
-      events: globalThis.Array.isArray(object?.events) ? object.events.map((e: any) => CoreRuleEvent.fromJSON(e)) : [],
+      events: globalThis.Array.isArray(object?.events) ? object.events.map((e: any) => RulesetEvent.fromJSON(e)) : [],
     };
   },
 
-  toJSON(message: ListCoreRuleEventsResponse): unknown {
+  toJSON(message: ListRulesetEventsResponse): unknown {
     const obj: any = {};
     if (message.events?.length) {
-      obj.events = message.events.map((e) => CoreRuleEvent.toJSON(e));
+      obj.events = message.events.map((e) => RulesetEvent.toJSON(e));
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ListCoreRuleEventsResponse>, I>>(base?: I): ListCoreRuleEventsResponse {
-    return ListCoreRuleEventsResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<ListRulesetEventsResponse>, I>>(base?: I): ListRulesetEventsResponse {
+    return ListRulesetEventsResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ListCoreRuleEventsResponse>, I>>(object: I): ListCoreRuleEventsResponse {
-    const message = createBaseListCoreRuleEventsResponse();
-    message.events = object.events?.map((e) => CoreRuleEvent.fromPartial(e)) || [];
+  fromPartial<I extends Exact<DeepPartial<ListRulesetEventsResponse>, I>>(object: I): ListRulesetEventsResponse {
+    const message = createBaseListRulesetEventsResponse();
+    message.events = object.events?.map((e) => RulesetEvent.fromPartial(e)) || [];
     return message;
   },
 };

@@ -19,12 +19,12 @@ import (
 	"io/fs"
 
 	"github.com/corazawaf/coraza/v3"
-	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 )
 
 // NewWAF builds a coraza.WAF from the CRS setting of a server.
-func NewWAF(version corerulesetpb.Version,
-	rootFs fs.FS, setting *corerulesetpb.CoreRuleset,
+func NewWAF(version rulesetpb.Version,
+	rootFs fs.FS, setting *rulesetpb.Ruleset,
 ) (coraza.WAF, error) {
 	rule, err := GenerateRulesets(version, setting)
 	if err != nil {

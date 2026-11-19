@@ -6,7 +6,7 @@ import {
   RuleOverride,
   RuleState,
   Version,
-} from '@sentinez/proto/sentinez/types/coreruleset/v1/setting';
+} from '@sentinez/proto/sentinez/types/ruleset/v1/setting';
 import { AndCondition, Expression } from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 import { CRS_RULE_ID_MAX, CRS_RULE_ID_MIN, CRS_UNSUPPORTED_SOURCES } from '@/lib/type/security';
@@ -36,7 +36,7 @@ export interface RuleOverrideFormValue {
   expr: Expression;
 }
 
-export interface CoreRulesetFormValue {
+export interface RulesetFormValue {
   name: string;
   description: string;
   status: Status;
@@ -95,7 +95,7 @@ export function createEmptyRuleOverride(): RuleOverrideFormValue {
   };
 }
 
-export function createEmptyCoreRulesetForm(): CoreRulesetFormValue {
+export function createEmptyRulesetForm(): RulesetFormValue {
   return {
     name: '',
     description: '',
@@ -124,8 +124,8 @@ const scopeOf = (expr?: Expression) => ({
 });
 
 /** Ruleset (API) -> form value */
-export function coreRulesetFormOf(r: Ruleset): CoreRulesetFormValue {
-  const c = r.coreRuleset;
+export function rulesetFormOf(r: Ruleset): RulesetFormValue {
+  const c = r.ruleset;
   return {
     name: r.name,
     description: r.description,
@@ -170,12 +170,12 @@ const ruleOverrideOf = (o: RuleOverrideFormValue): RuleOverride => ({
 });
 
 /** Form value -> Ruleset (API) */
-export function coreRulesetOf(f: CoreRulesetFormValue, id = ''): Ruleset {
+export function rulesetOf(f: RulesetFormValue, id = ''): Ruleset {
   return {
     id,
     name: f.name.trim(),
     description: f.description,
-    coreRuleset: {
+    ruleset: {
       mode: f.mode,
       version: f.version,
       paranoiaLevel: f.paranoiaLevel,
@@ -222,8 +222,8 @@ function validateRuleOverride(o: RuleOverrideFormValue, n: number, t: Validation
 }
 
 /** Returns an error message, or null when the form is valid */
-export function validateCoreRulesetForm(
-  f: CoreRulesetFormValue,
+export function validateRulesetForm(
+  f: RulesetFormValue,
   t: ValidationTranslator,
 ): string | null {
   if (!f.name.trim()) return t('nameRequired');

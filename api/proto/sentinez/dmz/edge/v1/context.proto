@@ -33,8 +33,8 @@ message Context {
 message ContextExtra {
   string namespace = 1;
 
-  repeated string sec_rule_matched_ids = 10;
-  repeated string sec_rule_matched_names = 11;
+  repeated string secrule_matched_ids = 10;
+  repeated string secrule_matched_names = 11;
   repeated string rulesets_matched_ids = 12;
   repeated string rulesets_matched_names = 13;
   repeated string rulesets_matched_severity = 14;

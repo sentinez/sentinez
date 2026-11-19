@@ -54,7 +54,7 @@ func Defaults() []dbx.Table {
 	return []dbx.Table{
 		sztable.SecuritySecRules,
 		sztable.SecurityRateLimits,
-		sztable.SecurityCoreRulesets,
+		sztable.SecurityRulesets,
 		sztable.TenantResources,
 		sztable.TenantCaCertificates,
 	}
@@ -114,7 +114,7 @@ var _openers = map[dbx.Table]opener{
 	sztable.SecurityRateLimits: openerOf(schema.SecurityRateLimits,
 		securitypb.RateLimitColumns, securitypb.ScanRateLimit,
 		securitypb.ScanOneRateLimit),
-	sztable.SecurityCoreRulesets: openerOf(schema.SecurityCoreRulesets,
+	sztable.SecurityRulesets: openerOf(schema.SecurityRulesets,
 		securitypb.RulesetColumns, securitypb.ScanRuleset,
 		securitypb.ScanOneRuleset),
 	sztable.TenantResources: openerOf(schema.TenantResources,

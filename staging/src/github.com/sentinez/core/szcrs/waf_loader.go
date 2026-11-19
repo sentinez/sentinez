@@ -21,7 +21,7 @@ import (
 	"github.com/sentinez/core/szmodsec/gen"
 	rulev4160 "github.com/sentinez/core/szmodsec/gen/v4-16-0"
 	rulev4170 "github.com/sentinez/core/szmodsec/gen/v4-17-0"
-	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 )
 
 // ErrUnsupportedVersion no rulesets are generated for the CRS version.
@@ -30,7 +30,7 @@ var ErrUnsupportedVersion = errors.New("unsupported core ruleset version")
 // ruleGroup a CRS rule file, loaded when its flag is enabled.
 type ruleGroup struct {
 	flag  Flag // 0 = always loaded
-	order []func() *corerulesetpb.CoreRule
+	order []func() *rulesetpb.Rule
 }
 
 // versionGroups rule files of a CRS version, in load order.
@@ -39,8 +39,8 @@ type versionGroups struct {
 	response []ruleGroup
 }
 
-var _versionGroups = map[corerulesetpb.Version]versionGroups{
-	corerulesetpb.Version_VERSION_V4_16_0: {
+var _versionGroups = map[rulesetpb.Version]versionGroups{
+	rulesetpb.Version_VERSION_V4_16_0: {
 		request: []ruleGroup{
 			{ReqCommonExceptions, rulev4160.Request905CommonExceptionsOrder},
 			{ReqMethodEnforcement, rulev4160.Request911MethodEnforcementOrder},
@@ -79,7 +79,7 @@ var _versionGroups = map[corerulesetpb.Version]versionGroups{
 			{0, rulev4160.Response980CorrelationOrder},
 		},
 	},
-	corerulesetpb.Version_VERSION_V4_17_0: {
+	rulesetpb.Version_VERSION_V4_17_0: {
 		request: []ruleGroup{
 			{ReqCommonExceptions, rulev4170.Request905CommonExceptionsOrder},
 			{ReqMethodEnforcement, rulev4170.Request911MethodEnforcementOrder},
@@ -124,7 +124,7 @@ var _versionGroups = map[corerulesetpb.Version]versionGroups{
 // directives) loaded into coraza. A setting that is not active, or with
 // the engine off, maps to a rule engine without any ruleset.
 func GenerateRulesets(
-	version corerulesetpb.Version, setting *corerulesetpb.CoreRuleset,
+	version rulesetpb.Version, setting *rulesetpb.Ruleset,
 ) (string, error) {
 	if !settingEnabled(setting) {
 		return "SecRuleEngine Off\n", nil
@@ -151,7 +151,7 @@ func GenerateRulesets(
 func loadRulesets(
 	rulesets *RulesetsLoader,
 	groups versionGroups,
-	setting *corerulesetpb.CoreRuleset,
+	setting *rulesetpb.Ruleset,
 ) {
 	flag := FlagOf(setting.GetCategories())
 

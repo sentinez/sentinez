@@ -21,8 +21,8 @@ import (
 	"strings"
 
 	crslang "github.com/coreruleset/crslang/types"
-	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
 
@@ -48,33 +48,33 @@ var (
 )
 
 // nolint:lll
-var _categoryFlags = map[corerulesetpb.Category]Flag{
-	corerulesetpb.Category_CATEGORY_COMMON_EXCEPTIONS:    ReqCommonExceptions,
-	corerulesetpb.Category_CATEGORY_METHOD_ENFORCEMENT:   ReqMethodEnforcement,
-	corerulesetpb.Category_CATEGORY_SCANNER_DETECTION:    ReqScannerDetection,
-	corerulesetpb.Category_CATEGORY_PROTOCOL_ENFORCEMENT: ReqProtocolEnforcement,
-	corerulesetpb.Category_CATEGORY_PROTOCOL_ATTACK:      ReqProtocolAttack,
-	corerulesetpb.Category_CATEGORY_MULTIPART_ATTACK:     ReqMultipartAttack,
-	corerulesetpb.Category_CATEGORY_LFI:                  ReqAppAttackLFI,
-	corerulesetpb.Category_CATEGORY_RFI:                  ReqAppAttackRFI,
-	corerulesetpb.Category_CATEGORY_RCE:                  ReqAppAttackRCE,
-	corerulesetpb.Category_CATEGORY_PHP:                  ReqAppAttackPHP,
-	corerulesetpb.Category_CATEGORY_GENERIC:              ReqAppAttackGeneric,
-	corerulesetpb.Category_CATEGORY_XSS:                  ReqAppAttackXSS,
-	corerulesetpb.Category_CATEGORY_SQLI:                 ReqAppAttackSQLI,
-	corerulesetpb.Category_CATEGORY_SESSION_FIXATION:     ReqAppAttackSessionFixation,
-	corerulesetpb.Category_CATEGORY_JAVA:                 ReqAppAttackJava,
-	corerulesetpb.Category_CATEGORY_DATA_LEAKAGES:        RespDataLeakages,
-	corerulesetpb.Category_CATEGORY_DATA_LEAKAGES_SQL:    RespDataLeakagesSQL,
-	corerulesetpb.Category_CATEGORY_DATA_LEAKAGES_JAVA:   RespDataLeakagesJava,
-	corerulesetpb.Category_CATEGORY_DATA_LEAKAGES_PHP:    RespDataLeakagesPHP,
-	corerulesetpb.Category_CATEGORY_DATA_LEAKAGES_IIS:    RespDataLeakagesIIS,
-	corerulesetpb.Category_CATEGORY_WEB_SHELLS:           RespWebShells,
-	corerulesetpb.Category_CATEGORY_DATA_LEAKAGES_RUBY:   RespDataLeakagesRuby,
+var _categoryFlags = map[rulesetpb.Category]Flag{
+	rulesetpb.Category_CATEGORY_COMMON_EXCEPTIONS:    ReqCommonExceptions,
+	rulesetpb.Category_CATEGORY_METHOD_ENFORCEMENT:   ReqMethodEnforcement,
+	rulesetpb.Category_CATEGORY_SCANNER_DETECTION:    ReqScannerDetection,
+	rulesetpb.Category_CATEGORY_PROTOCOL_ENFORCEMENT: ReqProtocolEnforcement,
+	rulesetpb.Category_CATEGORY_PROTOCOL_ATTACK:      ReqProtocolAttack,
+	rulesetpb.Category_CATEGORY_MULTIPART_ATTACK:     ReqMultipartAttack,
+	rulesetpb.Category_CATEGORY_LFI:                  ReqAppAttackLFI,
+	rulesetpb.Category_CATEGORY_RFI:                  ReqAppAttackRFI,
+	rulesetpb.Category_CATEGORY_RCE:                  ReqAppAttackRCE,
+	rulesetpb.Category_CATEGORY_PHP:                  ReqAppAttackPHP,
+	rulesetpb.Category_CATEGORY_GENERIC:              ReqAppAttackGeneric,
+	rulesetpb.Category_CATEGORY_XSS:                  ReqAppAttackXSS,
+	rulesetpb.Category_CATEGORY_SQLI:                 ReqAppAttackSQLI,
+	rulesetpb.Category_CATEGORY_SESSION_FIXATION:     ReqAppAttackSessionFixation,
+	rulesetpb.Category_CATEGORY_JAVA:                 ReqAppAttackJava,
+	rulesetpb.Category_CATEGORY_DATA_LEAKAGES:        RespDataLeakages,
+	rulesetpb.Category_CATEGORY_DATA_LEAKAGES_SQL:    RespDataLeakagesSQL,
+	rulesetpb.Category_CATEGORY_DATA_LEAKAGES_JAVA:   RespDataLeakagesJava,
+	rulesetpb.Category_CATEGORY_DATA_LEAKAGES_PHP:    RespDataLeakagesPHP,
+	rulesetpb.Category_CATEGORY_DATA_LEAKAGES_IIS:    RespDataLeakagesIIS,
+	rulesetpb.Category_CATEGORY_WEB_SHELLS:           RespWebShells,
+	rulesetpb.Category_CATEGORY_DATA_LEAKAGES_RUBY:   RespDataLeakagesRuby,
 }
 
 // FlagOf maps the enabled categories to rule group flags, empty = all.
-func FlagOf(categories []corerulesetpb.Category) Flag {
+func FlagOf(categories []rulesetpb.Category) Flag {
 	var flag Flag
 
 	for _, c := range categories {
@@ -89,14 +89,14 @@ func FlagOf(categories []corerulesetpb.Category) Flag {
 }
 
 // settingEnabled reports whether the setting turns the rule engine on.
-func settingEnabled(s *corerulesetpb.CoreRuleset) bool {
+func settingEnabled(s *rulesetpb.Ruleset) bool {
 	if s.GetStatus() != typepb.Status_STATUS_ACTIVE {
 		return false
 	}
 
 	switch s.GetMode() {
-	case corerulesetpb.EngineMode_ENGINE_MODE_ON,
-		corerulesetpb.EngineMode_ENGINE_MODE_DETECTION_ONLY:
+	case rulesetpb.EngineMode_ENGINE_MODE_ON,
+		rulesetpb.EngineMode_ENGINE_MODE_DETECTION_ONLY:
 		return true
 	}
 
@@ -104,16 +104,16 @@ func settingEnabled(s *corerulesetpb.CoreRuleset) bool {
 }
 
 // blockingLevel tx.blocking_paranoia_level, 0 = default (1).
-func blockingLevel(s *corerulesetpb.CoreRuleset) uint32 {
+func blockingLevel(s *rulesetpb.Ruleset) uint32 {
 	return max(s.GetParanoiaLevel(), 1)
 }
 
 // ruleStates global (not expression scoped) rule state overrides by rule
 // ID.
 func ruleStates(
-	s *corerulesetpb.CoreRuleset,
-) map[uint32]corerulesetpb.RuleState {
-	states := make(map[uint32]corerulesetpb.RuleState, len(s.GetOverrides()))
+	s *rulesetpb.Ruleset,
+) map[uint32]rulesetpb.RuleState {
+	states := make(map[uint32]rulesetpb.RuleState, len(s.GetOverrides()))
 
 	for _, o := range s.GetOverrides() {
 		if !hasExpr(o.GetExpr()) {
@@ -124,7 +124,7 @@ func ruleStates(
 	return states
 }
 
-func validateSetting(s *corerulesetpb.CoreRuleset) error {
+func validateSetting(s *rulesetpb.Ruleset) error {
 	if err := validateRequest(s.GetRequest()); err != nil {
 		return err
 	}
@@ -144,7 +144,7 @@ func validateSetting(s *corerulesetpb.CoreRuleset) error {
 	return nil
 }
 
-func validateRequest(r *corerulesetpb.RequestPolicy) error {
+func validateRequest(r *rulesetpb.RequestPolicy) error {
 	for _, m := range r.GetAllowedMethods() {
 		if !_methodRe.MatchString(m) {
 			return fmt.Errorf("%w: method %q", ErrInvalidSetting, m)
@@ -160,7 +160,7 @@ func validateRequest(r *corerulesetpb.RequestPolicy) error {
 	return nil
 }
 
-func validateExclusion(e *corerulesetpb.Exclusion) error {
+func validateExclusion(e *rulesetpb.Exclusion) error {
 	for _, tag := range e.GetTags() {
 		if !_tagRe.MatchString(tag) {
 			return fmt.Errorf("%w: tag %q", ErrInvalidSetting, tag)
@@ -182,14 +182,14 @@ func validateExclusion(e *corerulesetpb.Exclusion) error {
 
 // validateOverride only removing a rule can be scoped to an expression,
 // the other states rewrite the rule itself when the rulesets are loaded.
-func validateOverride(o *corerulesetpb.RuleOverride) error {
+func validateOverride(o *rulesetpb.RuleOverride) error {
 	if !hasExpr(o.GetExpr()) {
 		return nil
 	}
 
 	switch o.GetState() {
-	case corerulesetpb.RuleState_RULE_STATE_DETECTION_ONLY,
-		corerulesetpb.RuleState_RULE_STATE_ENABLED:
+	case rulesetpb.RuleState_RULE_STATE_DETECTION_ONLY,
+		rulesetpb.RuleState_RULE_STATE_ENABLED:
 		return fmt.Errorf(
 			"%w: rule %d state %s cannot be scoped to an expression",
 			ErrInvalidSetting, o.GetId(), o.GetState(),
@@ -204,11 +204,11 @@ func validateOverride(o *corerulesetpb.RuleOverride) error {
 // setupDirectives maps the setting to the directives overriding setup.conf
 // plus the exclusions and overrides scoped to an expression. They are
 // loaded after the setup rules and before REQUEST-901-INITIALIZATION.
-func setupDirectives(s *corerulesetpb.CoreRuleset) string {
+func setupDirectives(s *rulesetpb.Ruleset) string {
 	var sb strings.Builder
 
 	engine := "On"
-	if s.GetMode() == corerulesetpb.EngineMode_ENGINE_MODE_DETECTION_ONLY {
+	if s.GetMode() == rulesetpb.EngineMode_ENGINE_MODE_DETECTION_ONLY {
 		engine = "DetectionOnly"
 	}
 
@@ -223,7 +223,7 @@ func setupDirectives(s *corerulesetpb.CoreRuleset) string {
 	return sb.String()
 }
 
-func writeRequestPolicy(sb *strings.Builder, r *corerulesetpb.RequestPolicy) {
+func writeRequestPolicy(sb *strings.Builder, r *rulesetpb.RequestPolicy) {
 	if r == nil {
 		return
 	}
@@ -241,7 +241,7 @@ func writeRequestPolicy(sb *strings.Builder, r *corerulesetpb.RequestPolicy) {
 }
 
 // setupVars setvar actions overriding the CRS setup variables.
-func setupVars(s *corerulesetpb.CoreRuleset) []string {
+func setupVars(s *rulesetpb.Ruleset) []string {
 	level := blockingLevel(s)
 	vars := []string{
 		fmt.Sprintf("setvar:tx.blocking_paranoia_level=%d", level),
@@ -272,7 +272,7 @@ func setupVars(s *corerulesetpb.CoreRuleset) []string {
 }
 
 // thresholdVars 0 keeps the threshold of setup.conf.
-func thresholdVars(t *corerulesetpb.AnomalyThreshold) []string {
+func thresholdVars(t *rulesetpb.AnomalyThreshold) []string {
 	early := 0
 	if t.GetEarlyBlocking() {
 		early = 1
@@ -297,7 +297,7 @@ func thresholdVars(t *corerulesetpb.AnomalyThreshold) []string {
 
 // writeScopedRules exclusions and overrides scoped to an expression are
 // applied per transaction with ctl actions.
-func writeScopedRules(sb *strings.Builder, s *corerulesetpb.CoreRuleset) {
+func writeScopedRules(sb *strings.Builder, s *rulesetpb.Ruleset) {
 	id := _scopedRuleId
 
 	write := func(expr *rulepb.Expression, ctls []string) {
@@ -316,7 +316,7 @@ func writeScopedRules(sb *strings.Builder, s *corerulesetpb.CoreRuleset) {
 	}
 
 	for _, o := range s.GetOverrides() {
-		if o.GetState() != corerulesetpb.RuleState_RULE_STATE_DISABLED {
+		if o.GetState() != rulesetpb.RuleState_RULE_STATE_DISABLED {
 			continue
 		}
 
@@ -404,7 +404,7 @@ func hasExpr(expr *rulepb.Expression) bool {
 }
 
 // exclusionCtls parameters of the ctl actions applying the exclusion.
-func exclusionCtls(e *corerulesetpb.Exclusion) []string {
+func exclusionCtls(e *rulesetpb.Exclusion) []string {
 	ctls := make([]string, 0, len(e.GetTags())+len(e.GetTargets()))
 
 	for _, tag := range e.GetTags() {
@@ -425,7 +425,7 @@ func exclusionCtls(e *corerulesetpb.Exclusion) []string {
 // defined, so they are loaded after every ruleset; loaded reports whether
 // a rule ID is part of the loaded rulesets.
 func globalDirectives(
-	s *corerulesetpb.CoreRuleset, loaded func(id uint32) bool,
+	s *rulesetpb.Ruleset, loaded func(id uint32) bool,
 ) string {
 	var sb strings.Builder
 
@@ -452,7 +452,7 @@ func globalDirectives(
 
 	for _, o := range s.GetOverrides() {
 		if !hasExpr(o.GetExpr()) &&
-			o.GetState() == corerulesetpb.RuleState_RULE_STATE_DISABLED {
+			o.GetState() == rulesetpb.RuleState_RULE_STATE_DISABLED {
 			fmt.Fprintf(&sb, "SecRuleRemoveById %d\n", o.GetId())
 		}
 	}

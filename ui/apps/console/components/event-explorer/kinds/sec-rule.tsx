@@ -28,7 +28,7 @@ export type SecRuleKind = 'secRule' | 'rateLimit';
 
 const KINDS = {
   secRule: {
-    kind: EventKind.EVENT_KIND_SEC_RULE,
+    kind: EventKind.EVENT_KIND_SECRULE,
     list: async (req: ListRequest, options?: ApiOptions) =>
       (await listSecRuleEvents(req, options)).events,
     // the security page of the matched rules

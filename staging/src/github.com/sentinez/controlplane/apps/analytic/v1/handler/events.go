@@ -87,16 +87,16 @@ func (hdl *AnalyticHandler) ListRateLimitEvents(ctx context.Context,
 	return hdl.service.ListRateLimitEvents(ctx, req)
 }
 
-// ListCoreRuleEvents implements pb.AnalyticServiceServer.
-func (hdl *AnalyticHandler) ListCoreRuleEvents(ctx context.Context,
-	req *pb.ListCoreRuleEventsRequest,
-) (*pb.ListCoreRuleEventsResponse, error) {
+// ListRulesetEvents implements pb.AnalyticServiceServer.
+func (hdl *AnalyticHandler) ListRulesetEvents(ctx context.Context,
+	req *pb.ListRulesetEventsRequest,
+) (*pb.ListRulesetEventsResponse, error) {
 	req, ok, err := authz.Scoped(ctx, hdl.authz, req)
 	if err != nil || !ok {
-		return &pb.ListCoreRuleEventsResponse{}, err
+		return &pb.ListRulesetEventsResponse{}, err
 	}
 
-	return hdl.service.ListCoreRuleEvents(ctx, req)
+	return hdl.service.ListRulesetEvents(ctx, req)
 }
 
 // GetEventHistogram implements pb.AnalyticServiceServer.

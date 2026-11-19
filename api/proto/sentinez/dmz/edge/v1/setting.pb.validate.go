@@ -676,23 +676,23 @@ func (m *Security) Validate() error {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetCoreRuleset()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetRuleset()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return SecurityValidationError{
-				field:  "CoreRuleset",
+				field:  "Ruleset",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
 		}
 	}
 
-	for idx, item := range m.GetSecRules() {
+	for idx, item := range m.GetSecrules() {
 		_, _ = idx, item
 
 		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return SecurityValidationError{
-					field:  fmt.Sprintf("SecRules[%v]", idx),
+					field:  fmt.Sprintf("Secrules[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
 				}

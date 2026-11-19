@@ -38,7 +38,7 @@ import {
   UpdateSecRuleRequest,
   UpdateSecRuleResponse,
 } from '@sentinez/proto/sentinez/apps/security/v1/security';
-import { RuleInfo } from '@sentinez/proto/sentinez/types/coreruleset/v1/setting';
+import { RuleInfo } from '@sentinez/proto/sentinez/types/ruleset/v1/setting';
 import {
   ActionType,
   FieldSource,
@@ -304,7 +304,7 @@ export const SAMPLE_RULESETS: Ruleset[] = [
     id: 'sample-ruleset-1',
     name: 'Default protection',
     description: 'Sample: blocking, paranoia level 1, every rule group',
-    coreRuleset: {
+    ruleset: {
       mode: 'ENGINE_MODE_ON',
       version: 'VERSION_V4_17_0',
       paranoiaLevel: 1,
@@ -317,7 +317,7 @@ export const SAMPLE_RULESETS: Ruleset[] = [
     id: 'sample-ruleset-2',
     name: 'Strict API',
     description: 'Sample: paranoia level 3, SQLi/XSS/RCE only, tuned exclusions and overrides',
-    coreRuleset: {
+    ruleset: {
       mode: 'ENGINE_MODE_ON',
       version: 'VERSION_V4_17_0',
       paranoiaLevel: 3,
@@ -345,7 +345,7 @@ export const SAMPLE_RULESETS: Ruleset[] = [
     id: 'sample-ruleset-3',
     name: 'Staging (detection only)',
     description: 'Sample: logs matches without blocking, disabled',
-    coreRuleset: {
+    ruleset: {
       mode: 'ENGINE_MODE_DETECTION_ONLY',
       version: 'VERSION_V4_16_0',
       paranoiaLevel: 2,
@@ -438,10 +438,10 @@ const filterRulesets = (req: Partial<ListRulesetsRequest>) =>
   byResources(byIds(sampleRulesetStore, req.ids), req.resourceIds).filter(
     (r) =>
       includesText(r.name, req.name) &&
-      anyOf(req.modes, r.coreRuleset?.mode) &&
-      anyOf(req.versions, r.coreRuleset?.version) &&
-      anyOf(req.statuses, r.coreRuleset?.status) &&
-      (!req.paranoiaLevel || r.coreRuleset?.paranoiaLevel === req.paranoiaLevel),
+      anyOf(req.modes, r.ruleset?.mode) &&
+      anyOf(req.versions, r.ruleset?.version) &&
+      anyOf(req.statuses, r.ruleset?.status) &&
+      (!req.paranoiaLevel || r.ruleset?.paranoiaLevel === req.paranoiaLevel),
   );
 
 const filterCRSRuleInfos = (req: Partial<ListCRSRuleInfosRequest>) =>
@@ -499,7 +499,7 @@ export async function listSecRules(
 ): Promise<ListSecRulesResponse> {
   return withFallback('listSecRules', () => {
     const list = byResources(byIds(sampleStore, req.ids), req.resourceIds);
-    return { secRules: paginate(list, req.page), total: list.length };
+    return { secrules: paginate(list, req.page), total: list.length };
   })(async () => {
     const resp = await axios.get(`${API_BASE_PATH}/security/secrules`, {
       params: toQuery(ListSecRulesRequest.toJSON(ListSecRulesRequest.fromPartial(req))),
@@ -517,7 +517,7 @@ export async function getSecRule(
   options?: ApiOptions,
 ): Promise<GetSecRuleResponse> {
   return withFallback<GetSecRuleResponse>('getSecRule', () => ({
-    secRule: sampleStore.find((r) => r.id === req.id) ?? sampleStore[0],
+    secrule: sampleStore.find((r) => r.id === req.id) ?? sampleStore[0],
   }))(async () => {
     const endpoint = `${API_BASE_PATH}/security/secrule/${encodeURIComponent(req.id)}`;
     const resp = await axios.get(endpoint, { signal: options?.signal });
@@ -532,7 +532,7 @@ export async function createSecRule(
 ): Promise<CreateSecRuleResponse> {
   return withFallback('createSecRule', () => {
     const id = `sample-rule-${Date.now()}`;
-    sampleStore = [...sampleStore, SecRule.fromPartial({ ...req.secRule, id })];
+    sampleStore = [...sampleStore, SecRule.fromPartial({ ...req.secrule, id })];
     return { id };
   })(async () => {
     const resp = await axios.post(
@@ -552,9 +552,9 @@ export async function updateSecRule(
   return withFallback<UpdateSecRuleResponse>('updateSecRule', () => {
     // The owner of a row never changes
     const owner = sampleStore.find((r) => r.id === req.id)?.owner;
-    const next = SecRule.fromPartial({ ...req.secRule, id: req.id, owner });
+    const next = SecRule.fromPartial({ ...req.secrule, id: req.id, owner });
     sampleStore = sampleStore.map((r) => (r.id === req.id ? next : r));
-    return { secRule: next };
+    return { secrule: next };
   })(async () => {
     const resp = await axios.put(
       `${API_BASE_PATH}/security/secrule/${encodeURIComponent(req.id)}`,

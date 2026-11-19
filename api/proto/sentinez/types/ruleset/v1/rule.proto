@@ -14,17 +14,17 @@
 
 syntax = "proto3";
 
-package sentinez.types.coreruleset.v1;
+package sentinez.types.ruleset.v1;
 
-option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1;corerulesetpb";
+option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1;rulesetpb";
 
-message CoreRulesets {
+message Rulesets {
   string name = 1;
-  repeated CoreRule rules = 2;
+  repeated Rule rules = 2;
   string version = 3;
 }
 
-message CoreRule {
+message Rule {
   RuleAction actions = 1;
   string configuration = 2;
   string level = 3;

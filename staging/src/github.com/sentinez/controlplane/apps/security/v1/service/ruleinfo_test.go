@@ -20,7 +20,7 @@ import (
 	"testing"
 
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
-	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -47,7 +47,7 @@ func listRuleIds(t *testing.T, req *listRules) ([]uint32, int64) {
 
 // nolint:funlen
 func TestListCRSRuleInfos(t *testing.T) {
-	sqli := []corerulesetpb.Category{corerulesetpb.Category_CATEGORY_SQLI}
+	sqli := []rulesetpb.Category{rulesetpb.Category_CATEGORY_SQLI}
 
 	tests := []struct {
 		name      string
@@ -119,9 +119,9 @@ func TestListCRSRuleInfos(t *testing.T) {
 		{
 			name: "version",
 			give: &listRules{
-				Version: corerulesetpb.Version_VERSION_V4_16_0,
-				Categories: []corerulesetpb.Category{
-					corerulesetpb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
+				Version: rulesetpb.Version_VERSION_V4_16_0,
+				Categories: []rulesetpb.Category{
+					rulesetpb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
 				},
 			},
 			wantIds: []uint32{},
@@ -229,7 +229,7 @@ func TestGetCRSRuleInfo(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, uint32(942100), resp.GetRule().GetId())
 	assert.Equal(t,
-		corerulesetpb.Category_CATEGORY_SQLI, resp.GetRule().GetCategory())
+		rulesetpb.Category_CATEGORY_SQLI, resp.GetRule().GetCategory())
 	assert.Contains(t, resp.GetRule().GetTags(), "attack-sqli")
 
 	_, err = srv.GetCRSRuleInfo(context.Background(),

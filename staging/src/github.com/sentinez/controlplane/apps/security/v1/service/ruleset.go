@@ -38,7 +38,7 @@ func (srv *SecurityService) mapRuleset(_ context.Context,
 		Id:          dbRuleset.GetId(),
 		Name:        dbRuleset.GetName(),
 		Description: dbRuleset.GetDescription(),
-		CoreRuleset: dbRuleset.GetCoreRuleset(),
+		Ruleset:     dbRuleset.GetRuleset(),
 		Owner:       dbRuleset.GetOwner(),
 	}
 }
@@ -71,7 +71,7 @@ func (srv *SecurityService) CreateRuleset(ctx context.Context,
 func (srv *SecurityService) GetRuleset(ctx context.Context,
 	req *securitypb.GetRulesetRequest,
 ) (*securitypb.GetRulesetResponse, error) {
-	dbRuleset, err := owned(ctx, srv, srv.rulesetRepo.Get, "core ruleset",
+	dbRuleset, err := owned(ctx, srv, srv.rulesetRepo.Get, "ruleset",
 		req.GetId(), authz.Read)
 	if err != nil {
 		return nil, err
@@ -82,10 +82,10 @@ func (srv *SecurityService) GetRuleset(ctx context.Context,
 	}, nil
 }
 
-// _coreRulesetUpdatable the fields of a core ruleset an update writes.
-var _coreRulesetUpdatable = []string{
+// _rulesetUpdatable the fields of a ruleset an update writes.
+var _rulesetUpdatable = []string{
 	securitypb.Ruleset_Name, securitypb.Ruleset_Description,
-	securitypb.Ruleset_CoreRuleset,
+	securitypb.Ruleset_Ruleset,
 }
 
 // UpdateRuleset updates the fields of an OWASP CRS configuration its
@@ -98,7 +98,7 @@ func (srv *SecurityService) UpdateRuleset(ctx context.Context,
 			"ruleset is required")
 	}
 
-	dbRuleset, err := owned(ctx, srv, srv.rulesetRepo.Get, "core ruleset",
+	dbRuleset, err := owned(ctx, srv, srv.rulesetRepo.Get, "ruleset",
 		req.GetId(), authz.Write)
 	if err != nil {
 		return nil, err
@@ -106,7 +106,7 @@ func (srv *SecurityService) UpdateRuleset(ctx context.Context,
 
 	before := proto.CloneOf(dbRuleset)
 	paths, err := szprotobuf.ApplyMask(dbRuleset, req.GetRuleset(),
-		req.GetUpdateMask(), _coreRulesetUpdatable...)
+		req.GetUpdateMask(), _rulesetUpdatable...)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +129,7 @@ func (srv *SecurityService) UpdateRuleset(ctx context.Context,
 func (srv *SecurityService) DeleteRuleset(ctx context.Context,
 	req *securitypb.DeleteRulesetRequest,
 ) (*securitypb.DeleteRulesetResponse, error) {
-	_, err := owned(ctx, srv, srv.rulesetRepo.Get, "core ruleset",
+	_, err := owned(ctx, srv, srv.rulesetRepo.Get, "ruleset",
 		req.GetId(), authz.Write)
 	if err != nil {
 		return nil, err
@@ -171,8 +171,8 @@ func validateRuleset(crs *securitypb.Ruleset) error {
 	if crs == nil {
 		return szerror.StatusInvalidArgumentF("ruleset is required")
 	}
-	if crs.GetCoreRuleset() == nil {
-		return szerror.StatusInvalidArgumentF("core_ruleset is required")
+	if crs.GetRuleset() == nil {
+		return szerror.StatusInvalidArgumentF("ruleset.ruleset is required")
 	}
 	return nil
 }

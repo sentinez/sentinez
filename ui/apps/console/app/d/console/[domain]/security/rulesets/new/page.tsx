@@ -5,12 +5,12 @@ import { useTranslations } from 'next-intl';
 import { Button } from '@sentinez/ui/components/button';
 import { toast } from '@/lib/toast';
 import {
-  CoreRulesetFields,
+  RulesetFields,
   CrsNotice,
-  CoreRulesetFormValue,
-  coreRulesetOf,
-  createEmptyCoreRulesetForm,
-  validateCoreRulesetForm,
+  RulesetFormValue,
+  rulesetOf,
+  createEmptyRulesetForm,
+  validateRulesetForm,
 } from '../../components';
 import { createRuleset } from '@/lib/api/security';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
@@ -25,11 +25,11 @@ export default function CreateRulesetPage() {
   const [saving, setSaving] = useState(false);
   // The new row belongs to the resource of this domain
   const { resourceId, tenantId } = useResourceId();
-  const [form, setForm] = useState<CoreRulesetFormValue>(createEmptyCoreRulesetForm);
-  const patchForm = (patch: Partial<CoreRulesetFormValue>) => setForm((f) => ({ ...f, ...patch }));
+  const [form, setForm] = useState<RulesetFormValue>(createEmptyRulesetForm);
+  const patchForm = (patch: Partial<RulesetFormValue>) => setForm((f) => ({ ...f, ...patch }));
 
   const handleCreate = async () => {
-    const error = validateCoreRulesetForm(form, tv);
+    const error = validateRulesetForm(form, tv);
     if (error) {
       toast.error(error);
       return;
@@ -38,7 +38,7 @@ export default function CreateRulesetPage() {
     setSaving(true);
     try {
       await createRuleset({
-        ruleset: { ...coreRulesetOf(form), owner: { resourceId, tenantId } },
+        ruleset: { ...rulesetOf(form), owner: { resourceId, tenantId } },
       });
       toast.success(t('created'));
       router.back();
@@ -63,7 +63,7 @@ export default function CreateRulesetPage() {
       </PageLayoutHeader>
       <PageLayoutContent size="sm">
         <CrsNotice />
-        <CoreRulesetFields value={form} onChange={patchForm} idPrefix="create" />
+        <RulesetFields value={form} onChange={patchForm} idPrefix="create" />
       </PageLayoutContent>
     </PageLayout>
   );

@@ -17,7 +17,7 @@ import (
 
 	"google.golang.org/protobuf/types/known/anypb"
 
-	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 )
 
 // ensure the imports are used
@@ -34,11 +34,11 @@ var (
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
 
-	_ = corerulesetpb.Version(0)
+	_ = rulesetpb.Version(0)
 
-	_ = corerulesetpb.Version(0)
+	_ = rulesetpb.Version(0)
 
-	_ = corerulesetpb.Version(0)
+	_ = rulesetpb.Version(0)
 )
 
 // Validate checks the field values on CreateSecRuleRequest with the rules
@@ -49,10 +49,10 @@ func (m *CreateSecRuleRequest) Validate() error {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetSecRule()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetSecrule()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return CreateSecRuleRequestValidationError{
-				field:  "SecRule",
+				field:  "Secrule",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -264,10 +264,10 @@ func (m *GetSecRuleResponse) Validate() error {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetSecRule()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetSecrule()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return GetSecRuleResponseValidationError{
-				field:  "SecRule",
+				field:  "Secrule",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -343,10 +343,10 @@ func (m *UpdateSecRuleRequest) Validate() error {
 
 	// no validation rules for Id
 
-	if v, ok := interface{}(m.GetSecRule()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetSecrule()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UpdateSecRuleRequestValidationError{
-				field:  "SecRule",
+				field:  "Secrule",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -430,10 +430,10 @@ func (m *UpdateSecRuleResponse) Validate() error {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetSecRule()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetSecrule()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UpdateSecRuleResponseValidationError{
-				field:  "SecRule",
+				field:  "Secrule",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -720,13 +720,13 @@ func (m *ListSecRulesResponse) Validate() error {
 		return nil
 	}
 
-	for idx, item := range m.GetSecRules() {
+	for idx, item := range m.GetSecrules() {
 		_, _ = idx, item
 
 		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListSecRulesResponseValidationError{
-					field:  fmt.Sprintf("SecRules[%v]", idx),
+					field:  fmt.Sprintf("Secrules[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
 				}

@@ -7,7 +7,7 @@ import { Button } from '@sentinez/ui/components/button';
 import { Input } from '@sentinez/ui/components/input';
 import { Label } from '@sentinez/ui/components/label';
 import { Switch } from '@sentinez/ui/components/switch';
-import { Version } from '@sentinez/proto/sentinez/types/coreruleset/v1/setting';
+import { Version } from '@sentinez/proto/sentinez/types/ruleset/v1/setting';
 import { Expression } from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import { useSecurityOptions } from '@/hooks/use-security-options';
 import { CRS_RULE_ID_MAX, CRS_RULE_ID_MIN } from '@/lib/type/security';
@@ -21,7 +21,7 @@ import {
   isCrsRuleId,
   splitList,
   toggleTag,
-} from './core-ruleset-form';
+} from './ruleset-form';
 import { QueryBuilder, QueryBuilderEditor } from './query-builder';
 import { RuleCatalog, RulePicker } from './rule-picker';
 import { OptionSelect } from './sec-rule-fields';
@@ -66,7 +66,7 @@ function RuleIdField({
   catalog: RuleCatalog;
   version: Version;
 }) {
-  const t = useTranslations('CoreRulesetFields');
+  const t = useTranslations('RulesetFields');
   const [picking, setPicking] = useState(false);
   const info = catalog.infos.get(value);
   const unknown = !info && catalog.ready && isCrsRuleId(value);
@@ -122,7 +122,7 @@ function TagsField({
   onChange: (tags: string) => void;
   version: Version;
 }) {
-  const t = useTranslations('CoreRulesetFields');
+  const t = useTranslations('RulesetFields');
   const [picking, setPicking] = useState(false);
 
   return (
@@ -166,7 +166,7 @@ function ScopeField({
   expr: Expression;
   onChange: (patch: { scoped?: boolean; expr?: Expression }) => void;
 }) {
-  const t = useTranslations('CoreRulesetFields');
+  const t = useTranslations('RulesetFields');
   return (
     <div className="grid gap-2">
       <SwitchField
@@ -234,7 +234,7 @@ function ExclusionTargets({
   version,
   idPrefix,
 }: ListProps<ExclusionTargetFormValue>) {
-  const t = useTranslations('CoreRulesetFields');
+  const t = useTranslations('RulesetFields');
   const tc = useTranslations('Common');
   return (
     <div className="grid gap-2">
@@ -286,7 +286,7 @@ function ExclusionTargets({
   );
 }
 
-/** Editor for CoreRuleset.exclusions */
+/** Editor for Ruleset.exclusions */
 export function ExclusionsEditor({
   value,
   onChange,
@@ -294,7 +294,7 @@ export function ExclusionsEditor({
   version,
   idPrefix,
 }: ListProps<ExclusionFormValue>) {
-  const t = useTranslations('CoreRulesetFields');
+  const t = useTranslations('RulesetFields');
   return (
     <div className="grid gap-4">
       {value.length === 0 && <p className="text-sm text-muted-foreground">{t('noExclusions')}</p>}
@@ -340,7 +340,7 @@ export function ExclusionsEditor({
   );
 }
 
-/** Editor for CoreRuleset.overrides */
+/** Editor for Ruleset.overrides */
 export function OverridesEditor({
   value,
   onChange,
@@ -348,7 +348,7 @@ export function OverridesEditor({
   version,
   idPrefix,
 }: ListProps<RuleOverrideFormValue>) {
-  const t = useTranslations('CoreRulesetFields');
+  const t = useTranslations('RulesetFields');
   const { ruleStateOptions } = useSecurityOptions();
   return (
     <div className="grid gap-4">

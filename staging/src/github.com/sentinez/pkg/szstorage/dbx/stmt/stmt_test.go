@@ -44,11 +44,11 @@ func createIndexTests() []createIndexTest {
 	return []createIndexTest{
 		{
 			name:      "gin",
-			giveTable: "dev_sentinez_security_coreruleset",
+			giveTable: "dev_sentinez_security_ruleset",
 			give:      dbx.Index{Column: "content", Method: "GIN"},
 			want: "CREATE INDEX IF NOT EXISTS " +
-				"dev_sentinez_security_coreruleset_content_gin_idx " +
-				"ON dev_sentinez_security_coreruleset USING GIN (content)",
+				"dev_sentinez_security_ruleset_content_gin_idx " +
+				"ON dev_sentinez_security_ruleset USING GIN (content)",
 		},
 		{
 			name:      "btree",

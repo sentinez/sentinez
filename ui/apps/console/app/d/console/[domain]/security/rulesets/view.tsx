@@ -46,7 +46,7 @@ import { useTranslations } from 'next-intl';
 import { listRulesets, type Pages, deleteRuleset } from '@/lib/api/security';
 import BadgeStatus from '@/components/badge-status';
 import { Ruleset } from '@sentinez/proto/sentinez/apps/security/v1/model';
-import { EngineMode } from '@sentinez/proto/sentinez/types/coreruleset/v1/setting';
+import { EngineMode } from '@sentinez/proto/sentinez/types/ruleset/v1/setting';
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 import { ENGINE_MODE_BADGE_VARIANT, statusLabel } from '@/lib/type/security';
 import { TablePagination } from '@/components/table-pagination';
@@ -105,12 +105,12 @@ export const getColumns = (
   },
   {
     id: 'mode',
-    accessorFn: (r) => r.coreRuleset?.mode,
+    accessorFn: (r) => r.ruleset?.mode,
     size: 150,
     meta: { label: t('mode') },
     header: () => <div>{t('mode')}</div>,
     cell: ({ row }) => {
-      const mode = row.original.coreRuleset?.mode ?? EngineMode.ENGINE_MODE_UNSPECIFIED;
+      const mode = row.original.ruleset?.mode ?? EngineMode.ENGINE_MODE_UNSPECIFIED;
       return (
         <Badge variant={ENGINE_MODE_BADGE_VARIANT[mode]}>{options.engineModeLabel(mode)}</Badge>
       );
@@ -118,36 +118,36 @@ export const getColumns = (
   },
   {
     id: 'version',
-    accessorFn: (r) => r.coreRuleset?.version,
+    accessorFn: (r) => r.ruleset?.version,
     size: 150,
     meta: { label: t('version') },
     header: () => <div>{t('version')}</div>,
     cell: ({ row }) => (
       <div className="truncate tabular-nums">
-        {options.crsVersionLabel(row.original.coreRuleset?.version)}
+        {options.crsVersionLabel(row.original.ruleset?.version)}
       </div>
     ),
   },
   {
     id: 'paranoiaLevel',
-    accessorFn: (r) => r.coreRuleset?.paranoiaLevel,
+    accessorFn: (r) => r.ruleset?.paranoiaLevel,
     size: 110,
     meta: { label: t('paranoiaLevel') },
     header: () => <div>{t('paranoiaLevel')}</div>,
     cell: ({ row }) => (
       <div className="truncate tabular-nums">
-        {row.original.coreRuleset?.paranoiaLevel || t('paranoiaDefault')}
+        {row.original.ruleset?.paranoiaLevel || t('paranoiaDefault')}
       </div>
     ),
   },
   {
     id: 'ruleGroups',
-    accessorFn: (r) => r.coreRuleset?.categories.length,
+    accessorFn: (r) => r.ruleset?.categories.length,
     size: 120,
     meta: { label: t('ruleGroups') },
     header: () => <div>{t('ruleGroups')}</div>,
     cell: ({ row }) => {
-      const count = row.original.coreRuleset?.categories.length ?? 0;
+      const count = row.original.ruleset?.categories.length ?? 0;
       return (
         <div className="truncate tabular-nums">
           {count ? t('groupsCount', { count }) : t('allGroups')}
@@ -157,12 +157,12 @@ export const getColumns = (
   },
   {
     id: 'status',
-    accessorFn: (r) => r.coreRuleset?.status,
+    accessorFn: (r) => r.ruleset?.status,
     size: 120,
     meta: { label: t('status') },
     header: () => <div>{t('status')}</div>,
     cell: ({ row }) => {
-      const s = statusLabel(row.original.coreRuleset?.status);
+      const s = statusLabel(row.original.ruleset?.status);
       return (
         <div className="capitalize">
           <BadgeStatus status={s} value={s} />

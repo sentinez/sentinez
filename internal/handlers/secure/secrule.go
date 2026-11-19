@@ -60,7 +60,7 @@ func (sr *SecRule) Provision(env *envplugin.Env) error {
 
 	sr.pow = challenge
 	sr.store = env.Store().SecRule()
-	sr.log = env.Logger(typepb.LogType_LOG_TYPE_SEC_RULE)
+	sr.log = env.Logger(typepb.LogType_LOG_TYPE_SECRULE)
 	return nil
 }
 
@@ -118,7 +118,7 @@ func (sr *SecRule) logMatched(
 	ctx szhttp.Context, action *rulepb.Action, mr *rulepb.MatchedRules,
 ) {
 	event := newSecRuleEvent(ctx,
-		rulepb.RuleService_RULE_SERVICE_SEC_RULE, action, mr)
+		rulepb.RuleService_RULE_SERVICE_SECRULE, action, mr)
 	event.Tags = maps.Clone(ctx.X().GetTags())
 
 	// Info releases the event back to the pool.

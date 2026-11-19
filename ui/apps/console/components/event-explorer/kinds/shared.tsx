@@ -106,7 +106,7 @@ export function RuleLinks({ ids, href }: { ids: string[]; href: (id: string) => 
 }
 
 // RuleRequest the fields of the request a rule event (SecRuleEvent,
-// CoreRuleEvent) carries
+// RulesetEvent) carries
 export type RuleRequest = {
   requestId: string;
   requestIp: string;

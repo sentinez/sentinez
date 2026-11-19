@@ -25,16 +25,16 @@ import (
 	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
-	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
-// The core_ruleset column holds the proto JSON of the CRS setting: fields by
+// The ruleset column holds the proto JSON of the CRS setting: fields by
 // their proto name, enums by their value name. The list filters rely on
 // this encoding.
-var _marshalCoreRuleset = protojson.MarshalOptions{UseProtoNames: true}
+var _marshalRuleset = protojson.MarshalOptions{UseProtoNames: true}
 
 // nolint
 type IRuleset interface {
@@ -55,7 +55,7 @@ func New(
 	ctx context.Context, appConf *settingpb.Config,
 ) (IRuleset, error) {
 	storage, err := postgres.New[securitypb.Ruleset](ctx, appConf,
-		schema.SecurityCoreRulesets())
+		schema.SecurityRulesets())
 	if err != nil {
 		return nil, err
 	}
@@ -179,7 +179,7 @@ func (r *Ruleset) Update(ctx context.Context,
 
 // rulesetRow the stored columns of model.
 func rulesetRow(model *securitypb.Ruleset) (postgres.M, error) {
-	crsJSON, err := marshalCoreRuleset(model.GetCoreRuleset())
+	crsJSON, err := marshalRuleset(model.GetRuleset())
 	if err != nil {
 		return nil, err
 	}
@@ -190,7 +190,7 @@ func rulesetRow(model *securitypb.Ruleset) (postgres.M, error) {
 		securitypb.Ruleset_Id:              model.GetId(),
 		securitypb.Ruleset_Name:            model.GetName(),
 		securitypb.Ruleset_Description:     model.GetDescription(),
-		securitypb.Ruleset_CoreRuleset:     crsJSON,
+		securitypb.Ruleset_Ruleset:         crsJSON,
 		securitypb.Ruleset_OwnerResourceId: owner.GetResourceId(),
 		securitypb.Ruleset_OwnerTenantId:   owner.GetTenantId(),
 	}, nil
@@ -201,14 +201,14 @@ func (r *Ruleset) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 		securitypb.RulesetColumns()...)
 }
 
-// marshalCoreRuleset a nil setting is stored as an empty object,
-// so the core_ruleset filters never meet a NULL.
-func marshalCoreRuleset(setting *corerulesetpb.CoreRuleset) (string, error) {
+// marshalRuleset a nil setting is stored as an empty object,
+// so the ruleset filters never meet a NULL.
+func marshalRuleset(setting *rulesetpb.Ruleset) (string, error) {
 	if setting == nil {
 		return "{}", nil
 	}
 
-	data, err := _marshalCoreRuleset.Marshal(setting)
+	data, err := _marshalRuleset.Marshal(setting)
 	if err != nil {
 		return "", err
 	}

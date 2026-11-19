@@ -19,15 +19,15 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
-	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
 
 // _likeEscaper escapes the wildcards of a LIKE pattern.
 var _likeEscaper = strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`)
 
-// crs a partial setting, the core_ruleset of a matching row contains it.
-type crs = corerulesetpb.CoreRuleset
+// crs a partial setting, the ruleset of a matching row contains it.
+type crs = rulesetpb.Ruleset
 
 // listConditions maps the filters of the request to WHERE conditions,
 // all of them must match.
@@ -51,7 +51,7 @@ func listConditions(
 		})
 	}
 
-	for _, alternatives := range coreRulesetFilters(req) {
+	for _, alternatives := range rulesetFilters(req) {
 		cond, err := containsAny(alternatives)
 		if err != nil {
 			return nil, err
@@ -65,14 +65,14 @@ func listConditions(
 	return conds, nil
 }
 
-// coreRulesetFilters the filters on the fields of core_ruleset, each as the
+// rulesetFilters the filters on the fields of ruleset, each as the
 // partial settings a row has to contain one of.
-func coreRulesetFilters(req *securitypb.ListRulesetsRequest) [][]*crs {
+func rulesetFilters(req *securitypb.ListRulesetsRequest) [][]*crs {
 	filters := [][]*crs{
-		partials(req.GetModes(), func(v corerulesetpb.EngineMode) *crs {
+		partials(req.GetModes(), func(v rulesetpb.EngineMode) *crs {
 			return &crs{Mode: v}
 		}),
-		partials(req.GetVersions(), func(v corerulesetpb.Version) *crs {
+		partials(req.GetVersions(), func(v rulesetpb.Version) *crs {
 			return &crs{Version: v}
 		}),
 		partials(req.GetStatuses(), statusPartial),
@@ -107,22 +107,22 @@ func statusPartial(v typepb.Status) *crs {
 }
 
 func exclusionTagPartial(tag string) *crs {
-	return &crs{Exclusions: []*corerulesetpb.Exclusion{
+	return &crs{Exclusions: []*rulesetpb.Exclusion{
 		{Tags: []string{tag}},
 	}}
 }
 
 func exclusionRulePartial(id uint32) *crs {
-	return &crs{Exclusions: []*corerulesetpb.Exclusion{
-		{Targets: []*corerulesetpb.ExclusionTarget{{RuleId: id}}},
+	return &crs{Exclusions: []*rulesetpb.Exclusion{
+		{Targets: []*rulesetpb.ExclusionTarget{{RuleId: id}}},
 	}}
 }
 
 func overrideRulePartial(id uint32) *crs {
-	return &crs{Overrides: []*corerulesetpb.RuleOverride{{Id: id}}}
+	return &crs{Overrides: []*rulesetpb.RuleOverride{{Id: id}}}
 }
 
-// containsAny the core_ruleset contains one of the partial settings (JSONB
+// containsAny the ruleset contains one of the partial settings (JSONB
 // containment), nil = no condition.
 func containsAny(alternatives []*crs) (sq.Sqlizer, error) {
 	if len(alternatives) == 0 {
@@ -132,13 +132,13 @@ func containsAny(alternatives []*crs) (sq.Sqlizer, error) {
 	or := make(sq.Or, 0, len(alternatives))
 
 	for _, partial := range alternatives {
-		data, err := _marshalCoreRuleset.Marshal(partial)
+		data, err := _marshalRuleset.Marshal(partial)
 		if err != nil {
 			return nil, err
 		}
 
 		or = append(or, sq.Expr(
-			securitypb.Ruleset_CoreRuleset+" @> ?::jsonb", string(data),
+			securitypb.Ruleset_Ruleset+" @> ?::jsonb", string(data),
 		))
 	}
 

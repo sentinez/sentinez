@@ -20,7 +20,7 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
-	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -59,12 +59,12 @@ func TestListConditions(t *testing.T) {
 		},
 		{
 			name: "modes",
-			give: &listReq{Modes: []corerulesetpb.EngineMode{
-				corerulesetpb.EngineMode_ENGINE_MODE_ON,
-				corerulesetpb.EngineMode_ENGINE_MODE_DETECTION_ONLY,
+			give: &listReq{Modes: []rulesetpb.EngineMode{
+				rulesetpb.EngineMode_ENGINE_MODE_ON,
+				rulesetpb.EngineMode_ENGINE_MODE_DETECTION_ONLY,
 			}},
 			wantSQL: "SELECT 1 WHERE " +
-				"(core_ruleset @> ?::jsonb OR core_ruleset @> ?::jsonb)",
+				"(ruleset @> ?::jsonb OR ruleset @> ?::jsonb)",
 			wantArgs: []any{
 				`{"mode":"ENGINE_MODE_ON"}`,
 				`{"mode":"ENGINE_MODE_DETECTION_ONLY"}`,
@@ -72,10 +72,10 @@ func TestListConditions(t *testing.T) {
 		},
 		{
 			name: "version",
-			give: &listReq{Versions: []corerulesetpb.Version{
-				corerulesetpb.Version_VERSION_V4_17_0,
+			give: &listReq{Versions: []rulesetpb.Version{
+				rulesetpb.Version_VERSION_V4_17_0,
 			}},
-			wantSQL:  "SELECT 1 WHERE (core_ruleset @> ?::jsonb)",
+			wantSQL:  "SELECT 1 WHERE (ruleset @> ?::jsonb)",
 			wantArgs: []any{`{"version":"VERSION_V4_17_0"}`},
 		},
 		{
@@ -83,22 +83,22 @@ func TestListConditions(t *testing.T) {
 			give: &listReq{Statuses: []typepb.Status{
 				typepb.Status_STATUS_ACTIVE,
 			}},
-			wantSQL:  "SELECT 1 WHERE (core_ruleset @> ?::jsonb)",
+			wantSQL:  "SELECT 1 WHERE (ruleset @> ?::jsonb)",
 			wantArgs: []any{`{"status":"STATUS_ACTIVE"}`},
 		},
 		{
 			name:     "paranoia level",
 			give:     &listReq{ParanoiaLevel: 2},
-			wantSQL:  "SELECT 1 WHERE (core_ruleset @> ?::jsonb)",
+			wantSQL:  "SELECT 1 WHERE (ruleset @> ?::jsonb)",
 			wantArgs: []any{`{"paranoia_level":2}`},
 		},
 		{
 			name: "categories",
-			give: &listReq{Categories: []corerulesetpb.Category{
-				corerulesetpb.Category_CATEGORY_XSS,
-				corerulesetpb.Category_CATEGORY_SQLI,
+			give: &listReq{Categories: []rulesetpb.Category{
+				rulesetpb.Category_CATEGORY_XSS,
+				rulesetpb.Category_CATEGORY_SQLI,
 			}},
-			wantSQL: "SELECT 1 WHERE (core_ruleset @> ?::jsonb)",
+			wantSQL: "SELECT 1 WHERE (ruleset @> ?::jsonb)",
 			wantArgs: []any{
 				`{"categories":["CATEGORY_XSS","CATEGORY_SQLI"]}`,
 			},
@@ -106,13 +106,13 @@ func TestListConditions(t *testing.T) {
 		{
 			name:     "exclusion tag",
 			give:     &listReq{ExclusionTags: []string{"attack-sqli"}},
-			wantSQL:  "SELECT 1 WHERE (core_ruleset @> ?::jsonb)",
+			wantSQL:  "SELECT 1 WHERE (ruleset @> ?::jsonb)",
 			wantArgs: []any{`{"exclusions":[{"tags":["attack-sqli"]}]}`},
 		},
 		{
 			name:    "exclusion rule",
 			give:    &listReq{ExclusionRuleIds: []uint32{942100}},
-			wantSQL: "SELECT 1 WHERE (core_ruleset @> ?::jsonb)",
+			wantSQL: "SELECT 1 WHERE (ruleset @> ?::jsonb)",
 			wantArgs: []any{
 				`{"exclusions":[{"targets":[{"rule_id":942100}]}]}`,
 			},
@@ -120,7 +120,7 @@ func TestListConditions(t *testing.T) {
 		{
 			name:     "override rule",
 			give:     &listReq{OverrideRuleIds: []uint32{920420}},
-			wantSQL:  "SELECT 1 WHERE (core_ruleset @> ?::jsonb)",
+			wantSQL:  "SELECT 1 WHERE (ruleset @> ?::jsonb)",
 			wantArgs: []any{`{"overrides":[{"id":920420}]}`},
 		},
 		{
@@ -128,12 +128,12 @@ func TestListConditions(t *testing.T) {
 			give: &listReq{
 				Name:          "prod",
 				ParanoiaLevel: 1,
-				Modes: []corerulesetpb.EngineMode{
-					corerulesetpb.EngineMode_ENGINE_MODE_ON,
+				Modes: []rulesetpb.EngineMode{
+					rulesetpb.EngineMode_ENGINE_MODE_ON,
 				},
 			},
 			wantSQL: "SELECT 1 WHERE name ILIKE ? " +
-				"AND (core_ruleset @> ?::jsonb) AND (core_ruleset @> ?::jsonb)",
+				"AND (ruleset @> ?::jsonb) AND (ruleset @> ?::jsonb)",
 			wantArgs: []any{
 				"%prod%", `{"mode":"ENGINE_MODE_ON"}`, `{"paranoia_level":1}`,
 			},
@@ -172,23 +172,23 @@ func normalize(args []any) []any {
 	return out
 }
 
-func TestCoreRulesetRoundTrip(t *testing.T) {
-	give := &corerulesetpb.CoreRuleset{
-		Mode:          corerulesetpb.EngineMode_ENGINE_MODE_ON,
+func TestRulesetRoundTrip(t *testing.T) {
+	give := &rulesetpb.Ruleset{
+		Mode:          rulesetpb.EngineMode_ENGINE_MODE_ON,
 		ParanoiaLevel: 2,
-		Exclusions: []*corerulesetpb.Exclusion{
+		Exclusions: []*rulesetpb.Exclusion{
 			{Tags: []string{"attack-sqli"}},
 		},
 	}
 
-	data, err := marshalCoreRuleset(give)
+	data, err := marshalRuleset(give)
 	require.NoError(t, err)
 
-	got := &corerulesetpb.CoreRuleset{}
+	got := &rulesetpb.Ruleset{}
 	require.NoError(t, protojson.Unmarshal([]byte(data), got))
 	assert.True(t, proto.Equal(give, got))
 
-	empty, err := marshalCoreRuleset(nil)
+	empty, err := marshalRuleset(nil)
 	require.NoError(t, err)
 	assert.Equal(t, "{}", empty)
 }

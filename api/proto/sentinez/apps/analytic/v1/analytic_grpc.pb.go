@@ -40,7 +40,7 @@ const (
 	AnalyticService_GetEgressLatency_FullMethodName          = "/sentinez.apps.analytic.v1.AnalyticService/GetEgressLatency"
 	AnalyticService_ListSecRuleEvents_FullMethodName         = "/sentinez.apps.analytic.v1.AnalyticService/ListSecRuleEvents"
 	AnalyticService_ListRateLimitEvents_FullMethodName       = "/sentinez.apps.analytic.v1.AnalyticService/ListRateLimitEvents"
-	AnalyticService_ListCoreRuleEvents_FullMethodName        = "/sentinez.apps.analytic.v1.AnalyticService/ListCoreRuleEvents"
+	AnalyticService_ListRulesetEvents_FullMethodName         = "/sentinez.apps.analytic.v1.AnalyticService/ListRulesetEvents"
 	AnalyticService_GetEventHistogram_FullMethodName         = "/sentinez.apps.analytic.v1.AnalyticService/GetEventHistogram"
 	AnalyticService_GetUniqueVisitorHistogram_FullMethodName = "/sentinez.apps.analytic.v1.AnalyticService/GetUniqueVisitorHistogram"
 	AnalyticService_GetEventTopValues_FullMethodName         = "/sentinez.apps.analytic.v1.AnalyticService/GetEventTopValues"
@@ -66,7 +66,7 @@ type AnalyticServiceClient interface {
 	GetEgressLatency(ctx context.Context, in *GetEgressLatencyRequest, opts ...grpc.CallOption) (*GetEgressLatencyResponse, error)
 	ListSecRuleEvents(ctx context.Context, in *ListSecRuleEventsRequest, opts ...grpc.CallOption) (*ListSecRuleEventsResponse, error)
 	ListRateLimitEvents(ctx context.Context, in *ListRateLimitEventsRequest, opts ...grpc.CallOption) (*ListRateLimitEventsResponse, error)
-	ListCoreRuleEvents(ctx context.Context, in *ListCoreRuleEventsRequest, opts ...grpc.CallOption) (*ListCoreRuleEventsResponse, error)
+	ListRulesetEvents(ctx context.Context, in *ListRulesetEventsRequest, opts ...grpc.CallOption) (*ListRulesetEventsResponse, error)
 	// GetEventHistogram counts the events of a kind per time bucket,
 	// resource and key.
 	GetEventHistogram(ctx context.Context, in *GetEventHistogramRequest, opts ...grpc.CallOption) (*GetEventHistogramResponse, error)
@@ -168,10 +168,10 @@ func (c *analyticServiceClient) ListRateLimitEvents(ctx context.Context, in *Lis
 	return out, nil
 }
 
-func (c *analyticServiceClient) ListCoreRuleEvents(ctx context.Context, in *ListCoreRuleEventsRequest, opts ...grpc.CallOption) (*ListCoreRuleEventsResponse, error) {
+func (c *analyticServiceClient) ListRulesetEvents(ctx context.Context, in *ListRulesetEventsRequest, opts ...grpc.CallOption) (*ListRulesetEventsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListCoreRuleEventsResponse)
-	err := c.cc.Invoke(ctx, AnalyticService_ListCoreRuleEvents_FullMethodName, in, out, cOpts...)
+	out := new(ListRulesetEventsResponse)
+	err := c.cc.Invoke(ctx, AnalyticService_ListRulesetEvents_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -264,7 +264,7 @@ type AnalyticServiceServer interface {
 	GetEgressLatency(context.Context, *GetEgressLatencyRequest) (*GetEgressLatencyResponse, error)
 	ListSecRuleEvents(context.Context, *ListSecRuleEventsRequest) (*ListSecRuleEventsResponse, error)
 	ListRateLimitEvents(context.Context, *ListRateLimitEventsRequest) (*ListRateLimitEventsResponse, error)
-	ListCoreRuleEvents(context.Context, *ListCoreRuleEventsRequest) (*ListCoreRuleEventsResponse, error)
+	ListRulesetEvents(context.Context, *ListRulesetEventsRequest) (*ListRulesetEventsResponse, error)
 	// GetEventHistogram counts the events of a kind per time bucket,
 	// resource and key.
 	GetEventHistogram(context.Context, *GetEventHistogramRequest) (*GetEventHistogramResponse, error)
@@ -316,8 +316,8 @@ func (UnimplementedAnalyticServiceServer) ListSecRuleEvents(context.Context, *Li
 func (UnimplementedAnalyticServiceServer) ListRateLimitEvents(context.Context, *ListRateLimitEventsRequest) (*ListRateLimitEventsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListRateLimitEvents not implemented")
 }
-func (UnimplementedAnalyticServiceServer) ListCoreRuleEvents(context.Context, *ListCoreRuleEventsRequest) (*ListCoreRuleEventsResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListCoreRuleEvents not implemented")
+func (UnimplementedAnalyticServiceServer) ListRulesetEvents(context.Context, *ListRulesetEventsRequest) (*ListRulesetEventsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListRulesetEvents not implemented")
 }
 func (UnimplementedAnalyticServiceServer) GetEventHistogram(context.Context, *GetEventHistogramRequest) (*GetEventHistogramResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetEventHistogram not implemented")
@@ -486,20 +486,20 @@ func _AnalyticService_ListRateLimitEvents_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AnalyticService_ListCoreRuleEvents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListCoreRuleEventsRequest)
+func _AnalyticService_ListRulesetEvents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListRulesetEventsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AnalyticServiceServer).ListCoreRuleEvents(ctx, in)
+		return srv.(AnalyticServiceServer).ListRulesetEvents(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AnalyticService_ListCoreRuleEvents_FullMethodName,
+		FullMethod: AnalyticService_ListRulesetEvents_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AnalyticServiceServer).ListCoreRuleEvents(ctx, req.(*ListCoreRuleEventsRequest))
+		return srv.(AnalyticServiceServer).ListRulesetEvents(ctx, req.(*ListRulesetEventsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -666,8 +666,8 @@ var AnalyticService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AnalyticService_ListRateLimitEvents_Handler,
 		},
 		{
-			MethodName: "ListCoreRuleEvents",
-			Handler:    _AnalyticService_ListCoreRuleEvents_Handler,
+			MethodName: "ListRulesetEvents",
+			Handler:    _AnalyticService_ListRulesetEvents_Handler,
 		},
 		{
 			MethodName: "GetEventHistogram",

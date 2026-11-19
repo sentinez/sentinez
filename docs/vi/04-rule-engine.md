@@ -98,7 +98,7 @@ Các action và `params` (`Action.params`, kiểu `Struct`; số và boolean đ�
 | `ROUTE_TO` | `location` | Proxy tới mục `server.locations` có `location` đó thay vì prefix dài nhất; location không tồn tại thì quay về khớp prefix |
 
 ```yaml
-sec_rules:
+secrules:
   - ingress:
       name: "Chuyển link cũ sang shop mới"
       status: STATUS_ACTIVE
@@ -195,8 +195,8 @@ CRS gốc (`.conf`) nằm ở [deploy/ruleroot](../../deploy/ruleroot/). Công c
    ([core/szmodsec/ruleparser](../../staging/src/github.com/sentinez/core/szmodsec/ruleparser/)):
    mỗi statement là một rule; rule kết thúc bằng `chain"` được nối với
    statement sau; trích `ver`, `paranoia-level`, các action field.
-2. Đổ vào `coreruleset.v1.CoreRulesets` rồi render template Go: mỗi rule thành
-   một hàm trả về `*CoreRule` với `Configuration` mã hoá base64, cùng slice
+2. Đổ vào `ruleset.v1.Rulesets` rồi render template Go: mỗi rule thành
+   một hàm trả về `*Rule` với `Configuration` mã hoá base64, cùng slice
    `XxxOrder` giữ thứ tự.
 3. Ghi ra `core/szmodsec/gen[/v4-16-0|/v4-17-0]/*.sentinez_rules.gen.go`.
 
@@ -242,7 +242,7 @@ transaction ID, request ID, thời gian.
 ### Bật WAF cho namespace
 
 `MemStore.LoadRulesets` tạo một WAF cho mỗi namespace từ
-`security.core_ruleset` (version, mode, paranoia level, threshold, categories,
+`security.ruleset` (version, mode, paranoia level, threshold, categories,
 exclusions, overrides — xem [03-edge.md](03-edge.md#35-cấu-hình-proxyyaml)).
 `version` chọn bộ CRS nhúng trong binary: `VERSION_V4_16_0`, còn lại là
 **v4.17.0**.

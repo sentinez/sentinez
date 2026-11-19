@@ -9,7 +9,7 @@ xoá mục tương ứng.
 
 | # | Vị trí | Vấn đề |
 |---|---|---|
-| L1 | [controlplane/pkg/schema](../../staging/src/github.com/sentinez/controlplane/pkg/schema/) từ `28dd2173` *(cần xác minh)* | Cột timestamp của các bảng iam, tenant, security và activities đã đổi tên (`created_at` → `metadata_created_at` / `owner_created_at`) và `security.sec_rules.action` đổi từ `JSONB` sang `TEXT`, nhưng sync schema không bao giờ đổi tên/đổi kiểu cột: với database tạo từ trước, scanner được sinh sẽ select cột không tồn tại. Xoá bảng (dev) hoặc migrate tay |
+| L1 | [controlplane/pkg/schema](../../staging/src/github.com/sentinez/controlplane/pkg/schema/) từ `28dd2173` *(cần xác minh)* | Cột timestamp của các bảng iam, tenant, security và activities đã đổi tên (`created_at` → `metadata_created_at` / `owner_created_at`) và `security.secrules.action` đổi từ `JSONB` sang `TEXT`, nhưng sync schema không bao giờ đổi tên/đổi kiểu cột: với database tạo từ trước, scanner được sinh sẽ select cột không tồn tại. Xoá bảng (dev) hoặc migrate tay |
 
 ## 12.2 Bảo mật
 

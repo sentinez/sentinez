@@ -23,7 +23,7 @@ api/proto/sentinez/
     ├── rule/v1/             # Expression, Condition, Operator, Action
     ├── secrule/v1/          # SecRule runtime, WAF Event
     ├── cdn/v1/              # CDN rule
-    ├── coreruleset/v1/      # CoreRulesets (rule parser output)
+    ├── ruleset/v1/          # Rulesets (rule parser output)
     ├── net/v1/              # Transport (conn_id, SNI)
     └── net/http/v1/         # Request, RequestEvent, Event
 ```
@@ -73,7 +73,7 @@ How a field is scanned, set with `x_field`:
 | `google.protobuf.Timestamp` / `Duration` | `time.Time` / `time.Duration`, converted |
 | other message, no codec | flattened into its fields' columns |
 | `codec = COLUMN_CODEC_PROTO` | one column of binary protobuf (`proto.Unmarshal`), e.g. `Resource.server` |
-| `codec = COLUMN_CODEC_PROTOJSON` | one column of protobuf JSON (`protojson.Unmarshal`, unknown fields discarded), e.g. `CoreRuleset.content` |
+| `codec = COLUMN_CODEC_PROTOJSON` | one column of protobuf JSON (`protojson.Unmarshal`, unknown fields discarded), e.g. `Ruleset.content` |
 | `codec = COLUMN_CODEC_DRIVER` | one column the driver scans into the field (e.g. JSONB), e.g. `SecRule.expr`, `SecRuleEvent.action` |
 | `ignore = true` | not stored, left out (e.g. `SecRule.action_value`, `expr_preview`) |
 | `nullable = true` | a singular scalar whose column may be `NULL`, scanned as the zero value (e.g. `Owner.tenant_id`, `Tenant.name`) |
@@ -101,7 +101,7 @@ paths `api/proto` and `api/third_party/{googleapis,grpc-gateway,protovalidate}`:
 
 The `pool` vtproto feature is on for the pooled events only, each named by
 a `--go-vtproto_opt=pool=<import path>.<Message>` in its `generate.sh`:
-`secrule.v1.SecRuleEvent`, `coreruleset.v1.CoreRuleEvent`,
+`secrule.v1.SecRuleEvent`, `ruleset.v1.RulesetEvent`,
 `net.http.v1.IngressEvent` and `rule.v1.MatchedRules`. It generates `ResetVT`
 (`Reset` that keeps the capacity of the repeated fields), and
 `<Msg>FromVTPool`/`ReturnToVTPool` on a pool of the message.
@@ -154,7 +154,7 @@ Base URL: the apiserver address (`:8080` in `.env.example`). Auth: header
 | GET | `/analytic/events/http-egress` | `AnalyticService.ListHttpEgressEvents` | ignore |
 | GET | `/analytic/events/secrule` | `AnalyticService.ListSecRuleEvents` | ignore |
 | GET | `/analytic/events/ratelimit` | `AnalyticService.ListRateLimitEvents` | ignore |
-| GET | `/analytic/events/coreruleset` | `AnalyticService.ListCoreRuleEvents` | ignore |
+| GET | `/analytic/events/ruleset` | `AnalyticService.ListRulesetEvents` | ignore |
 | GET | `/analytic/events/histogram` | `AnalyticService.GetEventHistogram` | ignore |
 | GET | `/analytic/events/top-values` | `AnalyticService.GetEventTopValues` | ignore |
 | GET | `/analytic/events/http-egress/latency` | `AnalyticService.GetEgressLatency` | ignore |
@@ -210,14 +210,14 @@ fields around the reverse proxy call, for the egress log.
 |---|---|---|
 | `net.http.v1.IngressEvent` | `LOG_TYPE_HTTP_INGRESS` | Edge `LOG` node, apiserver `Logging` middleware |
 | `net.http.v1.EgressEvent` | `LOG_TYPE_HTTP_EGRESS` | Edge `LOG` node, for a request proxied to its upstream origin; same `id` as its ingress event. Field `headers` records the request headers set on the upstream |
-| `secrule.v1.Event` | `LOG_TYPE_CORE_RULESETS` | Edge `WAF` node when a transaction is interrupted |
+| `secrule.v1.Event` | `LOG_TYPE_RULESETS` | Edge `WAF` node when a transaction is interrupted |
 
 `ContextExtra` (`dmz/edge/v1/context.proto`) records per-request edge metadata
 including `set_headers` (field 20), populated via `szhttp.SetUpstreamHeader`
 when the edge mutates or injects headers forwarded to an origin.
 
 Events are reused through pools in
-`pkg/pools/{ingress,egress,secrule,coreruleset,matchedrule}`: each wrapper keeps
+`pkg/pools/{ingress,egress,secrule,ruleset,matchedrule}`: each wrapper keeps
 its message, and `Release` calls `ResetVT` so the repeated fields keep
 their capacity. `LogCloser` returns the object to its pool after logging.
 The collector has its own pools, see

@@ -6,8 +6,8 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { CoreRuleset } from "../../../types/coreruleset/v1/setting";
 import { Expression } from "../../../types/rule/v1/rule";
+import { Ruleset as Ruleset1 } from "../../../types/ruleset/v1/setting";
 import { Status, statusFromJSON, statusToJSON } from "../../../types/v1/known";
 import { Owner } from "../../../types/v1/model";
 
@@ -60,7 +60,7 @@ export interface Ruleset {
   id: string;
   name: string;
   description: string;
-  coreRuleset?: CoreRuleset | undefined;
+  ruleset?: Ruleset1 | undefined;
 }
 
 function createBaseSecRule(): SecRule {
@@ -812,7 +812,7 @@ export const ActionValue_MapValueEntry: MessageFns<ActionValue_MapValueEntry> = 
 };
 
 function createBaseRuleset(): Ruleset {
-  return { owner: undefined, id: "", name: "", description: "", coreRuleset: undefined };
+  return { owner: undefined, id: "", name: "", description: "", ruleset: undefined };
 }
 
 export const Ruleset: MessageFns<Ruleset> = {
@@ -829,8 +829,8 @@ export const Ruleset: MessageFns<Ruleset> = {
     if (message.description !== "") {
       writer.uint32(34).string(message.description);
     }
-    if (message.coreRuleset !== undefined) {
-      CoreRuleset.encode(message.coreRuleset, writer.uint32(42).fork()).join();
+    if (message.ruleset !== undefined) {
+      Ruleset1.encode(message.ruleset, writer.uint32(42).fork()).join();
     }
     return writer;
   },
@@ -885,7 +885,7 @@ export const Ruleset: MessageFns<Ruleset> = {
               break;
             }
 
-            message.coreRuleset = CoreRuleset.decode(reader, reader.uint32());
+            message.ruleset = Ruleset1.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -906,11 +906,7 @@ export const Ruleset: MessageFns<Ruleset> = {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       name: isSet(object.name) ? globalThis.String(object.name) : "",
       description: isSet(object.description) ? globalThis.String(object.description) : "",
-      coreRuleset: isSet(object.coreRuleset)
-        ? CoreRuleset.fromJSON(object.coreRuleset)
-        : isSet(object.core_ruleset)
-        ? CoreRuleset.fromJSON(object.core_ruleset)
-        : undefined,
+      ruleset: isSet(object.ruleset) ? Ruleset1.fromJSON(object.ruleset) : undefined,
     };
   },
 
@@ -928,8 +924,8 @@ export const Ruleset: MessageFns<Ruleset> = {
     if (message.description !== "") {
       obj.description = message.description;
     }
-    if (message.coreRuleset !== undefined) {
-      obj.coreRuleset = CoreRuleset.toJSON(message.coreRuleset);
+    if (message.ruleset !== undefined) {
+      obj.ruleset = Ruleset1.toJSON(message.ruleset);
     }
     return obj;
   },
@@ -943,8 +939,8 @@ export const Ruleset: MessageFns<Ruleset> = {
     message.id = object.id ?? "";
     message.name = object.name ?? "";
     message.description = object.description ?? "";
-    message.coreRuleset = (object.coreRuleset !== undefined && object.coreRuleset !== null)
-      ? CoreRuleset.fromPartial(object.coreRuleset)
+    message.ruleset = (object.ruleset !== undefined && object.ruleset !== null)
+      ? Ruleset1.fromPartial(object.ruleset)
       : undefined;
     return message;
   },

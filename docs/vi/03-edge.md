@@ -182,7 +182,7 @@ gây lỗi; tên stage là hằng exported (vd `secure.WAFId`). Panic của plug
 | 6 | `ROM` | `room.WaitingRoom` | Placeholder, chỉ chuyển tiếp |
 | 7 | `STC` | `static.Static` | Sau khi chạy tiếp, nếu path có đuôi tĩnh (`.css .js .png ...`) thì set `Cache-Control: public, max-age=3600, immutable` |
 | 8 | `RUL` | `secure.SecRule` | Duyệt các SecRule active theo priority giảm dần; rule đầu tiên khớp có action `BLOCK` → `403`; action khác chỉ log debug và đi tiếp |
-| 9 | `WAF` | `secure.WAF` | Coraza transaction: `ExecIngress` (header/body) → chạy tiếp → `ExecEgress` (response). Bị chặn với status 403 → trang 403. Cuối cùng log `secrulepb.Event` (`LOG_TYPE_CORE_RULESETS`) nếu bị interrupt |
+| 9 | `WAF` | `secure.WAF` | Coraza transaction: `ExecIngress` (header/body) → chạy tiếp → `ExecEgress` (response). Bị chặn với status 403 → trang 403. Cuối cùng log `secrulepb.Event` (`LOG_TYPE_RULESETS`) nếu bị interrupt |
 | 10 | `ROU` | `routing.StandardRouter` | Kết thúc chain: tìm route, rewrite path, set header, gọi `ReverseProxy.Serve` của proxy tới upstream thuộc namespace; không có → `502` |
 
 Response lỗi (`400/403/404/429/500`) được render bằng template `templ`
@@ -216,7 +216,7 @@ setting:
           proxySetHeaders:
             X-Real-IP: $remote_addr
   security:
-    core_ruleset:                # OWASP CRS, mỗi namespace một cấu hình
+    ruleset:                # OWASP CRS, mỗi namespace một cấu hình
       status: STATUS_ACTIVE
       mode: ENGINE_MODE_ON       # ENGINE_MODE_OFF | ENGINE_MODE_DETECTION_ONLY | ENGINE_MODE_ON
       version: VERSION_V4_17_0   # VERSION_V4_16_0 (chỉ RCE, SQLi) | VERSION_V4_17_0 (mặc định)
@@ -249,7 +249,7 @@ setting:
           state: RULE_STATE_DETECTION_ONLY  # chỉ log, không tính điểm
         - id: 942130
           state: RULE_STATE_ENABLED         # ép bật dù trên paranoiaLevel
-    sec_rules:                   # SecRule
+    secrules:                   # SecRule
       - ingress:
           name: "Block /block"
           status: STATUS_ACTIVE
@@ -278,8 +278,8 @@ setting:
 
 Ghi chú:
 
-- `security.core_ruleset` là một `coreruleset.v1.CoreRuleset`
-  ([setting.proto](../../api/proto/sentinez/types/coreruleset/v1/setting.proto)).
+- `security.ruleset` là một `ruleset.v1.Ruleset`
+  ([setting.proto](../../api/proto/sentinez/types/ruleset/v1/setting.proto)).
   `version` chọn bộ rule nhúng trong binary (`VERSION_V4_16_0` chỉ có nhóm RCE
   và SQLi; không đặt = `VERSION_V4_17_0`). `paranoiaLevel` và
   `detectionParanoiaLevel` giới hạn 0–4; rule ID trong `exclusions` và
@@ -636,7 +636,7 @@ cả hai thì nó mất quorum tới khi chúng chạy lại. Các edge chạy v
 Nó được đóng gói trong `edge.RevProxyService`
 ([pkg/apps/dmz/edge/rev_proxy_service.go](../../pkg/apps/dmz/edge/rev_proxy_service.go)),
 và `main` khởi chạy nó qua app `server.GRPC` trên `defaults.EdgeAddress`. RPC
-`EvalCoreRuleset` (chạy lại một request với một setting CRS) đã bị bỏ cùng
+`EvalRuleset` (chạy lại một request với một setting CRS) đã bị bỏ cùng
 `szcrs.Evaluate`. `internal/dmz/edge/events/{pub,sub}` hiện là package rỗng.
 
 ## 3.10 Chọn engine

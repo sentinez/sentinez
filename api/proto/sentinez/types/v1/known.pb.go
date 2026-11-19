@@ -310,14 +310,14 @@ func (Plan) EnumDescriptor() ([]byte, []int) {
 type LogType int32
 
 const (
-	LogType_LOG_TYPE_UNSPECIFIED   LogType = 0
-	LogType_LOG_TYPE_HTTP_INGRESS  LogType = 1
-	LogType_LOG_TYPE_CORE_RULESETS LogType = 2
-	LogType_LOG_TYPE_SEC_RULE      LogType = 3
-	LogType_LOG_TYPE_RATE_LIMIT    LogType = 4
-	LogType_LOG_TYPE_CDN_RULE      LogType = 5
-	LogType_LOG_TYPE_HTTP_EGRESS   LogType = 6
-	LogType_LOG_TYPE_AUDIT         LogType = 7
+	LogType_LOG_TYPE_UNSPECIFIED  LogType = 0
+	LogType_LOG_TYPE_HTTP_INGRESS LogType = 1
+	LogType_LOG_TYPE_RULESETS     LogType = 2
+	LogType_LOG_TYPE_SECRULE      LogType = 3
+	LogType_LOG_TYPE_RATE_LIMIT   LogType = 4
+	LogType_LOG_TYPE_CDN_RULE     LogType = 5
+	LogType_LOG_TYPE_HTTP_EGRESS  LogType = 6
+	LogType_LOG_TYPE_AUDIT        LogType = 7
 )
 
 // Enum value maps for LogType.
@@ -325,22 +325,22 @@ var (
 	LogType_name = map[int32]string{
 		0: "LOG_TYPE_UNSPECIFIED",
 		1: "LOG_TYPE_HTTP_INGRESS",
-		2: "LOG_TYPE_CORE_RULESETS",
-		3: "LOG_TYPE_SEC_RULE",
+		2: "LOG_TYPE_RULESETS",
+		3: "LOG_TYPE_SECRULE",
 		4: "LOG_TYPE_RATE_LIMIT",
 		5: "LOG_TYPE_CDN_RULE",
 		6: "LOG_TYPE_HTTP_EGRESS",
 		7: "LOG_TYPE_AUDIT",
 	}
 	LogType_value = map[string]int32{
-		"LOG_TYPE_UNSPECIFIED":   0,
-		"LOG_TYPE_HTTP_INGRESS":  1,
-		"LOG_TYPE_CORE_RULESETS": 2,
-		"LOG_TYPE_SEC_RULE":      3,
-		"LOG_TYPE_RATE_LIMIT":    4,
-		"LOG_TYPE_CDN_RULE":      5,
-		"LOG_TYPE_HTTP_EGRESS":   6,
-		"LOG_TYPE_AUDIT":         7,
+		"LOG_TYPE_UNSPECIFIED":  0,
+		"LOG_TYPE_HTTP_INGRESS": 1,
+		"LOG_TYPE_RULESETS":     2,
+		"LOG_TYPE_SECRULE":      3,
+		"LOG_TYPE_RATE_LIMIT":   4,
+		"LOG_TYPE_CDN_RULE":     5,
+		"LOG_TYPE_HTTP_EGRESS":  6,
+		"LOG_TYPE_AUDIT":        7,
 	}
 )
 
@@ -732,12 +732,12 @@ const file_sentinez_types_v1_known_proto_rawDesc = "" +
 	"\x10PLAN_UNSPECIFIED\x10\x00\x12\r\n" +
 	"\tPLAN_FREE\x10\x01\x12\x11\n" +
 	"\rPLAN_STANDARD\x10\x02\x12\f\n" +
-	"\bPLAN_PRO\x10\x03*\xcf\x01\n" +
+	"\bPLAN_PRO\x10\x03*\xc9\x01\n" +
 	"\aLogType\x12\x18\n" +
 	"\x14LOG_TYPE_UNSPECIFIED\x10\x00\x12\x19\n" +
-	"\x15LOG_TYPE_HTTP_INGRESS\x10\x01\x12\x1a\n" +
-	"\x16LOG_TYPE_CORE_RULESETS\x10\x02\x12\x15\n" +
-	"\x11LOG_TYPE_SEC_RULE\x10\x03\x12\x17\n" +
+	"\x15LOG_TYPE_HTTP_INGRESS\x10\x01\x12\x15\n" +
+	"\x11LOG_TYPE_RULESETS\x10\x02\x12\x14\n" +
+	"\x10LOG_TYPE_SECRULE\x10\x03\x12\x17\n" +
 	"\x13LOG_TYPE_RATE_LIMIT\x10\x04\x12\x15\n" +
 	"\x11LOG_TYPE_CDN_RULE\x10\x05\x12\x18\n" +
 	"\x14LOG_TYPE_HTTP_EGRESS\x10\x06\x12\x12\n" +

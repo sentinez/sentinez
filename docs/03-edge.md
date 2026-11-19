@@ -189,7 +189,7 @@ stage that produced them; the stage names are exported constants (e.g.
 | 6 | `ROM` | `room.WaitingRoom` | Placeholder, just forwards |
 | 7 | `STC` | `static.Static` | After the rest of the chain, if the path has a static extension (`.css .js .png ...`) sets `Cache-Control: public, max-age=3600, immutable` |
 | 8 | `RUL` | `secure.SecRule` | Walks the active SecRules by descending priority; the first matching rule with action `BLOCK` → `403`; other actions are only debug-logged and evaluation continues |
-| 9 | `WAF` | `secure.WAF` | Coraza transaction: `ExecIngress` (headers/body) → rest of chain → `ExecEgress` (response). Blocked with status 403 → 403 page. Finally logs a `secrulepb.Event` (`LOG_TYPE_CORE_RULESETS`) if the transaction was interrupted |
+| 9 | `WAF` | `secure.WAF` | Coraza transaction: `ExecIngress` (headers/body) → rest of chain → `ExecEgress` (response). Blocked with status 403 → 403 page. Finally logs a `secrulepb.Event` (`LOG_TYPE_RULESETS`) if the transaction was interrupted |
 | 10 | `ROU` | `routing.StandardRouter` | Ends the chain: finds the route, rewrites the path, sets headers, calls `ReverseProxy.Serve` of the namespace's proxy to the upstream; none → `502` |
 
 Error responses (`400/403/404/429/500`) are rendered with `templ` templates
@@ -225,7 +225,7 @@ setting:
           proxySetHeaders:
             X-Real-IP: $remote_addr
   security:
-    core_ruleset:                # OWASP CRS, one configuration per namespace
+    ruleset:                # OWASP CRS, one configuration per namespace
       status: STATUS_ACTIVE
       mode: ENGINE_MODE_ON       # ENGINE_MODE_OFF | ENGINE_MODE_DETECTION_ONLY | ENGINE_MODE_ON
       version: VERSION_V4_17_0   # VERSION_V4_16_0 (RCE, SQLi only) | VERSION_V4_17_0 (default)
@@ -258,7 +258,7 @@ setting:
           state: RULE_STATE_DETECTION_ONLY  # logged, never counted
         - id: 942130
           state: RULE_STATE_ENABLED         # forced on above paranoiaLevel
-    sec_rules:                   # SecRules
+    secrules:                   # SecRules
       - ingress:
           name: "Block /block"
           status: STATUS_ACTIVE
@@ -287,8 +287,8 @@ setting:
 
 Notes:
 
-- `security.core_ruleset` is a `coreruleset.v1.CoreRuleset`
-  ([setting.proto](../api/proto/sentinez/types/coreruleset/v1/setting.proto)).
+- `security.ruleset` is a `ruleset.v1.Ruleset`
+  ([setting.proto](../api/proto/sentinez/types/ruleset/v1/setting.proto)).
   `version` picks the embedded rule files (`VERSION_V4_16_0` only ships the
   RCE and SQLi groups; unset = `VERSION_V4_17_0`). `paranoiaLevel` and
   `detectionParanoiaLevel` are limited to 0–4; rule IDs in `exclusions` and
@@ -655,7 +655,7 @@ reads it, `info` by default), which shows the sync:
 It is packaged as `edge.RevProxyService`
 ([pkg/apps/dmz/edge/rev_proxy_service.go](../pkg/apps/dmz/edge/rev_proxy_service.go)),
 and `main` starts it as the `server.GRPC` app on `defaults.EdgeAddress`. The
-`EvalCoreRuleset` RPC (replaying a request against a CRS setting) was removed
+`EvalRuleset` RPC (replaying a request against a CRS setting) was removed
 together with `szcrs.Evaluate`. `internal/dmz/edge/events/{pub,sub}` are
 empty packages for now.
 

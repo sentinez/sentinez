@@ -406,7 +406,7 @@ func (m *MemStore) LoadRateLimiter(s *edgepb.Setting) error {
 func (m *MemStore) LoadRulesets(s *edgepb.Setting) error {
 	ns := s.GetIngress().GetResource().GetDomain()
 
-	err := m.rulesets.Store(ns, s.GetSecurity().GetCoreRuleset())
+	err := m.rulesets.Store(ns, s.GetSecurity().GetRuleset())
 	if err != nil {
 		return fmt.Errorf("rulesets: init coraza waf: %w", err)
 	}
@@ -415,8 +415,8 @@ func (m *MemStore) LoadRulesets(s *edgepb.Setting) error {
 }
 
 func (m *MemStore) LoadSecRule(s *edgepb.Setting) error {
-	rules := make([]*secrulepb.SecRule, 0, len(s.GetSecurity().GetSecRules()))
-	for _, rule := range s.GetSecurity().GetSecRules() {
+	rules := make([]*secrulepb.SecRule, 0, len(s.GetSecurity().GetSecrules()))
+	for _, rule := range s.GetSecurity().GetSecrules() {
 		rules = append(rules, rule.GetIngress())
 	}
 

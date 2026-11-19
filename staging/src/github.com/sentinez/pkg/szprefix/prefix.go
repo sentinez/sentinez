@@ -52,13 +52,13 @@ const (
 	TenantResource Prefix = "rsrc"  // resource owned by a tenant
 	CaCertificate  Prefix = "cacrt" // CA certificate of a resource
 
-	// ── Security (security.secrules, .ratelimits, .ruleset) ──
+	// ── Security (security.secrules, .ratelimits, .rulesets) ──
 	SecRule   Prefix = "srule" // WAF SecRule
 	Condition Prefix = "cond"  // SecRule expression condition
 	RateLimit Prefix = "rlim"  // rate limit
 	Ruleset   Prefix = "rs"    // ruleset
 
-	// ── Analytic (analytic.activities, .secrules, .corerulesets) ──
+	// ── Analytic (analytic.activities, .secrules, .rulesets) ──
 	Activity     Prefix = "actv"  // tenant activity
 	SecRuleEvent Prefix = "srevt" // SecRule match event
 	RulesetEvent Prefix = "rsevt" // ruleset match event

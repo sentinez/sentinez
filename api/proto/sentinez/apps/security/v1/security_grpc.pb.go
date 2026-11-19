@@ -89,7 +89,7 @@ type SecurityServiceClient interface {
 	// DeleteRuleset removes an OWASP CRS configuration by ID
 	DeleteRuleset(ctx context.Context, in *DeleteRulesetRequest, opts ...grpc.CallOption) (*DeleteRulesetResponse, error)
 	// ListRulesets lists OWASP CRS configurations, filtered by their
-	// name or by the fields of their core_ruleset
+	// name or by the fields of their ruleset
 	ListRulesets(ctx context.Context, in *ListRulesetsRequest, opts ...grpc.CallOption) (*ListRulesetsResponse, error)
 	// GetCRSRuleInfo retrieves a rule of the OWASP CRS catalog by ID
 	GetCRSRuleInfo(ctx context.Context, in *GetCRSRuleInfoRequest, opts ...grpc.CallOption) (*GetCRSRuleInfoResponse, error)
@@ -337,7 +337,7 @@ type SecurityServiceServer interface {
 	// DeleteRuleset removes an OWASP CRS configuration by ID
 	DeleteRuleset(context.Context, *DeleteRulesetRequest) (*DeleteRulesetResponse, error)
 	// ListRulesets lists OWASP CRS configurations, filtered by their
-	// name or by the fields of their core_ruleset
+	// name or by the fields of their ruleset
 	ListRulesets(context.Context, *ListRulesetsRequest) (*ListRulesetsResponse, error)
 	// GetCRSRuleInfo retrieves a rule of the OWASP CRS catalog by ID
 	GetCRSRuleInfo(context.Context, *GetCRSRuleInfoRequest) (*GetCRSRuleInfoResponse, error)

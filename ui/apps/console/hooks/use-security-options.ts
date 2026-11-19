@@ -7,7 +7,7 @@ import {
   EngineMode,
   RuleState,
   Version,
-} from '@sentinez/proto/sentinez/types/coreruleset/v1/setting';
+} from '@sentinez/proto/sentinez/types/ruleset/v1/setting';
 import { ActionType, FieldSource } from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import {
   ACTION_TYPES,

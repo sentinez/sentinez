@@ -18,7 +18,7 @@ import (
 	"sort"
 	"testing"
 
-	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -26,17 +26,17 @@ import (
 func TestRules(t *testing.T) {
 	tests := []struct {
 		name     string
-		give     corerulesetpb.Version
+		give     rulesetpb.Version
 		wantRuby bool // RESPONSE-956 only exists since 4.17.0
 	}{
-		{name: "4.16.0", give: corerulesetpb.Version_VERSION_V4_16_0},
+		{name: "4.16.0", give: rulesetpb.Version_VERSION_V4_16_0},
 		{
-			name: "4.17.0", give: corerulesetpb.Version_VERSION_V4_17_0,
+			name: "4.17.0", give: rulesetpb.Version_VERSION_V4_17_0,
 			wantRuby: true,
 		},
 		{
 			name: "unspecified is the latest",
-			give: corerulesetpb.Version_VERSION_UNSPECIFIED, wantRuby: true,
+			give: rulesetpb.Version_VERSION_UNSPECIFIED, wantRuby: true,
 		},
 	}
 
@@ -50,7 +50,7 @@ func TestRules(t *testing.T) {
 			for _, rule := range rules {
 				ids = append(ids, int(rule.GetId()))
 				hasRuby = hasRuby || rule.GetCategory() ==
-					corerulesetpb.Category_CATEGORY_DATA_LEAKAGES_RUBY
+					rulesetpb.Category_CATEGORY_DATA_LEAKAGES_RUBY
 			}
 
 			assert.True(t, sort.IntsAreSorted(ids))
@@ -60,11 +60,11 @@ func TestRules(t *testing.T) {
 }
 
 func TestRule(t *testing.T) {
-	rule, ok := Rule(corerulesetpb.Version_VERSION_V4_17_0, 942100)
+	rule, ok := Rule(rulesetpb.Version_VERSION_V4_17_0, 942100)
 	require.True(t, ok)
-	assert.Equal(t, corerulesetpb.Category_CATEGORY_SQLI, rule.GetCategory())
+	assert.Equal(t, rulesetpb.Category_CATEGORY_SQLI, rule.GetCategory())
 	assert.False(t, rule.GetSystem())
 
-	_, ok = Rule(corerulesetpb.Version_VERSION_V4_17_0, 1)
+	_, ok = Rule(rulesetpb.Version_VERSION_V4_17_0, 1)
 	assert.False(t, ok)
 }

@@ -248,37 +248,37 @@ func local_request_AnalyticService_ListRateLimitEvents_0(ctx context.Context, ma
 }
 
 var (
-	filter_AnalyticService_ListCoreRuleEvents_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+	filter_AnalyticService_ListRulesetEvents_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 )
 
-func request_AnalyticService_ListCoreRuleEvents_0(ctx context.Context, marshaler runtime.Marshaler, client AnalyticServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListCoreRuleEventsRequest
+func request_AnalyticService_ListRulesetEvents_0(ctx context.Context, marshaler runtime.Marshaler, client AnalyticServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListRulesetEventsRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_AnalyticService_ListCoreRuleEvents_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_AnalyticService_ListRulesetEvents_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.ListCoreRuleEvents(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.ListRulesetEvents(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_AnalyticService_ListCoreRuleEvents_0(ctx context.Context, marshaler runtime.Marshaler, server AnalyticServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListCoreRuleEventsRequest
+func local_request_AnalyticService_ListRulesetEvents_0(ctx context.Context, marshaler runtime.Marshaler, server AnalyticServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListRulesetEventsRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_AnalyticService_ListCoreRuleEvents_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_AnalyticService_ListRulesetEvents_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.ListCoreRuleEvents(ctx, &protoReq)
+	msg, err := server.ListRulesetEvents(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -692,7 +692,7 @@ func RegisterAnalyticServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 
 	})
 
-	mux.Handle("GET", pattern_AnalyticService_ListCoreRuleEvents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_AnalyticService_ListRulesetEvents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -700,12 +700,12 @@ func RegisterAnalyticServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.apps.analytic.v1.AnalyticService/ListCoreRuleEvents", runtime.WithHTTPPathPattern("/analytic/events/coreruleset"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.apps.analytic.v1.AnalyticService/ListRulesetEvents", runtime.WithHTTPPathPattern("/analytic/events/ruleset"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_AnalyticService_ListCoreRuleEvents_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_AnalyticService_ListRulesetEvents_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -713,7 +713,7 @@ func RegisterAnalyticServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 			return
 		}
 
-		forward_AnalyticService_ListCoreRuleEvents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AnalyticService_ListRulesetEvents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -1065,25 +1065,25 @@ func RegisterAnalyticServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 
 	})
 
-	mux.Handle("GET", pattern_AnalyticService_ListCoreRuleEvents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_AnalyticService_ListRulesetEvents_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.apps.analytic.v1.AnalyticService/ListCoreRuleEvents", runtime.WithHTTPPathPattern("/analytic/events/coreruleset"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.apps.analytic.v1.AnalyticService/ListRulesetEvents", runtime.WithHTTPPathPattern("/analytic/events/ruleset"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_AnalyticService_ListCoreRuleEvents_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_AnalyticService_ListRulesetEvents_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_AnalyticService_ListCoreRuleEvents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AnalyticService_ListRulesetEvents_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -1257,7 +1257,7 @@ var (
 
 	pattern_AnalyticService_ListRateLimitEvents_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"analytic", "events", "ratelimit"}, ""))
 
-	pattern_AnalyticService_ListCoreRuleEvents_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"analytic", "events", "coreruleset"}, ""))
+	pattern_AnalyticService_ListRulesetEvents_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"analytic", "events", "ruleset"}, ""))
 
 	pattern_AnalyticService_GetEventHistogram_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"analytic", "events", "histogram"}, ""))
 
@@ -1287,7 +1287,7 @@ var (
 
 	forward_AnalyticService_ListRateLimitEvents_0 = runtime.ForwardResponseMessage
 
-	forward_AnalyticService_ListCoreRuleEvents_0 = runtime.ForwardResponseMessage
+	forward_AnalyticService_ListRulesetEvents_0 = runtime.ForwardResponseMessage
 
 	forward_AnalyticService_GetEventHistogram_0 = runtime.ForwardResponseMessage
 

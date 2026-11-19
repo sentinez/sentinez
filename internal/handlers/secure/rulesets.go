@@ -47,7 +47,7 @@ func (*Rulesets) ID() string { return WAFId }
 
 func (rs *Rulesets) Provision(env *envplugin.Env) error {
 	rs.store = env.Store().Rulesets()
-	rs.log = env.Logger(typepb.LogType_LOG_TYPE_CORE_RULESETS)
+	rs.log = env.Logger(typepb.LogType_LOG_TYPE_RULESETS)
 	return nil
 }
 
@@ -106,7 +106,7 @@ func (rs *Rulesets) capture(ctx szhttp.Context, ruleset *szcrs.Rulesets) {
 
 	inbound, outbound := ruleset.AnomalyScore()
 	event.TotalScore = int32(inbound + outbound)
-	event.Service = rulepb.RuleService_RULE_SERVICE_CORE_RULESETS
+	event.Service = rulepb.RuleService_RULE_SERVICE_RULESETS
 	event.MatchedTime = ctx.RequestTime().UnixMilli()
 
 	event.RequestId = ctx.RequestId()
@@ -124,7 +124,7 @@ func (rs *Rulesets) capture(ctx szhttp.Context, ruleset *szcrs.Rulesets) {
 // fillDetections sets the detecting rules of event: the matched rules with
 // a message, but the framework rules and the interrupting rule.
 func fillDetections(
-	event *rulesetpool.CoreRuleEvent,
+	event *rulesetpool.RulesetEvent,
 	matched []types.MatchedRule,
 	interruptId int,
 ) {

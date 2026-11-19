@@ -75,15 +75,15 @@ func (srv *AnalyticService) ListRateLimitEvents(ctx context.Context,
 	return &pb.ListRateLimitEventsResponse{Events: events}, nil
 }
 
-// ListCoreRuleEvents implements pb.AnalyticServiceServer.
-func (srv *AnalyticService) ListCoreRuleEvents(ctx context.Context,
-	req *pb.ListCoreRuleEventsRequest) (*pb.ListCoreRuleEventsResponse, error) {
-	events, err := listEvents(ctx, req, srv.events.CoreRule.List)
+// ListRulesetEvents implements pb.AnalyticServiceServer.
+func (srv *AnalyticService) ListRulesetEvents(ctx context.Context,
+	req *pb.ListRulesetEventsRequest) (*pb.ListRulesetEventsResponse, error) {
+	events, err := listEvents(ctx, req, srv.events.Ruleset.List)
 	if err != nil {
 		return nil, err
 	}
 
-	return &pb.ListCoreRuleEventsResponse{Events: events}, nil
+	return &pb.ListRulesetEventsResponse{Events: events}, nil
 }
 
 // GetEventHistogram implements pb.AnalyticServiceServer.

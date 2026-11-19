@@ -25,7 +25,7 @@ import (
 	"github.com/sentinez/pkg/szerror"
 	"github.com/sentinez/pkg/szstorage/dbx/query"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
-	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
 
@@ -50,7 +50,7 @@ func (srv *SecurityService) ListCRSRuleInfos(_ context.Context,
 ) (*securitypb.ListCRSRuleInfosResponse, error) {
 	match := ruleInfoMatcher(req)
 
-	var rules []*corerulesetpb.RuleInfo
+	var rules []*rulesetpb.RuleInfo
 	for _, rule := range catalog.Rules(req.GetVersion()) {
 		if match(rule) {
 			rules = append(rules, rule)
@@ -99,7 +99,7 @@ func (srv *SecurityService) ListCRSRuleTags(_ context.Context,
 // request.
 func ruleInfoMatcher(
 	req *securitypb.ListCRSRuleInfosRequest,
-) func(*corerulesetpb.RuleInfo) bool {
+) func(*rulesetpb.RuleInfo) bool {
 	search := strings.ToLower(strings.TrimSpace(req.GetSearch()))
 
 	severities := make([]string, 0, len(req.GetSeverities()))
@@ -107,7 +107,7 @@ func ruleInfoMatcher(
 		severities = append(severities, strings.ToUpper(s))
 	}
 
-	return func(rule *corerulesetpb.RuleInfo) bool {
+	return func(rule *rulesetpb.RuleInfo) bool {
 		return (req.GetIncludeSystem() || !rule.GetSystem()) &&
 			oneOf(req.GetIds(), rule.GetId()) &&
 			oneOf(req.GetCategories(), rule.GetCategory()) &&
@@ -123,7 +123,7 @@ func oneOf[T comparable](filter []T, value T) bool {
 	return len(filter) == 0 || slices.Contains(filter, value)
 }
 
-func hasTags(rule *corerulesetpb.RuleInfo, tags []string) bool {
+func hasTags(rule *rulesetpb.RuleInfo, tags []string) bool {
 	for _, tag := range tags {
 		if !slices.Contains(rule.GetTags(), tag) {
 			return false
@@ -135,7 +135,7 @@ func hasTags(rule *corerulesetpb.RuleInfo, tags []string) bool {
 
 // matchSearch search is lower case: a part of the message or of a tag,
 // or the leading digits of the ID.
-func matchSearch(rule *corerulesetpb.RuleInfo, search string) bool {
+func matchSearch(rule *rulesetpb.RuleInfo, search string) bool {
 	if search == "" {
 		return true
 	}

@@ -12,27 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package ruleset pools the core ruleset events of the collector.
+// Package ruleset pools the ruleset events of the collector.
 package ruleset
 
 import (
 	"github.com/sentinez/controlplane/pkg/pools"
-	crspb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 )
 
-var _pool = pools.New(crspb.CoreRuleEventFromVTPool)
+var _pool = pools.New(rulesetpb.RulesetEventFromVTPool)
 
-// Pool returns the pool of the crspb.CoreRuleEvent.
-func Pool() *pools.Pool[crspb.CoreRuleEvent, *crspb.CoreRuleEvent] {
+// Pool returns the pool of the rulesetpb.RulesetEvent.
+func Pool() *pools.Pool[rulesetpb.RulesetEvent, *rulesetpb.RulesetEvent] {
 	return _pool
 }
 
-// Acquire returns a cleared crspb.CoreRuleEvent.
-func Acquire() *crspb.CoreRuleEvent {
+// Acquire returns a cleared rulesetpb.RulesetEvent.
+func Acquire() *rulesetpb.RulesetEvent {
 	return _pool.Acquire()
 }
 
 // Release resets obj and puts it back in the pool.
-func Release(obj *crspb.CoreRuleEvent) {
+func Release(obj *rulesetpb.RulesetEvent) {
 	_pool.Release(obj)
 }

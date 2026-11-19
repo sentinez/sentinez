@@ -617,7 +617,7 @@
     },
     "/security/rulesets": {
       "get": {
-        "summary": "ListRulesets lists OWASP CRS configurations, filtered by their\nname or by the fields of their core_ruleset",
+        "summary": "ListRulesets lists OWASP CRS configurations, filtered by their\nname or by the fields of their ruleset",
         "operationId": "SecurityService_ListRulesets",
         "responses": {
           "200": {
@@ -734,7 +734,7 @@
           },
           {
             "name": "paranoiaLevel",
-            "description": "core_ruleset.paranoia_level, 0 = any.",
+            "description": "ruleset.paranoia_level, 0 = any.",
             "in": "query",
             "required": false,
             "type": "integer",
@@ -742,7 +742,7 @@
           },
           {
             "name": "categories",
-            "description": "Rule groups all listed in core_ruleset.categories.\n\n - CATEGORY_COMMON_EXCEPTIONS: ====== REQUEST PHASE ======\n\n905\n - CATEGORY_METHOD_ENFORCEMENT: 911\n - CATEGORY_SCANNER_DETECTION: 913\n - CATEGORY_PROTOCOL_ENFORCEMENT: 920\n - CATEGORY_PROTOCOL_ATTACK: 921\n - CATEGORY_MULTIPART_ATTACK: 922\n - CATEGORY_LFI: 930\n - CATEGORY_RFI: 931\n - CATEGORY_RCE: 932\n - CATEGORY_PHP: 933\n - CATEGORY_GENERIC: 934\n - CATEGORY_XSS: 941\n - CATEGORY_SQLI: 942\n - CATEGORY_SESSION_FIXATION: 943\n - CATEGORY_JAVA: 944\n - CATEGORY_DATA_LEAKAGES: ====== RESPONSE PHASE ======\n\n950\n - CATEGORY_DATA_LEAKAGES_SQL: 951\n - CATEGORY_DATA_LEAKAGES_JAVA: 952\n - CATEGORY_DATA_LEAKAGES_PHP: 953\n - CATEGORY_DATA_LEAKAGES_IIS: 954\n - CATEGORY_WEB_SHELLS: 955\n - CATEGORY_DATA_LEAKAGES_RUBY: 956",
+            "description": "Rule groups all listed in ruleset.categories.\n\n - CATEGORY_COMMON_EXCEPTIONS: ====== REQUEST PHASE ======\n\n905\n - CATEGORY_METHOD_ENFORCEMENT: 911\n - CATEGORY_SCANNER_DETECTION: 913\n - CATEGORY_PROTOCOL_ENFORCEMENT: 920\n - CATEGORY_PROTOCOL_ATTACK: 921\n - CATEGORY_MULTIPART_ATTACK: 922\n - CATEGORY_LFI: 930\n - CATEGORY_RFI: 931\n - CATEGORY_RCE: 932\n - CATEGORY_PHP: 933\n - CATEGORY_GENERIC: 934\n - CATEGORY_XSS: 941\n - CATEGORY_SQLI: 942\n - CATEGORY_SESSION_FIXATION: 943\n - CATEGORY_JAVA: 944\n - CATEGORY_DATA_LEAKAGES: ====== RESPONSE PHASE ======\n\n950\n - CATEGORY_DATA_LEAKAGES_SQL: 951\n - CATEGORY_DATA_LEAKAGES_JAVA: 952\n - CATEGORY_DATA_LEAKAGES_PHP: 953\n - CATEGORY_DATA_LEAKAGES_IIS: 954\n - CATEGORY_WEB_SHELLS: 955\n - CATEGORY_DATA_LEAKAGES_RUBY: 956",
             "in": "query",
             "required": false,
             "type": "array",
@@ -778,7 +778,7 @@
           },
           {
             "name": "exclusionTags",
-            "description": "Tags excluded by core_ruleset.exclusions.",
+            "description": "Tags excluded by ruleset.exclusions.",
             "in": "query",
             "required": false,
             "type": "array",
@@ -789,7 +789,7 @@
           },
           {
             "name": "exclusionRuleIds",
-            "description": "Rules with a variable excluded by core_ruleset.exclusions.",
+            "description": "Rules with a variable excluded by ruleset.exclusions.",
             "in": "query",
             "required": false,
             "type": "array",
@@ -801,7 +801,7 @@
           },
           {
             "name": "overrideRuleIds",
-            "description": "Rules with a state changed by core_ruleset.overrides.",
+            "description": "Rules with a state changed by ruleset.overrides.",
             "in": "query",
             "required": false,
             "type": "array",
@@ -1054,23 +1054,43 @@
       "type": "object",
       "properties": {
         "ruleset": {
-          "$ref": "#/definitions/v1Ruleset"
+          "$ref": "#/definitions/appssecurityv1Ruleset"
         },
         "updateMask": {
           "type": "string",
-          "description": "Fields of ruleset to update, among name, description and\ncore_ruleset (\"*\" for all of them); without one, those set in ruleset.\nA named field unset in ruleset is cleared."
+          "description": "Fields of ruleset to update, among name, description and\nruleset (\"*\" for all of them); without one, those set in ruleset.\nA named field unset in ruleset is cleared."
         }
       }
     },
     "SecurityServiceUpdateSecRuleBody": {
       "type": "object",
       "properties": {
-        "secRule": {
+        "secrule": {
           "$ref": "#/definitions/v1SecRule"
         },
         "updateMask": {
           "type": "string",
-          "description": "Fields of sec_rule to update, among name, description, expr, status,\npriority and action (\"*\" for all of them); without one, those set in\nsec_rule. A named field unset in sec_rule is cleared."
+          "description": "Fields of secrule to update, among name, description, expr, status,\npriority and action (\"*\" for all of them); without one, those set in\nsecrule. A named field unset in secrule is cleared."
+        }
+      }
+    },
+    "appssecurityv1Ruleset": {
+      "type": "object",
+      "properties": {
+        "owner": {
+          "$ref": "#/definitions/v1Owner"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "ruleset": {
+          "$ref": "#/definitions/typesrulesetv1Ruleset"
         }
       }
     },
@@ -1119,6 +1139,65 @@
         }
       },
       "title": "A complete rule definition"
+    },
+    "typesrulesetv1Ruleset": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "$ref": "#/definitions/v1EngineMode",
+          "title": "@gotags: yaml:\"mode\""
+        },
+        "version": {
+          "$ref": "#/definitions/v1Version",
+          "title": "@gotags: yaml:\"version\""
+        },
+        "paranoiaLevel": {
+          "type": "integer",
+          "format": "int64",
+          "description": "tx.blocking_paranoia_level, 0 = default (1).\n\n@gotags: yaml:\"paranoiaLevel\""
+        },
+        "detectionParanoiaLevel": {
+          "type": "integer",
+          "format": "int64",
+          "description": "tx.detection_paranoia_level, 0 = same as paranoia_level.\n\n@gotags: yaml:\"detectionParanoiaLevel\""
+        },
+        "threshold": {
+          "$ref": "#/definitions/v1AnomalyThreshold",
+          "title": "@gotags: yaml:\"threshold\""
+        },
+        "categories": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Category"
+          },
+          "description": "Enabled rule groups, empty = all.\n\n@gotags: yaml:\"categories\""
+        },
+        "request": {
+          "$ref": "#/definitions/v1RequestPolicy",
+          "title": "@gotags: yaml:\"request\""
+        },
+        "exclusions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Exclusion"
+          },
+          "title": "@gotags: yaml:\"exclusions\""
+        },
+        "overrides": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1RuleOverride"
+          },
+          "title": "@gotags: yaml:\"overrides\""
+        },
+        "status": {
+          "$ref": "#/definitions/typesv1Status",
+          "title": "@gotags: yaml:\"status\""
+        }
+      },
+      "description": "Ruleset OWASP CRS configuration of a server (namespace)."
     },
     "typesv1Status": {
       "type": "string",
@@ -1242,65 +1321,6 @@
       },
       "title": "A logical condition expression"
     },
-    "v1CoreRuleset": {
-      "type": "object",
-      "properties": {
-        "mode": {
-          "$ref": "#/definitions/v1EngineMode",
-          "title": "@gotags: yaml:\"mode\""
-        },
-        "version": {
-          "$ref": "#/definitions/v1Version",
-          "title": "@gotags: yaml:\"version\""
-        },
-        "paranoiaLevel": {
-          "type": "integer",
-          "format": "int64",
-          "description": "tx.blocking_paranoia_level, 0 = default (1).\n\n@gotags: yaml:\"paranoiaLevel\""
-        },
-        "detectionParanoiaLevel": {
-          "type": "integer",
-          "format": "int64",
-          "description": "tx.detection_paranoia_level, 0 = same as paranoia_level.\n\n@gotags: yaml:\"detectionParanoiaLevel\""
-        },
-        "threshold": {
-          "$ref": "#/definitions/v1AnomalyThreshold",
-          "title": "@gotags: yaml:\"threshold\""
-        },
-        "categories": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v1Category"
-          },
-          "description": "Enabled rule groups, empty = all.\n\n@gotags: yaml:\"categories\""
-        },
-        "request": {
-          "$ref": "#/definitions/v1RequestPolicy",
-          "title": "@gotags: yaml:\"request\""
-        },
-        "exclusions": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1Exclusion"
-          },
-          "title": "@gotags: yaml:\"exclusions\""
-        },
-        "overrides": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1RuleOverride"
-          },
-          "title": "@gotags: yaml:\"overrides\""
-        },
-        "status": {
-          "$ref": "#/definitions/typesv1Status",
-          "title": "@gotags: yaml:\"status\""
-        }
-      },
-      "description": "CoreRuleset OWASP CRS configuration of a server (namespace)."
-    },
     "v1CreateRateLimitRequest": {
       "type": "object",
       "properties": {
@@ -1321,7 +1341,7 @@
       "type": "object",
       "properties": {
         "ruleset": {
-          "$ref": "#/definitions/v1Ruleset"
+          "$ref": "#/definitions/appssecurityv1Ruleset"
         }
       }
     },
@@ -1336,7 +1356,7 @@
     "v1CreateSecRuleRequest": {
       "type": "object",
       "properties": {
-        "secRule": {
+        "secrule": {
           "$ref": "#/definitions/v1SecRule"
         }
       }
@@ -1458,14 +1478,14 @@
       "type": "object",
       "properties": {
         "ruleset": {
-          "$ref": "#/definitions/v1Ruleset"
+          "$ref": "#/definitions/appssecurityv1Ruleset"
         }
       }
     },
     "v1GetSecRuleResponse": {
       "type": "object",
       "properties": {
-        "secRule": {
+        "secrule": {
           "$ref": "#/definitions/v1SecRule"
         }
       }
@@ -1528,7 +1548,7 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/v1Ruleset"
+            "$ref": "#/definitions/appssecurityv1Ruleset"
           }
         },
         "total": {
@@ -1540,7 +1560,7 @@
     "v1ListSecRulesResponse": {
       "type": "object",
       "properties": {
-        "secRules": {
+        "secrules": {
           "type": "array",
           "items": {
             "type": "object",
@@ -1768,26 +1788,6 @@
       },
       "description": "RuleTag tag of the OWASP CRS catalog, ex: \"attack-sqli\"."
     },
-    "v1Ruleset": {
-      "type": "object",
-      "properties": {
-        "owner": {
-          "$ref": "#/definitions/v1Owner"
-        },
-        "id": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "description": {
-          "type": "string"
-        },
-        "coreRuleset": {
-          "$ref": "#/definitions/v1CoreRuleset"
-        }
-      }
-    },
     "v1SecRule": {
       "type": "object",
       "properties": {
@@ -1844,14 +1844,14 @@
       "type": "object",
       "properties": {
         "ruleset": {
-          "$ref": "#/definitions/v1Ruleset"
+          "$ref": "#/definitions/appssecurityv1Ruleset"
         }
       }
     },
     "v1UpdateSecRuleResponse": {
       "type": "object",
       "properties": {
-        "secRule": {
+        "secrule": {
           "$ref": "#/definitions/v1SecRule"
         }
       }

@@ -21,12 +21,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@sentinez/ui/components/select';
-import { Category, RuleInfo, Version } from '@sentinez/proto/sentinez/types/coreruleset/v1/setting';
+import { Category, RuleInfo, Version } from '@sentinez/proto/sentinez/types/ruleset/v1/setting';
 import { useDebounced } from '@/hooks/use-debounced';
 import { useSecurityOptions } from '@/hooks/use-security-options';
 import { listCRSRuleInfos } from '@/lib/api/security';
 import { toast } from '@/lib/toast';
-import { isCrsRuleId } from './core-ruleset-form';
+import { isCrsRuleId } from './ruleset-form';
 import { cn } from '@sentinez/ui/lib/utils';
 
 export const PICKER_PAGE_SIZE = 8;
@@ -119,7 +119,7 @@ interface Props {
 
 /** Dialog searching the OWASP CRS catalog; mount it only while it is open */
 export function RulePicker({ version, onSelect, onClose }: Props) {
-  const t = useTranslations('CoreRulesetFields');
+  const t = useTranslations('RulesetFields');
   const tc = useTranslations('Common');
   const { crsCategoryOptions } = useSecurityOptions();
   const [search, setSearch] = useState('');

@@ -43,6 +43,6 @@ protoc \
   --go-senz_out="$SENTINEZ_GEN_OUT" \
   --go-vtproto_out="$SENTINEZ_GEN_OUT" \
   --go-vtproto_opt=features=marshal+unmarshal+size+pool \
-  --go-vtproto_opt=pool=github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1.CoreRuleEvent \
+  --go-vtproto_opt=pool=github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1.RulesetEvent \
   "$(pwd)"/*.proto || exit 1
 

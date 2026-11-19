@@ -14,11 +14,11 @@ import {
 import { Input } from '@sentinez/ui/components/input';
 import { Label } from '@sentinez/ui/components/label';
 import { Textarea } from '@sentinez/ui/components/textarea';
-import { Category } from '@sentinez/proto/sentinez/types/coreruleset/v1/setting';
+import { Category } from '@sentinez/proto/sentinez/types/ruleset/v1/setting';
 import { useSecurityOptions } from '@/hooks/use-security-options';
 import { HTTP_METHODS, SelectOption } from '@/lib/type/security';
-import { CoreRulesetFormValue } from './core-ruleset-form';
-import { ExclusionsEditor, OverridesEditor, SwitchField } from './core-ruleset-rules';
+import { RulesetFormValue } from './ruleset-form';
+import { ExclusionsEditor, OverridesEditor, SwitchField } from './ruleset-rules';
 import { useCRSRuleInfos } from './rule-picker';
 import { OptionSelect } from './sec-rule-fields';
 import { FieldGrid } from '@/components/field-grid';
@@ -26,8 +26,8 @@ import { FieldGrid } from '@/components/field-grid';
 const PARANOIA_LEVELS = [1, 2, 3, 4];
 
 interface Props {
-  value: CoreRulesetFormValue;
-  onChange: (patch: Partial<CoreRulesetFormValue>) => void;
+  value: RulesetFormValue;
+  onChange: (patch: Partial<RulesetFormValue>) => void;
   idPrefix?: string;
 }
 
@@ -197,9 +197,9 @@ function CategoryGroup({
   );
 }
 
-/** Form fields matching v1CoreRuleset in security.swagger.json */
-export function CoreRulesetFields({ value, onChange, idPrefix = 'ruleset' }: Props) {
-  const t = useTranslations('CoreRulesetFields');
+/** Form fields matching v1Ruleset in security.swagger.json */
+export function RulesetFields({ value, onChange, idPrefix = 'ruleset' }: Props) {
+  const t = useTranslations('RulesetFields');
   const options = useSecurityOptions();
 
   const levels = PARANOIA_LEVELS.map((level) => t('paranoiaN', { level }));

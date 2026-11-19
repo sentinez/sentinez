@@ -2,14 +2,14 @@
 // versions:
 //   protoc-gen-ts_proto  v2.12.1
 //   protoc               unknown
-// source: sentinez/types/coreruleset/v1/setting.proto
+// source: sentinez/types/ruleset/v1/setting.proto
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { Expression } from "../../rule/v1/rule";
 import { Status, statusFromJSON, statusToJSON } from "../../v1/known";
 
-export const protobufPackage = "sentinez.types.coreruleset.v1";
+export const protobufPackage = "sentinez.types.ruleset.v1";
 
 export enum EngineMode {
   /** ENGINE_MODE_UNSPECIFIED - = OFF */
@@ -328,8 +328,8 @@ export function ruleStateToJSON(object: RuleState): string {
   }
 }
 
-/** CoreRuleset OWASP CRS configuration of a server (namespace). */
-export interface CoreRuleset {
+/** Ruleset OWASP CRS configuration of a server (namespace). */
+export interface Ruleset {
   /** @gotags: yaml:"mode" */
   mode: EngineMode;
   /** @gotags: yaml:"version" */
@@ -432,7 +432,7 @@ export interface RuleInfo {
   system: boolean;
 }
 
-function createBaseCoreRuleset(): CoreRuleset {
+function createBaseRuleset(): Ruleset {
   return {
     mode: 0,
     version: 0,
@@ -447,8 +447,8 @@ function createBaseCoreRuleset(): CoreRuleset {
   };
 }
 
-export const CoreRuleset: MessageFns<CoreRuleset> = {
-  encode(message: CoreRuleset, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const Ruleset: MessageFns<Ruleset> = {
+  encode(message: Ruleset, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.mode !== 0) {
       writer.uint32(8).int32(message.mode);
     }
@@ -482,7 +482,7 @@ export const CoreRuleset: MessageFns<CoreRuleset> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CoreRuleset {
+  decode(input: BinaryReader | Uint8Array, length?: number): Ruleset {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -491,7 +491,7 @@ export const CoreRuleset: MessageFns<CoreRuleset> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseCoreRuleset();
+      const message = createBaseRuleset();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -597,7 +597,7 @@ export const CoreRuleset: MessageFns<CoreRuleset> = {
     }
   },
 
-  fromJSON(object: any): CoreRuleset {
+  fromJSON(object: any): Ruleset {
     return {
       mode: isSet(object.mode) ? engineModeFromJSON(object.mode) : 0,
       version: isSet(object.version) ? versionFromJSON(object.version) : 0,
@@ -626,7 +626,7 @@ export const CoreRuleset: MessageFns<CoreRuleset> = {
     };
   },
 
-  toJSON(message: CoreRuleset): unknown {
+  toJSON(message: Ruleset): unknown {
     const obj: any = {};
     if (message.mode !== 0) {
       obj.mode = engineModeToJSON(message.mode);
@@ -661,11 +661,11 @@ export const CoreRuleset: MessageFns<CoreRuleset> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CoreRuleset>, I>>(base?: I): CoreRuleset {
-    return CoreRuleset.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<Ruleset>, I>>(base?: I): Ruleset {
+    return Ruleset.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<CoreRuleset>, I>>(object: I): CoreRuleset {
-    const message = createBaseCoreRuleset();
+  fromPartial<I extends Exact<DeepPartial<Ruleset>, I>>(object: I): Ruleset {
+    const message = createBaseRuleset();
     message.mode = object.mode ?? 0;
     message.version = object.version ?? 0;
     message.paranoiaLevel = object.paranoiaLevel ?? 0;

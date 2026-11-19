@@ -100,7 +100,7 @@ booleans are formatted as strings):
 | `ROUTE_TO` | `location` | Proxies to the `server.locations` entry with that `location` instead of the longest matching prefix; an unknown one falls back to prefix matching |
 
 ```yaml
-sec_rules:
+secrules:
   - ingress:
       name: "Send old links to the new shop"
       status: STATUS_ACTIVE
@@ -197,8 +197,8 @@ The `szruleparser` tool
    ([core/szmodsec/ruleparser](../staging/src/github.com/sentinez/core/szmodsec/ruleparser/)):
    each statement is a rule; a rule ending in `chain"` is joined with the
    next statement; `ver`, `paranoia-level` and action fields are extracted.
-2. Loads the result into `coreruleset.v1.CoreRulesets` and renders a Go
-   template: each rule becomes a function returning a `*CoreRule` whose
+2. Loads the result into `ruleset.v1.Rulesets` and renders a Go
+   template: each rule becomes a function returning a `*Rule` whose
    `Configuration` is base64-encoded, plus an `XxxOrder` slice that keeps the
    order.
 3. Writes `core/szmodsec/gen[/v4-16-0|/v4-17-0]/*.sentinez_rules.gen.go`.
@@ -245,7 +245,7 @@ score), IP, domain, transaction ID, request ID, time.
 ### Enabling the WAF for a namespace
 
 `MemStore.LoadRulesets` creates one WAF per namespace from
-`security.core_ruleset` (version, mode, paranoia levels, thresholds,
+`security.ruleset` (version, mode, paranoia levels, thresholds,
 categories, exclusions, overrides — see
 [03-edge.md](03-edge.md#35-proxyyaml-configuration)). `version` selects the
 embedded CRS files: `VERSION_V4_16_0`, otherwise **v4.17.0**.

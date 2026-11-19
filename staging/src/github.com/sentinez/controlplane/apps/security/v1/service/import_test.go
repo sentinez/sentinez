@@ -23,8 +23,8 @@ import (
 	"github.com/sentinez/controlplane/apps/security/v1/repos/secrule"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
-	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/stretchr/testify/assert"
@@ -85,12 +85,12 @@ func (f fakeRateLimits) List(context.Context,
 	return f.fakeRepo.List()
 }
 
-type fakeCoreRulesets struct {
+type fakeRulesets struct {
 	rulesetRepo
 	*fakeRepo[*securitypb.Ruleset]
 }
 
-func (f fakeCoreRulesets) List(context.Context,
+func (f fakeRulesets) List(context.Context,
 	*securitypb.ListRulesetsRequest,
 ) ([]*securitypb.Ruleset, int64, error) {
 	return f.fakeRepo.List()
@@ -102,7 +102,7 @@ func newImportService(rules *fakeRepo[*securitypb.SecRule],
 	limits *fakeRepo[*securitypb.RateLimit],
 	crs *fakeRepo[*securitypb.Ruleset]) *SecurityService {
 	return New(nil, fakeSecRules{fakeRepo: rules},
-		fakeRateLimits{fakeRepo: limits}, fakeCoreRulesets{fakeRepo: crs}, nil)
+		fakeRateLimits{fakeRepo: limits}, fakeRulesets{fakeRepo: crs}, nil)
 }
 
 // importSecurity is a normalized proxy.yaml security block with a core
@@ -111,8 +111,8 @@ func importSecurity() *edgepb.Security {
 	block := &rulepb.Action{Type: rulepb.ActionType_ACTION_TYPE_BLOCK}
 
 	return &edgepb.Security{
-		CoreRuleset: &corerulesetpb.CoreRuleset{ParanoiaLevel: 1},
-		SecRules: []*edgepb.SecRule{
+		Ruleset: &rulesetpb.Ruleset{ParanoiaLevel: 1},
+		Secrules: []*edgepb.SecRule{
 			{Ingress: &secrulepb.SecRule{Name: "block", Action: block}},
 			{Ingress: &secrulepb.SecRule{Name: "challenge"}},
 		},
@@ -176,7 +176,7 @@ func TestImportSecurityInvalid(t *testing.T) {
 		give *edgepb.Security
 	}{
 		{"unnamed sec rule", &edgepb.Security{
-			SecRules: []*edgepb.SecRule{
+			Secrules: []*edgepb.SecRule{
 				{Ingress: &secrulepb.SecRule{}},
 			},
 		}},

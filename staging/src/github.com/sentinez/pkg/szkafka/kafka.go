@@ -158,12 +158,12 @@ func Brokers(brokers string) []string {
 // DefaultTopics returns the topic of each edge traffic log type.
 func DefaultTopics() map[typepb.LogType]sztopic.Topic {
 	return map[typepb.LogType]sztopic.Topic{
-		typepb.LogType_LOG_TYPE_HTTP_INGRESS:  sztopic.EventHTTPIngress,
-		typepb.LogType_LOG_TYPE_HTTP_EGRESS:   sztopic.EventHTTPEgress,
-		typepb.LogType_LOG_TYPE_CORE_RULESETS: sztopic.EventHTTPRulesets,
-		typepb.LogType_LOG_TYPE_SEC_RULE:      sztopic.EventHTTPSecRule,
-		typepb.LogType_LOG_TYPE_RATE_LIMIT:    sztopic.EventHTTPRateLimit,
-		typepb.LogType_LOG_TYPE_CDN_RULE:      sztopic.EventHTTPCDNRule,
+		typepb.LogType_LOG_TYPE_HTTP_INGRESS: sztopic.EventHTTPIngress,
+		typepb.LogType_LOG_TYPE_HTTP_EGRESS:  sztopic.EventHTTPEgress,
+		typepb.LogType_LOG_TYPE_RULESETS:     sztopic.EventHTTPRulesets,
+		typepb.LogType_LOG_TYPE_SECRULE:      sztopic.EventHTTPSecRule,
+		typepb.LogType_LOG_TYPE_RATE_LIMIT:   sztopic.EventHTTPRateLimit,
+		typepb.LogType_LOG_TYPE_CDN_RULE:     sztopic.EventHTTPCDNRule,
 	}
 }
 

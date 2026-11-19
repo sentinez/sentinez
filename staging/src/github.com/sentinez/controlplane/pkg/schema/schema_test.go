@@ -23,8 +23,8 @@ import (
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	auditpb "github.com/sentinez/sentinez/api/proto/sentinez/types/audit/v1"
-	crspb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	"github.com/stretchr/testify/assert"
 )
@@ -60,11 +60,11 @@ func scannedColumnsTests() []scannedColumnsTest {
 		{"resources", TenantResources(), tenantpb.ResourceColumns()},
 		{"secrules", SecuritySecRules(), securitypb.SecRuleColumns()},
 		{"ratelimits", SecurityRateLimits(), securitypb.RateLimitColumns()},
-		{"rulesets", SecurityCoreRulesets(), securitypb.RulesetColumns()},
+		{"rulesets", SecurityRulesets(), securitypb.RulesetColumns()},
 		{"activities", AnalyticActivities(), analyticpb.ActivityColumns()},
 		{"secrule evt", AnalyticSecRulesEvent(), _secRuleEventColumns},
 		{"ratelimit evt", AnalyticRateLimiterEvent(), _secRuleEventColumns},
-		{"corerule evt", AnalyticCoreRulesetsEvent(), _coreRuleEventColumns},
+		{"ruleset evt", AnalyticRulesetsEvent(), _rulesetEventColumns},
 		{"ingress evt", AnalyticHttpIngressEvent(), _ingressEventColumns},
 		{"egress evt", AnalyticHttpEgressEvent(), _egressEventColumns},
 		{"audit logs", AnalyticAuditLogsEvent(), auditpb.AuditLogColumns()},
@@ -72,10 +72,10 @@ func scannedColumnsTests() []scannedColumnsTest {
 }
 
 var (
-	_secRuleEventColumns  = secrulepb.SecRuleEventColumns()
-	_coreRuleEventColumns = crspb.CoreRuleEventColumns()
-	_ingressEventColumns  = httppb.IngressEventColumns()
-	_egressEventColumns   = httppb.EgressEventColumns()
+	_secRuleEventColumns = secrulepb.SecRuleEventColumns()
+	_rulesetEventColumns = rulesetpb.RulesetEventColumns()
+	_ingressEventColumns = httppb.IngressEventColumns()
+	_egressEventColumns  = httppb.EgressEventColumns()
 )
 
 // eventIndexTest a table of events and the column of its time.
@@ -101,7 +101,7 @@ func TestEventResourceTimeIndex(t *testing.T) {
 	tests := []eventIndexTest{
 		{"secrule", AnalyticSecRulesEvent(), "matched_time"},
 		{"ratelimit", AnalyticRateLimiterEvent(), "matched_time"},
-		{"corerule", AnalyticCoreRulesetsEvent(), "matched_time"},
+		{"ruleset", AnalyticRulesetsEvent(), "matched_time"},
 		{"ingress", AnalyticHttpIngressEvent(), "timestamp"},
 		{"egress", AnalyticHttpEgressEvent(), "timestamp"},
 		{"audit logs", AnalyticAuditLogsEvent(), "timestamp"},
@@ -122,7 +122,7 @@ func TestRuleEventRequestIndex(t *testing.T) {
 	tests := []eventIndexTest{
 		{name: "secrule", giveSchema: AnalyticSecRulesEvent()},
 		{name: "ratelimit", giveSchema: AnalyticRateLimiterEvent()},
-		{name: "corerule", giveSchema: AnalyticCoreRulesetsEvent()},
+		{name: "ruleset", giveSchema: AnalyticRulesetsEvent()},
 	}
 
 	for _, tt := range tests {

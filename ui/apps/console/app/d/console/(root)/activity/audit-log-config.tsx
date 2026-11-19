@@ -98,7 +98,7 @@ function MethodCell({ method }: { method: string }) {
   );
 }
 
-// The leaves of a JSON value as dotted keys, e.g. secRule.owner.resourceId
+// The leaves of a JSON value as dotted keys, e.g. secrule.owner.resourceId
 function leavesOf(value: unknown, prefix = ''): [string, ReactNode][] {
   if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
     return Object.entries(value).flatMap(([k, v]) => leavesOf(v, prefix ? `${prefix}.${k}` : k));

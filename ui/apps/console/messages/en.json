@@ -363,8 +363,8 @@
     "cdnSubtitle": "Manage active content delivery network rule"
   },
   "Rulesets": {
-    "title": "Core Rulesets",
-    "subtitle": "Manage active owasp core rulesets.",
+    "title": "Rulesets",
+    "subtitle": "Manage the active OWASP CRS rulesets.",
     "name": "Name",
     "description": "Description",
     "mode": "Mode",
@@ -397,7 +397,7 @@
     "inUse": "This ruleset runs the OWASP Core Rule Set (CRS). Tune it with the settings below.",
     "learnMore": "About the OWASP CRS"
   },
-  "CoreRulesetFields": {
+  "RulesetFields": {
     "name": "Name",
     "namePlaceholder": "Ruleset name",
     "description": "Description",
@@ -839,9 +839,9 @@
       "title": "Rate limiter",
       "subtitle": "Requests rejected by the rate limiters of this domain"
     },
-    "coreRule": {
+    "ruleset": {
       "title": "Ruleset",
-      "subtitle": "Requests that matched the core rulesets (OWASP CRS) of this domain"
+      "subtitle": "Requests that matched the rulesets (OWASP CRS) of this domain"
     },
     "series": {
       "s2xx": "2xx",

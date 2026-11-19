@@ -39,16 +39,16 @@ func TestUpdateSecRuleWritesTheMask(t *testing.T) {
 	resp, err := f.svc.UpdateSecRule(ctx,
 		&securitypb.UpdateSecRuleRequest{
 			Id:         _ruleId,
-			SecRule:    &securitypb.SecRule{Name: "block", Priority: 1},
+			Secrule:    &securitypb.SecRule{Name: "block", Priority: 1},
 			UpdateMask: maskOf(securitypb.SecRule_Name),
 		})
 
 	require.NoError(t, err)
 	assert.Equal(t, [][]string{{securitypb.SecRule_Name}}, f.rules.updated)
-	assert.Equal(t, "block", resp.GetSecRule().GetName())
-	assert.Equal(t, int32(7), resp.GetSecRule().GetPriority())
+	assert.Equal(t, "block", resp.GetSecrule().GetName())
+	assert.Equal(t, int32(7), resp.GetSecrule().GetPriority())
 	assert.Equal(t, _resourceId,
-		resp.GetSecRule().GetOwner().GetResourceId())
+		resp.GetSecrule().GetOwner().GetResourceId())
 
 	before, after, paths := change.Get()
 	assert.NotEqual(t, "block", before.(*securitypb.SecRule).GetName())
@@ -62,7 +62,7 @@ func TestUpdateSecRuleOwnerNotUpdatable(t *testing.T) {
 	_, err := f.svc.UpdateSecRule(portalUser(t),
 		&securitypb.UpdateSecRuleRequest{
 			Id:         _ruleId,
-			SecRule:    &securitypb.SecRule{Owner: ownedBy(_foreignId)},
+			Secrule:    &securitypb.SecRule{Owner: ownedBy(_foreignId)},
 			UpdateMask: maskOf("owner"),
 		})
 

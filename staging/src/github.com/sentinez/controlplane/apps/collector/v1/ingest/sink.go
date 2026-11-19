@@ -29,8 +29,8 @@ import (
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szprefix"
 	auditpb "github.com/sentinez/sentinez/api/proto/sentinez/types/audit/v1"
-	crspb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	"github.com/twmb/franz-go/pkg/kgo"
 )
@@ -62,11 +62,11 @@ func NewSecRuleEventSink(create CreateFn[secrulepb.SecRuleEvent]) Sink {
 		func(e *secrulepb.SecRuleEvent, id string) { e.Id = id })
 }
 
-// NewCoreRuleEventSink returns the sink of the corerulesetpb.CoreRuleEvent
+// NewRulesetEventSink returns the sink of the rulesetpb.RulesetEvent
 // records, inserted by create.
-func NewCoreRuleEventSink(create CreateFn[crspb.CoreRuleEvent]) Sink {
+func NewRulesetEventSink(create CreateFn[rulesetpb.RulesetEvent]) Sink {
 	return newSink(rulesetpool.Pool(), szprefix.RulesetEvent, create,
-		func(e *crspb.CoreRuleEvent, id string) { e.Id = id })
+		func(e *rulesetpb.RulesetEvent, id string) { e.Id = id })
 }
 
 // NewHttpIngressEventSink returns the sink of the httppb.IngressEvent

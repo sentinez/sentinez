@@ -29,21 +29,21 @@ const (
 )
 
 const (
-	AnalyticActivities   dbx.Table = "analytic.activities"
-	AnalyticSecRules     dbx.Table = "analytic.secrules"
-	AnalyticCoreRulesets dbx.Table = "analytic.corerulesets"
-	AnalyticRateLimiter  dbx.Table = "analytic.ratelimiters"
+	AnalyticActivities  dbx.Table = "analytic.activities"
+	AnalyticSecRules    dbx.Table = "analytic.secrules"
+	AnalyticRulesets    dbx.Table = "analytic.rulesets"
+	AnalyticRateLimiter dbx.Table = "analytic.ratelimiters"
 
-	AnalyticSecRulesEvent     dbx.Table = "analytic.secrules.events"
-	AnalyticCoreRulesetsEvent dbx.Table = "analytic.corerulesets.events"
-	AnalyticRateLimiterEvent  dbx.Table = "analytic.ratelimiters.events"
-	AnalyticHttpIngressEvent  dbx.Table = "analytic.httpingress.events"
-	AnalyticHttpEgressEvent   dbx.Table = "analytic.httpegress.events"
-	AnalyticAuditLogsEvent    dbx.Table = "analytic.auditlogs.events"
+	AnalyticSecRulesEvent    dbx.Table = "analytic.secrules.events"
+	AnalyticRulesetsEvent    dbx.Table = "analytic.rulesets.events"
+	AnalyticRateLimiterEvent dbx.Table = "analytic.ratelimiters.events"
+	AnalyticHttpIngressEvent dbx.Table = "analytic.httpingress.events"
+	AnalyticHttpEgressEvent  dbx.Table = "analytic.httpegress.events"
+	AnalyticAuditLogsEvent   dbx.Table = "analytic.auditlogs.events"
 )
 
 const (
-	SecuritySecRules     dbx.Table = "security.secrules"
-	SecurityRateLimits   dbx.Table = "security.ratelimits"
-	SecurityCoreRulesets dbx.Table = "security.corerulesets"
+	SecuritySecRules   dbx.Table = "security.secrules"
+	SecurityRateLimits dbx.Table = "security.ratelimits"
+	SecurityRulesets   dbx.Table = "security.rulesets"
 )

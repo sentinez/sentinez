@@ -10,7 +10,7 @@ Remove an entry once it is fixed.
 
 | # | Location | Problem |
 |---|---|---|
-| L1 | [controlplane/pkg/schema](../staging/src/github.com/sentinez/controlplane/pkg/schema/) since `28dd2173` *(needs verification)* | The timestamp columns of the iam, tenant, security and activities tables were renamed (`created_at` → `metadata_created_at` / `owner_created_at`) and `security.sec_rules.action` went from `JSONB` to `TEXT`, but the schema sync never renames or retypes: on a database created before, the generated scanners select columns that do not exist. Drop the tables (dev) or migrate them by hand |
+| L1 | [controlplane/pkg/schema](../staging/src/github.com/sentinez/controlplane/pkg/schema/) since `28dd2173` *(needs verification)* | The timestamp columns of the iam, tenant, security and activities tables were renamed (`created_at` → `metadata_created_at` / `owner_created_at`) and `security.secrules.action` went from `JSONB` to `TEXT`, but the schema sync never renames or retypes: on a database created before, the generated scanners select columns that do not exist. Drop the tables (dev) or migrate them by hand |
 
 ## 12.2 Security
 

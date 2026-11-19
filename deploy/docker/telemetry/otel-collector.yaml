@@ -41,9 +41,9 @@ connectors:
         pipelines: [logs/http]
       - statement: route() where attributes["kind"] == "LOG_TYPE_HTTP_EGRESS"
         pipelines: [logs/egress]
-      - statement: route() where attributes["kind"] == "LOG_TYPE_CORE_RULESETS"
+      - statement: route() where attributes["kind"] == "LOG_TYPE_RULESETS"
         pipelines: [logs/rulesets]
-      - statement: route() where attributes["kind"] == "LOG_TYPE_SEC_RULE"
+      - statement: route() where attributes["kind"] == "LOG_TYPE_SECRULE"
         pipelines: [logs/secrule]
       - statement: route() where attributes["kind"] == "LOG_TYPE_RATE_LIMIT"
         pipelines: [logs/ratelimit]

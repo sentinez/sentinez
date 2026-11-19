@@ -17,8 +17,8 @@ syntax = "proto3";
 package sentinez.apps.security.v1;
 
 import "buf/validate/validate.proto";
-import "sentinez/types/coreruleset/v1/setting.proto";
 import "sentinez/types/rule/v1/rule.proto";
+import "sentinez/types/ruleset/v1/setting.proto";
 import "sentinez/types/v1/known.proto";
 import "sentinez/types/v1/model.proto";
 import "sentinez/types/v1/options.proto";
@@ -106,5 +106,5 @@ message Ruleset {
   string name = 3;
   string description = 4;
 
-  sentinez.types.coreruleset.v1.CoreRuleset core_ruleset = 5 [(sentinez.types.v1.x_field).codec = COLUMN_CODEC_PROTOJSON];
+  sentinez.types.ruleset.v1.Ruleset ruleset = 5 [(sentinez.types.v1.x_field).codec = COLUMN_CODEC_PROTOJSON];
 }

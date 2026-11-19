@@ -130,18 +130,18 @@ func (srv *SecurityService) mapSecRule(_ context.Context,
 func (srv *SecurityService) CreateSecRule(ctx context.Context,
 	req *securitypb.CreateSecRuleRequest,
 ) (*securitypb.CreateSecRuleResponse, error) {
-	if req.GetSecRule() == nil {
-		return nil, szerror.StatusInvalidArgumentF("sec_rule is required")
+	if req.GetSecrule() == nil {
+		return nil, szerror.StatusInvalidArgumentF("secrule is required")
 	}
 
-	owner, err := srv.newOwner(ctx, req.GetSecRule().GetOwner())
+	owner, err := srv.newOwner(ctx, req.GetSecrule().GetOwner())
 	if err != nil {
 		return nil, err
 	}
 
-	req.GetSecRule().Owner = owner
+	req.GetSecrule().Owner = owner
 
-	created, err := srv.secRuleRepo.Create(ctx, req.GetSecRule())
+	created, err := srv.secRuleRepo.Create(ctx, req.GetSecrule())
 	if err != nil {
 		return nil, err
 	}
@@ -159,7 +159,7 @@ func (srv *SecurityService) GetSecRule(ctx context.Context,
 	}
 
 	return &securitypb.
-		GetSecRuleResponse{SecRule: srv.mapSecRule(ctx, dbRB)}, nil
+		GetSecRuleResponse{Secrule: srv.mapSecRule(ctx, dbRB)}, nil
 }
 
 // _secRuleUpdatable the fields of a sec rule an update writes.
@@ -173,8 +173,8 @@ var _secRuleUpdatable = []string{
 func (srv *SecurityService) UpdateSecRule(ctx context.Context,
 	req *securitypb.UpdateSecRuleRequest,
 ) (*securitypb.UpdateSecRuleResponse, error) {
-	if req.GetSecRule() == nil {
-		return nil, szerror.StatusInvalidArgumentF("sec_rule is required")
+	if req.GetSecrule() == nil {
+		return nil, szerror.StatusInvalidArgumentF("secrule is required")
 	}
 
 	dbRB, err := owned(ctx, srv, srv.secRuleRepo.Get, "sec rule",
@@ -184,7 +184,7 @@ func (srv *SecurityService) UpdateSecRule(ctx context.Context,
 	}
 
 	before := proto.CloneOf(dbRB)
-	paths, err := szprotobuf.ApplyMask(dbRB, req.GetSecRule(),
+	paths, err := szprotobuf.ApplyMask(dbRB, req.GetSecrule(),
 		req.GetUpdateMask(), _secRuleUpdatable...)
 	if err != nil {
 		return nil, err
@@ -197,7 +197,7 @@ func (srv *SecurityService) UpdateSecRule(ctx context.Context,
 	auditchange.Set(ctx, before, dbRB, paths)
 
 	return &securitypb.
-		UpdateSecRuleResponse{SecRule: srv.mapSecRule(ctx, dbRB)}, nil
+		UpdateSecRuleResponse{Secrule: srv.mapSecRule(ctx, dbRB)}, nil
 }
 
 func (srv *SecurityService) DeleteSecRule(ctx context.Context,
@@ -235,7 +235,7 @@ func (srv *SecurityService) ListSecRules(ctx context.Context,
 	}
 
 	return &securitypb.ListSecRulesResponse{
-		SecRules: rbs,
+		Secrules: rbs,
 		Total:    total,
 	}, nil
 }

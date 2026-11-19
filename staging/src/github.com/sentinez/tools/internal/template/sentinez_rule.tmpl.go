@@ -20,14 +20,14 @@ var SentinezRuleFunc = `
 package gen
 
 import (
-	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 )
 
 {{ $outer := . }}
 
 const {{ .Name }}Version = {{ .Version | printf "%q" }}
 
-var {{ .Name }}Order = []func() *rulepb.CoreRule{
+var {{ .Name }}Order = []func() *rulesetpb.Rule{
 	{{- range $i, $rule := .Rules }}
 	{{- $ids := $rule.Actions.Fields.Id }}
 	{{- if $ids }}
@@ -38,7 +38,7 @@ var {{ .Name }}Order = []func() *rulepb.CoreRule{
 	{{- end }}
 }
 
-var {{ .Name }} = map[string]*rulepb.CoreRule{
+var {{ .Name }} = map[string]*rulesetpb.Rule{
 	{{- range $i, $rule := .Rules }}
 	{{- $ids := $rule.Actions.Fields.Id }}
 	{{- if $ids }}
@@ -50,11 +50,11 @@ var {{ .Name }} = map[string]*rulepb.CoreRule{
 }
 
 // {{ .Name }}Info is the catalog of the rules above that have an ID.
-var {{ .Name }}Info = []*rulepb.RuleInfo{
+var {{ .Name }}Info = []*rulesetpb.RuleInfo{
 	{{- range .Infos }}
 	{
 		Id: {{ .Id }},
-		Category: rulepb.Category_{{ .Category }},
+		Category: rulesetpb.Category_{{ .Category }},
 		{{- if .ParanoiaLevel }}
 		ParanoiaLevel: {{ .ParanoiaLevel }},
 		{{- end }}
@@ -78,16 +78,16 @@ var {{ .Name }}Info = []*rulepb.RuleInfo{
 {{- $ids := $rule.Actions.Fields.Id }}
 {{- if $ids }}
 // R{{ index $ids 0 }} returns rule with ID {{ index $ids 0 }}
-func R{{ index $ids 0 }}() *rulepb.CoreRule {
+func R{{ index $ids 0 }}() *rulesetpb.Rule {
 {{- else }}
 // {{ $.Name }}Maker_{{ $i }} returns rule without ID
-func {{ $.Name }}Maker_{{ $i }}() *rulepb.CoreRule {
+func {{ $.Name }}Maker_{{ $i }}() *rulesetpb.Rule {
 {{- end }}
-	return &rulepb.CoreRule{
-		Actions: &rulepb.RuleAction{
+	return &rulesetpb.Rule{
+		Actions: &rulesetpb.RuleAction{
 			Statement: {{ $rule.Actions.Statement | base64Encode | printf "%q" }},
 			{{- if $rule.Actions.Fields }}
-			Fields: &rulepb.RuleActionField{
+			Fields: &rulesetpb.RuleActionField{
 				{{- if $rule.Actions.Fields.Id }}Id: []string{ {{ range $rule.Actions.Fields.Id }}{{ printf "%q" . }},{{ end }} },{{ end }}
 				{{- if $rule.Actions.Fields.Msg }}Msg: []string{ {{ range $rule.Actions.Fields.Msg }}{{ printf "%q" . }},{{ end }} },{{ end }}
 				{{- if $rule.Actions.Fields.Phase }}Phase: []string{ {{ range $rule.Actions.Fields.Phase }}{{ printf "%q" . }},{{ end }} },{{ end }}

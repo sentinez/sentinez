@@ -363,7 +363,7 @@
     "cdnSubtitle": "Quản lý các quy tắc mạng phân phối nội dung đang hoạt động"
   },
   "Rulesets": {
-    "title": "Core Rulesets",
+    "title": "Bộ quy tắc",
     "subtitle": "Quản lý các bộ quy tắc OWASP Core Rule Set đang hoạt động.",
     "name": "Tên",
     "description": "Mô tả",
@@ -397,7 +397,7 @@
     "inUse": "Bộ quy tắc này chạy OWASP Core Rule Set (CRS). Tinh chỉnh bằng các thiết lập bên dưới.",
     "learnMore": "Tìm hiểu về OWASP CRS"
   },
-  "CoreRulesetFields": {
+  "RulesetFields": {
     "name": "Tên",
     "namePlaceholder": "Tên bộ quy tắc",
     "description": "Mô tả",
@@ -839,9 +839,9 @@
       "title": "Giới hạn tốc độ",
       "subtitle": "Các request bị bộ giới hạn tốc độ của tên miền này từ chối"
     },
-    "coreRule": {
+    "ruleset": {
       "title": "Bộ quy tắc",
-      "subtitle": "Các request khớp bộ quy tắc lõi (OWASP CRS) của tên miền này"
+      "subtitle": "Các request khớp bộ quy tắc (OWASP CRS) của tên miền này"
     },
     "series": {
       "s2xx": "2xx",

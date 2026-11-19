@@ -353,10 +353,10 @@ func (m *Ruleset) Validate() error {
 
 	// no validation rules for Description
 
-	if v, ok := interface{}(m.GetCoreRuleset()).(interface{ Validate() error }); ok {
+	if v, ok := interface{}(m.GetRuleset()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return RulesetValidationError{
-				field:  "CoreRuleset",
+				field:  "Ruleset",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}

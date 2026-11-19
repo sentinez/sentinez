@@ -16,9 +16,9 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v4.22.5
-// source: sentinez/types/coreruleset/v1/event.proto
+// source: sentinez/types/ruleset/v1/event.proto
 
-package corerulesetpb
+package rulesetpb
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
@@ -38,7 +38,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type CoreRuleEvent struct {
+type RulesetEvent struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	MatchedRuleIds []int32                `protobuf:"varint,2,rep,packed,name=matched_rule_ids,json=matchedRuleIds,proto3" json:"matched_rule_ids,omitempty"`
@@ -60,21 +60,21 @@ type CoreRuleEvent struct {
 	sizeCache      protoimpl.SizeCache
 }
 
-func (x *CoreRuleEvent) Reset() {
-	*x = CoreRuleEvent{}
-	mi := &file_sentinez_types_coreruleset_v1_event_proto_msgTypes[0]
+func (x *RulesetEvent) Reset() {
+	*x = RulesetEvent{}
+	mi := &file_sentinez_types_ruleset_v1_event_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CoreRuleEvent) String() string {
+func (x *RulesetEvent) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CoreRuleEvent) ProtoMessage() {}
+func (*RulesetEvent) ProtoMessage() {}
 
-func (x *CoreRuleEvent) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_types_coreruleset_v1_event_proto_msgTypes[0]
+func (x *RulesetEvent) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_types_ruleset_v1_event_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -85,129 +85,129 @@ func (x *CoreRuleEvent) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CoreRuleEvent.ProtoReflect.Descriptor instead.
-func (*CoreRuleEvent) Descriptor() ([]byte, []int) {
-	return file_sentinez_types_coreruleset_v1_event_proto_rawDescGZIP(), []int{0}
+// Deprecated: Use RulesetEvent.ProtoReflect.Descriptor instead.
+func (*RulesetEvent) Descriptor() ([]byte, []int) {
+	return file_sentinez_types_ruleset_v1_event_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *CoreRuleEvent) GetId() string {
+func (x *RulesetEvent) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *CoreRuleEvent) GetMatchedRuleIds() []int32 {
+func (x *RulesetEvent) GetMatchedRuleIds() []int32 {
 	if x != nil {
 		return x.MatchedRuleIds
 	}
 	return nil
 }
 
-func (x *CoreRuleEvent) GetSeverities() []string {
+func (x *RulesetEvent) GetSeverities() []string {
 	if x != nil {
 		return x.Severities
 	}
 	return nil
 }
 
-func (x *CoreRuleEvent) GetMessages() []string {
+func (x *RulesetEvent) GetMessages() []string {
 	if x != nil {
 		return x.Messages
 	}
 	return nil
 }
 
-func (x *CoreRuleEvent) GetTotalScore() int32 {
+func (x *RulesetEvent) GetTotalScore() int32 {
 	if x != nil {
 		return x.TotalScore
 	}
 	return 0
 }
 
-func (x *CoreRuleEvent) GetMatchedTime() int64 {
+func (x *RulesetEvent) GetMatchedTime() int64 {
 	if x != nil {
 		return x.MatchedTime
 	}
 	return 0
 }
 
-func (x *CoreRuleEvent) GetResourceId() string {
+func (x *RulesetEvent) GetResourceId() string {
 	if x != nil {
 		return x.ResourceId
 	}
 	return ""
 }
 
-func (x *CoreRuleEvent) GetTenantId() string {
+func (x *RulesetEvent) GetTenantId() string {
 	if x != nil {
 		return x.TenantId
 	}
 	return ""
 }
 
-func (x *CoreRuleEvent) GetService() v1.RuleService {
+func (x *RulesetEvent) GetService() v1.RuleService {
 	if x != nil {
 		return x.Service
 	}
 	return v1.RuleService(0)
 }
 
-func (x *CoreRuleEvent) GetRequestIp() string {
+func (x *RulesetEvent) GetRequestIp() string {
 	if x != nil {
 		return x.RequestIp
 	}
 	return ""
 }
 
-func (x *CoreRuleEvent) GetRequestDomain() string {
+func (x *RulesetEvent) GetRequestDomain() string {
 	if x != nil {
 		return x.RequestDomain
 	}
 	return ""
 }
 
-func (x *CoreRuleEvent) GetRequestScheme() string {
+func (x *RulesetEvent) GetRequestScheme() string {
 	if x != nil {
 		return x.RequestScheme
 	}
 	return ""
 }
 
-func (x *CoreRuleEvent) GetRequestPath() string {
+func (x *RulesetEvent) GetRequestPath() string {
 	if x != nil {
 		return x.RequestPath
 	}
 	return ""
 }
 
-func (x *CoreRuleEvent) GetRequestQuery() string {
+func (x *RulesetEvent) GetRequestQuery() string {
 	if x != nil {
 		return x.RequestQuery
 	}
 	return ""
 }
 
-func (x *CoreRuleEvent) GetRequestId() string {
+func (x *RulesetEvent) GetRequestId() string {
 	if x != nil {
 		return x.RequestId
 	}
 	return ""
 }
 
-func (x *CoreRuleEvent) GetBehavior() v1.RuleBehavior {
+func (x *RulesetEvent) GetBehavior() v1.RuleBehavior {
 	if x != nil {
 		return x.Behavior
 	}
 	return v1.RuleBehavior(0)
 }
 
-var File_sentinez_types_coreruleset_v1_event_proto protoreflect.FileDescriptor
+var File_sentinez_types_ruleset_v1_event_proto protoreflect.FileDescriptor
 
-const file_sentinez_types_coreruleset_v1_event_proto_rawDesc = "" +
+const file_sentinez_types_ruleset_v1_event_proto_rawDesc = "" +
 	"\n" +
-	")sentinez/types/coreruleset/v1/event.proto\x12\x1dsentinez.types.coreruleset.v1\x1a\x1bbuf/validate/validate.proto\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1fsentinez/types/v1/options.proto\"\xd4\x05\n" +
-	"\rCoreRuleEvent\x12F\n" +
+	"%sentinez/types/ruleset/v1/event.proto\x12\x19sentinez.types.ruleset.v1\x1a\x1bbuf/validate/validate.proto\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1fsentinez/types/v1/options.proto\"\xd3\x05\n" +
+	"\fRulesetEvent\x12F\n" +
 	"\x02id\x18\x01 \x01(\tB6\xbaH3r12/^([a-zA-Z0-9-]+-)?rsevt_[0-9A-HJKMNP-TV-Z]{26}$R\x02id\x12(\n" +
 	"\x10matched_rule_ids\x18\x02 \x03(\x05R\x0ematchedRuleIds\x12\x1e\n" +
 	"\n" +
@@ -230,29 +230,29 @@ const file_sentinez_types_coreruleset_v1_event_proto_rawDesc = "" +
 	"\rrequest_query\x18\x0e \x01(\tR\frequestQuery\x12S\n" +
 	"\n" +
 	"request_id\x18\x0f \x01(\tB4\xbaH1r/2-^([a-zA-Z0-9-]+-)?req_[0-9A-HJKMNP-TV-Z]{26}$R\trequestId\x12@\n" +
-	"\bbehavior\x18\x14 \x01(\x0e2$.sentinez.types.rule.v1.RuleBehaviorR\bbehavior:\b\xca\xf3\x18\x04\b\x01\x18\x01BTZRgithub.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1;corerulesetpbb\x06proto3"
+	"\bbehavior\x18\x14 \x01(\x0e2$.sentinez.types.rule.v1.RuleBehaviorR\bbehavior:\b\xca\xf3\x18\x04\b\x01\x18\x01BLZJgithub.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1;rulesetpbb\x06proto3"
 
 var (
-	file_sentinez_types_coreruleset_v1_event_proto_rawDescOnce sync.Once
-	file_sentinez_types_coreruleset_v1_event_proto_rawDescData []byte
+	file_sentinez_types_ruleset_v1_event_proto_rawDescOnce sync.Once
+	file_sentinez_types_ruleset_v1_event_proto_rawDescData []byte
 )
 
-func file_sentinez_types_coreruleset_v1_event_proto_rawDescGZIP() []byte {
-	file_sentinez_types_coreruleset_v1_event_proto_rawDescOnce.Do(func() {
-		file_sentinez_types_coreruleset_v1_event_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_sentinez_types_coreruleset_v1_event_proto_rawDesc), len(file_sentinez_types_coreruleset_v1_event_proto_rawDesc)))
+func file_sentinez_types_ruleset_v1_event_proto_rawDescGZIP() []byte {
+	file_sentinez_types_ruleset_v1_event_proto_rawDescOnce.Do(func() {
+		file_sentinez_types_ruleset_v1_event_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_sentinez_types_ruleset_v1_event_proto_rawDesc), len(file_sentinez_types_ruleset_v1_event_proto_rawDesc)))
 	})
-	return file_sentinez_types_coreruleset_v1_event_proto_rawDescData
+	return file_sentinez_types_ruleset_v1_event_proto_rawDescData
 }
 
-var file_sentinez_types_coreruleset_v1_event_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-var file_sentinez_types_coreruleset_v1_event_proto_goTypes = []any{
-	(*CoreRuleEvent)(nil), // 0: sentinez.types.coreruleset.v1.CoreRuleEvent
-	(v1.RuleService)(0),   // 1: sentinez.types.rule.v1.RuleService
-	(v1.RuleBehavior)(0),  // 2: sentinez.types.rule.v1.RuleBehavior
+var file_sentinez_types_ruleset_v1_event_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_sentinez_types_ruleset_v1_event_proto_goTypes = []any{
+	(*RulesetEvent)(nil), // 0: sentinez.types.ruleset.v1.RulesetEvent
+	(v1.RuleService)(0),  // 1: sentinez.types.rule.v1.RuleService
+	(v1.RuleBehavior)(0), // 2: sentinez.types.rule.v1.RuleBehavior
 }
-var file_sentinez_types_coreruleset_v1_event_proto_depIdxs = []int32{
-	1, // 0: sentinez.types.coreruleset.v1.CoreRuleEvent.service:type_name -> sentinez.types.rule.v1.RuleService
-	2, // 1: sentinez.types.coreruleset.v1.CoreRuleEvent.behavior:type_name -> sentinez.types.rule.v1.RuleBehavior
+var file_sentinez_types_ruleset_v1_event_proto_depIdxs = []int32{
+	1, // 0: sentinez.types.ruleset.v1.RulesetEvent.service:type_name -> sentinez.types.rule.v1.RuleService
+	2, // 1: sentinez.types.ruleset.v1.RulesetEvent.behavior:type_name -> sentinez.types.rule.v1.RuleBehavior
 	2, // [2:2] is the sub-list for method output_type
 	2, // [2:2] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name
@@ -260,26 +260,26 @@ var file_sentinez_types_coreruleset_v1_event_proto_depIdxs = []int32{
 	0, // [0:2] is the sub-list for field type_name
 }
 
-func init() { file_sentinez_types_coreruleset_v1_event_proto_init() }
-func file_sentinez_types_coreruleset_v1_event_proto_init() {
-	if File_sentinez_types_coreruleset_v1_event_proto != nil {
+func init() { file_sentinez_types_ruleset_v1_event_proto_init() }
+func file_sentinez_types_ruleset_v1_event_proto_init() {
+	if File_sentinez_types_ruleset_v1_event_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_types_coreruleset_v1_event_proto_rawDesc), len(file_sentinez_types_coreruleset_v1_event_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_types_ruleset_v1_event_proto_rawDesc), len(file_sentinez_types_ruleset_v1_event_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_sentinez_types_coreruleset_v1_event_proto_goTypes,
-		DependencyIndexes: file_sentinez_types_coreruleset_v1_event_proto_depIdxs,
-		MessageInfos:      file_sentinez_types_coreruleset_v1_event_proto_msgTypes,
+		GoTypes:           file_sentinez_types_ruleset_v1_event_proto_goTypes,
+		DependencyIndexes: file_sentinez_types_ruleset_v1_event_proto_depIdxs,
+		MessageInfos:      file_sentinez_types_ruleset_v1_event_proto_msgTypes,
 	}.Build()
-	File_sentinez_types_coreruleset_v1_event_proto = out.File
-	file_sentinez_types_coreruleset_v1_event_proto_goTypes = nil
-	file_sentinez_types_coreruleset_v1_event_proto_depIdxs = nil
+	File_sentinez_types_ruleset_v1_event_proto = out.File
+	file_sentinez_types_ruleset_v1_event_proto_goTypes = nil
+	file_sentinez_types_ruleset_v1_event_proto_depIdxs = nil
 }

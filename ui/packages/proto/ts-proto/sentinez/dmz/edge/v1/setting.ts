@@ -7,7 +7,7 @@
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { CDN } from "../../../types/cdn/v1/rule";
-import { CoreRuleset } from "../../../types/coreruleset/v1/setting";
+import { Ruleset } from "../../../types/ruleset/v1/setting";
 import { SecRule as SecRule1 } from "../../../types/secrule/v1/engine";
 import { Plan, planFromJSON, planToJSON } from "../../../types/v1/known";
 
@@ -281,12 +281,12 @@ export interface Location_ProxySetHeadersEntry {
 
 /** Security user-specific WAF, rate limiting, or bot protection rules */
 export interface Security {
-  /** @gotags: yaml:"core_ruleset" */
-  coreRuleset?:
-    | CoreRuleset
+  /** @gotags: yaml:"ruleset" */
+  ruleset?:
+    | Ruleset
     | undefined;
-  /** @gotags: yaml:"sec_rules" */
-  secRules: SecRule[];
+  /** @gotags: yaml:"secrules" */
+  secrules: SecRule[];
   /** @gotags: yaml:"limiters" */
   limiters: RateLimit[];
 }
@@ -1328,15 +1328,15 @@ export const Location_ProxySetHeadersEntry: MessageFns<Location_ProxySetHeadersE
 };
 
 function createBaseSecurity(): Security {
-  return { coreRuleset: undefined, secRules: [], limiters: [] };
+  return { ruleset: undefined, secrules: [], limiters: [] };
 }
 
 export const Security: MessageFns<Security> = {
   encode(message: Security, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.coreRuleset !== undefined) {
-      CoreRuleset.encode(message.coreRuleset, writer.uint32(10).fork()).join();
+    if (message.ruleset !== undefined) {
+      Ruleset.encode(message.ruleset, writer.uint32(10).fork()).join();
     }
-    for (const v of message.secRules) {
+    for (const v of message.secrules) {
       SecRule.encode(v!, writer.uint32(18).fork()).join();
     }
     for (const v of message.limiters) {
@@ -1363,7 +1363,7 @@ export const Security: MessageFns<Security> = {
               break;
             }
 
-            message.coreRuleset = CoreRuleset.decode(reader, reader.uint32());
+            message.ruleset = Ruleset.decode(reader, reader.uint32());
             continue;
           }
           case 2: {
@@ -1371,7 +1371,7 @@ export const Security: MessageFns<Security> = {
               break;
             }
 
-            message.secRules.push(SecRule.decode(reader, reader.uint32()));
+            message.secrules.push(SecRule.decode(reader, reader.uint32()));
             continue;
           }
           case 3: {
@@ -1396,16 +1396,8 @@ export const Security: MessageFns<Security> = {
 
   fromJSON(object: any): Security {
     return {
-      coreRuleset: isSet(object.coreRuleset)
-        ? CoreRuleset.fromJSON(object.coreRuleset)
-        : isSet(object.core_ruleset)
-        ? CoreRuleset.fromJSON(object.core_ruleset)
-        : undefined,
-      secRules: globalThis.Array.isArray(object?.secRules)
-        ? object.secRules.map((e: any) => SecRule.fromJSON(e))
-        : globalThis.Array.isArray(object?.sec_rules)
-        ? object.sec_rules.map((e: any) => SecRule.fromJSON(e))
-        : [],
+      ruleset: isSet(object.ruleset) ? Ruleset.fromJSON(object.ruleset) : undefined,
+      secrules: globalThis.Array.isArray(object?.secrules) ? object.secrules.map((e: any) => SecRule.fromJSON(e)) : [],
       limiters: globalThis.Array.isArray(object?.limiters)
         ? object.limiters.map((e: any) => RateLimit.fromJSON(e))
         : [],
@@ -1414,11 +1406,11 @@ export const Security: MessageFns<Security> = {
 
   toJSON(message: Security): unknown {
     const obj: any = {};
-    if (message.coreRuleset !== undefined) {
-      obj.coreRuleset = CoreRuleset.toJSON(message.coreRuleset);
+    if (message.ruleset !== undefined) {
+      obj.ruleset = Ruleset.toJSON(message.ruleset);
     }
-    if (message.secRules?.length) {
-      obj.secRules = message.secRules.map((e) => SecRule.toJSON(e));
+    if (message.secrules?.length) {
+      obj.secrules = message.secrules.map((e) => SecRule.toJSON(e));
     }
     if (message.limiters?.length) {
       obj.limiters = message.limiters.map((e) => RateLimit.toJSON(e));
@@ -1431,10 +1423,10 @@ export const Security: MessageFns<Security> = {
   },
   fromPartial<I extends Exact<DeepPartial<Security>, I>>(object: I): Security {
     const message = createBaseSecurity();
-    message.coreRuleset = (object.coreRuleset !== undefined && object.coreRuleset !== null)
-      ? CoreRuleset.fromPartial(object.coreRuleset)
+    message.ruleset = (object.ruleset !== undefined && object.ruleset !== null)
+      ? Ruleset.fromPartial(object.ruleset)
       : undefined;
-    message.secRules = object.secRules?.map((e) => SecRule.fromPartial(e)) || [];
+    message.secrules = object.secrules?.map((e) => SecRule.fromPartial(e)) || [];
     message.limiters = object.limiters?.map((e) => RateLimit.fromPartial(e)) || [];
     return message;
   },

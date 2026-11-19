@@ -51,7 +51,7 @@ func ResourceDomain(domain string) string {
 }
 
 func normalizeEdgeSecurity(edgeSec *edgepb.Security) {
-	for _, rule := range edgeSec.GetSecRules() {
+	for _, rule := range edgeSec.GetSecrules() {
 		normalizeSecRule(rule.GetIngress())
 	}
 

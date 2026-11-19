@@ -6,13 +6,13 @@ import { Button } from '@sentinez/ui/components/button';
 import { toast } from '@/lib/toast';
 import IsLoading from '@sentinez/ui/components/common/loading';
 import {
-  CoreRulesetFields,
+  RulesetFields,
   CrsNotice,
-  CoreRulesetFormValue,
-  coreRulesetFormOf,
-  coreRulesetOf,
-  createEmptyCoreRulesetForm,
-  validateCoreRulesetForm,
+  RulesetFormValue,
+  rulesetFormOf,
+  rulesetOf,
+  createEmptyRulesetForm,
+  validateRulesetForm,
 } from '../../components';
 import { getRuleset, updateRuleset } from '@/lib/api/security';
 import type { UpdateMask } from '@/lib/api/mask';
@@ -21,7 +21,7 @@ import { useEffect, useState } from 'react';
 
 // the fields the form edits, in lowerCamelCase as the JSON of the mask
 // names them: protojson rejects `*` and snake_case paths
-const UPDATE_MASK: UpdateMask = ['name', 'description', 'coreRuleset'];
+const UPDATE_MASK: UpdateMask = ['name', 'description', 'ruleset'];
 
 export default function EditRulesetPage({ params }: { params: Promise<{ id: string }> }) {
   const t = useTranslations('Rulesets');
@@ -31,8 +31,8 @@ export default function EditRulesetPage({ params }: { params: Promise<{ id: stri
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [id, setId] = useState<string | null>(null);
-  const [form, setForm] = useState<CoreRulesetFormValue>(createEmptyCoreRulesetForm);
-  const patchForm = (patch: Partial<CoreRulesetFormValue>) => setForm((f) => ({ ...f, ...patch }));
+  const [form, setForm] = useState<RulesetFormValue>(createEmptyRulesetForm);
+  const patchForm = (patch: Partial<RulesetFormValue>) => setForm((f) => ({ ...f, ...patch }));
 
   useEffect(() => {
     async function load() {
@@ -40,7 +40,7 @@ export default function EditRulesetPage({ params }: { params: Promise<{ id: stri
         const { id } = await params;
         setId(id);
         const { ruleset } = await getRuleset({ id });
-        if (ruleset) setForm(coreRulesetFormOf(ruleset));
+        if (ruleset) setForm(rulesetFormOf(ruleset));
       } catch {
         toast.error(t('loadDetailFailed'));
       } finally {
@@ -52,7 +52,7 @@ export default function EditRulesetPage({ params }: { params: Promise<{ id: stri
 
   const handleSave = async () => {
     if (!id) return;
-    const error = validateCoreRulesetForm(form, tv);
+    const error = validateRulesetForm(form, tv);
     if (error) {
       toast.error(error);
       return;
@@ -62,7 +62,7 @@ export default function EditRulesetPage({ params }: { params: Promise<{ id: stri
     try {
       await updateRuleset({
         id,
-        ruleset: coreRulesetOf(form, id),
+        ruleset: rulesetOf(form, id),
         updateMask: UPDATE_MASK,
       });
       toast.success(t('updated'));
@@ -92,7 +92,7 @@ export default function EditRulesetPage({ params }: { params: Promise<{ id: stri
       </PageLayoutHeader>
       <PageLayoutContent size="sm">
         <CrsNotice />
-        <CoreRulesetFields value={form} onChange={patchForm} idPrefix="edit" />
+        <RulesetFields value={form} onChange={patchForm} idPrefix="edit" />
       </PageLayoutContent>
     </PageLayout>
   );

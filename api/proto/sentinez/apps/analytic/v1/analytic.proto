@@ -68,8 +68,8 @@ service AnalyticService {
     option (sentinez.types.v1.x_method) = {ignore_control_plane: true};
   }
 
-  rpc ListCoreRuleEvents(ListCoreRuleEventsRequest) returns (ListCoreRuleEventsResponse) {
-    option (google.api.http) = {get: "/analytic/events/coreruleset"};
+  rpc ListRulesetEvents(ListRulesetEventsRequest) returns (ListRulesetEventsResponse) {
+    option (google.api.http) = {get: "/analytic/events/ruleset"};
     option (sentinez.types.v1.x_method) = {ignore_control_plane: true};
   }
 

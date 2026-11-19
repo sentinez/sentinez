@@ -21,7 +21,7 @@ import (
 
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
-	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
@@ -31,19 +31,19 @@ import (
 var errUnnamedRule = errors.New("rule without a name")
 
 // ImportSecurity stores the security block of a proxy.yaml under owner:
-// the core ruleset (one per resource, named name) and the sec_rules and
+// the ruleset (one per resource, named name) and the secrules and
 // limiters, matched by name against the rules owner already has. Stored
 // rules missing from sec are left untouched. sec must be normalized
 // (sznormalize.NormalizeEdgeSetting) so its rules carry their ids.
 func (srv *SecurityService) ImportSecurity(ctx context.Context,
 	owner *typepb.Owner, name string, sec *edgepb.Security) error {
 
-	err := srv.importCoreRuleset(ctx, owner, name, sec.GetCoreRuleset())
+	err := srv.importRuleset(ctx, owner, name, sec.GetRuleset())
 	if err != nil {
-		return fmt.Errorf("import core ruleset: %w", err)
+		return fmt.Errorf("import ruleset: %w", err)
 	}
 
-	if err := srv.importSecRules(ctx, owner, sec.GetSecRules()); err != nil {
+	if err := srv.importSecRules(ctx, owner, sec.GetSecrules()); err != nil {
 		return fmt.Errorf("import sec rules: %w", err)
 	}
 
@@ -54,11 +54,11 @@ func (srv *SecurityService) ImportSecurity(ctx context.Context,
 	return nil
 }
 
-// importCoreRuleset updates the core ruleset of the resource of owner, or
+// importRuleset updates the ruleset of the resource of owner, or
 // creates it when the resource has none.
-func (srv *SecurityService) importCoreRuleset(ctx context.Context,
+func (srv *SecurityService) importRuleset(ctx context.Context,
 	owner *typepb.Owner, name string,
-	content *corerulesetpb.CoreRuleset) error {
+	content *rulesetpb.Ruleset) error {
 
 	if content == nil {
 		return nil
@@ -72,14 +72,14 @@ func (srv *SecurityService) importCoreRuleset(ctx context.Context,
 		return err
 	}
 
-	crs := &securitypb.Ruleset{Owner: owner, Name: name, CoreRuleset: content}
+	crs := &securitypb.Ruleset{Owner: owner, Name: name, Ruleset: content}
 	if len(stored) == 0 {
 		_, err = srv.rulesetRepo.Create(ctx, crs)
 		return err
 	}
 
 	crs.Id = stored[0].GetId()
-	return srv.rulesetRepo.Update(ctx, crs, _coreRulesetUpdatable)
+	return srv.rulesetRepo.Update(ctx, crs, _rulesetUpdatable)
 }
 
 // importSecRules upserts rules by name among the sec rules of owner.

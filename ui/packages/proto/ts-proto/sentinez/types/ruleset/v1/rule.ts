@@ -2,20 +2,20 @@
 // versions:
 //   protoc-gen-ts_proto  v2.12.1
 //   protoc               unknown
-// source: sentinez/types/coreruleset/v1/rule.proto
+// source: sentinez/types/ruleset/v1/rule.proto
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
-export const protobufPackage = "sentinez.types.coreruleset.v1";
+export const protobufPackage = "sentinez.types.ruleset.v1";
 
-export interface CoreRulesets {
+export interface Rulesets {
   name: string;
-  rules: CoreRule[];
+  rules: Rule[];
   version: string;
 }
 
-export interface CoreRule {
+export interface Rule {
   actions?: RuleAction | undefined;
   configuration: string;
   level: string;
@@ -39,17 +39,17 @@ export interface RuleActionField {
   tag: string[];
 }
 
-function createBaseCoreRulesets(): CoreRulesets {
+function createBaseRulesets(): Rulesets {
   return { name: "", rules: [], version: "" };
 }
 
-export const CoreRulesets: MessageFns<CoreRulesets> = {
-  encode(message: CoreRulesets, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const Rulesets: MessageFns<Rulesets> = {
+  encode(message: Rulesets, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.name !== "") {
       writer.uint32(10).string(message.name);
     }
     for (const v of message.rules) {
-      CoreRule.encode(v!, writer.uint32(18).fork()).join();
+      Rule.encode(v!, writer.uint32(18).fork()).join();
     }
     if (message.version !== "") {
       writer.uint32(26).string(message.version);
@@ -57,7 +57,7 @@ export const CoreRulesets: MessageFns<CoreRulesets> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CoreRulesets {
+  decode(input: BinaryReader | Uint8Array, length?: number): Rulesets {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -66,7 +66,7 @@ export const CoreRulesets: MessageFns<CoreRulesets> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseCoreRulesets();
+      const message = createBaseRulesets();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -83,7 +83,7 @@ export const CoreRulesets: MessageFns<CoreRulesets> = {
               break;
             }
 
-            message.rules.push(CoreRule.decode(reader, reader.uint32()));
+            message.rules.push(Rule.decode(reader, reader.uint32()));
             continue;
           }
           case 3: {
@@ -106,21 +106,21 @@ export const CoreRulesets: MessageFns<CoreRulesets> = {
     }
   },
 
-  fromJSON(object: any): CoreRulesets {
+  fromJSON(object: any): Rulesets {
     return {
       name: isSet(object.name) ? globalThis.String(object.name) : "",
-      rules: globalThis.Array.isArray(object?.rules) ? object.rules.map((e: any) => CoreRule.fromJSON(e)) : [],
+      rules: globalThis.Array.isArray(object?.rules) ? object.rules.map((e: any) => Rule.fromJSON(e)) : [],
       version: isSet(object.version) ? globalThis.String(object.version) : "",
     };
   },
 
-  toJSON(message: CoreRulesets): unknown {
+  toJSON(message: Rulesets): unknown {
     const obj: any = {};
     if (message.name !== "") {
       obj.name = message.name;
     }
     if (message.rules?.length) {
-      obj.rules = message.rules.map((e) => CoreRule.toJSON(e));
+      obj.rules = message.rules.map((e) => Rule.toJSON(e));
     }
     if (message.version !== "") {
       obj.version = message.version;
@@ -128,24 +128,24 @@ export const CoreRulesets: MessageFns<CoreRulesets> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CoreRulesets>, I>>(base?: I): CoreRulesets {
-    return CoreRulesets.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<Rulesets>, I>>(base?: I): Rulesets {
+    return Rulesets.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<CoreRulesets>, I>>(object: I): CoreRulesets {
-    const message = createBaseCoreRulesets();
+  fromPartial<I extends Exact<DeepPartial<Rulesets>, I>>(object: I): Rulesets {
+    const message = createBaseRulesets();
     message.name = object.name ?? "";
-    message.rules = object.rules?.map((e) => CoreRule.fromPartial(e)) || [];
+    message.rules = object.rules?.map((e) => Rule.fromPartial(e)) || [];
     message.version = object.version ?? "";
     return message;
   },
 };
 
-function createBaseCoreRule(): CoreRule {
+function createBaseRule(): Rule {
   return { actions: undefined, configuration: "", level: "" };
 }
 
-export const CoreRule: MessageFns<CoreRule> = {
-  encode(message: CoreRule, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const Rule: MessageFns<Rule> = {
+  encode(message: Rule, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.actions !== undefined) {
       RuleAction.encode(message.actions, writer.uint32(10).fork()).join();
     }
@@ -158,7 +158,7 @@ export const CoreRule: MessageFns<CoreRule> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CoreRule {
+  decode(input: BinaryReader | Uint8Array, length?: number): Rule {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -167,7 +167,7 @@ export const CoreRule: MessageFns<CoreRule> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseCoreRule();
+      const message = createBaseRule();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -207,7 +207,7 @@ export const CoreRule: MessageFns<CoreRule> = {
     }
   },
 
-  fromJSON(object: any): CoreRule {
+  fromJSON(object: any): Rule {
     return {
       actions: isSet(object.actions) ? RuleAction.fromJSON(object.actions) : undefined,
       configuration: isSet(object.configuration) ? globalThis.String(object.configuration) : "",
@@ -215,7 +215,7 @@ export const CoreRule: MessageFns<CoreRule> = {
     };
   },
 
-  toJSON(message: CoreRule): unknown {
+  toJSON(message: Rule): unknown {
     const obj: any = {};
     if (message.actions !== undefined) {
       obj.actions = RuleAction.toJSON(message.actions);
@@ -229,11 +229,11 @@ export const CoreRule: MessageFns<CoreRule> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CoreRule>, I>>(base?: I): CoreRule {
-    return CoreRule.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<Rule>, I>>(base?: I): Rule {
+    return Rule.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<CoreRule>, I>>(object: I): CoreRule {
-    const message = createBaseCoreRule();
+  fromPartial<I extends Exact<DeepPartial<Rule>, I>>(object: I): Rule {
+    const message = createBaseRule();
     message.actions = (object.actions !== undefined && object.actions !== null)
       ? RuleAction.fromPartial(object.actions)
       : undefined;

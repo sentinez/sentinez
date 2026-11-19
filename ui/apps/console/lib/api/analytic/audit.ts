@@ -64,7 +64,7 @@ const SAMPLE_CRS_AFTER = SAMPLE_CRS_BEFORE.replace(
 const sampleCalls = (tenantId: string): SampleCall[] => [
   {
     method: '/sentinez.apps.security.v1.SecurityService/CreateSecRule',
-    request: { secRule: { name: 'block-admin', owner: { resourceId: 'rsrc_sample' } } },
+    request: { secrule: { name: 'block-admin', owner: { resourceId: 'rsrc_sample' } } },
     resourceId: 'rsrc_sample',
   },
   {
@@ -94,11 +94,11 @@ const sampleCalls = (tenantId: string): SampleCall[] => [
     method: '/sentinez.apps.security.v1.SecurityService/UpdateRuleset',
     request: {
       id: 'rs_sample',
-      ruleset: { coreRuleset: SAMPLE_CRS_AFTER },
-      updateMask: 'coreRuleset',
+      ruleset: { ruleset: SAMPLE_CRS_AFTER },
+      updateMask: 'ruleset',
     },
     resourceId: 'rsrc_sample',
-    change: [{ field: 'core_ruleset', before: SAMPLE_CRS_BEFORE, after: SAMPLE_CRS_AFTER }],
+    change: [{ field: 'ruleset', before: SAMPLE_CRS_BEFORE, after: SAMPLE_CRS_AFTER }],
   },
   {
     method: '/sentinez.apps.iam.v1.IdentityAccessManagementService/Login',

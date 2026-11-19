@@ -72,7 +72,7 @@ func GetAnalyticServiceListRateLimitEvents() *v1.XMethod {
 	}
 }
 
-func GetAnalyticServiceListCoreRuleEvents() *v1.XMethod {
+func GetAnalyticServiceListRulesetEvents() *v1.XMethod {
 	return &v1.XMethod{
 		IgnoreControlPlane: true,
 	}

@@ -9,8 +9,8 @@ import {
   GetEventTopValuesResponse,
   type HistogramPoint,
   type UpstreamLatency,
-  ListCoreRuleEventsRequest,
-  ListCoreRuleEventsResponse,
+  ListRulesetEventsRequest,
+  ListRulesetEventsResponse,
   ListHttpEgressEventsRequest,
   ListHttpEgressEventsResponse,
   ListHttpIngressEventsRequest,
@@ -21,7 +21,7 @@ import {
   ListSecRuleEventsResponse,
 } from '@sentinez/proto/sentinez/apps/analytic/v1/event';
 import { HistogramResolution } from '@sentinez/proto/sentinez/types/v1/known';
-import type { CoreRuleEvent } from '@sentinez/proto/sentinez/types/coreruleset/v1/event';
+import type { RulesetEvent } from '@sentinez/proto/sentinez/types/ruleset/v1/event';
 import type { EgressEvent, IngressEvent } from '@sentinez/proto/sentinez/types/net/http/v1/event';
 import { ActionType, RuleBehavior, RuleService } from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import type { SecRuleEvent } from '@sentinez/proto/sentinez/types/secrule/v1/event';
@@ -63,13 +63,13 @@ const SAMPLE_ADMIN_PATH = '/wp-admin.php';
 // The anomaly score CRS adds per severity of a matched rule
 const SEVERITY_SCORE = { critical: 5, warning: 3, notice: 2 };
 // The CRS rules the sample requests match
-type SampleCoreRule = { id: number; severity: keyof typeof SEVERITY_SCORE; message: string };
-const crit = (id: number, message: string): SampleCoreRule => ({
+type SampleRule = { id: number; severity: keyof typeof SEVERITY_SCORE; message: string };
+const crit = (id: number, message: string): SampleRule => ({
   id,
   severity: 'critical',
   message,
 });
-const SAMPLE_ATTACKS: { query: string; rule: SampleCoreRule }[] = [
+const SAMPLE_ATTACKS: { query: string; rule: SampleRule }[] = [
   {
     query: "id=1' OR '1'='1",
     rule: crit(942100, 'SQL Injection Attack Detected via libinjection'),
@@ -86,7 +86,7 @@ const SAMPLE_ATTACKS: { query: string; rule: SampleCoreRule }[] = [
 ];
 const SAMPLE_SCANNER_RULE = crit(913100, 'Found User-Agent associated with security scanner');
 // Rules too weak alone to reach the inbound threshold (5): only logged
-const SAMPLE_WEAK_RULES: SampleCoreRule[] = [
+const SAMPLE_WEAK_RULES: SampleRule[] = [
   { id: 920350, severity: 'warning', message: 'Host header is a numeric IP address' },
   { id: 920300, severity: 'notice', message: 'Request Missing an Accept Header' },
   { id: 920320, severity: 'notice', message: 'Missing User Agent Header' },
@@ -210,7 +210,7 @@ function sampleSecRuleOf(e: IngressEvent): SecRuleEvent | null {
     matchedSecruleIds: [pick(SAMPLE_SECRULE_IDS, login ? 1 : 0)],
     messages: [login ? 'path prefix "/login"' : 'path prefix "/api"'],
     action: { type: login ? ActionType.ACTION_TYPE_CHALLENGE : ActionType.ACTION_TYPE_BLOCK },
-    service: RuleService.RULE_SERVICE_SEC_RULE,
+    service: RuleService.RULE_SERVICE_SECRULE,
     tags: login ? { flow: 'login' } : {},
   };
 }
@@ -232,7 +232,7 @@ function sampleRateLimitOf(e: IngressEvent): SecRuleEvent | null {
 // The CRS rules a sample request matches: an attack on the admin page,
 // with the scanner rule for curl, and now and then a weak rule alone on
 // another request it lets through
-function sampleCoreRulesOf(e: IngressEvent): SampleCoreRule[] {
+function sampleRulesOf(e: IngressEvent): SampleRule[] {
   if (e.path === SAMPLE_ADMIN_PATH) {
     const attack = SAMPLE_ATTACKS.find((a) => a.query === e.queries);
     const rules = attack ? [attack.rule] : [];
@@ -243,10 +243,10 @@ function sampleCoreRulesOf(e: IngressEvent): SampleCoreRule[] {
   return [pick(SAMPLE_WEAK_RULES, hashOf(e.id))];
 }
 
-// The core rule match of a sample request: denied over the threshold, else
+// The ruleset match of a sample request: denied over the threshold, else
 // only logged
-function sampleCoreRuleOf(e: IngressEvent): CoreRuleEvent | null {
-  const rules = sampleCoreRulesOf(e);
+function sampleRulesetOf(e: IngressEvent): RulesetEvent | null {
+  const rules = sampleRulesOf(e);
   if (rules.length === 0) return null;
   const totalScore = rules.reduce((total, r) => total + SEVERITY_SCORE[r.severity], 0);
   return {
@@ -256,7 +256,7 @@ function sampleCoreRuleOf(e: IngressEvent): CoreRuleEvent | null {
     severities: rules.map((r) => r.severity),
     messages: rules.map((r) => r.message),
     totalScore,
-    service: RuleService.RULE_SERVICE_CORE_RULESETS,
+    service: RuleService.RULE_SERVICE_RULESETS,
     behavior:
       totalScore >= SAMPLE_INBOUND_THRESHOLD
         ? RuleBehavior.RULE_BEHAVIOR_DENY
@@ -319,10 +319,10 @@ function sampleRecordsOf(kind: EventKind, requests: IngressEvent[]): SampleRecor
             protocol: e.protocol,
           },
         }));
-    case EventKind.EVENT_KIND_SEC_RULE:
+    case EventKind.EVENT_KIND_SECRULE:
     case EventKind.EVENT_KIND_RATE_LIMIT:
       return requests
-        .map(kind === EventKind.EVENT_KIND_SEC_RULE ? sampleSecRuleOf : sampleRateLimitOf)
+        .map(kind === EventKind.EVENT_KIND_SECRULE ? sampleSecRuleOf : sampleRateLimitOf)
         .filter(present)
         .map((e) => ({
           time: e.matchedTime,
@@ -336,9 +336,9 @@ function sampleRecordsOf(kind: EventKind, requests: IngressEvent[]): SampleRecor
             request_path: e.requestPath,
           },
         }));
-    case EventKind.EVENT_KIND_CORE_RULE:
+    case EventKind.EVENT_KIND_RULESET:
       return requests
-        .map(sampleCoreRuleOf)
+        .map(sampleRulesetOf)
         .filter(present)
         .map((e) => ({
           time: e.matchedTime,
@@ -527,7 +527,7 @@ export async function listSecRuleEvents(
     () => ({
       events: paginate(
         sampleIngressRange(full)
-          .filter(ofFilters(EventKind.EVENT_KIND_SEC_RULE, full.filters))
+          .filter(ofFilters(EventKind.EVENT_KIND_SECRULE, full.filters))
           .map(sampleSecRuleOf)
           .filter(present)
           .filter(ofRequests(full.requestIds, (e) => e.requestId)),
@@ -562,21 +562,21 @@ export async function listRateLimitEvents(
   );
 }
 
-// GET /analytic/events/coreruleset
-export async function listCoreRuleEvents(
-  req: Partial<ListCoreRuleEventsRequest> = {},
+// GET /analytic/events/ruleset
+export async function listRulesetEvents(
+  req: Partial<ListRulesetEventsRequest> = {},
   options?: ApiOptions,
-): Promise<ListCoreRuleEventsResponse> {
-  const full = ListCoreRuleEventsRequest.fromPartial(req);
+): Promise<ListRulesetEventsResponse> {
+  const full = ListRulesetEventsRequest.fromPartial(req);
   return getJSON(
-    '/analytic/events/coreruleset',
+    '/analytic/events/ruleset',
     full,
-    { req: ListCoreRuleEventsRequest, resp: ListCoreRuleEventsResponse },
+    { req: ListRulesetEventsRequest, resp: ListRulesetEventsResponse },
     () => ({
       events: paginate(
         sampleIngressRange(full)
-          .filter(ofFilters(EventKind.EVENT_KIND_CORE_RULE, full.filters))
-          .map(sampleCoreRuleOf)
+          .filter(ofFilters(EventKind.EVENT_KIND_RULESET, full.filters))
+          .map(sampleRulesetOf)
           .filter(present)
           .filter(ofRequests(full.requestIds, (e) => e.requestId)),
         full.page,

@@ -36,7 +36,7 @@ export default function CreateSecRulePage() {
 
     setSaving(true);
     try {
-      await createSecRule({ secRule: { ...secRuleOf(form), owner: { resourceId, tenantId } } });
+      await createSecRule({ secrule: { ...secRuleOf(form), owner: { resourceId, tenantId } } });
       toast.success(t('created'));
       router.back();
     } catch (err: any) {

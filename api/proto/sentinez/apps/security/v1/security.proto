@@ -21,7 +21,7 @@ import "google/api/annotations.proto";
 import "google/protobuf/field_mask.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "sentinez/apps/security/v1/model.proto";
-import "sentinez/types/coreruleset/v1/setting.proto";
+import "sentinez/types/ruleset/v1/setting.proto";
 import "sentinez/types/v1/known.proto";
 import "sentinez/types/v1/model.proto";
 import "sentinez/types/v1/options.proto";
@@ -190,7 +190,7 @@ service SecurityService {
   }
 
   // ListRulesets lists OWASP CRS configurations, filtered by their
-  // name or by the fields of their core_ruleset
+  // name or by the fields of their ruleset
   rpc ListRulesets(ListRulesetsRequest) returns (ListRulesetsResponse) {
     option (google.api.http) = {get: "/security/rulesets"};
 
@@ -230,7 +230,7 @@ service SecurityService {
 // ── SecRule Messages ─────────────────────────────────────────────────────
 
 message CreateSecRuleRequest {
-  SecRule sec_rule = 1 [(buf.validate.field).required = true];
+  SecRule secrule = 1 [(buf.validate.field).required = true];
 }
 
 message CreateSecRuleResponse {
@@ -242,20 +242,20 @@ message GetSecRuleRequest {
 }
 
 message GetSecRuleResponse {
-  SecRule sec_rule = 1;
+  SecRule secrule = 1;
 }
 
 message UpdateSecRuleRequest {
   string id = 1 [(buf.validate.field).string.min_len = 1];
-  SecRule sec_rule = 2 [(buf.validate.field).required = true];
-  // Fields of sec_rule to update, among name, description, expr, status,
+  SecRule secrule = 2 [(buf.validate.field).required = true];
+  // Fields of secrule to update, among name, description, expr, status,
   // priority and action ("*" for all of them); without one, those set in
-  // sec_rule. A named field unset in sec_rule is cleared.
+  // secrule. A named field unset in secrule is cleared.
   google.protobuf.FieldMask update_mask = 3;
 }
 
 message UpdateSecRuleResponse {
-  SecRule sec_rule = 1;
+  SecRule secrule = 1;
 }
 
 message DeleteSecRuleRequest {
@@ -273,7 +273,7 @@ message ListSecRulesRequest {
 }
 
 message ListSecRulesResponse {
-  repeated SecRule sec_rules = 1;
+  repeated SecRule secrules = 1;
   int64 total = 2;
 }
 
@@ -350,7 +350,7 @@ message UpdateRulesetRequest {
   string id = 1 [(buf.validate.field).string.min_len = 1];
   Ruleset ruleset = 2 [(buf.validate.field).required = true];
   // Fields of ruleset to update, among name, description and
-  // core_ruleset ("*" for all of them); without one, those set in ruleset.
+  // ruleset ("*" for all of them); without one, those set in ruleset.
   // A named field unset in ruleset is cleared.
   google.protobuf.FieldMask update_mask = 3;
 }
@@ -378,25 +378,25 @@ message ListRulesetsRequest {
   // metadata.resource_id of the rows, any of them.
   repeated string resource_ids = 11;
 
-  // ── Filters on the fields of core_ruleset ──
+  // ── Filters on the fields of ruleset ──
 
-  repeated sentinez.types.coreruleset.v1.EngineMode modes = 20;
-  repeated sentinez.types.coreruleset.v1.Version versions = 21;
+  repeated sentinez.types.ruleset.v1.EngineMode modes = 20;
+  repeated sentinez.types.ruleset.v1.Version versions = 21;
   repeated sentinez.types.v1.Status statuses = 22;
 
-  // core_ruleset.paranoia_level, 0 = any.
+  // ruleset.paranoia_level, 0 = any.
   uint32 paranoia_level = 23 [(buf.validate.field).uint32 = {lte: 4}];
 
-  // Rule groups all listed in core_ruleset.categories.
-  repeated sentinez.types.coreruleset.v1.Category categories = 24;
+  // Rule groups all listed in ruleset.categories.
+  repeated sentinez.types.ruleset.v1.Category categories = 24;
 
-  // Tags excluded by core_ruleset.exclusions.
+  // Tags excluded by ruleset.exclusions.
   repeated string exclusion_tags = 25;
 
-  // Rules with a variable excluded by core_ruleset.exclusions.
+  // Rules with a variable excluded by ruleset.exclusions.
   repeated uint32 exclusion_rule_ids = 26;
 
-  // Rules with a state changed by core_ruleset.overrides.
+  // Rules with a state changed by ruleset.overrides.
   repeated uint32 override_rule_ids = 27;
 }
 
@@ -414,11 +414,11 @@ message GetCRSRuleInfoRequest {
   }];
 
   // CRS version of the catalog, unspecified = latest supported.
-  sentinez.types.coreruleset.v1.Version version = 2;
+  sentinez.types.ruleset.v1.Version version = 2;
 }
 
 message GetCRSRuleInfoResponse {
-  sentinez.types.coreruleset.v1.RuleInfo rule = 1;
+  sentinez.types.ruleset.v1.RuleInfo rule = 1;
 }
 
 // ListCRSRuleInfosRequest every filter set must match (AND); the values of
@@ -427,14 +427,14 @@ message ListCRSRuleInfosRequest {
   sentinez.types.v1.Pages page = 1;
 
   // CRS version of the catalog, unspecified = latest supported.
-  sentinez.types.coreruleset.v1.Version version = 2;
+  sentinez.types.ruleset.v1.Version version = 2;
 
   // Case-insensitive part of the message or of a tag, or the leading
   // digits of the ID (ex: "9421").
   string search = 3;
 
   repeated uint32 ids = 10;
-  repeated sentinez.types.coreruleset.v1.Category categories = 11;
+  repeated sentinez.types.ruleset.v1.Category categories = 11;
   repeated uint32 paranoia_levels = 12;
 
   // CRITICAL, ERROR, WARNING, NOTICE; case-insensitive.
@@ -449,7 +449,7 @@ message ListCRSRuleInfosRequest {
 }
 
 message ListCRSRuleInfosResponse {
-  repeated sentinez.types.coreruleset.v1.RuleInfo rules = 1;
+  repeated sentinez.types.ruleset.v1.RuleInfo rules = 1;
 
   // Number of rules matching the filters, whatever the page.
   int64 total = 2;
@@ -467,7 +467,7 @@ message ListCRSRuleTagsRequest {
   sentinez.types.v1.Pages page = 1;
 
   // CRS version of the catalog, unspecified = latest supported.
-  sentinez.types.coreruleset.v1.Version version = 2;
+  sentinez.types.ruleset.v1.Version version = 2;
 
   // Case-insensitive part of the tag, ex: "attack".
   string search = 3;

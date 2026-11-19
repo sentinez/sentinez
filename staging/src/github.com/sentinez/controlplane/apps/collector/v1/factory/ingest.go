@@ -23,9 +23,9 @@ import (
 
 	"github.com/sentinez/controlplane/apps/collector/v1/ingest"
 	auditlogsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/auditlogs"
-	coreruleeventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/coreruleevents"
 	httpegresseventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/httpegressevents"
 	httpingresseventrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/httpingressevent"
+	ruleseteventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/rulesetevents"
 	secruleeventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/secruleevents"
 	"github.com/sentinez/pkg/szkafka"
 	"github.com/sentinez/pkg/szlog"
@@ -98,7 +98,7 @@ func newEdgeSinks(ctx context.Context,
 	if err != nil {
 		return nil, err
 	}
-	coreRules, err := coreruleeventsrepo.New(ctx, conf)
+	rulesets, err := ruleseteventsrepo.New(ctx, conf)
 	if err != nil {
 		return nil, err
 	}
@@ -116,8 +116,8 @@ func newEdgeSinks(ctx context.Context,
 			secRules.Create),
 		sztopic.EventHTTPRateLimit: ingest.NewSecRuleEventSink(
 			rateLimits.Create),
-		sztopic.EventHTTPRulesets: ingest.NewCoreRuleEventSink(
-			coreRules.Create),
+		sztopic.EventHTTPRulesets: ingest.NewRulesetEventSink(
+			rulesets.Create),
 		sztopic.EventHTTPIngress: ingest.NewHttpIngressEventSink(
 			ingress.Create),
 		sztopic.EventHTTPEgress: ingest.NewHttpEgressEventSink(

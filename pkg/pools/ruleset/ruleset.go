@@ -20,35 +20,35 @@ import (
 	"github.com/sentinez/pkg/szprefix"
 	"github.com/sentinez/pkg/szrand"
 	"github.com/sentinez/pkg/szsync"
-	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 )
 
 var (
-	_ io.Closer = (*CoreRuleEvent)(nil)
+	_ io.Closer = (*RulesetEvent)(nil)
 
-	_pool = szsync.NewPoolCtr(func() *CoreRuleEvent {
-		return &CoreRuleEvent{CoreRuleEvent: &corerulesetpb.CoreRuleEvent{}}
+	_pool = szsync.NewPoolCtr(func() *RulesetEvent {
+		return &RulesetEvent{RulesetEvent: &rulesetpb.RulesetEvent{}}
 	})
 )
 
-type CoreRuleEvent struct {
-	*corerulesetpb.CoreRuleEvent
+type RulesetEvent struct {
+	*rulesetpb.RulesetEvent
 }
 
-func (re *CoreRuleEvent) Close() error {
+func (re *RulesetEvent) Close() error {
 	Release(re)
 
 	return nil
 }
 
-func Acquire() *CoreRuleEvent {
+func Acquire() *RulesetEvent {
 	obj := _pool.Get()
 	obj.Id = szrand.NewULID(szprefix.RulesetEvent)
 
 	return obj
 }
 
-func Release(obj *CoreRuleEvent) {
+func Release(obj *RulesetEvent) {
 	obj.ResetVT()
 	_pool.Put(obj)
 }

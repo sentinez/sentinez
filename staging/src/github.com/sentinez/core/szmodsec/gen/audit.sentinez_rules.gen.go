@@ -3,14 +3,14 @@
 package gen
 
 import (
-	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 )
 
 const AuditVersion = ""
 
-var AuditOrder = []func() *rulepb.CoreRule{}
+var AuditOrder = []func() *rulesetpb.Rule{}
 
-var Audit = map[string]*rulepb.CoreRule{}
+var Audit = map[string]*rulesetpb.Rule{}
 
 // AuditInfo is the catalog of the rules above that have an ID.
-var AuditInfo = []*rulepb.RuleInfo{}
+var AuditInfo = []*rulesetpb.RuleInfo{}

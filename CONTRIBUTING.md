@@ -37,7 +37,7 @@ This is a **multi-module monorepo**. The root [go.mod](go.mod) uses
 
 - `/api`: separate module, protobuf sources under `proto/sentinez/`
   (`apps`, `dmz`, `gateway`, `types`) and generated code. Shared messages
-  live under `types/` (`v1`, `setting`, `rule`, `secrule`, `coreruleset`,
+  live under `types/` (`v1`, `setting`, `rule`, `secrule`, `ruleset`,
   `cdn`, `net`, `net/http`).
 - `/cmd`: service entrypoints (`szapiserver`, `szrealtime`, `szedge`,
   `szdataplane`, `szgreeter`, `szcentraldata`).

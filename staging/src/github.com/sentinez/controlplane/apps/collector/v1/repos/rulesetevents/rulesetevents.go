@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package coreruleeventsrepo stores the corerulesetpb.CoreRuleEvent
+// Package ruleseteventsrepo stores the rulesetpb.RulesetEvent
 // records consumed from kafka (sztopic.EventHTTPRulesets).
-package coreruleeventsrepo
+package ruleseteventsrepo
 
 import (
 	"context"
@@ -26,54 +26,54 @@ import (
 	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	"github.com/sentinez/pkg/szstorage/dbx/timescale/histogram"
-	crspb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
 
-var _ ICoreRuleEvent = (*CoreRuleEvents)(nil)
+var _ IRulesetEvent = (*RulesetEvents)(nil)
 
 // _spec the reader of the events: their histogram is split by behavior.
-var _spec = eventreader.Spec[crspb.CoreRuleEvent]{
+var _spec = eventreader.Spec[rulesetpb.RulesetEvent]{
 	Hypertable: schema.EventHypertable(
-		schema.AnalyticCoreRulesetsEvent(), crspb.CoreRuleEvent_MatchedTime),
-	Key: crspb.CoreRuleEvent_Behavior,
+		schema.AnalyticRulesetsEvent(), rulesetpb.RulesetEvent_MatchedTime),
+	Key: rulesetpb.RulesetEvent_Behavior,
 	Columns: eventfilter.Columns{
-		RequestId:   crspb.CoreRuleEvent_RequestId,
-		ResourceId:  crspb.CoreRuleEvent_ResourceId,
-		MatchedTime: crspb.CoreRuleEvent_MatchedTime,
+		RequestId:   rulesetpb.RulesetEvent_RequestId,
+		ResourceId:  rulesetpb.RulesetEvent_ResourceId,
+		MatchedTime: rulesetpb.RulesetEvent_MatchedTime,
 		Fields:      _fields,
 	},
-	Select:   crspb.CoreRuleEventColumns(),
-	Scan:     crspb.ScanCoreRuleEvent[dbx.Rows],
-	ScanOne:  crspb.ScanOneCoreRuleEvent[dbx.Row],
-	Values:   crspb.CoreRuleEventValues,
-	IdColumn: crspb.CoreRuleEvent_Id,
+	Select:   rulesetpb.RulesetEventColumns(),
+	Scan:     rulesetpb.ScanRulesetEvent[dbx.Rows],
+	ScanOne:  rulesetpb.ScanOneRulesetEvent[dbx.Row],
+	Values:   rulesetpb.RulesetEventValues,
+	IdColumn: rulesetpb.RulesetEvent_Id,
 }
 
 // _fields the fields of the events filters match and top values count,
 // in this order.
 var _fields = []eventfilter.Field{
-	eventfilter.TypedColumn(crspb.CoreRuleEvent_MatchedRuleIds, dbx.IntArr),
-	eventfilter.TypedColumn(crspb.CoreRuleEvent_Severities, dbx.TextArr),
-	eventfilter.TypedColumn(crspb.CoreRuleEvent_Behavior, dbx.Int4),
-	eventfilter.TypedColumn(crspb.CoreRuleEvent_TotalScore, dbx.Int4),
-	eventfilter.Column(crspb.CoreRuleEvent_RequestIp),
-	eventfilter.Column(crspb.CoreRuleEvent_RequestDomain),
-	eventfilter.Column(crspb.CoreRuleEvent_RequestPath),
+	eventfilter.TypedColumn(rulesetpb.RulesetEvent_MatchedRuleIds, dbx.IntArr),
+	eventfilter.TypedColumn(rulesetpb.RulesetEvent_Severities, dbx.TextArr),
+	eventfilter.TypedColumn(rulesetpb.RulesetEvent_Behavior, dbx.Int4),
+	eventfilter.TypedColumn(rulesetpb.RulesetEvent_TotalScore, dbx.Int4),
+	eventfilter.Column(rulesetpb.RulesetEvent_RequestIp),
+	eventfilter.Column(rulesetpb.RulesetEvent_RequestDomain),
+	eventfilter.Column(rulesetpb.RulesetEvent_RequestPath),
 }
 
-type ICoreRuleEvent interface {
+type IRulesetEvent interface {
 	// Create inserts the events, which have ids, in one statement; an
 	// event whose id and matched time are stored already is skipped, so
 	// inserting a batch again is a no-op.
-	Create(ctx context.Context, events ...*crspb.CoreRuleEvent) error
-	Get(ctx context.Context, id string) (*crspb.CoreRuleEvent, error)
+	Create(ctx context.Context, events ...*rulesetpb.RulesetEvent) error
+	Get(ctx context.Context, id string) (*rulesetpb.RulesetEvent, error)
 	Delete(ctx context.Context, id string) error
 
-	WithTX(tx *postgres.TxSession) ICoreRuleEvent
+	WithTX(tx *postgres.TxSession) IRulesetEvent
 
 	List(ctx context.Context,
-		filter *eventfilter.Filter) ([]*crspb.CoreRuleEvent, error)
+		filter *eventfilter.Filter) ([]*rulesetpb.RulesetEvent, error)
 	// Histogram counts the events per bucket, resource and behavior
 	// (histogram.Point.Key).
 	// The events of events only when set (see eventreader.Reader).
@@ -82,22 +82,22 @@ type ICoreRuleEvent interface {
 	topvalues.TopValuer
 }
 
-type CoreRuleEvents struct {
-	*eventreader.Reader[crspb.CoreRuleEvent]
+type RulesetEvents struct {
+	*eventreader.Reader[rulesetpb.RulesetEvent]
 }
 
-// New returns the repo of the sztable.AnalyticCoreRulesetsEvent
+// New returns the repo of the sztable.AnalyticRulesetsEvent
 // hypertable, and of its histograms.
 func New(ctx context.Context,
-	appConf *settingpb.Config) (ICoreRuleEvent, error) {
+	appConf *settingpb.Config) (IRulesetEvent, error) {
 	reader, err := eventreader.New(ctx, appConf, _spec)
 	if err != nil {
 		return nil, err
 	}
 
-	return &CoreRuleEvents{Reader: reader}, nil
+	return &RulesetEvents{Reader: reader}, nil
 }
 
-func (r *CoreRuleEvents) WithTX(tx *postgres.TxSession) ICoreRuleEvent {
-	return &CoreRuleEvents{Reader: r.WithTx(tx)}
+func (r *RulesetEvents) WithTX(tx *postgres.TxSession) IRulesetEvent {
+	return &RulesetEvents{Reader: r.WithTx(tx)}
 }

@@ -18,7 +18,7 @@ import {
   Version,
   versionFromJSON,
   versionToJSON,
-} from "../../../types/coreruleset/v1/setting";
+} from "../../../types/ruleset/v1/setting";
 import { Status, statusFromJSON, statusToJSON } from "../../../types/v1/known";
 import { Pages } from "../../../types/v1/model";
 import { RateLimit, Ruleset, SecRule } from "./model";
@@ -26,7 +26,7 @@ import { RateLimit, Ruleset, SecRule } from "./model";
 export const protobufPackage = "sentinez.apps.security.v1";
 
 export interface CreateSecRuleRequest {
-  secRule?: SecRule | undefined;
+  secrule?: SecRule | undefined;
 }
 
 export interface CreateSecRuleResponse {
@@ -38,24 +38,24 @@ export interface GetSecRuleRequest {
 }
 
 export interface GetSecRuleResponse {
-  secRule?: SecRule | undefined;
+  secrule?: SecRule | undefined;
 }
 
 export interface UpdateSecRuleRequest {
   id: string;
-  secRule?:
+  secrule?:
     | SecRule
     | undefined;
   /**
-   * Fields of sec_rule to update, among name, description, expr, status,
+   * Fields of secrule to update, among name, description, expr, status,
    * priority and action ("*" for all of them); without one, those set in
-   * sec_rule. A named field unset in sec_rule is cleared.
+   * secrule. A named field unset in secrule is cleared.
    */
   updateMask?: string[] | undefined;
 }
 
 export interface UpdateSecRuleResponse {
-  secRule?: SecRule | undefined;
+  secrule?: SecRule | undefined;
 }
 
 export interface DeleteSecRuleRequest {
@@ -73,7 +73,7 @@ export interface ListSecRulesRequest {
 }
 
 export interface ListSecRulesResponse {
-  secRules: SecRule[];
+  secrules: SecRule[];
   total: number;
 }
 
@@ -153,7 +153,7 @@ export interface UpdateRulesetRequest {
     | undefined;
   /**
    * Fields of ruleset to update, among name, description and
-   * core_ruleset ("*" for all of them); without one, those set in ruleset.
+   * ruleset ("*" for all of them); without one, those set in ruleset.
    * A named field unset in ruleset is cleared.
    */
   updateMask?: string[] | undefined;
@@ -186,15 +186,15 @@ export interface ListRulesetsRequest {
   modes: EngineMode[];
   versions: Version[];
   statuses: Status[];
-  /** core_ruleset.paranoia_level, 0 = any. */
+  /** ruleset.paranoia_level, 0 = any. */
   paranoiaLevel: number;
-  /** Rule groups all listed in core_ruleset.categories. */
+  /** Rule groups all listed in ruleset.categories. */
   categories: Category[];
-  /** Tags excluded by core_ruleset.exclusions. */
+  /** Tags excluded by ruleset.exclusions. */
   exclusionTags: string[];
-  /** Rules with a variable excluded by core_ruleset.exclusions. */
+  /** Rules with a variable excluded by ruleset.exclusions. */
   exclusionRuleIds: number[];
-  /** Rules with a state changed by core_ruleset.overrides. */
+  /** Rules with a state changed by ruleset.overrides. */
   overrideRuleIds: number[];
 }
 
@@ -285,13 +285,13 @@ export interface StatusResponse {
 }
 
 function createBaseCreateSecRuleRequest(): CreateSecRuleRequest {
-  return { secRule: undefined };
+  return { secrule: undefined };
 }
 
 export const CreateSecRuleRequest: MessageFns<CreateSecRuleRequest> = {
   encode(message: CreateSecRuleRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.secRule !== undefined) {
-      SecRule.encode(message.secRule, writer.uint32(10).fork()).join();
+    if (message.secrule !== undefined) {
+      SecRule.encode(message.secrule, writer.uint32(10).fork()).join();
     }
     return writer;
   },
@@ -314,7 +314,7 @@ export const CreateSecRuleRequest: MessageFns<CreateSecRuleRequest> = {
               break;
             }
 
-            message.secRule = SecRule.decode(reader, reader.uint32());
+            message.secrule = SecRule.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -330,19 +330,13 @@ export const CreateSecRuleRequest: MessageFns<CreateSecRuleRequest> = {
   },
 
   fromJSON(object: any): CreateSecRuleRequest {
-    return {
-      secRule: isSet(object.secRule)
-        ? SecRule.fromJSON(object.secRule)
-        : isSet(object.sec_rule)
-        ? SecRule.fromJSON(object.sec_rule)
-        : undefined,
-    };
+    return { secrule: isSet(object.secrule) ? SecRule.fromJSON(object.secrule) : undefined };
   },
 
   toJSON(message: CreateSecRuleRequest): unknown {
     const obj: any = {};
-    if (message.secRule !== undefined) {
-      obj.secRule = SecRule.toJSON(message.secRule);
+    if (message.secrule !== undefined) {
+      obj.secrule = SecRule.toJSON(message.secrule);
     }
     return obj;
   },
@@ -352,8 +346,8 @@ export const CreateSecRuleRequest: MessageFns<CreateSecRuleRequest> = {
   },
   fromPartial<I extends Exact<DeepPartial<CreateSecRuleRequest>, I>>(object: I): CreateSecRuleRequest {
     const message = createBaseCreateSecRuleRequest();
-    message.secRule = (object.secRule !== undefined && object.secRule !== null)
-      ? SecRule.fromPartial(object.secRule)
+    message.secrule = (object.secrule !== undefined && object.secrule !== null)
+      ? SecRule.fromPartial(object.secrule)
       : undefined;
     return message;
   },
@@ -494,13 +488,13 @@ export const GetSecRuleRequest: MessageFns<GetSecRuleRequest> = {
 };
 
 function createBaseGetSecRuleResponse(): GetSecRuleResponse {
-  return { secRule: undefined };
+  return { secrule: undefined };
 }
 
 export const GetSecRuleResponse: MessageFns<GetSecRuleResponse> = {
   encode(message: GetSecRuleResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.secRule !== undefined) {
-      SecRule.encode(message.secRule, writer.uint32(10).fork()).join();
+    if (message.secrule !== undefined) {
+      SecRule.encode(message.secrule, writer.uint32(10).fork()).join();
     }
     return writer;
   },
@@ -523,7 +517,7 @@ export const GetSecRuleResponse: MessageFns<GetSecRuleResponse> = {
               break;
             }
 
-            message.secRule = SecRule.decode(reader, reader.uint32());
+            message.secrule = SecRule.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -539,19 +533,13 @@ export const GetSecRuleResponse: MessageFns<GetSecRuleResponse> = {
   },
 
   fromJSON(object: any): GetSecRuleResponse {
-    return {
-      secRule: isSet(object.secRule)
-        ? SecRule.fromJSON(object.secRule)
-        : isSet(object.sec_rule)
-        ? SecRule.fromJSON(object.sec_rule)
-        : undefined,
-    };
+    return { secrule: isSet(object.secrule) ? SecRule.fromJSON(object.secrule) : undefined };
   },
 
   toJSON(message: GetSecRuleResponse): unknown {
     const obj: any = {};
-    if (message.secRule !== undefined) {
-      obj.secRule = SecRule.toJSON(message.secRule);
+    if (message.secrule !== undefined) {
+      obj.secrule = SecRule.toJSON(message.secrule);
     }
     return obj;
   },
@@ -561,15 +549,15 @@ export const GetSecRuleResponse: MessageFns<GetSecRuleResponse> = {
   },
   fromPartial<I extends Exact<DeepPartial<GetSecRuleResponse>, I>>(object: I): GetSecRuleResponse {
     const message = createBaseGetSecRuleResponse();
-    message.secRule = (object.secRule !== undefined && object.secRule !== null)
-      ? SecRule.fromPartial(object.secRule)
+    message.secrule = (object.secrule !== undefined && object.secrule !== null)
+      ? SecRule.fromPartial(object.secrule)
       : undefined;
     return message;
   },
 };
 
 function createBaseUpdateSecRuleRequest(): UpdateSecRuleRequest {
-  return { id: "", secRule: undefined, updateMask: undefined };
+  return { id: "", secrule: undefined, updateMask: undefined };
 }
 
 export const UpdateSecRuleRequest: MessageFns<UpdateSecRuleRequest> = {
@@ -577,8 +565,8 @@ export const UpdateSecRuleRequest: MessageFns<UpdateSecRuleRequest> = {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
-    if (message.secRule !== undefined) {
-      SecRule.encode(message.secRule, writer.uint32(18).fork()).join();
+    if (message.secrule !== undefined) {
+      SecRule.encode(message.secrule, writer.uint32(18).fork()).join();
     }
     if (message.updateMask !== undefined) {
       FieldMask.encode(FieldMask.wrap(message.updateMask), writer.uint32(26).fork()).join();
@@ -612,7 +600,7 @@ export const UpdateSecRuleRequest: MessageFns<UpdateSecRuleRequest> = {
               break;
             }
 
-            message.secRule = SecRule.decode(reader, reader.uint32());
+            message.secrule = SecRule.decode(reader, reader.uint32());
             continue;
           }
           case 3: {
@@ -638,11 +626,7 @@ export const UpdateSecRuleRequest: MessageFns<UpdateSecRuleRequest> = {
   fromJSON(object: any): UpdateSecRuleRequest {
     return {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
-      secRule: isSet(object.secRule)
-        ? SecRule.fromJSON(object.secRule)
-        : isSet(object.sec_rule)
-        ? SecRule.fromJSON(object.sec_rule)
-        : undefined,
+      secrule: isSet(object.secrule) ? SecRule.fromJSON(object.secrule) : undefined,
       updateMask: isSet(object.updateMask)
         ? FieldMask.unwrap(FieldMask.fromJSON(object.updateMask))
         : isSet(object.update_mask)
@@ -656,8 +640,8 @@ export const UpdateSecRuleRequest: MessageFns<UpdateSecRuleRequest> = {
     if (message.id !== "") {
       obj.id = message.id;
     }
-    if (message.secRule !== undefined) {
-      obj.secRule = SecRule.toJSON(message.secRule);
+    if (message.secrule !== undefined) {
+      obj.secrule = SecRule.toJSON(message.secrule);
     }
     if (message.updateMask !== undefined) {
       obj.updateMask = FieldMask.toJSON(FieldMask.wrap(message.updateMask));
@@ -671,8 +655,8 @@ export const UpdateSecRuleRequest: MessageFns<UpdateSecRuleRequest> = {
   fromPartial<I extends Exact<DeepPartial<UpdateSecRuleRequest>, I>>(object: I): UpdateSecRuleRequest {
     const message = createBaseUpdateSecRuleRequest();
     message.id = object.id ?? "";
-    message.secRule = (object.secRule !== undefined && object.secRule !== null)
-      ? SecRule.fromPartial(object.secRule)
+    message.secrule = (object.secrule !== undefined && object.secrule !== null)
+      ? SecRule.fromPartial(object.secrule)
       : undefined;
     message.updateMask = object.updateMask ?? undefined;
     return message;
@@ -680,13 +664,13 @@ export const UpdateSecRuleRequest: MessageFns<UpdateSecRuleRequest> = {
 };
 
 function createBaseUpdateSecRuleResponse(): UpdateSecRuleResponse {
-  return { secRule: undefined };
+  return { secrule: undefined };
 }
 
 export const UpdateSecRuleResponse: MessageFns<UpdateSecRuleResponse> = {
   encode(message: UpdateSecRuleResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.secRule !== undefined) {
-      SecRule.encode(message.secRule, writer.uint32(10).fork()).join();
+    if (message.secrule !== undefined) {
+      SecRule.encode(message.secrule, writer.uint32(10).fork()).join();
     }
     return writer;
   },
@@ -709,7 +693,7 @@ export const UpdateSecRuleResponse: MessageFns<UpdateSecRuleResponse> = {
               break;
             }
 
-            message.secRule = SecRule.decode(reader, reader.uint32());
+            message.secrule = SecRule.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -725,19 +709,13 @@ export const UpdateSecRuleResponse: MessageFns<UpdateSecRuleResponse> = {
   },
 
   fromJSON(object: any): UpdateSecRuleResponse {
-    return {
-      secRule: isSet(object.secRule)
-        ? SecRule.fromJSON(object.secRule)
-        : isSet(object.sec_rule)
-        ? SecRule.fromJSON(object.sec_rule)
-        : undefined,
-    };
+    return { secrule: isSet(object.secrule) ? SecRule.fromJSON(object.secrule) : undefined };
   },
 
   toJSON(message: UpdateSecRuleResponse): unknown {
     const obj: any = {};
-    if (message.secRule !== undefined) {
-      obj.secRule = SecRule.toJSON(message.secRule);
+    if (message.secrule !== undefined) {
+      obj.secrule = SecRule.toJSON(message.secrule);
     }
     return obj;
   },
@@ -747,8 +725,8 @@ export const UpdateSecRuleResponse: MessageFns<UpdateSecRuleResponse> = {
   },
   fromPartial<I extends Exact<DeepPartial<UpdateSecRuleResponse>, I>>(object: I): UpdateSecRuleResponse {
     const message = createBaseUpdateSecRuleResponse();
-    message.secRule = (object.secRule !== undefined && object.secRule !== null)
-      ? SecRule.fromPartial(object.secRule)
+    message.secrule = (object.secrule !== undefined && object.secrule !== null)
+      ? SecRule.fromPartial(object.secrule)
       : undefined;
     return message;
   },
@@ -979,12 +957,12 @@ export const ListSecRulesRequest: MessageFns<ListSecRulesRequest> = {
 };
 
 function createBaseListSecRulesResponse(): ListSecRulesResponse {
-  return { secRules: [], total: 0 };
+  return { secrules: [], total: 0 };
 }
 
 export const ListSecRulesResponse: MessageFns<ListSecRulesResponse> = {
   encode(message: ListSecRulesResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    for (const v of message.secRules) {
+    for (const v of message.secrules) {
       SecRule.encode(v!, writer.uint32(10).fork()).join();
     }
     if (message.total !== 0) {
@@ -1011,7 +989,7 @@ export const ListSecRulesResponse: MessageFns<ListSecRulesResponse> = {
               break;
             }
 
-            message.secRules.push(SecRule.decode(reader, reader.uint32()));
+            message.secrules.push(SecRule.decode(reader, reader.uint32()));
             continue;
           }
           case 2: {
@@ -1036,19 +1014,15 @@ export const ListSecRulesResponse: MessageFns<ListSecRulesResponse> = {
 
   fromJSON(object: any): ListSecRulesResponse {
     return {
-      secRules: globalThis.Array.isArray(object?.secRules)
-        ? object.secRules.map((e: any) => SecRule.fromJSON(e))
-        : globalThis.Array.isArray(object?.sec_rules)
-        ? object.sec_rules.map((e: any) => SecRule.fromJSON(e))
-        : [],
+      secrules: globalThis.Array.isArray(object?.secrules) ? object.secrules.map((e: any) => SecRule.fromJSON(e)) : [],
       total: isSet(object.total) ? globalThis.Number(object.total) : 0,
     };
   },
 
   toJSON(message: ListSecRulesResponse): unknown {
     const obj: any = {};
-    if (message.secRules?.length) {
-      obj.secRules = message.secRules.map((e) => SecRule.toJSON(e));
+    if (message.secrules?.length) {
+      obj.secrules = message.secrules.map((e) => SecRule.toJSON(e));
     }
     if (message.total !== 0) {
       obj.total = Math.round(message.total);
@@ -1061,7 +1035,7 @@ export const ListSecRulesResponse: MessageFns<ListSecRulesResponse> = {
   },
   fromPartial<I extends Exact<DeepPartial<ListSecRulesResponse>, I>>(object: I): ListSecRulesResponse {
     const message = createBaseListSecRulesResponse();
-    message.secRules = object.secRules?.map((e) => SecRule.fromPartial(e)) || [];
+    message.secrules = object.secrules?.map((e) => SecRule.fromPartial(e)) || [];
     message.total = object.total ?? 0;
     return message;
   },

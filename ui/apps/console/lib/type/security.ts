@@ -3,7 +3,7 @@ import {
   EngineMode,
   RuleState,
   Version,
-} from '@sentinez/proto/sentinez/types/coreruleset/v1/setting';
+} from '@sentinez/proto/sentinez/types/ruleset/v1/setting';
 import { ActionType, FieldSource, Operator } from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 

@@ -2,7 +2,7 @@
 // versions:
 //   protoc-gen-ts_proto  v2.12.1
 //   protoc               unknown
-// source: sentinez/types/coreruleset/v1/event.proto
+// source: sentinez/types/ruleset/v1/event.proto
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
@@ -15,9 +15,9 @@ import {
   ruleServiceToJSON,
 } from "../../rule/v1/rule";
 
-export const protobufPackage = "sentinez.types.coreruleset.v1";
+export const protobufPackage = "sentinez.types.ruleset.v1";
 
-export interface CoreRuleEvent {
+export interface RulesetEvent {
   id: string;
   matchedRuleIds: number[];
   severities: string[];
@@ -37,7 +37,7 @@ export interface CoreRuleEvent {
   behavior: RuleBehavior;
 }
 
-function createBaseCoreRuleEvent(): CoreRuleEvent {
+function createBaseRulesetEvent(): RulesetEvent {
   return {
     id: "",
     matchedRuleIds: [],
@@ -58,8 +58,8 @@ function createBaseCoreRuleEvent(): CoreRuleEvent {
   };
 }
 
-export const CoreRuleEvent: MessageFns<CoreRuleEvent> = {
-  encode(message: CoreRuleEvent, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const RulesetEvent: MessageFns<RulesetEvent> = {
+  encode(message: RulesetEvent, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -113,7 +113,7 @@ export const CoreRuleEvent: MessageFns<CoreRuleEvent> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CoreRuleEvent {
+  decode(input: BinaryReader | Uint8Array, length?: number): RulesetEvent {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -122,7 +122,7 @@ export const CoreRuleEvent: MessageFns<CoreRuleEvent> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseCoreRuleEvent();
+      const message = createBaseRulesetEvent();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -276,7 +276,7 @@ export const CoreRuleEvent: MessageFns<CoreRuleEvent> = {
     }
   },
 
-  fromJSON(object: any): CoreRuleEvent {
+  fromJSON(object: any): RulesetEvent {
     return {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       matchedRuleIds: globalThis.Array.isArray(object?.matchedRuleIds)
@@ -343,7 +343,7 @@ export const CoreRuleEvent: MessageFns<CoreRuleEvent> = {
     };
   },
 
-  toJSON(message: CoreRuleEvent): unknown {
+  toJSON(message: RulesetEvent): unknown {
     const obj: any = {};
     if (message.id !== "") {
       obj.id = message.id;
@@ -396,11 +396,11 @@ export const CoreRuleEvent: MessageFns<CoreRuleEvent> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CoreRuleEvent>, I>>(base?: I): CoreRuleEvent {
-    return CoreRuleEvent.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<RulesetEvent>, I>>(base?: I): RulesetEvent {
+    return RulesetEvent.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<CoreRuleEvent>, I>>(object: I): CoreRuleEvent {
-    const message = createBaseCoreRuleEvent();
+  fromPartial<I extends Exact<DeepPartial<RulesetEvent>, I>>(object: I): RulesetEvent {
+    const message = createBaseRulesetEvent();
     message.id = object.id ?? "";
     message.matchedRuleIds = object.matchedRuleIds?.map((e) => e) || [];
     message.severities = object.severities?.map((e) => e) || [];

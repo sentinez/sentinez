@@ -184,7 +184,7 @@ export default function View() {
     async (page: Pages, signal: AbortSignal) => {
       if (!resourceId) return { items: [], total: 0 };
       const res = await listSecRules({ page, resourceIds: [resourceId] }, { signal });
-      return { items: res.secRules, total: res.total };
+      return { items: res.secrules, total: res.total };
     },
     [resourceId],
   );

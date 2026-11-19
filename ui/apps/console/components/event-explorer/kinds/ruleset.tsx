@@ -5,9 +5,9 @@ import { useTranslations } from 'next-intl';
 
 import { Badge } from '@sentinez/ui/components/badge';
 import { EventKind } from '@sentinez/proto/sentinez/apps/analytic/v1/event';
-import { CoreRuleEvent } from '@sentinez/proto/sentinez/types/coreruleset/v1/event';
+import { RulesetEvent } from '@sentinez/proto/sentinez/types/ruleset/v1/event';
 import { RuleBehavior } from '@sentinez/proto/sentinez/types/rule/v1/rule';
-import { listCoreRuleEvents, type ApiOptions } from '@/lib/api/analytic';
+import { listRulesetEvents, type ApiOptions } from '@/lib/api/analytic';
 import { STATUS_COLORS } from '../status';
 import type { EventConfig, ListRequest } from '../types';
 import {
@@ -21,7 +21,7 @@ import {
 } from './shared';
 
 const list = async (req: ListRequest, options?: ApiOptions) =>
-  (await listCoreRuleEvents(req, options)).events;
+  (await listRulesetEvents(req, options)).events;
 
 // The series of a behavior, the key of the histogram of the table
 const seriesOf = (key: number) =>
@@ -35,21 +35,21 @@ const seriesOf = (key: number) =>
 
 const distinct = (values: string[]) => [...new Set(values)];
 
-/** The explorer of the core ruleset (OWASP CRS) matches */
-export function useCoreRuleConfig(): EventConfig<CoreRuleEvent> {
+/** The explorer of the ruleset (OWASP CRS) matches */
+export function useRulesetConfig(): EventConfig<RulesetEvent> {
   const t = useTranslations('Logs');
   return useMemo(() => {
     const c = columnOf(t);
     const behaviorLabel = (b: RuleBehavior) => t(`series.${seriesOf(b)}`);
-    const behaviorBadge = (e: CoreRuleEvent) => (
+    const behaviorBadge = (e: RulesetEvent) => (
       <Badge variant={e.behavior === RuleBehavior.RULE_BEHAVIOR_DENY ? 'destructive' : 'secondary'}>
         {behaviorLabel(e.behavior)}
       </Badge>
     );
     return {
-      ...eventApis(EventKind.EVENT_KIND_CORE_RULE),
-      title: t('coreRule.title'),
-      subtitle: t('coreRule.subtitle'),
+      ...eventApis(EventKind.EVENT_KIND_RULESET),
+      title: t('ruleset.title'),
+      subtitle: t('ruleset.subtitle'),
       list,
       idOf: (e) => e.id,
       timeOf: (e) => e.matchedTime,
@@ -70,7 +70,7 @@ export function useCoreRuleConfig(): EventConfig<CoreRuleEvent> {
             </div>
           ),
         },
-        ...ruleRequestColumns<CoreRuleEvent>(c),
+        ...ruleRequestColumns<RulesetEvent>(c),
         {
           id: 'rules',
           size: 220,
@@ -99,7 +99,7 @@ export function useCoreRuleConfig(): EventConfig<CoreRuleEvent> {
           format: (v) => behaviorLabel(Number(v) as RuleBehavior),
         },
         { name: 'total_score', label: c('score'), get: (e) => String(e.totalScore) },
-        ...ruleRequestFields<CoreRuleEvent>(c),
+        ...ruleRequestFields<RulesetEvent>(c),
       ],
       requestOf: ruleRequestOf,
       text: (e) => [
@@ -137,7 +137,7 @@ export function useCoreRuleConfig(): EventConfig<CoreRuleEvent> {
             ]),
           },
         ],
-        toJSON: (e) => CoreRuleEvent.toJSON(e),
+        toJSON: (e) => RulesetEvent.toJSON(e),
       },
     };
   }, [t]);

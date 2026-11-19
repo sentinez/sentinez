@@ -22,8 +22,8 @@ package securitypb
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
-	v12 "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	v11 "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
+	v12 "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -356,7 +356,7 @@ type Ruleset struct {
 	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
 	Description   string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
-	CoreRuleset   *v12.CoreRuleset       `protobuf:"bytes,5,opt,name=core_ruleset,json=coreRuleset,proto3" json:"core_ruleset,omitempty"`
+	Ruleset       *v12.Ruleset           `protobuf:"bytes,5,opt,name=ruleset,proto3" json:"ruleset,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -419,9 +419,9 @@ func (x *Ruleset) GetDescription() string {
 	return ""
 }
 
-func (x *Ruleset) GetCoreRuleset() *v12.CoreRuleset {
+func (x *Ruleset) GetRuleset() *v12.Ruleset {
 	if x != nil {
-		return x.CoreRuleset
+		return x.Ruleset
 	}
 	return nil
 }
@@ -430,7 +430,7 @@ var File_sentinez_apps_security_v1_model_proto protoreflect.FileDescriptor
 
 const file_sentinez_apps_security_v1_model_proto_rawDesc = "" +
 	"\n" +
-	"%sentinez/apps/security/v1/model.proto\x12\x19sentinez.apps.security.v1\x1a\x1bbuf/validate/validate.proto\x1a+sentinez/types/coreruleset/v1/setting.proto\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"\xc8\x03\n" +
+	"%sentinez/apps/security/v1/model.proto\x12\x19sentinez.apps.security.v1\x1a\x1bbuf/validate/validate.proto\x1a!sentinez/types/rule/v1/rule.proto\x1a'sentinez/types/ruleset/v1/setting.proto\x1a\x1dsentinez/types/v1/known.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"\xc8\x03\n" +
 	"\aSecRule\x126\n" +
 	"\x05owner\x18\x01 \x01(\v2\x18.sentinez.types.v1.OwnerB\x06\xca\xf0\x19\x02\b\x01R\x05owner\x12 \n" +
 	"\x02id\x18\x02 \x01(\tB\x10\xbaH\r\xc8\x01\x01r\b:\x06srule_R\x02id\x12\x12\n" +
@@ -464,14 +464,14 @@ const file_sentinez_apps_security_v1_model_proto_rawDesc = "" +
 	"\tmap_value\x18\x02 \x03(\v24.sentinez.apps.security.v1.ActionValue.MapValueEntryR\bmapValue\x1a;\n" +
 	"\rMapValueEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf7\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe6\x01\n" +
 	"\aRuleset\x126\n" +
 	"\x05owner\x18\x01 \x01(\v2\x18.sentinez.types.v1.OwnerB\x06\xca\xf0\x19\x02\b\x01R\x05owner\x12\x1d\n" +
 	"\x02id\x18\x02 \x01(\tB\r\xbaH\n" +
 	"\xc8\x01\x01r\x05:\x03rs_R\x02id\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12 \n" +
-	"\vdescription\x18\x04 \x01(\tR\vdescription\x12U\n" +
-	"\fcore_ruleset\x18\x05 \x01(\v2*.sentinez.types.coreruleset.v1.CoreRulesetB\x06\xca\xf0\x19\x02\x18\x02R\vcoreRuleset:\b\xca\xf3\x18\x04\b\x01\x18\x01BMZKgithub.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1;securitypbb\x06proto3"
+	"\vdescription\x18\x04 \x01(\tR\vdescription\x12D\n" +
+	"\aruleset\x18\x05 \x01(\v2\".sentinez.types.ruleset.v1.RulesetB\x06\xca\xf0\x19\x02\x18\x02R\aruleset:\b\xca\xf3\x18\x04\b\x01\x18\x01BMZKgithub.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1;securitypbb\x06proto3"
 
 var (
 	file_sentinez_apps_security_v1_model_proto_rawDescOnce sync.Once
@@ -487,15 +487,15 @@ func file_sentinez_apps_security_v1_model_proto_rawDescGZIP() []byte {
 
 var file_sentinez_apps_security_v1_model_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_sentinez_apps_security_v1_model_proto_goTypes = []any{
-	(*SecRule)(nil),         // 0: sentinez.apps.security.v1.SecRule
-	(*RateLimit)(nil),       // 1: sentinez.apps.security.v1.RateLimit
-	(*ActionValue)(nil),     // 2: sentinez.apps.security.v1.ActionValue
-	(*Ruleset)(nil),         // 3: sentinez.apps.security.v1.Ruleset
-	nil,                     // 4: sentinez.apps.security.v1.ActionValue.MapValueEntry
-	(*v1.Owner)(nil),        // 5: sentinez.types.v1.Owner
-	(*v11.Expression)(nil),  // 6: sentinez.types.rule.v1.Expression
-	(v1.Status)(0),          // 7: sentinez.types.v1.Status
-	(*v12.CoreRuleset)(nil), // 8: sentinez.types.coreruleset.v1.CoreRuleset
+	(*SecRule)(nil),        // 0: sentinez.apps.security.v1.SecRule
+	(*RateLimit)(nil),      // 1: sentinez.apps.security.v1.RateLimit
+	(*ActionValue)(nil),    // 2: sentinez.apps.security.v1.ActionValue
+	(*Ruleset)(nil),        // 3: sentinez.apps.security.v1.Ruleset
+	nil,                    // 4: sentinez.apps.security.v1.ActionValue.MapValueEntry
+	(*v1.Owner)(nil),       // 5: sentinez.types.v1.Owner
+	(*v11.Expression)(nil), // 6: sentinez.types.rule.v1.Expression
+	(v1.Status)(0),         // 7: sentinez.types.v1.Status
+	(*v12.Ruleset)(nil),    // 8: sentinez.types.ruleset.v1.Ruleset
 }
 var file_sentinez_apps_security_v1_model_proto_depIdxs = []int32{
 	5,  // 0: sentinez.apps.security.v1.SecRule.owner:type_name -> sentinez.types.v1.Owner
@@ -508,7 +508,7 @@ var file_sentinez_apps_security_v1_model_proto_depIdxs = []int32{
 	7,  // 7: sentinez.apps.security.v1.RateLimit.status:type_name -> sentinez.types.v1.Status
 	4,  // 8: sentinez.apps.security.v1.ActionValue.map_value:type_name -> sentinez.apps.security.v1.ActionValue.MapValueEntry
 	5,  // 9: sentinez.apps.security.v1.Ruleset.owner:type_name -> sentinez.types.v1.Owner
-	8,  // 10: sentinez.apps.security.v1.Ruleset.core_ruleset:type_name -> sentinez.types.coreruleset.v1.CoreRuleset
+	8,  // 10: sentinez.apps.security.v1.Ruleset.ruleset:type_name -> sentinez.types.ruleset.v1.Ruleset
 	11, // [11:11] is the sub-list for method output_type
 	11, // [11:11] is the sub-list for method input_type
 	11, // [11:11] is the sub-list for extension type_name

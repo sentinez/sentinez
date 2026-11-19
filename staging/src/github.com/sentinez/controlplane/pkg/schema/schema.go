@@ -29,7 +29,7 @@ func All() []dbx.Schema {
 		TenantCaCertificates(),
 		SecuritySecRules(),
 		SecurityRateLimits(),
-		SecurityCoreRulesets(),
+		SecurityRulesets(),
 		AnalyticActivities(),
 	}
 }

@@ -526,17 +526,17 @@ var _ interface {
 	ErrorName() string
 } = ListRateLimitEventsRequestValidationError{}
 
-// Validate checks the field values on ListCoreRuleEventsRequest with the rules
+// Validate checks the field values on ListRulesetEventsRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *ListCoreRuleEventsRequest) Validate() error {
+func (m *ListRulesetEventsRequest) Validate() error {
 	if m == nil {
 		return nil
 	}
 
 	if v, ok := interface{}(m.GetPage()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ListCoreRuleEventsRequestValidationError{
+			return ListRulesetEventsRequestValidationError{
 				field:  "Page",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -546,7 +546,7 @@ func (m *ListCoreRuleEventsRequest) Validate() error {
 
 	if v, ok := interface{}(m.GetFrom()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ListCoreRuleEventsRequestValidationError{
+			return ListRulesetEventsRequestValidationError{
 				field:  "From",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -556,7 +556,7 @@ func (m *ListCoreRuleEventsRequest) Validate() error {
 
 	if v, ok := interface{}(m.GetTo()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ListCoreRuleEventsRequestValidationError{
+			return ListRulesetEventsRequestValidationError{
 				field:  "To",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -567,9 +567,9 @@ func (m *ListCoreRuleEventsRequest) Validate() error {
 	return nil
 }
 
-// ListCoreRuleEventsRequestValidationError is the validation error returned by
-// ListCoreRuleEventsRequest.Validate if the designated constraints aren't met.
-type ListCoreRuleEventsRequestValidationError struct {
+// ListRulesetEventsRequestValidationError is the validation error returned by
+// ListRulesetEventsRequest.Validate if the designated constraints aren't met.
+type ListRulesetEventsRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -577,24 +577,24 @@ type ListCoreRuleEventsRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e ListCoreRuleEventsRequestValidationError) Field() string { return e.field }
+func (e ListRulesetEventsRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ListCoreRuleEventsRequestValidationError) Reason() string { return e.reason }
+func (e ListRulesetEventsRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ListCoreRuleEventsRequestValidationError) Cause() error { return e.cause }
+func (e ListRulesetEventsRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ListCoreRuleEventsRequestValidationError) Key() bool { return e.key }
+func (e ListRulesetEventsRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ListCoreRuleEventsRequestValidationError) ErrorName() string {
-	return "ListCoreRuleEventsRequestValidationError"
+func (e ListRulesetEventsRequestValidationError) ErrorName() string {
+	return "ListRulesetEventsRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ListCoreRuleEventsRequestValidationError) Error() string {
+func (e ListRulesetEventsRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -606,14 +606,14 @@ func (e ListCoreRuleEventsRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sListCoreRuleEventsRequest.%s: %s%s",
+		"invalid %sListRulesetEventsRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ListCoreRuleEventsRequestValidationError{}
+var _ error = ListRulesetEventsRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -621,7 +621,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ListCoreRuleEventsRequestValidationError{}
+} = ListRulesetEventsRequestValidationError{}
 
 // Validate checks the field values on ListHttpIngressEventsResponse with the
 // rules defined in the proto definition for this message. If any rules are
@@ -954,10 +954,10 @@ var _ interface {
 	ErrorName() string
 } = ListRateLimitEventsResponseValidationError{}
 
-// Validate checks the field values on ListCoreRuleEventsResponse with the
-// rules defined in the proto definition for this message. If any rules are
+// Validate checks the field values on ListRulesetEventsResponse with the rules
+// defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *ListCoreRuleEventsResponse) Validate() error {
+func (m *ListRulesetEventsResponse) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -967,7 +967,7 @@ func (m *ListCoreRuleEventsResponse) Validate() error {
 
 		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return ListCoreRuleEventsResponseValidationError{
+				return ListRulesetEventsResponseValidationError{
 					field:  fmt.Sprintf("Events[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -980,9 +980,9 @@ func (m *ListCoreRuleEventsResponse) Validate() error {
 	return nil
 }
 
-// ListCoreRuleEventsResponseValidationError is the validation error returned
-// by ListCoreRuleEventsResponse.Validate if the designated constraints aren't met.
-type ListCoreRuleEventsResponseValidationError struct {
+// ListRulesetEventsResponseValidationError is the validation error returned by
+// ListRulesetEventsResponse.Validate if the designated constraints aren't met.
+type ListRulesetEventsResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -990,24 +990,24 @@ type ListCoreRuleEventsResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e ListCoreRuleEventsResponseValidationError) Field() string { return e.field }
+func (e ListRulesetEventsResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ListCoreRuleEventsResponseValidationError) Reason() string { return e.reason }
+func (e ListRulesetEventsResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ListCoreRuleEventsResponseValidationError) Cause() error { return e.cause }
+func (e ListRulesetEventsResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ListCoreRuleEventsResponseValidationError) Key() bool { return e.key }
+func (e ListRulesetEventsResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ListCoreRuleEventsResponseValidationError) ErrorName() string {
-	return "ListCoreRuleEventsResponseValidationError"
+func (e ListRulesetEventsResponseValidationError) ErrorName() string {
+	return "ListRulesetEventsResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ListCoreRuleEventsResponseValidationError) Error() string {
+func (e ListRulesetEventsResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1019,14 +1019,14 @@ func (e ListCoreRuleEventsResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sListCoreRuleEventsResponse.%s: %s%s",
+		"invalid %sListRulesetEventsResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ListCoreRuleEventsResponseValidationError{}
+var _ error = ListRulesetEventsResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -1034,7 +1034,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ListCoreRuleEventsResponseValidationError{}
+} = ListRulesetEventsResponseValidationError{}
 
 // Validate checks the field values on GetEventHistogramRequest with the rules
 // defined in the proto definition for this message. If any rules are

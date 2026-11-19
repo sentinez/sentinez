@@ -107,7 +107,7 @@ setting:
   # ----------------------------------------------------------
   security:
     # OWASP Core Rule Set (CRS), one configuration per namespace.
-    core_ruleset:
+    ruleset:
       status: STATUS_ACTIVE
       # ENGINE_MODE_OFF | ENGINE_MODE_DETECTION_ONLY (log only) |
       # ENGINE_MODE_ON (block)
@@ -166,7 +166,7 @@ setting:
 
       # False-positive tuning. Without an expression it applies to
       # the whole namespace, with one only to the requests matching
-      # it (same syntax as sec_rules; the BODY, JA4 and TLS sources
+      # it (same syntax as secrules; the BODY, JA4 and TLS sources
       # are not supported).
       exclusions:
         # Skip every SQLi rule under /api/search.
@@ -219,7 +219,7 @@ setting:
         - id: 942130
           state: RULE_STATE_ENABLED
 
-    sec_rules:
+    secrules:
       - ingress:
           name: "Complex Logic: (Path AND Method) OR IP"
           status: STATUS_ACTIVE
@@ -271,7 +271,7 @@ setting:
           action:
             type: ACTION_TYPE_CHALLENGE
 
-    # Like sec_rules, every limiter needs an ingress expr: it only counts
+    # Like secrules, every limiter needs an ingress expr: it only counts
     # the requests the expr matches (the edge refuses to start without).
     limiters:
       - ingress:
@@ -322,7 +322,7 @@ setting:
                     value: "GET"
 
                 # Never cache the challenged page: the cache runs
-                # before the sec_rules and would skip the challenge.
+                # before the secrules and would skip the challenge.
                 - condition:
                     source: FIELD_SOURCE_PATH
                     key: "/login"

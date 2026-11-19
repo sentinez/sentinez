@@ -25,7 +25,7 @@ import (
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szsync"
 	"github.com/sentinez/sentinez"
-	corerulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 )
 
 var (
@@ -49,7 +49,7 @@ type Rulesets struct {
 }
 
 func (rs *Rulesets) Store(
-	namespace string, setting *corerulesetpb.CoreRuleset,
+	namespace string, setting *rulesetpb.Ruleset,
 ) error {
 
 	if rs == nil {
@@ -93,7 +93,7 @@ func (rs *Rulesets) LoadContext(ctx szhttp.Context) (coraza.WAF, bool) {
 
 // newWAF builds the coraza.WAF of setting from the embedded CRS of its
 // version.
-func newWAF(setting *corerulesetpb.CoreRuleset) (coraza.WAF, error) {
+func newWAF(setting *rulesetpb.Ruleset) (coraza.WAF, error) {
 	rootFs, err := crsMap(setting.GetVersion())
 	if err != nil {
 		return nil, err
@@ -102,15 +102,15 @@ func newWAF(setting *corerulesetpb.CoreRuleset) (coraza.WAF, error) {
 	return szcrs.NewWAF(setting.GetVersion(), rootFs, setting)
 }
 
-func crsMap(version corerulesetpb.Version) (fs.FS, error) {
+func crsMap(version rulesetpb.Version) (fs.FS, error) {
 	switch version {
-	case corerulesetpb.Version_VERSION_V4_16_0:
+	case rulesetpb.Version_VERSION_V4_16_0:
 		return sentinez.WAF4160(), nil
-	case corerulesetpb.Version_VERSION_V4_17_0:
+	case rulesetpb.Version_VERSION_V4_17_0:
 		return sentinez.WAF4170(), nil
 	}
 
-	return nil, fmt.Errorf("waf: coreruleset version invalid")
+	return nil, fmt.Errorf("waf: ruleset version invalid")
 }
 
 // Delete removes what namespace holds.

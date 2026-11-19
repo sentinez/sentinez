@@ -246,7 +246,7 @@ const file_sentinez_apps_analytic_v1_analytic_proto_rawDesc = "" +
 	"\n" +
 	"activities\x18\x01 \x03(\v2#.sentinez.apps.analytic.v1.ActivityR\n" +
 	"activities\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x03R\x05total2\xfa\x13\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total2\xf3\x13\n" +
 	"\x0fAnalyticService\x12e\n" +
 	"\x06Status\x12(.sentinez.apps.analytic.v1.StatusRequest\x1a).sentinez.apps.analytic.v1.StatusResponse\"\x06\x8a\xb5\x18\x02\x18\x01\x12\x99\x01\n" +
 	"\x0eListActivities\x120.sentinez.apps.analytic.v1.ListActivitiesRequest\x1a1.sentinez.apps.analytic.v1.ListActivitiesResponse\"\"\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x16\x12\x14/analytic/activities\x12\xb7\x01\n" +
@@ -254,8 +254,8 @@ const file_sentinez_apps_analytic_v1_analytic_proto_rawDesc = "" +
 	"\x14ListHttpEgressEvents\x126.sentinez.apps.analytic.v1.ListHttpEgressEventsRequest\x1a7.sentinez.apps.analytic.v1.ListHttpEgressEventsResponse\"*\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x1e\x12\x1c/analytic/events/http-egress\x12\xaf\x01\n" +
 	"\x10GetEgressLatency\x122.sentinez.apps.analytic.v1.GetEgressLatencyRequest\x1a3.sentinez.apps.analytic.v1.GetEgressLatencyResponse\"2\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02&\x12$/analytic/events/http-egress/latency\x12\xa6\x01\n" +
 	"\x11ListSecRuleEvents\x123.sentinez.apps.analytic.v1.ListSecRuleEventsRequest\x1a4.sentinez.apps.analytic.v1.ListSecRuleEventsResponse\"&\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x1a\x12\x18/analytic/events/secrule\x12\xae\x01\n" +
-	"\x13ListRateLimitEvents\x125.sentinez.apps.analytic.v1.ListRateLimitEventsRequest\x1a6.sentinez.apps.analytic.v1.ListRateLimitEventsResponse\"(\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x1c\x12\x1a/analytic/events/ratelimit\x12\xad\x01\n" +
-	"\x12ListCoreRuleEvents\x124.sentinez.apps.analytic.v1.ListCoreRuleEventsRequest\x1a5.sentinez.apps.analytic.v1.ListCoreRuleEventsResponse\"*\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x1e\x12\x1c/analytic/events/coreruleset\x12\xa8\x01\n" +
+	"\x13ListRateLimitEvents\x125.sentinez.apps.analytic.v1.ListRateLimitEventsRequest\x1a6.sentinez.apps.analytic.v1.ListRateLimitEventsResponse\"(\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x1c\x12\x1a/analytic/events/ratelimit\x12\xa6\x01\n" +
+	"\x11ListRulesetEvents\x123.sentinez.apps.analytic.v1.ListRulesetEventsRequest\x1a4.sentinez.apps.analytic.v1.ListRulesetEventsResponse\"&\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x1a\x12\x18/analytic/events/ruleset\x12\xa8\x01\n" +
 	"\x11GetEventHistogram\x123.sentinez.apps.analytic.v1.GetEventHistogramRequest\x1a4.sentinez.apps.analytic.v1.GetEventHistogramResponse\"(\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x1c\x12\x1a/analytic/events/histogram\x12\xc2\x01\n" +
 	"\x19GetUniqueVisitorHistogram\x12;.sentinez.apps.analytic.v1.GetUniqueVisitorHistogramRequest\x1a<.sentinez.apps.analytic.v1.GetUniqueVisitorHistogramResponse\"*\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x1e\x12\x1c/analytic/visitors/histogram\x12\xa9\x01\n" +
 	"\x11GetEventTopValues\x123.sentinez.apps.analytic.v1.GetEventTopValuesRequest\x1a4.sentinez.apps.analytic.v1.GetEventTopValuesResponse\")\x8a\xb5\x18\x02\b\x01\x82\xd3\xe4\x93\x02\x1d\x12\x1b/analytic/events/top-values\x12\x91\x01\n" +
@@ -290,7 +290,7 @@ var file_sentinez_apps_analytic_v1_analytic_proto_goTypes = []any{
 	(*GetEgressLatencyRequest)(nil),           // 8: sentinez.apps.analytic.v1.GetEgressLatencyRequest
 	(*ListSecRuleEventsRequest)(nil),          // 9: sentinez.apps.analytic.v1.ListSecRuleEventsRequest
 	(*ListRateLimitEventsRequest)(nil),        // 10: sentinez.apps.analytic.v1.ListRateLimitEventsRequest
-	(*ListCoreRuleEventsRequest)(nil),         // 11: sentinez.apps.analytic.v1.ListCoreRuleEventsRequest
+	(*ListRulesetEventsRequest)(nil),          // 11: sentinez.apps.analytic.v1.ListRulesetEventsRequest
 	(*GetEventHistogramRequest)(nil),          // 12: sentinez.apps.analytic.v1.GetEventHistogramRequest
 	(*GetUniqueVisitorHistogramRequest)(nil),  // 13: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramRequest
 	(*GetEventTopValuesRequest)(nil),          // 14: sentinez.apps.analytic.v1.GetEventTopValuesRequest
@@ -303,7 +303,7 @@ var file_sentinez_apps_analytic_v1_analytic_proto_goTypes = []any{
 	(*GetEgressLatencyResponse)(nil),          // 21: sentinez.apps.analytic.v1.GetEgressLatencyResponse
 	(*ListSecRuleEventsResponse)(nil),         // 22: sentinez.apps.analytic.v1.ListSecRuleEventsResponse
 	(*ListRateLimitEventsResponse)(nil),       // 23: sentinez.apps.analytic.v1.ListRateLimitEventsResponse
-	(*ListCoreRuleEventsResponse)(nil),        // 24: sentinez.apps.analytic.v1.ListCoreRuleEventsResponse
+	(*ListRulesetEventsResponse)(nil),         // 24: sentinez.apps.analytic.v1.ListRulesetEventsResponse
 	(*GetEventHistogramResponse)(nil),         // 25: sentinez.apps.analytic.v1.GetEventHistogramResponse
 	(*GetUniqueVisitorHistogramResponse)(nil), // 26: sentinez.apps.analytic.v1.GetUniqueVisitorHistogramResponse
 	(*GetEventTopValuesResponse)(nil),         // 27: sentinez.apps.analytic.v1.GetEventTopValuesResponse
@@ -322,7 +322,7 @@ var file_sentinez_apps_analytic_v1_analytic_proto_depIdxs = []int32{
 	8,  // 6: sentinez.apps.analytic.v1.AnalyticService.GetEgressLatency:input_type -> sentinez.apps.analytic.v1.GetEgressLatencyRequest
 	9,  // 7: sentinez.apps.analytic.v1.AnalyticService.ListSecRuleEvents:input_type -> sentinez.apps.analytic.v1.ListSecRuleEventsRequest
 	10, // 8: sentinez.apps.analytic.v1.AnalyticService.ListRateLimitEvents:input_type -> sentinez.apps.analytic.v1.ListRateLimitEventsRequest
-	11, // 9: sentinez.apps.analytic.v1.AnalyticService.ListCoreRuleEvents:input_type -> sentinez.apps.analytic.v1.ListCoreRuleEventsRequest
+	11, // 9: sentinez.apps.analytic.v1.AnalyticService.ListRulesetEvents:input_type -> sentinez.apps.analytic.v1.ListRulesetEventsRequest
 	12, // 10: sentinez.apps.analytic.v1.AnalyticService.GetEventHistogram:input_type -> sentinez.apps.analytic.v1.GetEventHistogramRequest
 	13, // 11: sentinez.apps.analytic.v1.AnalyticService.GetUniqueVisitorHistogram:input_type -> sentinez.apps.analytic.v1.GetUniqueVisitorHistogramRequest
 	14, // 12: sentinez.apps.analytic.v1.AnalyticService.GetEventTopValues:input_type -> sentinez.apps.analytic.v1.GetEventTopValuesRequest
@@ -337,7 +337,7 @@ var file_sentinez_apps_analytic_v1_analytic_proto_depIdxs = []int32{
 	21, // 21: sentinez.apps.analytic.v1.AnalyticService.GetEgressLatency:output_type -> sentinez.apps.analytic.v1.GetEgressLatencyResponse
 	22, // 22: sentinez.apps.analytic.v1.AnalyticService.ListSecRuleEvents:output_type -> sentinez.apps.analytic.v1.ListSecRuleEventsResponse
 	23, // 23: sentinez.apps.analytic.v1.AnalyticService.ListRateLimitEvents:output_type -> sentinez.apps.analytic.v1.ListRateLimitEventsResponse
-	24, // 24: sentinez.apps.analytic.v1.AnalyticService.ListCoreRuleEvents:output_type -> sentinez.apps.analytic.v1.ListCoreRuleEventsResponse
+	24, // 24: sentinez.apps.analytic.v1.AnalyticService.ListRulesetEvents:output_type -> sentinez.apps.analytic.v1.ListRulesetEventsResponse
 	25, // 25: sentinez.apps.analytic.v1.AnalyticService.GetEventHistogram:output_type -> sentinez.apps.analytic.v1.GetEventHistogramResponse
 	26, // 26: sentinez.apps.analytic.v1.AnalyticService.GetUniqueVisitorHistogram:output_type -> sentinez.apps.analytic.v1.GetUniqueVisitorHistogramResponse
 	27, // 27: sentinez.apps.analytic.v1.AnalyticService.GetEventTopValues:output_type -> sentinez.apps.analytic.v1.GetEventTopValuesResponse

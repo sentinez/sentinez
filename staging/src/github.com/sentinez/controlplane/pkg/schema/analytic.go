@@ -22,8 +22,8 @@ import (
 	"github.com/sentinez/pkg/sztable"
 	analyticpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	auditpb "github.com/sentinez/sentinez/api/proto/sentinez/types/audit/v1"
-	crspb "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
+	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 )
 
@@ -85,35 +85,35 @@ func AnalyticRateLimiterEvent() dbx.Schema {
 	return secRuleEvents(sztable.AnalyticRateLimiterEvent)
 }
 
-// AnalyticCoreRulesetsEvent the schema of the
-// sztable.AnalyticCoreRulesetsEvent table: the corerulesetpb.CoreRuleEvent
+// AnalyticRulesetsEvent the schema of the
+// sztable.AnalyticRulesetsEvent table: the rulesetpb.RulesetEvent
 // records of the sztopic.EventHTTPRulesets topic.
-func AnalyticCoreRulesetsEvent() dbx.Schema {
+func AnalyticRulesetsEvent() dbx.Schema {
 	return dbx.Schema{
-		Table: sztable.AnalyticCoreRulesetsEvent,
+		Table: sztable.AnalyticRulesetsEvent,
 		Columns: []dbx.Column{
-			{Name: crspb.CoreRuleEvent_Id, Type: dbx.Text},
-			{Name: crspb.CoreRuleEvent_MatchedRuleIds, Type: dbx.IntArr},
-			{Name: crspb.CoreRuleEvent_Severities, Type: dbx.TextArr},
-			{Name: crspb.CoreRuleEvent_Messages, Type: dbx.TextArr},
-			{Name: crspb.CoreRuleEvent_TotalScore, Type: dbx.Int4},
-			{Name: crspb.CoreRuleEvent_MatchedTime, Type: dbx.Int8},
-			{Name: crspb.CoreRuleEvent_ResourceId, Type: dbx.Text},
-			{Name: crspb.CoreRuleEvent_TenantId, Type: dbx.Text},
-			{Name: crspb.CoreRuleEvent_Service, Type: dbx.Int4},
-			{Name: crspb.CoreRuleEvent_RequestIp, Type: dbx.Text},
-			{Name: crspb.CoreRuleEvent_RequestDomain, Type: dbx.Text},
-			{Name: crspb.CoreRuleEvent_RequestScheme, Type: dbx.Text},
-			{Name: crspb.CoreRuleEvent_RequestPath, Type: dbx.Text},
-			{Name: crspb.CoreRuleEvent_RequestQuery, Type: dbx.Text},
-			{Name: crspb.CoreRuleEvent_RequestId, Type: dbx.Text},
-			{Name: crspb.CoreRuleEvent_Behavior, Type: dbx.Int4},
+			{Name: rulesetpb.RulesetEvent_Id, Type: dbx.Text},
+			{Name: rulesetpb.RulesetEvent_MatchedRuleIds, Type: dbx.IntArr},
+			{Name: rulesetpb.RulesetEvent_Severities, Type: dbx.TextArr},
+			{Name: rulesetpb.RulesetEvent_Messages, Type: dbx.TextArr},
+			{Name: rulesetpb.RulesetEvent_TotalScore, Type: dbx.Int4},
+			{Name: rulesetpb.RulesetEvent_MatchedTime, Type: dbx.Int8},
+			{Name: rulesetpb.RulesetEvent_ResourceId, Type: dbx.Text},
+			{Name: rulesetpb.RulesetEvent_TenantId, Type: dbx.Text},
+			{Name: rulesetpb.RulesetEvent_Service, Type: dbx.Int4},
+			{Name: rulesetpb.RulesetEvent_RequestIp, Type: dbx.Text},
+			{Name: rulesetpb.RulesetEvent_RequestDomain, Type: dbx.Text},
+			{Name: rulesetpb.RulesetEvent_RequestScheme, Type: dbx.Text},
+			{Name: rulesetpb.RulesetEvent_RequestPath, Type: dbx.Text},
+			{Name: rulesetpb.RulesetEvent_RequestQuery, Type: dbx.Text},
+			{Name: rulesetpb.RulesetEvent_RequestId, Type: dbx.Text},
+			{Name: rulesetpb.RulesetEvent_Behavior, Type: dbx.Int4},
 		},
 		Indexes: []dbx.Index{
-			{Column: crspb.CoreRuleEvent_MatchedTime, Method: dbx.BTree},
-			resourceTime(crspb.CoreRuleEvent_ResourceId,
-				crspb.CoreRuleEvent_MatchedTime),
-			{Column: crspb.CoreRuleEvent_RequestId, Method: dbx.BTree},
+			{Column: rulesetpb.RulesetEvent_MatchedTime, Method: dbx.BTree},
+			resourceTime(rulesetpb.RulesetEvent_ResourceId,
+				rulesetpb.RulesetEvent_MatchedTime),
+			{Column: rulesetpb.RulesetEvent_RequestId, Method: dbx.BTree},
 		},
 	}
 }

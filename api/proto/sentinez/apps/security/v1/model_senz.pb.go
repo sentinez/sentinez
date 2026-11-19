@@ -4,7 +4,7 @@
 package securitypb
 
 import (
-	v11 "github.com/sentinez/sentinez/api/proto/sentinez/types/coreruleset/v1"
+	v11 "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	protojson "google.golang.org/protobuf/encoding/protojson"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -54,7 +54,7 @@ const (
 	Ruleset_Id              = "id"
 	Ruleset_Name            = "name"
 	Ruleset_Description     = "description"
-	Ruleset_CoreRuleset     = "core_ruleset"
+	Ruleset_Ruleset         = "ruleset"
 )
 
 // SecRuleColumns returns the columns of SecRule, in the order ScanOneSecRule scans them.
@@ -264,7 +264,7 @@ func RulesetColumns() []string {
 		Ruleset_Id,
 		Ruleset_Name,
 		Ruleset_Description,
-		Ruleset_CoreRuleset,
+		Ruleset_Ruleset,
 	}
 }
 
@@ -278,13 +278,13 @@ func RulesetValues(m *Ruleset) ([]any, error) {
 	if v := m.GetOwner().GetUpdatedAt(); v != nil {
 		colOwnerUpdatedAt = v.AsTime()
 	}
-	var colCoreRuleset []byte
-	if v := m.GetCoreRuleset(); v != nil {
+	var colRuleset []byte
+	if v := m.GetRuleset(); v != nil {
 		b, err := protojson.Marshal(v)
 		if err != nil {
 			return nil, err
 		}
-		colCoreRuleset = b
+		colRuleset = b
 	}
 	return []any{
 		colOwnerCreatedAt,
@@ -294,7 +294,7 @@ func RulesetValues(m *Ruleset) ([]any, error) {
 		m.GetId(),
 		m.GetName(),
 		m.GetDescription(),
-		colCoreRuleset,
+		colRuleset,
 	}, nil
 }
 
@@ -306,7 +306,7 @@ func ScanOneRuleset[R interface{ Scan(dest ...any) error }](row R) (*Ruleset, er
 		colOwnerUpdatedAt  time.Time
 		colOwnerResourceId *string
 		colOwnerTenantId   *string
-		colCoreRuleset     []byte
+		colRuleset         []byte
 	)
 	if err := row.Scan(
 		&colOwnerCreatedAt,
@@ -316,7 +316,7 @@ func ScanOneRuleset[R interface{ Scan(dest ...any) error }](row R) (*Ruleset, er
 		&m.Id,
 		&m.Name,
 		&m.Description,
-		&colCoreRuleset,
+		&colRuleset,
 	); err != nil {
 		return nil, err
 	}
@@ -328,9 +328,9 @@ func ScanOneRuleset[R interface{ Scan(dest ...any) error }](row R) (*Ruleset, er
 	if colOwnerTenantId != nil {
 		m.Owner.TenantId = *colOwnerTenantId
 	}
-	if len(colCoreRuleset) != 0 {
-		m.CoreRuleset = &v11.CoreRuleset{}
-		if err := (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(colCoreRuleset, m.CoreRuleset); err != nil {
+	if len(colRuleset) != 0 {
+		m.Ruleset = &v11.Ruleset{}
+		if err := (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(colRuleset, m.Ruleset); err != nil {
 			return nil, err
 		}
 	}
