@@ -36,6 +36,7 @@ import (
 	"github.com/sentinez/sentinez/internal/memory/cdnrules"
 	"github.com/sentinez/sentinez/internal/memory/certificates"
 	"github.com/sentinez/sentinez/internal/memory/routes"
+	"github.com/sentinez/sentinez/internal/memory/scripts"
 	"github.com/sentinez/sentinez/internal/memory/secratelimits"
 	"github.com/sentinez/sentinez/internal/memory/secrules"
 	"github.com/sentinez/sentinez/internal/memory/secrulesets"
@@ -94,6 +95,7 @@ func newMemStore(shared *cluster.Cluster, sealer *crypto.Sealer,
 		passthrough:  szsync.NewMap[string, []string](),
 		route:        routes.New(),
 		secRule:      secrules.New(),
+		scripts:      scripts.New(),
 		rulesets:     secrulesets.New(),
 		cdnRules:     cdnrules.New(),
 		certificates: certificates.New(),
@@ -127,6 +129,7 @@ type MemStore struct {
 	passthrough  *szsync.Map[string, []string]
 	route        *routes.Router
 	secRule      *secrules.SecRule
+	scripts      *scripts.Scripts
 	rulesets     *secrulesets.Rulesets
 	cdnRules     *cdnrules.Rule
 	certificates *certificates.Certificates
@@ -165,6 +168,14 @@ func (m *MemStore) SecRule() *secrules.SecRule {
 	}
 
 	return m.secRule
+}
+
+func (m *MemStore) Scripts() *scripts.Scripts {
+	if m == nil {
+		return nil
+	}
+
+	return m.scripts
 }
 
 func (m *MemStore) Route() *routes.Router {
@@ -423,6 +434,14 @@ func (m *MemStore) LoadSecRule(s *edgepb.Setting) error {
 	m.secRule.Store(s.GetIngress().GetResource().GetDomain(), rules)
 
 	return nil
+}
+
+// LoadScripts compiles the Lua scripts of s.
+func (m *MemStore) LoadScripts(s *edgepb.Setting) error {
+	return m.scripts.Store(
+		s.GetIngress().GetResource().GetDomain(),
+		s.GetScripting().GetScripts(),
+	)
 }
 
 func newLimiterEntry(l *edgepb.RateLimit) (secratelimits.Entry, error) {

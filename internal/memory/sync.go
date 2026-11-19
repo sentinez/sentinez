@@ -214,6 +214,7 @@ func (m *MemStore) load(id string, s *edgepb.Setting) {
 		m.LoadReverseProxy(m.server, st),
 		m.LoadCDNRule(st),
 		m.LoadSecRule(st),
+		m.LoadScripts(st),
 		m.LoadRateLimiter(st),
 		m.LoadRulesets(st),
 		m.LoadCertificate(st),
@@ -241,6 +242,7 @@ func (m *MemStore) unload(id, ns string) bool {
 	m.passthrough.Delete(ns)
 	m.cdnRules.Delete(ns)
 	m.secRule.Delete(ns)
+	m.scripts.Delete(ns)
 	m.limiter.Delete(ns)
 	m.rulesets.Delete(ns)
 	m.certificates.Delete(ns)

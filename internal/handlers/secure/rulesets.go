@@ -30,8 +30,8 @@ import (
 	secrulesetpool "github.com/sentinez/sentinez/pkg/pools/secruleset"
 )
 
-// WAFId is the chain stage name of WAF.
-const WAFId = "WAF"
+// Ruleset is the chain stage name of Rulesets.
+const Ruleset = "RST"
 
 var (
 	_ chains.Plugin                      = (*Rulesets)(nil)
@@ -43,7 +43,7 @@ type Rulesets struct {
 	store *secrulesets.Rulesets
 }
 
-func (*Rulesets) ID() string { return WAFId }
+func (*Rulesets) ID() string { return Ruleset }
 
 func (rs *Rulesets) Provision(env *envplugin.Env) error {
 	rs.store = env.Store().Rulesets()

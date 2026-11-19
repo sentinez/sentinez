@@ -32,6 +32,23 @@ message Setting {
   TrafficControl traffic_control = 4; // @gotags: yaml:"traffic_control"
   Personal personal = 5; // @gotags: yaml:"personal"
   Delivery delivery = 6; // @gotags: yaml:"delivery"
+  Scripting scripting = 7; // @gotags: yaml:"scripting"
+}
+
+// Scripting the Lua scripts of a domain. The annotations of a global
+// function hook it to stages of the edge chain: ---@module names them by
+// plugin id (CDN, LMT, ROM, STC, RUL, RST, ROU), ---@types before or after
+// when it runs.
+message Scripting {
+  repeated Script scripts = 1; // @gotags: yaml:"scripts"
+}
+
+// Script a Lua source run in the sandbox of the edge.
+message Script {
+  string id = 1; // @gotags: yaml:"id"
+  string name = 2; // @gotags: yaml:"name"
+  string source = 3; // @gotags: yaml:"source"
+  bool disabled = 4; // @gotags: yaml:"disabled"
 }
 
 // Ingress is where a request enters the edge and how it reaches the
