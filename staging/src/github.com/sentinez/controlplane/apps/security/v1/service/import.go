@@ -86,17 +86,21 @@ func (srv *SecurityService) importRuleset(ctx context.Context,
 func (srv *SecurityService) importSecRules(ctx context.Context,
 	owner *typepb.Owner, rules []*edgepb.SecRule) error {
 
+	models := make([]*securitypb.SecRule, 0, len(rules))
+	for _, rule := range rules {
+		model := secRuleFromEdge(owner, rule.GetIngress())
+		if err := validateSecRule(model); err != nil {
+			return fmt.Errorf("%q: %w", model.GetName(), err)
+		}
+
+		models = append(models, model)
+	}
+
 	stored, _, err := srv.secRuleRepo.List(ctx, &securitypb.ListSecRulesRequest{
 		ResourceIds: []string{owner.GetResourceId()},
 	})
 	if err != nil {
 		return err
-	}
-
-	models := make([]*securitypb.SecRule, 0, len(rules))
-	for _, rule := range rules {
-		models = append(models,
-			secRuleFromEdge(owner, rule.GetIngress()))
 	}
 
 	return upsertByName(ctx, stored, models,

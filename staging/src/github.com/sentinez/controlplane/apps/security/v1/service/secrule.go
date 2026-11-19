@@ -22,9 +22,11 @@ import (
 	"github.com/sentinez/controlplane/apps/security/v1/repos/secruleset"
 	"github.com/sentinez/controlplane/pkg/auditchange"
 	"github.com/sentinez/controlplane/pkg/authz"
+	"github.com/sentinez/core/szrule"
 	"github.com/sentinez/pkg/szerror"
 	"github.com/sentinez/pkg/szprotobuf"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
+	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"google.golang.org/protobuf/proto"
@@ -130,8 +132,8 @@ func (srv *SecurityService) mapSecRule(_ context.Context,
 func (srv *SecurityService) CreateSecRule(ctx context.Context,
 	req *securitypb.CreateSecRuleRequest,
 ) (*securitypb.CreateSecRuleResponse, error) {
-	if req.GetSecrule() == nil {
-		return nil, szerror.StatusInvalidArgumentF("secrule is required")
+	if err := validateSecRule(req.GetSecrule()); err != nil {
+		return nil, err
 	}
 
 	owner, err := srv.newOwner(ctx, req.GetSecrule().GetOwner())
@@ -169,7 +171,8 @@ var _secRuleUpdatable = []string{
 	securitypb.SecRule_Priority, securitypb.SecRule_Action,
 }
 
-// UpdateSecRule updates the fields of a WAF rule its update_mask names.
+// UpdateSecRule updates the fields of a WAF rule its update_mask names;
+// the rule they make must be valid.
 func (srv *SecurityService) UpdateSecRule(ctx context.Context,
 	req *securitypb.UpdateSecRuleRequest,
 ) (*securitypb.UpdateSecRuleResponse, error) {
@@ -187,6 +190,10 @@ func (srv *SecurityService) UpdateSecRule(ctx context.Context,
 	paths, err := szprotobuf.ApplyMask(dbRB, req.GetSecrule(),
 		req.GetUpdateMask(), _secRuleUpdatable...)
 	if err != nil {
+		return nil, err
+	}
+
+	if err = validateSecRule(dbRB); err != nil {
 		return nil, err
 	}
 
@@ -240,8 +247,36 @@ func (srv *SecurityService) ListSecRules(ctx context.Context,
 	}, nil
 }
 
+// GetConditionSchema returns the conditions szrule.ValidateExpression
+// accepts, the console builds its expression editor from it.
+func (srv *SecurityService) GetConditionSchema(_ context.Context,
+	_ *securitypb.GetConditionSchemaRequest,
+) (*securitypb.GetConditionSchemaResponse, error) {
+	return &securitypb.GetConditionSchemaResponse{
+		Schema: szrule.Schema(),
+	}, nil
+}
+
 func (srv *SecurityService) Status(_ context.Context,
 	_ *securitypb.StatusRequest,
 ) (*securitypb.StatusResponse, error) {
 	return &securitypb.StatusResponse{Msg: "OK"}, nil
+}
+
+func validateSecRule(rule *securitypb.SecRule) error {
+	if rule == nil {
+		return szerror.StatusInvalidArgumentF("secrule is required")
+	}
+
+	return validateExpr(rule.GetExpr())
+}
+
+// validateExpr rejects an expression with a condition outside of
+// szrule.Schema: the edge would never match it.
+func validateExpr(expr *rulepb.Expression) error {
+	if err := szrule.ValidateExpression(expr); err != nil {
+		return szerror.StatusInvalidArgumentF("expr: %v", err)
+	}
+
+	return nil
 }
