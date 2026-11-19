@@ -20,6 +20,29 @@
     "application/json"
   ],
   "paths": {
+    "/security/condition-schema": {
+      "get": {
+        "summary": "GetConditionSchema returns the conditions a rule expression accepts:\nthe operators and values of each source, the console builds its\nexpression editor from it",
+        "operationId": "SecurityService_GetConditionSchema",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetConditionSchemaResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "SecurityService"
+        ]
+      }
+    },
     "/security/crs/rules": {
       "get": {
         "summary": "ListCRSRuleInfos searches the OWASP CRS catalog: the rules a Ruleset\ncan exclude or override, with their tags",
@@ -1268,6 +1291,18 @@
       },
       "title": "A logical condition expression"
     },
+    "v1ConditionSchema": {
+      "type": "object",
+      "properties": {
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SourceSpec"
+          }
+        }
+      }
+    },
     "v1CreateSecRateLimitRequest": {
       "type": "object",
       "properties": {
@@ -1468,6 +1503,14 @@
         }
       }
     },
+    "v1GetConditionSchemaResponse": {
+      "type": "object",
+      "properties": {
+        "schema": {
+          "$ref": "#/definitions/v1ConditionSchema"
+        }
+      }
+    },
     "v1GetSecRateLimitResponse": {
       "type": "object",
       "properties": {
@@ -1491,6 +1534,16 @@
           "$ref": "#/definitions/v1SecRuleset"
         }
       }
+    },
+    "v1KeyMode": {
+      "type": "string",
+      "enum": [
+        "KEY_MODE_UNSPECIFIED",
+        "KEY_MODE_NONE",
+        "KEY_MODE_REQUIRED"
+      ],
+      "default": "KEY_MODE_UNSPECIFIED",
+      "description": "How a variant of a source uses the key of the condition.\n\n - KEY_MODE_NONE: The key must be empty: the source has a single value (path, IP...).\n - KEY_MODE_REQUIRED: The key names the field to read, e.g. the header \"User-Agent\"."
     },
     "v1ListCRSRuleInfosResponse": {
       "type": "object",
@@ -1603,6 +1656,29 @@
         "OPERATOR_NOT_IN"
       ],
       "default": "OPERATOR_UNSPECIFIED"
+    },
+    "v1OperatorSpec": {
+      "type": "object",
+      "properties": {
+        "operator": {
+          "$ref": "#/definitions/v1Operator"
+        },
+        "valueKind": {
+          "$ref": "#/definitions/v1ValueKind"
+        },
+        "list": {
+          "type": "boolean",
+          "description": "The value is a non-empty list of value_kind items."
+        },
+        "enumValues": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The allowed values of VALUE_KIND_ENUM, compared case-sensitively."
+        }
+      },
+      "description": "An operator a variant accepts, with the value it compares to."
     },
     "v1Owner": {
       "type": "object",
@@ -1887,6 +1963,42 @@
       },
       "description": "Setting the rulesets of a server (namespace): OWASP CRS and the managed\nrulesets of other providers."
     },
+    "v1SourceSpec": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "$ref": "#/definitions/v1FieldSource"
+        },
+        "variants": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SourceVariant"
+          }
+        }
+      },
+      "description": "The variants of a source, picked by the key: a source has at most one\nvariant per KeyMode."
+    },
+    "v1SourceVariant": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Stable name of the variant, e.g. \"value\" or \"presence\"."
+        },
+        "keyMode": {
+          "$ref": "#/definitions/v1KeyMode"
+        },
+        "operators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1OperatorSpec"
+          }
+        }
+      },
+      "description": "A way to read a source: the key it takes and the operators it accepts."
+    },
     "v1StatusResponse": {
       "type": "object",
       "properties": {
@@ -1918,6 +2030,20 @@
           "$ref": "#/definitions/v1SecRuleset"
         }
       }
+    },
+    "v1ValueKind": {
+      "type": "string",
+      "enum": [
+        "VALUE_KIND_UNSPECIFIED",
+        "VALUE_KIND_STRING",
+        "VALUE_KIND_NUMBER",
+        "VALUE_KIND_REGEX",
+        "VALUE_KIND_IP",
+        "VALUE_KIND_ENUM",
+        "VALUE_KIND_NAME"
+      ],
+      "default": "VALUE_KIND_UNSPECIFIED",
+      "description": "The kind of the value of a condition. The value is always a string, or a\nlist of strings when the operator spec is a list: the edge reads it as\nsuch, a JSON number or bool would never match.\n\n - VALUE_KIND_STRING: Any non-empty text.\n - VALUE_KIND_NUMBER: A decimal number, e.g. \"1024\" or \"0.5\".\n - VALUE_KIND_REGEX: A regular expression in the RE2 syntax.\n - VALUE_KIND_IP: An IP address or a CIDR prefix, e.g. \"10.0.0.1\" or \"10.0.0.0/8\".\n - VALUE_KIND_ENUM: One of the enum_values of the operator spec.\n - VALUE_KIND_NAME: The name of a header or a query parameter."
     }
   },
   "securityDefinitions": {

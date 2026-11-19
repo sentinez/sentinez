@@ -51,6 +51,7 @@ const (
 	SecurityService_GetCRSRuleInfo_FullMethodName     = "/sentinez.apps.security.v1.SecurityService/GetCRSRuleInfo"
 	SecurityService_ListCRSRuleInfos_FullMethodName   = "/sentinez.apps.security.v1.SecurityService/ListCRSRuleInfos"
 	SecurityService_ListCRSRuleTags_FullMethodName    = "/sentinez.apps.security.v1.SecurityService/ListCRSRuleTags"
+	SecurityService_GetConditionSchema_FullMethodName = "/sentinez.apps.security.v1.SecurityService/GetConditionSchema"
 	SecurityService_Status_FullMethodName             = "/sentinez.apps.security.v1.SecurityService/Status"
 )
 
@@ -100,6 +101,10 @@ type SecurityServiceClient interface {
 	// catalog: the values a Ruleset can exclude, or ListCRSRuleInfos can
 	// filter by
 	ListCRSRuleTags(ctx context.Context, in *ListCRSRuleTagsRequest, opts ...grpc.CallOption) (*ListCRSRuleTagsResponse, error)
+	// GetConditionSchema returns the conditions a rule expression accepts:
+	// the operators and values of each source, the console builds its
+	// expression editor from it
+	GetConditionSchema(ctx context.Context, in *GetConditionSchemaRequest, opts ...grpc.CallOption) (*GetConditionSchemaResponse, error)
 	// Status returns the health status of the security service
 	Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 }
@@ -292,6 +297,16 @@ func (c *securityServiceClient) ListCRSRuleTags(ctx context.Context, in *ListCRS
 	return out, nil
 }
 
+func (c *securityServiceClient) GetConditionSchema(ctx context.Context, in *GetConditionSchemaRequest, opts ...grpc.CallOption) (*GetConditionSchemaResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetConditionSchemaResponse)
+	err := c.cc.Invoke(ctx, SecurityService_GetConditionSchema_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *securityServiceClient) Status(ctx context.Context, in *StatusRequest, opts ...grpc.CallOption) (*StatusResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(StatusResponse)
@@ -348,6 +363,10 @@ type SecurityServiceServer interface {
 	// catalog: the values a Ruleset can exclude, or ListCRSRuleInfos can
 	// filter by
 	ListCRSRuleTags(context.Context, *ListCRSRuleTagsRequest) (*ListCRSRuleTagsResponse, error)
+	// GetConditionSchema returns the conditions a rule expression accepts:
+	// the operators and values of each source, the console builds its
+	// expression editor from it
+	GetConditionSchema(context.Context, *GetConditionSchemaRequest) (*GetConditionSchemaResponse, error)
 	// Status returns the health status of the security service
 	Status(context.Context, *StatusRequest) (*StatusResponse, error)
 }
@@ -412,6 +431,9 @@ func (UnimplementedSecurityServiceServer) ListCRSRuleInfos(context.Context, *Lis
 }
 func (UnimplementedSecurityServiceServer) ListCRSRuleTags(context.Context, *ListCRSRuleTagsRequest) (*ListCRSRuleTagsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListCRSRuleTags not implemented")
+}
+func (UnimplementedSecurityServiceServer) GetConditionSchema(context.Context, *GetConditionSchemaRequest) (*GetConditionSchemaResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetConditionSchema not implemented")
 }
 func (UnimplementedSecurityServiceServer) Status(context.Context, *StatusRequest) (*StatusResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Status not implemented")
@@ -760,6 +782,24 @@ func _SecurityService_ListCRSRuleTags_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SecurityService_GetConditionSchema_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetConditionSchemaRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SecurityServiceServer).GetConditionSchema(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SecurityService_GetConditionSchema_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SecurityServiceServer).GetConditionSchema(ctx, req.(*GetConditionSchemaRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _SecurityService_Status_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StatusRequest)
 	if err := dec(in); err != nil {
@@ -856,6 +896,10 @@ var SecurityService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListCRSRuleTags",
 			Handler:    _SecurityService_ListCRSRuleTags_Handler,
+		},
+		{
+			MethodName: "GetConditionSchema",
+			Handler:    _SecurityService_GetConditionSchema_Handler,
 		},
 		{
 			MethodName: "Status",

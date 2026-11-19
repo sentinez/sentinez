@@ -21,6 +21,7 @@ import "google/api/annotations.proto";
 import "google/protobuf/field_mask.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "sentinez/apps/security/v1/model.proto";
+import "sentinez/types/rule/v1/rule.proto";
 import "sentinez/types/ruleset/v1/setting.proto";
 import "sentinez/types/v1/known.proto";
 import "sentinez/types/v1/model.proto";
@@ -215,6 +216,15 @@ service SecurityService {
   // filter by
   rpc ListCRSRuleTags(ListCRSRuleTagsRequest) returns (ListCRSRuleTagsResponse) {
     option (google.api.http) = {get: "/security/crs/tags"};
+  }
+
+  // ── Condition schema ──────────────────────────────────────────────────────
+
+  // GetConditionSchema returns the conditions a rule expression accepts:
+  // the operators and values of each source, the console builds its
+  // expression editor from it
+  rpc GetConditionSchema(GetConditionSchemaRequest) returns (GetConditionSchemaResponse) {
+    option (google.api.http) = {get: "/security/condition-schema"};
   }
 
   // ── Status ────────────────────────────────────────────────────────────────
@@ -499,4 +509,12 @@ message StatusRequest {}
 
 message StatusResponse {
   string msg = 1;
+}
+
+// ── Condition schema Messages ────────────────────────────────────────────
+
+message GetConditionSchemaRequest {}
+
+message GetConditionSchemaResponse {
+  sentinez.types.rule.v1.ConditionSchema schema = 1;
 }

@@ -503,3 +503,319 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = MatchedRulesValidationError{}
+
+// Validate checks the field values on OperatorSpec with the rules defined in
+// the proto definition for this message. If any rules are violated, an error
+// is returned.
+func (m *OperatorSpec) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Operator
+
+	// no validation rules for ValueKind
+
+	// no validation rules for List
+
+	return nil
+}
+
+// OperatorSpecValidationError is the validation error returned by
+// OperatorSpec.Validate if the designated constraints aren't met.
+type OperatorSpecValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e OperatorSpecValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e OperatorSpecValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e OperatorSpecValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e OperatorSpecValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e OperatorSpecValidationError) ErrorName() string { return "OperatorSpecValidationError" }
+
+// Error satisfies the builtin error interface
+func (e OperatorSpecValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sOperatorSpec.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = OperatorSpecValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = OperatorSpecValidationError{}
+
+// Validate checks the field values on SourceVariant with the rules defined in
+// the proto definition for this message. If any rules are violated, an error
+// is returned.
+func (m *SourceVariant) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Name
+
+	// no validation rules for KeyMode
+
+	for idx, item := range m.GetOperators() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return SourceVariantValidationError{
+					field:  fmt.Sprintf("Operators[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// SourceVariantValidationError is the validation error returned by
+// SourceVariant.Validate if the designated constraints aren't met.
+type SourceVariantValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SourceVariantValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SourceVariantValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SourceVariantValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SourceVariantValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SourceVariantValidationError) ErrorName() string { return "SourceVariantValidationError" }
+
+// Error satisfies the builtin error interface
+func (e SourceVariantValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSourceVariant.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SourceVariantValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SourceVariantValidationError{}
+
+// Validate checks the field values on SourceSpec with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *SourceSpec) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Source
+
+	for idx, item := range m.GetVariants() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return SourceSpecValidationError{
+					field:  fmt.Sprintf("Variants[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// SourceSpecValidationError is the validation error returned by
+// SourceSpec.Validate if the designated constraints aren't met.
+type SourceSpecValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SourceSpecValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SourceSpecValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SourceSpecValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SourceSpecValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SourceSpecValidationError) ErrorName() string { return "SourceSpecValidationError" }
+
+// Error satisfies the builtin error interface
+func (e SourceSpecValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSourceSpec.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SourceSpecValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SourceSpecValidationError{}
+
+// Validate checks the field values on ConditionSchema with the rules defined
+// in the proto definition for this message. If any rules are violated, an
+// error is returned.
+func (m *ConditionSchema) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	for idx, item := range m.GetSources() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ConditionSchemaValidationError{
+					field:  fmt.Sprintf("Sources[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ConditionSchemaValidationError is the validation error returned by
+// ConditionSchema.Validate if the designated constraints aren't met.
+type ConditionSchemaValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ConditionSchemaValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ConditionSchemaValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ConditionSchemaValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ConditionSchemaValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ConditionSchemaValidationError) ErrorName() string { return "ConditionSchemaValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ConditionSchemaValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sConditionSchema.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ConditionSchemaValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ConditionSchemaValidationError{}
