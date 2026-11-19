@@ -47,6 +47,11 @@ import {
   Operator,
   actionTypeToJSON,
   Expression,
+  ConditionSchema,
+  KeyMode,
+  OperatorSpec,
+  SourceSpec,
+  ValueKind,
 } from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 import type { Owner } from '@sentinez/proto/sentinez/types/v1/model';
@@ -825,14 +830,103 @@ export async function getCRSRuleInfo(
   });
 }
 
+// ---- Sample condition schema: what core/szrule/rule_schema.go serves ----
+
+const spec = (
+  operator: Operator,
+  valueKind: ValueKind,
+  extra: Partial<OperatorSpec> = {},
+): OperatorSpec => ({ operator, valueKind, list: false, enumValues: [], ...extra });
+
+const TEXT_OPERATORS = [
+  spec(Operator.OPERATOR_EQ, ValueKind.VALUE_KIND_STRING),
+  spec(Operator.OPERATOR_NE, ValueKind.VALUE_KIND_STRING),
+  spec(Operator.OPERATOR_CONTAINS, ValueKind.VALUE_KIND_STRING),
+  spec(Operator.OPERATOR_PREFIX, ValueKind.VALUE_KIND_STRING),
+  spec(Operator.OPERATOR_SUFFIX, ValueKind.VALUE_KIND_STRING),
+  spec(Operator.OPERATOR_MATCHES, ValueKind.VALUE_KIND_REGEX),
+];
+
+const NUMBER_OPERATORS = [
+  Operator.OPERATOR_GT,
+  Operator.OPERATOR_GTE,
+  Operator.OPERATOR_LT,
+  Operator.OPERATOR_LTE,
+].map((op) => spec(op, ValueKind.VALUE_KIND_NUMBER));
+
+/** EQ and NE to a value, IN and NOT_IN to a list of values */
+const membership = (valueKind: ValueKind, enumValues: string[] = []): OperatorSpec[] => [
+  spec(Operator.OPERATOR_EQ, valueKind, { enumValues }),
+  spec(Operator.OPERATOR_NE, valueKind, { enumValues }),
+  spec(Operator.OPERATOR_IN, valueKind, { enumValues, list: true }),
+  spec(Operator.OPERATOR_NOT_IN, valueKind, { enumValues, list: true }),
+];
+
+/** A source without a key: it has a single variant */
+const plainSource = (source: FieldSource, operators: OperatorSpec[]): SourceSpec => ({
+  source,
+  variants: [{ name: 'value', keyMode: KeyMode.KEY_MODE_NONE, operators }],
+});
+
+/** Header and query: the value of a named field, or the presence of fields */
+const keyedSource = (source: FieldSource): SourceSpec => ({
+  source,
+  variants: [
+    {
+      name: 'value',
+      keyMode: KeyMode.KEY_MODE_REQUIRED,
+      operators: [
+        ...TEXT_OPERATORS,
+        ...NUMBER_OPERATORS,
+        spec(Operator.OPERATOR_IN, ValueKind.VALUE_KIND_STRING, { list: true }),
+        spec(Operator.OPERATOR_NOT_IN, ValueKind.VALUE_KIND_STRING, { list: true }),
+      ],
+    },
+    {
+      name: 'presence',
+      keyMode: KeyMode.KEY_MODE_NONE,
+      operators: membership(ValueKind.VALUE_KIND_NAME),
+    },
+  ],
+});
+
+export const SAMPLE_CONDITION_SCHEMA: ConditionSchema = {
+  sources: [
+    keyedSource(FieldSource.FIELD_SOURCE_HEADER),
+    keyedSource(FieldSource.FIELD_SOURCE_QUERY),
+    plainSource(FieldSource.FIELD_SOURCE_PATH, TEXT_OPERATORS),
+    plainSource(FieldSource.FIELD_SOURCE_BODY, TEXT_OPERATORS),
+    plainSource(FieldSource.FIELD_SOURCE_IP, membership(ValueKind.VALUE_KIND_IP)),
+    plainSource(FieldSource.FIELD_SOURCE_JA4, TEXT_OPERATORS),
+    plainSource(FieldSource.FIELD_SOURCE_TLS, [
+      spec(Operator.OPERATOR_EQ, ValueKind.VALUE_KIND_ENUM, { enumValues: ['true', 'false'] }),
+      spec(Operator.OPERATOR_NE, ValueKind.VALUE_KIND_ENUM, { enumValues: ['true', 'false'] }),
+    ]),
+    plainSource(
+      FieldSource.FIELD_SOURCE_METHOD,
+      membership(ValueKind.VALUE_KIND_ENUM, [
+        'GET',
+        'HEAD',
+        'POST',
+        'PUT',
+        'PATCH',
+        'DELETE',
+        'OPTIONS',
+        'CONNECT',
+        'TRACE',
+      ]),
+    ),
+    plainSource(FieldSource.FIELD_SOURCE_HOST, TEXT_OPERATORS),
+  ],
+};
+
 // GET /security/condition-schema
-// The conditions a rule expression accepts. The sample response has no
-// schema: the editor then offers every source and operator.
+// The conditions a rule expression accepts: the editor offers what it lists.
 export async function getConditionSchema(
   options?: ApiOptions,
 ): Promise<GetConditionSchemaResponse> {
   return withFallback<GetConditionSchemaResponse>('getConditionSchema', () => ({
-    schema: undefined,
+    schema: SAMPLE_CONDITION_SCHEMA,
   }))(async () => {
     const resp = await axios.get(`${API_BASE_PATH}/security/condition-schema`, {
       signal: options?.signal,
