@@ -23,12 +23,23 @@ import { cn } from '@sentinez/ui/lib/utils';
 import {
   AndCondition,
   Condition,
+  ConditionSchema,
   Expression,
   Rule,
   FieldSource,
   Operator,
+  OperatorSpec,
+  ValueKind,
 } from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import { OPERATOR_OPTIONS } from '@/lib/type/security';
+import {
+  acceptsKey,
+  conditionSpec,
+  conformCondition,
+  keyIsOptional,
+  listToText,
+  textToList,
+} from '@/lib/type/rule-schema';
 import { useSecurityOptions } from '@/hooks/use-security-options';
 import { CodeBlock } from '@/components/code-block';
 
@@ -57,7 +68,10 @@ export const createEmptyExpression = (): Expression => ({
   orCondition: [createEmptyAndCondition()],
 });
 
-/** Sources that need a named key input (header name, query param, etc.) */
+/**
+ * Sources that need a named key input (header name, query param, etc.),
+ * while the condition schema of the server has not loaded.
+ */
 const SOURCES_WITH_KEY = new Set<FieldSource>([
   FieldSource.FIELD_SOURCE_HEADER,
   FieldSource.FIELD_SOURCE_QUERY,
@@ -70,6 +84,7 @@ const SOURCES_WITH_KEY = new Set<FieldSource>([
 
 type QueryBuilderContextValue = {
   expression: Expression;
+  schema?: ConditionSchema;
   addGroup: () => void;
   removeGroup: (groupIndex: number) => void;
   addRule: (groupIndex: number) => void;
@@ -108,6 +123,11 @@ export type QueryBuilderProps = Omit<React.ComponentProps<'div'>, 'defaultValue'
   /** Initial expression in uncontrolled mode. */
   defaultValue?: Expression;
   onValueChange?: (value: Expression) => void;
+  /**
+   * The conditions the rule accepts, see useConditionSchema: the editor only
+   * offers what it lists. Without it, every source and operator is offered.
+   */
+  schema?: ConditionSchema;
 };
 
 /**
@@ -120,6 +140,7 @@ export function QueryBuilder({
   value: valueProp,
   defaultValue,
   onValueChange,
+  schema,
   className,
   children,
   ...props
@@ -133,6 +154,7 @@ export function QueryBuilder({
   const context = React.useMemo<QueryBuilderContextValue>(
     () => ({
       expression,
+      schema,
       addGroup: () =>
         setExpression((e) => ({
           ...e,
@@ -166,7 +188,7 @@ export function QueryBuilder({
           })),
         ),
     }),
-    [expression, setExpression],
+    [expression, schema, setExpression],
   );
 
   return (
@@ -324,6 +346,9 @@ export type QueryBuilderRuleProps = React.ComponentProps<'div'> & {
 /**
  * One condition: source, key (header, query... name), operator and value.
  * Two per row in a narrow form, all on one row when the builder is wide.
+ * The condition schema of the builder, when it has one, decides which
+ * sources, keys and operators it offers and how the value is entered; an
+ * edit keeps the condition inside it.
  */
 export function QueryBuilderRule({
   groupIndex,
@@ -333,14 +358,21 @@ export function QueryBuilderRule({
 }: QueryBuilderRuleProps) {
   const t = useTranslations('QueryBuilder');
   const { fieldSourceOptions } = useSecurityOptions();
-  const { expression, updateCondition, removeRule } = useQueryBuilder();
+  const { expression, schema, updateCondition, removeRule } = useQueryBuilder();
   const rule = expression.orCondition[groupIndex]?.rules[ruleIndex];
   if (!rule) return null;
 
   const condition = rule.condition ?? createEmptyCondition();
-  const needsKey = SOURCES_WITH_KEY.has(condition.source);
+  const spec = conditionSpec(schema, condition);
+  const needsKey = schema ? acceptsKey(spec.source) : SOURCES_WITH_KEY.has(condition.source);
+  const sourceOptions = schema
+    ? fieldSourceOptions.filter((o) => schema.sources.some((s) => s.source === o.value))
+    : fieldSourceOptions;
+  const operatorOptions = spec.variant
+    ? OPERATOR_OPTIONS.filter((o) => spec.variant?.operators.some((s) => s.operator === o.value))
+    : OPERATOR_OPTIONS;
   const update = (patch: Partial<Condition>) =>
-    updateCondition(groupIndex, ruleIndex, (c) => ({ ...c, ...patch }));
+    updateCondition(groupIndex, ruleIndex, (c) => conformCondition(schema, { ...c, ...patch }));
 
   return (
     <div
@@ -356,13 +388,15 @@ export function QueryBuilderRule({
           aria-label={t('source')}
           value={condition.source}
           onValueChange={(source) => update({ source: source as FieldSource, key: '' })}
-          options={fieldSourceOptions}
+          options={sourceOptions}
         />
 
         {needsKey && (
           <Input
             aria-label={t('key')}
-            placeholder={t('keyPlaceholder')}
+            placeholder={
+              keyIsOptional(spec.source) ? t('keyOptionalPlaceholder') : t('keyPlaceholder')
+            }
             spellCheck={false}
             autoComplete="off"
             value={condition.key}
@@ -375,21 +409,15 @@ export function QueryBuilderRule({
           aria-label={t('operator')}
           value={condition.operator}
           onValueChange={(operator) => update({ operator: operator as Operator })}
-          options={OPERATOR_OPTIONS}
+          options={operatorOptions}
         />
 
-        <Input
-          aria-label={t('value')}
-          placeholder={t('value')}
-          spellCheck={false}
-          autoComplete="off"
-          value={String(condition.value ?? '')}
-          onChange={(e) => update({ value: e.target.value })}
+        <ConditionValue
+          spec={spec.operator}
+          value={condition.value}
+          onValueChange={(value) => update({ value })}
           // without a key, the value takes the rest of the row
-          className={cn(
-            'min-w-0 bg-background text-ellipsis',
-            !needsKey && '@xs/query-builder:col-span-2',
-          )}
+          className={cn(!needsKey && '@xs/query-builder:col-span-2')}
         />
       </div>
 
@@ -404,6 +432,116 @@ export function QueryBuilderRule({
         <Trash2Icon className="size-4" aria-hidden />
       </Button>
     </div>
+  );
+}
+
+// ─── ConditionValue ──────────────────────────────────────────────────────────
+
+type ConditionValueProps = {
+  /** The operator of the condition in the schema, undefined without a schema */
+  spec?: OperatorSpec;
+  value: unknown;
+  onValueChange: (value: string | string[]) => void;
+  className?: string;
+};
+
+/**
+ * The value input the operator takes: a select of the allowed values, a
+ * comma separated list, or a text with a hint of the expected kind.
+ */
+function ConditionValue({ spec, value, onValueChange, className }: ConditionValueProps) {
+  const t = useTranslations('QueryBuilder');
+  const inputClass = cn('min-w-0 bg-background text-ellipsis', className);
+
+  if (spec?.valueKind === ValueKind.VALUE_KIND_ENUM && !spec.list) {
+    return (
+      <StringSelect
+        aria-label={t('value')}
+        value={typeof value === 'string' ? value : ''}
+        onValueChange={onValueChange}
+        options={spec.enumValues}
+        className={className}
+      />
+    );
+  }
+
+  if (spec?.list) {
+    const placeholder =
+      spec.valueKind === ValueKind.VALUE_KIND_ENUM
+        ? t('valuePlaceholder.enumList', { values: spec.enumValues.join(', ') })
+        : t('valuePlaceholder.list');
+    return (
+      <ListInput
+        aria-label={t('value')}
+        placeholder={placeholder}
+        value={value}
+        onValueChange={onValueChange}
+        className={inputClass}
+      />
+    );
+  }
+
+  return (
+    <Input
+      aria-label={t('value')}
+      placeholder={t(`valuePlaceholder.${valueHint(spec?.valueKind)}`)}
+      spellCheck={false}
+      autoComplete="off"
+      inputMode={spec?.valueKind === ValueKind.VALUE_KIND_NUMBER ? 'decimal' : undefined}
+      value={listToText(value)}
+      onChange={(e) => onValueChange(e.target.value)}
+      className={inputClass}
+    />
+  );
+}
+
+/** The placeholder key of a single value of the kind */
+function valueHint(kind?: ValueKind): 'string' | 'number' | 'regex' | 'ip' | 'name' {
+  switch (kind) {
+    case ValueKind.VALUE_KIND_NUMBER:
+      return 'number';
+    case ValueKind.VALUE_KIND_REGEX:
+      return 'regex';
+    case ValueKind.VALUE_KIND_IP:
+      return 'ip';
+    case ValueKind.VALUE_KIND_NAME:
+      return 'name';
+    default:
+      return 'string';
+  }
+}
+
+type ListInputProps = Omit<React.ComponentProps<typeof Input>, 'value' | 'onChange'> & {
+  value: unknown;
+  onValueChange: (value: string[]) => void;
+};
+
+/**
+ * A list value typed as comma separated text. The text is kept as typed
+ * (a trailing comma, spaces) while the list it makes is what changes.
+ */
+function ListInput({ value, onValueChange, ...props }: ListInputProps) {
+  const text = listToText(value);
+  const [draft, setDraft] = React.useState(text);
+  const [synced, setSynced] = React.useState(text);
+
+  // the value changed from outside (another operator, a reset): show it
+  if (text !== synced) {
+    setSynced(text);
+    if (textToList(draft).join(', ') !== text) setDraft(text);
+  }
+
+  return (
+    <Input
+      spellCheck={false}
+      autoComplete="off"
+      value={draft}
+      onChange={(e) => {
+        setDraft(e.target.value);
+        onValueChange(textToList(e.target.value));
+      }}
+      {...props}
+    />
   );
 }
 
@@ -436,6 +574,26 @@ export function QueryBuilderPreview({ className, ...props }: QueryBuilderPreview
         <CodeBlock value={expression} />
       </CollapsibleContent>
     </Collapsible>
+  );
+}
+
+// ─── StringSelect ────────────────────────────────────────────────────────────
+
+type StringSelectProps = Omit<EnumSelectProps, 'value' | 'onValueChange' | 'options'> & {
+  value: string;
+  onValueChange: (value: string) => void;
+  options: string[];
+};
+
+/** A select of literal values, shown as they are sent (GET, true...) */
+function StringSelect({ value, onValueChange, options, ...props }: StringSelectProps) {
+  return (
+    <EnumSelect
+      {...props}
+      value={options.indexOf(value)}
+      onValueChange={(i) => onValueChange(options[i] ?? '')}
+      options={options.map((label, value) => ({ label, value }))}
+    />
   );
 }
 
