@@ -67,64 +67,64 @@ func (h *Security) ListSecRules(ctx context.Context,
 	return h.service.ListSecRules(ctx, req)
 }
 
-func (h *Security) CreateRateLimit(ctx context.Context,
-	req *securitypb.CreateRateLimitRequest,
-) (*securitypb.CreateRateLimitResponse, error) {
-	return h.service.CreateRateLimit(ctx, req)
+func (h *Security) CreateSecRateLimit(ctx context.Context,
+	req *securitypb.CreateSecRateLimitRequest,
+) (*securitypb.CreateSecRateLimitResponse, error) {
+	return h.service.CreateSecRateLimit(ctx, req)
 }
 
-func (h *Security) GetRateLimit(ctx context.Context,
-	req *securitypb.GetRateLimitRequest,
-) (*securitypb.GetRateLimitResponse, error) {
-	return h.service.GetRateLimit(ctx, req)
+func (h *Security) GetSecRateLimit(ctx context.Context,
+	req *securitypb.GetSecRateLimitRequest,
+) (*securitypb.GetSecRateLimitResponse, error) {
+	return h.service.GetSecRateLimit(ctx, req)
 }
 
-func (h *Security) UpdateRateLimit(ctx context.Context,
-	req *securitypb.UpdateRateLimitRequest,
-) (*securitypb.UpdateRateLimitResponse, error) {
-	return h.service.UpdateRateLimit(ctx, req)
+func (h *Security) UpdateSecRateLimit(ctx context.Context,
+	req *securitypb.UpdateSecRateLimitRequest,
+) (*securitypb.UpdateSecRateLimitResponse, error) {
+	return h.service.UpdateSecRateLimit(ctx, req)
 }
 
-func (h *Security) DeleteRateLimit(ctx context.Context,
-	req *securitypb.DeleteRateLimitRequest,
-) (*securitypb.DeleteRateLimitResponse, error) {
-	return h.service.DeleteRateLimit(ctx, req)
+func (h *Security) DeleteSecRateLimit(ctx context.Context,
+	req *securitypb.DeleteSecRateLimitRequest,
+) (*securitypb.DeleteSecRateLimitResponse, error) {
+	return h.service.DeleteSecRateLimit(ctx, req)
 }
 
-func (h *Security) ListRateLimits(ctx context.Context,
-	req *securitypb.ListRateLimitsRequest,
-) (*securitypb.ListRateLimitsResponse, error) {
-	return h.service.ListRateLimits(ctx, req)
+func (h *Security) ListSecRateLimits(ctx context.Context,
+	req *securitypb.ListSecRateLimitsRequest,
+) (*securitypb.ListSecRateLimitsResponse, error) {
+	return h.service.ListSecRateLimits(ctx, req)
 }
 
-func (h *Security) CreateRuleset(ctx context.Context,
-	req *securitypb.CreateRulesetRequest,
-) (*securitypb.CreateRulesetResponse, error) {
-	return h.service.CreateRuleset(ctx, req)
+func (h *Security) CreateSecRuleset(ctx context.Context,
+	req *securitypb.CreateSecRulesetRequest,
+) (*securitypb.CreateSecRulesetResponse, error) {
+	return h.service.CreateSecRuleset(ctx, req)
 }
 
-func (h *Security) GetRuleset(ctx context.Context,
-	req *securitypb.GetRulesetRequest,
-) (*securitypb.GetRulesetResponse, error) {
-	return h.service.GetRuleset(ctx, req)
+func (h *Security) GetSecRuleset(ctx context.Context,
+	req *securitypb.GetSecRulesetRequest,
+) (*securitypb.GetSecRulesetResponse, error) {
+	return h.service.GetSecRuleset(ctx, req)
 }
 
-func (h *Security) UpdateRuleset(ctx context.Context,
-	req *securitypb.UpdateRulesetRequest,
-) (*securitypb.UpdateRulesetResponse, error) {
-	return h.service.UpdateRuleset(ctx, req)
+func (h *Security) UpdateSecRuleset(ctx context.Context,
+	req *securitypb.UpdateSecRulesetRequest,
+) (*securitypb.UpdateSecRulesetResponse, error) {
+	return h.service.UpdateSecRuleset(ctx, req)
 }
 
-func (h *Security) DeleteRuleset(ctx context.Context,
-	req *securitypb.DeleteRulesetRequest,
-) (*securitypb.DeleteRulesetResponse, error) {
-	return h.service.DeleteRuleset(ctx, req)
+func (h *Security) DeleteSecRuleset(ctx context.Context,
+	req *securitypb.DeleteSecRulesetRequest,
+) (*securitypb.DeleteSecRulesetResponse, error) {
+	return h.service.DeleteSecRuleset(ctx, req)
 }
 
-func (h *Security) ListRulesets(ctx context.Context,
-	req *securitypb.ListRulesetsRequest,
-) (*securitypb.ListRulesetsResponse, error) {
-	return h.service.ListRulesets(ctx, req)
+func (h *Security) ListSecRulesets(ctx context.Context,
+	req *securitypb.ListSecRulesetsRequest,
+) (*securitypb.ListSecRulesetsResponse, error) {
+	return h.service.ListSecRulesets(ctx, req)
 }
 
 func (h *Security) GetCRSRuleInfo(ctx context.Context,

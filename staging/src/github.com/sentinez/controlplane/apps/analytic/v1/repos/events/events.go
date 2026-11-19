@@ -24,8 +24,8 @@ import (
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/eventfilter"
 	httpegresseventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/httpegressevents"
 	httpingresseventrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/httpingressevent"
-	ruleseteventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/rulesetevents"
 	secruleeventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/secruleevents"
+	secruleseteventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/secrulesetevents"
 	"github.com/sentinez/controlplane/apps/collector/v1/repos/topvalues"
 	"github.com/sentinez/pkg/szerror"
 	"github.com/sentinez/pkg/szstorage/dbx/timescale/histogram"
@@ -71,11 +71,11 @@ type EgressReader interface {
 
 // Events the readers of every event table.
 type Events struct {
-	HttpIngress IngressReader
-	HttpEgress  EgressReader
-	SecRule     Reader[secrulepb.SecRuleEvent]
-	RateLimit   Reader[secrulepb.SecRuleEvent]
-	Ruleset     Reader[rulesetpb.RulesetEvent]
+	HttpIngress  IngressReader
+	HttpEgress   EgressReader
+	SecRule      Reader[secrulepb.SecRuleEvent]
+	SecRateLimit Reader[secrulepb.SecRuleEvent]
+	SecRuleset   Reader[rulesetpb.SecRulesetEvent]
 	// AuditLog the audit logs of the control plane calls, listed by
 	// tenant: not an EventKind, whose reads are scoped by resource.
 	AuditLog Reader[auditpb.AuditLog]
@@ -102,12 +102,12 @@ func New(ctx context.Context, appConf *settingpb.Config) (*Events, error) {
 		return nil, fmt.Errorf("secrule: %w", err)
 	}
 
-	events.RateLimit, err = secruleeventsrepo.NewRateLimits(ctx, appConf)
+	events.SecRateLimit, err = secruleeventsrepo.NewSecRateLimits(ctx, appConf)
 	if err != nil {
 		return nil, fmt.Errorf("rate limit: %w", err)
 	}
 
-	events.Ruleset, err = ruleseteventsrepo.New(ctx, appConf)
+	events.SecRuleset, err = secruleseteventsrepo.New(ctx, appConf)
 	if err != nil {
 		return nil, fmt.Errorf("ruleset: %w", err)
 	}
@@ -156,10 +156,10 @@ func (e *Events) reader(kind analyticpb.EventKind) (kindReader, error) {
 		return e.HttpEgress, nil
 	case analyticpb.EventKind_EVENT_KIND_SECRULE:
 		return e.SecRule, nil
-	case analyticpb.EventKind_EVENT_KIND_RATE_LIMIT:
-		return e.RateLimit, nil
-	case analyticpb.EventKind_EVENT_KIND_RULESET:
-		return e.Ruleset, nil
+	case analyticpb.EventKind_EVENT_KIND_SECRATELIMIT:
+		return e.SecRateLimit, nil
+	case analyticpb.EventKind_EVENT_KIND_SECRULESET:
+		return e.SecRuleset, nil
 	default:
 		return nil, szerror.StatusInvalidArgumentF(
 			"invalid event kind %s", kind)

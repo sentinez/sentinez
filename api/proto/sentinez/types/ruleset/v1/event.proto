@@ -22,7 +22,7 @@ import "sentinez/types/v1/options.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1;rulesetpb";
 
-message RulesetEvent {
+message SecRulesetEvent {
   option (sentinez.types.v1.x_message) = {
     database_model: true
     scanner: true

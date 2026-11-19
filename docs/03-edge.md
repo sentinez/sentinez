@@ -189,7 +189,7 @@ stage that produced them; the stage names are exported constants (e.g.
 | 6 | `ROM` | `room.WaitingRoom` | Placeholder, just forwards |
 | 7 | `STC` | `static.Static` | After the rest of the chain, if the path has a static extension (`.css .js .png ...`) sets `Cache-Control: public, max-age=3600, immutable` |
 | 8 | `RUL` | `secure.SecRule` | Walks the active SecRules by descending priority; the first matching rule with action `BLOCK` → `403`; other actions are only debug-logged and evaluation continues |
-| 9 | `WAF` | `secure.WAF` | Coraza transaction: `ExecIngress` (headers/body) → rest of chain → `ExecEgress` (response). Blocked with status 403 → 403 page. Finally logs a `secrulepb.Event` (`LOG_TYPE_RULESETS`) if the transaction was interrupted |
+| 9 | `WAF` | `secure.WAF` | Coraza transaction: `ExecIngress` (headers/body) → rest of chain → `ExecEgress` (response). Blocked with status 403 → 403 page. Finally logs a `secrulepb.Event` (`LOG_TYPE_SECRULESET`) if the transaction was interrupted |
 | 10 | `ROU` | `routing.StandardRouter` | Ends the chain: finds the route, rewrites the path, sets headers, calls `ReverseProxy.Serve` of the namespace's proxy to the upstream; none → `502` |
 
 Error responses (`400/403/404/429/500`) are rendered with `templ` templates
@@ -287,7 +287,7 @@ setting:
 
 Notes:
 
-- `security.ruleset` is a `ruleset.v1.Ruleset`
+- `security.ruleset` is a `ruleset.v1.Setting`
   ([setting.proto](../api/proto/sentinez/types/ruleset/v1/setting.proto)).
   `version` picks the embedded rule files (`VERSION_V4_16_0` only ships the
   RCE and SQLi groups; unset = `VERSION_V4_17_0`). `paranoiaLevel` and

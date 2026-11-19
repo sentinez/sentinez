@@ -21,7 +21,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type rl = securitypb.RateLimit
+type rl = securitypb.SecRateLimit
 
 func TestValidateRateLimit_Valid(t *testing.T) {
 	tests := []struct {

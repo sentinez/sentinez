@@ -20,7 +20,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-func (m *RulesetEvent) MarshalVT() (dAtA []byte, err error) {
+func (m *SecRulesetEvent) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -33,12 +33,12 @@ func (m *RulesetEvent) MarshalVT() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *RulesetEvent) MarshalToVT(dAtA []byte) (int, error) {
+func (m *SecRulesetEvent) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *RulesetEvent) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *SecRulesetEvent) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -177,13 +177,13 @@ func (m *RulesetEvent) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-var vtprotoPool_RulesetEvent = sync.Pool{
+var vtprotoPool_SecRulesetEvent = sync.Pool{
 	New: func() interface{} {
-		return &RulesetEvent{}
+		return &SecRulesetEvent{}
 	},
 }
 
-func (m *RulesetEvent) ResetVT() {
+func (m *SecRulesetEvent) ResetVT() {
 	if m != nil {
 		f0 := m.MatchedRuleIds[:0]
 		f1 := m.Severities[:0]
@@ -194,16 +194,16 @@ func (m *RulesetEvent) ResetVT() {
 		m.Messages = f2
 	}
 }
-func (m *RulesetEvent) ReturnToVTPool() {
+func (m *SecRulesetEvent) ReturnToVTPool() {
 	if m != nil {
 		m.ResetVT()
-		vtprotoPool_RulesetEvent.Put(m)
+		vtprotoPool_SecRulesetEvent.Put(m)
 	}
 }
-func RulesetEventFromVTPool() *RulesetEvent {
-	return vtprotoPool_RulesetEvent.Get().(*RulesetEvent)
+func SecRulesetEventFromVTPool() *SecRulesetEvent {
+	return vtprotoPool_SecRulesetEvent.Get().(*SecRulesetEvent)
 }
-func (m *RulesetEvent) SizeVT() (n int) {
+func (m *SecRulesetEvent) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -280,7 +280,7 @@ func (m *RulesetEvent) SizeVT() (n int) {
 	return n
 }
 
-func (m *RulesetEvent) UnmarshalVT(dAtA []byte) error {
+func (m *SecRulesetEvent) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -303,10 +303,10 @@ func (m *RulesetEvent) UnmarshalVT(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: RulesetEvent: wiretype end group for non-group")
+			return fmt.Errorf("proto: SecRulesetEvent: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: RulesetEvent: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: SecRulesetEvent: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:

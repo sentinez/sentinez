@@ -59,12 +59,12 @@ func scannedColumnsTests() []scannedColumnsTest {
 		{"members", TenantMembers(), tenantpb.MemberColumns()},
 		{"resources", TenantResources(), tenantpb.ResourceColumns()},
 		{"secrules", SecuritySecRules(), securitypb.SecRuleColumns()},
-		{"ratelimits", SecurityRateLimits(), securitypb.RateLimitColumns()},
-		{"rulesets", SecurityRulesets(), securitypb.RulesetColumns()},
+		{"ratelimits", SecuritySecRateLimits(), securitypb.SecRateLimitColumns()},
+		{"rulesets", SecuritySecRulesets(), securitypb.SecRulesetColumns()},
 		{"activities", AnalyticActivities(), analyticpb.ActivityColumns()},
 		{"secrule evt", AnalyticSecRulesEvent(), _secRuleEventColumns},
-		{"ratelimit evt", AnalyticRateLimiterEvent(), _secRuleEventColumns},
-		{"ruleset evt", AnalyticRulesetsEvent(), _rulesetEventColumns},
+		{"ratelimit evt", AnalyticSecRateLimitsEvent(), _secRuleEventColumns},
+		{"ruleset evt", AnalyticSecRulesetsEvent(), _rulesetEventColumns},
 		{"ingress evt", AnalyticHttpIngressEvent(), _ingressEventColumns},
 		{"egress evt", AnalyticHttpEgressEvent(), _egressEventColumns},
 		{"audit logs", AnalyticAuditLogsEvent(), auditpb.AuditLogColumns()},
@@ -73,7 +73,7 @@ func scannedColumnsTests() []scannedColumnsTest {
 
 var (
 	_secRuleEventColumns = secrulepb.SecRuleEventColumns()
-	_rulesetEventColumns = rulesetpb.RulesetEventColumns()
+	_rulesetEventColumns = rulesetpb.SecRulesetEventColumns()
 	_ingressEventColumns = httppb.IngressEventColumns()
 	_egressEventColumns  = httppb.EgressEventColumns()
 )
@@ -100,8 +100,8 @@ func indexedColumns(s dbx.Schema) [][]string {
 func TestEventResourceTimeIndex(t *testing.T) {
 	tests := []eventIndexTest{
 		{"secrule", AnalyticSecRulesEvent(), "matched_time"},
-		{"ratelimit", AnalyticRateLimiterEvent(), "matched_time"},
-		{"ruleset", AnalyticRulesetsEvent(), "matched_time"},
+		{"ratelimit", AnalyticSecRateLimitsEvent(), "matched_time"},
+		{"ruleset", AnalyticSecRulesetsEvent(), "matched_time"},
 		{"ingress", AnalyticHttpIngressEvent(), "timestamp"},
 		{"egress", AnalyticHttpEgressEvent(), "timestamp"},
 		{"audit logs", AnalyticAuditLogsEvent(), "timestamp"},
@@ -121,8 +121,8 @@ func TestEventResourceTimeIndex(t *testing.T) {
 func TestRuleEventRequestIndex(t *testing.T) {
 	tests := []eventIndexTest{
 		{name: "secrule", giveSchema: AnalyticSecRulesEvent()},
-		{name: "ratelimit", giveSchema: AnalyticRateLimiterEvent()},
-		{name: "ruleset", giveSchema: AnalyticRulesetsEvent()},
+		{name: "ratelimit", giveSchema: AnalyticSecRateLimitsEvent()},
+		{name: "ruleset", giveSchema: AnalyticSecRulesetsEvent()},
 	}
 
 	for _, tt := range tests {

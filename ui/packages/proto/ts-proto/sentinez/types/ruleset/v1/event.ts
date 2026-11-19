@@ -17,7 +17,7 @@ import {
 
 export const protobufPackage = "sentinez.types.ruleset.v1";
 
-export interface RulesetEvent {
+export interface SecRulesetEvent {
   id: string;
   matchedRuleIds: number[];
   severities: string[];
@@ -37,7 +37,7 @@ export interface RulesetEvent {
   behavior: RuleBehavior;
 }
 
-function createBaseRulesetEvent(): RulesetEvent {
+function createBaseSecRulesetEvent(): SecRulesetEvent {
   return {
     id: "",
     matchedRuleIds: [],
@@ -58,8 +58,8 @@ function createBaseRulesetEvent(): RulesetEvent {
   };
 }
 
-export const RulesetEvent: MessageFns<RulesetEvent> = {
-  encode(message: RulesetEvent, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const SecRulesetEvent: MessageFns<SecRulesetEvent> = {
+  encode(message: SecRulesetEvent, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
@@ -113,7 +113,7 @@ export const RulesetEvent: MessageFns<RulesetEvent> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): RulesetEvent {
+  decode(input: BinaryReader | Uint8Array, length?: number): SecRulesetEvent {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -122,7 +122,7 @@ export const RulesetEvent: MessageFns<RulesetEvent> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseRulesetEvent();
+      const message = createBaseSecRulesetEvent();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -276,7 +276,7 @@ export const RulesetEvent: MessageFns<RulesetEvent> = {
     }
   },
 
-  fromJSON(object: any): RulesetEvent {
+  fromJSON(object: any): SecRulesetEvent {
     return {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
       matchedRuleIds: globalThis.Array.isArray(object?.matchedRuleIds)
@@ -343,7 +343,7 @@ export const RulesetEvent: MessageFns<RulesetEvent> = {
     };
   },
 
-  toJSON(message: RulesetEvent): unknown {
+  toJSON(message: SecRulesetEvent): unknown {
     const obj: any = {};
     if (message.id !== "") {
       obj.id = message.id;
@@ -396,11 +396,11 @@ export const RulesetEvent: MessageFns<RulesetEvent> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<RulesetEvent>, I>>(base?: I): RulesetEvent {
-    return RulesetEvent.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<SecRulesetEvent>, I>>(base?: I): SecRulesetEvent {
+    return SecRulesetEvent.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<RulesetEvent>, I>>(object: I): RulesetEvent {
-    const message = createBaseRulesetEvent();
+  fromPartial<I extends Exact<DeepPartial<SecRulesetEvent>, I>>(object: I): SecRulesetEvent {
+    const message = createBaseSecRulesetEvent();
     message.id = object.id ?? "";
     message.matchedRuleIds = object.matchedRuleIds?.map((e) => e) || [];
     message.severities = object.severities?.map((e) => e) || [];

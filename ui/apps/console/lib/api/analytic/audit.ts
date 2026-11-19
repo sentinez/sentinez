@@ -68,8 +68,8 @@ const sampleCalls = (tenantId: string): SampleCall[] => [
     resourceId: 'rsrc_sample',
   },
   {
-    method: '/sentinez.apps.security.v1.SecurityService/UpdateRateLimit',
-    request: { id: 'srule_sample-api-limit', updateMask: 'timeWindow' },
+    method: '/sentinez.apps.security.v1.SecurityService/UpdateSecRateLimit',
+    request: { id: 'srlim_sample-api-limit', updateMask: 'timeWindow' },
     resourceId: 'rsrc_sample',
     change: [{ field: 'time_window', before: '60s', after: '30s' }],
   },
@@ -91,14 +91,14 @@ const sampleCalls = (tenantId: string): SampleCall[] => [
     change: [{ field: 'name', before: 'store', after: 'shop' }],
   },
   {
-    method: '/sentinez.apps.security.v1.SecurityService/UpdateRuleset',
+    method: '/sentinez.apps.security.v1.SecurityService/UpdateSecRuleset',
     request: {
-      id: 'rs_sample',
-      ruleset: { ruleset: SAMPLE_CRS_AFTER },
-      updateMask: 'ruleset',
+      id: 'srs_sample',
+      secruleset: { setting: SAMPLE_CRS_AFTER },
+      updateMask: 'setting',
     },
     resourceId: 'rsrc_sample',
-    change: [{ field: 'ruleset', before: SAMPLE_CRS_BEFORE, after: SAMPLE_CRS_AFTER }],
+    change: [{ field: 'setting', before: SAMPLE_CRS_BEFORE, after: SAMPLE_CRS_AFTER }],
   },
   {
     method: '/sentinez.apps.iam.v1.IdentityAccessManagementService/Login',

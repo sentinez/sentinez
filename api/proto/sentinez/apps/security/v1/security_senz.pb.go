@@ -61,63 +61,63 @@ func GetSecurityServiceListSecRules() *v1.XMethod {
 	}
 }
 
-func GetSecurityServiceCreateRateLimit() *v1.XMethod {
+func GetSecurityServiceCreateSecRateLimit() *v1.XMethod {
 	return &v1.XMethod{
 		Audit: true,
 	}
 }
 
-func GetSecurityServiceGetRateLimit() *v1.XMethod {
+func GetSecurityServiceGetSecRateLimit() *v1.XMethod {
 	return &v1.XMethod{
 		Audit: true,
 	}
 }
 
-func GetSecurityServiceUpdateRateLimit() *v1.XMethod {
+func GetSecurityServiceUpdateSecRateLimit() *v1.XMethod {
 	return &v1.XMethod{
 		Audit: true,
 	}
 }
 
-func GetSecurityServiceDeleteRateLimit() *v1.XMethod {
+func GetSecurityServiceDeleteSecRateLimit() *v1.XMethod {
 	return &v1.XMethod{
 		Audit:        true,
 		AuditNoOwner: true,
 	}
 }
 
-func GetSecurityServiceListRateLimits() *v1.XMethod {
+func GetSecurityServiceListSecRateLimits() *v1.XMethod {
 	return &v1.XMethod{
 		Audit: true,
 	}
 }
 
-func GetSecurityServiceCreateRuleset() *v1.XMethod {
+func GetSecurityServiceCreateSecRuleset() *v1.XMethod {
 	return &v1.XMethod{
 		Audit: true,
 	}
 }
 
-func GetSecurityServiceGetRuleset() *v1.XMethod {
+func GetSecurityServiceGetSecRuleset() *v1.XMethod {
 	return &v1.XMethod{
 		Audit: true,
 	}
 }
 
-func GetSecurityServiceUpdateRuleset() *v1.XMethod {
+func GetSecurityServiceUpdateSecRuleset() *v1.XMethod {
 	return &v1.XMethod{
 		Audit: true,
 	}
 }
 
-func GetSecurityServiceDeleteRuleset() *v1.XMethod {
+func GetSecurityServiceDeleteSecRuleset() *v1.XMethod {
 	return &v1.XMethod{
 		Audit:        true,
 		AuditNoOwner: true,
 	}
 }
 
-func GetSecurityServiceListRulesets() *v1.XMethod {
+func GetSecurityServiceListSecRulesets() *v1.XMethod {
 	return &v1.XMethod{
 		Audit: true,
 	}

@@ -257,34 +257,34 @@ func local_request_SecurityService_ListSecRules_0(ctx context.Context, marshaler
 
 }
 
-func request_SecurityService_CreateRateLimit_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateRateLimitRequest
+func request_SecurityService_CreateSecRateLimit_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq CreateSecRateLimitRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.CreateRateLimit(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.CreateSecRateLimit(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_SecurityService_CreateRateLimit_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateRateLimitRequest
+func local_request_SecurityService_CreateSecRateLimit_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq CreateSecRateLimitRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.CreateRateLimit(ctx, &protoReq)
+	msg, err := server.CreateSecRateLimit(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
-func request_SecurityService_GetRateLimit_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetRateLimitRequest
+func request_SecurityService_GetSecRateLimit_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetSecRateLimitRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -304,13 +304,13 @@ func request_SecurityService_GetRateLimit_0(ctx context.Context, marshaler runti
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 
-	msg, err := client.GetRateLimit(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.GetSecRateLimit(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_SecurityService_GetRateLimit_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetRateLimitRequest
+func local_request_SecurityService_GetSecRateLimit_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetSecRateLimitRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -330,43 +330,13 @@ func local_request_SecurityService_GetRateLimit_0(ctx context.Context, marshaler
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 
-	msg, err := server.GetRateLimit(ctx, &protoReq)
+	msg, err := server.GetSecRateLimit(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
-func request_SecurityService_UpdateRateLimit_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateRateLimitRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["id"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
-	}
-
-	protoReq.Id, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
-	}
-
-	msg, err := client.UpdateRateLimit(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-
-}
-
-func local_request_SecurityService_UpdateRateLimit_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateRateLimitRequest
+func request_SecurityService_UpdateSecRateLimit_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq UpdateSecRateLimitRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -390,13 +360,43 @@ func local_request_SecurityService_UpdateRateLimit_0(ctx context.Context, marsha
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 
-	msg, err := server.UpdateRateLimit(ctx, &protoReq)
+	msg, err := client.UpdateSecRateLimit(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func request_SecurityService_DeleteRateLimit_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DeleteRateLimitRequest
+func local_request_SecurityService_UpdateSecRateLimit_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq UpdateSecRateLimitRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
+	}
+
+	protoReq.Id, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
+	}
+
+	msg, err := server.UpdateSecRateLimit(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+func request_SecurityService_DeleteSecRateLimit_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq DeleteSecRateLimitRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -416,13 +416,13 @@ func request_SecurityService_DeleteRateLimit_0(ctx context.Context, marshaler ru
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 
-	msg, err := client.DeleteRateLimit(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.DeleteSecRateLimit(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_SecurityService_DeleteRateLimit_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DeleteRateLimitRequest
+func local_request_SecurityService_DeleteSecRateLimit_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq DeleteSecRateLimitRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -442,75 +442,75 @@ func local_request_SecurityService_DeleteRateLimit_0(ctx context.Context, marsha
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 
-	msg, err := server.DeleteRateLimit(ctx, &protoReq)
+	msg, err := server.DeleteSecRateLimit(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
 var (
-	filter_SecurityService_ListRateLimits_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+	filter_SecurityService_ListSecRateLimits_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 )
 
-func request_SecurityService_ListRateLimits_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListRateLimitsRequest
+func request_SecurityService_ListSecRateLimits_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListSecRateLimitsRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SecurityService_ListRateLimits_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SecurityService_ListSecRateLimits_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.ListRateLimits(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.ListSecRateLimits(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_SecurityService_ListRateLimits_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListRateLimitsRequest
+func local_request_SecurityService_ListSecRateLimits_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListSecRateLimitsRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SecurityService_ListRateLimits_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SecurityService_ListSecRateLimits_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.ListRateLimits(ctx, &protoReq)
+	msg, err := server.ListSecRateLimits(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
-func request_SecurityService_CreateRuleset_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateRulesetRequest
+func request_SecurityService_CreateSecRuleset_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq CreateSecRulesetRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.CreateRuleset(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.CreateSecRuleset(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_SecurityService_CreateRuleset_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq CreateRulesetRequest
+func local_request_SecurityService_CreateSecRuleset_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq CreateSecRulesetRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.CreateRuleset(ctx, &protoReq)
+	msg, err := server.CreateSecRuleset(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
-func request_SecurityService_GetRuleset_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetRulesetRequest
+func request_SecurityService_GetSecRuleset_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetSecRulesetRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -530,13 +530,13 @@ func request_SecurityService_GetRuleset_0(ctx context.Context, marshaler runtime
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 
-	msg, err := client.GetRuleset(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.GetSecRuleset(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_SecurityService_GetRuleset_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetRulesetRequest
+func local_request_SecurityService_GetSecRuleset_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetSecRulesetRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -556,43 +556,13 @@ func local_request_SecurityService_GetRuleset_0(ctx context.Context, marshaler r
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 
-	msg, err := server.GetRuleset(ctx, &protoReq)
+	msg, err := server.GetSecRuleset(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
-func request_SecurityService_UpdateRuleset_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateRulesetRequest
-	var metadata runtime.ServerMetadata
-
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["id"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
-	}
-
-	protoReq.Id, err = runtime.String(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
-	}
-
-	msg, err := client.UpdateRuleset(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-
-}
-
-func local_request_SecurityService_UpdateRuleset_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq UpdateRulesetRequest
+func request_SecurityService_UpdateSecRuleset_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq UpdateSecRulesetRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
@@ -616,13 +586,43 @@ func local_request_SecurityService_UpdateRuleset_0(ctx context.Context, marshale
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 
-	msg, err := server.UpdateRuleset(ctx, &protoReq)
+	msg, err := client.UpdateSecRuleset(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func request_SecurityService_DeleteRuleset_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DeleteRulesetRequest
+func local_request_SecurityService_UpdateSecRuleset_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq UpdateSecRulesetRequest
+	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
+	}
+
+	protoReq.Id, err = runtime.String(val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
+	}
+
+	msg, err := server.UpdateSecRuleset(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+func request_SecurityService_DeleteSecRuleset_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq DeleteSecRulesetRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -642,13 +642,13 @@ func request_SecurityService_DeleteRuleset_0(ctx context.Context, marshaler runt
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 
-	msg, err := client.DeleteRuleset(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.DeleteSecRuleset(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_SecurityService_DeleteRuleset_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DeleteRulesetRequest
+func local_request_SecurityService_DeleteSecRuleset_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq DeleteSecRulesetRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -668,43 +668,43 @@ func local_request_SecurityService_DeleteRuleset_0(ctx context.Context, marshale
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 
-	msg, err := server.DeleteRuleset(ctx, &protoReq)
+	msg, err := server.DeleteSecRuleset(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
 var (
-	filter_SecurityService_ListRulesets_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+	filter_SecurityService_ListSecRulesets_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 )
 
-func request_SecurityService_ListRulesets_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListRulesetsRequest
+func request_SecurityService_ListSecRulesets_0(ctx context.Context, marshaler runtime.Marshaler, client SecurityServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListSecRulesetsRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SecurityService_ListRulesets_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SecurityService_ListSecRulesets_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.ListRulesets(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.ListSecRulesets(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_SecurityService_ListRulesets_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListRulesetsRequest
+func local_request_SecurityService_ListSecRulesets_0(ctx context.Context, marshaler runtime.Marshaler, server SecurityServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListSecRulesetsRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SecurityService_ListRulesets_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SecurityService_ListSecRulesets_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.ListRulesets(ctx, &protoReq)
+	msg, err := server.ListSecRulesets(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -1001,7 +1001,7 @@ func RegisterSecurityServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 
 	})
 
-	mux.Handle("POST", pattern_SecurityService_CreateRateLimit_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_SecurityService_CreateSecRateLimit_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -1009,12 +1009,12 @@ func RegisterSecurityServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/CreateRateLimit", runtime.WithHTTPPathPattern("/security/ratelimit"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/CreateSecRateLimit", runtime.WithHTTPPathPattern("/security/secratelimit"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_SecurityService_CreateRateLimit_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_SecurityService_CreateSecRateLimit_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -1022,11 +1022,11 @@ func RegisterSecurityServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 			return
 		}
 
-		forward_SecurityService_CreateRateLimit_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityService_CreateSecRateLimit_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("GET", pattern_SecurityService_GetRateLimit_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_SecurityService_GetSecRateLimit_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -1034,12 +1034,12 @@ func RegisterSecurityServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/GetRateLimit", runtime.WithHTTPPathPattern("/security/ratelimit/{id}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/GetSecRateLimit", runtime.WithHTTPPathPattern("/security/secratelimit/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_SecurityService_GetRateLimit_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_SecurityService_GetSecRateLimit_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -1047,11 +1047,11 @@ func RegisterSecurityServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 			return
 		}
 
-		forward_SecurityService_GetRateLimit_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityService_GetSecRateLimit_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("PUT", pattern_SecurityService_UpdateRateLimit_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("PUT", pattern_SecurityService_UpdateSecRateLimit_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -1059,12 +1059,12 @@ func RegisterSecurityServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/UpdateRateLimit", runtime.WithHTTPPathPattern("/security/ratelimit/{id}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/UpdateSecRateLimit", runtime.WithHTTPPathPattern("/security/secratelimit/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_SecurityService_UpdateRateLimit_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_SecurityService_UpdateSecRateLimit_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -1072,11 +1072,11 @@ func RegisterSecurityServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 			return
 		}
 
-		forward_SecurityService_UpdateRateLimit_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityService_UpdateSecRateLimit_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("DELETE", pattern_SecurityService_DeleteRateLimit_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("DELETE", pattern_SecurityService_DeleteSecRateLimit_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -1084,12 +1084,12 @@ func RegisterSecurityServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/DeleteRateLimit", runtime.WithHTTPPathPattern("/security/ratelimit/{id}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/DeleteSecRateLimit", runtime.WithHTTPPathPattern("/security/secratelimit/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_SecurityService_DeleteRateLimit_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_SecurityService_DeleteSecRateLimit_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -1097,11 +1097,11 @@ func RegisterSecurityServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 			return
 		}
 
-		forward_SecurityService_DeleteRateLimit_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityService_DeleteSecRateLimit_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("GET", pattern_SecurityService_ListRateLimits_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_SecurityService_ListSecRateLimits_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -1109,12 +1109,12 @@ func RegisterSecurityServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/ListRateLimits", runtime.WithHTTPPathPattern("/security/ratelimits"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/ListSecRateLimits", runtime.WithHTTPPathPattern("/security/secratelimits"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_SecurityService_ListRateLimits_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_SecurityService_ListSecRateLimits_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -1122,11 +1122,11 @@ func RegisterSecurityServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 			return
 		}
 
-		forward_SecurityService_ListRateLimits_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityService_ListSecRateLimits_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_SecurityService_CreateRuleset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_SecurityService_CreateSecRuleset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -1134,12 +1134,12 @@ func RegisterSecurityServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/CreateRuleset", runtime.WithHTTPPathPattern("/security/ruleset"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/CreateSecRuleset", runtime.WithHTTPPathPattern("/security/secruleset"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_SecurityService_CreateRuleset_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_SecurityService_CreateSecRuleset_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -1147,11 +1147,11 @@ func RegisterSecurityServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 			return
 		}
 
-		forward_SecurityService_CreateRuleset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityService_CreateSecRuleset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("GET", pattern_SecurityService_GetRuleset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_SecurityService_GetSecRuleset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -1159,12 +1159,12 @@ func RegisterSecurityServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/GetRuleset", runtime.WithHTTPPathPattern("/security/ruleset/{id}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/GetSecRuleset", runtime.WithHTTPPathPattern("/security/secruleset/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_SecurityService_GetRuleset_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_SecurityService_GetSecRuleset_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -1172,11 +1172,11 @@ func RegisterSecurityServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 			return
 		}
 
-		forward_SecurityService_GetRuleset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityService_GetSecRuleset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("PUT", pattern_SecurityService_UpdateRuleset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("PUT", pattern_SecurityService_UpdateSecRuleset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -1184,12 +1184,12 @@ func RegisterSecurityServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/UpdateRuleset", runtime.WithHTTPPathPattern("/security/ruleset/{id}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/UpdateSecRuleset", runtime.WithHTTPPathPattern("/security/secruleset/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_SecurityService_UpdateRuleset_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_SecurityService_UpdateSecRuleset_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -1197,11 +1197,11 @@ func RegisterSecurityServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 			return
 		}
 
-		forward_SecurityService_UpdateRuleset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityService_UpdateSecRuleset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("DELETE", pattern_SecurityService_DeleteRuleset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("DELETE", pattern_SecurityService_DeleteSecRuleset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -1209,12 +1209,12 @@ func RegisterSecurityServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/DeleteRuleset", runtime.WithHTTPPathPattern("/security/ruleset/{id}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/DeleteSecRuleset", runtime.WithHTTPPathPattern("/security/secruleset/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_SecurityService_DeleteRuleset_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_SecurityService_DeleteSecRuleset_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -1222,11 +1222,11 @@ func RegisterSecurityServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 			return
 		}
 
-		forward_SecurityService_DeleteRuleset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityService_DeleteSecRuleset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("GET", pattern_SecurityService_ListRulesets_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_SecurityService_ListSecRulesets_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -1234,12 +1234,12 @@ func RegisterSecurityServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/ListRulesets", runtime.WithHTTPPathPattern("/security/rulesets"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/ListSecRulesets", runtime.WithHTTPPathPattern("/security/secrulesets"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_SecurityService_ListRulesets_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_SecurityService_ListSecRulesets_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -1247,7 +1247,7 @@ func RegisterSecurityServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 			return
 		}
 
-		forward_SecurityService_ListRulesets_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityService_ListSecRulesets_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -1502,223 +1502,223 @@ func RegisterSecurityServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 
 	})
 
-	mux.Handle("POST", pattern_SecurityService_CreateRateLimit_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_SecurityService_CreateSecRateLimit_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/CreateRateLimit", runtime.WithHTTPPathPattern("/security/ratelimit"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/CreateSecRateLimit", runtime.WithHTTPPathPattern("/security/secratelimit"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_SecurityService_CreateRateLimit_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_SecurityService_CreateSecRateLimit_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityService_CreateRateLimit_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityService_CreateSecRateLimit_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("GET", pattern_SecurityService_GetRateLimit_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_SecurityService_GetSecRateLimit_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/GetRateLimit", runtime.WithHTTPPathPattern("/security/ratelimit/{id}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/GetSecRateLimit", runtime.WithHTTPPathPattern("/security/secratelimit/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_SecurityService_GetRateLimit_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_SecurityService_GetSecRateLimit_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityService_GetRateLimit_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityService_GetSecRateLimit_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("PUT", pattern_SecurityService_UpdateRateLimit_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("PUT", pattern_SecurityService_UpdateSecRateLimit_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/UpdateRateLimit", runtime.WithHTTPPathPattern("/security/ratelimit/{id}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/UpdateSecRateLimit", runtime.WithHTTPPathPattern("/security/secratelimit/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_SecurityService_UpdateRateLimit_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_SecurityService_UpdateSecRateLimit_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityService_UpdateRateLimit_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityService_UpdateSecRateLimit_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("DELETE", pattern_SecurityService_DeleteRateLimit_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("DELETE", pattern_SecurityService_DeleteSecRateLimit_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/DeleteRateLimit", runtime.WithHTTPPathPattern("/security/ratelimit/{id}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/DeleteSecRateLimit", runtime.WithHTTPPathPattern("/security/secratelimit/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_SecurityService_DeleteRateLimit_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_SecurityService_DeleteSecRateLimit_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityService_DeleteRateLimit_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityService_DeleteSecRateLimit_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("GET", pattern_SecurityService_ListRateLimits_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_SecurityService_ListSecRateLimits_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/ListRateLimits", runtime.WithHTTPPathPattern("/security/ratelimits"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/ListSecRateLimits", runtime.WithHTTPPathPattern("/security/secratelimits"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_SecurityService_ListRateLimits_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_SecurityService_ListSecRateLimits_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityService_ListRateLimits_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityService_ListSecRateLimits_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_SecurityService_CreateRuleset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_SecurityService_CreateSecRuleset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/CreateRuleset", runtime.WithHTTPPathPattern("/security/ruleset"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/CreateSecRuleset", runtime.WithHTTPPathPattern("/security/secruleset"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_SecurityService_CreateRuleset_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_SecurityService_CreateSecRuleset_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityService_CreateRuleset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityService_CreateSecRuleset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("GET", pattern_SecurityService_GetRuleset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_SecurityService_GetSecRuleset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/GetRuleset", runtime.WithHTTPPathPattern("/security/ruleset/{id}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/GetSecRuleset", runtime.WithHTTPPathPattern("/security/secruleset/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_SecurityService_GetRuleset_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_SecurityService_GetSecRuleset_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityService_GetRuleset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityService_GetSecRuleset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("PUT", pattern_SecurityService_UpdateRuleset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("PUT", pattern_SecurityService_UpdateSecRuleset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/UpdateRuleset", runtime.WithHTTPPathPattern("/security/ruleset/{id}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/UpdateSecRuleset", runtime.WithHTTPPathPattern("/security/secruleset/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_SecurityService_UpdateRuleset_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_SecurityService_UpdateSecRuleset_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityService_UpdateRuleset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityService_UpdateSecRuleset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("DELETE", pattern_SecurityService_DeleteRuleset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("DELETE", pattern_SecurityService_DeleteSecRuleset_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/DeleteRuleset", runtime.WithHTTPPathPattern("/security/ruleset/{id}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/DeleteSecRuleset", runtime.WithHTTPPathPattern("/security/secruleset/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_SecurityService_DeleteRuleset_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_SecurityService_DeleteSecRuleset_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityService_DeleteRuleset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityService_DeleteSecRuleset_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("GET", pattern_SecurityService_ListRulesets_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_SecurityService_ListSecRulesets_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/ListRulesets", runtime.WithHTTPPathPattern("/security/rulesets"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/sentinez.apps.security.v1.SecurityService/ListSecRulesets", runtime.WithHTTPPathPattern("/security/secrulesets"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_SecurityService_ListRulesets_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_SecurityService_ListSecRulesets_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_SecurityService_ListRulesets_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_SecurityService_ListSecRulesets_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -1824,25 +1824,25 @@ var (
 
 	pattern_SecurityService_ListSecRules_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"security", "secrules"}, ""))
 
-	pattern_SecurityService_CreateRateLimit_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"security", "ratelimit"}, ""))
+	pattern_SecurityService_CreateSecRateLimit_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"security", "secratelimit"}, ""))
 
-	pattern_SecurityService_GetRateLimit_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"security", "ratelimit", "id"}, ""))
+	pattern_SecurityService_GetSecRateLimit_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"security", "secratelimit", "id"}, ""))
 
-	pattern_SecurityService_UpdateRateLimit_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"security", "ratelimit", "id"}, ""))
+	pattern_SecurityService_UpdateSecRateLimit_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"security", "secratelimit", "id"}, ""))
 
-	pattern_SecurityService_DeleteRateLimit_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"security", "ratelimit", "id"}, ""))
+	pattern_SecurityService_DeleteSecRateLimit_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"security", "secratelimit", "id"}, ""))
 
-	pattern_SecurityService_ListRateLimits_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"security", "ratelimits"}, ""))
+	pattern_SecurityService_ListSecRateLimits_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"security", "secratelimits"}, ""))
 
-	pattern_SecurityService_CreateRuleset_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"security", "ruleset"}, ""))
+	pattern_SecurityService_CreateSecRuleset_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"security", "secruleset"}, ""))
 
-	pattern_SecurityService_GetRuleset_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"security", "ruleset", "id"}, ""))
+	pattern_SecurityService_GetSecRuleset_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"security", "secruleset", "id"}, ""))
 
-	pattern_SecurityService_UpdateRuleset_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"security", "ruleset", "id"}, ""))
+	pattern_SecurityService_UpdateSecRuleset_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"security", "secruleset", "id"}, ""))
 
-	pattern_SecurityService_DeleteRuleset_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"security", "ruleset", "id"}, ""))
+	pattern_SecurityService_DeleteSecRuleset_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"security", "secruleset", "id"}, ""))
 
-	pattern_SecurityService_ListRulesets_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"security", "rulesets"}, ""))
+	pattern_SecurityService_ListSecRulesets_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"security", "secrulesets"}, ""))
 
 	pattern_SecurityService_GetCRSRuleInfo_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"security", "crs", "rules", "id"}, ""))
 
@@ -1864,25 +1864,25 @@ var (
 
 	forward_SecurityService_ListSecRules_0 = runtime.ForwardResponseMessage
 
-	forward_SecurityService_CreateRateLimit_0 = runtime.ForwardResponseMessage
+	forward_SecurityService_CreateSecRateLimit_0 = runtime.ForwardResponseMessage
 
-	forward_SecurityService_GetRateLimit_0 = runtime.ForwardResponseMessage
+	forward_SecurityService_GetSecRateLimit_0 = runtime.ForwardResponseMessage
 
-	forward_SecurityService_UpdateRateLimit_0 = runtime.ForwardResponseMessage
+	forward_SecurityService_UpdateSecRateLimit_0 = runtime.ForwardResponseMessage
 
-	forward_SecurityService_DeleteRateLimit_0 = runtime.ForwardResponseMessage
+	forward_SecurityService_DeleteSecRateLimit_0 = runtime.ForwardResponseMessage
 
-	forward_SecurityService_ListRateLimits_0 = runtime.ForwardResponseMessage
+	forward_SecurityService_ListSecRateLimits_0 = runtime.ForwardResponseMessage
 
-	forward_SecurityService_CreateRuleset_0 = runtime.ForwardResponseMessage
+	forward_SecurityService_CreateSecRuleset_0 = runtime.ForwardResponseMessage
 
-	forward_SecurityService_GetRuleset_0 = runtime.ForwardResponseMessage
+	forward_SecurityService_GetSecRuleset_0 = runtime.ForwardResponseMessage
 
-	forward_SecurityService_UpdateRuleset_0 = runtime.ForwardResponseMessage
+	forward_SecurityService_UpdateSecRuleset_0 = runtime.ForwardResponseMessage
 
-	forward_SecurityService_DeleteRuleset_0 = runtime.ForwardResponseMessage
+	forward_SecurityService_DeleteSecRuleset_0 = runtime.ForwardResponseMessage
 
-	forward_SecurityService_ListRulesets_0 = runtime.ForwardResponseMessage
+	forward_SecurityService_ListSecRulesets_0 = runtime.ForwardResponseMessage
 
 	forward_SecurityService_GetCRSRuleInfo_0 = runtime.ForwardResponseMessage
 

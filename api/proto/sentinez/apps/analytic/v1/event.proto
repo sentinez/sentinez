@@ -36,9 +36,9 @@ enum EventKind {
   // Matched SecRules; keyed by the action.
   EVENT_KIND_SECRULE = 3;
   // Exceeded rate limiters; keyed by the action.
-  EVENT_KIND_RATE_LIMIT = 4;
+  EVENT_KIND_SECRATELIMIT = 4;
   // Matched ruleset rules; keyed by the behavior.
-  EVENT_KIND_RULESET = 5;
+  EVENT_KIND_SECRULESET = 5;
 }
 
 // EventSelection selects the events of a kind: those of any of the
@@ -107,8 +107,8 @@ message ListSecRuleEventsRequest {
   repeated string filters = 6;
 }
 
-// ListRateLimitEventsRequest selects the events of a list, the latest first.
-message ListRateLimitEventsRequest {
+// ListSecRateLimitEventsRequest selects the events of a list, the latest first.
+message ListSecRateLimitEventsRequest {
   sentinez.types.v1.Pages page = 1;
   // Resources of the events, any of them; all when empty.
   repeated string resource_ids = 2;
@@ -123,8 +123,8 @@ message ListRateLimitEventsRequest {
   repeated string filters = 6;
 }
 
-// ListRulesetEventsRequest selects the events of a list, the latest first.
-message ListRulesetEventsRequest {
+// ListSecRulesetEventsRequest selects the events of a list, the latest first.
+message ListSecRulesetEventsRequest {
   sentinez.types.v1.Pages page = 1;
   // Resources of the events, any of them; all when empty.
   repeated string resource_ids = 2;
@@ -151,12 +151,12 @@ message ListSecRuleEventsResponse {
   repeated sentinez.types.secrule.v1.SecRuleEvent events = 1;
 }
 
-message ListRateLimitEventsResponse {
+message ListSecRateLimitEventsResponse {
   repeated sentinez.types.secrule.v1.SecRuleEvent events = 1;
 }
 
-message ListRulesetEventsResponse {
-  repeated sentinez.types.ruleset.v1.RulesetEvent events = 1;
+message ListSecRulesetEventsResponse {
+  repeated sentinez.types.ruleset.v1.SecRulesetEvent events = 1;
 }
 
 message GetEventHistogramRequest {

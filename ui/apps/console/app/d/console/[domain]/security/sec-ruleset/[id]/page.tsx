@@ -14,7 +14,7 @@ import {
   createEmptyRulesetForm,
   validateRulesetForm,
 } from '../../components';
-import { getRuleset, updateRuleset } from '@/lib/api/security';
+import { getSecRuleset, updateSecRuleset } from '@/lib/api/security';
 import type { UpdateMask } from '@/lib/api/mask';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 import { useEffect, useState } from 'react';
@@ -39,7 +39,7 @@ export default function EditRulesetPage({ params }: { params: Promise<{ id: stri
       try {
         const { id } = await params;
         setId(id);
-        const { ruleset } = await getRuleset({ id });
+        const { secruleset: ruleset } = await getSecRuleset({ id });
         if (ruleset) setForm(rulesetFormOf(ruleset));
       } catch {
         toast.error(t('loadDetailFailed'));
@@ -60,9 +60,9 @@ export default function EditRulesetPage({ params }: { params: Promise<{ id: stri
 
     setSaving(true);
     try {
-      await updateRuleset({
+      await updateSecRuleset({
         id,
-        ruleset: rulesetOf(form, id),
+        secruleset: rulesetOf(form, id),
         updateMask: UPDATE_MASK,
       });
       toast.success(t('updated'));

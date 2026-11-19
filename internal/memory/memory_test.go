@@ -22,11 +22,11 @@ import (
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/memory/ratelimiter"
+	"github.com/sentinez/sentinez/internal/memory/secratelimits"
 )
 
 func TestLoadRateLimiterKeepsAllLimiters(t *testing.T) {
-	m := &MemStore{limiter: ratelimiter.New()}
+	m := &MemStore{limiter: secratelimits.New()}
 	err := m.LoadRateLimiter(&edgepb.Setting{
 		Ingress: &edgepb.Ingress{
 			Resource: &edgepb.Resource{Domain: "multi-limiter"},
@@ -58,7 +58,7 @@ func TestLoadRateLimiterKeepsAllLimiters(t *testing.T) {
 }
 
 func TestLoadRateLimiterRequiresExpr(t *testing.T) {
-	m := &MemStore{limiter: ratelimiter.New()}
+	m := &MemStore{limiter: secratelimits.New()}
 	err := m.LoadRateLimiter(&edgepb.Setting{
 		Ingress: &edgepb.Ingress{
 			Resource: &edgepb.Resource{Domain: "no-expr-limiter"},

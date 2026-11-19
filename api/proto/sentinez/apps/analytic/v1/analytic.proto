@@ -63,13 +63,13 @@ service AnalyticService {
     option (sentinez.types.v1.x_method) = {ignore_control_plane: true};
   }
 
-  rpc ListRateLimitEvents(ListRateLimitEventsRequest) returns (ListRateLimitEventsResponse) {
-    option (google.api.http) = {get: "/analytic/events/ratelimit"};
+  rpc ListSecRateLimitEvents(ListSecRateLimitEventsRequest) returns (ListSecRateLimitEventsResponse) {
+    option (google.api.http) = {get: "/analytic/events/secratelimit"};
     option (sentinez.types.v1.x_method) = {ignore_control_plane: true};
   }
 
-  rpc ListRulesetEvents(ListRulesetEventsRequest) returns (ListRulesetEventsResponse) {
-    option (google.api.http) = {get: "/analytic/events/ruleset"};
+  rpc ListSecRulesetEvents(ListSecRulesetEventsRequest) returns (ListSecRulesetEventsResponse) {
+    option (google.api.http) = {get: "/analytic/events/secruleset"};
     option (sentinez.types.v1.x_method) = {ignore_control_plane: true};
   }
 

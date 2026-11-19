@@ -5,9 +5,9 @@ import { useTranslations } from 'next-intl';
 
 import { Badge } from '@sentinez/ui/components/badge';
 import { EventKind } from '@sentinez/proto/sentinez/apps/analytic/v1/event';
-import { RulesetEvent } from '@sentinez/proto/sentinez/types/ruleset/v1/event';
+import { SecRulesetEvent } from '@sentinez/proto/sentinez/types/ruleset/v1/event';
 import { RuleBehavior } from '@sentinez/proto/sentinez/types/rule/v1/rule';
-import { listRulesetEvents, type ApiOptions } from '@/lib/api/analytic';
+import { listSecRulesetEvents, type ApiOptions } from '@/lib/api/analytic';
 import { STATUS_COLORS } from '../status';
 import type { EventConfig, ListRequest } from '../types';
 import {
@@ -21,7 +21,7 @@ import {
 } from './shared';
 
 const list = async (req: ListRequest, options?: ApiOptions) =>
-  (await listRulesetEvents(req, options)).events;
+  (await listSecRulesetEvents(req, options)).events;
 
 // The series of a behavior, the key of the histogram of the table
 const seriesOf = (key: number) =>
@@ -36,18 +36,18 @@ const seriesOf = (key: number) =>
 const distinct = (values: string[]) => [...new Set(values)];
 
 /** The explorer of the ruleset (OWASP CRS) matches */
-export function useRulesetConfig(): EventConfig<RulesetEvent> {
+export function useRulesetConfig(): EventConfig<SecRulesetEvent> {
   const t = useTranslations('Logs');
   return useMemo(() => {
     const c = columnOf(t);
     const behaviorLabel = (b: RuleBehavior) => t(`series.${seriesOf(b)}`);
-    const behaviorBadge = (e: RulesetEvent) => (
+    const behaviorBadge = (e: SecRulesetEvent) => (
       <Badge variant={e.behavior === RuleBehavior.RULE_BEHAVIOR_DENY ? 'destructive' : 'secondary'}>
         {behaviorLabel(e.behavior)}
       </Badge>
     );
     return {
-      ...eventApis(EventKind.EVENT_KIND_RULESET),
+      ...eventApis(EventKind.EVENT_KIND_SECRULESET),
       title: t('ruleset.title'),
       subtitle: t('ruleset.subtitle'),
       list,
@@ -70,7 +70,7 @@ export function useRulesetConfig(): EventConfig<RulesetEvent> {
             </div>
           ),
         },
-        ...ruleRequestColumns<RulesetEvent>(c),
+        ...ruleRequestColumns<SecRulesetEvent>(c),
         {
           id: 'rules',
           size: 220,
@@ -99,7 +99,7 @@ export function useRulesetConfig(): EventConfig<RulesetEvent> {
           format: (v) => behaviorLabel(Number(v) as RuleBehavior),
         },
         { name: 'total_score', label: c('score'), get: (e) => String(e.totalScore) },
-        ...ruleRequestFields<RulesetEvent>(c),
+        ...ruleRequestFields<SecRulesetEvent>(c),
       ],
       requestOf: ruleRequestOf,
       text: (e) => [
@@ -137,7 +137,7 @@ export function useRulesetConfig(): EventConfig<RulesetEvent> {
             ]),
           },
         ],
-        toJSON: (e) => RulesetEvent.toJSON(e),
+        toJSON: (e) => SecRulesetEvent.toJSON(e),
       },
     };
   }, [t]);

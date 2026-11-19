@@ -24,7 +24,7 @@ import (
 
 // NewWAF builds a coraza.WAF from the CRS setting of a server.
 func NewWAF(version rulesetpb.Version,
-	rootFs fs.FS, setting *rulesetpb.Ruleset,
+	rootFs fs.FS, setting *rulesetpb.Setting,
 ) (coraza.WAF, error) {
 	rule, err := GenerateRulesets(version, setting)
 	if err != nil {

@@ -4,8 +4,12 @@ import Link from 'next/link';
 import {
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
   useReactTable,
   type ColumnDef,
+  type ColumnFiltersState,
+  type SortingState,
   type VisibilityState,
 } from '@tanstack/react-table';
 import {
@@ -30,32 +34,20 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@sentinez/ui/components/dropdown-menu';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@sentinez/ui/components/select';
-import { Badge } from '@sentinez/ui/components/badge';
 import { Button } from '@sentinez/ui/components/button';
 import { Input } from '@sentinez/ui/components/input';
 import { toast } from '@/lib/toast';
 import { ChevronDown, MoreHorizontal, PlusIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { listRulesets, type Pages, deleteRuleset } from '@/lib/api/security';
+import { listSecRateLimits, type Pages, deleteSecRateLimit } from '@/lib/api/security';
 import BadgeStatus from '@/components/badge-status';
-import { Ruleset } from '@sentinez/proto/sentinez/apps/security/v1/model';
-import { EngineMode } from '@sentinez/proto/sentinez/types/ruleset/v1/setting';
-import { Status } from '@sentinez/proto/sentinez/types/v1/known';
-import { ENGINE_MODE_BADGE_VARIANT, statusLabel } from '@/lib/type/security';
+import { SecRateLimit } from '@sentinez/proto/sentinez/apps/security/v1/model';
+import { statusLabel } from '@/lib/type/security';
 import { TablePagination } from '@/components/table-pagination';
 import { TableSkeletonRows } from '@/components/table-skeleton';
-import { useDebounced } from '@/hooks/use-debounced';
 import { RefreshButton } from '@/components/refresh-button';
 import { usePagedList } from '@/hooks/use-paged-list';
 import { useResourceId } from '@/hooks/use-resource-id';
-import { useSecurityOptions } from '@/hooks/use-security-options';
 import {
   PageLayout,
   PageLayoutContent,
@@ -63,18 +55,16 @@ import {
   PageLayoutToolbar,
 } from '@/components/page-layout';
 import { FixedTable } from '@/components/fixed-table';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
-type RulesetsTranslator = ReturnType<typeof useTranslations<'Rulesets'>>;
+type RateLimiterTranslator = ReturnType<typeof useTranslations<'RateLimiter'>>;
 type CommonTranslator = ReturnType<typeof useTranslations<'Common'>>;
-type SecurityOptions = ReturnType<typeof useSecurityOptions>;
 
 export const getColumns = (
-  t: RulesetsTranslator,
+  t: RateLimiterTranslator,
   tc: CommonTranslator,
-  options: SecurityOptions,
-  onDelete: (ruleset: Ruleset) => void,
-): ColumnDef<Ruleset>[] => [
+  onDelete: (rule: SecRateLimit) => void,
+): ColumnDef<SecRateLimit>[] => [
   {
     id: 'name',
     accessorFn: (r) => r.name,
@@ -85,7 +75,7 @@ export const getColumns = (
       <div className="w-full truncate">
         <Link
           className="text-blue-700 font-semibold underline"
-          href={`./rulesets/${row.original.id}`}
+          href={`./sec-rate-limit/${row.original.id}`}
         >
           {row.original.name}
         </Link>
@@ -104,65 +94,33 @@ export const getColumns = (
     ),
   },
   {
-    id: 'mode',
-    accessorFn: (r) => r.ruleset?.mode,
+    id: 'limit',
     size: 150,
-    meta: { label: t('mode') },
-    header: () => <div>{t('mode')}</div>,
-    cell: ({ row }) => {
-      const mode = row.original.ruleset?.mode ?? EngineMode.ENGINE_MODE_UNSPECIFIED;
-      return (
-        <Badge variant={ENGINE_MODE_BADGE_VARIANT[mode]}>{options.engineModeLabel(mode)}</Badge>
-      );
-    },
-  },
-  {
-    id: 'version',
-    accessorFn: (r) => r.ruleset?.version,
-    size: 150,
-    meta: { label: t('version') },
-    header: () => <div>{t('version')}</div>,
+    meta: { label: t('limit') },
+    header: () => <div>{t('limit')}</div>,
     cell: ({ row }) => (
       <div className="truncate tabular-nums">
-        {options.crsVersionLabel(row.original.ruleset?.version)}
+        {t('limitValue', {
+          max: row.original.maxRequests,
+          window: row.original.timeWindow || '?',
+        })}
       </div>
     ),
   },
   {
-    id: 'paranoiaLevel',
-    accessorFn: (r) => r.ruleset?.paranoiaLevel,
-    size: 110,
-    meta: { label: t('paranoiaLevel') },
-    header: () => <div>{t('paranoiaLevel')}</div>,
-    cell: ({ row }) => (
-      <div className="truncate tabular-nums">
-        {row.original.ruleset?.paranoiaLevel || t('paranoiaDefault')}
-      </div>
-    ),
-  },
-  {
-    id: 'ruleGroups',
-    accessorFn: (r) => r.ruleset?.categories.length,
+    id: 'timeout',
     size: 120,
-    meta: { label: t('ruleGroups') },
-    header: () => <div>{t('ruleGroups')}</div>,
-    cell: ({ row }) => {
-      const count = row.original.ruleset?.categories.length ?? 0;
-      return (
-        <div className="truncate tabular-nums">
-          {count ? t('groupsCount', { count }) : t('allGroups')}
-        </div>
-      );
-    },
+    meta: { label: t('blockTimeout') },
+    header: () => <div>{t('blockTimeout')}</div>,
+    cell: ({ row }) => <div className="truncate tabular-nums">{row.original.timeout || '—'}</div>,
   },
   {
-    id: 'status',
-    accessorFn: (r) => r.ruleset?.status,
+    accessorKey: 'status',
     size: 120,
     meta: { label: t('status') },
     header: () => <div>{t('status')}</div>,
     cell: ({ row }) => {
-      const s = statusLabel(row.original.ruleset?.status);
+      const s = statusLabel(row.original.status);
       return (
         <div className="capitalize">
           <BadgeStatus status={s} value={s} />
@@ -171,9 +129,17 @@ export const getColumns = (
     },
   },
   {
+    accessorKey: 'priority',
+    size: 100,
+    meta: { label: t('priority') },
+    header: () => <div className="w-full text-right">{t('priority')}</div>,
+    cell: ({ row }) => {
+      return <div className="w-full text-right">{row.original.priority}</div>;
+    },
+  },
+  {
     id: 'actions',
     size: 64,
-    enableHiding: false,
     header: () => <div className="w-full" />,
     cell: ({ row }) => (
       <div className="w-full flex justify-center">
@@ -185,7 +151,7 @@ export const getColumns = (
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => navigator.clipboard.writeText(row.original.id || '')}>
-              {t('copyId')}
+              {t('copyRuleId')}
             </DropdownMenuItem>
             <DropdownMenuItem variant="destructive" onClick={() => onDelete(row.original)}>
               {tc('delete')}
@@ -198,41 +164,28 @@ export const getColumns = (
 ];
 
 export default function View() {
-  const t = useTranslations('Rulesets');
+  const t = useTranslations('RateLimiter');
   const tc = useTranslations('Common');
-  const options = useSecurityOptions();
-  const [deleting, setDeleting] = useState<Ruleset | null>(null);
+  const [deleting, setDeleting] = useState<SecRateLimit | null>(null);
   const [deletingBusy, setDeletingBusy] = useState(false);
 
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-
-  // Filters are applied by the API, not on the loaded page
-  const [name, setName] = useState('');
-  const nameQuery = useDebounced(name);
-  const [mode, setMode] = useState(EngineMode.ENGINE_MODE_UNSPECIFIED);
-  const [status, setStatus] = useState(Status.STATUS_UNSPECIFIED);
+  const [rowSelection, setRowSelection] = useState({});
 
   // Only the rows of the resource of this domain
   const { resourceId, isLoading: resourceLoading } = useResourceId();
   const fetchPage = useCallback(
     async (page: Pages, signal: AbortSignal) => {
       if (!resourceId) return { items: [], total: 0 };
-      const res = await listRulesets(
-        {
-          page,
-          resourceIds: [resourceId],
-          name: nameQuery.trim(),
-          modes: mode ? [mode] : [],
-          statuses: status ? [status] : [],
-        },
-        { signal },
-      );
-      return { items: res.rulesets, total: res.total };
+      const res = await listSecRateLimits({ page, resourceIds: [resourceId] }, { signal });
+      return { items: res.secratelimits, total: res.total };
     },
-    [resourceId, nameQuery, mode, status],
+    [resourceId],
   );
   const {
-    items: rulesets,
+    items: rules,
     total,
     loading,
     pagination,
@@ -241,17 +194,12 @@ export default function View() {
     refresh,
   } = usePagedList(fetchPage, t('loadFailed'), 10, !resourceLoading);
 
-  // A new filter starts again from the first page
-  useEffect(() => {
-    setPagination((p) => (p.pageIndex === 0 ? p : { ...p, pageIndex: 0 }));
-  }, [nameQuery, mode, status, setPagination]);
-
   const handleDelete = async () => {
     const id = deleting?.id;
     if (!id) return;
     setDeletingBusy(true);
     try {
-      await deleteRuleset({ id });
+      await deleteSecRateLimit({ id });
       toast.success(t('deleted'));
       setDeleting(null);
       refresh();
@@ -262,21 +210,26 @@ export default function View() {
     }
   };
 
-  // Skeleton rows cover the debounce wait as well as the request itself
-  const searching = loading || name !== nameQuery;
+  const columns = useMemo(() => getColumns(t, tc, setDeleting), [t, tc]);
 
-  const columns = useMemo(() => getColumns(t, tc, options, setDeleting), [t, tc, options]);
-
-  const table = useReactTable<Ruleset>({
-    data: rulesets,
+  const table = useReactTable<SecRateLimit>({
+    data: rules,
     columns,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
     pageCount,
     onPaginationChange: setPagination,
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
     state: {
+      sorting,
+      columnFilters,
       columnVisibility,
+      rowSelection,
       pagination,
     },
   });
@@ -285,7 +238,7 @@ export default function View() {
     <PageLayout>
       <PageLayoutHeader title={t('title')} subtitle={t('subtitle')}>
         <Button size="sm" asChild>
-          <Link href="./rulesets/new">
+          <Link href="./sec-rate-limit/new">
             <PlusIcon className="w-4 h-4" />
             {tc('create')}
           </Link>
@@ -294,12 +247,11 @@ export default function View() {
 
       <PageLayoutContent size="xl">
         <div className="w-full">
-          <PageLayoutToolbar className="pb-2">
+          <PageLayoutToolbar>
             <Input
-              aria-label={tc('filterNames')}
               placeholder={tc('filterNames')}
-              value={name}
-              onChange={(event) => setName(event.target.value)}
+              value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
+              onChange={(event) => table.getColumn('name')?.setFilterValue(event.target.value)}
               className="max-w-sm"
             />
             <RefreshButton loading={loading} onRefresh={refresh} />
@@ -328,38 +280,6 @@ export default function View() {
               </DropdownMenuContent>
             </DropdownMenu>
           </PageLayoutToolbar>
-          <PageLayoutToolbar className="flex-wrap">
-            <Select value={String(mode)} onValueChange={(v) => setMode(Number(v) as EngineMode)}>
-              <SelectTrigger className="w-44" aria-label={t('mode')}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={String(EngineMode.ENGINE_MODE_UNSPECIFIED)}>
-                  {t('allModes')}
-                </SelectItem>
-                {options.engineModeOptions.map((o) => (
-                  <SelectItem key={o.value} value={String(o.value)}>
-                    {o.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={String(status)} onValueChange={(v) => setStatus(Number(v) as Status)}>
-              <SelectTrigger className="w-44" aria-label={t('status')}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={String(Status.STATUS_UNSPECIFIED)}>
-                  {t('allStatuses')}
-                </SelectItem>
-                {options.statusOptions.map((o) => (
-                  <SelectItem key={o.value} value={String(o.value)}>
-                    {o.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </PageLayoutToolbar>
           <div className="overflow-hidden rounded-md">
             <FixedTable table={table}>
               <TableHeader>
@@ -384,8 +304,8 @@ export default function View() {
                   </TableRow>
                 ))}
               </TableHeader>
-              <TableBody aria-busy={searching}>
-                {searching ? (
+              <TableBody aria-busy={loading}>
+                {loading ? (
                   <TableSkeletonRows table={table} />
                 ) : table.getRowModel().rows?.length ? (
                   table.getRowModel().rows.map((row) => (

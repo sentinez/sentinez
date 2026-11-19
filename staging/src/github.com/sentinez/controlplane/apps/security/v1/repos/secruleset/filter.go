@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package ruleset
+package secruleset
 
 import (
 	"strings"
@@ -26,28 +26,28 @@ import (
 // _likeEscaper escapes the wildcards of a LIKE pattern.
 var _likeEscaper = strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`)
 
-// crs a partial setting, the ruleset of a matching row contains it.
-type crs = rulesetpb.Ruleset
+// crs a partial setting, the setting of a matching row contains it.
+type crs = rulesetpb.Setting
 
 // listConditions maps the filters of the request to WHERE conditions,
 // all of them must match.
 func listConditions(
-	req *securitypb.ListRulesetsRequest,
+	req *securitypb.ListSecRulesetsRequest,
 ) ([]sq.Sqlizer, error) {
 	var conds []sq.Sqlizer
 
 	if len(req.GetIds()) > 0 {
-		conds = append(conds, sq.Eq{securitypb.Ruleset_Id: req.GetIds()})
+		conds = append(conds, sq.Eq{securitypb.SecRuleset_Id: req.GetIds()})
 	}
 
 	if ids := req.GetResourceIds(); len(ids) > 0 {
 		conds = append(conds,
-			sq.Eq{securitypb.Ruleset_OwnerResourceId: ids})
+			sq.Eq{securitypb.SecRuleset_OwnerResourceId: ids})
 	}
 
 	if name := req.GetName(); name != "" {
 		conds = append(conds, sq.ILike{
-			securitypb.Ruleset_Name: "%" + _likeEscaper.Replace(name) + "%",
+			securitypb.SecRuleset_Name: "%" + _likeEscaper.Replace(name) + "%",
 		})
 	}
 
@@ -65,9 +65,9 @@ func listConditions(
 	return conds, nil
 }
 
-// rulesetFilters the filters on the fields of ruleset, each as the
+// rulesetFilters the filters on the fields of the setting, each as the
 // partial settings a row has to contain one of.
-func rulesetFilters(req *securitypb.ListRulesetsRequest) [][]*crs {
+func rulesetFilters(req *securitypb.ListSecRulesetsRequest) [][]*crs {
 	filters := [][]*crs{
 		partials(req.GetModes(), func(v rulesetpb.EngineMode) *crs {
 			return &crs{Mode: v}
@@ -122,7 +122,7 @@ func overrideRulePartial(id uint32) *crs {
 	return &crs{Overrides: []*rulesetpb.RuleOverride{{Id: id}}}
 }
 
-// containsAny the ruleset contains one of the partial settings (JSONB
+// containsAny the setting contains one of the partial settings (JSONB
 // containment), nil = no condition.
 func containsAny(alternatives []*crs) (sq.Sqlizer, error) {
 	if len(alternatives) == 0 {
@@ -138,7 +138,7 @@ func containsAny(alternatives []*crs) (sq.Sqlizer, error) {
 		}
 
 		or = append(or, sq.Expr(
-			securitypb.Ruleset_Ruleset+" @> ?::jsonb", string(data),
+			securitypb.SecRuleset_Setting+" @> ?::jsonb", string(data),
 		))
 	}
 

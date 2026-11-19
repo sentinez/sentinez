@@ -29,15 +29,15 @@ import (
 
 var errNonPositiveDuration = errors.New("must be greater than 0")
 
-// mapRateLimit converts a DB RateLimit into an API RateLimit response.
+// mapRateLimit converts a DB SecRateLimit into an API SecRateLimit response.
 func (srv *SecurityService) mapRateLimit(_ context.Context,
-	dbRL *securitypb.RateLimit,
-) *securitypb.RateLimit {
+	dbRL *securitypb.SecRateLimit,
+) *securitypb.SecRateLimit {
 	if dbRL == nil {
 		return nil
 	}
 
-	return &securitypb.RateLimit{
+	return &securitypb.SecRateLimit{
 		Id:          dbRL.GetId(),
 		Name:        dbRL.GetName(),
 		Description: dbRL.GetDescription(),
@@ -52,70 +52,70 @@ func (srv *SecurityService) mapRateLimit(_ context.Context,
 	}
 }
 
-// ── RateLimit ──────────────────────────────────────────────────────────
+// ── SecRateLimit ──────────────────────────────────────────────────────────
 
-// CreateRateLimit creates a new rate limit rule
-func (srv *SecurityService) CreateRateLimit(ctx context.Context,
-	req *securitypb.CreateRateLimitRequest,
-) (*securitypb.CreateRateLimitResponse, error) {
-	if err := validateRateLimit(req.GetRateLimit()); err != nil {
+// CreateSecRateLimit creates a new rate limit rule
+func (srv *SecurityService) CreateSecRateLimit(ctx context.Context,
+	req *securitypb.CreateSecRateLimitRequest,
+) (*securitypb.CreateSecRateLimitResponse, error) {
+	if err := validateRateLimit(req.GetSecratelimit()); err != nil {
 		return nil, err
 	}
 
-	owner, err := srv.newOwner(ctx, req.GetRateLimit().GetOwner())
+	owner, err := srv.newOwner(ctx, req.GetSecratelimit().GetOwner())
 	if err != nil {
 		return nil, err
 	}
 
-	req.GetRateLimit().Owner = owner
+	req.GetSecratelimit().Owner = owner
 
-	created, err := srv.rateLimitRepo.Create(ctx, req.GetRateLimit())
+	created, err := srv.secRateLimitRepo.Create(ctx, req.GetSecratelimit())
 	if err != nil {
 		return nil, err
 	}
 
-	return &securitypb.CreateRateLimitResponse{Id: created.GetId()}, nil
+	return &securitypb.CreateSecRateLimitResponse{Id: created.GetId()}, nil
 }
 
-func (srv *SecurityService) GetRateLimit(ctx context.Context,
-	req *securitypb.GetRateLimitRequest,
-) (*securitypb.GetRateLimitResponse, error) {
-	dbRL, err := owned(ctx, srv, srv.rateLimitRepo.Get, "rate limit",
+func (srv *SecurityService) GetSecRateLimit(ctx context.Context,
+	req *securitypb.GetSecRateLimitRequest,
+) (*securitypb.GetSecRateLimitResponse, error) {
+	dbRL, err := owned(ctx, srv, srv.secRateLimitRepo.Get, "rate limit",
 		req.GetId(), authz.Read)
 	if err != nil {
 		return nil, err
 	}
 
 	return &securitypb.
-		GetRateLimitResponse{RateLimit: srv.mapRateLimit(ctx, dbRL)}, nil
+		GetSecRateLimitResponse{Secratelimit: srv.mapRateLimit(ctx, dbRL)}, nil
 }
 
 // _rateLimitUpdatable the fields of a rate limit an update writes.
 var _rateLimitUpdatable = []string{
-	securitypb.RateLimit_Name, securitypb.RateLimit_Description,
-	securitypb.RateLimit_Expr, securitypb.RateLimit_Status,
-	securitypb.RateLimit_Priority, securitypb.RateLimit_Action,
-	securitypb.RateLimit_TimeWindow, securitypb.RateLimit_MaxRequests,
-	securitypb.RateLimit_Timeout,
+	securitypb.SecRateLimit_Name, securitypb.SecRateLimit_Description,
+	securitypb.SecRateLimit_Expr, securitypb.SecRateLimit_Status,
+	securitypb.SecRateLimit_Priority, securitypb.SecRateLimit_Action,
+	securitypb.SecRateLimit_TimeWindow, securitypb.SecRateLimit_MaxRequests,
+	securitypb.SecRateLimit_Timeout,
 }
 
-// UpdateRateLimit updates the fields of a rate limit rule its
+// UpdateSecRateLimit updates the fields of a rate limit rule its
 // update_mask names; the rule they make must be valid.
-func (srv *SecurityService) UpdateRateLimit(ctx context.Context,
-	req *securitypb.UpdateRateLimitRequest,
-) (*securitypb.UpdateRateLimitResponse, error) {
-	if req.GetRateLimit() == nil {
-		return nil, szerror.StatusInvalidArgumentF("rate_limit is required")
+func (srv *SecurityService) UpdateSecRateLimit(ctx context.Context,
+	req *securitypb.UpdateSecRateLimitRequest,
+) (*securitypb.UpdateSecRateLimitResponse, error) {
+	if req.GetSecratelimit() == nil {
+		return nil, szerror.StatusInvalidArgumentF("secratelimit is required")
 	}
 
-	dbRL, err := owned(ctx, srv, srv.rateLimitRepo.Get, "rate limit",
+	dbRL, err := owned(ctx, srv, srv.secRateLimitRepo.Get, "rate limit",
 		req.GetId(), authz.Write)
 	if err != nil {
 		return nil, err
 	}
 
 	before := proto.CloneOf(dbRL)
-	paths, err := szprotobuf.ApplyMask(dbRL, req.GetRateLimit(),
+	paths, err := szprotobuf.ApplyMask(dbRL, req.GetSecratelimit(),
 		req.GetUpdateMask(), _rateLimitUpdatable...)
 	if err != nil {
 		return nil, err
@@ -125,59 +125,59 @@ func (srv *SecurityService) UpdateRateLimit(ctx context.Context,
 		return nil, err
 	}
 
-	if err = srv.rateLimitRepo.Update(ctx, dbRL, paths); err != nil {
+	if err = srv.secRateLimitRepo.Update(ctx, dbRL, paths); err != nil {
 		return nil, err
 	}
 
 	auditchange.Set(ctx, before, dbRL, paths)
 
 	return &securitypb.
-		UpdateRateLimitResponse{RateLimit: srv.mapRateLimit(ctx, dbRL)}, nil
+		UpdateSecRateLimitResponse{Secratelimit: srv.mapRateLimit(ctx, dbRL)}, nil
 }
 
-func (srv *SecurityService) DeleteRateLimit(ctx context.Context,
-	req *securitypb.DeleteRateLimitRequest,
-) (*securitypb.DeleteRateLimitResponse, error) {
-	_, err := owned(ctx, srv, srv.rateLimitRepo.Get, "rate limit",
+func (srv *SecurityService) DeleteSecRateLimit(ctx context.Context,
+	req *securitypb.DeleteSecRateLimitRequest,
+) (*securitypb.DeleteSecRateLimitResponse, error) {
+	_, err := owned(ctx, srv, srv.secRateLimitRepo.Get, "rate limit",
 		req.GetId(), authz.Write)
 	if err != nil {
 		return nil, err
 	}
 
-	if err = srv.rateLimitRepo.Delete(ctx, req.GetId()); err != nil {
+	if err = srv.secRateLimitRepo.Delete(ctx, req.GetId()); err != nil {
 		return nil, err
 	}
-	return &securitypb.DeleteRateLimitResponse{}, nil
+	return &securitypb.DeleteSecRateLimitResponse{}, nil
 }
 
-func (srv *SecurityService) ListRateLimits(ctx context.Context,
-	req *securitypb.ListRateLimitsRequest,
-) (*securitypb.ListRateLimitsResponse, error) {
+func (srv *SecurityService) ListSecRateLimits(ctx context.Context,
+	req *securitypb.ListSecRateLimitsRequest,
+) (*securitypb.ListSecRateLimitsResponse, error) {
 	req, ok, err := authz.Scoped(ctx, srv.authz, req)
 	if err != nil || !ok {
-		return &securitypb.ListRateLimitsResponse{}, err
+		return &securitypb.ListSecRateLimitsResponse{}, err
 	}
 
-	dbRLs, total, err := srv.rateLimitRepo.List(ctx, req)
+	dbRLs, total, err := srv.secRateLimitRepo.List(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	rls := make([]*securitypb.RateLimit, 0, len(dbRLs))
+	rls := make([]*securitypb.SecRateLimit, 0, len(dbRLs))
 	for _, dbRL := range dbRLs {
 		rls = append(rls, srv.mapRateLimit(ctx, dbRL))
 	}
 
-	return &securitypb.ListRateLimitsResponse{
-		RateLimits: rls,
-		Total:      total,
+	return &securitypb.ListSecRateLimitsResponse{
+		Secratelimits: rls,
+		Total:         total,
 	}, nil
 }
 
 // validateRateLimit checks the limiter settings the edge relies on.
-func validateRateLimit(rl *securitypb.RateLimit) error {
+func validateRateLimit(rl *securitypb.SecRateLimit) error {
 	if rl == nil {
-		return szerror.StatusInvalidArgumentF("rate_limit is required")
+		return szerror.StatusInvalidArgumentF("secratelimit is required")
 	}
 	if rl.GetMaxRequests() <= 0 {
 		return szerror.StatusInvalidArgumentF(

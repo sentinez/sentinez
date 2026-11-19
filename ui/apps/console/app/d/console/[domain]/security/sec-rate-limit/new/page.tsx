@@ -5,31 +5,30 @@ import { useTranslations } from 'next-intl';
 import { Button } from '@sentinez/ui/components/button';
 import { toast } from '@/lib/toast';
 import {
-  RulesetFields,
-  CrsNotice,
-  RulesetFormValue,
-  rulesetOf,
-  createEmptyRulesetForm,
-  validateRulesetForm,
+  RateLimitFields,
+  RateLimitFormValue,
+  createEmptyRateLimitForm,
+  rateLimitOf,
+  validateRateLimitForm,
 } from '../../components';
-import { createRuleset } from '@/lib/api/security';
+import { createSecRateLimit } from '@/lib/api/security';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 import { useResourceId } from '@/hooks/use-resource-id';
 import { useState } from 'react';
 
-export default function CreateRulesetPage() {
-  const t = useTranslations('Rulesets');
+export default function CreateRateLimitPage() {
+  const t = useTranslations('RateLimiter');
   const tc = useTranslations('Common');
   const tv = useTranslations('Validation');
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   // The new row belongs to the resource of this domain
   const { resourceId, tenantId } = useResourceId();
-  const [form, setForm] = useState<RulesetFormValue>(createEmptyRulesetForm);
-  const patchForm = (patch: Partial<RulesetFormValue>) => setForm((f) => ({ ...f, ...patch }));
+  const [form, setForm] = useState<RateLimitFormValue>(createEmptyRateLimitForm);
+  const patchForm = (patch: Partial<RateLimitFormValue>) => setForm((f) => ({ ...f, ...patch }));
 
   const handleCreate = async () => {
-    const error = validateRulesetForm(form, tv);
+    const error = validateRateLimitForm(form, tv);
     if (error) {
       toast.error(error);
       return;
@@ -37,8 +36,8 @@ export default function CreateRulesetPage() {
 
     setSaving(true);
     try {
-      await createRuleset({
-        ruleset: { ...rulesetOf(form), owner: { resourceId, tenantId } },
+      await createSecRateLimit({
+        secratelimit: { ...rateLimitOf(form), owner: { resourceId, tenantId } },
       });
       toast.success(t('created'));
       router.back();
@@ -62,8 +61,7 @@ export default function CreateRulesetPage() {
         </div>
       </PageLayoutHeader>
       <PageLayoutContent size="sm">
-        <CrsNotice />
-        <RulesetFields value={form} onChange={patchForm} idPrefix="create" />
+        <RateLimitFields value={form} onChange={patchForm} idPrefix="create" />
       </PageLayoutContent>
     </PageLayout>
   );

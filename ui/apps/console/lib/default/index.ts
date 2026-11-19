@@ -142,13 +142,13 @@ export const dashboard: {
     },
     {
       titleKey: 'security',
-      url: '/d/console/security/rate-limiter',
+      url: '/d/console/security/sec-rate-limit',
       icon: Shield,
       isActive: false,
       items: [
         {
           titleKey: 'rateLimiter',
-          url: '/d/console/security/rate-limiter',
+          url: '/d/console/security/sec-rate-limit',
           icon: Signal,
         },
         {
@@ -158,7 +158,7 @@ export const dashboard: {
         },
         {
           titleKey: 'rulesets',
-          url: '/d/console/security/rulesets',
+          url: '/d/console/security/sec-ruleset',
           icon: BrickWallFire,
         },
       ],
@@ -187,7 +187,7 @@ export const dashboard: {
             },
             {
               titleKey: 'rateLimiter',
-              url: '/d/console/analytic/logs/rate-limiter',
+              url: '/d/console/analytic/logs/sec-rate-limit',
               icon: Signal,
             },
             {
@@ -197,7 +197,7 @@ export const dashboard: {
             },
             {
               titleKey: 'rulesets',
-              url: '/d/console/analytic/logs/rulesets',
+              url: '/d/console/analytic/logs/sec-ruleset',
               icon: BrickWallFire,
             },
           ],

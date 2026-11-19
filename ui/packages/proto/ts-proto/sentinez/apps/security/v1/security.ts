@@ -21,7 +21,7 @@ import {
 } from "../../../types/ruleset/v1/setting";
 import { Status, statusFromJSON, statusToJSON } from "../../../types/v1/known";
 import { Pages } from "../../../types/v1/model";
-import { RateLimit, Ruleset, SecRule } from "./model";
+import { SecRateLimit, SecRule, SecRuleset } from "./model";
 
 export const protobufPackage = "sentinez.apps.security.v1";
 
@@ -77,26 +77,26 @@ export interface ListSecRulesResponse {
   total: number;
 }
 
-export interface CreateRateLimitRequest {
-  rateLimit?: RateLimit | undefined;
+export interface CreateSecRateLimitRequest {
+  secratelimit?: SecRateLimit | undefined;
 }
 
-export interface CreateRateLimitResponse {
+export interface CreateSecRateLimitResponse {
   id: string;
 }
 
-export interface GetRateLimitRequest {
+export interface GetSecRateLimitRequest {
   id: string;
 }
 
-export interface GetRateLimitResponse {
-  rateLimit?: RateLimit | undefined;
+export interface GetSecRateLimitResponse {
+  secratelimit?: SecRateLimit | undefined;
 }
 
-export interface UpdateRateLimitRequest {
+export interface UpdateSecRateLimitRequest {
   id: string;
-  rateLimit?:
-    | RateLimit
+  secratelimit?:
+    | SecRateLimit
     | undefined;
   /**
    * Fields of rate_limit to update, among name, description, expr,
@@ -107,49 +107,49 @@ export interface UpdateRateLimitRequest {
   updateMask?: string[] | undefined;
 }
 
-export interface UpdateRateLimitResponse {
-  rateLimit?: RateLimit | undefined;
+export interface UpdateSecRateLimitResponse {
+  secratelimit?: SecRateLimit | undefined;
 }
 
-export interface DeleteRateLimitRequest {
+export interface DeleteSecRateLimitRequest {
   id: string;
 }
 
-export interface DeleteRateLimitResponse {
+export interface DeleteSecRateLimitResponse {
 }
 
-export interface ListRateLimitsRequest {
+export interface ListSecRateLimitsRequest {
   page?: Pages | undefined;
   ids: string[];
   /** metadata.resource_id of the rows, any of them. */
   resourceIds: string[];
 }
 
-export interface ListRateLimitsResponse {
-  rateLimits: RateLimit[];
+export interface ListSecRateLimitsResponse {
+  secratelimits: SecRateLimit[];
   total: number;
 }
 
-export interface CreateRulesetRequest {
-  ruleset?: Ruleset | undefined;
+export interface CreateSecRulesetRequest {
+  secruleset?: SecRuleset | undefined;
 }
 
-export interface CreateRulesetResponse {
+export interface CreateSecRulesetResponse {
   id: string;
 }
 
-export interface GetRulesetRequest {
+export interface GetSecRulesetRequest {
   id: string;
 }
 
-export interface GetRulesetResponse {
-  ruleset?: Ruleset | undefined;
+export interface GetSecRulesetResponse {
+  secruleset?: SecRuleset | undefined;
 }
 
-export interface UpdateRulesetRequest {
+export interface UpdateSecRulesetRequest {
   id: string;
-  ruleset?:
-    | Ruleset
+  secruleset?:
+    | SecRuleset
     | undefined;
   /**
    * Fields of ruleset to update, among name, description and
@@ -159,22 +159,22 @@ export interface UpdateRulesetRequest {
   updateMask?: string[] | undefined;
 }
 
-export interface UpdateRulesetResponse {
-  ruleset?: Ruleset | undefined;
+export interface UpdateSecRulesetResponse {
+  secruleset?: SecRuleset | undefined;
 }
 
-export interface DeleteRulesetRequest {
+export interface DeleteSecRulesetRequest {
   id: string;
 }
 
-export interface DeleteRulesetResponse {
+export interface DeleteSecRulesetResponse {
 }
 
 /**
- * ListRulesetsRequest every filter set must match (AND); the values
+ * ListSecRulesetsRequest every filter set must match (AND); the values
  * of a repeated filter are alternatives (OR) unless stated otherwise.
  */
-export interface ListRulesetsRequest {
+export interface ListSecRulesetsRequest {
   page?:
     | Pages
     | undefined;
@@ -198,8 +198,8 @@ export interface ListRulesetsRequest {
   overrideRuleIds: number[];
 }
 
-export interface ListRulesetsResponse {
-  rulesets: Ruleset[];
+export interface ListSecRulesetsResponse {
+  secrulesets: SecRuleset[];
   total: number;
 }
 
@@ -1041,19 +1041,19 @@ export const ListSecRulesResponse: MessageFns<ListSecRulesResponse> = {
   },
 };
 
-function createBaseCreateRateLimitRequest(): CreateRateLimitRequest {
-  return { rateLimit: undefined };
+function createBaseCreateSecRateLimitRequest(): CreateSecRateLimitRequest {
+  return { secratelimit: undefined };
 }
 
-export const CreateRateLimitRequest: MessageFns<CreateRateLimitRequest> = {
-  encode(message: CreateRateLimitRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.rateLimit !== undefined) {
-      RateLimit.encode(message.rateLimit, writer.uint32(10).fork()).join();
+export const CreateSecRateLimitRequest: MessageFns<CreateSecRateLimitRequest> = {
+  encode(message: CreateSecRateLimitRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.secratelimit !== undefined) {
+      SecRateLimit.encode(message.secratelimit, writer.uint32(10).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CreateRateLimitRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateSecRateLimitRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -1062,7 +1062,7 @@ export const CreateRateLimitRequest: MessageFns<CreateRateLimitRequest> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseCreateRateLimitRequest();
+      const message = createBaseCreateSecRateLimitRequest();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -1071,7 +1071,7 @@ export const CreateRateLimitRequest: MessageFns<CreateRateLimitRequest> = {
               break;
             }
 
-            message.rateLimit = RateLimit.decode(reader, reader.uint32());
+            message.secratelimit = SecRateLimit.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -1086,49 +1086,43 @@ export const CreateRateLimitRequest: MessageFns<CreateRateLimitRequest> = {
     }
   },
 
-  fromJSON(object: any): CreateRateLimitRequest {
-    return {
-      rateLimit: isSet(object.rateLimit)
-        ? RateLimit.fromJSON(object.rateLimit)
-        : isSet(object.rate_limit)
-        ? RateLimit.fromJSON(object.rate_limit)
-        : undefined,
-    };
+  fromJSON(object: any): CreateSecRateLimitRequest {
+    return { secratelimit: isSet(object.secratelimit) ? SecRateLimit.fromJSON(object.secratelimit) : undefined };
   },
 
-  toJSON(message: CreateRateLimitRequest): unknown {
+  toJSON(message: CreateSecRateLimitRequest): unknown {
     const obj: any = {};
-    if (message.rateLimit !== undefined) {
-      obj.rateLimit = RateLimit.toJSON(message.rateLimit);
+    if (message.secratelimit !== undefined) {
+      obj.secratelimit = SecRateLimit.toJSON(message.secratelimit);
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CreateRateLimitRequest>, I>>(base?: I): CreateRateLimitRequest {
-    return CreateRateLimitRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<CreateSecRateLimitRequest>, I>>(base?: I): CreateSecRateLimitRequest {
+    return CreateSecRateLimitRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<CreateRateLimitRequest>, I>>(object: I): CreateRateLimitRequest {
-    const message = createBaseCreateRateLimitRequest();
-    message.rateLimit = (object.rateLimit !== undefined && object.rateLimit !== null)
-      ? RateLimit.fromPartial(object.rateLimit)
+  fromPartial<I extends Exact<DeepPartial<CreateSecRateLimitRequest>, I>>(object: I): CreateSecRateLimitRequest {
+    const message = createBaseCreateSecRateLimitRequest();
+    message.secratelimit = (object.secratelimit !== undefined && object.secratelimit !== null)
+      ? SecRateLimit.fromPartial(object.secratelimit)
       : undefined;
     return message;
   },
 };
 
-function createBaseCreateRateLimitResponse(): CreateRateLimitResponse {
+function createBaseCreateSecRateLimitResponse(): CreateSecRateLimitResponse {
   return { id: "" };
 }
 
-export const CreateRateLimitResponse: MessageFns<CreateRateLimitResponse> = {
-  encode(message: CreateRateLimitResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const CreateSecRateLimitResponse: MessageFns<CreateSecRateLimitResponse> = {
+  encode(message: CreateSecRateLimitResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CreateRateLimitResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateSecRateLimitResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -1137,7 +1131,7 @@ export const CreateRateLimitResponse: MessageFns<CreateRateLimitResponse> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseCreateRateLimitResponse();
+      const message = createBaseCreateSecRateLimitResponse();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -1161,11 +1155,11 @@ export const CreateRateLimitResponse: MessageFns<CreateRateLimitResponse> = {
     }
   },
 
-  fromJSON(object: any): CreateRateLimitResponse {
+  fromJSON(object: any): CreateSecRateLimitResponse {
     return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
   },
 
-  toJSON(message: CreateRateLimitResponse): unknown {
+  toJSON(message: CreateSecRateLimitResponse): unknown {
     const obj: any = {};
     if (message.id !== "") {
       obj.id = message.id;
@@ -1173,29 +1167,29 @@ export const CreateRateLimitResponse: MessageFns<CreateRateLimitResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CreateRateLimitResponse>, I>>(base?: I): CreateRateLimitResponse {
-    return CreateRateLimitResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<CreateSecRateLimitResponse>, I>>(base?: I): CreateSecRateLimitResponse {
+    return CreateSecRateLimitResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<CreateRateLimitResponse>, I>>(object: I): CreateRateLimitResponse {
-    const message = createBaseCreateRateLimitResponse();
+  fromPartial<I extends Exact<DeepPartial<CreateSecRateLimitResponse>, I>>(object: I): CreateSecRateLimitResponse {
+    const message = createBaseCreateSecRateLimitResponse();
     message.id = object.id ?? "";
     return message;
   },
 };
 
-function createBaseGetRateLimitRequest(): GetRateLimitRequest {
+function createBaseGetSecRateLimitRequest(): GetSecRateLimitRequest {
   return { id: "" };
 }
 
-export const GetRateLimitRequest: MessageFns<GetRateLimitRequest> = {
-  encode(message: GetRateLimitRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const GetSecRateLimitRequest: MessageFns<GetSecRateLimitRequest> = {
+  encode(message: GetSecRateLimitRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetRateLimitRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): GetSecRateLimitRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -1204,7 +1198,7 @@ export const GetRateLimitRequest: MessageFns<GetRateLimitRequest> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseGetRateLimitRequest();
+      const message = createBaseGetSecRateLimitRequest();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -1228,11 +1222,11 @@ export const GetRateLimitRequest: MessageFns<GetRateLimitRequest> = {
     }
   },
 
-  fromJSON(object: any): GetRateLimitRequest {
+  fromJSON(object: any): GetSecRateLimitRequest {
     return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
   },
 
-  toJSON(message: GetRateLimitRequest): unknown {
+  toJSON(message: GetSecRateLimitRequest): unknown {
     const obj: any = {};
     if (message.id !== "") {
       obj.id = message.id;
@@ -1240,29 +1234,29 @@ export const GetRateLimitRequest: MessageFns<GetRateLimitRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetRateLimitRequest>, I>>(base?: I): GetRateLimitRequest {
-    return GetRateLimitRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<GetSecRateLimitRequest>, I>>(base?: I): GetSecRateLimitRequest {
+    return GetSecRateLimitRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetRateLimitRequest>, I>>(object: I): GetRateLimitRequest {
-    const message = createBaseGetRateLimitRequest();
+  fromPartial<I extends Exact<DeepPartial<GetSecRateLimitRequest>, I>>(object: I): GetSecRateLimitRequest {
+    const message = createBaseGetSecRateLimitRequest();
     message.id = object.id ?? "";
     return message;
   },
 };
 
-function createBaseGetRateLimitResponse(): GetRateLimitResponse {
-  return { rateLimit: undefined };
+function createBaseGetSecRateLimitResponse(): GetSecRateLimitResponse {
+  return { secratelimit: undefined };
 }
 
-export const GetRateLimitResponse: MessageFns<GetRateLimitResponse> = {
-  encode(message: GetRateLimitResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.rateLimit !== undefined) {
-      RateLimit.encode(message.rateLimit, writer.uint32(10).fork()).join();
+export const GetSecRateLimitResponse: MessageFns<GetSecRateLimitResponse> = {
+  encode(message: GetSecRateLimitResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.secratelimit !== undefined) {
+      SecRateLimit.encode(message.secratelimit, writer.uint32(10).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetRateLimitResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): GetSecRateLimitResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -1271,7 +1265,7 @@ export const GetRateLimitResponse: MessageFns<GetRateLimitResponse> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseGetRateLimitResponse();
+      const message = createBaseGetSecRateLimitResponse();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -1280,7 +1274,7 @@ export const GetRateLimitResponse: MessageFns<GetRateLimitResponse> = {
               break;
             }
 
-            message.rateLimit = RateLimit.decode(reader, reader.uint32());
+            message.secratelimit = SecRateLimit.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -1295,47 +1289,41 @@ export const GetRateLimitResponse: MessageFns<GetRateLimitResponse> = {
     }
   },
 
-  fromJSON(object: any): GetRateLimitResponse {
-    return {
-      rateLimit: isSet(object.rateLimit)
-        ? RateLimit.fromJSON(object.rateLimit)
-        : isSet(object.rate_limit)
-        ? RateLimit.fromJSON(object.rate_limit)
-        : undefined,
-    };
+  fromJSON(object: any): GetSecRateLimitResponse {
+    return { secratelimit: isSet(object.secratelimit) ? SecRateLimit.fromJSON(object.secratelimit) : undefined };
   },
 
-  toJSON(message: GetRateLimitResponse): unknown {
+  toJSON(message: GetSecRateLimitResponse): unknown {
     const obj: any = {};
-    if (message.rateLimit !== undefined) {
-      obj.rateLimit = RateLimit.toJSON(message.rateLimit);
+    if (message.secratelimit !== undefined) {
+      obj.secratelimit = SecRateLimit.toJSON(message.secratelimit);
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetRateLimitResponse>, I>>(base?: I): GetRateLimitResponse {
-    return GetRateLimitResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<GetSecRateLimitResponse>, I>>(base?: I): GetSecRateLimitResponse {
+    return GetSecRateLimitResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetRateLimitResponse>, I>>(object: I): GetRateLimitResponse {
-    const message = createBaseGetRateLimitResponse();
-    message.rateLimit = (object.rateLimit !== undefined && object.rateLimit !== null)
-      ? RateLimit.fromPartial(object.rateLimit)
+  fromPartial<I extends Exact<DeepPartial<GetSecRateLimitResponse>, I>>(object: I): GetSecRateLimitResponse {
+    const message = createBaseGetSecRateLimitResponse();
+    message.secratelimit = (object.secratelimit !== undefined && object.secratelimit !== null)
+      ? SecRateLimit.fromPartial(object.secratelimit)
       : undefined;
     return message;
   },
 };
 
-function createBaseUpdateRateLimitRequest(): UpdateRateLimitRequest {
-  return { id: "", rateLimit: undefined, updateMask: undefined };
+function createBaseUpdateSecRateLimitRequest(): UpdateSecRateLimitRequest {
+  return { id: "", secratelimit: undefined, updateMask: undefined };
 }
 
-export const UpdateRateLimitRequest: MessageFns<UpdateRateLimitRequest> = {
-  encode(message: UpdateRateLimitRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const UpdateSecRateLimitRequest: MessageFns<UpdateSecRateLimitRequest> = {
+  encode(message: UpdateSecRateLimitRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
-    if (message.rateLimit !== undefined) {
-      RateLimit.encode(message.rateLimit, writer.uint32(18).fork()).join();
+    if (message.secratelimit !== undefined) {
+      SecRateLimit.encode(message.secratelimit, writer.uint32(18).fork()).join();
     }
     if (message.updateMask !== undefined) {
       FieldMask.encode(FieldMask.wrap(message.updateMask), writer.uint32(26).fork()).join();
@@ -1343,7 +1331,7 @@ export const UpdateRateLimitRequest: MessageFns<UpdateRateLimitRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): UpdateRateLimitRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): UpdateSecRateLimitRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -1352,7 +1340,7 @@ export const UpdateRateLimitRequest: MessageFns<UpdateRateLimitRequest> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseUpdateRateLimitRequest();
+      const message = createBaseUpdateSecRateLimitRequest();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -1369,7 +1357,7 @@ export const UpdateRateLimitRequest: MessageFns<UpdateRateLimitRequest> = {
               break;
             }
 
-            message.rateLimit = RateLimit.decode(reader, reader.uint32());
+            message.secratelimit = SecRateLimit.decode(reader, reader.uint32());
             continue;
           }
           case 3: {
@@ -1392,14 +1380,10 @@ export const UpdateRateLimitRequest: MessageFns<UpdateRateLimitRequest> = {
     }
   },
 
-  fromJSON(object: any): UpdateRateLimitRequest {
+  fromJSON(object: any): UpdateSecRateLimitRequest {
     return {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
-      rateLimit: isSet(object.rateLimit)
-        ? RateLimit.fromJSON(object.rateLimit)
-        : isSet(object.rate_limit)
-        ? RateLimit.fromJSON(object.rate_limit)
-        : undefined,
+      secratelimit: isSet(object.secratelimit) ? SecRateLimit.fromJSON(object.secratelimit) : undefined,
       updateMask: isSet(object.updateMask)
         ? FieldMask.unwrap(FieldMask.fromJSON(object.updateMask))
         : isSet(object.update_mask)
@@ -1408,13 +1392,13 @@ export const UpdateRateLimitRequest: MessageFns<UpdateRateLimitRequest> = {
     };
   },
 
-  toJSON(message: UpdateRateLimitRequest): unknown {
+  toJSON(message: UpdateSecRateLimitRequest): unknown {
     const obj: any = {};
     if (message.id !== "") {
       obj.id = message.id;
     }
-    if (message.rateLimit !== undefined) {
-      obj.rateLimit = RateLimit.toJSON(message.rateLimit);
+    if (message.secratelimit !== undefined) {
+      obj.secratelimit = SecRateLimit.toJSON(message.secratelimit);
     }
     if (message.updateMask !== undefined) {
       obj.updateMask = FieldMask.toJSON(FieldMask.wrap(message.updateMask));
@@ -1422,33 +1406,33 @@ export const UpdateRateLimitRequest: MessageFns<UpdateRateLimitRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<UpdateRateLimitRequest>, I>>(base?: I): UpdateRateLimitRequest {
-    return UpdateRateLimitRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<UpdateSecRateLimitRequest>, I>>(base?: I): UpdateSecRateLimitRequest {
+    return UpdateSecRateLimitRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<UpdateRateLimitRequest>, I>>(object: I): UpdateRateLimitRequest {
-    const message = createBaseUpdateRateLimitRequest();
+  fromPartial<I extends Exact<DeepPartial<UpdateSecRateLimitRequest>, I>>(object: I): UpdateSecRateLimitRequest {
+    const message = createBaseUpdateSecRateLimitRequest();
     message.id = object.id ?? "";
-    message.rateLimit = (object.rateLimit !== undefined && object.rateLimit !== null)
-      ? RateLimit.fromPartial(object.rateLimit)
+    message.secratelimit = (object.secratelimit !== undefined && object.secratelimit !== null)
+      ? SecRateLimit.fromPartial(object.secratelimit)
       : undefined;
     message.updateMask = object.updateMask ?? undefined;
     return message;
   },
 };
 
-function createBaseUpdateRateLimitResponse(): UpdateRateLimitResponse {
-  return { rateLimit: undefined };
+function createBaseUpdateSecRateLimitResponse(): UpdateSecRateLimitResponse {
+  return { secratelimit: undefined };
 }
 
-export const UpdateRateLimitResponse: MessageFns<UpdateRateLimitResponse> = {
-  encode(message: UpdateRateLimitResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.rateLimit !== undefined) {
-      RateLimit.encode(message.rateLimit, writer.uint32(10).fork()).join();
+export const UpdateSecRateLimitResponse: MessageFns<UpdateSecRateLimitResponse> = {
+  encode(message: UpdateSecRateLimitResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.secratelimit !== undefined) {
+      SecRateLimit.encode(message.secratelimit, writer.uint32(10).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): UpdateRateLimitResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): UpdateSecRateLimitResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -1457,7 +1441,7 @@ export const UpdateRateLimitResponse: MessageFns<UpdateRateLimitResponse> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseUpdateRateLimitResponse();
+      const message = createBaseUpdateSecRateLimitResponse();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -1466,7 +1450,7 @@ export const UpdateRateLimitResponse: MessageFns<UpdateRateLimitResponse> = {
               break;
             }
 
-            message.rateLimit = RateLimit.decode(reader, reader.uint32());
+            message.secratelimit = SecRateLimit.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -1481,49 +1465,43 @@ export const UpdateRateLimitResponse: MessageFns<UpdateRateLimitResponse> = {
     }
   },
 
-  fromJSON(object: any): UpdateRateLimitResponse {
-    return {
-      rateLimit: isSet(object.rateLimit)
-        ? RateLimit.fromJSON(object.rateLimit)
-        : isSet(object.rate_limit)
-        ? RateLimit.fromJSON(object.rate_limit)
-        : undefined,
-    };
+  fromJSON(object: any): UpdateSecRateLimitResponse {
+    return { secratelimit: isSet(object.secratelimit) ? SecRateLimit.fromJSON(object.secratelimit) : undefined };
   },
 
-  toJSON(message: UpdateRateLimitResponse): unknown {
+  toJSON(message: UpdateSecRateLimitResponse): unknown {
     const obj: any = {};
-    if (message.rateLimit !== undefined) {
-      obj.rateLimit = RateLimit.toJSON(message.rateLimit);
+    if (message.secratelimit !== undefined) {
+      obj.secratelimit = SecRateLimit.toJSON(message.secratelimit);
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<UpdateRateLimitResponse>, I>>(base?: I): UpdateRateLimitResponse {
-    return UpdateRateLimitResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<UpdateSecRateLimitResponse>, I>>(base?: I): UpdateSecRateLimitResponse {
+    return UpdateSecRateLimitResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<UpdateRateLimitResponse>, I>>(object: I): UpdateRateLimitResponse {
-    const message = createBaseUpdateRateLimitResponse();
-    message.rateLimit = (object.rateLimit !== undefined && object.rateLimit !== null)
-      ? RateLimit.fromPartial(object.rateLimit)
+  fromPartial<I extends Exact<DeepPartial<UpdateSecRateLimitResponse>, I>>(object: I): UpdateSecRateLimitResponse {
+    const message = createBaseUpdateSecRateLimitResponse();
+    message.secratelimit = (object.secratelimit !== undefined && object.secratelimit !== null)
+      ? SecRateLimit.fromPartial(object.secratelimit)
       : undefined;
     return message;
   },
 };
 
-function createBaseDeleteRateLimitRequest(): DeleteRateLimitRequest {
+function createBaseDeleteSecRateLimitRequest(): DeleteSecRateLimitRequest {
   return { id: "" };
 }
 
-export const DeleteRateLimitRequest: MessageFns<DeleteRateLimitRequest> = {
-  encode(message: DeleteRateLimitRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const DeleteSecRateLimitRequest: MessageFns<DeleteSecRateLimitRequest> = {
+  encode(message: DeleteSecRateLimitRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): DeleteRateLimitRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): DeleteSecRateLimitRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -1532,7 +1510,7 @@ export const DeleteRateLimitRequest: MessageFns<DeleteRateLimitRequest> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseDeleteRateLimitRequest();
+      const message = createBaseDeleteSecRateLimitRequest();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -1556,11 +1534,11 @@ export const DeleteRateLimitRequest: MessageFns<DeleteRateLimitRequest> = {
     }
   },
 
-  fromJSON(object: any): DeleteRateLimitRequest {
+  fromJSON(object: any): DeleteSecRateLimitRequest {
     return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
   },
 
-  toJSON(message: DeleteRateLimitRequest): unknown {
+  toJSON(message: DeleteSecRateLimitRequest): unknown {
     const obj: any = {};
     if (message.id !== "") {
       obj.id = message.id;
@@ -1568,26 +1546,26 @@ export const DeleteRateLimitRequest: MessageFns<DeleteRateLimitRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<DeleteRateLimitRequest>, I>>(base?: I): DeleteRateLimitRequest {
-    return DeleteRateLimitRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<DeleteSecRateLimitRequest>, I>>(base?: I): DeleteSecRateLimitRequest {
+    return DeleteSecRateLimitRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<DeleteRateLimitRequest>, I>>(object: I): DeleteRateLimitRequest {
-    const message = createBaseDeleteRateLimitRequest();
+  fromPartial<I extends Exact<DeepPartial<DeleteSecRateLimitRequest>, I>>(object: I): DeleteSecRateLimitRequest {
+    const message = createBaseDeleteSecRateLimitRequest();
     message.id = object.id ?? "";
     return message;
   },
 };
 
-function createBaseDeleteRateLimitResponse(): DeleteRateLimitResponse {
+function createBaseDeleteSecRateLimitResponse(): DeleteSecRateLimitResponse {
   return {};
 }
 
-export const DeleteRateLimitResponse: MessageFns<DeleteRateLimitResponse> = {
-  encode(_: DeleteRateLimitResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const DeleteSecRateLimitResponse: MessageFns<DeleteSecRateLimitResponse> = {
+  encode(_: DeleteSecRateLimitResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): DeleteRateLimitResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): DeleteSecRateLimitResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -1596,7 +1574,7 @@ export const DeleteRateLimitResponse: MessageFns<DeleteRateLimitResponse> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseDeleteRateLimitResponse();
+      const message = createBaseDeleteSecRateLimitResponse();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -1612,30 +1590,30 @@ export const DeleteRateLimitResponse: MessageFns<DeleteRateLimitResponse> = {
     }
   },
 
-  fromJSON(_: any): DeleteRateLimitResponse {
+  fromJSON(_: any): DeleteSecRateLimitResponse {
     return {};
   },
 
-  toJSON(_: DeleteRateLimitResponse): unknown {
+  toJSON(_: DeleteSecRateLimitResponse): unknown {
     const obj: any = {};
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<DeleteRateLimitResponse>, I>>(base?: I): DeleteRateLimitResponse {
-    return DeleteRateLimitResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<DeleteSecRateLimitResponse>, I>>(base?: I): DeleteSecRateLimitResponse {
+    return DeleteSecRateLimitResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<DeleteRateLimitResponse>, I>>(_: I): DeleteRateLimitResponse {
-    const message = createBaseDeleteRateLimitResponse();
+  fromPartial<I extends Exact<DeepPartial<DeleteSecRateLimitResponse>, I>>(_: I): DeleteSecRateLimitResponse {
+    const message = createBaseDeleteSecRateLimitResponse();
     return message;
   },
 };
 
-function createBaseListRateLimitsRequest(): ListRateLimitsRequest {
+function createBaseListSecRateLimitsRequest(): ListSecRateLimitsRequest {
   return { page: undefined, ids: [], resourceIds: [] };
 }
 
-export const ListRateLimitsRequest: MessageFns<ListRateLimitsRequest> = {
-  encode(message: ListRateLimitsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const ListSecRateLimitsRequest: MessageFns<ListSecRateLimitsRequest> = {
+  encode(message: ListSecRateLimitsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.page !== undefined) {
       Pages.encode(message.page, writer.uint32(10).fork()).join();
     }
@@ -1648,7 +1626,7 @@ export const ListRateLimitsRequest: MessageFns<ListRateLimitsRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ListRateLimitsRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): ListSecRateLimitsRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -1657,7 +1635,7 @@ export const ListRateLimitsRequest: MessageFns<ListRateLimitsRequest> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseListRateLimitsRequest();
+      const message = createBaseListSecRateLimitsRequest();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -1697,7 +1675,7 @@ export const ListRateLimitsRequest: MessageFns<ListRateLimitsRequest> = {
     }
   },
 
-  fromJSON(object: any): ListRateLimitsRequest {
+  fromJSON(object: any): ListSecRateLimitsRequest {
     return {
       page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined,
       ids: globalThis.Array.isArray(object?.ids) ? object.ids.map((e: any) => globalThis.String(e)) : [],
@@ -1709,7 +1687,7 @@ export const ListRateLimitsRequest: MessageFns<ListRateLimitsRequest> = {
     };
   },
 
-  toJSON(message: ListRateLimitsRequest): unknown {
+  toJSON(message: ListSecRateLimitsRequest): unknown {
     const obj: any = {};
     if (message.page !== undefined) {
       obj.page = Pages.toJSON(message.page);
@@ -1723,11 +1701,11 @@ export const ListRateLimitsRequest: MessageFns<ListRateLimitsRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ListRateLimitsRequest>, I>>(base?: I): ListRateLimitsRequest {
-    return ListRateLimitsRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<ListSecRateLimitsRequest>, I>>(base?: I): ListSecRateLimitsRequest {
+    return ListSecRateLimitsRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ListRateLimitsRequest>, I>>(object: I): ListRateLimitsRequest {
-    const message = createBaseListRateLimitsRequest();
+  fromPartial<I extends Exact<DeepPartial<ListSecRateLimitsRequest>, I>>(object: I): ListSecRateLimitsRequest {
+    const message = createBaseListSecRateLimitsRequest();
     message.page = (object.page !== undefined && object.page !== null) ? Pages.fromPartial(object.page) : undefined;
     message.ids = object.ids?.map((e) => e) || [];
     message.resourceIds = object.resourceIds?.map((e) => e) || [];
@@ -1735,14 +1713,14 @@ export const ListRateLimitsRequest: MessageFns<ListRateLimitsRequest> = {
   },
 };
 
-function createBaseListRateLimitsResponse(): ListRateLimitsResponse {
-  return { rateLimits: [], total: 0 };
+function createBaseListSecRateLimitsResponse(): ListSecRateLimitsResponse {
+  return { secratelimits: [], total: 0 };
 }
 
-export const ListRateLimitsResponse: MessageFns<ListRateLimitsResponse> = {
-  encode(message: ListRateLimitsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    for (const v of message.rateLimits) {
-      RateLimit.encode(v!, writer.uint32(10).fork()).join();
+export const ListSecRateLimitsResponse: MessageFns<ListSecRateLimitsResponse> = {
+  encode(message: ListSecRateLimitsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.secratelimits) {
+      SecRateLimit.encode(v!, writer.uint32(10).fork()).join();
     }
     if (message.total !== 0) {
       writer.uint32(16).int64(message.total);
@@ -1750,7 +1728,7 @@ export const ListRateLimitsResponse: MessageFns<ListRateLimitsResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ListRateLimitsResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): ListSecRateLimitsResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -1759,7 +1737,7 @@ export const ListRateLimitsResponse: MessageFns<ListRateLimitsResponse> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseListRateLimitsResponse();
+      const message = createBaseListSecRateLimitsResponse();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -1768,7 +1746,7 @@ export const ListRateLimitsResponse: MessageFns<ListRateLimitsResponse> = {
               break;
             }
 
-            message.rateLimits.push(RateLimit.decode(reader, reader.uint32()));
+            message.secratelimits.push(SecRateLimit.decode(reader, reader.uint32()));
             continue;
           }
           case 2: {
@@ -1791,21 +1769,19 @@ export const ListRateLimitsResponse: MessageFns<ListRateLimitsResponse> = {
     }
   },
 
-  fromJSON(object: any): ListRateLimitsResponse {
+  fromJSON(object: any): ListSecRateLimitsResponse {
     return {
-      rateLimits: globalThis.Array.isArray(object?.rateLimits)
-        ? object.rateLimits.map((e: any) => RateLimit.fromJSON(e))
-        : globalThis.Array.isArray(object?.rate_limits)
-        ? object.rate_limits.map((e: any) => RateLimit.fromJSON(e))
+      secratelimits: globalThis.Array.isArray(object?.secratelimits)
+        ? object.secratelimits.map((e: any) => SecRateLimit.fromJSON(e))
         : [],
       total: isSet(object.total) ? globalThis.Number(object.total) : 0,
     };
   },
 
-  toJSON(message: ListRateLimitsResponse): unknown {
+  toJSON(message: ListSecRateLimitsResponse): unknown {
     const obj: any = {};
-    if (message.rateLimits?.length) {
-      obj.rateLimits = message.rateLimits.map((e) => RateLimit.toJSON(e));
+    if (message.secratelimits?.length) {
+      obj.secratelimits = message.secratelimits.map((e) => SecRateLimit.toJSON(e));
     }
     if (message.total !== 0) {
       obj.total = Math.round(message.total);
@@ -1813,30 +1789,30 @@ export const ListRateLimitsResponse: MessageFns<ListRateLimitsResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ListRateLimitsResponse>, I>>(base?: I): ListRateLimitsResponse {
-    return ListRateLimitsResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<ListSecRateLimitsResponse>, I>>(base?: I): ListSecRateLimitsResponse {
+    return ListSecRateLimitsResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ListRateLimitsResponse>, I>>(object: I): ListRateLimitsResponse {
-    const message = createBaseListRateLimitsResponse();
-    message.rateLimits = object.rateLimits?.map((e) => RateLimit.fromPartial(e)) || [];
+  fromPartial<I extends Exact<DeepPartial<ListSecRateLimitsResponse>, I>>(object: I): ListSecRateLimitsResponse {
+    const message = createBaseListSecRateLimitsResponse();
+    message.secratelimits = object.secratelimits?.map((e) => SecRateLimit.fromPartial(e)) || [];
     message.total = object.total ?? 0;
     return message;
   },
 };
 
-function createBaseCreateRulesetRequest(): CreateRulesetRequest {
-  return { ruleset: undefined };
+function createBaseCreateSecRulesetRequest(): CreateSecRulesetRequest {
+  return { secruleset: undefined };
 }
 
-export const CreateRulesetRequest: MessageFns<CreateRulesetRequest> = {
-  encode(message: CreateRulesetRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.ruleset !== undefined) {
-      Ruleset.encode(message.ruleset, writer.uint32(10).fork()).join();
+export const CreateSecRulesetRequest: MessageFns<CreateSecRulesetRequest> = {
+  encode(message: CreateSecRulesetRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.secruleset !== undefined) {
+      SecRuleset.encode(message.secruleset, writer.uint32(10).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CreateRulesetRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateSecRulesetRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -1845,7 +1821,7 @@ export const CreateRulesetRequest: MessageFns<CreateRulesetRequest> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseCreateRulesetRequest();
+      const message = createBaseCreateSecRulesetRequest();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -1854,7 +1830,7 @@ export const CreateRulesetRequest: MessageFns<CreateRulesetRequest> = {
               break;
             }
 
-            message.ruleset = Ruleset.decode(reader, reader.uint32());
+            message.secruleset = SecRuleset.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -1869,43 +1845,43 @@ export const CreateRulesetRequest: MessageFns<CreateRulesetRequest> = {
     }
   },
 
-  fromJSON(object: any): CreateRulesetRequest {
-    return { ruleset: isSet(object.ruleset) ? Ruleset.fromJSON(object.ruleset) : undefined };
+  fromJSON(object: any): CreateSecRulesetRequest {
+    return { secruleset: isSet(object.secruleset) ? SecRuleset.fromJSON(object.secruleset) : undefined };
   },
 
-  toJSON(message: CreateRulesetRequest): unknown {
+  toJSON(message: CreateSecRulesetRequest): unknown {
     const obj: any = {};
-    if (message.ruleset !== undefined) {
-      obj.ruleset = Ruleset.toJSON(message.ruleset);
+    if (message.secruleset !== undefined) {
+      obj.secruleset = SecRuleset.toJSON(message.secruleset);
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CreateRulesetRequest>, I>>(base?: I): CreateRulesetRequest {
-    return CreateRulesetRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<CreateSecRulesetRequest>, I>>(base?: I): CreateSecRulesetRequest {
+    return CreateSecRulesetRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<CreateRulesetRequest>, I>>(object: I): CreateRulesetRequest {
-    const message = createBaseCreateRulesetRequest();
-    message.ruleset = (object.ruleset !== undefined && object.ruleset !== null)
-      ? Ruleset.fromPartial(object.ruleset)
+  fromPartial<I extends Exact<DeepPartial<CreateSecRulesetRequest>, I>>(object: I): CreateSecRulesetRequest {
+    const message = createBaseCreateSecRulesetRequest();
+    message.secruleset = (object.secruleset !== undefined && object.secruleset !== null)
+      ? SecRuleset.fromPartial(object.secruleset)
       : undefined;
     return message;
   },
 };
 
-function createBaseCreateRulesetResponse(): CreateRulesetResponse {
+function createBaseCreateSecRulesetResponse(): CreateSecRulesetResponse {
   return { id: "" };
 }
 
-export const CreateRulesetResponse: MessageFns<CreateRulesetResponse> = {
-  encode(message: CreateRulesetResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const CreateSecRulesetResponse: MessageFns<CreateSecRulesetResponse> = {
+  encode(message: CreateSecRulesetResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): CreateRulesetResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): CreateSecRulesetResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -1914,7 +1890,7 @@ export const CreateRulesetResponse: MessageFns<CreateRulesetResponse> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseCreateRulesetResponse();
+      const message = createBaseCreateSecRulesetResponse();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -1938,11 +1914,11 @@ export const CreateRulesetResponse: MessageFns<CreateRulesetResponse> = {
     }
   },
 
-  fromJSON(object: any): CreateRulesetResponse {
+  fromJSON(object: any): CreateSecRulesetResponse {
     return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
   },
 
-  toJSON(message: CreateRulesetResponse): unknown {
+  toJSON(message: CreateSecRulesetResponse): unknown {
     const obj: any = {};
     if (message.id !== "") {
       obj.id = message.id;
@@ -1950,29 +1926,29 @@ export const CreateRulesetResponse: MessageFns<CreateRulesetResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<CreateRulesetResponse>, I>>(base?: I): CreateRulesetResponse {
-    return CreateRulesetResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<CreateSecRulesetResponse>, I>>(base?: I): CreateSecRulesetResponse {
+    return CreateSecRulesetResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<CreateRulesetResponse>, I>>(object: I): CreateRulesetResponse {
-    const message = createBaseCreateRulesetResponse();
+  fromPartial<I extends Exact<DeepPartial<CreateSecRulesetResponse>, I>>(object: I): CreateSecRulesetResponse {
+    const message = createBaseCreateSecRulesetResponse();
     message.id = object.id ?? "";
     return message;
   },
 };
 
-function createBaseGetRulesetRequest(): GetRulesetRequest {
+function createBaseGetSecRulesetRequest(): GetSecRulesetRequest {
   return { id: "" };
 }
 
-export const GetRulesetRequest: MessageFns<GetRulesetRequest> = {
-  encode(message: GetRulesetRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const GetSecRulesetRequest: MessageFns<GetSecRulesetRequest> = {
+  encode(message: GetSecRulesetRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetRulesetRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): GetSecRulesetRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -1981,7 +1957,7 @@ export const GetRulesetRequest: MessageFns<GetRulesetRequest> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseGetRulesetRequest();
+      const message = createBaseGetSecRulesetRequest();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -2005,11 +1981,11 @@ export const GetRulesetRequest: MessageFns<GetRulesetRequest> = {
     }
   },
 
-  fromJSON(object: any): GetRulesetRequest {
+  fromJSON(object: any): GetSecRulesetRequest {
     return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
   },
 
-  toJSON(message: GetRulesetRequest): unknown {
+  toJSON(message: GetSecRulesetRequest): unknown {
     const obj: any = {};
     if (message.id !== "") {
       obj.id = message.id;
@@ -2017,29 +1993,29 @@ export const GetRulesetRequest: MessageFns<GetRulesetRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetRulesetRequest>, I>>(base?: I): GetRulesetRequest {
-    return GetRulesetRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<GetSecRulesetRequest>, I>>(base?: I): GetSecRulesetRequest {
+    return GetSecRulesetRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetRulesetRequest>, I>>(object: I): GetRulesetRequest {
-    const message = createBaseGetRulesetRequest();
+  fromPartial<I extends Exact<DeepPartial<GetSecRulesetRequest>, I>>(object: I): GetSecRulesetRequest {
+    const message = createBaseGetSecRulesetRequest();
     message.id = object.id ?? "";
     return message;
   },
 };
 
-function createBaseGetRulesetResponse(): GetRulesetResponse {
-  return { ruleset: undefined };
+function createBaseGetSecRulesetResponse(): GetSecRulesetResponse {
+  return { secruleset: undefined };
 }
 
-export const GetRulesetResponse: MessageFns<GetRulesetResponse> = {
-  encode(message: GetRulesetResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.ruleset !== undefined) {
-      Ruleset.encode(message.ruleset, writer.uint32(10).fork()).join();
+export const GetSecRulesetResponse: MessageFns<GetSecRulesetResponse> = {
+  encode(message: GetSecRulesetResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.secruleset !== undefined) {
+      SecRuleset.encode(message.secruleset, writer.uint32(10).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GetRulesetResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): GetSecRulesetResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -2048,7 +2024,7 @@ export const GetRulesetResponse: MessageFns<GetRulesetResponse> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseGetRulesetResponse();
+      const message = createBaseGetSecRulesetResponse();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -2057,7 +2033,7 @@ export const GetRulesetResponse: MessageFns<GetRulesetResponse> = {
               break;
             }
 
-            message.ruleset = Ruleset.decode(reader, reader.uint32());
+            message.secruleset = SecRuleset.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -2072,41 +2048,41 @@ export const GetRulesetResponse: MessageFns<GetRulesetResponse> = {
     }
   },
 
-  fromJSON(object: any): GetRulesetResponse {
-    return { ruleset: isSet(object.ruleset) ? Ruleset.fromJSON(object.ruleset) : undefined };
+  fromJSON(object: any): GetSecRulesetResponse {
+    return { secruleset: isSet(object.secruleset) ? SecRuleset.fromJSON(object.secruleset) : undefined };
   },
 
-  toJSON(message: GetRulesetResponse): unknown {
+  toJSON(message: GetSecRulesetResponse): unknown {
     const obj: any = {};
-    if (message.ruleset !== undefined) {
-      obj.ruleset = Ruleset.toJSON(message.ruleset);
+    if (message.secruleset !== undefined) {
+      obj.secruleset = SecRuleset.toJSON(message.secruleset);
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GetRulesetResponse>, I>>(base?: I): GetRulesetResponse {
-    return GetRulesetResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<GetSecRulesetResponse>, I>>(base?: I): GetSecRulesetResponse {
+    return GetSecRulesetResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GetRulesetResponse>, I>>(object: I): GetRulesetResponse {
-    const message = createBaseGetRulesetResponse();
-    message.ruleset = (object.ruleset !== undefined && object.ruleset !== null)
-      ? Ruleset.fromPartial(object.ruleset)
+  fromPartial<I extends Exact<DeepPartial<GetSecRulesetResponse>, I>>(object: I): GetSecRulesetResponse {
+    const message = createBaseGetSecRulesetResponse();
+    message.secruleset = (object.secruleset !== undefined && object.secruleset !== null)
+      ? SecRuleset.fromPartial(object.secruleset)
       : undefined;
     return message;
   },
 };
 
-function createBaseUpdateRulesetRequest(): UpdateRulesetRequest {
-  return { id: "", ruleset: undefined, updateMask: undefined };
+function createBaseUpdateSecRulesetRequest(): UpdateSecRulesetRequest {
+  return { id: "", secruleset: undefined, updateMask: undefined };
 }
 
-export const UpdateRulesetRequest: MessageFns<UpdateRulesetRequest> = {
-  encode(message: UpdateRulesetRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const UpdateSecRulesetRequest: MessageFns<UpdateSecRulesetRequest> = {
+  encode(message: UpdateSecRulesetRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
-    if (message.ruleset !== undefined) {
-      Ruleset.encode(message.ruleset, writer.uint32(18).fork()).join();
+    if (message.secruleset !== undefined) {
+      SecRuleset.encode(message.secruleset, writer.uint32(18).fork()).join();
     }
     if (message.updateMask !== undefined) {
       FieldMask.encode(FieldMask.wrap(message.updateMask), writer.uint32(26).fork()).join();
@@ -2114,7 +2090,7 @@ export const UpdateRulesetRequest: MessageFns<UpdateRulesetRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): UpdateRulesetRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): UpdateSecRulesetRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -2123,7 +2099,7 @@ export const UpdateRulesetRequest: MessageFns<UpdateRulesetRequest> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseUpdateRulesetRequest();
+      const message = createBaseUpdateSecRulesetRequest();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -2140,7 +2116,7 @@ export const UpdateRulesetRequest: MessageFns<UpdateRulesetRequest> = {
               break;
             }
 
-            message.ruleset = Ruleset.decode(reader, reader.uint32());
+            message.secruleset = SecRuleset.decode(reader, reader.uint32());
             continue;
           }
           case 3: {
@@ -2163,10 +2139,10 @@ export const UpdateRulesetRequest: MessageFns<UpdateRulesetRequest> = {
     }
   },
 
-  fromJSON(object: any): UpdateRulesetRequest {
+  fromJSON(object: any): UpdateSecRulesetRequest {
     return {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
-      ruleset: isSet(object.ruleset) ? Ruleset.fromJSON(object.ruleset) : undefined,
+      secruleset: isSet(object.secruleset) ? SecRuleset.fromJSON(object.secruleset) : undefined,
       updateMask: isSet(object.updateMask)
         ? FieldMask.unwrap(FieldMask.fromJSON(object.updateMask))
         : isSet(object.update_mask)
@@ -2175,13 +2151,13 @@ export const UpdateRulesetRequest: MessageFns<UpdateRulesetRequest> = {
     };
   },
 
-  toJSON(message: UpdateRulesetRequest): unknown {
+  toJSON(message: UpdateSecRulesetRequest): unknown {
     const obj: any = {};
     if (message.id !== "") {
       obj.id = message.id;
     }
-    if (message.ruleset !== undefined) {
-      obj.ruleset = Ruleset.toJSON(message.ruleset);
+    if (message.secruleset !== undefined) {
+      obj.secruleset = SecRuleset.toJSON(message.secruleset);
     }
     if (message.updateMask !== undefined) {
       obj.updateMask = FieldMask.toJSON(FieldMask.wrap(message.updateMask));
@@ -2189,33 +2165,33 @@ export const UpdateRulesetRequest: MessageFns<UpdateRulesetRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<UpdateRulesetRequest>, I>>(base?: I): UpdateRulesetRequest {
-    return UpdateRulesetRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<UpdateSecRulesetRequest>, I>>(base?: I): UpdateSecRulesetRequest {
+    return UpdateSecRulesetRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<UpdateRulesetRequest>, I>>(object: I): UpdateRulesetRequest {
-    const message = createBaseUpdateRulesetRequest();
+  fromPartial<I extends Exact<DeepPartial<UpdateSecRulesetRequest>, I>>(object: I): UpdateSecRulesetRequest {
+    const message = createBaseUpdateSecRulesetRequest();
     message.id = object.id ?? "";
-    message.ruleset = (object.ruleset !== undefined && object.ruleset !== null)
-      ? Ruleset.fromPartial(object.ruleset)
+    message.secruleset = (object.secruleset !== undefined && object.secruleset !== null)
+      ? SecRuleset.fromPartial(object.secruleset)
       : undefined;
     message.updateMask = object.updateMask ?? undefined;
     return message;
   },
 };
 
-function createBaseUpdateRulesetResponse(): UpdateRulesetResponse {
-  return { ruleset: undefined };
+function createBaseUpdateSecRulesetResponse(): UpdateSecRulesetResponse {
+  return { secruleset: undefined };
 }
 
-export const UpdateRulesetResponse: MessageFns<UpdateRulesetResponse> = {
-  encode(message: UpdateRulesetResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.ruleset !== undefined) {
-      Ruleset.encode(message.ruleset, writer.uint32(10).fork()).join();
+export const UpdateSecRulesetResponse: MessageFns<UpdateSecRulesetResponse> = {
+  encode(message: UpdateSecRulesetResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.secruleset !== undefined) {
+      SecRuleset.encode(message.secruleset, writer.uint32(10).fork()).join();
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): UpdateRulesetResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): UpdateSecRulesetResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -2224,7 +2200,7 @@ export const UpdateRulesetResponse: MessageFns<UpdateRulesetResponse> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseUpdateRulesetResponse();
+      const message = createBaseUpdateSecRulesetResponse();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -2233,7 +2209,7 @@ export const UpdateRulesetResponse: MessageFns<UpdateRulesetResponse> = {
               break;
             }
 
-            message.ruleset = Ruleset.decode(reader, reader.uint32());
+            message.secruleset = SecRuleset.decode(reader, reader.uint32());
             continue;
           }
         }
@@ -2248,43 +2224,43 @@ export const UpdateRulesetResponse: MessageFns<UpdateRulesetResponse> = {
     }
   },
 
-  fromJSON(object: any): UpdateRulesetResponse {
-    return { ruleset: isSet(object.ruleset) ? Ruleset.fromJSON(object.ruleset) : undefined };
+  fromJSON(object: any): UpdateSecRulesetResponse {
+    return { secruleset: isSet(object.secruleset) ? SecRuleset.fromJSON(object.secruleset) : undefined };
   },
 
-  toJSON(message: UpdateRulesetResponse): unknown {
+  toJSON(message: UpdateSecRulesetResponse): unknown {
     const obj: any = {};
-    if (message.ruleset !== undefined) {
-      obj.ruleset = Ruleset.toJSON(message.ruleset);
+    if (message.secruleset !== undefined) {
+      obj.secruleset = SecRuleset.toJSON(message.secruleset);
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<UpdateRulesetResponse>, I>>(base?: I): UpdateRulesetResponse {
-    return UpdateRulesetResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<UpdateSecRulesetResponse>, I>>(base?: I): UpdateSecRulesetResponse {
+    return UpdateSecRulesetResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<UpdateRulesetResponse>, I>>(object: I): UpdateRulesetResponse {
-    const message = createBaseUpdateRulesetResponse();
-    message.ruleset = (object.ruleset !== undefined && object.ruleset !== null)
-      ? Ruleset.fromPartial(object.ruleset)
+  fromPartial<I extends Exact<DeepPartial<UpdateSecRulesetResponse>, I>>(object: I): UpdateSecRulesetResponse {
+    const message = createBaseUpdateSecRulesetResponse();
+    message.secruleset = (object.secruleset !== undefined && object.secruleset !== null)
+      ? SecRuleset.fromPartial(object.secruleset)
       : undefined;
     return message;
   },
 };
 
-function createBaseDeleteRulesetRequest(): DeleteRulesetRequest {
+function createBaseDeleteSecRulesetRequest(): DeleteSecRulesetRequest {
   return { id: "" };
 }
 
-export const DeleteRulesetRequest: MessageFns<DeleteRulesetRequest> = {
-  encode(message: DeleteRulesetRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const DeleteSecRulesetRequest: MessageFns<DeleteSecRulesetRequest> = {
+  encode(message: DeleteSecRulesetRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== "") {
       writer.uint32(10).string(message.id);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): DeleteRulesetRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): DeleteSecRulesetRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -2293,7 +2269,7 @@ export const DeleteRulesetRequest: MessageFns<DeleteRulesetRequest> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseDeleteRulesetRequest();
+      const message = createBaseDeleteSecRulesetRequest();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -2317,11 +2293,11 @@ export const DeleteRulesetRequest: MessageFns<DeleteRulesetRequest> = {
     }
   },
 
-  fromJSON(object: any): DeleteRulesetRequest {
+  fromJSON(object: any): DeleteSecRulesetRequest {
     return { id: isSet(object.id) ? globalThis.String(object.id) : "" };
   },
 
-  toJSON(message: DeleteRulesetRequest): unknown {
+  toJSON(message: DeleteSecRulesetRequest): unknown {
     const obj: any = {};
     if (message.id !== "") {
       obj.id = message.id;
@@ -2329,26 +2305,26 @@ export const DeleteRulesetRequest: MessageFns<DeleteRulesetRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<DeleteRulesetRequest>, I>>(base?: I): DeleteRulesetRequest {
-    return DeleteRulesetRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<DeleteSecRulesetRequest>, I>>(base?: I): DeleteSecRulesetRequest {
+    return DeleteSecRulesetRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<DeleteRulesetRequest>, I>>(object: I): DeleteRulesetRequest {
-    const message = createBaseDeleteRulesetRequest();
+  fromPartial<I extends Exact<DeepPartial<DeleteSecRulesetRequest>, I>>(object: I): DeleteSecRulesetRequest {
+    const message = createBaseDeleteSecRulesetRequest();
     message.id = object.id ?? "";
     return message;
   },
 };
 
-function createBaseDeleteRulesetResponse(): DeleteRulesetResponse {
+function createBaseDeleteSecRulesetResponse(): DeleteSecRulesetResponse {
   return {};
 }
 
-export const DeleteRulesetResponse: MessageFns<DeleteRulesetResponse> = {
-  encode(_: DeleteRulesetResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const DeleteSecRulesetResponse: MessageFns<DeleteSecRulesetResponse> = {
+  encode(_: DeleteSecRulesetResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): DeleteRulesetResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): DeleteSecRulesetResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -2357,7 +2333,7 @@ export const DeleteRulesetResponse: MessageFns<DeleteRulesetResponse> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseDeleteRulesetResponse();
+      const message = createBaseDeleteSecRulesetResponse();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -2373,25 +2349,25 @@ export const DeleteRulesetResponse: MessageFns<DeleteRulesetResponse> = {
     }
   },
 
-  fromJSON(_: any): DeleteRulesetResponse {
+  fromJSON(_: any): DeleteSecRulesetResponse {
     return {};
   },
 
-  toJSON(_: DeleteRulesetResponse): unknown {
+  toJSON(_: DeleteSecRulesetResponse): unknown {
     const obj: any = {};
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<DeleteRulesetResponse>, I>>(base?: I): DeleteRulesetResponse {
-    return DeleteRulesetResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<DeleteSecRulesetResponse>, I>>(base?: I): DeleteSecRulesetResponse {
+    return DeleteSecRulesetResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<DeleteRulesetResponse>, I>>(_: I): DeleteRulesetResponse {
-    const message = createBaseDeleteRulesetResponse();
+  fromPartial<I extends Exact<DeepPartial<DeleteSecRulesetResponse>, I>>(_: I): DeleteSecRulesetResponse {
+    const message = createBaseDeleteSecRulesetResponse();
     return message;
   },
 };
 
-function createBaseListRulesetsRequest(): ListRulesetsRequest {
+function createBaseListSecRulesetsRequest(): ListSecRulesetsRequest {
   return {
     page: undefined,
     name: "",
@@ -2408,8 +2384,8 @@ function createBaseListRulesetsRequest(): ListRulesetsRequest {
   };
 }
 
-export const ListRulesetsRequest: MessageFns<ListRulesetsRequest> = {
-  encode(message: ListRulesetsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const ListSecRulesetsRequest: MessageFns<ListSecRulesetsRequest> = {
+  encode(message: ListSecRulesetsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.page !== undefined) {
       Pages.encode(message.page, writer.uint32(10).fork()).join();
     }
@@ -2461,7 +2437,7 @@ export const ListRulesetsRequest: MessageFns<ListRulesetsRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ListRulesetsRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): ListSecRulesetsRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -2470,7 +2446,7 @@ export const ListRulesetsRequest: MessageFns<ListRulesetsRequest> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseListRulesetsRequest();
+      const message = createBaseListSecRulesetsRequest();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -2642,7 +2618,7 @@ export const ListRulesetsRequest: MessageFns<ListRulesetsRequest> = {
     }
   },
 
-  fromJSON(object: any): ListRulesetsRequest {
+  fromJSON(object: any): ListSecRulesetsRequest {
     return {
       page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined,
       name: isSet(object.name) ? globalThis.String(object.name) : "",
@@ -2681,7 +2657,7 @@ export const ListRulesetsRequest: MessageFns<ListRulesetsRequest> = {
     };
   },
 
-  toJSON(message: ListRulesetsRequest): unknown {
+  toJSON(message: ListSecRulesetsRequest): unknown {
     const obj: any = {};
     if (message.page !== undefined) {
       obj.page = Pages.toJSON(message.page);
@@ -2722,11 +2698,11 @@ export const ListRulesetsRequest: MessageFns<ListRulesetsRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ListRulesetsRequest>, I>>(base?: I): ListRulesetsRequest {
-    return ListRulesetsRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<ListSecRulesetsRequest>, I>>(base?: I): ListSecRulesetsRequest {
+    return ListSecRulesetsRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ListRulesetsRequest>, I>>(object: I): ListRulesetsRequest {
-    const message = createBaseListRulesetsRequest();
+  fromPartial<I extends Exact<DeepPartial<ListSecRulesetsRequest>, I>>(object: I): ListSecRulesetsRequest {
+    const message = createBaseListSecRulesetsRequest();
     message.page = (object.page !== undefined && object.page !== null) ? Pages.fromPartial(object.page) : undefined;
     message.name = object.name ?? "";
     message.ids = object.ids?.map((e) => e) || [];
@@ -2743,14 +2719,14 @@ export const ListRulesetsRequest: MessageFns<ListRulesetsRequest> = {
   },
 };
 
-function createBaseListRulesetsResponse(): ListRulesetsResponse {
-  return { rulesets: [], total: 0 };
+function createBaseListSecRulesetsResponse(): ListSecRulesetsResponse {
+  return { secrulesets: [], total: 0 };
 }
 
-export const ListRulesetsResponse: MessageFns<ListRulesetsResponse> = {
-  encode(message: ListRulesetsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    for (const v of message.rulesets) {
-      Ruleset.encode(v!, writer.uint32(10).fork()).join();
+export const ListSecRulesetsResponse: MessageFns<ListSecRulesetsResponse> = {
+  encode(message: ListSecRulesetsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.secrulesets) {
+      SecRuleset.encode(v!, writer.uint32(10).fork()).join();
     }
     if (message.total !== 0) {
       writer.uint32(16).int64(message.total);
@@ -2758,7 +2734,7 @@ export const ListRulesetsResponse: MessageFns<ListRulesetsResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ListRulesetsResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): ListSecRulesetsResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -2767,7 +2743,7 @@ export const ListRulesetsResponse: MessageFns<ListRulesetsResponse> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseListRulesetsResponse();
+      const message = createBaseListSecRulesetsResponse();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -2776,7 +2752,7 @@ export const ListRulesetsResponse: MessageFns<ListRulesetsResponse> = {
               break;
             }
 
-            message.rulesets.push(Ruleset.decode(reader, reader.uint32()));
+            message.secrulesets.push(SecRuleset.decode(reader, reader.uint32()));
             continue;
           }
           case 2: {
@@ -2799,17 +2775,19 @@ export const ListRulesetsResponse: MessageFns<ListRulesetsResponse> = {
     }
   },
 
-  fromJSON(object: any): ListRulesetsResponse {
+  fromJSON(object: any): ListSecRulesetsResponse {
     return {
-      rulesets: globalThis.Array.isArray(object?.rulesets) ? object.rulesets.map((e: any) => Ruleset.fromJSON(e)) : [],
+      secrulesets: globalThis.Array.isArray(object?.secrulesets)
+        ? object.secrulesets.map((e: any) => SecRuleset.fromJSON(e))
+        : [],
       total: isSet(object.total) ? globalThis.Number(object.total) : 0,
     };
   },
 
-  toJSON(message: ListRulesetsResponse): unknown {
+  toJSON(message: ListSecRulesetsResponse): unknown {
     const obj: any = {};
-    if (message.rulesets?.length) {
-      obj.rulesets = message.rulesets.map((e) => Ruleset.toJSON(e));
+    if (message.secrulesets?.length) {
+      obj.secrulesets = message.secrulesets.map((e) => SecRuleset.toJSON(e));
     }
     if (message.total !== 0) {
       obj.total = Math.round(message.total);
@@ -2817,12 +2795,12 @@ export const ListRulesetsResponse: MessageFns<ListRulesetsResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ListRulesetsResponse>, I>>(base?: I): ListRulesetsResponse {
-    return ListRulesetsResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<ListSecRulesetsResponse>, I>>(base?: I): ListSecRulesetsResponse {
+    return ListSecRulesetsResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ListRulesetsResponse>, I>>(object: I): ListRulesetsResponse {
-    const message = createBaseListRulesetsResponse();
-    message.rulesets = object.rulesets?.map((e) => Ruleset.fromPartial(e)) || [];
+  fromPartial<I extends Exact<DeepPartial<ListSecRulesetsResponse>, I>>(object: I): ListSecRulesetsResponse {
+    const message = createBaseListSecRulesetsResponse();
+    message.secrulesets = object.secrulesets?.map((e) => SecRuleset.fromPartial(e)) || [];
     message.total = object.total ?? 0;
     return message;
   },

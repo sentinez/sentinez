@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package ruleset
+package secruleset
 
 import (
 	"strings"
@@ -28,7 +28,7 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-type listReq = securitypb.ListRulesetsRequest
+type listReq = securitypb.ListSecRulesetsRequest
 
 // nolint:funlen
 func TestListConditions(t *testing.T) {
@@ -64,7 +64,7 @@ func TestListConditions(t *testing.T) {
 				rulesetpb.EngineMode_ENGINE_MODE_DETECTION_ONLY,
 			}},
 			wantSQL: "SELECT 1 WHERE " +
-				"(ruleset @> ?::jsonb OR ruleset @> ?::jsonb)",
+				"(setting @> ?::jsonb OR setting @> ?::jsonb)",
 			wantArgs: []any{
 				`{"mode":"ENGINE_MODE_ON"}`,
 				`{"mode":"ENGINE_MODE_DETECTION_ONLY"}`,
@@ -75,7 +75,7 @@ func TestListConditions(t *testing.T) {
 			give: &listReq{Versions: []rulesetpb.Version{
 				rulesetpb.Version_VERSION_V4_17_0,
 			}},
-			wantSQL:  "SELECT 1 WHERE (ruleset @> ?::jsonb)",
+			wantSQL:  "SELECT 1 WHERE (setting @> ?::jsonb)",
 			wantArgs: []any{`{"version":"VERSION_V4_17_0"}`},
 		},
 		{
@@ -83,13 +83,13 @@ func TestListConditions(t *testing.T) {
 			give: &listReq{Statuses: []typepb.Status{
 				typepb.Status_STATUS_ACTIVE,
 			}},
-			wantSQL:  "SELECT 1 WHERE (ruleset @> ?::jsonb)",
+			wantSQL:  "SELECT 1 WHERE (setting @> ?::jsonb)",
 			wantArgs: []any{`{"status":"STATUS_ACTIVE"}`},
 		},
 		{
 			name:     "paranoia level",
 			give:     &listReq{ParanoiaLevel: 2},
-			wantSQL:  "SELECT 1 WHERE (ruleset @> ?::jsonb)",
+			wantSQL:  "SELECT 1 WHERE (setting @> ?::jsonb)",
 			wantArgs: []any{`{"paranoia_level":2}`},
 		},
 		{
@@ -98,7 +98,7 @@ func TestListConditions(t *testing.T) {
 				rulesetpb.Category_CATEGORY_XSS,
 				rulesetpb.Category_CATEGORY_SQLI,
 			}},
-			wantSQL: "SELECT 1 WHERE (ruleset @> ?::jsonb)",
+			wantSQL: "SELECT 1 WHERE (setting @> ?::jsonb)",
 			wantArgs: []any{
 				`{"categories":["CATEGORY_XSS","CATEGORY_SQLI"]}`,
 			},
@@ -106,13 +106,13 @@ func TestListConditions(t *testing.T) {
 		{
 			name:     "exclusion tag",
 			give:     &listReq{ExclusionTags: []string{"attack-sqli"}},
-			wantSQL:  "SELECT 1 WHERE (ruleset @> ?::jsonb)",
+			wantSQL:  "SELECT 1 WHERE (setting @> ?::jsonb)",
 			wantArgs: []any{`{"exclusions":[{"tags":["attack-sqli"]}]}`},
 		},
 		{
 			name:    "exclusion rule",
 			give:    &listReq{ExclusionRuleIds: []uint32{942100}},
-			wantSQL: "SELECT 1 WHERE (ruleset @> ?::jsonb)",
+			wantSQL: "SELECT 1 WHERE (setting @> ?::jsonb)",
 			wantArgs: []any{
 				`{"exclusions":[{"targets":[{"rule_id":942100}]}]}`,
 			},
@@ -120,7 +120,7 @@ func TestListConditions(t *testing.T) {
 		{
 			name:     "override rule",
 			give:     &listReq{OverrideRuleIds: []uint32{920420}},
-			wantSQL:  "SELECT 1 WHERE (ruleset @> ?::jsonb)",
+			wantSQL:  "SELECT 1 WHERE (setting @> ?::jsonb)",
 			wantArgs: []any{`{"overrides":[{"id":920420}]}`},
 		},
 		{
@@ -133,7 +133,7 @@ func TestListConditions(t *testing.T) {
 				},
 			},
 			wantSQL: "SELECT 1 WHERE name ILIKE ? " +
-				"AND (ruleset @> ?::jsonb) AND (ruleset @> ?::jsonb)",
+				"AND (setting @> ?::jsonb) AND (setting @> ?::jsonb)",
 			wantArgs: []any{
 				"%prod%", `{"mode":"ENGINE_MODE_ON"}`, `{"paranoia_level":1}`,
 			},
@@ -173,7 +173,7 @@ func normalize(args []any) []any {
 }
 
 func TestRulesetRoundTrip(t *testing.T) {
-	give := &rulesetpb.Ruleset{
+	give := &rulesetpb.Setting{
 		Mode:          rulesetpb.EngineMode_ENGINE_MODE_ON,
 		ParanoiaLevel: 2,
 		Exclusions: []*rulesetpb.Exclusion{
@@ -184,7 +184,7 @@ func TestRulesetRoundTrip(t *testing.T) {
 	data, err := marshalRuleset(give)
 	require.NoError(t, err)
 
-	got := &rulesetpb.Ruleset{}
+	got := &rulesetpb.Setting{}
 	require.NoError(t, protojson.Unmarshal([]byte(data), got))
 	assert.True(t, proto.Equal(give, got))
 

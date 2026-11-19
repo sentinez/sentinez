@@ -435,7 +435,7 @@
         "parameters": [
           {
             "name": "kind",
-            "description": " - EVENT_KIND_HTTP_INGRESS: Requests received by the edge; keyed by the http status.\n - EVENT_KIND_HTTP_EGRESS: Requests proxied to the origins; keyed by the status of the origin.\n - EVENT_KIND_SECRULE: Matched SecRules; keyed by the action.\n - EVENT_KIND_RATE_LIMIT: Exceeded rate limiters; keyed by the action.\n - EVENT_KIND_RULESET: Matched ruleset rules; keyed by the behavior.",
+            "description": " - EVENT_KIND_HTTP_INGRESS: Requests received by the edge; keyed by the http status.\n - EVENT_KIND_HTTP_EGRESS: Requests proxied to the origins; keyed by the status of the origin.\n - EVENT_KIND_SECRULE: Matched SecRules; keyed by the action.\n - EVENT_KIND_SECRATELIMIT: Exceeded rate limiters; keyed by the action.\n - EVENT_KIND_SECRULESET: Matched ruleset rules; keyed by the behavior.",
             "in": "query",
             "required": false,
             "type": "string",
@@ -444,8 +444,8 @@
               "EVENT_KIND_HTTP_INGRESS",
               "EVENT_KIND_HTTP_EGRESS",
               "EVENT_KIND_SECRULE",
-              "EVENT_KIND_RATE_LIMIT",
-              "EVENT_KIND_RULESET"
+              "EVENT_KIND_SECRATELIMIT",
+              "EVENT_KIND_SECRULESET"
             ],
             "default": "EVENT_KIND_UNSPECIFIED"
           },
@@ -781,106 +781,14 @@
         ]
       }
     },
-    "/analytic/events/ratelimit": {
+    "/analytic/events/secratelimit": {
       "get": {
-        "operationId": "AnalyticService_ListRateLimitEvents",
+        "operationId": "AnalyticService_ListSecRateLimitEvents",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1ListRateLimitEventsResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/googlerpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "page.index",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int32"
-          },
-          {
-            "name": "page.size",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int32"
-          },
-          {
-            "name": "page.total",
-            "in": "query",
-            "required": false,
-            "type": "boolean"
-          },
-          {
-            "name": "resourceIds",
-            "description": "Resources of the events, any of them; all when empty.",
-            "in": "query",
-            "required": false,
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
-          },
-          {
-            "name": "from",
-            "description": "Bound the time of the events, from inclusive, to exclusive.",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "date-time"
-          },
-          {
-            "name": "to",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "date-time"
-          },
-          {
-            "name": "requestIds",
-            "description": "Requests of the events, by request id (an ingress or egress event\nid, the request_id of a rule event), any of them; all when empty.",
-            "in": "query",
-            "required": false,
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
-          },
-          {
-            "name": "filters",
-            "description": "Field filters, all of them, each \"field:value\" (see\nGetEventTopValuesRequest.filters).",
-            "in": "query",
-            "required": false,
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
-          }
-        ],
-        "tags": [
-          "AnalyticService"
-        ]
-      }
-    },
-    "/analytic/events/ruleset": {
-      "get": {
-        "operationId": "AnalyticService_ListRulesetEvents",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ListRulesetEventsResponse"
+              "$ref": "#/definitions/v1ListSecRateLimitEventsResponse"
             }
           },
           "default": {
@@ -1057,6 +965,98 @@
         ]
       }
     },
+    "/analytic/events/secruleset": {
+      "get": {
+        "operationId": "AnalyticService_ListSecRulesetEvents",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListSecRulesetEventsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googlerpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page.index",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page.total",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "resourceIds",
+            "description": "Resources of the events, any of them; all when empty.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "from",
+            "description": "Bound the time of the events, from inclusive, to exclusive.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "requestIds",
+            "description": "Requests of the events, by request id (an ingress or egress event\nid, the request_id of a rule event), any of them; all when empty.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "filters",
+            "description": "Field filters, all of them, each \"field:value\" (see\nGetEventTopValuesRequest.filters).",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "tags": [
+          "AnalyticService"
+        ]
+      }
+    },
     "/analytic/events/top-values": {
       "get": {
         "summary": "GetEventTopValues counts the most frequent values of fields of the\nevents of a kind over a time range, and their share of its events.",
@@ -1078,7 +1078,7 @@
         "parameters": [
           {
             "name": "kind",
-            "description": " - EVENT_KIND_HTTP_INGRESS: Requests received by the edge; keyed by the http status.\n - EVENT_KIND_HTTP_EGRESS: Requests proxied to the origins; keyed by the status of the origin.\n - EVENT_KIND_SECRULE: Matched SecRules; keyed by the action.\n - EVENT_KIND_RATE_LIMIT: Exceeded rate limiters; keyed by the action.\n - EVENT_KIND_RULESET: Matched ruleset rules; keyed by the behavior.",
+            "description": " - EVENT_KIND_HTTP_INGRESS: Requests received by the edge; keyed by the http status.\n - EVENT_KIND_HTTP_EGRESS: Requests proxied to the origins; keyed by the status of the origin.\n - EVENT_KIND_SECRULE: Matched SecRules; keyed by the action.\n - EVENT_KIND_SECRATELIMIT: Exceeded rate limiters; keyed by the action.\n - EVENT_KIND_SECRULESET: Matched ruleset rules; keyed by the behavior.",
             "in": "query",
             "required": false,
             "type": "string",
@@ -1087,8 +1087,8 @@
               "EVENT_KIND_HTTP_INGRESS",
               "EVENT_KIND_HTTP_EGRESS",
               "EVENT_KIND_SECRULE",
-              "EVENT_KIND_RATE_LIMIT",
-              "EVENT_KIND_RULESET"
+              "EVENT_KIND_SECRATELIMIT",
+              "EVENT_KIND_SECRULESET"
             ],
             "default": "EVENT_KIND_UNSPECIFIED"
           },
@@ -1552,11 +1552,11 @@
         "EVENT_KIND_HTTP_INGRESS",
         "EVENT_KIND_HTTP_EGRESS",
         "EVENT_KIND_SECRULE",
-        "EVENT_KIND_RATE_LIMIT",
-        "EVENT_KIND_RULESET"
+        "EVENT_KIND_SECRATELIMIT",
+        "EVENT_KIND_SECRULESET"
       ],
       "default": "EVENT_KIND_UNSPECIFIED",
-      "description": "EventKind the table of the events a histogram counts.\n\n - EVENT_KIND_HTTP_INGRESS: Requests received by the edge; keyed by the http status.\n - EVENT_KIND_HTTP_EGRESS: Requests proxied to the origins; keyed by the status of the origin.\n - EVENT_KIND_SECRULE: Matched SecRules; keyed by the action.\n - EVENT_KIND_RATE_LIMIT: Exceeded rate limiters; keyed by the action.\n - EVENT_KIND_RULESET: Matched ruleset rules; keyed by the behavior."
+      "description": "EventKind the table of the events a histogram counts.\n\n - EVENT_KIND_HTTP_INGRESS: Requests received by the edge; keyed by the http status.\n - EVENT_KIND_HTTP_EGRESS: Requests proxied to the origins; keyed by the status of the origin.\n - EVENT_KIND_SECRULE: Matched SecRules; keyed by the action.\n - EVENT_KIND_SECRATELIMIT: Exceeded rate limiters; keyed by the action.\n - EVENT_KIND_SECRULESET: Matched ruleset rules; keyed by the behavior."
     },
     "v1EventSelection": {
       "type": "object",
@@ -1966,7 +1966,7 @@
         }
       }
     },
-    "v1ListRateLimitEventsResponse": {
+    "v1ListSecRateLimitEventsResponse": {
       "type": "object",
       "properties": {
         "events": {
@@ -1974,18 +1974,6 @@
           "items": {
             "type": "object",
             "$ref": "#/definitions/v1SecRuleEvent"
-          }
-        }
-      }
-    },
-    "v1ListRulesetEventsResponse": {
-      "type": "object",
-      "properties": {
-        "events": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1RulesetEvent"
           }
         }
       }
@@ -1998,6 +1986,18 @@
           "items": {
             "type": "object",
             "$ref": "#/definitions/v1SecRuleEvent"
+          }
+        }
+      }
+    },
+    "v1ListSecRulesetEventsResponse": {
+      "type": "object",
+      "properties": {
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SecRulesetEvent"
           }
         }
       }
@@ -2082,13 +2082,75 @@
       "type": "string",
       "enum": [
         "RULE_SERVICE_UNSPECIFIED",
-        "RULE_SERVICE_RULESETS",
+        "RULE_SERVICE_SECRULESET",
         "RULE_SERVICE_SECRULE",
-        "RULE_SERVICE_RATE_LIMIT"
+        "RULE_SERVICE_SECRATELIMIT"
       ],
       "default": "RULE_SERVICE_UNSPECIFIED"
     },
-    "v1RulesetEvent": {
+    "v1SecRuleEvent": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "matchedSecruleIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "messages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "resourceId": {
+          "type": "string"
+        },
+        "tenantId": {
+          "type": "string"
+        },
+        "matchedTime": {
+          "type": "string",
+          "format": "int64",
+          "title": "milisec"
+        },
+        "action": {
+          "$ref": "#/definitions/v1Action"
+        },
+        "service": {
+          "$ref": "#/definitions/v1RuleService"
+        },
+        "requestDomain": {
+          "type": "string"
+        },
+        "requestScheme": {
+          "type": "string"
+        },
+        "requestPath": {
+          "type": "string"
+        },
+        "requestQuery": {
+          "type": "string"
+        },
+        "requestIp": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Tags set by the SET_TAG actions of the matched rules."
+        }
+      }
+    },
+    "v1SecRulesetEvent": {
       "type": "object",
       "properties": {
         "id": {
@@ -2151,68 +2213,6 @@
         },
         "behavior": {
           "$ref": "#/definitions/v1RuleBehavior"
-        }
-      }
-    },
-    "v1SecRuleEvent": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "matchedSecruleIds": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "messages": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "resourceId": {
-          "type": "string"
-        },
-        "tenantId": {
-          "type": "string"
-        },
-        "matchedTime": {
-          "type": "string",
-          "format": "int64",
-          "title": "milisec"
-        },
-        "action": {
-          "$ref": "#/definitions/v1Action"
-        },
-        "service": {
-          "$ref": "#/definitions/v1RuleService"
-        },
-        "requestDomain": {
-          "type": "string"
-        },
-        "requestScheme": {
-          "type": "string"
-        },
-        "requestPath": {
-          "type": "string"
-        },
-        "requestQuery": {
-          "type": "string"
-        },
-        "requestIp": {
-          "type": "string"
-        },
-        "requestId": {
-          "type": "string"
-        },
-        "tags": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
-          "description": "Tags set by the SET_TAG actions of the matched rules."
         }
       }
     },

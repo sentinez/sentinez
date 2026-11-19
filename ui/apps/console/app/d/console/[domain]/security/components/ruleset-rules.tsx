@@ -286,7 +286,7 @@ function ExclusionTargets({
   );
 }
 
-/** Editor for Ruleset.exclusions */
+/** Editor for Setting.exclusions */
 export function ExclusionsEditor({
   value,
   onChange,
@@ -340,7 +340,7 @@ export function ExclusionsEditor({
   );
 }
 
-/** Editor for Ruleset.overrides */
+/** Editor for Setting.overrides */
 export function OverridesEditor({
   value,
   onChange,

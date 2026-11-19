@@ -170,9 +170,9 @@ func resourceOf(msg proto.Message) string {
 		return row.GetId()
 	case *securitypb.SecRule:
 		return row.GetOwner().GetResourceId()
-	case *securitypb.RateLimit:
+	case *securitypb.SecRateLimit:
 		return row.GetOwner().GetResourceId()
-	case *securitypb.Ruleset:
+	case *securitypb.SecRuleset:
 		return row.GetOwner().GetResourceId()
 	case *tenantpb.CaCertificate:
 		return row.GetOwner().GetResourceId()
@@ -299,13 +299,13 @@ func (c *CentralSink) security(id string, base *edgepb.Security,
 		})
 	}
 
-	for _, msg := range c.sorted(sztable.SecurityRateLimits, id) {
+	for _, msg := range c.sorted(sztable.SecuritySecRateLimits, id) {
 		sec.Limiters = append(sec.Limiters, rateLimitOf(
-			msg.(*securitypb.RateLimit)))
+			msg.(*securitypb.SecRateLimit)))
 	}
 
-	for _, msg := range c.sorted(sztable.SecurityRulesets, id) {
-		sec.Ruleset = msg.(*securitypb.Ruleset).GetRuleset()
+	for _, msg := range c.sorted(sztable.SecuritySecRulesets, id) {
+		sec.Ruleset = msg.(*securitypb.SecRuleset).GetSetting()
 
 		break
 	}
@@ -362,7 +362,7 @@ func secRuleOf(row securityRow) *secrulepb.SecRule {
 	}
 }
 
-func rateLimitOf(row *securitypb.RateLimit) *edgepb.RateLimit {
+func rateLimitOf(row *securitypb.SecRateLimit) *edgepb.RateLimit {
 	return &edgepb.RateLimit{
 		Ingress:     secRuleOf(row),
 		TimeWindow:  row.GetTimeWindow(),

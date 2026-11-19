@@ -1,13 +1,13 @@
 ---
 name: console-page
 description: Conventions for adding or changing pages in ui/apps/console (list / create / detail pages, sidebar tabs, loading effect, centred page layout, shared form and toolbar components). Read BEFORE writing or refactoring any page.tsx, view.tsx or loading.tsx under ui/apps/console/app, e.g. "implement trang ...", "tạo trang list/create/edit", or a new sidebar tab.
-argument-hint: '<route> (e.g. security/rate-limiter)'
+argument-hint: '<route> (e.g. security/sec-rate-limit)'
 ---
 
 # Console page conventions
 
 Reference implementations: `app/d/console/[domain]/security/sec-rule/` and
-`app/d/console/[domain]/security/rate-limiter/`.
+`app/d/console/[domain]/security/sec-rate-limit/`.
 For the API client the page calls, follow the `swagger-api-client` skill first.
 
 ## 1. Sidebar-tab pages MUST show the loading effect

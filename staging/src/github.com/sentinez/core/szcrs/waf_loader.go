@@ -124,7 +124,7 @@ var _versionGroups = map[rulesetpb.Version]versionGroups{
 // directives) loaded into coraza. A setting that is not active, or with
 // the engine off, maps to a rule engine without any ruleset.
 func GenerateRulesets(
-	version rulesetpb.Version, setting *rulesetpb.Ruleset,
+	version rulesetpb.Version, setting *rulesetpb.Setting,
 ) (string, error) {
 	if !settingEnabled(setting) {
 		return "SecRuleEngine Off\n", nil
@@ -151,7 +151,7 @@ func GenerateRulesets(
 func loadRulesets(
 	rulesets *RulesetsLoader,
 	groups versionGroups,
-	setting *rulesetpb.Ruleset,
+	setting *rulesetpb.Setting,
 ) {
 	flag := FlagOf(setting.GetCategories())
 

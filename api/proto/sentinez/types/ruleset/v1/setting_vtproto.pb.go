@@ -21,7 +21,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-func (m *Ruleset) MarshalVT() (dAtA []byte, err error) {
+func (m *Setting) MarshalVT() (dAtA []byte, err error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -34,12 +34,12 @@ func (m *Ruleset) MarshalVT() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *Ruleset) MarshalToVT(dAtA []byte) (int, error) {
+func (m *Setting) MarshalToVT(dAtA []byte) (int, error) {
 	size := m.SizeVT()
 	return m.MarshalToSizedBufferVT(dAtA[:size])
 }
 
-func (m *Ruleset) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
+func (m *Setting) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m == nil {
 		return 0, nil
 	}
@@ -530,7 +530,7 @@ func (m *RuleInfo) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *Ruleset) SizeVT() (n int) {
+func (m *Setting) SizeVT() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -740,7 +740,7 @@ func (m *RuleInfo) SizeVT() (n int) {
 	return n
 }
 
-func (m *Ruleset) UnmarshalVT(dAtA []byte) error {
+func (m *Setting) UnmarshalVT(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -763,10 +763,10 @@ func (m *Ruleset) UnmarshalVT(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: Ruleset: wiretype end group for non-group")
+			return fmt.Errorf("proto: Setting: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: Ruleset: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: Setting: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:

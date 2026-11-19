@@ -76,11 +76,11 @@ func TestUpdateRateLimitValidatesTheResult(t *testing.T) {
 	stored.MaxRequests, stored.TimeWindow = 10, "1m"
 
 	// max_requests cleared: the rule left has none
-	_, err := f.svc.UpdateRateLimit(portalUser(t),
-		&securitypb.UpdateRateLimitRequest{
-			Id:         _ruleId,
-			RateLimit:  &securitypb.RateLimit{Name: "api"},
-			UpdateMask: maskOf(securitypb.RateLimit_MaxRequests),
+	_, err := f.svc.UpdateSecRateLimit(portalUser(t),
+		&securitypb.UpdateSecRateLimitRequest{
+			Id:           _ruleId,
+			Secratelimit: &securitypb.SecRateLimit{Name: "api"},
+			UpdateMask:   maskOf(securitypb.SecRateLimit_MaxRequests),
 		})
 
 	assert.Equal(t, codes.InvalidArgument, status.Code(err))

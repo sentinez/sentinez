@@ -2,7 +2,7 @@
 
 import { Input } from '@sentinez/ui/components/input';
 import { Label } from '@sentinez/ui/components/label';
-import { RateLimit } from '@sentinez/proto/sentinez/apps/security/v1/model';
+import { SecRateLimit } from '@sentinez/proto/sentinez/apps/security/v1/model';
 import { ActionType } from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
@@ -33,8 +33,8 @@ export function createEmptyRateLimitForm(): RateLimitFormValue {
   return { ...createEmptySecRuleForm(), timeWindow: '1m', maxRequests: 100, timeout: '' };
 }
 
-/** RateLimit (API) -> form value */
-export function rateLimitFormOf(rl: RateLimit): RateLimitFormValue {
+/** SecRateLimit (API) -> form value */
+export function rateLimitFormOf(rl: SecRateLimit): RateLimitFormValue {
   return {
     ...secRuleFormOf(rl),
     timeWindow: rl.timeWindow,
@@ -43,8 +43,8 @@ export function rateLimitFormOf(rl: RateLimit): RateLimitFormValue {
   };
 }
 
-/** Form value -> RateLimit (API) */
-export function rateLimitOf(f: RateLimitFormValue, id = ''): RateLimit {
+/** Form value -> SecRateLimit (API) */
+export function rateLimitOf(f: RateLimitFormValue, id = ''): SecRateLimit {
   return {
     ...secRuleOf(f, id),
     timeWindow: f.timeWindow.trim(),

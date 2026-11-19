@@ -45,7 +45,7 @@ type RulesetsLoader struct {
 
 // NewRulesetsLoader returns a loader applying the rule overrides of the
 // setting to the rules it loads.
-func NewRulesetsLoader(setting *rulesetpb.Ruleset) *RulesetsLoader {
+func NewRulesetsLoader(setting *rulesetpb.Setting) *RulesetsLoader {
 	return &RulesetsLoader{
 		ids:    make(map[uint32]struct{}),
 		states: ruleStates(setting),

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rulesets
+package secrulesets
 
 import (
 	"fmt"
@@ -49,7 +49,7 @@ type Rulesets struct {
 }
 
 func (rs *Rulesets) Store(
-	namespace string, setting *rulesetpb.Ruleset,
+	namespace string, setting *rulesetpb.Setting,
 ) error {
 
 	if rs == nil {
@@ -93,7 +93,7 @@ func (rs *Rulesets) LoadContext(ctx szhttp.Context) (coraza.WAF, bool) {
 
 // newWAF builds the coraza.WAF of setting from the embedded CRS of its
 // version.
-func newWAF(setting *rulesetpb.Ruleset) (coraza.WAF, error) {
+func newWAF(setting *rulesetpb.Setting) (coraza.WAF, error) {
 	rootFs, err := crsMap(setting.GetVersion())
 	if err != nil {
 		return nil, err

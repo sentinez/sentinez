@@ -26,8 +26,8 @@ import (
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/envplugin"
-	"github.com/sentinez/sentinez/internal/memory/rulesets"
-	rulesetpool "github.com/sentinez/sentinez/pkg/pools/ruleset"
+	"github.com/sentinez/sentinez/internal/memory/secrulesets"
+	secrulesetpool "github.com/sentinez/sentinez/pkg/pools/secruleset"
 )
 
 // WAFId is the chain stage name of WAF.
@@ -40,14 +40,14 @@ var (
 
 type Rulesets struct {
 	log   szlog.LogCloser
-	store *rulesets.Rulesets
+	store *secrulesets.Rulesets
 }
 
 func (*Rulesets) ID() string { return WAFId }
 
 func (rs *Rulesets) Provision(env *envplugin.Env) error {
 	rs.store = env.Store().Rulesets()
-	rs.log = env.Logger(typepb.LogType_LOG_TYPE_RULESETS)
+	rs.log = env.Logger(typepb.LogType_LOG_TYPE_SECRULESET)
 	return nil
 }
 
@@ -96,7 +96,7 @@ func (rs *Rulesets) capture(ctx szhttp.Context, ruleset *szcrs.Rulesets) {
 		return
 	}
 
-	event := rulesetpool.Acquire()
+	event := secrulesetpool.Acquire()
 	fillDetections(event, matched, it.RuleID)
 
 	event.Behavior = rulepb.RuleBehavior_RULE_BEHAVIOR_LOG
@@ -106,7 +106,7 @@ func (rs *Rulesets) capture(ctx szhttp.Context, ruleset *szcrs.Rulesets) {
 
 	inbound, outbound := ruleset.AnomalyScore()
 	event.TotalScore = int32(inbound + outbound)
-	event.Service = rulepb.RuleService_RULE_SERVICE_RULESETS
+	event.Service = rulepb.RuleService_RULE_SERVICE_SECRULESET
 	event.MatchedTime = ctx.RequestTime().UnixMilli()
 
 	event.RequestId = ctx.RequestId()
@@ -124,7 +124,7 @@ func (rs *Rulesets) capture(ctx szhttp.Context, ruleset *szcrs.Rulesets) {
 // fillDetections sets the detecting rules of event: the matched rules with
 // a message, but the framework rules and the interrupting rule.
 func fillDetections(
-	event *rulesetpool.RulesetEvent,
+	event *secrulesetpool.SecRulesetEvent,
 	matched []types.MatchedRule,
 	interruptId int,
 ) {

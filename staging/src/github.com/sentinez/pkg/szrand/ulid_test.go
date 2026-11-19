@@ -38,8 +38,8 @@ func eventMsgs() []proto.Message {
 			Id:        NewULID(szprefix.SecRuleEvent),
 			RequestId: reqId,
 		},
-		&rulesetpb.RulesetEvent{
-			Id:        NewULID(szprefix.RulesetEvent),
+		&rulesetpb.SecRulesetEvent{
+			Id:        NewULID(szprefix.SecRulesetEvent),
 			RequestId: reqId,
 		},
 	}

@@ -15,14 +15,14 @@ kafka:
               otlp_logs: opentelemetry.proto.logs.v1.LogsData
               sentinez.event.http.ingress.otlp: opentelemetry.proto.logs.v1.LogsData
               sentinez.event.http.egress.otlp: opentelemetry.proto.logs.v1.LogsData
-              sentinez.event.http.rulesets.otlp: opentelemetry.proto.logs.v1.LogsData
+              sentinez.event.http.secruleset.otlp: opentelemetry.proto.logs.v1.LogsData
               sentinez.event.http.secrule.otlp: opentelemetry.proto.logs.v1.LogsData
-              sentinez.event.http.ratelimit.otlp: opentelemetry.proto.logs.v1.LogsData
+              sentinez.event.http.secratelimit.otlp: opentelemetry.proto.logs.v1.LogsData
               sentinez.event.http.cdnrule.otlp: opentelemetry.proto.logs.v1.LogsData
               sentinez.event.http.ingress: sentinez.types.net.http.v1.IngressEvent
               sentinez.event.http.egress: sentinez.types.net.http.v1.EgressEvent
-              sentinez.event.http.rulesets: sentinez.types.ruleset.v1.RulesetEvent
+              sentinez.event.http.secruleset: sentinez.types.ruleset.v1.SecRulesetEvent
               sentinez.event.http.secrule: sentinez.types.secrule.v1.SecRuleEvent
-              sentinez.event.http.ratelimit: sentinez.types.secrule.v1.SecRuleEvent
+              sentinez.event.http.secratelimit: sentinez.types.secrule.v1.SecRuleEvent
               otlp_spans: opentelemetry.proto.trace.v1.TracesData
               otlp_metrics: opentelemetry.proto.metrics.v1.MetricsData

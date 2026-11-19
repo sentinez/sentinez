@@ -66,7 +66,7 @@ Scaffolding for each layer lives in `hack/.agent/skills/` (`create-service`,
 Table names ([pkg/sztable](../staging/src/github.com/sentinez/pkg/sztable/tables.go)):
 `iam.users`, `iam.accounts`, `tenant.resources`, `analytic.activities`,
 `security.secrules`, and the edge event tables `analytic.secrules.events`,
-`analytic.ratelimiters.events`, `analytic.rulesets.events`,
+`analytic.secratelimits.events`, `analytic.secrulesets.events`,
 `analytic.httpingress.events`, `analytic.httpegress.events` (see
 [Collector](#collector-edge-event-ingest)).
 
@@ -164,7 +164,7 @@ caller on every call, so a change of role applies at once.
 | Needs | Role (or above) | Calls |
 |---|---|---|
 | read | `MEMBER` | get a tenant, its members, resources, rules and events |
-| write | `LEADER` | create/update/delete a resource, SecRule, RateLimit, Ruleset |
+| write | `LEADER` | create/update/delete a resource, SecRule, SecRateLimit, SecRuleset |
 | manage | `ADMIN` | update/delete a tenant, create/update/delete a member |
 | billing | `SUPER_ADMIN` | change the `plan` of a tenant (what it pays for) |
 
@@ -407,8 +407,8 @@ record and writes the fields its `update_mask` names (see
 
 ### Updates and their update_mask
 
-`UpdateResource`, `UpdateTenant`, `UpdateSecRule`, `UpdateRateLimit` and
-`UpdateRuleset` take the model (`resource`, `tenant`, `secrule`, ...)
+`UpdateResource`, `UpdateTenant`, `UpdateSecRule`, `UpdateSecRateLimit` and
+`UpdateSecRuleset` take the model (`resource`, `tenant`, `secrule`, ...)
 and a `google.protobuf.FieldMask` `update_mask`, read as AIP-134 reads it:
 
 - no path: the fields set in the model (an implied mask)
@@ -438,7 +438,7 @@ field (`roles`, `full_name`) and take no mask.
 ### CentralData: sync of the tables to the edges
 
 `szcentraldata` keeps the tables of `SENZ_SYNC_TABLES` (default:
-`security.secrules`, `security.ratelimits`, `security.rulesets`,
+`security.secrules`, `security.secratelimits`, `security.secrulesets`,
 `tenant.resources`, `tenant.cacertificates`) in go-memdb, and the leader
 edge of each zone follows it for the others:
 
@@ -533,8 +533,8 @@ batches, in the analytic event tables.
 | Topic | Record value | Table | Repository |
 |---|---|---|---|
 | `sentinez.event.http.secrule` | `secrulepb.SecRuleEvent` | `analytic.secrules.events` | `secruleeventsrepo.NewSecRules` |
-| `sentinez.event.http.ratelimit` | `secrulepb.SecRuleEvent` | `analytic.ratelimiters.events` | `secruleeventsrepo.NewRateLimits` |
-| `sentinez.event.http.rulesets` | `rulesetpb.RulesetEvent` | `analytic.rulesets.events` | `ruleseteventsrepo.New` |
+| `sentinez.event.http.secratelimit` | `secrulepb.SecRuleEvent` | `analytic.secratelimits.events` | `secruleeventsrepo.NewSecRateLimits` |
+| `sentinez.event.http.secruleset` | `rulesetpb.SecRulesetEvent` | `analytic.secrulesets.events` | `secruleseteventsrepo.New` |
 | `sentinez.event.http.ingress` | `httppb.IngressEvent` (one per request, from the `logging` handler) | `analytic.httpingress.events` | `httpingresseventrepo.New` |
 | `sentinez.event.http.egress` | `httppb.EgressEvent` (one per request proxied to its upstream origin, from the `logging` handler) | `analytic.httpegress.events` | `httpegresseventsrepo.New` |
 
@@ -563,14 +563,14 @@ repositories insert with `ON CONFLICT (id, <time column>) DO NOTHING` (see
 replayed batch stores no duplicate.
 
 Tables ([pkg/schema/analytic.go](../staging/src/github.com/sentinez/controlplane/pkg/schema/analytic.go):
-`AnalyticSecRulesEvent`, `AnalyticRateLimiterEvent`,
-`AnalyticRulesetsEvent`, `AnalyticHttpIngressEvent`,
+`AnalyticSecRulesEvent`, `AnalyticSecRateLimitsEvent`,
+`AnalyticSecRulesetsEvent`, `AnalyticHttpIngressEvent`,
 `AnalyticHttpEgressEvent`) take the fields of
 the Kafka messages: arrays as `TEXT[]`/`INTEGER[]`, `action` and `tags` as
 `JSONB`, enums as `INTEGER`, `matched_time` (milliseconds) as `BIGINT`,
 with `BTREE` indexes on the time column, a composite index on
 `(resource_id, <time>)`, and `request_id` on the rule event tables
-(`secruleEvents` and `AnalyticRulesetsEvent`; HTTP tables are covered
+(`secruleEvents` and `AnalyticSecRulesetsEvent`; HTTP tables are covered
 by their unique `(id, time)` index). The ingress table
 has the scalar fields of `httppb.IngressEvent` (`status` `INTEGER`, `asn` and
 `timestamp`, in milliseconds, `BIGINT`, the others `TEXT`, headers without
@@ -699,8 +699,8 @@ Building it syncs the tables and views, as the collector does.
 | `ListHttpIngressEvents` | `GET /analytic/events/http-ingress` | `analytic.httpingress.events` |
 | `ListHttpEgressEvents` | `GET /analytic/events/http-egress` | `analytic.httpegress.events` |
 | `ListSecRuleEvents` | `GET /analytic/events/secrule` | `analytic.secrules.events` |
-| `ListRateLimitEvents` | `GET /analytic/events/ratelimit` | `analytic.ratelimiters.events` |
-| `ListRulesetEvents` | `GET /analytic/events/ruleset` | `analytic.rulesets.events` |
+| `ListSecRateLimitEvents` | `GET /analytic/events/secratelimit` | `analytic.secratelimits.events` |
+| `ListSecRulesetEvents` | `GET /analytic/events/secruleset` | `analytic.secrulesets.events` |
 | `GetEventHistogram` | `GET /analytic/events/histogram` | the views or table of `kind` |
 | `GetEventTopValues` | `GET /analytic/events/top-values` | the table of `kind` |
 | `GetEgressLatency` | `GET /analytic/events/http-egress/latency` | `analytic.httpegress.events` |
@@ -732,7 +732,7 @@ The sinks decode into recycled messages
 | Package | Message | Sinks |
 |---|---|---|
 | `pools/secrule` | `secrulepb.SecRuleEvent` | secrule, ratelimit |
-| `pools/ruleset` | `rulesetpb.RulesetEvent` | rulesets |
+| `pools/secruleset` | `rulesetpb.SecRulesetEvent` | rulesets |
 | `pools/httpingress` | `httppb.IngressEvent` | ingress |
 | `pools/httpegress` | `httppb.EgressEvent` | egress |
 

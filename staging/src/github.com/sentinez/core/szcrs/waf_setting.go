@@ -89,7 +89,7 @@ func FlagOf(categories []rulesetpb.Category) Flag {
 }
 
 // settingEnabled reports whether the setting turns the rule engine on.
-func settingEnabled(s *rulesetpb.Ruleset) bool {
+func settingEnabled(s *rulesetpb.Setting) bool {
 	if s.GetStatus() != typepb.Status_STATUS_ACTIVE {
 		return false
 	}
@@ -104,14 +104,14 @@ func settingEnabled(s *rulesetpb.Ruleset) bool {
 }
 
 // blockingLevel tx.blocking_paranoia_level, 0 = default (1).
-func blockingLevel(s *rulesetpb.Ruleset) uint32 {
+func blockingLevel(s *rulesetpb.Setting) uint32 {
 	return max(s.GetParanoiaLevel(), 1)
 }
 
 // ruleStates global (not expression scoped) rule state overrides by rule
 // ID.
 func ruleStates(
-	s *rulesetpb.Ruleset,
+	s *rulesetpb.Setting,
 ) map[uint32]rulesetpb.RuleState {
 	states := make(map[uint32]rulesetpb.RuleState, len(s.GetOverrides()))
 
@@ -124,7 +124,7 @@ func ruleStates(
 	return states
 }
 
-func validateSetting(s *rulesetpb.Ruleset) error {
+func validateSetting(s *rulesetpb.Setting) error {
 	if err := validateRequest(s.GetRequest()); err != nil {
 		return err
 	}
@@ -204,7 +204,7 @@ func validateOverride(o *rulesetpb.RuleOverride) error {
 // setupDirectives maps the setting to the directives overriding setup.conf
 // plus the exclusions and overrides scoped to an expression. They are
 // loaded after the setup rules and before REQUEST-901-INITIALIZATION.
-func setupDirectives(s *rulesetpb.Ruleset) string {
+func setupDirectives(s *rulesetpb.Setting) string {
 	var sb strings.Builder
 
 	engine := "On"
@@ -241,7 +241,7 @@ func writeRequestPolicy(sb *strings.Builder, r *rulesetpb.RequestPolicy) {
 }
 
 // setupVars setvar actions overriding the CRS setup variables.
-func setupVars(s *rulesetpb.Ruleset) []string {
+func setupVars(s *rulesetpb.Setting) []string {
 	level := blockingLevel(s)
 	vars := []string{
 		fmt.Sprintf("setvar:tx.blocking_paranoia_level=%d", level),
@@ -297,7 +297,7 @@ func thresholdVars(t *rulesetpb.AnomalyThreshold) []string {
 
 // writeScopedRules exclusions and overrides scoped to an expression are
 // applied per transaction with ctl actions.
-func writeScopedRules(sb *strings.Builder, s *rulesetpb.Ruleset) {
+func writeScopedRules(sb *strings.Builder, s *rulesetpb.Setting) {
 	id := _scopedRuleId
 
 	write := func(expr *rulepb.Expression, ctls []string) {
@@ -425,7 +425,7 @@ func exclusionCtls(e *rulesetpb.Exclusion) []string {
 // defined, so they are loaded after every ruleset; loaded reports whether
 // a rule ID is part of the loaded rulesets.
 func globalDirectives(
-	s *rulesetpb.Ruleset, loaded func(id uint32) bool,
+	s *rulesetpb.Setting, loaded func(id uint32) bool,
 ) string {
 	var sb strings.Builder
 

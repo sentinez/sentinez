@@ -48,7 +48,7 @@ message SecRule {
   string expr_preview = 10 [(sentinez.types.v1.x_field).ignore = true];
 }
 
-message RateLimit {
+message SecRateLimit {
   option (sentinez.types.v1.x_message) = {
     database_model: true
     scanner: true
@@ -58,7 +58,7 @@ message RateLimit {
 
   string id = 2 [(buf.validate.field) = {
     required: true
-    string: {prefix: "rlim_"}
+    string: {prefix: "srlim_"}
   }];
 
   string name = 3;
@@ -90,7 +90,7 @@ message ActionValue {
   map<string, string> map_value = 2;
 }
 
-message Ruleset {
+message SecRuleset {
   option (sentinez.types.v1.x_message) = {
     database_model: true
     scanner: true
@@ -100,11 +100,11 @@ message Ruleset {
 
   string id = 2 [(buf.validate.field) = {
     required: true
-    string: {prefix: "rs_"}
+    string: {prefix: "srs_"}
   }];
 
   string name = 3;
   string description = 4;
 
-  sentinez.types.ruleset.v1.Ruleset ruleset = 5 [(sentinez.types.v1.x_field).codec = COLUMN_CODEC_PROTOJSON];
+  sentinez.types.ruleset.v1.Setting setting = 5 [(sentinez.types.v1.x_field).codec = COLUMN_CODEC_PROTOJSON];
 }

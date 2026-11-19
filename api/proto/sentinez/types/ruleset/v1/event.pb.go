@@ -38,7 +38,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type RulesetEvent struct {
+type SecRulesetEvent struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	MatchedRuleIds []int32                `protobuf:"varint,2,rep,packed,name=matched_rule_ids,json=matchedRuleIds,proto3" json:"matched_rule_ids,omitempty"`
@@ -60,20 +60,20 @@ type RulesetEvent struct {
 	sizeCache      protoimpl.SizeCache
 }
 
-func (x *RulesetEvent) Reset() {
-	*x = RulesetEvent{}
+func (x *SecRulesetEvent) Reset() {
+	*x = SecRulesetEvent{}
 	mi := &file_sentinez_types_ruleset_v1_event_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RulesetEvent) String() string {
+func (x *SecRulesetEvent) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RulesetEvent) ProtoMessage() {}
+func (*SecRulesetEvent) ProtoMessage() {}
 
-func (x *RulesetEvent) ProtoReflect() protoreflect.Message {
+func (x *SecRulesetEvent) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_types_ruleset_v1_event_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -85,117 +85,117 @@ func (x *RulesetEvent) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RulesetEvent.ProtoReflect.Descriptor instead.
-func (*RulesetEvent) Descriptor() ([]byte, []int) {
+// Deprecated: Use SecRulesetEvent.ProtoReflect.Descriptor instead.
+func (*SecRulesetEvent) Descriptor() ([]byte, []int) {
 	return file_sentinez_types_ruleset_v1_event_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *RulesetEvent) GetId() string {
+func (x *SecRulesetEvent) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *RulesetEvent) GetMatchedRuleIds() []int32 {
+func (x *SecRulesetEvent) GetMatchedRuleIds() []int32 {
 	if x != nil {
 		return x.MatchedRuleIds
 	}
 	return nil
 }
 
-func (x *RulesetEvent) GetSeverities() []string {
+func (x *SecRulesetEvent) GetSeverities() []string {
 	if x != nil {
 		return x.Severities
 	}
 	return nil
 }
 
-func (x *RulesetEvent) GetMessages() []string {
+func (x *SecRulesetEvent) GetMessages() []string {
 	if x != nil {
 		return x.Messages
 	}
 	return nil
 }
 
-func (x *RulesetEvent) GetTotalScore() int32 {
+func (x *SecRulesetEvent) GetTotalScore() int32 {
 	if x != nil {
 		return x.TotalScore
 	}
 	return 0
 }
 
-func (x *RulesetEvent) GetMatchedTime() int64 {
+func (x *SecRulesetEvent) GetMatchedTime() int64 {
 	if x != nil {
 		return x.MatchedTime
 	}
 	return 0
 }
 
-func (x *RulesetEvent) GetResourceId() string {
+func (x *SecRulesetEvent) GetResourceId() string {
 	if x != nil {
 		return x.ResourceId
 	}
 	return ""
 }
 
-func (x *RulesetEvent) GetTenantId() string {
+func (x *SecRulesetEvent) GetTenantId() string {
 	if x != nil {
 		return x.TenantId
 	}
 	return ""
 }
 
-func (x *RulesetEvent) GetService() v1.RuleService {
+func (x *SecRulesetEvent) GetService() v1.RuleService {
 	if x != nil {
 		return x.Service
 	}
 	return v1.RuleService(0)
 }
 
-func (x *RulesetEvent) GetRequestIp() string {
+func (x *SecRulesetEvent) GetRequestIp() string {
 	if x != nil {
 		return x.RequestIp
 	}
 	return ""
 }
 
-func (x *RulesetEvent) GetRequestDomain() string {
+func (x *SecRulesetEvent) GetRequestDomain() string {
 	if x != nil {
 		return x.RequestDomain
 	}
 	return ""
 }
 
-func (x *RulesetEvent) GetRequestScheme() string {
+func (x *SecRulesetEvent) GetRequestScheme() string {
 	if x != nil {
 		return x.RequestScheme
 	}
 	return ""
 }
 
-func (x *RulesetEvent) GetRequestPath() string {
+func (x *SecRulesetEvent) GetRequestPath() string {
 	if x != nil {
 		return x.RequestPath
 	}
 	return ""
 }
 
-func (x *RulesetEvent) GetRequestQuery() string {
+func (x *SecRulesetEvent) GetRequestQuery() string {
 	if x != nil {
 		return x.RequestQuery
 	}
 	return ""
 }
 
-func (x *RulesetEvent) GetRequestId() string {
+func (x *SecRulesetEvent) GetRequestId() string {
 	if x != nil {
 		return x.RequestId
 	}
 	return ""
 }
 
-func (x *RulesetEvent) GetBehavior() v1.RuleBehavior {
+func (x *SecRulesetEvent) GetBehavior() v1.RuleBehavior {
 	if x != nil {
 		return x.Behavior
 	}
@@ -206,8 +206,8 @@ var File_sentinez_types_ruleset_v1_event_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_ruleset_v1_event_proto_rawDesc = "" +
 	"\n" +
-	"%sentinez/types/ruleset/v1/event.proto\x12\x19sentinez.types.ruleset.v1\x1a\x1bbuf/validate/validate.proto\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1fsentinez/types/v1/options.proto\"\xd3\x05\n" +
-	"\fRulesetEvent\x12F\n" +
+	"%sentinez/types/ruleset/v1/event.proto\x12\x19sentinez.types.ruleset.v1\x1a\x1bbuf/validate/validate.proto\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1fsentinez/types/v1/options.proto\"\xd6\x05\n" +
+	"\x0fSecRulesetEvent\x12F\n" +
 	"\x02id\x18\x01 \x01(\tB6\xbaH3r12/^([a-zA-Z0-9-]+-)?rsevt_[0-9A-HJKMNP-TV-Z]{26}$R\x02id\x12(\n" +
 	"\x10matched_rule_ids\x18\x02 \x03(\x05R\x0ematchedRuleIds\x12\x1e\n" +
 	"\n" +
@@ -246,13 +246,13 @@ func file_sentinez_types_ruleset_v1_event_proto_rawDescGZIP() []byte {
 
 var file_sentinez_types_ruleset_v1_event_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_sentinez_types_ruleset_v1_event_proto_goTypes = []any{
-	(*RulesetEvent)(nil), // 0: sentinez.types.ruleset.v1.RulesetEvent
-	(v1.RuleService)(0),  // 1: sentinez.types.rule.v1.RuleService
-	(v1.RuleBehavior)(0), // 2: sentinez.types.rule.v1.RuleBehavior
+	(*SecRulesetEvent)(nil), // 0: sentinez.types.ruleset.v1.SecRulesetEvent
+	(v1.RuleService)(0),     // 1: sentinez.types.rule.v1.RuleService
+	(v1.RuleBehavior)(0),    // 2: sentinez.types.rule.v1.RuleBehavior
 }
 var file_sentinez_types_ruleset_v1_event_proto_depIdxs = []int32{
-	1, // 0: sentinez.types.ruleset.v1.RulesetEvent.service:type_name -> sentinez.types.rule.v1.RuleService
-	2, // 1: sentinez.types.ruleset.v1.RulesetEvent.behavior:type_name -> sentinez.types.rule.v1.RuleBehavior
+	1, // 0: sentinez.types.ruleset.v1.SecRulesetEvent.service:type_name -> sentinez.types.rule.v1.RuleService
+	2, // 1: sentinez.types.ruleset.v1.SecRulesetEvent.behavior:type_name -> sentinez.types.rule.v1.RuleBehavior
 	2, // [2:2] is the sub-list for method output_type
 	2, // [2:2] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name

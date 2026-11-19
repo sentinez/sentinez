@@ -1,4 +1,4 @@
-// Copyright 2026 Duc-Hung Ho.
+// Copyright 2026 Sentinéz Labs.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,27 +12,43 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package ruleset pools the ruleset events of the collector.
-package ruleset
+package secruleset
 
 import (
-	"github.com/sentinez/controlplane/pkg/pools"
+	"io"
+
+	"github.com/sentinez/pkg/szprefix"
+	"github.com/sentinez/pkg/szrand"
+	"github.com/sentinez/pkg/szsync"
 	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 )
 
-var _pool = pools.New(rulesetpb.RulesetEventFromVTPool)
+var (
+	_ io.Closer = (*SecRulesetEvent)(nil)
 
-// Pool returns the pool of the rulesetpb.RulesetEvent.
-func Pool() *pools.Pool[rulesetpb.RulesetEvent, *rulesetpb.RulesetEvent] {
-	return _pool
+	_pool = szsync.NewPoolCtr(func() *SecRulesetEvent {
+		return &SecRulesetEvent{SecRulesetEvent: &rulesetpb.SecRulesetEvent{}}
+	})
+)
+
+type SecRulesetEvent struct {
+	*rulesetpb.SecRulesetEvent
 }
 
-// Acquire returns a cleared rulesetpb.RulesetEvent.
-func Acquire() *rulesetpb.RulesetEvent {
-	return _pool.Acquire()
+func (re *SecRulesetEvent) Close() error {
+	Release(re)
+
+	return nil
 }
 
-// Release resets obj and puts it back in the pool.
-func Release(obj *rulesetpb.RulesetEvent) {
-	_pool.Release(obj)
+func Acquire() *SecRulesetEvent {
+	obj := _pool.Get()
+	obj.Id = szrand.NewULID(szprefix.SecRulesetEvent)
+
+	return obj
+}
+
+func Release(obj *SecRulesetEvent) {
+	obj.ResetVT()
+	_pool.Put(obj)
 }

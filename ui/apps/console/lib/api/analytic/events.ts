@@ -9,19 +9,19 @@ import {
   GetEventTopValuesResponse,
   type HistogramPoint,
   type UpstreamLatency,
-  ListRulesetEventsRequest,
-  ListRulesetEventsResponse,
+  ListSecRulesetEventsRequest,
+  ListSecRulesetEventsResponse,
   ListHttpEgressEventsRequest,
   ListHttpEgressEventsResponse,
   ListHttpIngressEventsRequest,
   ListHttpIngressEventsResponse,
-  ListRateLimitEventsRequest,
-  ListRateLimitEventsResponse,
+  ListSecRateLimitEventsRequest,
+  ListSecRateLimitEventsResponse,
   ListSecRuleEventsRequest,
   ListSecRuleEventsResponse,
 } from '@sentinez/proto/sentinez/apps/analytic/v1/event';
 import { HistogramResolution } from '@sentinez/proto/sentinez/types/v1/known';
-import type { RulesetEvent } from '@sentinez/proto/sentinez/types/ruleset/v1/event';
+import type { SecRulesetEvent } from '@sentinez/proto/sentinez/types/ruleset/v1/event';
 import type { EgressEvent, IngressEvent } from '@sentinez/proto/sentinez/types/net/http/v1/event';
 import { ActionType, RuleBehavior, RuleService } from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import type { SecRuleEvent } from '@sentinez/proto/sentinez/types/secrule/v1/event';
@@ -224,7 +224,7 @@ function sampleRateLimitOf(e: IngressEvent): SecRuleEvent | null {
     matchedSecruleIds: [SAMPLE_RATELIMIT_ID],
     messages: ['client ip over 100 requests / minute'],
     action: { type: ActionType.ACTION_TYPE_BLOCK },
-    service: RuleService.RULE_SERVICE_RATE_LIMIT,
+    service: RuleService.RULE_SERVICE_SECRATELIMIT,
     tags: {},
   };
 }
@@ -245,7 +245,7 @@ function sampleRulesOf(e: IngressEvent): SampleRule[] {
 
 // The ruleset match of a sample request: denied over the threshold, else
 // only logged
-function sampleRulesetOf(e: IngressEvent): RulesetEvent | null {
+function sampleRulesetOf(e: IngressEvent): SecRulesetEvent | null {
   const rules = sampleRulesOf(e);
   if (rules.length === 0) return null;
   const totalScore = rules.reduce((total, r) => total + SEVERITY_SCORE[r.severity], 0);
@@ -256,7 +256,7 @@ function sampleRulesetOf(e: IngressEvent): RulesetEvent | null {
     severities: rules.map((r) => r.severity),
     messages: rules.map((r) => r.message),
     totalScore,
-    service: RuleService.RULE_SERVICE_RULESETS,
+    service: RuleService.RULE_SERVICE_SECRULESET,
     behavior:
       totalScore >= SAMPLE_INBOUND_THRESHOLD
         ? RuleBehavior.RULE_BEHAVIOR_DENY
@@ -320,7 +320,7 @@ function sampleRecordsOf(kind: EventKind, requests: IngressEvent[]): SampleRecor
           },
         }));
     case EventKind.EVENT_KIND_SECRULE:
-    case EventKind.EVENT_KIND_RATE_LIMIT:
+    case EventKind.EVENT_KIND_SECRATELIMIT:
       return requests
         .map(kind === EventKind.EVENT_KIND_SECRULE ? sampleSecRuleOf : sampleRateLimitOf)
         .filter(present)
@@ -336,7 +336,7 @@ function sampleRecordsOf(kind: EventKind, requests: IngressEvent[]): SampleRecor
             request_path: e.requestPath,
           },
         }));
-    case EventKind.EVENT_KIND_RULESET:
+    case EventKind.EVENT_KIND_SECRULESET:
       return requests
         .map(sampleRulesetOf)
         .filter(present)
@@ -538,20 +538,20 @@ export async function listSecRuleEvents(
   );
 }
 
-// GET /analytic/events/ratelimit
-export async function listRateLimitEvents(
-  req: Partial<ListRateLimitEventsRequest> = {},
+// GET /analytic/events/secratelimit
+export async function listSecRateLimitEvents(
+  req: Partial<ListSecRateLimitEventsRequest> = {},
   options?: ApiOptions,
-): Promise<ListRateLimitEventsResponse> {
-  const full = ListRateLimitEventsRequest.fromPartial(req);
+): Promise<ListSecRateLimitEventsResponse> {
+  const full = ListSecRateLimitEventsRequest.fromPartial(req);
   return getJSON(
-    '/analytic/events/ratelimit',
+    '/analytic/events/secratelimit',
     full,
-    { req: ListRateLimitEventsRequest, resp: ListRateLimitEventsResponse },
+    { req: ListSecRateLimitEventsRequest, resp: ListSecRateLimitEventsResponse },
     () => ({
       events: paginate(
         sampleIngressRange(full)
-          .filter(ofFilters(EventKind.EVENT_KIND_RATE_LIMIT, full.filters))
+          .filter(ofFilters(EventKind.EVENT_KIND_SECRATELIMIT, full.filters))
           .map(sampleRateLimitOf)
           .filter(present)
           .filter(ofRequests(full.requestIds, (e) => e.requestId)),
@@ -562,20 +562,20 @@ export async function listRateLimitEvents(
   );
 }
 
-// GET /analytic/events/ruleset
-export async function listRulesetEvents(
-  req: Partial<ListRulesetEventsRequest> = {},
+// GET /analytic/events/secruleset
+export async function listSecRulesetEvents(
+  req: Partial<ListSecRulesetEventsRequest> = {},
   options?: ApiOptions,
-): Promise<ListRulesetEventsResponse> {
-  const full = ListRulesetEventsRequest.fromPartial(req);
+): Promise<ListSecRulesetEventsResponse> {
+  const full = ListSecRulesetEventsRequest.fromPartial(req);
   return getJSON(
-    '/analytic/events/ruleset',
+    '/analytic/events/secruleset',
     full,
-    { req: ListRulesetEventsRequest, resp: ListRulesetEventsResponse },
+    { req: ListSecRulesetEventsRequest, resp: ListSecRulesetEventsResponse },
     () => ({
       events: paginate(
         sampleIngressRange(full)
-          .filter(ofFilters(EventKind.EVENT_KIND_RULESET, full.filters))
+          .filter(ofFilters(EventKind.EVENT_KIND_SECRULESET, full.filters))
           .map(sampleRulesetOf)
           .filter(present)
           .filter(ofRequests(full.requestIds, (e) => e.requestId)),

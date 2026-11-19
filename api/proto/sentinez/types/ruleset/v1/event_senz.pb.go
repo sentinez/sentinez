@@ -4,48 +4,48 @@
 package rulesetpb
 
 const (
-	RulesetEvent_Id             = "id"
-	RulesetEvent_MatchedRuleIds = "matched_rule_ids"
-	RulesetEvent_Severities     = "severities"
-	RulesetEvent_Messages       = "messages"
-	RulesetEvent_TotalScore     = "total_score"
-	RulesetEvent_MatchedTime    = "matched_time"
-	RulesetEvent_ResourceId     = "resource_id"
-	RulesetEvent_TenantId       = "tenant_id"
-	RulesetEvent_Service        = "service"
-	RulesetEvent_RequestIp      = "request_ip"
-	RulesetEvent_RequestDomain  = "request_domain"
-	RulesetEvent_RequestScheme  = "request_scheme"
-	RulesetEvent_RequestPath    = "request_path"
-	RulesetEvent_RequestQuery   = "request_query"
-	RulesetEvent_RequestId      = "request_id"
-	RulesetEvent_Behavior       = "behavior"
+	SecRulesetEvent_Id             = "id"
+	SecRulesetEvent_MatchedRuleIds = "matched_rule_ids"
+	SecRulesetEvent_Severities     = "severities"
+	SecRulesetEvent_Messages       = "messages"
+	SecRulesetEvent_TotalScore     = "total_score"
+	SecRulesetEvent_MatchedTime    = "matched_time"
+	SecRulesetEvent_ResourceId     = "resource_id"
+	SecRulesetEvent_TenantId       = "tenant_id"
+	SecRulesetEvent_Service        = "service"
+	SecRulesetEvent_RequestIp      = "request_ip"
+	SecRulesetEvent_RequestDomain  = "request_domain"
+	SecRulesetEvent_RequestScheme  = "request_scheme"
+	SecRulesetEvent_RequestPath    = "request_path"
+	SecRulesetEvent_RequestQuery   = "request_query"
+	SecRulesetEvent_RequestId      = "request_id"
+	SecRulesetEvent_Behavior       = "behavior"
 )
 
-// RulesetEventColumns returns the columns of RulesetEvent, in the order ScanOneRulesetEvent scans them.
-func RulesetEventColumns() []string {
+// SecRulesetEventColumns returns the columns of SecRulesetEvent, in the order ScanOneSecRulesetEvent scans them.
+func SecRulesetEventColumns() []string {
 	return []string{
-		RulesetEvent_Id,
-		RulesetEvent_MatchedRuleIds,
-		RulesetEvent_Severities,
-		RulesetEvent_Messages,
-		RulesetEvent_TotalScore,
-		RulesetEvent_MatchedTime,
-		RulesetEvent_ResourceId,
-		RulesetEvent_TenantId,
-		RulesetEvent_Service,
-		RulesetEvent_RequestIp,
-		RulesetEvent_RequestDomain,
-		RulesetEvent_RequestScheme,
-		RulesetEvent_RequestPath,
-		RulesetEvent_RequestQuery,
-		RulesetEvent_RequestId,
-		RulesetEvent_Behavior,
+		SecRulesetEvent_Id,
+		SecRulesetEvent_MatchedRuleIds,
+		SecRulesetEvent_Severities,
+		SecRulesetEvent_Messages,
+		SecRulesetEvent_TotalScore,
+		SecRulesetEvent_MatchedTime,
+		SecRulesetEvent_ResourceId,
+		SecRulesetEvent_TenantId,
+		SecRulesetEvent_Service,
+		SecRulesetEvent_RequestIp,
+		SecRulesetEvent_RequestDomain,
+		SecRulesetEvent_RequestScheme,
+		SecRulesetEvent_RequestPath,
+		SecRulesetEvent_RequestQuery,
+		SecRulesetEvent_RequestId,
+		SecRulesetEvent_Behavior,
 	}
 }
 
-// RulesetEventValues returns the values of m, in the order of RulesetEventColumns.
-func RulesetEventValues(m *RulesetEvent) ([]any, error) {
+// SecRulesetEventValues returns the values of m, in the order of SecRulesetEventColumns.
+func SecRulesetEventValues(m *SecRulesetEvent) ([]any, error) {
 	return []any{
 		m.GetId(),
 		m.GetMatchedRuleIds(),
@@ -66,9 +66,9 @@ func RulesetEventValues(m *RulesetEvent) ([]any, error) {
 	}, nil
 }
 
-// ScanOneRulesetEvent scans row, holding the columns of RulesetEventColumns, into a RulesetEvent.
-func ScanOneRulesetEvent[R interface{ Scan(dest ...any) error }](row R) (*RulesetEvent, error) {
-	m := &RulesetEvent{}
+// ScanOneSecRulesetEvent scans row, holding the columns of SecRulesetEventColumns, into a SecRulesetEvent.
+func ScanOneSecRulesetEvent[R interface{ Scan(dest ...any) error }](row R) (*SecRulesetEvent, error) {
+	m := &SecRulesetEvent{}
 	if err := row.Scan(
 		&m.Id,
 		&m.MatchedRuleIds,
@@ -92,15 +92,15 @@ func ScanOneRulesetEvent[R interface{ Scan(dest ...any) error }](row R) (*Rulese
 	return m, nil
 }
 
-// ScanRulesetEvent scans each row of rows with ScanOneRulesetEvent.
-func ScanRulesetEvent[R interface {
+// ScanSecRulesetEvent scans each row of rows with ScanOneSecRulesetEvent.
+func ScanSecRulesetEvent[R interface {
 	Next() bool
 	Scan(dest ...any) error
 	Err() error
-}](rows R) ([]*RulesetEvent, error) {
-	var ms []*RulesetEvent
+}](rows R) ([]*SecRulesetEvent, error) {
+	var ms []*SecRulesetEvent
 	for rows.Next() {
-		m, err := ScanOneRulesetEvent(rows)
+		m, err := ScanOneSecRulesetEvent(rows)
 		if err != nil {
 			return nil, err
 		}

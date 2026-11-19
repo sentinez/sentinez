@@ -303,8 +303,8 @@ func (RuleState) EnumDescriptor() ([]byte, []int) {
 	return file_sentinez_types_ruleset_v1_setting_proto_rawDescGZIP(), []int{3}
 }
 
-// Ruleset OWASP CRS configuration of a server (namespace).
-type Ruleset struct {
+// Setting OWASP CRS configuration of a server (namespace).
+type Setting struct {
 	state   protoimpl.MessageState `protogen:"open.v1"`
 	Mode    EngineMode             `protobuf:"varint,1,opt,name=mode,proto3,enum=sentinez.types.ruleset.v1.EngineMode" json:"mode,omitempty"`    // @gotags: yaml:"mode"
 	Version Version                `protobuf:"varint,2,opt,name=version,proto3,enum=sentinez.types.ruleset.v1.Version" json:"version,omitempty"` // @gotags: yaml:"version"
@@ -323,20 +323,20 @@ type Ruleset struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Ruleset) Reset() {
-	*x = Ruleset{}
+func (x *Setting) Reset() {
+	*x = Setting{}
 	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Ruleset) String() string {
+func (x *Setting) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Ruleset) ProtoMessage() {}
+func (*Setting) ProtoMessage() {}
 
-func (x *Ruleset) ProtoReflect() protoreflect.Message {
+func (x *Setting) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -348,75 +348,75 @@ func (x *Ruleset) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Ruleset.ProtoReflect.Descriptor instead.
-func (*Ruleset) Descriptor() ([]byte, []int) {
+// Deprecated: Use Setting.ProtoReflect.Descriptor instead.
+func (*Setting) Descriptor() ([]byte, []int) {
 	return file_sentinez_types_ruleset_v1_setting_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *Ruleset) GetMode() EngineMode {
+func (x *Setting) GetMode() EngineMode {
 	if x != nil {
 		return x.Mode
 	}
 	return EngineMode_ENGINE_MODE_UNSPECIFIED
 }
 
-func (x *Ruleset) GetVersion() Version {
+func (x *Setting) GetVersion() Version {
 	if x != nil {
 		return x.Version
 	}
 	return Version_VERSION_UNSPECIFIED
 }
 
-func (x *Ruleset) GetParanoiaLevel() uint32 {
+func (x *Setting) GetParanoiaLevel() uint32 {
 	if x != nil {
 		return x.ParanoiaLevel
 	}
 	return 0
 }
 
-func (x *Ruleset) GetDetectionParanoiaLevel() uint32 {
+func (x *Setting) GetDetectionParanoiaLevel() uint32 {
 	if x != nil {
 		return x.DetectionParanoiaLevel
 	}
 	return 0
 }
 
-func (x *Ruleset) GetThreshold() *AnomalyThreshold {
+func (x *Setting) GetThreshold() *AnomalyThreshold {
 	if x != nil {
 		return x.Threshold
 	}
 	return nil
 }
 
-func (x *Ruleset) GetCategories() []Category {
+func (x *Setting) GetCategories() []Category {
 	if x != nil {
 		return x.Categories
 	}
 	return nil
 }
 
-func (x *Ruleset) GetRequest() *RequestPolicy {
+func (x *Setting) GetRequest() *RequestPolicy {
 	if x != nil {
 		return x.Request
 	}
 	return nil
 }
 
-func (x *Ruleset) GetExclusions() []*Exclusion {
+func (x *Setting) GetExclusions() []*Exclusion {
 	if x != nil {
 		return x.Exclusions
 	}
 	return nil
 }
 
-func (x *Ruleset) GetOverrides() []*RuleOverride {
+func (x *Setting) GetOverrides() []*RuleOverride {
 	if x != nil {
 		return x.Overrides
 	}
 	return nil
 }
 
-func (x *Ruleset) GetStatus() v1.Status {
+func (x *Setting) GetStatus() v1.Status {
 	if x != nil {
 		return x.Status
 	}
@@ -834,7 +834,7 @@ var File_sentinez_types_ruleset_v1_setting_proto protoreflect.FileDescriptor
 const file_sentinez_types_ruleset_v1_setting_proto_rawDesc = "" +
 	"\n" +
 	"'sentinez/types/ruleset/v1/setting.proto\x12\x19sentinez.types.ruleset.v1\x1a\x1bbuf/validate/validate.proto\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1dsentinez/types/v1/known.proto\"\x93\x05\n" +
-	"\aRuleset\x129\n" +
+	"\aSetting\x129\n" +
 	"\x04mode\x18\x01 \x01(\x0e2%.sentinez.types.ruleset.v1.EngineModeR\x04mode\x12<\n" +
 	"\aversion\x18\x02 \x01(\x0e2\".sentinez.types.ruleset.v1.VersionR\aversion\x12.\n" +
 	"\x0eparanoia_level\x18\x03 \x01(\rB\a\xbaH\x04*\x02\x18\x04R\rparanoiaLevel\x12A\n" +
@@ -941,7 +941,7 @@ var file_sentinez_types_ruleset_v1_setting_proto_goTypes = []any{
 	(Version)(0),             // 1: sentinez.types.ruleset.v1.Version
 	(Category)(0),            // 2: sentinez.types.ruleset.v1.Category
 	(RuleState)(0),           // 3: sentinez.types.ruleset.v1.RuleState
-	(*Ruleset)(nil),          // 4: sentinez.types.ruleset.v1.Ruleset
+	(*Setting)(nil),          // 4: sentinez.types.ruleset.v1.Setting
 	(*AnomalyThreshold)(nil), // 5: sentinez.types.ruleset.v1.AnomalyThreshold
 	(*RequestPolicy)(nil),    // 6: sentinez.types.ruleset.v1.RequestPolicy
 	(*Exclusion)(nil),        // 7: sentinez.types.ruleset.v1.Exclusion
@@ -952,14 +952,14 @@ var file_sentinez_types_ruleset_v1_setting_proto_goTypes = []any{
 	(*v11.Expression)(nil),   // 12: sentinez.types.rule.v1.Expression
 }
 var file_sentinez_types_ruleset_v1_setting_proto_depIdxs = []int32{
-	0,  // 0: sentinez.types.ruleset.v1.Ruleset.mode:type_name -> sentinez.types.ruleset.v1.EngineMode
-	1,  // 1: sentinez.types.ruleset.v1.Ruleset.version:type_name -> sentinez.types.ruleset.v1.Version
-	5,  // 2: sentinez.types.ruleset.v1.Ruleset.threshold:type_name -> sentinez.types.ruleset.v1.AnomalyThreshold
-	2,  // 3: sentinez.types.ruleset.v1.Ruleset.categories:type_name -> sentinez.types.ruleset.v1.Category
-	6,  // 4: sentinez.types.ruleset.v1.Ruleset.request:type_name -> sentinez.types.ruleset.v1.RequestPolicy
-	7,  // 5: sentinez.types.ruleset.v1.Ruleset.exclusions:type_name -> sentinez.types.ruleset.v1.Exclusion
-	9,  // 6: sentinez.types.ruleset.v1.Ruleset.overrides:type_name -> sentinez.types.ruleset.v1.RuleOverride
-	11, // 7: sentinez.types.ruleset.v1.Ruleset.status:type_name -> sentinez.types.v1.Status
+	0,  // 0: sentinez.types.ruleset.v1.Setting.mode:type_name -> sentinez.types.ruleset.v1.EngineMode
+	1,  // 1: sentinez.types.ruleset.v1.Setting.version:type_name -> sentinez.types.ruleset.v1.Version
+	5,  // 2: sentinez.types.ruleset.v1.Setting.threshold:type_name -> sentinez.types.ruleset.v1.AnomalyThreshold
+	2,  // 3: sentinez.types.ruleset.v1.Setting.categories:type_name -> sentinez.types.ruleset.v1.Category
+	6,  // 4: sentinez.types.ruleset.v1.Setting.request:type_name -> sentinez.types.ruleset.v1.RequestPolicy
+	7,  // 5: sentinez.types.ruleset.v1.Setting.exclusions:type_name -> sentinez.types.ruleset.v1.Exclusion
+	9,  // 6: sentinez.types.ruleset.v1.Setting.overrides:type_name -> sentinez.types.ruleset.v1.RuleOverride
+	11, // 7: sentinez.types.ruleset.v1.Setting.status:type_name -> sentinez.types.v1.Status
 	8,  // 8: sentinez.types.ruleset.v1.Exclusion.targets:type_name -> sentinez.types.ruleset.v1.ExclusionTarget
 	12, // 9: sentinez.types.ruleset.v1.Exclusion.expr:type_name -> sentinez.types.rule.v1.Expression
 	3,  // 10: sentinez.types.ruleset.v1.RuleOverride.state:type_name -> sentinez.types.ruleset.v1.RuleState

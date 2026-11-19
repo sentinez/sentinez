@@ -160,9 +160,9 @@ func DefaultTopics() map[typepb.LogType]sztopic.Topic {
 	return map[typepb.LogType]sztopic.Topic{
 		typepb.LogType_LOG_TYPE_HTTP_INGRESS: sztopic.EventHTTPIngress,
 		typepb.LogType_LOG_TYPE_HTTP_EGRESS:  sztopic.EventHTTPEgress,
-		typepb.LogType_LOG_TYPE_RULESETS:     sztopic.EventHTTPRulesets,
+		typepb.LogType_LOG_TYPE_SECRULESET:   sztopic.EventHTTPSecRuleset,
 		typepb.LogType_LOG_TYPE_SECRULE:      sztopic.EventHTTPSecRule,
-		typepb.LogType_LOG_TYPE_RATE_LIMIT:   sztopic.EventHTTPRateLimit,
+		typepb.LogType_LOG_TYPE_SECRATELIMIT: sztopic.EventHTTPSecRateLimit,
 		typepb.LogType_LOG_TYPE_CDN_RULE:     sztopic.EventHTTPCDNRule,
 	}
 }

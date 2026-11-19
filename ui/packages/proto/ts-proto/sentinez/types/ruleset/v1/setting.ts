@@ -328,8 +328,8 @@ export function ruleStateToJSON(object: RuleState): string {
   }
 }
 
-/** Ruleset OWASP CRS configuration of a server (namespace). */
-export interface Ruleset {
+/** Setting OWASP CRS configuration of a server (namespace). */
+export interface Setting {
   /** @gotags: yaml:"mode" */
   mode: EngineMode;
   /** @gotags: yaml:"version" */
@@ -432,7 +432,7 @@ export interface RuleInfo {
   system: boolean;
 }
 
-function createBaseRuleset(): Ruleset {
+function createBaseSetting(): Setting {
   return {
     mode: 0,
     version: 0,
@@ -447,8 +447,8 @@ function createBaseRuleset(): Ruleset {
   };
 }
 
-export const Ruleset: MessageFns<Ruleset> = {
-  encode(message: Ruleset, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const Setting: MessageFns<Setting> = {
+  encode(message: Setting, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.mode !== 0) {
       writer.uint32(8).int32(message.mode);
     }
@@ -482,7 +482,7 @@ export const Ruleset: MessageFns<Ruleset> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): Ruleset {
+  decode(input: BinaryReader | Uint8Array, length?: number): Setting {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -491,7 +491,7 @@ export const Ruleset: MessageFns<Ruleset> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseRuleset();
+      const message = createBaseSetting();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -597,7 +597,7 @@ export const Ruleset: MessageFns<Ruleset> = {
     }
   },
 
-  fromJSON(object: any): Ruleset {
+  fromJSON(object: any): Setting {
     return {
       mode: isSet(object.mode) ? engineModeFromJSON(object.mode) : 0,
       version: isSet(object.version) ? versionFromJSON(object.version) : 0,
@@ -626,7 +626,7 @@ export const Ruleset: MessageFns<Ruleset> = {
     };
   },
 
-  toJSON(message: Ruleset): unknown {
+  toJSON(message: Setting): unknown {
     const obj: any = {};
     if (message.mode !== 0) {
       obj.mode = engineModeToJSON(message.mode);
@@ -661,11 +661,11 @@ export const Ruleset: MessageFns<Ruleset> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<Ruleset>, I>>(base?: I): Ruleset {
-    return Ruleset.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<Setting>, I>>(base?: I): Setting {
+    return Setting.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<Ruleset>, I>>(object: I): Ruleset {
-    const message = createBaseRuleset();
+  fromPartial<I extends Exact<DeepPartial<Setting>, I>>(object: I): Setting {
+    const message = createBaseSetting();
     message.mode = object.mode ?? 0;
     message.version = object.version ?? 0;
     message.paranoiaLevel = object.paranoiaLevel ?? 0;

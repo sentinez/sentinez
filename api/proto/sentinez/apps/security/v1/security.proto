@@ -106,36 +106,36 @@ service SecurityService {
 
   // ── RateLimit ─────────────────────────────────────────────────────────────
 
-  // CreateRateLimit creates a new rate limit rule
-  rpc CreateRateLimit(CreateRateLimitRequest) returns (CreateRateLimitResponse) {
+  // CreateSecRateLimit creates a new rate limit rule
+  rpc CreateSecRateLimit(CreateSecRateLimitRequest) returns (CreateSecRateLimitResponse) {
     option (google.api.http) = {
-      post: "/security/ratelimit"
+      post: "/security/secratelimit"
       body: "*"
     };
 
     option (sentinez.types.v1.x_method) = {audit: true};
   }
 
-  // GetRateLimit retrieves a rate limit rule by ID
-  rpc GetRateLimit(GetRateLimitRequest) returns (GetRateLimitResponse) {
-    option (google.api.http) = {get: "/security/ratelimit/{id}"};
+  // GetSecRateLimit retrieves a rate limit rule by ID
+  rpc GetSecRateLimit(GetSecRateLimitRequest) returns (GetSecRateLimitResponse) {
+    option (google.api.http) = {get: "/security/secratelimit/{id}"};
 
     option (sentinez.types.v1.x_method) = {audit: true};
   }
 
-  // UpdateRateLimit updates an existing rate limit rule
-  rpc UpdateRateLimit(UpdateRateLimitRequest) returns (UpdateRateLimitResponse) {
+  // UpdateSecRateLimit updates an existing rate limit rule
+  rpc UpdateSecRateLimit(UpdateSecRateLimitRequest) returns (UpdateSecRateLimitResponse) {
     option (google.api.http) = {
-      put: "/security/ratelimit/{id}"
+      put: "/security/secratelimit/{id}"
       body: "*"
     };
 
     option (sentinez.types.v1.x_method) = {audit: true};
   }
 
-  // DeleteRateLimit removes a rate limit rule by ID
-  rpc DeleteRateLimit(DeleteRateLimitRequest) returns (DeleteRateLimitResponse) {
-    option (google.api.http) = {delete: "/security/ratelimit/{id}"};
+  // DeleteSecRateLimit removes a rate limit rule by ID
+  rpc DeleteSecRateLimit(DeleteSecRateLimitRequest) returns (DeleteSecRateLimitResponse) {
+    option (google.api.http) = {delete: "/security/secratelimit/{id}"};
 
     option (sentinez.types.v1.x_method) = {
       audit: true
@@ -143,45 +143,45 @@ service SecurityService {
     };
   }
 
-  // ListRateLimits lists rate limit rules with optional filters
-  rpc ListRateLimits(ListRateLimitsRequest) returns (ListRateLimitsResponse) {
-    option (google.api.http) = {get: "/security/ratelimits"};
+  // ListSecRateLimits lists rate limit rules with optional filters
+  rpc ListSecRateLimits(ListSecRateLimitsRequest) returns (ListSecRateLimitsResponse) {
+    option (google.api.http) = {get: "/security/secratelimits"};
 
     option (sentinez.types.v1.x_method) = {audit: true};
   }
 
   // ── Ruleset ───────────────────────────────────────────────────────────────
 
-  // CreateRuleset creates a new OWASP CRS configuration
-  rpc CreateRuleset(CreateRulesetRequest) returns (CreateRulesetResponse) {
+  // CreateSecRuleset creates a new OWASP CRS configuration
+  rpc CreateSecRuleset(CreateSecRulesetRequest) returns (CreateSecRulesetResponse) {
     option (google.api.http) = {
-      post: "/security/ruleset"
+      post: "/security/secruleset"
       body: "*"
     };
 
     option (sentinez.types.v1.x_method) = {audit: true};
   }
 
-  // GetRuleset retrieves an OWASP CRS configuration by ID
-  rpc GetRuleset(GetRulesetRequest) returns (GetRulesetResponse) {
-    option (google.api.http) = {get: "/security/ruleset/{id}"};
+  // GetSecRuleset retrieves an OWASP CRS configuration by ID
+  rpc GetSecRuleset(GetSecRulesetRequest) returns (GetSecRulesetResponse) {
+    option (google.api.http) = {get: "/security/secruleset/{id}"};
 
     option (sentinez.types.v1.x_method) = {audit: true};
   }
 
-  // UpdateRuleset updates an existing OWASP CRS configuration
-  rpc UpdateRuleset(UpdateRulesetRequest) returns (UpdateRulesetResponse) {
+  // UpdateSecRuleset updates an existing OWASP CRS configuration
+  rpc UpdateSecRuleset(UpdateSecRulesetRequest) returns (UpdateSecRulesetResponse) {
     option (google.api.http) = {
-      put: "/security/ruleset/{id}"
+      put: "/security/secruleset/{id}"
       body: "*"
     };
 
     option (sentinez.types.v1.x_method) = {audit: true};
   }
 
-  // DeleteRuleset removes an OWASP CRS configuration by ID
-  rpc DeleteRuleset(DeleteRulesetRequest) returns (DeleteRulesetResponse) {
-    option (google.api.http) = {delete: "/security/ruleset/{id}"};
+  // DeleteSecRuleset removes an OWASP CRS configuration by ID
+  rpc DeleteSecRuleset(DeleteSecRulesetRequest) returns (DeleteSecRulesetResponse) {
+    option (google.api.http) = {delete: "/security/secruleset/{id}"};
 
     option (sentinez.types.v1.x_method) = {
       audit: true
@@ -189,10 +189,10 @@ service SecurityService {
     };
   }
 
-  // ListRulesets lists OWASP CRS configurations, filtered by their
+  // ListSecRulesets lists OWASP CRS configurations, filtered by their
   // name or by the fields of their ruleset
-  rpc ListRulesets(ListRulesetsRequest) returns (ListRulesetsResponse) {
-    option (google.api.http) = {get: "/security/rulesets"};
+  rpc ListSecRulesets(ListSecRulesetsRequest) returns (ListSecRulesetsResponse) {
+    option (google.api.http) = {get: "/security/secrulesets"};
 
     option (sentinez.types.v1.x_method) = {audit: true};
   }
@@ -279,25 +279,25 @@ message ListSecRulesResponse {
 
 // ── RateLimit Messages ───────────────────────────────────────────────────
 
-message CreateRateLimitRequest {
-  RateLimit rate_limit = 1 [(buf.validate.field).required = true];
+message CreateSecRateLimitRequest {
+  SecRateLimit secratelimit = 1 [(buf.validate.field).required = true];
 }
 
-message CreateRateLimitResponse {
+message CreateSecRateLimitResponse {
   string id = 1;
 }
 
-message GetRateLimitRequest {
+message GetSecRateLimitRequest {
   string id = 1 [(buf.validate.field).string.min_len = 1];
 }
 
-message GetRateLimitResponse {
-  RateLimit rate_limit = 1;
+message GetSecRateLimitResponse {
+  SecRateLimit secratelimit = 1;
 }
 
-message UpdateRateLimitRequest {
+message UpdateSecRateLimitRequest {
   string id = 1 [(buf.validate.field).string.min_len = 1];
-  RateLimit rate_limit = 2 [(buf.validate.field).required = true];
+  SecRateLimit secratelimit = 2 [(buf.validate.field).required = true];
   // Fields of rate_limit to update, among name, description, expr,
   // status, priority, action, time_window, max_requests and timeout ("*"
   // for all of them); without one, those set in rate_limit. A named field
@@ -305,17 +305,17 @@ message UpdateRateLimitRequest {
   google.protobuf.FieldMask update_mask = 3;
 }
 
-message UpdateRateLimitResponse {
-  RateLimit rate_limit = 1;
+message UpdateSecRateLimitResponse {
+  SecRateLimit secratelimit = 1;
 }
 
-message DeleteRateLimitRequest {
+message DeleteSecRateLimitRequest {
   string id = 1 [(buf.validate.field).string.min_len = 1];
 }
 
-message DeleteRateLimitResponse {}
+message DeleteSecRateLimitResponse {}
 
-message ListRateLimitsRequest {
+message ListSecRateLimitsRequest {
   sentinez.types.v1.Pages page = 1;
   repeated string ids = 10;
 
@@ -323,51 +323,51 @@ message ListRateLimitsRequest {
   repeated string resource_ids = 11;
 }
 
-message ListRateLimitsResponse {
-  repeated RateLimit rate_limits = 1;
+message ListSecRateLimitsResponse {
+  repeated SecRateLimit secratelimits = 1;
   int64 total = 2;
 }
 
 // ── Ruleset Messages ─────────────────────────────────────────────────────
 
-message CreateRulesetRequest {
-  Ruleset ruleset = 1 [(buf.validate.field).required = true];
+message CreateSecRulesetRequest {
+  SecRuleset secruleset = 1 [(buf.validate.field).required = true];
 }
 
-message CreateRulesetResponse {
+message CreateSecRulesetResponse {
   string id = 1;
 }
 
-message GetRulesetRequest {
+message GetSecRulesetRequest {
   string id = 1 [(buf.validate.field).string.min_len = 1];
 }
 
-message GetRulesetResponse {
-  Ruleset ruleset = 1;
+message GetSecRulesetResponse {
+  SecRuleset secruleset = 1;
 }
 
-message UpdateRulesetRequest {
+message UpdateSecRulesetRequest {
   string id = 1 [(buf.validate.field).string.min_len = 1];
-  Ruleset ruleset = 2 [(buf.validate.field).required = true];
+  SecRuleset secruleset = 2 [(buf.validate.field).required = true];
   // Fields of ruleset to update, among name, description and
   // ruleset ("*" for all of them); without one, those set in ruleset.
   // A named field unset in ruleset is cleared.
   google.protobuf.FieldMask update_mask = 3;
 }
 
-message UpdateRulesetResponse {
-  Ruleset ruleset = 1;
+message UpdateSecRulesetResponse {
+  SecRuleset secruleset = 1;
 }
 
-message DeleteRulesetRequest {
+message DeleteSecRulesetRequest {
   string id = 1 [(buf.validate.field).string.min_len = 1];
 }
 
-message DeleteRulesetResponse {}
+message DeleteSecRulesetResponse {}
 
-// ListRulesetsRequest every filter set must match (AND); the values
+// ListSecRulesetsRequest every filter set must match (AND); the values
 // of a repeated filter are alternatives (OR) unless stated otherwise.
-message ListRulesetsRequest {
+message ListSecRulesetsRequest {
   sentinez.types.v1.Pages page = 1;
 
   // Case-insensitive part of the name.
@@ -400,8 +400,8 @@ message ListRulesetsRequest {
   repeated uint32 override_rule_ids = 27;
 }
 
-message ListRulesetsResponse {
-  repeated Ruleset rulesets = 1;
+message ListSecRulesetsResponse {
+  repeated SecRuleset secrulesets = 1;
   int64 total = 2;
 }
 

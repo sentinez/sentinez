@@ -1,4 +1,4 @@
-import { Ruleset } from '@sentinez/proto/sentinez/apps/security/v1/model';
+import { SecRuleset } from '@sentinez/proto/sentinez/apps/security/v1/model';
 import {
   Category,
   EngineMode,
@@ -123,9 +123,9 @@ const scopeOf = (expr?: Expression) => ({
   expr: expr?.orCondition.length ? expr : createEmptyExpression(),
 });
 
-/** Ruleset (API) -> form value */
-export function rulesetFormOf(r: Ruleset): RulesetFormValue {
-  const c = r.ruleset;
+/** SecRuleset (API) -> form value */
+export function rulesetFormOf(r: SecRuleset): RulesetFormValue {
+  const c = r.setting;
   return {
     name: r.name,
     description: r.description,
@@ -169,13 +169,13 @@ const ruleOverrideOf = (o: RuleOverrideFormValue): RuleOverride => ({
   expr: o.scoped ? o.expr : undefined,
 });
 
-/** Form value -> Ruleset (API) */
-export function rulesetOf(f: RulesetFormValue, id = ''): Ruleset {
+/** Form value -> SecRuleset (API) */
+export function rulesetOf(f: RulesetFormValue, id = ''): SecRuleset {
   return {
     id,
     name: f.name.trim(),
     description: f.description,
-    ruleset: {
+    setting: {
       mode: f.mode,
       version: f.version,
       paranoiaLevel: f.paranoiaLevel,
@@ -222,10 +222,7 @@ function validateRuleOverride(o: RuleOverrideFormValue, n: number, t: Validation
 }
 
 /** Returns an error message, or null when the form is valid */
-export function validateRulesetForm(
-  f: RulesetFormValue,
-  t: ValidationTranslator,
-): string | null {
+export function validateRulesetForm(f: RulesetFormValue, t: ValidationTranslator): string | null {
   if (!f.name.trim()) return t('nameRequired');
   if (!isCount(f.inboundThreshold) || !isCount(f.outboundThreshold)) return t('anomalyThreshold');
   if (!f.allCategories && !f.categories.length) return t('categoriesRequired');

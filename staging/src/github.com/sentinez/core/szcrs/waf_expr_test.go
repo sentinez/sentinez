@@ -77,8 +77,8 @@ func exprOf(
 	return expr(and(nil, cond(source, key, op, value)))
 }
 
-func newSetting(e *rulesetpb.Exclusion) *rulesetpb.Ruleset {
-	return &rulesetpb.Ruleset{
+func newSetting(e *rulesetpb.Exclusion) *rulesetpb.Setting {
+	return &rulesetpb.Setting{
 		Mode:       rulesetpb.EngineMode_ENGINE_MODE_ON,
 		Status:     typepb.Status_STATUS_ACTIVE,
 		Exclusions: []*rulesetpb.Exclusion{e},
@@ -93,7 +93,7 @@ func blocked(t *testing.T, exclusion *rulesetpb.Exclusion) bool {
 	return blockedBy(t, newSetting(exclusion))
 }
 
-func blockedBy(t *testing.T, setting *rulesetpb.Ruleset) bool {
+func blockedBy(t *testing.T, setting *rulesetpb.Setting) bool {
 	t.Helper()
 
 	require.NoError(t, validateSetting(setting))
@@ -362,7 +362,7 @@ func TestOverrideExpr(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := blockedBy(t, &rulesetpb.Ruleset{
+			got := blockedBy(t, &rulesetpb.Setting{
 				Overrides: []*rulesetpb.RuleOverride{{
 					Id:    942100,
 					State: rulesetpb.RuleState_RULE_STATE_DISABLED,
@@ -410,7 +410,7 @@ func TestOverrideExprInvalid(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := validateSetting(&rulesetpb.Ruleset{
+			err := validateSetting(&rulesetpb.Setting{
 				Overrides: []*rulesetpb.RuleOverride{{
 					Id: 942100, State: tt.giveState, Expr: tt.give,
 				}},

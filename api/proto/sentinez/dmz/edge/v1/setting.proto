@@ -143,7 +143,7 @@ message Location {
 
 // Security user-specific WAF, rate limiting, or bot protection rules
 message Security {
-  sentinez.types.ruleset.v1.Ruleset ruleset = 1; // @gotags: yaml:"ruleset"
+  sentinez.types.ruleset.v1.Setting ruleset = 1; // @gotags: yaml:"ruleset"
   repeated SecRule secrules = 2; // @gotags: yaml:"secrules"
   repeated RateLimit limiters = 3; // @gotags: yaml:"limiters"
 }

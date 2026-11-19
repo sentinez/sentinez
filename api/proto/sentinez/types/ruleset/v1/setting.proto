@@ -22,8 +22,8 @@ import "sentinez/types/v1/known.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1;rulesetpb";
 
-// Ruleset OWASP CRS configuration of a server (namespace).
-message Ruleset {
+// Setting OWASP CRS configuration of a server (namespace).
+message Setting {
   EngineMode mode = 1; // @gotags: yaml:"mode"
   Version version = 2; // @gotags: yaml:"version"
 

@@ -37,9 +37,9 @@ var (
 	_ = typepb.Status(0)
 )
 
-// Validate checks the field values on Ruleset with the rules defined in the
+// Validate checks the field values on Setting with the rules defined in the
 // proto definition for this message. If any rules are violated, an error is returned.
-func (m *Ruleset) Validate() error {
+func (m *Setting) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -54,7 +54,7 @@ func (m *Ruleset) Validate() error {
 
 	if v, ok := interface{}(m.GetThreshold()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return RulesetValidationError{
+			return SettingValidationError{
 				field:  "Threshold",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -64,7 +64,7 @@ func (m *Ruleset) Validate() error {
 
 	if v, ok := interface{}(m.GetRequest()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return RulesetValidationError{
+			return SettingValidationError{
 				field:  "Request",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -77,7 +77,7 @@ func (m *Ruleset) Validate() error {
 
 		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return RulesetValidationError{
+				return SettingValidationError{
 					field:  fmt.Sprintf("Exclusions[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -92,7 +92,7 @@ func (m *Ruleset) Validate() error {
 
 		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return RulesetValidationError{
+				return SettingValidationError{
 					field:  fmt.Sprintf("Overrides[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -107,9 +107,9 @@ func (m *Ruleset) Validate() error {
 	return nil
 }
 
-// RulesetValidationError is the validation error returned by Ruleset.Validate
+// SettingValidationError is the validation error returned by Setting.Validate
 // if the designated constraints aren't met.
-type RulesetValidationError struct {
+type SettingValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -117,22 +117,22 @@ type RulesetValidationError struct {
 }
 
 // Field function returns field value.
-func (e RulesetValidationError) Field() string { return e.field }
+func (e SettingValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e RulesetValidationError) Reason() string { return e.reason }
+func (e SettingValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e RulesetValidationError) Cause() error { return e.cause }
+func (e SettingValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e RulesetValidationError) Key() bool { return e.key }
+func (e SettingValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e RulesetValidationError) ErrorName() string { return "RulesetValidationError" }
+func (e SettingValidationError) ErrorName() string { return "SettingValidationError" }
 
 // Error satisfies the builtin error interface
-func (e RulesetValidationError) Error() string {
+func (e SettingValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -144,14 +144,14 @@ func (e RulesetValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sRuleset.%s: %s%s",
+		"invalid %sSetting.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = RulesetValidationError{}
+var _ error = SettingValidationError{}
 
 var _ interface {
 	Field() string
@@ -159,7 +159,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = RulesetValidationError{}
+} = SettingValidationError{}
 
 // Validate checks the field values on AnomalyThreshold with the rules defined
 // in the proto definition for this message. If any rules are violated, an

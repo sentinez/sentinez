@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package ruleseteventsrepo stores the rulesetpb.RulesetEvent
-// records consumed from kafka (sztopic.EventHTTPRulesets).
-package ruleseteventsrepo
+// Package secruleseteventsrepo stores the rulesetpb.SecRulesetEvent
+// records consumed from kafka (sztopic.EventHTTPSecRuleset).
+package secruleseteventsrepo
 
 import (
 	"context"
@@ -30,50 +30,50 @@ import (
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
 
-var _ IRulesetEvent = (*RulesetEvents)(nil)
+var _ ISecRulesetEvent = (*SecRulesetEvents)(nil)
 
 // _spec the reader of the events: their histogram is split by behavior.
-var _spec = eventreader.Spec[rulesetpb.RulesetEvent]{
+var _spec = eventreader.Spec[rulesetpb.SecRulesetEvent]{
 	Hypertable: schema.EventHypertable(
-		schema.AnalyticRulesetsEvent(), rulesetpb.RulesetEvent_MatchedTime),
-	Key: rulesetpb.RulesetEvent_Behavior,
+		schema.AnalyticSecRulesetsEvent(), rulesetpb.SecRulesetEvent_MatchedTime),
+	Key: rulesetpb.SecRulesetEvent_Behavior,
 	Columns: eventfilter.Columns{
-		RequestId:   rulesetpb.RulesetEvent_RequestId,
-		ResourceId:  rulesetpb.RulesetEvent_ResourceId,
-		MatchedTime: rulesetpb.RulesetEvent_MatchedTime,
+		RequestId:   rulesetpb.SecRulesetEvent_RequestId,
+		ResourceId:  rulesetpb.SecRulesetEvent_ResourceId,
+		MatchedTime: rulesetpb.SecRulesetEvent_MatchedTime,
 		Fields:      _fields,
 	},
-	Select:   rulesetpb.RulesetEventColumns(),
-	Scan:     rulesetpb.ScanRulesetEvent[dbx.Rows],
-	ScanOne:  rulesetpb.ScanOneRulesetEvent[dbx.Row],
-	Values:   rulesetpb.RulesetEventValues,
-	IdColumn: rulesetpb.RulesetEvent_Id,
+	Select:   rulesetpb.SecRulesetEventColumns(),
+	Scan:     rulesetpb.ScanSecRulesetEvent[dbx.Rows],
+	ScanOne:  rulesetpb.ScanOneSecRulesetEvent[dbx.Row],
+	Values:   rulesetpb.SecRulesetEventValues,
+	IdColumn: rulesetpb.SecRulesetEvent_Id,
 }
 
 // _fields the fields of the events filters match and top values count,
 // in this order.
 var _fields = []eventfilter.Field{
-	eventfilter.TypedColumn(rulesetpb.RulesetEvent_MatchedRuleIds, dbx.IntArr),
-	eventfilter.TypedColumn(rulesetpb.RulesetEvent_Severities, dbx.TextArr),
-	eventfilter.TypedColumn(rulesetpb.RulesetEvent_Behavior, dbx.Int4),
-	eventfilter.TypedColumn(rulesetpb.RulesetEvent_TotalScore, dbx.Int4),
-	eventfilter.Column(rulesetpb.RulesetEvent_RequestIp),
-	eventfilter.Column(rulesetpb.RulesetEvent_RequestDomain),
-	eventfilter.Column(rulesetpb.RulesetEvent_RequestPath),
+	eventfilter.TypedColumn(rulesetpb.SecRulesetEvent_MatchedRuleIds, dbx.IntArr),
+	eventfilter.TypedColumn(rulesetpb.SecRulesetEvent_Severities, dbx.TextArr),
+	eventfilter.TypedColumn(rulesetpb.SecRulesetEvent_Behavior, dbx.Int4),
+	eventfilter.TypedColumn(rulesetpb.SecRulesetEvent_TotalScore, dbx.Int4),
+	eventfilter.Column(rulesetpb.SecRulesetEvent_RequestIp),
+	eventfilter.Column(rulesetpb.SecRulesetEvent_RequestDomain),
+	eventfilter.Column(rulesetpb.SecRulesetEvent_RequestPath),
 }
 
-type IRulesetEvent interface {
+type ISecRulesetEvent interface {
 	// Create inserts the events, which have ids, in one statement; an
 	// event whose id and matched time are stored already is skipped, so
 	// inserting a batch again is a no-op.
-	Create(ctx context.Context, events ...*rulesetpb.RulesetEvent) error
-	Get(ctx context.Context, id string) (*rulesetpb.RulesetEvent, error)
+	Create(ctx context.Context, events ...*rulesetpb.SecRulesetEvent) error
+	Get(ctx context.Context, id string) (*rulesetpb.SecRulesetEvent, error)
 	Delete(ctx context.Context, id string) error
 
-	WithTX(tx *postgres.TxSession) IRulesetEvent
+	WithTX(tx *postgres.TxSession) ISecRulesetEvent
 
 	List(ctx context.Context,
-		filter *eventfilter.Filter) ([]*rulesetpb.RulesetEvent, error)
+		filter *eventfilter.Filter) ([]*rulesetpb.SecRulesetEvent, error)
 	// Histogram counts the events per bucket, resource and behavior
 	// (histogram.Point.Key).
 	// The events of events only when set (see eventreader.Reader).
@@ -82,22 +82,22 @@ type IRulesetEvent interface {
 	topvalues.TopValuer
 }
 
-type RulesetEvents struct {
-	*eventreader.Reader[rulesetpb.RulesetEvent]
+type SecRulesetEvents struct {
+	*eventreader.Reader[rulesetpb.SecRulesetEvent]
 }
 
-// New returns the repo of the sztable.AnalyticRulesetsEvent
+// New returns the repo of the sztable.AnalyticSecRulesetsEvent
 // hypertable, and of its histograms.
 func New(ctx context.Context,
-	appConf *settingpb.Config) (IRulesetEvent, error) {
+	appConf *settingpb.Config) (ISecRulesetEvent, error) {
 	reader, err := eventreader.New(ctx, appConf, _spec)
 	if err != nil {
 		return nil, err
 	}
 
-	return &RulesetEvents{Reader: reader}, nil
+	return &SecRulesetEvents{Reader: reader}, nil
 }
 
-func (r *RulesetEvents) WithTX(tx *postgres.TxSession) IRulesetEvent {
-	return &RulesetEvents{Reader: r.WithTx(tx)}
+func (r *SecRulesetEvents) WithTX(tx *postgres.TxSession) ISecRulesetEvent {
+	return &SecRulesetEvents{Reader: r.WithTx(tx)}
 }

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package ruleset
+package secruleset
 
 import (
 	"context"
@@ -31,54 +31,54 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
-// The ruleset column holds the proto JSON of the CRS setting: fields by
+// The setting column holds the proto JSON of the CRS setting: fields by
 // their proto name, enums by their value name. The list filters rely on
 // this encoding.
 var _marshalRuleset = protojson.MarshalOptions{UseProtoNames: true}
 
 // nolint
-type IRuleset interface {
-	Create(ctx context.Context, model *securitypb.Ruleset) (*securitypb.Ruleset, error)
-	Update(ctx context.Context, model *securitypb.Ruleset, paths []string) error
-	Get(ctx context.Context, id string) (*securitypb.Ruleset, error)
+type ISecRuleset interface {
+	Create(ctx context.Context, model *securitypb.SecRuleset) (*securitypb.SecRuleset, error)
+	Update(ctx context.Context, model *securitypb.SecRuleset, paths []string) error
+	Get(ctx context.Context, id string) (*securitypb.SecRuleset, error)
 	Delete(ctx context.Context, id string) error
 
-	WithTX(tx *postgres.TxSession) IRuleset
+	WithTX(tx *postgres.TxSession) ISecRuleset
 
-	List(ctx context.Context, req *securitypb.ListRulesetsRequest) ([]*securitypb.Ruleset, int64, error)
+	List(ctx context.Context, req *securitypb.ListSecRulesetsRequest) ([]*securitypb.SecRuleset, int64, error)
 }
 
-var _ IRuleset = (*Ruleset)(nil)
+var _ ISecRuleset = (*SecRuleset)(nil)
 
-// New creates a Ruleset repository backed by Postgres.
+// New creates a SecRuleset repository backed by Postgres.
 func New(
 	ctx context.Context, appConf *settingpb.Config,
-) (IRuleset, error) {
-	storage, err := postgres.New[securitypb.Ruleset](ctx, appConf,
-		schema.SecurityRulesets())
+) (ISecRuleset, error) {
+	storage, err := postgres.New[securitypb.SecRuleset](ctx, appConf,
+		schema.SecuritySecRulesets())
 	if err != nil {
 		return nil, err
 	}
 
-	return &Ruleset{
+	return &SecRuleset{
 		storage: storage,
 	}, nil
 }
 
-// Ruleset is the Postgres repository for OWASP CRS configurations.
-type Ruleset struct {
-	storage dbx.Database[securitypb.Ruleset]
+// SecRuleset is the Postgres repository for OWASP CRS configurations.
+type SecRuleset struct {
+	storage dbx.Database[securitypb.SecRuleset]
 }
 
-func (r *Ruleset) WithTX(tx *postgres.TxSession) IRuleset {
-	return &Ruleset{
+func (r *SecRuleset) WithTX(tx *postgres.TxSession) ISecRuleset {
+	return &SecRuleset{
 		storage: postgres.WithTx(tx, r.storage),
 	}
 }
 
-func (r *Ruleset) List(ctx context.Context,
-	req *securitypb.ListRulesetsRequest,
-) ([]*securitypb.Ruleset, int64, error) {
+func (r *SecRuleset) List(ctx context.Context,
+	req *securitypb.ListSecRulesetsRequest,
+) ([]*securitypb.SecRuleset, int64, error) {
 	conds, err := listConditions(req)
 	if err != nil {
 		return nil, 0, err
@@ -93,10 +93,10 @@ func (r *Ruleset) List(ctx context.Context,
 	if err != nil {
 		return nil, 0, err
 	}
-	szlog.Debug("[security.ruleset] query: ", query, " args: ", args)
+	szlog.Debug("[security.secrulesets] query: ", query, " args: ", args)
 
 	models, err := r.storage.CollectRows(
-		ctx, builder, securitypb.ScanRuleset)
+		ctx, builder, securitypb.ScanSecRuleset)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -114,7 +114,7 @@ func (r *Ruleset) List(ctx context.Context,
 }
 
 // total counts the rows matching the list conditions.
-func (r *Ruleset) total(
+func (r *SecRuleset) total(
 	ctx context.Context, conds []sq.Sqlizer,
 ) (int64, error) {
 	builder := postgres.CountBuilder(r.storage)
@@ -130,9 +130,9 @@ func (r *Ruleset) total(
 	return total, nil
 }
 
-func (r *Ruleset) Create(ctx context.Context,
-	model *securitypb.Ruleset) (*securitypb.Ruleset, error) {
-	model.Id = szrand.NewUUID(szprefix.Ruleset)
+func (r *SecRuleset) Create(ctx context.Context,
+	model *securitypb.SecRuleset) (*securitypb.SecRuleset, error) {
+	model.Id = szrand.NewUUID(szprefix.SecRuleset)
 	row, err := rulesetRow(model)
 	if err != nil {
 		return nil, err
@@ -147,23 +147,23 @@ func (r *Ruleset) Create(ctx context.Context,
 	return model, nil
 }
 
-func (r *Ruleset) Delete(ctx context.Context, id string) error {
+func (r *SecRuleset) Delete(ctx context.Context, id string) error {
 	return r.storage.Delete(ctx, id)
 }
 
-func (r *Ruleset) Get(
+func (r *SecRuleset) Get(
 	ctx context.Context,
 	id string,
-) (*securitypb.Ruleset, error) {
+) (*securitypb.SecRuleset, error) {
 	builder := r.selectQuery(nil).
-		Where(sq.Eq{securitypb.Ruleset_Id: id})
-	return r.storage.Select(ctx, builder, securitypb.ScanOneRuleset)
+		Where(sq.Eq{securitypb.SecRuleset_Id: id})
+	return r.storage.Select(ctx, builder, securitypb.ScanOneSecRuleset)
 }
 
 // Update writes the columns of the fields of model paths names, as
 // szprotobuf.ApplyMask returns them; a path of no column is skipped.
-func (r *Ruleset) Update(ctx context.Context,
-	model *securitypb.Ruleset, paths []string) error {
+func (r *SecRuleset) Update(ctx context.Context,
+	model *securitypb.SecRuleset, paths []string) error {
 
 	row, err := rulesetRow(model)
 	if err != nil {
@@ -178,8 +178,8 @@ func (r *Ruleset) Update(ctx context.Context,
 }
 
 // rulesetRow the stored columns of model.
-func rulesetRow(model *securitypb.Ruleset) (postgres.M, error) {
-	crsJSON, err := marshalRuleset(model.GetRuleset())
+func rulesetRow(model *securitypb.SecRuleset) (postgres.M, error) {
+	crsJSON, err := marshalRuleset(model.GetSetting())
 	if err != nil {
 		return nil, err
 	}
@@ -187,23 +187,23 @@ func rulesetRow(model *securitypb.Ruleset) (postgres.M, error) {
 	owner := model.GetOwner()
 
 	return postgres.M{
-		securitypb.Ruleset_Id:              model.GetId(),
-		securitypb.Ruleset_Name:            model.GetName(),
-		securitypb.Ruleset_Description:     model.GetDescription(),
-		securitypb.Ruleset_Ruleset:         crsJSON,
-		securitypb.Ruleset_OwnerResourceId: owner.GetResourceId(),
-		securitypb.Ruleset_OwnerTenantId:   owner.GetTenantId(),
+		securitypb.SecRuleset_Id:              model.GetId(),
+		securitypb.SecRuleset_Name:            model.GetName(),
+		securitypb.SecRuleset_Description:     model.GetDescription(),
+		securitypb.SecRuleset_Setting:         crsJSON,
+		securitypb.SecRuleset_OwnerResourceId: owner.GetResourceId(),
+		securitypb.SecRuleset_OwnerTenantId:   owner.GetTenantId(),
 	}, nil
 }
 
-func (r *Ruleset) selectQuery(page *typepb.Pages) sq.SelectBuilder {
+func (r *SecRuleset) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 	return postgres.SelectBuilder(r.storage, page,
-		securitypb.RulesetColumns()...)
+		securitypb.SecRulesetColumns()...)
 }
 
 // marshalRuleset a nil setting is stored as an empty object,
-// so the ruleset filters never meet a NULL.
-func marshalRuleset(setting *rulesetpb.Ruleset) (string, error) {
+// so the setting filters never meet a NULL.
+func marshalRuleset(setting *rulesetpb.Setting) (string, error) {
 	if setting == nil {
 		return "{}", nil
 	}
