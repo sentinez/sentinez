@@ -345,3 +345,33 @@ setting:
     # customHeader:                    # Custom HTTP headers
     #   X-User-Type: "premium"
     {}
+
+  # ----------------------------------------------------------
+  # SCRIPTING — LUA HOOKS
+  # ----------------------------------------------------------
+  # The annotations of a global function hook it, whatever its name, to
+  # stages of the edge chain: ---@module <stage> names them, ---@types
+  # before|after when it runs. Stages, in chain order: CDN (cache),
+  # LMT (rate limiter), ROM (waiting room), STC (static files),
+  # RUL (secrules), RST (rulesets), ROU (router).
+  # ctx reads the request (method, path, host, ip, header, query),
+  # sets headers (set_header: sent upstream, set_response_header)
+  # and answers it (respond(status, body), before only).
+  # log.info(...) and log.debug(...) (or log:info, log:debug) write to
+  # the logs of the request.
+  # A script that fails is skipped; each call has a 50ms limit.
+  # Editor types: staging/src/github.com/sentinez/scripting/szlua/meta
+  # (LuaLS), annotate the hooks with ---@param ctx sz.Context.
+  # ----------------------------------------------------------
+  scripting:
+    scripts:
+      - id: "script_example"
+        name: "tag requests"
+        source: |
+          ---@module ROU
+          ---@types before
+          ---@param ctx sz.Context
+          function tag_edge(ctx)
+            log.debug("tag", ctx:host(), ctx:path())
+            ctx:set_header("X-Edge", "sentinez")
+          end

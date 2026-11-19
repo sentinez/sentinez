@@ -8,6 +8,7 @@ replace (
 	github.com/sentinez/controlplane => ./staging/src/github.com/sentinez/controlplane
 	github.com/sentinez/core => ./staging/src/github.com/sentinez/core
 	github.com/sentinez/pkg => ./staging/src/github.com/sentinez/pkg
+	github.com/sentinez/scripting => ./staging/src/github.com/sentinez/scripting
 	github.com/sentinez/sentinez/api => ./api
 )
 
@@ -29,6 +30,7 @@ require (
 	github.com/sentinez/controlplane v0.0.0-00010101000000-000000000000
 	github.com/sentinez/core v0.0.0-20260513071300-d9570928a8b6
 	github.com/sentinez/pkg v0.0.0-20260320080007-e18dc9bbf0a7
+	github.com/sentinez/scripting v0.0.0-00010101000000-000000000000
 	github.com/sentinez/sentinez/api v0.0.0
 	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.12.1
@@ -141,6 +143,7 @@ require (
 	github.com/vmihailenco/msgpack/v5 v5.4.1 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
+	github.com/yuin/gopher-lua v1.1.1 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/contrib/bridges/otelzap v0.20.1 // indirect
 	go.opentelemetry.io/otel v1.47.0 // indirect

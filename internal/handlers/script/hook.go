@@ -1,0 +1,134 @@
+// Copyright 2026 Duc-Hung Ho.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//	http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Package script runs the Lua scripts of a namespace around the stages of
+// the edge chain.
+package script
+
+import (
+	"slices"
+
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szhttp/chains"
+	"github.com/sentinez/core/szhttp/variable"
+	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/scripting/szlua"
+	"github.com/sentinez/sentinez/internal/memory/scripts"
+)
+
+var _ chains.WrapFunc = (*Hooks)(nil).Wrap
+
+// Hooks wraps the handlers of the plugins to call the hooks of the
+// scripts of the namespace of the request.
+type Hooks struct {
+	store *scripts.Scripts
+}
+
+func New(store *scripts.Scripts) *Hooks {
+	return &Hooks{store: store}
+}
+
+// Wrap returns h, the handler running the plugin id, with the hooks of
+// the stage id around it. A stage scripts may not hook (szlua.Stages) is
+// returned as is.
+//
+// The hooks of @types before run before the plugin: a script answering
+// the request ends it there. The ones of @types after run when the
+// plugin, and the ones after it, returned: the response is written, they
+// only observe.
+func (h *Hooks) Wrap(id string, next chains.Handler) chains.Handler {
+	if !slices.Contains(szlua.Stages(), id) {
+		return next
+	}
+
+	return &hooked{store: h.store, stage: id, next: next}
+}
+
+type hooked struct {
+	store *scripts.Scripts
+	stage string
+	next  chains.Handler
+}
+
+func (h *hooked) Handle(ctx szhttp.Context) error {
+	programs := h.store.LoadContext(ctx)
+	if len(programs) == 0 {
+		return h.next.Handle(ctx)
+	}
+
+	ex := &exchange{Context: ctx}
+	if h.run(ctx, programs, szlua.Before, ex) {
+		return nil
+	}
+
+	err := h.next.Handle(ctx)
+	h.run(ctx, programs, szlua.After, ex)
+
+	return err
+}
+
+// run calls the hooks of each script at phase, and reports whether one
+// answered the request. A script that fails is skipped: the request goes
+// on.
+func (h *hooked) run(ctx szhttp.Context, programs []*szlua.Program,
+	phase szlua.Phase, ex *exchange) bool {
+
+	for _, p := range programs {
+		responded, err := p.Call(ctx.Context(), phase, h.stage, ex)
+		if err != nil {
+			szlog.Warnf("script: request %s: %v", ctx.RequestId(), err)
+
+			continue
+		}
+
+		if responded {
+			return true
+		}
+	}
+
+	return false
+}
+
+// exchange the request of a hook: the headers it sets are validated, and
+// the ones sent upstream are recorded for the egress log.
+type exchange struct {
+	szhttp.Context
+}
+
+var _ szlua.Exchange = (*exchange)(nil)
+
+func (e *exchange) SetHeader(k, v string) {
+	if variable.IsValidHeaderKey(k) {
+		szhttp.SetUpstreamHeader(e.Context, k, v)
+	}
+}
+
+func (e *exchange) SetResponseHeader(k, v string) {
+	if variable.IsValidHeaderKey(k) {
+		e.Context.SetResponseHeader([]byte(k), []byte(v))
+	}
+}
+
+// Log writes a line of log.debug or log.info of a script, with the id of
+// the request.
+func (e *exchange) Log(level szlua.Level, script, msg string) {
+	rid := e.RequestId()
+	if level == szlua.LevelDebug {
+		szlog.Debugf("script: request %s: %s: %s", rid, script, msg)
+
+		return
+	}
+
+	szlog.Infof("script: request %s: %s: %s", rid, script, msg)
+}
