@@ -7,7 +7,6 @@ import {
   EngineMode,
   RuleState,
   CRSVersion,
-  Provider,
 } from '@sentinez/proto/sentinez/types/ruleset/v1/setting';
 import { ActionType, FieldSource } from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import {
@@ -17,11 +16,12 @@ import {
   CRS_RESPONSE_CODE,
   CRS_VERSIONS,
   ENGINE_MODES,
-  PROVIDERS,
   FIELD_SOURCES,
   PRIORITIES,
   RULE_STATES,
   STATUSES,
+  MANAGED_SOURCE,
+  type RulesetSource,
   type SelectOption,
 } from '@/lib/type/security';
 
@@ -56,16 +56,6 @@ export function useSecurityOptions() {
       description: t(`actionTypeDescription.${ACTION_TYPE_KEY[value]}`),
     }));
 
-    // ── Ruleset provider ──
-    const providerOptions: SelectOption<Provider>[] = PROVIDERS.map(({ key, value }) => ({
-      label: t(`provider.${key}`),
-      value,
-      description: t(`providerDescription.${key}`),
-    }));
-    // unspecified is run as OWASP by the edge
-    const providerLabel = (provider?: Provider) =>
-      providerOptions.find((o) => o.value === (provider || Provider.PROVIDER_OWASP))?.label ?? '';
-
     // ── OWASP Core Rule Set ──
     const engineModeOptions: SelectOption<EngineMode>[] = ENGINE_MODES.map(({ key, value }) => ({
       label: t(`engineMode.${key}`),
@@ -75,16 +65,28 @@ export function useSecurityOptions() {
     // unspecified is treated as off by the edge
     const engineModeLabel = (mode?: EngineMode) =>
       (engineModeOptions.find((o) => o.value === mode) ?? engineModeOptions.at(-1))?.label ?? '';
-    const crsVersionOptions: SelectOption<CRSVersion>[] = [
+    // ── Ruleset source: the provider, with the CRS version of OWASP ──
+    const owasp = t('provider.owasp');
+    const sourceOptions: SelectOption<RulesetSource>[] = [
       {
-        label: t('crsVersion.latest'),
+        label: `${owasp} · ${t('crsVersion.latest')}`,
         value: CRSVersion.CRS_VERSION_UNSPECIFIED,
         description: t('crsVersion.latestDescription'),
       },
-      ...CRS_VERSIONS.map(({ label, value }) => ({ label, value, description: '' })),
+      ...CRS_VERSIONS.map(({ label, value }) => ({
+        label: `${owasp} ${label}`,
+        value,
+        description: t('providerDescription.owasp'),
+      })),
+      {
+        label: t('provider.managed'),
+        value: MANAGED_SOURCE,
+        description: t('providerDescription.managed'),
+      },
     ];
-    const crsVersionLabel = (version?: CRSVersion) =>
-      (crsVersionOptions.find((o) => o.value === version) ?? crsVersionOptions[0])?.label ?? '';
+    // an unset provider is run as OWASP by the edge
+    const sourceLabel = (source: RulesetSource) =>
+      (sourceOptions.find((o) => o.value === source) ?? sourceOptions[0])?.label ?? '';
     const crsCategoryOptions: {
       label: string;
       value: Category;
@@ -103,12 +105,10 @@ export function useSecurityOptions() {
     }));
 
     return {
-      providerOptions,
-      providerLabel,
       engineModeOptions,
       engineModeLabel,
-      crsVersionOptions,
-      crsVersionLabel,
+      sourceOptions,
+      sourceLabel,
       crsCategoryOptions,
       ruleStateOptions,
       actionTypeLabel,

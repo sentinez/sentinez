@@ -145,16 +145,22 @@ export const ACTION_TYPES: ActionType[] = [
 
 // ─── OWASP Core Rule Set ─────────────────────────────────────────────────────
 
-/** Selectable ruleset providers (key into Enum.provider / Enum.providerDescription) */
-export const PROVIDERS = [
-  { key: 'owasp', value: Provider.PROVIDER_OWASP },
-  { key: 'managed', value: Provider.PROVIDER_MANAGED },
-] as const;
-
 /** Provider of a setting; unset is run as OWASP by the edge */
 export const providerOf = (setting?: Setting) => setting?.provider || Provider.PROVIDER_OWASP;
 
 export const isManagedProvider = (provider?: Provider) => provider === Provider.PROVIDER_MANAGED;
+
+/** Source of a managed ruleset, outside the CRSVersion values */
+export const MANAGED_SOURCE = -1;
+
+/**
+ * Source of a ruleset, picked in one select: the CRS version of an OWASP
+ * ruleset, or MANAGED_SOURCE.
+ */
+export type RulesetSource = CRSVersion | typeof MANAGED_SOURCE;
+
+export const sourceOf = (provider?: Provider, version?: CRSVersion): RulesetSource =>
+  isManagedProvider(provider) ? MANAGED_SOURCE : (version ?? CRSVersion.CRS_VERSION_UNSPECIFIED);
 
 /** Engine mode of the provider the setting uses */
 export const modeOf = (setting?: Setting) =>

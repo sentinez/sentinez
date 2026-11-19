@@ -16,8 +16,8 @@ import { Label } from '@sentinez/ui/components/label';
 import { Textarea } from '@sentinez/ui/components/textarea';
 import { Category } from '@sentinez/proto/sentinez/types/ruleset/v1/setting';
 import { useSecurityOptions } from '@/hooks/use-security-options';
-import { HTTP_METHODS, isManagedProvider, SelectOption } from '@/lib/type/security';
-import { RulesetFormValue } from './ruleset-form';
+import { HTTP_METHODS, isManagedProvider, SelectOption, sourceOf } from '@/lib/type/security';
+import { RulesetFormValue, sourcePatch } from './ruleset-form';
 import { ExclusionsEditor, OverridesEditor, SwitchField } from './ruleset-rules';
 import { useCRSRuleInfos } from './rule-picker';
 import { OptionSelect } from './sec-rule-fields';
@@ -225,12 +225,6 @@ function CrsSections({ value, onChange, idPrefix }: Required<Props>) {
   return (
     <>
       <Section title={t('engine')} hint={t('engineHint')}>
-        <OptionSelect
-          label={t('version')}
-          value={value.version}
-          options={options.crsVersionOptions}
-          onChange={(version) => onChange({ version })}
-        />
         <FieldGrid>
           <OptionSelect
             label={t('paranoiaLevel')}
@@ -388,11 +382,12 @@ export function RulesetFields({ value, onChange, idPrefix = 'ruleset' }: Props) 
           options={options.statusOptions}
           onChange={(status) => onChange({ status })}
         />
+        {/* the provider, with the CRS version of OWASP */}
         <OptionSelect
           label={t('provider')}
-          value={value.provider}
-          options={options.providerOptions}
-          onChange={(provider) => onChange({ provider })}
+          value={sourceOf(value.provider, value.version)}
+          options={options.sourceOptions}
+          onChange={(source) => onChange(sourcePatch(source))}
         />
       </FieldGrid>
       {/* the mode of the provider the ruleset uses */}

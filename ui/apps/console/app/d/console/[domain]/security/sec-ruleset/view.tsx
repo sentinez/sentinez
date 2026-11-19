@@ -6,7 +6,6 @@ import {
   getCoreRowModel,
   useReactTable,
   type ColumnDef,
-  type Row,
   type VisibilityState,
 } from '@tanstack/react-table';
 import {
@@ -47,13 +46,14 @@ import { useTranslations } from 'next-intl';
 import { listSecRulesets, type Pages, deleteSecRuleset } from '@/lib/api/security';
 import BadgeStatus from '@/components/badge-status';
 import { SecRuleset } from '@sentinez/proto/sentinez/apps/security/v1/model';
-import { Crs, EngineMode } from '@sentinez/proto/sentinez/types/ruleset/v1/setting';
+import { EngineMode } from '@sentinez/proto/sentinez/types/ruleset/v1/setting';
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 import {
   ENGINE_MODE_BADGE_VARIANT,
-  isManagedProvider,
   modeOf,
+  sourceOf,
   statusLabel,
+  type RulesetSource,
 } from '@/lib/type/security';
 import { TablePagination } from '@/components/table-pagination';
 import { TableSkeletonRows } from '@/components/table-skeleton';
@@ -69,23 +69,11 @@ import {
   PageLayoutToolbar,
 } from '@/components/page-layout';
 import { FixedTable } from '@/components/fixed-table';
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 type RulesetsTranslator = ReturnType<typeof useTranslations<'Rulesets'>>;
 type CommonTranslator = ReturnType<typeof useTranslations<'Common'>>;
 type SecurityOptions = ReturnType<typeof useSecurityOptions>;
-
-/** Cell of a CRS field: not applicable to a managed ruleset */
-const crsCell = (t: RulesetsTranslator, render: (crs: Crs | undefined) => ReactNode) =>
-  function CrsCell({ row }: { row: Row<SecRuleset> }) {
-    return (
-      <div className="truncate tabular-nums">
-        {isManagedProvider(row.original.setting?.provider)
-          ? t('notApplicable')
-          : render(row.original.setting?.crs)}
-      </div>
-    );
-  };
 
 export const getColumns = (
   t: RulesetsTranslator,
@@ -123,12 +111,12 @@ export const getColumns = (
   },
   {
     id: 'provider',
-    accessorFn: (r) => r.setting?.provider,
-    size: 130,
+    accessorFn: (r) => sourceOf(r.setting?.provider, r.setting?.crs?.version),
+    size: 190,
     meta: { label: t('provider') },
     header: () => <div>{t('provider')}</div>,
-    cell: ({ row }) => (
-      <Badge variant="outline">{options.providerLabel(row.original.setting?.provider)}</Badge>
+    cell: ({ getValue }) => (
+      <Badge variant="outline">{options.sourceLabel(getValue<RulesetSource>())}</Badge>
     ),
   },
   {
@@ -143,32 +131,6 @@ export const getColumns = (
         <Badge variant={ENGINE_MODE_BADGE_VARIANT[mode]}>{options.engineModeLabel(mode)}</Badge>
       );
     },
-  },
-  {
-    id: 'version',
-    accessorFn: (r) => r.setting?.crs?.version,
-    size: 150,
-    meta: { label: t('version') },
-    header: () => <div>{t('version')}</div>,
-    cell: crsCell(t, (crs) => options.crsVersionLabel(crs?.version)),
-  },
-  {
-    id: 'paranoiaLevel',
-    accessorFn: (r) => r.setting?.crs?.paranoiaLevel,
-    size: 110,
-    meta: { label: t('paranoiaLevel') },
-    header: () => <div>{t('paranoiaLevel')}</div>,
-    cell: crsCell(t, (crs) => crs?.paranoiaLevel || t('paranoiaDefault')),
-  },
-  {
-    id: 'ruleGroups',
-    accessorFn: (r) => r.setting?.crs?.categories.length,
-    size: 120,
-    meta: { label: t('ruleGroups') },
-    header: () => <div>{t('ruleGroups')}</div>,
-    cell: crsCell(t, (crs) =>
-      crs?.categories.length ? t('groupsCount', { count: crs.categories.length }) : t('allGroups'),
-    ),
   },
   {
     id: 'status',
