@@ -428,6 +428,7 @@
     "allowedMethods": "Method được phép",
     "allowedMethodsHint": "Để trống để dùng mặc định của CRS.",
     "allowedMethodsDefault": "Mặc định của CRS",
+    "allowedMethodsAll": "Tất cả method",
     "allowedContentTypes": "Content type được phép",
     "allowedContentTypesHint": "Ngăn cách bằng dấu phẩy hoặc khoảng trắng; để trống dùng mặc định của CRS.",
     "exclusions": "Ngoại lệ",

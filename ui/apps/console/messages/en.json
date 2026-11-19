@@ -428,6 +428,7 @@
     "allowedMethods": "Allowed methods",
     "allowedMethodsHint": "Leave empty to use the CRS default.",
     "allowedMethodsDefault": "CRS default",
+    "allowedMethodsAll": "All methods",
     "allowedContentTypes": "Allowed content types",
     "allowedContentTypesHint": "Separated by commas or spaces; empty uses the CRS default.",
     "exclusions": "Exclusions",
