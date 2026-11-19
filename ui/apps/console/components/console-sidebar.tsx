@@ -32,6 +32,7 @@ import { ChevronLeft, Search } from 'lucide-react';
 import SidebarLoading from './sidebar-loading';
 import { ComponentProps, ReactNode, useEffect, useMemo, useState, useTransition } from 'react';
 import { useLocalUser } from '@/components/user-menu';
+import { isUnder } from '@/lib/session';
 
 type SidebarProps = ComponentProps<typeof Sidebar>;
 
@@ -70,6 +71,19 @@ function withDomain(items: NavItem[], domain: string): NavItem[] {
   }));
 }
 
+/**
+ * The longest url among `item`, its children and their sub items that
+ * `pathname` matches: `sec-rule` must not win over `sec-ruleset`.
+ */
+function bestUrl(item: NavItem, pathname: string): string | undefined {
+  let best = isUnder(pathname, item.url) ? item.url : undefined;
+  for (const child of item.items ?? []) {
+    const url = bestUrl(child, pathname);
+    if (url && url.length > (best?.length ?? 0)) best = url;
+  }
+  return best;
+}
+
 function domainUrl(url: string, domain: string) {
   if (!url.startsWith('/d/console/')) return url;
   const parts = url.split('/');
@@ -94,8 +108,9 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
   const [activeItem, setActiveItem] = useState(navMain[0]);
   const [childItems, setChildItems] = useState(navMain[0]?.items);
   const [navIndex, setNavIndex] = useState(0);
-  const [tabIndex, setTabIndex] = useState(-1);
-  const [subTabIndex, setSubTabIndex] = useState(-1);
+  // The url of the selected tab or sub tab; set on click so the selection
+  // moves at once, then synced from the pathname.
+  const [activeUrl, setActiveUrl] = useState('');
   const [search, setSearch] = useState('');
   const [mobileTab, setMobileTab] = useState<'main' | 'domain'>('domain');
   const { setOpen, setOpenMobile, isMobile } = useSidebar();
@@ -118,22 +133,17 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
   }, [search, activeItem, navIndex, navMain, t]);
 
   useEffect(() => {
+    let best: { item: NavItem; index: number; url: string } | undefined;
     for (const [index, item] of navMain.entries()) {
-      const matchedChild = item.items?.find((subItem) => pathname.startsWith(subItem.url));
-      if (pathname.startsWith(item.url) || matchedChild) {
-        setActiveItem(item);
-        setNavIndex(index);
-        setChildItems(item.items);
+      const url = bestUrl(item, pathname);
+      if (url && url.length > (best?.url.length ?? 0)) best = { item, index, url };
+    }
 
-        if (item.items && matchedChild) {
-          setTabIndex(item.items.findIndex((sub) => sub.url === matchedChild.url));
-          setSubTabIndex(
-            matchedChild.items?.findIndex((sub) => pathname.startsWith(sub.url)) ?? -1,
-          );
-        }
-
-        break;
-      }
+    setActiveUrl(best?.url ?? '');
+    if (best) {
+      setActiveItem(best.item);
+      setNavIndex(best.index);
+      setChildItems(best.item.items);
     }
 
     // Always leave the skeleton state, even when no nav item/child matched.
@@ -146,7 +156,7 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
     startTransitionNavMain(() => {
       setActiveItem(item);
       setChildItems(item.items);
-      setTabIndex(0);
+      setActiveUrl(item.url);
       setNavIndex(index);
       setOpen(true);
       if (isMobile) {
@@ -159,30 +169,20 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
     });
   };
 
+  const navigateTo = (url: string) => {
+    router.push(url);
+
+    startTransitionChildren(() => {
+      setActiveUrl(url);
+      if (isMobile) {
+        setOpenMobile(false);
+      }
+    });
+  };
+
   /** A tab with sub tabs opens its first sub tab. */
-  const handlerSidebarChildrenClick = (item: NavItem, index: number) => {
-    const firstSubItem = item.items?.[0];
-    router.push(firstSubItem?.url ?? item.url);
-
-    startTransitionChildren(() => {
-      setTabIndex(index);
-      setSubTabIndex(firstSubItem ? 0 : -1);
-      if (isMobile) {
-        setOpenMobile(false);
-      }
-    });
-  };
-
-  const handlerSidebarSubChildrenClick = (item: NavItem, index: number) => {
-    router.push(item.url);
-
-    startTransitionChildren(() => {
-      setSubTabIndex(index);
-      if (isMobile) {
-        setOpenMobile(false);
-      }
-    });
-  };
+  const handlerSidebarChildrenClick = (item: NavItem) =>
+    navigateTo(item.items?.[0]?.url ?? item.url);
 
   return (
     <Sidebar
@@ -325,7 +325,7 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
                 {loading ? (
                   <SidebarLoading />
                 ) : (
-                  childItems?.map((item, index) => (
+                  childItems?.map((item) => (
                     <SidebarMenuItem key={item.titleKey}>
                       <SidebarMenu>
                         {/* A tab with sub tabs always shows them */}
@@ -333,29 +333,27 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
                           <SidebarMenuButton
                             tooltip={t(item.titleKey)}
                             size="default"
-                            onClick={() => handlerSidebarChildrenClick(item, index)}
+                            onClick={() => handlerSidebarChildrenClick(item)}
                             className="px-2.5 md:px-2 cursor-pointer"
-                            isActive={tabIndex === index && subTabIndex === -1}
+                            isActive={activeUrl === item.url}
                           >
                             {item.icon && <item.icon />}
                             <span>{t(item.titleKey)}</span>
                           </SidebarMenuButton>
                           {!!item.items?.length && (
                             <SidebarMenuSub>
-                              {item.items.map((subItem, subIndex) => (
+                              {item.items.map((subItem) => (
                                 <SidebarMenuSubItem key={subItem.titleKey}>
                                   <SidebarMenuSubButton
                                     asChild
-                                    isActive={subTabIndex === subIndex}
-                                    onClick={() =>
-                                      handlerSidebarSubChildrenClick(subItem, subIndex)
-                                    }
+                                    isActive={activeUrl === subItem.url}
+                                    onClick={() => navigateTo(subItem.url)}
                                     className="px-2.5 md:px-2 cursor-pointer"
                                   >
                                     <div>
                                       {subItem.icon && <subItem.icon />}
                                       <span
-                                        className={subTabIndex === subIndex ? 'font-semibold' : ''}
+                                        className={activeUrl === subItem.url ? 'font-semibold' : ''}
                                       >
                                         {t(subItem.titleKey)}
                                       </span>

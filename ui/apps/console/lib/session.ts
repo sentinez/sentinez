@@ -68,7 +68,8 @@ export function homePath(): string {
   return localStorage.getItem(SENTINEZ_TENANT_KEY) ? DOMAIN_PATH : TENANT_PATH;
 }
 
-function isUnder(pathname: string, base: string): boolean {
+/** Whether `pathname` is `base` or below it, at a segment boundary. */
+export function isUnder(pathname: string, base: string): boolean {
   return pathname === base || pathname.startsWith(`${base}/`);
 }
 
