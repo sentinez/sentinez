@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
+  type CarouselApi,
   Carousel,
   CarouselContent,
   CarouselItem,
@@ -46,12 +47,34 @@ const listTenantsMinLoading = (...args: Parameters<typeof listTenants>) =>
 const ENTER = 'animate-in fade-in slide-in-from-bottom-4 fill-mode-both duration-400 ease-out';
 const enterDelay = (index: number) => ({ animationDelay: `${index * 70}ms` });
 
+/**
+ * Whether the carousel has cards out of view, on either side; kept in step
+ * as it is resized or its cards change.
+ */
+function useScrollable() {
+  const [api, setApi] = useState<CarouselApi>();
+  const [value, setValue] = useState(false);
+
+  useEffect(() => {
+    if (!api) return;
+    const update = () => setValue(api.canScrollPrev() || api.canScrollNext());
+    update();
+    api.on('reInit', update).on('select', update);
+    return () => {
+      api.off('reInit', update).off('select', update);
+    };
+  }, [api]);
+
+  return { value, setApi };
+}
+
 export default function View() {
   const t = useTranslations('Tenant');
   const tc = useTranslations('Common');
   const [search, setSearch] = useState('');
   const name = useDebounced(search.trim());
   const { data, isLoading, refresh } = useApi(listTenantsMinLoading, { name });
+  const scrollable = useScrollable();
 
   const tenants = data?.tenants ?? [];
   // While loading, keep as many cards as before (a full row on first load)
@@ -98,6 +121,7 @@ export default function View() {
           {visible > 0 && (
             <Carousel
               opts={CAROUSEL_OPTS}
+              setApi={scrollable.setApi}
               className="w-full max-w-sm sm:mx-12 sm:w-(--carousel-width) sm:max-w-[calc(100%-6rem)]"
               style={
                 {
@@ -125,7 +149,8 @@ export default function View() {
                       </CarouselItem>
                     ))}
               </CarouselContent>
-              {!isLoading && tenants.length > VISIBLE_CARDS && (
+              {/* also when a narrow screen cuts the row of cards */}
+              {!isLoading && scrollable.value && (
                 <>
                   <CarouselPrevious className="hidden sm:inline-flex" />
                   <CarouselNext className="hidden sm:inline-flex" />

@@ -108,7 +108,7 @@ export function RateLimitFields({ value, onChange, idPrefix = 'ratelimit' }: Pro
         <Label>{t('rateLimit')}</Label>
         <p className="text-sm text-muted-foreground">{t('rateLimitHint')}</p>
         <FieldGrid cols={3}>
-          <div className="grid gap-2 content-start">
+          <div className="grid grid-cols-1 gap-2 content-start">
             <Label htmlFor={`${idPrefix}-max-requests`}>{t('maxRequests')}</Label>
             <Input
               id={`${idPrefix}-max-requests`}
@@ -120,7 +120,7 @@ export function RateLimitFields({ value, onChange, idPrefix = 'ratelimit' }: Pro
               onChange={(e) => onChange({ maxRequests: e.target.valueAsNumber })}
             />
           </div>
-          <div className="grid gap-2 content-start">
+          <div className="grid grid-cols-1 gap-2 content-start">
             <Label htmlFor={`${idPrefix}-time-window`}>{t('timeWindow')}</Label>
             <Input
               id={`${idPrefix}-time-window`}
@@ -132,7 +132,7 @@ export function RateLimitFields({ value, onChange, idPrefix = 'ratelimit' }: Pro
             />
             <p className="text-sm text-muted-foreground">{t('timeWindowHint')}</p>
           </div>
-          <div className="grid gap-2 content-start">
+          <div className="grid grid-cols-1 gap-2 content-start">
             <Label htmlFor={`${idPrefix}-timeout`}>{t('blockTimeout')}</Label>
             <Input
               id={`${idPrefix}-timeout`}

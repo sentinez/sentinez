@@ -132,7 +132,7 @@ function Field({
   children,
 }: Readonly<{ label: string; mono?: boolean; className?: string; children: ReactNode }>) {
   return (
-    <div className={cn('grid min-w-0 content-start gap-1', className)}>
+    <div className={cn('grid min-w-0 grid-cols-1 content-start gap-1', className)}>
       <dt className="text-muted-foreground text-xs">{label}</dt>
       <dd className={cn('text-sm wrap-break-word', mono && 'font-mono break-all')}>{children}</dd>
     </div>

@@ -59,7 +59,7 @@ function CountField({
   onChange: (value: number) => void;
 }) {
   return (
-    <div className="grid gap-2 content-start">
+    <div className="grid grid-cols-1 gap-2 content-start">
       <Label htmlFor={id}>{label}</Label>
       <Input
         id={id}
@@ -92,7 +92,7 @@ function ListField({
   onChange: (value: string) => void;
 }) {
   return (
-    <div className="grid gap-2 content-start">
+    <div className="grid grid-cols-1 gap-2 content-start">
       <Label htmlFor={id}>{label}</Label>
       <Input
         id={id}

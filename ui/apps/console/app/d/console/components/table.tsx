@@ -28,7 +28,6 @@ import {
 } from '@sentinez/ui/components/dropdown-menu';
 import { Input } from '@sentinez/ui/components/input';
 import {
-  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -51,6 +50,7 @@ import { useTlsModes } from '@/hooks/use-tls-modes';
 import { VISITORS_RESOLUTION, getUniqueVisitorHistogram } from '@/lib/api/analytic';
 import axios from 'axios';
 import { PageLayoutToolbar } from '@/components/page-layout';
+import { FixedTable } from '@/components/fixed-table';
 
 // "STATUS_ACTIVE" -> "active"
 const enumLabel = (v: string, prefix: string) => v.replace(prefix, '').toLowerCase();
@@ -76,7 +76,12 @@ export type Payment = {
 /** The label of a TLS mode */
 function TlsModeLabel({ mode }: { mode: TlsMode }) {
   const { labelOf } = useTlsModes();
-  return <span className="text-sm">{labelOf(mode)}</span>;
+  const label = labelOf(mode);
+  return (
+    <div className="truncate text-sm" title={label}>
+      {label}
+    </div>
+  );
 }
 
 // The unique visitors of the last 24 hours of each resource, one bucket
@@ -114,6 +119,7 @@ type DomainTranslator = ReturnType<typeof useTranslations<'Domain'>>;
 export const getColumns = (t: DomainTranslator): ColumnDef<Payment>[] => [
   {
     accessorKey: 'name',
+    size: 0, // auto: takes the remaining width
     meta: { label: t('name') },
     header: ({ column }) => <div className="w-full">{t('name')}</div>,
     cell: ({ row }) => (
@@ -129,6 +135,7 @@ export const getColumns = (t: DomainTranslator): ColumnDef<Payment>[] => [
   },
   {
     accessorKey: 'status',
+    size: 120,
     meta: { label: t('status') },
     header: () => <div>{t('status')}</div>,
     cell: ({ row }) => (
@@ -139,12 +146,14 @@ export const getColumns = (t: DomainTranslator): ColumnDef<Payment>[] => [
   },
   {
     accessorKey: 'tlsMode',
+    size: 180,
     meta: { label: t('tlsMode') },
     header: () => <div>{t('tlsMode')}</div>,
     cell: ({ row }) => <TlsModeLabel mode={row.original.tlsMode} />,
   },
   {
     accessorKey: 'unique visitor',
+    size: 160,
     meta: { label: t('uniqueVisitor') },
     header: () => <div className="w-full">{t('uniqueVisitor')}</div>,
     cell: ({ row }) => (
@@ -155,6 +164,7 @@ export const getColumns = (t: DomainTranslator): ColumnDef<Payment>[] => [
   },
   {
     id: 'actions',
+    size: 64,
     header: () => <div className="w-full" />,
     cell: ({ row }) => (
       <div className="w-full flex justify-center">
@@ -259,13 +269,20 @@ export function ResourceTable() {
         </DropdownMenu>
       </PageLayoutToolbar>
       <div className="overflow-hidden rounded-md">
-        <Table className="table-fixed w-full">
+        <FixedTable table={table}>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="max-h-fit">
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead
+                      key={header.id}
+                      style={
+                        header.column.columnDef.size
+                          ? { width: header.column.columnDef.size }
+                          : undefined
+                      }
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(header.column.columnDef.header, header.getContext())}
@@ -296,7 +313,7 @@ export function ResourceTable() {
               </TableRow>
             )}
           </TableBody>
-        </Table>
+        </FixedTable>
       </div>
       <TablePagination table={table} total={total} />
     </div>

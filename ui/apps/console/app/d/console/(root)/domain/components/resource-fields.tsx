@@ -164,7 +164,7 @@ export function OptionSelect<T extends number>({
 }) {
   const selected = options.find((o) => o.value === value);
   return (
-    <div className="grid gap-2 content-start">
+    <div className="grid grid-cols-1 gap-2 content-start">
       <Label>{label}</Label>
       <Select value={String(value)} onValueChange={(v) => onChange(Number(v) as T)}>
         <SelectTrigger className="w-full">
@@ -268,7 +268,7 @@ export function ResourceFields({ value, onChange, idPrefix = 'resource' }: Props
   return (
     <div className="flex flex-col gap-4">
       <FieldGrid>
-        <div className="grid gap-2 content-start">
+        <div className="grid grid-cols-1 gap-2 content-start">
           <Label htmlFor={`${idPrefix}-name`}>{t('name')}</Label>
           <Input
             id={`${idPrefix}-name`}
@@ -279,7 +279,7 @@ export function ResourceFields({ value, onChange, idPrefix = 'resource' }: Props
             onChange={(e) => onChange({ resourceName: e.target.value })}
           />
         </div>
-        <div className="grid gap-2 content-start">
+        <div className="grid grid-cols-1 gap-2 content-start">
           <Label htmlFor={`${idPrefix}-domain`}>{t('domain')}</Label>
           <Input
             id={`${idPrefix}-domain`}
