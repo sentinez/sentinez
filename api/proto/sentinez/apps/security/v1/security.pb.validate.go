@@ -2991,3 +2991,147 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = StatusResponseValidationError{}
+
+// Validate checks the field values on GetConditionSchemaRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *GetConditionSchemaRequest) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	return nil
+}
+
+// GetConditionSchemaRequestValidationError is the validation error returned by
+// GetConditionSchemaRequest.Validate if the designated constraints aren't met.
+type GetConditionSchemaRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetConditionSchemaRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetConditionSchemaRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetConditionSchemaRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetConditionSchemaRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetConditionSchemaRequestValidationError) ErrorName() string {
+	return "GetConditionSchemaRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetConditionSchemaRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetConditionSchemaRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetConditionSchemaRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetConditionSchemaRequestValidationError{}
+
+// Validate checks the field values on GetConditionSchemaResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *GetConditionSchemaResponse) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if v, ok := interface{}(m.GetSchema()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetConditionSchemaResponseValidationError{
+				field:  "Schema",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	return nil
+}
+
+// GetConditionSchemaResponseValidationError is the validation error returned
+// by GetConditionSchemaResponse.Validate if the designated constraints aren't met.
+type GetConditionSchemaResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetConditionSchemaResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetConditionSchemaResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetConditionSchemaResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetConditionSchemaResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetConditionSchemaResponseValidationError) ErrorName() string {
+	return "GetConditionSchemaResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetConditionSchemaResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetConditionSchemaResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetConditionSchemaResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetConditionSchemaResponseValidationError{}

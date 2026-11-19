@@ -18,6 +18,7 @@ import {
   GetSecRateLimitResponse,
   GetCRSRuleInfoRequest,
   GetCRSRuleInfoResponse,
+  GetConditionSchemaResponse,
   GetSecRuleRequest,
   GetSecRuleResponse,
   ListSecRulesetsRequest,
@@ -821,6 +822,22 @@ export async function getCRSRuleInfo(
       signal: options?.signal,
     });
     return GetCRSRuleInfoResponse.fromJSON(resp.data ?? {});
+  });
+}
+
+// GET /security/condition-schema
+// The conditions a rule expression accepts. The sample response has no
+// schema: the editor then offers every source and operator.
+export async function getConditionSchema(
+  options?: ApiOptions,
+): Promise<GetConditionSchemaResponse> {
+  return withFallback<GetConditionSchemaResponse>('getConditionSchema', () => ({
+    schema: undefined,
+  }))(async () => {
+    const resp = await axios.get(`${API_BASE_PATH}/security/condition-schema`, {
+      signal: options?.signal,
+    });
+    return GetConditionSchemaResponse.fromJSON(resp.data ?? {});
   });
 }
 

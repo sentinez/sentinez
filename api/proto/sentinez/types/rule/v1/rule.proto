@@ -123,3 +123,65 @@ enum RuleBehavior {
   // (ENGINE_MODE_DETECTION_ONLY).
   RULE_BEHAVIOR_LOG = 3;
 }
+
+// ── Condition schema ──────────────────────────────────────────────────────
+// The conditions the edge can evaluate: the combinations of source, key,
+// operator and value it accepts. A condition outside of it is rejected when
+// a rule is written, and the console builds its editor from it.
+
+// How a variant of a source uses the key of the condition.
+enum KeyMode {
+  KEY_MODE_UNSPECIFIED = 0;
+  // The key must be empty: the source has a single value (path, IP...).
+  KEY_MODE_NONE = 1;
+  // The key names the field to read, e.g. the header "User-Agent".
+  KEY_MODE_REQUIRED = 2;
+}
+
+// The kind of the value of a condition. The value is always a string, or a
+// list of strings when the operator spec is a list: the edge reads it as
+// such, a JSON number or bool would never match.
+enum ValueKind {
+  VALUE_KIND_UNSPECIFIED = 0;
+  // Any non-empty text.
+  VALUE_KIND_STRING = 1;
+  // A decimal number, e.g. "1024" or "0.5".
+  VALUE_KIND_NUMBER = 2;
+  // A regular expression in the RE2 syntax.
+  VALUE_KIND_REGEX = 3;
+  // An IP address or a CIDR prefix, e.g. "10.0.0.1" or "10.0.0.0/8".
+  VALUE_KIND_IP = 4;
+  // One of the enum_values of the operator spec.
+  VALUE_KIND_ENUM = 5;
+  // The name of a header or a query parameter.
+  VALUE_KIND_NAME = 6;
+}
+
+// An operator a variant accepts, with the value it compares to.
+message OperatorSpec {
+  Operator operator = 1;
+  ValueKind value_kind = 2;
+  // The value is a non-empty list of value_kind items.
+  bool list = 3;
+  // The allowed values of VALUE_KIND_ENUM, compared case-sensitively.
+  repeated string enum_values = 4;
+}
+
+// A way to read a source: the key it takes and the operators it accepts.
+message SourceVariant {
+  // Stable name of the variant, e.g. "value" or "presence".
+  string name = 1;
+  KeyMode key_mode = 2;
+  repeated OperatorSpec operators = 3;
+}
+
+// The variants of a source, picked by the key: a source has at most one
+// variant per KeyMode.
+message SourceSpec {
+  FieldSource source = 1;
+  repeated SourceVariant variants = 2;
+}
+
+message ConditionSchema {
+  repeated SourceSpec sources = 1;
+}

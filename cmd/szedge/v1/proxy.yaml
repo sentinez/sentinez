@@ -237,20 +237,17 @@ setting:
               - rules:
                 - condition:
                     source: FIELD_SOURCE_PATH
-                    key: "/block"
                     operator: OPERATOR_EQ
                     value: "/block"
 
                 - condition:
                     source: FIELD_SOURCE_METHOD
-                    key: "POST"
                     operator: OPERATOR_NE
                     value: "POST"
 
               - rules:
                 - condition:
                     source: FIELD_SOURCE_IP
-                    key: "1.1.1.1"
                     operator: OPERATOR_EQ
                     value: "1.1.1.1"
           action:
@@ -268,13 +265,11 @@ setting:
               - rules:
                 - condition:
                     source: FIELD_SOURCE_PATH
-                    key: "/login"
                     operator: OPERATOR_EQ
                     value: "/login"
 
                 - condition:
                     source: FIELD_SOURCE_METHOD
-                    key: "GET"
                     operator: OPERATOR_EQ
                     value: "GET"
           action:
@@ -291,7 +286,6 @@ setting:
               - rules:
                 - condition:
                     source: FIELD_SOURCE_PATH
-                    key: "/"
                     operator: OPERATOR_PREFIX
                     value: "/"
         timeWindow: 5s

@@ -54,6 +54,9 @@ func TestValidateRateLimit_Invalid(t *testing.T) {
 		{"invalid timeout", &rl{
 			TimeWindow: "5s", MaxRequests: 10, Timeout: "abc",
 		}},
+		{"invalid expr", &rl{
+			TimeWindow: "5s", MaxRequests: 10, Expr: invalidExpr(),
+		}},
 	}
 
 	for _, tt := range tests {

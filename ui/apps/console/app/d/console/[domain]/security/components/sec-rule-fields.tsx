@@ -23,6 +23,7 @@ import {
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 import { ACTIONS_WITHOUT_VALUE, SelectOption } from '@/lib/type/security';
 import { useSecurityOptions } from '@/hooks/use-security-options';
+import { useConditionSchema } from '@/hooks/use-condition-schema';
 import { QueryBuilder, createEmptyExpression } from './query-builder';
 import { FieldGrid } from '@/components/field-grid';
 
@@ -236,6 +237,7 @@ function KeyValueRows({
 export function SecRuleFields({ value, onChange, idPrefix = 'rule', actionOptions }: Props) {
   const t = useTranslations('SecRuleFields');
   const options = useSecurityOptions();
+  const schema = useConditionSchema();
   // keep a rule's existing custom priority selectable
   const priorityOptions = options.priorityOptions.some((o) => o.value === value.priority)
     ? options.priorityOptions
@@ -283,7 +285,11 @@ export function SecRuleFields({ value, onChange, idPrefix = 'rule', actionOption
 
       <div className="grid gap-2 mt-2">
         <Label>{t('conditionLogic')}</Label>
-        <QueryBuilder value={value.expr} onValueChange={(expr) => onChange({ expr })} />
+        <QueryBuilder
+          value={value.expr}
+          onValueChange={(expr) => onChange({ expr })}
+          schema={schema}
+        />
       </div>
 
       <FieldGrid>

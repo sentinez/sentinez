@@ -145,6 +145,12 @@ func (h *Security) ListCRSRuleTags(ctx context.Context,
 	return h.service.ListCRSRuleTags(ctx, req)
 }
 
+func (h *Security) GetConditionSchema(ctx context.Context,
+	req *securitypb.GetConditionSchemaRequest,
+) (*securitypb.GetConditionSchemaResponse, error) {
+	return h.service.GetConditionSchema(ctx, req)
+}
+
 func (h *Security) Status(ctx context.Context,
 	req *securitypb.StatusRequest,
 ) (*securitypb.StatusResponse, error) {

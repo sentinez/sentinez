@@ -743,8 +743,18 @@
     "source": "Nguồn",
     "key": "Khóa",
     "keyPlaceholder": "Khóa (ví dụ User-Agent)",
+    "keyOptionalPlaceholder": "Tên (ví dụ User-Agent), để trống để kiểm tra có tồn tại",
     "operator": "Toán tử",
     "value": "Giá trị",
+    "valuePlaceholder": {
+      "string": "Giá trị",
+      "number": "Số (ví dụ 1024)",
+      "regex": "Biểu thức chính quy (ví dụ ^/api/)",
+      "ip": "IP hoặc CIDR (ví dụ 10.0.0.0/8)",
+      "name": "Tên (ví dụ Cookie)",
+      "list": "Các giá trị, cách nhau bởi dấu phẩy",
+      "enumList": "Cách nhau bởi dấu phẩy: {values}"
+    },
     "json": "JSON",
     "addCondition": "Thêm điều kiện"
   },

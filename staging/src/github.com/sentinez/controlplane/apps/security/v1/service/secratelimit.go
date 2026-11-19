@@ -181,6 +181,9 @@ func validateRateLimit(rl *securitypb.SecRateLimit) error {
 	if rl == nil {
 		return szerror.StatusInvalidArgumentF("secratelimit is required")
 	}
+	if err := validateExpr(rl.GetExpr()); err != nil {
+		return err
+	}
 	if rl.GetMaxRequests() <= 0 {
 		return szerror.StatusInvalidArgumentF(
 			"max_requests must be greater than 0")

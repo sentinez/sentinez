@@ -123,7 +123,7 @@ func matchSourceHeader(ctx chttp.Request, cond *rulepb.Condition) bool {
 	op := cond.GetOperator()
 
 	// If no key is provided, we check for existence of the listed keys
-	if key == "" || key == "header" {
+	if key == "" || key == _headerPresenceKey {
 		list := val.GetListValue()
 		if list == nil {
 			// fallback to single key existence check
@@ -197,7 +197,7 @@ func matchSourceQuery(ctx chttp.Request, cond *rulepb.Condition) bool {
 	op := cond.GetOperator()
 
 	// If no key is provided, we check for existence of the listed keys
-	if key == "" || key == "query" {
+	if key == "" || key == _queryPresenceKey {
 		list := val.GetListValue()
 		if list == nil {
 			// fallback to single key existence check

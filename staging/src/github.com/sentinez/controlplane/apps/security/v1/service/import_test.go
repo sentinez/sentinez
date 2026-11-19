@@ -16,6 +16,7 @@ package securitysvc
 
 import (
 	"context"
+	"slices"
 	"testing"
 
 	"github.com/sentinez/controlplane/apps/security/v1/repos/secratelimit"
@@ -172,29 +173,13 @@ func TestImportSecurityUpdatesByName(t *testing.T) {
 	assert.Empty(t, limits.created)
 }
 
+type importInvalidTest struct {
+	name string
+	give *edgepb.Security
+}
+
 func TestImportSecurityInvalid(t *testing.T) {
-	tests := []struct {
-		name string
-		give *edgepb.Security
-	}{
-		{"unnamed sec rule", &edgepb.Security{
-			Secrules: []*edgepb.SecRule{
-				{Ingress: &secrulepb.SecRule{}},
-			},
-		}},
-		{"unnamed limiter", &edgepb.Security{
-			Limiters: []*edgepb.RateLimit{{
-				Ingress:    &secrulepb.SecRule{},
-				TimeWindow: "5s", MaxRequests: 1,
-			}},
-		}},
-		{"limiter without max requests", &edgepb.Security{
-			Limiters: []*edgepb.RateLimit{{
-				Ingress:    &secrulepb.SecRule{Name: "limit"},
-				TimeWindow: "5s",
-			}},
-		}},
-	}
+	tests := slices.Concat(importUnnamedTests(), importInvalidRuleTests())
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -206,5 +191,49 @@ func TestImportSecurityInvalid(t *testing.T) {
 
 			assert.Error(t, err)
 		})
+	}
+}
+
+// importUnnamedTests rules without a name: imports upsert by name.
+func importUnnamedTests() []importInvalidTest {
+	return []importInvalidTest{
+		{"unnamed sec rule", &edgepb.Security{
+			Secrules: []*edgepb.SecRule{
+				{Ingress: &secrulepb.SecRule{}},
+			},
+		}},
+		{"unnamed limiter", &edgepb.Security{
+			Limiters: []*edgepb.RateLimit{{
+				Ingress:    &secrulepb.SecRule{},
+				TimeWindow: "5s", MaxRequests: 1,
+			}},
+		}},
+	}
+}
+
+// importInvalidRuleTests named rules a create would reject.
+func importInvalidRuleTests() []importInvalidTest {
+	return []importInvalidTest{
+		{"sec rule with an invalid expr", &edgepb.Security{
+			Secrules: []*edgepb.SecRule{
+				{Ingress: &secrulepb.SecRule{
+					Name: "rule", Expr: invalidExpr(),
+				}},
+			},
+		}},
+		{"limiter with an invalid expr", &edgepb.Security{
+			Limiters: []*edgepb.RateLimit{{
+				Ingress: &secrulepb.SecRule{
+					Name: "limit", Expr: invalidExpr(),
+				},
+				TimeWindow: "5s", MaxRequests: 1,
+			}},
+		}},
+		{"limiter without max requests", &edgepb.Security{
+			Limiters: []*edgepb.RateLimit{{
+				Ingress:    &secrulepb.SecRule{Name: "limit"},
+				TimeWindow: "5s",
+			}},
+		}},
 	}
 }

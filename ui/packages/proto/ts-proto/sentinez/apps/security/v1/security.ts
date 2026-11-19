@@ -7,6 +7,7 @@
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import { FieldMask } from "../../../../google/protobuf/field_mask";
+import { ConditionSchema } from "../../../types/rule/v1/rule";
 import {
   Category,
   categoryFromJSON,
@@ -290,6 +291,13 @@ export interface StatusRequest {
 
 export interface StatusResponse {
   msg: string;
+}
+
+export interface GetConditionSchemaRequest {
+}
+
+export interface GetConditionSchemaResponse {
+  schema?: ConditionSchema | undefined;
 }
 
 function createBaseCreateSecRuleRequest(): CreateSecRuleRequest {
@@ -3749,6 +3757,127 @@ export const StatusResponse: MessageFns<StatusResponse> = {
   fromPartial<I extends Exact<DeepPartial<StatusResponse>, I>>(object: I): StatusResponse {
     const message = createBaseStatusResponse();
     message.msg = object.msg ?? "";
+    return message;
+  },
+};
+
+function createBaseGetConditionSchemaRequest(): GetConditionSchemaRequest {
+  return {};
+}
+
+export const GetConditionSchemaRequest: MessageFns<GetConditionSchemaRequest> = {
+  encode(_: GetConditionSchemaRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetConditionSchemaRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetConditionSchemaRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(_: any): GetConditionSchemaRequest {
+    return {};
+  },
+
+  toJSON(_: GetConditionSchemaRequest): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetConditionSchemaRequest>, I>>(base?: I): GetConditionSchemaRequest {
+    return GetConditionSchemaRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetConditionSchemaRequest>, I>>(_: I): GetConditionSchemaRequest {
+    const message = createBaseGetConditionSchemaRequest();
+    return message;
+  },
+};
+
+function createBaseGetConditionSchemaResponse(): GetConditionSchemaResponse {
+  return { schema: undefined };
+}
+
+export const GetConditionSchemaResponse: MessageFns<GetConditionSchemaResponse> = {
+  encode(message: GetConditionSchemaResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.schema !== undefined) {
+      ConditionSchema.encode(message.schema, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetConditionSchemaResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetConditionSchemaResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.schema = ConditionSchema.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): GetConditionSchemaResponse {
+    return { schema: isSet(object.schema) ? ConditionSchema.fromJSON(object.schema) : undefined };
+  },
+
+  toJSON(message: GetConditionSchemaResponse): unknown {
+    const obj: any = {};
+    if (message.schema !== undefined) {
+      obj.schema = ConditionSchema.toJSON(message.schema);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GetConditionSchemaResponse>, I>>(base?: I): GetConditionSchemaResponse {
+    return GetConditionSchemaResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GetConditionSchemaResponse>, I>>(object: I): GetConditionSchemaResponse {
+    const message = createBaseGetConditionSchemaResponse();
+    message.schema = (object.schema !== undefined && object.schema !== null)
+      ? ConditionSchema.fromPartial(object.schema)
+      : undefined;
     return message;
   },
 };

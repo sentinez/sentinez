@@ -365,6 +365,122 @@ export function ruleBehaviorToJSON(object: RuleBehavior): string {
   }
 }
 
+/** How a variant of a source uses the key of the condition. */
+export enum KeyMode {
+  KEY_MODE_UNSPECIFIED = 0,
+  /** KEY_MODE_NONE - The key must be empty: the source has a single value (path, IP...). */
+  KEY_MODE_NONE = 1,
+  /** KEY_MODE_REQUIRED - The key names the field to read, e.g. the header "User-Agent". */
+  KEY_MODE_REQUIRED = 2,
+  UNRECOGNIZED = -1,
+}
+
+export function keyModeFromJSON(object: any): KeyMode {
+  switch (object) {
+    case 0:
+    case "KEY_MODE_UNSPECIFIED":
+      return KeyMode.KEY_MODE_UNSPECIFIED;
+    case 1:
+    case "KEY_MODE_NONE":
+      return KeyMode.KEY_MODE_NONE;
+    case 2:
+    case "KEY_MODE_REQUIRED":
+      return KeyMode.KEY_MODE_REQUIRED;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return KeyMode.UNRECOGNIZED;
+  }
+}
+
+export function keyModeToJSON(object: KeyMode): string {
+  switch (object) {
+    case KeyMode.KEY_MODE_UNSPECIFIED:
+      return "KEY_MODE_UNSPECIFIED";
+    case KeyMode.KEY_MODE_NONE:
+      return "KEY_MODE_NONE";
+    case KeyMode.KEY_MODE_REQUIRED:
+      return "KEY_MODE_REQUIRED";
+    case KeyMode.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
+/**
+ * The kind of the value of a condition. The value is always a string, or a
+ * list of strings when the operator spec is a list: the edge reads it as
+ * such, a JSON number or bool would never match.
+ */
+export enum ValueKind {
+  VALUE_KIND_UNSPECIFIED = 0,
+  /** VALUE_KIND_STRING - Any non-empty text. */
+  VALUE_KIND_STRING = 1,
+  /** VALUE_KIND_NUMBER - A decimal number, e.g. "1024" or "0.5". */
+  VALUE_KIND_NUMBER = 2,
+  /** VALUE_KIND_REGEX - A regular expression in the RE2 syntax. */
+  VALUE_KIND_REGEX = 3,
+  /** VALUE_KIND_IP - An IP address or a CIDR prefix, e.g. "10.0.0.1" or "10.0.0.0/8". */
+  VALUE_KIND_IP = 4,
+  /** VALUE_KIND_ENUM - One of the enum_values of the operator spec. */
+  VALUE_KIND_ENUM = 5,
+  /** VALUE_KIND_NAME - The name of a header or a query parameter. */
+  VALUE_KIND_NAME = 6,
+  UNRECOGNIZED = -1,
+}
+
+export function valueKindFromJSON(object: any): ValueKind {
+  switch (object) {
+    case 0:
+    case "VALUE_KIND_UNSPECIFIED":
+      return ValueKind.VALUE_KIND_UNSPECIFIED;
+    case 1:
+    case "VALUE_KIND_STRING":
+      return ValueKind.VALUE_KIND_STRING;
+    case 2:
+    case "VALUE_KIND_NUMBER":
+      return ValueKind.VALUE_KIND_NUMBER;
+    case 3:
+    case "VALUE_KIND_REGEX":
+      return ValueKind.VALUE_KIND_REGEX;
+    case 4:
+    case "VALUE_KIND_IP":
+      return ValueKind.VALUE_KIND_IP;
+    case 5:
+    case "VALUE_KIND_ENUM":
+      return ValueKind.VALUE_KIND_ENUM;
+    case 6:
+    case "VALUE_KIND_NAME":
+      return ValueKind.VALUE_KIND_NAME;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return ValueKind.UNRECOGNIZED;
+  }
+}
+
+export function valueKindToJSON(object: ValueKind): string {
+  switch (object) {
+    case ValueKind.VALUE_KIND_UNSPECIFIED:
+      return "VALUE_KIND_UNSPECIFIED";
+    case ValueKind.VALUE_KIND_STRING:
+      return "VALUE_KIND_STRING";
+    case ValueKind.VALUE_KIND_NUMBER:
+      return "VALUE_KIND_NUMBER";
+    case ValueKind.VALUE_KIND_REGEX:
+      return "VALUE_KIND_REGEX";
+    case ValueKind.VALUE_KIND_IP:
+      return "VALUE_KIND_IP";
+    case ValueKind.VALUE_KIND_ENUM:
+      return "VALUE_KIND_ENUM";
+    case ValueKind.VALUE_KIND_NAME:
+      return "VALUE_KIND_NAME";
+    case ValueKind.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 /** A logical condition expression */
 export interface Condition {
   /** @gotags: yaml:"-" */
@@ -414,6 +530,37 @@ export interface Expression {
 export interface MatchedRules {
   ids: string[];
   names: string[];
+}
+
+/** An operator a variant accepts, with the value it compares to. */
+export interface OperatorSpec {
+  operator: Operator;
+  valueKind: ValueKind;
+  /** The value is a non-empty list of value_kind items. */
+  list: boolean;
+  /** The allowed values of VALUE_KIND_ENUM, compared case-sensitively. */
+  enumValues: string[];
+}
+
+/** A way to read a source: the key it takes and the operators it accepts. */
+export interface SourceVariant {
+  /** Stable name of the variant, e.g. "value" or "presence". */
+  name: string;
+  keyMode: KeyMode;
+  operators: OperatorSpec[];
+}
+
+/**
+ * The variants of a source, picked by the key: a source has at most one
+ * variant per KeyMode.
+ */
+export interface SourceSpec {
+  source: FieldSource;
+  variants: SourceVariant[];
+}
+
+export interface ConditionSchema {
+  sources: SourceSpec[];
 }
 
 function createBaseCondition(): Condition {
@@ -946,6 +1093,394 @@ export const MatchedRules: MessageFns<MatchedRules> = {
     const message = createBaseMatchedRules();
     message.ids = object.ids?.map((e) => e) || [];
     message.names = object.names?.map((e) => e) || [];
+    return message;
+  },
+};
+
+function createBaseOperatorSpec(): OperatorSpec {
+  return { operator: 0, valueKind: 0, list: false, enumValues: [] };
+}
+
+export const OperatorSpec: MessageFns<OperatorSpec> = {
+  encode(message: OperatorSpec, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.operator !== 0) {
+      writer.uint32(8).int32(message.operator);
+    }
+    if (message.valueKind !== 0) {
+      writer.uint32(16).int32(message.valueKind);
+    }
+    if (message.list !== false) {
+      writer.uint32(24).bool(message.list);
+    }
+    for (const v of message.enumValues) {
+      writer.uint32(34).string(v!);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): OperatorSpec {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseOperatorSpec();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.operator = reader.int32() as any;
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.valueKind = reader.int32() as any;
+            continue;
+          }
+          case 3: {
+            if (tag !== 24) {
+              break;
+            }
+
+            message.list = reader.bool();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.enumValues.push(reader.string());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): OperatorSpec {
+    return {
+      operator: isSet(object.operator) ? operatorFromJSON(object.operator) : 0,
+      valueKind: isSet(object.valueKind)
+        ? valueKindFromJSON(object.valueKind)
+        : isSet(object.value_kind)
+        ? valueKindFromJSON(object.value_kind)
+        : 0,
+      list: isSet(object.list) ? globalThis.Boolean(object.list) : false,
+      enumValues: globalThis.Array.isArray(object?.enumValues)
+        ? object.enumValues.map((e: any) => globalThis.String(e))
+        : globalThis.Array.isArray(object?.enum_values)
+        ? object.enum_values.map((e: any) => globalThis.String(e))
+        : [],
+    };
+  },
+
+  toJSON(message: OperatorSpec): unknown {
+    const obj: any = {};
+    if (message.operator !== 0) {
+      obj.operator = operatorToJSON(message.operator);
+    }
+    if (message.valueKind !== 0) {
+      obj.valueKind = valueKindToJSON(message.valueKind);
+    }
+    if (message.list !== false) {
+      obj.list = message.list;
+    }
+    if (message.enumValues?.length) {
+      obj.enumValues = message.enumValues;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<OperatorSpec>, I>>(base?: I): OperatorSpec {
+    return OperatorSpec.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<OperatorSpec>, I>>(object: I): OperatorSpec {
+    const message = createBaseOperatorSpec();
+    message.operator = object.operator ?? 0;
+    message.valueKind = object.valueKind ?? 0;
+    message.list = object.list ?? false;
+    message.enumValues = object.enumValues?.map((e) => e) || [];
+    return message;
+  },
+};
+
+function createBaseSourceVariant(): SourceVariant {
+  return { name: "", keyMode: 0, operators: [] };
+}
+
+export const SourceVariant: MessageFns<SourceVariant> = {
+  encode(message: SourceVariant, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.name !== "") {
+      writer.uint32(10).string(message.name);
+    }
+    if (message.keyMode !== 0) {
+      writer.uint32(16).int32(message.keyMode);
+    }
+    for (const v of message.operators) {
+      OperatorSpec.encode(v!, writer.uint32(26).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SourceVariant {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSourceVariant();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.name = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.keyMode = reader.int32() as any;
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.operators.push(OperatorSpec.decode(reader, reader.uint32()));
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): SourceVariant {
+    return {
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      keyMode: isSet(object.keyMode)
+        ? keyModeFromJSON(object.keyMode)
+        : isSet(object.key_mode)
+        ? keyModeFromJSON(object.key_mode)
+        : 0,
+      operators: globalThis.Array.isArray(object?.operators)
+        ? object.operators.map((e: any) => OperatorSpec.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: SourceVariant): unknown {
+    const obj: any = {};
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.keyMode !== 0) {
+      obj.keyMode = keyModeToJSON(message.keyMode);
+    }
+    if (message.operators?.length) {
+      obj.operators = message.operators.map((e) => OperatorSpec.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<SourceVariant>, I>>(base?: I): SourceVariant {
+    return SourceVariant.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<SourceVariant>, I>>(object: I): SourceVariant {
+    const message = createBaseSourceVariant();
+    message.name = object.name ?? "";
+    message.keyMode = object.keyMode ?? 0;
+    message.operators = object.operators?.map((e) => OperatorSpec.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseSourceSpec(): SourceSpec {
+  return { source: 0, variants: [] };
+}
+
+export const SourceSpec: MessageFns<SourceSpec> = {
+  encode(message: SourceSpec, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.source !== 0) {
+      writer.uint32(8).int32(message.source);
+    }
+    for (const v of message.variants) {
+      SourceVariant.encode(v!, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SourceSpec {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSourceSpec();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.source = reader.int32() as any;
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.variants.push(SourceVariant.decode(reader, reader.uint32()));
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): SourceSpec {
+    return {
+      source: isSet(object.source) ? fieldSourceFromJSON(object.source) : 0,
+      variants: globalThis.Array.isArray(object?.variants)
+        ? object.variants.map((e: any) => SourceVariant.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: SourceSpec): unknown {
+    const obj: any = {};
+    if (message.source !== 0) {
+      obj.source = fieldSourceToJSON(message.source);
+    }
+    if (message.variants?.length) {
+      obj.variants = message.variants.map((e) => SourceVariant.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<SourceSpec>, I>>(base?: I): SourceSpec {
+    return SourceSpec.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<SourceSpec>, I>>(object: I): SourceSpec {
+    const message = createBaseSourceSpec();
+    message.source = object.source ?? 0;
+    message.variants = object.variants?.map((e) => SourceVariant.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseConditionSchema(): ConditionSchema {
+  return { sources: [] };
+}
+
+export const ConditionSchema: MessageFns<ConditionSchema> = {
+  encode(message: ConditionSchema, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.sources) {
+      SourceSpec.encode(v!, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ConditionSchema {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseConditionSchema();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.sources.push(SourceSpec.decode(reader, reader.uint32()));
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): ConditionSchema {
+    return {
+      sources: globalThis.Array.isArray(object?.sources) ? object.sources.map((e: any) => SourceSpec.fromJSON(e)) : [],
+    };
+  },
+
+  toJSON(message: ConditionSchema): unknown {
+    const obj: any = {};
+    if (message.sources?.length) {
+      obj.sources = message.sources.map((e) => SourceSpec.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ConditionSchema>, I>>(base?: I): ConditionSchema {
+    return ConditionSchema.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ConditionSchema>, I>>(object: I): ConditionSchema {
+    const message = createBaseConditionSchema();
+    message.sources = object.sources?.map((e) => SourceSpec.fromPartial(e)) || [];
     return message;
   },
 };

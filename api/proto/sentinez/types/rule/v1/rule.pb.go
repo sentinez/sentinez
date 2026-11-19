@@ -362,6 +362,128 @@ func (RuleBehavior) EnumDescriptor() ([]byte, []int) {
 	return file_sentinez_types_rule_v1_rule_proto_rawDescGZIP(), []int{4}
 }
 
+// How a variant of a source uses the key of the condition.
+type KeyMode int32
+
+const (
+	KeyMode_KEY_MODE_UNSPECIFIED KeyMode = 0
+	// The key must be empty: the source has a single value (path, IP...).
+	KeyMode_KEY_MODE_NONE KeyMode = 1
+	// The key names the field to read, e.g. the header "User-Agent".
+	KeyMode_KEY_MODE_REQUIRED KeyMode = 2
+)
+
+// Enum value maps for KeyMode.
+var (
+	KeyMode_name = map[int32]string{
+		0: "KEY_MODE_UNSPECIFIED",
+		1: "KEY_MODE_NONE",
+		2: "KEY_MODE_REQUIRED",
+	}
+	KeyMode_value = map[string]int32{
+		"KEY_MODE_UNSPECIFIED": 0,
+		"KEY_MODE_NONE":        1,
+		"KEY_MODE_REQUIRED":    2,
+	}
+)
+
+func (x KeyMode) Enum() *KeyMode {
+	p := new(KeyMode)
+	*p = x
+	return p
+}
+
+func (x KeyMode) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (KeyMode) Descriptor() protoreflect.EnumDescriptor {
+	return file_sentinez_types_rule_v1_rule_proto_enumTypes[5].Descriptor()
+}
+
+func (KeyMode) Type() protoreflect.EnumType {
+	return &file_sentinez_types_rule_v1_rule_proto_enumTypes[5]
+}
+
+func (x KeyMode) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use KeyMode.Descriptor instead.
+func (KeyMode) EnumDescriptor() ([]byte, []int) {
+	return file_sentinez_types_rule_v1_rule_proto_rawDescGZIP(), []int{5}
+}
+
+// The kind of the value of a condition. The value is always a string, or a
+// list of strings when the operator spec is a list: the edge reads it as
+// such, a JSON number or bool would never match.
+type ValueKind int32
+
+const (
+	ValueKind_VALUE_KIND_UNSPECIFIED ValueKind = 0
+	// Any non-empty text.
+	ValueKind_VALUE_KIND_STRING ValueKind = 1
+	// A decimal number, e.g. "1024" or "0.5".
+	ValueKind_VALUE_KIND_NUMBER ValueKind = 2
+	// A regular expression in the RE2 syntax.
+	ValueKind_VALUE_KIND_REGEX ValueKind = 3
+	// An IP address or a CIDR prefix, e.g. "10.0.0.1" or "10.0.0.0/8".
+	ValueKind_VALUE_KIND_IP ValueKind = 4
+	// One of the enum_values of the operator spec.
+	ValueKind_VALUE_KIND_ENUM ValueKind = 5
+	// The name of a header or a query parameter.
+	ValueKind_VALUE_KIND_NAME ValueKind = 6
+)
+
+// Enum value maps for ValueKind.
+var (
+	ValueKind_name = map[int32]string{
+		0: "VALUE_KIND_UNSPECIFIED",
+		1: "VALUE_KIND_STRING",
+		2: "VALUE_KIND_NUMBER",
+		3: "VALUE_KIND_REGEX",
+		4: "VALUE_KIND_IP",
+		5: "VALUE_KIND_ENUM",
+		6: "VALUE_KIND_NAME",
+	}
+	ValueKind_value = map[string]int32{
+		"VALUE_KIND_UNSPECIFIED": 0,
+		"VALUE_KIND_STRING":      1,
+		"VALUE_KIND_NUMBER":      2,
+		"VALUE_KIND_REGEX":       3,
+		"VALUE_KIND_IP":          4,
+		"VALUE_KIND_ENUM":        5,
+		"VALUE_KIND_NAME":        6,
+	}
+)
+
+func (x ValueKind) Enum() *ValueKind {
+	p := new(ValueKind)
+	*p = x
+	return p
+}
+
+func (x ValueKind) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ValueKind) Descriptor() protoreflect.EnumDescriptor {
+	return file_sentinez_types_rule_v1_rule_proto_enumTypes[6].Descriptor()
+}
+
+func (ValueKind) Type() protoreflect.EnumType {
+	return &file_sentinez_types_rule_v1_rule_proto_enumTypes[6]
+}
+
+func (x ValueKind) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ValueKind.Descriptor instead.
+func (ValueKind) EnumDescriptor() ([]byte, []int) {
+	return file_sentinez_types_rule_v1_rule_proto_rawDescGZIP(), []int{6}
+}
+
 // A logical condition expression
 type Condition struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -693,6 +815,237 @@ func (x *MatchedRules) GetNames() []string {
 	return nil
 }
 
+// An operator a variant accepts, with the value it compares to.
+type OperatorSpec struct {
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	Operator  Operator               `protobuf:"varint,1,opt,name=operator,proto3,enum=sentinez.types.rule.v1.Operator" json:"operator,omitempty"`
+	ValueKind ValueKind              `protobuf:"varint,2,opt,name=value_kind,json=valueKind,proto3,enum=sentinez.types.rule.v1.ValueKind" json:"value_kind,omitempty"`
+	// The value is a non-empty list of value_kind items.
+	List bool `protobuf:"varint,3,opt,name=list,proto3" json:"list,omitempty"`
+	// The allowed values of VALUE_KIND_ENUM, compared case-sensitively.
+	EnumValues    []string `protobuf:"bytes,4,rep,name=enum_values,json=enumValues,proto3" json:"enum_values,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OperatorSpec) Reset() {
+	*x = OperatorSpec{}
+	mi := &file_sentinez_types_rule_v1_rule_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OperatorSpec) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OperatorSpec) ProtoMessage() {}
+
+func (x *OperatorSpec) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_types_rule_v1_rule_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OperatorSpec.ProtoReflect.Descriptor instead.
+func (*OperatorSpec) Descriptor() ([]byte, []int) {
+	return file_sentinez_types_rule_v1_rule_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *OperatorSpec) GetOperator() Operator {
+	if x != nil {
+		return x.Operator
+	}
+	return Operator_OPERATOR_UNSPECIFIED
+}
+
+func (x *OperatorSpec) GetValueKind() ValueKind {
+	if x != nil {
+		return x.ValueKind
+	}
+	return ValueKind_VALUE_KIND_UNSPECIFIED
+}
+
+func (x *OperatorSpec) GetList() bool {
+	if x != nil {
+		return x.List
+	}
+	return false
+}
+
+func (x *OperatorSpec) GetEnumValues() []string {
+	if x != nil {
+		return x.EnumValues
+	}
+	return nil
+}
+
+// A way to read a source: the key it takes and the operators it accepts.
+type SourceVariant struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Stable name of the variant, e.g. "value" or "presence".
+	Name          string          `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	KeyMode       KeyMode         `protobuf:"varint,2,opt,name=key_mode,json=keyMode,proto3,enum=sentinez.types.rule.v1.KeyMode" json:"key_mode,omitempty"`
+	Operators     []*OperatorSpec `protobuf:"bytes,3,rep,name=operators,proto3" json:"operators,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SourceVariant) Reset() {
+	*x = SourceVariant{}
+	mi := &file_sentinez_types_rule_v1_rule_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SourceVariant) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SourceVariant) ProtoMessage() {}
+
+func (x *SourceVariant) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_types_rule_v1_rule_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SourceVariant.ProtoReflect.Descriptor instead.
+func (*SourceVariant) Descriptor() ([]byte, []int) {
+	return file_sentinez_types_rule_v1_rule_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *SourceVariant) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *SourceVariant) GetKeyMode() KeyMode {
+	if x != nil {
+		return x.KeyMode
+	}
+	return KeyMode_KEY_MODE_UNSPECIFIED
+}
+
+func (x *SourceVariant) GetOperators() []*OperatorSpec {
+	if x != nil {
+		return x.Operators
+	}
+	return nil
+}
+
+// The variants of a source, picked by the key: a source has at most one
+// variant per KeyMode.
+type SourceSpec struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Source        FieldSource            `protobuf:"varint,1,opt,name=source,proto3,enum=sentinez.types.rule.v1.FieldSource" json:"source,omitempty"`
+	Variants      []*SourceVariant       `protobuf:"bytes,2,rep,name=variants,proto3" json:"variants,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SourceSpec) Reset() {
+	*x = SourceSpec{}
+	mi := &file_sentinez_types_rule_v1_rule_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SourceSpec) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SourceSpec) ProtoMessage() {}
+
+func (x *SourceSpec) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_types_rule_v1_rule_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SourceSpec.ProtoReflect.Descriptor instead.
+func (*SourceSpec) Descriptor() ([]byte, []int) {
+	return file_sentinez_types_rule_v1_rule_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *SourceSpec) GetSource() FieldSource {
+	if x != nil {
+		return x.Source
+	}
+	return FieldSource_FIELD_SOURCE_UNSPECIFIED
+}
+
+func (x *SourceSpec) GetVariants() []*SourceVariant {
+	if x != nil {
+		return x.Variants
+	}
+	return nil
+}
+
+type ConditionSchema struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Sources       []*SourceSpec          `protobuf:"bytes,1,rep,name=sources,proto3" json:"sources,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ConditionSchema) Reset() {
+	*x = ConditionSchema{}
+	mi := &file_sentinez_types_rule_v1_rule_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ConditionSchema) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConditionSchema) ProtoMessage() {}
+
+func (x *ConditionSchema) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_types_rule_v1_rule_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConditionSchema.ProtoReflect.Descriptor instead.
+func (*ConditionSchema) Descriptor() ([]byte, []int) {
+	return file_sentinez_types_rule_v1_rule_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ConditionSchema) GetSources() []*SourceSpec {
+	if x != nil {
+		return x.Sources
+	}
+	return nil
+}
+
 var File_sentinez_types_rule_v1_rule_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_rule_v1_rule_proto_rawDesc = "" +
@@ -717,7 +1070,24 @@ const file_sentinez_types_rule_v1_rule_proto_rawDesc = "" +
 	"\for_condition\x18\x01 \x03(\v2$.sentinez.types.rule.v1.AndConditionR\vorCondition\"6\n" +
 	"\fMatchedRules\x12\x10\n" +
 	"\x03ids\x18\x01 \x03(\tR\x03ids\x12\x14\n" +
-	"\x05names\x18\x02 \x03(\tR\x05names*\xfb\x01\n" +
+	"\x05names\x18\x02 \x03(\tR\x05names\"\xc3\x01\n" +
+	"\fOperatorSpec\x12<\n" +
+	"\boperator\x18\x01 \x01(\x0e2 .sentinez.types.rule.v1.OperatorR\boperator\x12@\n" +
+	"\n" +
+	"value_kind\x18\x02 \x01(\x0e2!.sentinez.types.rule.v1.ValueKindR\tvalueKind\x12\x12\n" +
+	"\x04list\x18\x03 \x01(\bR\x04list\x12\x1f\n" +
+	"\venum_values\x18\x04 \x03(\tR\n" +
+	"enumValues\"\xa3\x01\n" +
+	"\rSourceVariant\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12:\n" +
+	"\bkey_mode\x18\x02 \x01(\x0e2\x1f.sentinez.types.rule.v1.KeyModeR\akeyMode\x12B\n" +
+	"\toperators\x18\x03 \x03(\v2$.sentinez.types.rule.v1.OperatorSpecR\toperators\"\x8c\x01\n" +
+	"\n" +
+	"SourceSpec\x12;\n" +
+	"\x06source\x18\x01 \x01(\x0e2#.sentinez.types.rule.v1.FieldSourceR\x06source\x12A\n" +
+	"\bvariants\x18\x02 \x03(\v2%.sentinez.types.rule.v1.SourceVariantR\bvariants\"O\n" +
+	"\x0fConditionSchema\x12<\n" +
+	"\asources\x18\x01 \x03(\v2\".sentinez.types.rule.v1.SourceSpecR\asources*\xfb\x01\n" +
 	"\vFieldSource\x12\x1c\n" +
 	"\x18FIELD_SOURCE_UNSPECIFIED\x10\x00\x12\x17\n" +
 	"\x13FIELD_SOURCE_HEADER\x10\x01\x12\x16\n" +
@@ -764,7 +1134,19 @@ const file_sentinez_types_rule_v1_rule_proto_rawDesc = "" +
 	"\x19RULE_BEHAVIOR_UNSPECIFIED\x10\x00\x12\x16\n" +
 	"\x12RULE_BEHAVIOR_DENY\x10\x01\x12\x17\n" +
 	"\x13RULE_BEHAVIOR_ALLOW\x10\x02\x12\x15\n" +
-	"\x11RULE_BEHAVIOR_LOG\x10\x03BFZDgithub.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1;rulepbb\x06proto3"
+	"\x11RULE_BEHAVIOR_LOG\x10\x03*M\n" +
+	"\aKeyMode\x12\x18\n" +
+	"\x14KEY_MODE_UNSPECIFIED\x10\x00\x12\x11\n" +
+	"\rKEY_MODE_NONE\x10\x01\x12\x15\n" +
+	"\x11KEY_MODE_REQUIRED\x10\x02*\xa8\x01\n" +
+	"\tValueKind\x12\x1a\n" +
+	"\x16VALUE_KIND_UNSPECIFIED\x10\x00\x12\x15\n" +
+	"\x11VALUE_KIND_STRING\x10\x01\x12\x15\n" +
+	"\x11VALUE_KIND_NUMBER\x10\x02\x12\x14\n" +
+	"\x10VALUE_KIND_REGEX\x10\x03\x12\x11\n" +
+	"\rVALUE_KIND_IP\x10\x04\x12\x13\n" +
+	"\x0fVALUE_KIND_ENUM\x10\x05\x12\x13\n" +
+	"\x0fVALUE_KIND_NAME\x10\x06BFZDgithub.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1;rulepbb\x06proto3"
 
 var (
 	file_sentinez_types_rule_v1_rule_proto_rawDescOnce sync.Once
@@ -778,38 +1160,51 @@ func file_sentinez_types_rule_v1_rule_proto_rawDescGZIP() []byte {
 	return file_sentinez_types_rule_v1_rule_proto_rawDescData
 }
 
-var file_sentinez_types_rule_v1_rule_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
-var file_sentinez_types_rule_v1_rule_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_sentinez_types_rule_v1_rule_proto_enumTypes = make([]protoimpl.EnumInfo, 7)
+var file_sentinez_types_rule_v1_rule_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_sentinez_types_rule_v1_rule_proto_goTypes = []any{
 	(FieldSource)(0),        // 0: sentinez.types.rule.v1.FieldSource
 	(Operator)(0),           // 1: sentinez.types.rule.v1.Operator
 	(ActionType)(0),         // 2: sentinez.types.rule.v1.ActionType
 	(RuleService)(0),        // 3: sentinez.types.rule.v1.RuleService
 	(RuleBehavior)(0),       // 4: sentinez.types.rule.v1.RuleBehavior
-	(*Condition)(nil),       // 5: sentinez.types.rule.v1.Condition
-	(*Action)(nil),          // 6: sentinez.types.rule.v1.Action
-	(*Rule)(nil),            // 7: sentinez.types.rule.v1.Rule
-	(*AndCondition)(nil),    // 8: sentinez.types.rule.v1.AndCondition
-	(*Expression)(nil),      // 9: sentinez.types.rule.v1.Expression
-	(*MatchedRules)(nil),    // 10: sentinez.types.rule.v1.MatchedRules
-	(*structpb.Value)(nil),  // 11: google.protobuf.Value
-	(*structpb.Struct)(nil), // 12: google.protobuf.Struct
+	(KeyMode)(0),            // 5: sentinez.types.rule.v1.KeyMode
+	(ValueKind)(0),          // 6: sentinez.types.rule.v1.ValueKind
+	(*Condition)(nil),       // 7: sentinez.types.rule.v1.Condition
+	(*Action)(nil),          // 8: sentinez.types.rule.v1.Action
+	(*Rule)(nil),            // 9: sentinez.types.rule.v1.Rule
+	(*AndCondition)(nil),    // 10: sentinez.types.rule.v1.AndCondition
+	(*Expression)(nil),      // 11: sentinez.types.rule.v1.Expression
+	(*MatchedRules)(nil),    // 12: sentinez.types.rule.v1.MatchedRules
+	(*OperatorSpec)(nil),    // 13: sentinez.types.rule.v1.OperatorSpec
+	(*SourceVariant)(nil),   // 14: sentinez.types.rule.v1.SourceVariant
+	(*SourceSpec)(nil),      // 15: sentinez.types.rule.v1.SourceSpec
+	(*ConditionSchema)(nil), // 16: sentinez.types.rule.v1.ConditionSchema
+	(*structpb.Value)(nil),  // 17: google.protobuf.Value
+	(*structpb.Struct)(nil), // 18: google.protobuf.Struct
 }
 var file_sentinez_types_rule_v1_rule_proto_depIdxs = []int32{
 	0,  // 0: sentinez.types.rule.v1.Condition.source:type_name -> sentinez.types.rule.v1.FieldSource
 	1,  // 1: sentinez.types.rule.v1.Condition.operator:type_name -> sentinez.types.rule.v1.Operator
-	11, // 2: sentinez.types.rule.v1.Condition.value:type_name -> google.protobuf.Value
+	17, // 2: sentinez.types.rule.v1.Condition.value:type_name -> google.protobuf.Value
 	2,  // 3: sentinez.types.rule.v1.Action.type:type_name -> sentinez.types.rule.v1.ActionType
-	12, // 4: sentinez.types.rule.v1.Action.params:type_name -> google.protobuf.Struct
-	5,  // 5: sentinez.types.rule.v1.Rule.condition:type_name -> sentinez.types.rule.v1.Condition
-	7,  // 6: sentinez.types.rule.v1.AndCondition.rules:type_name -> sentinez.types.rule.v1.Rule
-	8,  // 7: sentinez.types.rule.v1.AndCondition.or_condition:type_name -> sentinez.types.rule.v1.AndCondition
-	8,  // 8: sentinez.types.rule.v1.Expression.or_condition:type_name -> sentinez.types.rule.v1.AndCondition
-	9,  // [9:9] is the sub-list for method output_type
-	9,  // [9:9] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	18, // 4: sentinez.types.rule.v1.Action.params:type_name -> google.protobuf.Struct
+	7,  // 5: sentinez.types.rule.v1.Rule.condition:type_name -> sentinez.types.rule.v1.Condition
+	9,  // 6: sentinez.types.rule.v1.AndCondition.rules:type_name -> sentinez.types.rule.v1.Rule
+	10, // 7: sentinez.types.rule.v1.AndCondition.or_condition:type_name -> sentinez.types.rule.v1.AndCondition
+	10, // 8: sentinez.types.rule.v1.Expression.or_condition:type_name -> sentinez.types.rule.v1.AndCondition
+	1,  // 9: sentinez.types.rule.v1.OperatorSpec.operator:type_name -> sentinez.types.rule.v1.Operator
+	6,  // 10: sentinez.types.rule.v1.OperatorSpec.value_kind:type_name -> sentinez.types.rule.v1.ValueKind
+	5,  // 11: sentinez.types.rule.v1.SourceVariant.key_mode:type_name -> sentinez.types.rule.v1.KeyMode
+	13, // 12: sentinez.types.rule.v1.SourceVariant.operators:type_name -> sentinez.types.rule.v1.OperatorSpec
+	0,  // 13: sentinez.types.rule.v1.SourceSpec.source:type_name -> sentinez.types.rule.v1.FieldSource
+	14, // 14: sentinez.types.rule.v1.SourceSpec.variants:type_name -> sentinez.types.rule.v1.SourceVariant
+	15, // 15: sentinez.types.rule.v1.ConditionSchema.sources:type_name -> sentinez.types.rule.v1.SourceSpec
+	16, // [16:16] is the sub-list for method output_type
+	16, // [16:16] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_types_rule_v1_rule_proto_init() }
@@ -822,8 +1217,8 @@ func file_sentinez_types_rule_v1_rule_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_types_rule_v1_rule_proto_rawDesc), len(file_sentinez_types_rule_v1_rule_proto_rawDesc)),
-			NumEnums:      5,
-			NumMessages:   6,
+			NumEnums:      7,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
