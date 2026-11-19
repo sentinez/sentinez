@@ -22,10 +22,19 @@ import "sentinez/types/v1/known.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1;rulesetpb";
 
-// Setting OWASP CRS configuration of a server (namespace).
+// Setting the rulesets of a server (namespace): OWASP CRS and the managed
+// rulesets of other providers.
 message Setting {
+  sentinez.types.v1.Status status = 1; // @gotags: yaml:"status"
+  Provider provider = 2; // @gotags: yaml:"provider"
+  Crs crs = 3; // @gotags: yaml:"crs"
+  Managed managed = 4; // @gotags: yaml:"managed"
+}
+
+// Crs OWASP Core Rule Set configuration.
+message Crs {
   EngineMode mode = 1; // @gotags: yaml:"mode"
-  Version version = 2; // @gotags: yaml:"version"
+  CRSVersion version = 2; // @gotags: yaml:"version"
 
   // tx.blocking_paranoia_level, 0 = default (1).
   uint32 paranoia_level = 3 [(buf.validate.field).uint32 = {lte: 4}]; // @gotags: yaml:"paranoiaLevel"
@@ -41,7 +50,17 @@ message Setting {
   RequestPolicy request = 7; // @gotags: yaml:"request"
   repeated Exclusion exclusions = 8; // @gotags: yaml:"exclusions"
   repeated RuleOverride overrides = 9; // @gotags: yaml:"overrides"
-  sentinez.types.v1.Status status = 10; // @gotags: yaml:"status"
+}
+
+enum Provider {
+  PROVIDER_UNSPECIFIED = 0;
+  PROVIDER_OWASP = 1;
+  PROVIDER_MANAGED = 2;
+}
+
+// Managed a ruleset maintained by a provider other than OWASP.
+message Managed {
+  EngineMode mode = 1; // @gotags: yaml:"mode"
 }
 
 // AnomalyThreshold tx.*_anomaly_score_threshold, 0 = CRS default.
@@ -118,10 +137,10 @@ enum EngineMode {
   ENGINE_MODE_ON = 3;
 }
 
-enum Version {
-  VERSION_UNSPECIFIED = 0; // = latest supported
-  VERSION_V4_16_0 = 1;
-  VERSION_V4_17_0 = 2;
+enum CRSVersion {
+  CRS_VERSION_UNSPECIFIED = 0; // = latest supported
+  CRS_VERSION_V4_16_0 = 1;
+  CRS_VERSION_V4_17_0 = 2;
 }
 
 // Category CRS rule group, 1:1 with szcrs.Flag.

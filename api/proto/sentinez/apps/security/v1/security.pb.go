@@ -1366,22 +1366,27 @@ type ListSecRulesetsRequest struct {
 	Name string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Ids  []string `protobuf:"bytes,10,rep,name=ids,proto3" json:"ids,omitempty"`
 	// metadata.resource_id of the rows, any of them.
-	ResourceIds []string         `protobuf:"bytes,11,rep,name=resource_ids,json=resourceIds,proto3" json:"resource_ids,omitempty"`
-	Modes       []v11.EngineMode `protobuf:"varint,20,rep,packed,name=modes,proto3,enum=sentinez.types.ruleset.v1.EngineMode" json:"modes,omitempty"`
-	Versions    []v11.Version    `protobuf:"varint,21,rep,packed,name=versions,proto3,enum=sentinez.types.ruleset.v1.Version" json:"versions,omitempty"`
-	Statuses    []v1.Status      `protobuf:"varint,22,rep,packed,name=statuses,proto3,enum=sentinez.types.v1.Status" json:"statuses,omitempty"`
-	// ruleset.paranoia_level, 0 = any.
+	ResourceIds []string `protobuf:"bytes,11,rep,name=resource_ids,json=resourceIds,proto3" json:"resource_ids,omitempty"`
+	// setting.crs.mode or setting.managed.mode.
+	Modes []v11.EngineMode `protobuf:"varint,20,rep,packed,name=modes,proto3,enum=sentinez.types.ruleset.v1.EngineMode" json:"modes,omitempty"`
+	// setting.crs.version.
+	Versions []v11.CRSVersion `protobuf:"varint,21,rep,packed,name=versions,proto3,enum=sentinez.types.ruleset.v1.CRSVersion" json:"versions,omitempty"`
+	// setting.status.
+	Statuses []v1.Status `protobuf:"varint,22,rep,packed,name=statuses,proto3,enum=sentinez.types.v1.Status" json:"statuses,omitempty"`
+	// setting.crs.paranoia_level, 0 = any.
 	ParanoiaLevel uint32 `protobuf:"varint,23,opt,name=paranoia_level,json=paranoiaLevel,proto3" json:"paranoia_level,omitempty"`
-	// Rule groups all listed in ruleset.categories.
+	// Rule groups all listed in setting.crs.categories.
 	Categories []v11.Category `protobuf:"varint,24,rep,packed,name=categories,proto3,enum=sentinez.types.ruleset.v1.Category" json:"categories,omitempty"`
-	// Tags excluded by ruleset.exclusions.
+	// Tags excluded by setting.crs.exclusions.
 	ExclusionTags []string `protobuf:"bytes,25,rep,name=exclusion_tags,json=exclusionTags,proto3" json:"exclusion_tags,omitempty"`
-	// Rules with a variable excluded by ruleset.exclusions.
+	// Rules with a variable excluded by setting.crs.exclusions.
 	ExclusionRuleIds []uint32 `protobuf:"varint,26,rep,packed,name=exclusion_rule_ids,json=exclusionRuleIds,proto3" json:"exclusion_rule_ids,omitempty"`
-	// Rules with a state changed by ruleset.overrides.
+	// Rules with a state changed by setting.crs.overrides.
 	OverrideRuleIds []uint32 `protobuf:"varint,27,rep,packed,name=override_rule_ids,json=overrideRuleIds,proto3" json:"override_rule_ids,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// setting.provider; PROVIDER_OWASP also matches an unset provider.
+	Providers     []v11.Provider `protobuf:"varint,28,rep,packed,name=providers,proto3,enum=sentinez.types.ruleset.v1.Provider" json:"providers,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListSecRulesetsRequest) Reset() {
@@ -1449,7 +1454,7 @@ func (x *ListSecRulesetsRequest) GetModes() []v11.EngineMode {
 	return nil
 }
 
-func (x *ListSecRulesetsRequest) GetVersions() []v11.Version {
+func (x *ListSecRulesetsRequest) GetVersions() []v11.CRSVersion {
 	if x != nil {
 		return x.Versions
 	}
@@ -1494,6 +1499,13 @@ func (x *ListSecRulesetsRequest) GetExclusionRuleIds() []uint32 {
 func (x *ListSecRulesetsRequest) GetOverrideRuleIds() []uint32 {
 	if x != nil {
 		return x.OverrideRuleIds
+	}
+	return nil
+}
+
+func (x *ListSecRulesetsRequest) GetProviders() []v11.Provider {
+	if x != nil {
+		return x.Providers
 	}
 	return nil
 }
@@ -1554,7 +1566,7 @@ type GetCRSRuleInfoRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Id    uint32                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// CRS version of the catalog, unspecified = latest supported.
-	Version       v11.Version `protobuf:"varint,2,opt,name=version,proto3,enum=sentinez.types.ruleset.v1.Version" json:"version,omitempty"`
+	Version       v11.CRSVersion `protobuf:"varint,2,opt,name=version,proto3,enum=sentinez.types.ruleset.v1.CRSVersion" json:"version,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1596,11 +1608,11 @@ func (x *GetCRSRuleInfoRequest) GetId() uint32 {
 	return 0
 }
 
-func (x *GetCRSRuleInfoRequest) GetVersion() v11.Version {
+func (x *GetCRSRuleInfoRequest) GetVersion() v11.CRSVersion {
 	if x != nil {
 		return x.Version
 	}
-	return v11.Version(0)
+	return v11.CRSVersion(0)
 }
 
 type GetCRSRuleInfoResponse struct {
@@ -1653,7 +1665,7 @@ type ListCRSRuleInfosRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Page  *v1.Pages              `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
 	// CRS version of the catalog, unspecified = latest supported.
-	Version v11.Version `protobuf:"varint,2,opt,name=version,proto3,enum=sentinez.types.ruleset.v1.Version" json:"version,omitempty"`
+	Version v11.CRSVersion `protobuf:"varint,2,opt,name=version,proto3,enum=sentinez.types.ruleset.v1.CRSVersion" json:"version,omitempty"`
 	// Case-insensitive part of the message or of a tag, or the leading
 	// digits of the ID (ex: "9421").
 	Search         string         `protobuf:"bytes,3,opt,name=search,proto3" json:"search,omitempty"`
@@ -1708,11 +1720,11 @@ func (x *ListCRSRuleInfosRequest) GetPage() *v1.Pages {
 	return nil
 }
 
-func (x *ListCRSRuleInfosRequest) GetVersion() v11.Version {
+func (x *ListCRSRuleInfosRequest) GetVersion() v11.CRSVersion {
 	if x != nil {
 		return x.Version
 	}
-	return v11.Version(0)
+	return v11.CRSVersion(0)
 }
 
 func (x *ListCRSRuleInfosRequest) GetSearch() string {
@@ -1875,7 +1887,7 @@ type ListCRSRuleTagsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Page  *v1.Pages              `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
 	// CRS version of the catalog, unspecified = latest supported.
-	Version v11.Version `protobuf:"varint,2,opt,name=version,proto3,enum=sentinez.types.ruleset.v1.Version" json:"version,omitempty"`
+	Version v11.CRSVersion `protobuf:"varint,2,opt,name=version,proto3,enum=sentinez.types.ruleset.v1.CRSVersion" json:"version,omitempty"`
 	// Case-insensitive part of the tag, ex: "attack".
 	Search string `protobuf:"bytes,3,opt,name=search,proto3" json:"search,omitempty"`
 	// Tags only carried by system rules (init, evaluation, flow control)
@@ -1922,11 +1934,11 @@ func (x *ListCRSRuleTagsRequest) GetPage() *v1.Pages {
 	return nil
 }
 
-func (x *ListCRSRuleTagsRequest) GetVersion() v11.Version {
+func (x *ListCRSRuleTagsRequest) GetVersion() v11.CRSVersion {
 	if x != nil {
 		return x.Version
 	}
-	return v11.Version(0)
+	return v11.CRSVersion(0)
 }
 
 func (x *ListCRSRuleTagsRequest) GetSearch() string {
@@ -2159,15 +2171,15 @@ const file_sentinez_apps_security_v1_security_proto_rawDesc = "" +
 	"secruleset\"2\n" +
 	"\x17DeleteSecRulesetRequest\x12\x17\n" +
 	"\x02id\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x02id\"\x1a\n" +
-	"\x18DeleteSecRulesetResponse\"\xb9\x04\n" +
+	"\x18DeleteSecRulesetResponse\"\xff\x04\n" +
 	"\x16ListSecRulesetsRequest\x12,\n" +
 	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x10\n" +
 	"\x03ids\x18\n" +
 	" \x03(\tR\x03ids\x12!\n" +
 	"\fresource_ids\x18\v \x03(\tR\vresourceIds\x12;\n" +
-	"\x05modes\x18\x14 \x03(\x0e2%.sentinez.types.ruleset.v1.EngineModeR\x05modes\x12>\n" +
-	"\bversions\x18\x15 \x03(\x0e2\".sentinez.types.ruleset.v1.VersionR\bversions\x125\n" +
+	"\x05modes\x18\x14 \x03(\x0e2%.sentinez.types.ruleset.v1.EngineModeR\x05modes\x12A\n" +
+	"\bversions\x18\x15 \x03(\x0e2%.sentinez.types.ruleset.v1.CRSVersionR\bversions\x125\n" +
 	"\bstatuses\x18\x16 \x03(\x0e2\x19.sentinez.types.v1.StatusR\bstatuses\x12.\n" +
 	"\x0eparanoia_level\x18\x17 \x01(\rB\a\xbaH\x04*\x02\x18\x04R\rparanoiaLevel\x12C\n" +
 	"\n" +
@@ -2175,19 +2187,20 @@ const file_sentinez_apps_security_v1_security_proto_rawDesc = "" +
 	"categories\x12%\n" +
 	"\x0eexclusion_tags\x18\x19 \x03(\tR\rexclusionTags\x12,\n" +
 	"\x12exclusion_rule_ids\x18\x1a \x03(\rR\x10exclusionRuleIds\x12*\n" +
-	"\x11override_rule_ids\x18\x1b \x03(\rR\x0foverrideRuleIds\"x\n" +
+	"\x11override_rule_ids\x18\x1b \x03(\rR\x0foverrideRuleIds\x12A\n" +
+	"\tproviders\x18\x1c \x03(\x0e2#.sentinez.types.ruleset.v1.ProviderR\tproviders\"x\n" +
 	"\x17ListSecRulesetsResponse\x12G\n" +
 	"\vsecrulesets\x18\x01 \x03(\v2%.sentinez.apps.security.v1.SecRulesetR\vsecrulesets\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x03R\x05total\"t\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\"w\n" +
 	"\x15GetCRSRuleInfoRequest\x12\x1d\n" +
 	"\x02id\x18\x01 \x01(\rB\r\xbaH\n" +
-	"*\b\x18\xbf\x84=(\xa0\xf76R\x02id\x12<\n" +
-	"\aversion\x18\x02 \x01(\x0e2\".sentinez.types.ruleset.v1.VersionR\aversion\"Q\n" +
+	"*\b\x18\xbf\x84=(\xa0\xf76R\x02id\x12?\n" +
+	"\aversion\x18\x02 \x01(\x0e2%.sentinez.types.ruleset.v1.CRSVersionR\aversion\"Q\n" +
 	"\x16GetCRSRuleInfoResponse\x127\n" +
-	"\x04rule\x18\x01 \x01(\v2#.sentinez.types.ruleset.v1.RuleInfoR\x04rule\"\xf8\x02\n" +
+	"\x04rule\x18\x01 \x01(\v2#.sentinez.types.ruleset.v1.RuleInfoR\x04rule\"\xfb\x02\n" +
 	"\x17ListCRSRuleInfosRequest\x12,\n" +
-	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12<\n" +
-	"\aversion\x18\x02 \x01(\x0e2\".sentinez.types.ruleset.v1.VersionR\aversion\x12\x16\n" +
+	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12?\n" +
+	"\aversion\x18\x02 \x01(\x0e2%.sentinez.types.ruleset.v1.CRSVersionR\aversion\x12\x16\n" +
 	"\x06search\x18\x03 \x01(\tR\x06search\x12\x10\n" +
 	"\x03ids\x18\n" +
 	" \x03(\rR\x03ids\x12C\n" +
@@ -2206,10 +2219,10 @@ const file_sentinez_apps_security_v1_security_proto_rawDesc = "" +
 	"\aRuleTag\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1d\n" +
 	"\n" +
-	"rule_count\x18\x02 \x01(\rR\truleCount\"\xc3\x01\n" +
+	"rule_count\x18\x02 \x01(\rR\truleCount\"\xc6\x01\n" +
 	"\x16ListCRSRuleTagsRequest\x12,\n" +
-	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12<\n" +
-	"\aversion\x18\x02 \x01(\x0e2\".sentinez.types.ruleset.v1.VersionR\aversion\x12\x16\n" +
+	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12?\n" +
+	"\aversion\x18\x02 \x01(\x0e2%.sentinez.types.ruleset.v1.CRSVersionR\aversion\x12\x16\n" +
 	"\x06search\x18\x03 \x01(\tR\x06search\x12%\n" +
 	"\x0einclude_system\x18\x0f \x01(\bR\rincludeSystem\"g\n" +
 	"\x17ListCRSRuleTagsResponse\x126\n" +
@@ -2307,10 +2320,11 @@ var file_sentinez_apps_security_v1_security_proto_goTypes = []any{
 	(*SecRateLimit)(nil),               // 42: sentinez.apps.security.v1.SecRateLimit
 	(*SecRuleset)(nil),                 // 43: sentinez.apps.security.v1.SecRuleset
 	(v11.EngineMode)(0),                // 44: sentinez.types.ruleset.v1.EngineMode
-	(v11.Version)(0),                   // 45: sentinez.types.ruleset.v1.Version
+	(v11.CRSVersion)(0),                // 45: sentinez.types.ruleset.v1.CRSVersion
 	(v1.Status)(0),                     // 46: sentinez.types.v1.Status
 	(v11.Category)(0),                  // 47: sentinez.types.ruleset.v1.Category
-	(*v11.RuleInfo)(nil),               // 48: sentinez.types.ruleset.v1.RuleInfo
+	(v11.Provider)(0),                  // 48: sentinez.types.ruleset.v1.Provider
+	(*v11.RuleInfo)(nil),               // 49: sentinez.types.ruleset.v1.RuleInfo
 }
 var file_sentinez_apps_security_v1_security_proto_depIdxs = []int32{
 	39, // 0: sentinez.apps.security.v1.CreateSecRuleRequest.secrule:type_name -> sentinez.apps.security.v1.SecRule
@@ -2334,62 +2348,63 @@ var file_sentinez_apps_security_v1_security_proto_depIdxs = []int32{
 	43, // 18: sentinez.apps.security.v1.UpdateSecRulesetResponse.secruleset:type_name -> sentinez.apps.security.v1.SecRuleset
 	41, // 19: sentinez.apps.security.v1.ListSecRulesetsRequest.page:type_name -> sentinez.types.v1.Pages
 	44, // 20: sentinez.apps.security.v1.ListSecRulesetsRequest.modes:type_name -> sentinez.types.ruleset.v1.EngineMode
-	45, // 21: sentinez.apps.security.v1.ListSecRulesetsRequest.versions:type_name -> sentinez.types.ruleset.v1.Version
+	45, // 21: sentinez.apps.security.v1.ListSecRulesetsRequest.versions:type_name -> sentinez.types.ruleset.v1.CRSVersion
 	46, // 22: sentinez.apps.security.v1.ListSecRulesetsRequest.statuses:type_name -> sentinez.types.v1.Status
 	47, // 23: sentinez.apps.security.v1.ListSecRulesetsRequest.categories:type_name -> sentinez.types.ruleset.v1.Category
-	43, // 24: sentinez.apps.security.v1.ListSecRulesetsResponse.secrulesets:type_name -> sentinez.apps.security.v1.SecRuleset
-	45, // 25: sentinez.apps.security.v1.GetCRSRuleInfoRequest.version:type_name -> sentinez.types.ruleset.v1.Version
-	48, // 26: sentinez.apps.security.v1.GetCRSRuleInfoResponse.rule:type_name -> sentinez.types.ruleset.v1.RuleInfo
-	41, // 27: sentinez.apps.security.v1.ListCRSRuleInfosRequest.page:type_name -> sentinez.types.v1.Pages
-	45, // 28: sentinez.apps.security.v1.ListCRSRuleInfosRequest.version:type_name -> sentinez.types.ruleset.v1.Version
-	47, // 29: sentinez.apps.security.v1.ListCRSRuleInfosRequest.categories:type_name -> sentinez.types.ruleset.v1.Category
-	48, // 30: sentinez.apps.security.v1.ListCRSRuleInfosResponse.rules:type_name -> sentinez.types.ruleset.v1.RuleInfo
-	41, // 31: sentinez.apps.security.v1.ListCRSRuleTagsRequest.page:type_name -> sentinez.types.v1.Pages
-	45, // 32: sentinez.apps.security.v1.ListCRSRuleTagsRequest.version:type_name -> sentinez.types.ruleset.v1.Version
-	34, // 33: sentinez.apps.security.v1.ListCRSRuleTagsResponse.tags:type_name -> sentinez.apps.security.v1.RuleTag
-	0,  // 34: sentinez.apps.security.v1.SecurityService.CreateSecRule:input_type -> sentinez.apps.security.v1.CreateSecRuleRequest
-	2,  // 35: sentinez.apps.security.v1.SecurityService.GetSecRule:input_type -> sentinez.apps.security.v1.GetSecRuleRequest
-	4,  // 36: sentinez.apps.security.v1.SecurityService.UpdateSecRule:input_type -> sentinez.apps.security.v1.UpdateSecRuleRequest
-	6,  // 37: sentinez.apps.security.v1.SecurityService.DeleteSecRule:input_type -> sentinez.apps.security.v1.DeleteSecRuleRequest
-	8,  // 38: sentinez.apps.security.v1.SecurityService.ListSecRules:input_type -> sentinez.apps.security.v1.ListSecRulesRequest
-	10, // 39: sentinez.apps.security.v1.SecurityService.CreateSecRateLimit:input_type -> sentinez.apps.security.v1.CreateSecRateLimitRequest
-	12, // 40: sentinez.apps.security.v1.SecurityService.GetSecRateLimit:input_type -> sentinez.apps.security.v1.GetSecRateLimitRequest
-	14, // 41: sentinez.apps.security.v1.SecurityService.UpdateSecRateLimit:input_type -> sentinez.apps.security.v1.UpdateSecRateLimitRequest
-	16, // 42: sentinez.apps.security.v1.SecurityService.DeleteSecRateLimit:input_type -> sentinez.apps.security.v1.DeleteSecRateLimitRequest
-	18, // 43: sentinez.apps.security.v1.SecurityService.ListSecRateLimits:input_type -> sentinez.apps.security.v1.ListSecRateLimitsRequest
-	20, // 44: sentinez.apps.security.v1.SecurityService.CreateSecRuleset:input_type -> sentinez.apps.security.v1.CreateSecRulesetRequest
-	22, // 45: sentinez.apps.security.v1.SecurityService.GetSecRuleset:input_type -> sentinez.apps.security.v1.GetSecRulesetRequest
-	24, // 46: sentinez.apps.security.v1.SecurityService.UpdateSecRuleset:input_type -> sentinez.apps.security.v1.UpdateSecRulesetRequest
-	26, // 47: sentinez.apps.security.v1.SecurityService.DeleteSecRuleset:input_type -> sentinez.apps.security.v1.DeleteSecRulesetRequest
-	28, // 48: sentinez.apps.security.v1.SecurityService.ListSecRulesets:input_type -> sentinez.apps.security.v1.ListSecRulesetsRequest
-	30, // 49: sentinez.apps.security.v1.SecurityService.GetCRSRuleInfo:input_type -> sentinez.apps.security.v1.GetCRSRuleInfoRequest
-	32, // 50: sentinez.apps.security.v1.SecurityService.ListCRSRuleInfos:input_type -> sentinez.apps.security.v1.ListCRSRuleInfosRequest
-	35, // 51: sentinez.apps.security.v1.SecurityService.ListCRSRuleTags:input_type -> sentinez.apps.security.v1.ListCRSRuleTagsRequest
-	37, // 52: sentinez.apps.security.v1.SecurityService.Status:input_type -> sentinez.apps.security.v1.StatusRequest
-	1,  // 53: sentinez.apps.security.v1.SecurityService.CreateSecRule:output_type -> sentinez.apps.security.v1.CreateSecRuleResponse
-	3,  // 54: sentinez.apps.security.v1.SecurityService.GetSecRule:output_type -> sentinez.apps.security.v1.GetSecRuleResponse
-	5,  // 55: sentinez.apps.security.v1.SecurityService.UpdateSecRule:output_type -> sentinez.apps.security.v1.UpdateSecRuleResponse
-	7,  // 56: sentinez.apps.security.v1.SecurityService.DeleteSecRule:output_type -> sentinez.apps.security.v1.DeleteSecRuleResponse
-	9,  // 57: sentinez.apps.security.v1.SecurityService.ListSecRules:output_type -> sentinez.apps.security.v1.ListSecRulesResponse
-	11, // 58: sentinez.apps.security.v1.SecurityService.CreateSecRateLimit:output_type -> sentinez.apps.security.v1.CreateSecRateLimitResponse
-	13, // 59: sentinez.apps.security.v1.SecurityService.GetSecRateLimit:output_type -> sentinez.apps.security.v1.GetSecRateLimitResponse
-	15, // 60: sentinez.apps.security.v1.SecurityService.UpdateSecRateLimit:output_type -> sentinez.apps.security.v1.UpdateSecRateLimitResponse
-	17, // 61: sentinez.apps.security.v1.SecurityService.DeleteSecRateLimit:output_type -> sentinez.apps.security.v1.DeleteSecRateLimitResponse
-	19, // 62: sentinez.apps.security.v1.SecurityService.ListSecRateLimits:output_type -> sentinez.apps.security.v1.ListSecRateLimitsResponse
-	21, // 63: sentinez.apps.security.v1.SecurityService.CreateSecRuleset:output_type -> sentinez.apps.security.v1.CreateSecRulesetResponse
-	23, // 64: sentinez.apps.security.v1.SecurityService.GetSecRuleset:output_type -> sentinez.apps.security.v1.GetSecRulesetResponse
-	25, // 65: sentinez.apps.security.v1.SecurityService.UpdateSecRuleset:output_type -> sentinez.apps.security.v1.UpdateSecRulesetResponse
-	27, // 66: sentinez.apps.security.v1.SecurityService.DeleteSecRuleset:output_type -> sentinez.apps.security.v1.DeleteSecRulesetResponse
-	29, // 67: sentinez.apps.security.v1.SecurityService.ListSecRulesets:output_type -> sentinez.apps.security.v1.ListSecRulesetsResponse
-	31, // 68: sentinez.apps.security.v1.SecurityService.GetCRSRuleInfo:output_type -> sentinez.apps.security.v1.GetCRSRuleInfoResponse
-	33, // 69: sentinez.apps.security.v1.SecurityService.ListCRSRuleInfos:output_type -> sentinez.apps.security.v1.ListCRSRuleInfosResponse
-	36, // 70: sentinez.apps.security.v1.SecurityService.ListCRSRuleTags:output_type -> sentinez.apps.security.v1.ListCRSRuleTagsResponse
-	38, // 71: sentinez.apps.security.v1.SecurityService.Status:output_type -> sentinez.apps.security.v1.StatusResponse
-	53, // [53:72] is the sub-list for method output_type
-	34, // [34:53] is the sub-list for method input_type
-	34, // [34:34] is the sub-list for extension type_name
-	34, // [34:34] is the sub-list for extension extendee
-	0,  // [0:34] is the sub-list for field type_name
+	48, // 24: sentinez.apps.security.v1.ListSecRulesetsRequest.providers:type_name -> sentinez.types.ruleset.v1.Provider
+	43, // 25: sentinez.apps.security.v1.ListSecRulesetsResponse.secrulesets:type_name -> sentinez.apps.security.v1.SecRuleset
+	45, // 26: sentinez.apps.security.v1.GetCRSRuleInfoRequest.version:type_name -> sentinez.types.ruleset.v1.CRSVersion
+	49, // 27: sentinez.apps.security.v1.GetCRSRuleInfoResponse.rule:type_name -> sentinez.types.ruleset.v1.RuleInfo
+	41, // 28: sentinez.apps.security.v1.ListCRSRuleInfosRequest.page:type_name -> sentinez.types.v1.Pages
+	45, // 29: sentinez.apps.security.v1.ListCRSRuleInfosRequest.version:type_name -> sentinez.types.ruleset.v1.CRSVersion
+	47, // 30: sentinez.apps.security.v1.ListCRSRuleInfosRequest.categories:type_name -> sentinez.types.ruleset.v1.Category
+	49, // 31: sentinez.apps.security.v1.ListCRSRuleInfosResponse.rules:type_name -> sentinez.types.ruleset.v1.RuleInfo
+	41, // 32: sentinez.apps.security.v1.ListCRSRuleTagsRequest.page:type_name -> sentinez.types.v1.Pages
+	45, // 33: sentinez.apps.security.v1.ListCRSRuleTagsRequest.version:type_name -> sentinez.types.ruleset.v1.CRSVersion
+	34, // 34: sentinez.apps.security.v1.ListCRSRuleTagsResponse.tags:type_name -> sentinez.apps.security.v1.RuleTag
+	0,  // 35: sentinez.apps.security.v1.SecurityService.CreateSecRule:input_type -> sentinez.apps.security.v1.CreateSecRuleRequest
+	2,  // 36: sentinez.apps.security.v1.SecurityService.GetSecRule:input_type -> sentinez.apps.security.v1.GetSecRuleRequest
+	4,  // 37: sentinez.apps.security.v1.SecurityService.UpdateSecRule:input_type -> sentinez.apps.security.v1.UpdateSecRuleRequest
+	6,  // 38: sentinez.apps.security.v1.SecurityService.DeleteSecRule:input_type -> sentinez.apps.security.v1.DeleteSecRuleRequest
+	8,  // 39: sentinez.apps.security.v1.SecurityService.ListSecRules:input_type -> sentinez.apps.security.v1.ListSecRulesRequest
+	10, // 40: sentinez.apps.security.v1.SecurityService.CreateSecRateLimit:input_type -> sentinez.apps.security.v1.CreateSecRateLimitRequest
+	12, // 41: sentinez.apps.security.v1.SecurityService.GetSecRateLimit:input_type -> sentinez.apps.security.v1.GetSecRateLimitRequest
+	14, // 42: sentinez.apps.security.v1.SecurityService.UpdateSecRateLimit:input_type -> sentinez.apps.security.v1.UpdateSecRateLimitRequest
+	16, // 43: sentinez.apps.security.v1.SecurityService.DeleteSecRateLimit:input_type -> sentinez.apps.security.v1.DeleteSecRateLimitRequest
+	18, // 44: sentinez.apps.security.v1.SecurityService.ListSecRateLimits:input_type -> sentinez.apps.security.v1.ListSecRateLimitsRequest
+	20, // 45: sentinez.apps.security.v1.SecurityService.CreateSecRuleset:input_type -> sentinez.apps.security.v1.CreateSecRulesetRequest
+	22, // 46: sentinez.apps.security.v1.SecurityService.GetSecRuleset:input_type -> sentinez.apps.security.v1.GetSecRulesetRequest
+	24, // 47: sentinez.apps.security.v1.SecurityService.UpdateSecRuleset:input_type -> sentinez.apps.security.v1.UpdateSecRulesetRequest
+	26, // 48: sentinez.apps.security.v1.SecurityService.DeleteSecRuleset:input_type -> sentinez.apps.security.v1.DeleteSecRulesetRequest
+	28, // 49: sentinez.apps.security.v1.SecurityService.ListSecRulesets:input_type -> sentinez.apps.security.v1.ListSecRulesetsRequest
+	30, // 50: sentinez.apps.security.v1.SecurityService.GetCRSRuleInfo:input_type -> sentinez.apps.security.v1.GetCRSRuleInfoRequest
+	32, // 51: sentinez.apps.security.v1.SecurityService.ListCRSRuleInfos:input_type -> sentinez.apps.security.v1.ListCRSRuleInfosRequest
+	35, // 52: sentinez.apps.security.v1.SecurityService.ListCRSRuleTags:input_type -> sentinez.apps.security.v1.ListCRSRuleTagsRequest
+	37, // 53: sentinez.apps.security.v1.SecurityService.Status:input_type -> sentinez.apps.security.v1.StatusRequest
+	1,  // 54: sentinez.apps.security.v1.SecurityService.CreateSecRule:output_type -> sentinez.apps.security.v1.CreateSecRuleResponse
+	3,  // 55: sentinez.apps.security.v1.SecurityService.GetSecRule:output_type -> sentinez.apps.security.v1.GetSecRuleResponse
+	5,  // 56: sentinez.apps.security.v1.SecurityService.UpdateSecRule:output_type -> sentinez.apps.security.v1.UpdateSecRuleResponse
+	7,  // 57: sentinez.apps.security.v1.SecurityService.DeleteSecRule:output_type -> sentinez.apps.security.v1.DeleteSecRuleResponse
+	9,  // 58: sentinez.apps.security.v1.SecurityService.ListSecRules:output_type -> sentinez.apps.security.v1.ListSecRulesResponse
+	11, // 59: sentinez.apps.security.v1.SecurityService.CreateSecRateLimit:output_type -> sentinez.apps.security.v1.CreateSecRateLimitResponse
+	13, // 60: sentinez.apps.security.v1.SecurityService.GetSecRateLimit:output_type -> sentinez.apps.security.v1.GetSecRateLimitResponse
+	15, // 61: sentinez.apps.security.v1.SecurityService.UpdateSecRateLimit:output_type -> sentinez.apps.security.v1.UpdateSecRateLimitResponse
+	17, // 62: sentinez.apps.security.v1.SecurityService.DeleteSecRateLimit:output_type -> sentinez.apps.security.v1.DeleteSecRateLimitResponse
+	19, // 63: sentinez.apps.security.v1.SecurityService.ListSecRateLimits:output_type -> sentinez.apps.security.v1.ListSecRateLimitsResponse
+	21, // 64: sentinez.apps.security.v1.SecurityService.CreateSecRuleset:output_type -> sentinez.apps.security.v1.CreateSecRulesetResponse
+	23, // 65: sentinez.apps.security.v1.SecurityService.GetSecRuleset:output_type -> sentinez.apps.security.v1.GetSecRulesetResponse
+	25, // 66: sentinez.apps.security.v1.SecurityService.UpdateSecRuleset:output_type -> sentinez.apps.security.v1.UpdateSecRulesetResponse
+	27, // 67: sentinez.apps.security.v1.SecurityService.DeleteSecRuleset:output_type -> sentinez.apps.security.v1.DeleteSecRulesetResponse
+	29, // 68: sentinez.apps.security.v1.SecurityService.ListSecRulesets:output_type -> sentinez.apps.security.v1.ListSecRulesetsResponse
+	31, // 69: sentinez.apps.security.v1.SecurityService.GetCRSRuleInfo:output_type -> sentinez.apps.security.v1.GetCRSRuleInfoResponse
+	33, // 70: sentinez.apps.security.v1.SecurityService.ListCRSRuleInfos:output_type -> sentinez.apps.security.v1.ListCRSRuleInfosResponse
+	36, // 71: sentinez.apps.security.v1.SecurityService.ListCRSRuleTags:output_type -> sentinez.apps.security.v1.ListCRSRuleTagsResponse
+	38, // 72: sentinez.apps.security.v1.SecurityService.Status:output_type -> sentinez.apps.security.v1.StatusResponse
+	54, // [54:73] is the sub-list for method output_type
+	35, // [35:54] is the sub-list for method input_type
+	35, // [35:35] is the sub-list for extension type_name
+	35, // [35:35] is the sub-list for extension extendee
+	0,  // [0:35] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_apps_security_v1_security_proto_init() }

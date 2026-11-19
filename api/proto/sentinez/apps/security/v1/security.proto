@@ -378,26 +378,34 @@ message ListSecRulesetsRequest {
   // metadata.resource_id of the rows, any of them.
   repeated string resource_ids = 11;
 
-  // ── Filters on the fields of ruleset ──
+  // ── Filters on the fields of setting ──
 
+  // setting.crs.mode or setting.managed.mode.
   repeated sentinez.types.ruleset.v1.EngineMode modes = 20;
-  repeated sentinez.types.ruleset.v1.Version versions = 21;
+
+  // setting.crs.version.
+  repeated sentinez.types.ruleset.v1.CRSVersion versions = 21;
+
+  // setting.status.
   repeated sentinez.types.v1.Status statuses = 22;
 
-  // ruleset.paranoia_level, 0 = any.
+  // setting.crs.paranoia_level, 0 = any.
   uint32 paranoia_level = 23 [(buf.validate.field).uint32 = {lte: 4}];
 
-  // Rule groups all listed in ruleset.categories.
+  // Rule groups all listed in setting.crs.categories.
   repeated sentinez.types.ruleset.v1.Category categories = 24;
 
-  // Tags excluded by ruleset.exclusions.
+  // Tags excluded by setting.crs.exclusions.
   repeated string exclusion_tags = 25;
 
-  // Rules with a variable excluded by ruleset.exclusions.
+  // Rules with a variable excluded by setting.crs.exclusions.
   repeated uint32 exclusion_rule_ids = 26;
 
-  // Rules with a state changed by ruleset.overrides.
+  // Rules with a state changed by setting.crs.overrides.
   repeated uint32 override_rule_ids = 27;
+
+  // setting.provider; PROVIDER_OWASP also matches an unset provider.
+  repeated sentinez.types.ruleset.v1.Provider providers = 28;
 }
 
 message ListSecRulesetsResponse {
@@ -414,7 +422,7 @@ message GetCRSRuleInfoRequest {
   }];
 
   // CRS version of the catalog, unspecified = latest supported.
-  sentinez.types.ruleset.v1.Version version = 2;
+  sentinez.types.ruleset.v1.CRSVersion version = 2;
 }
 
 message GetCRSRuleInfoResponse {
@@ -427,7 +435,7 @@ message ListCRSRuleInfosRequest {
   sentinez.types.v1.Pages page = 1;
 
   // CRS version of the catalog, unspecified = latest supported.
-  sentinez.types.ruleset.v1.Version version = 2;
+  sentinez.types.ruleset.v1.CRSVersion version = 2;
 
   // Case-insensitive part of the message or of a tag, or the leading
   // digits of the ID (ex: "9421").
@@ -467,7 +475,7 @@ message ListCRSRuleTagsRequest {
   sentinez.types.v1.Pages page = 1;
 
   // CRS version of the catalog, unspecified = latest supported.
-  sentinez.types.ruleset.v1.Version version = 2;
+  sentinez.types.ruleset.v1.CRSVersion version = 2;
 
   // Case-insensitive part of the tag, ex: "attack".
   string search = 3;

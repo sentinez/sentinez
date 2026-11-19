@@ -111,7 +111,9 @@ func importSecurity() *edgepb.Security {
 	block := &rulepb.Action{Type: rulepb.ActionType_ACTION_TYPE_BLOCK}
 
 	return &edgepb.Security{
-		Ruleset: &rulesetpb.Setting{ParanoiaLevel: 1},
+		Ruleset: &rulesetpb.Setting{
+			Crs: &rulesetpb.Crs{ParanoiaLevel: 1},
+		},
 		Secrules: []*edgepb.SecRule{
 			{Ingress: &secrulepb.SecRule{Name: "block", Action: block}},
 			{Ingress: &secrulepb.SecRule{Name: "challenge"}},
@@ -148,9 +150,9 @@ func TestImportSecurityUpdatesByName(t *testing.T) {
 	rules := &fakeRepo[*securitypb.SecRule]{stored: []*securitypb.SecRule{
 		{Id: "srule_1", Name: "block"},
 	}}
-	limits := &fakeRepo[*securitypb.SecRateLimit]{stored: []*securitypb.SecRateLimit{
-		{Id: "srlim_1", Name: "limit"},
-	}}
+	limits := &fakeRepo[*securitypb.SecRateLimit]{
+		stored: []*securitypb.SecRateLimit{{Id: "srlim_1", Name: "limit"}},
+	}
 	crs := &fakeRepo[*securitypb.SecRuleset]{stored: []*securitypb.SecRuleset{
 		{Id: "srs_1"},
 	}}

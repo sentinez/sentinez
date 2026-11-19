@@ -26,17 +26,17 @@ import (
 func TestRules(t *testing.T) {
 	tests := []struct {
 		name     string
-		give     rulesetpb.Version
+		give     rulesetpb.CRSVersion
 		wantRuby bool // RESPONSE-956 only exists since 4.17.0
 	}{
-		{name: "4.16.0", give: rulesetpb.Version_VERSION_V4_16_0},
+		{name: "4.16.0", give: rulesetpb.CRSVersion_CRS_VERSION_V4_16_0},
 		{
-			name: "4.17.0", give: rulesetpb.Version_VERSION_V4_17_0,
+			name: "4.17.0", give: rulesetpb.CRSVersion_CRS_VERSION_V4_17_0,
 			wantRuby: true,
 		},
 		{
 			name: "unspecified is the latest",
-			give: rulesetpb.Version_VERSION_UNSPECIFIED, wantRuby: true,
+			give: rulesetpb.CRSVersion_CRS_VERSION_UNSPECIFIED, wantRuby: true,
 		},
 	}
 
@@ -60,11 +60,11 @@ func TestRules(t *testing.T) {
 }
 
 func TestRule(t *testing.T) {
-	rule, ok := Rule(rulesetpb.Version_VERSION_V4_17_0, 942100)
+	rule, ok := Rule(rulesetpb.CRSVersion_CRS_VERSION_V4_17_0, 942100)
 	require.True(t, ok)
 	assert.Equal(t, rulesetpb.Category_CATEGORY_SQLI, rule.GetCategory())
 	assert.False(t, rule.GetSystem())
 
-	_, ok = Rule(rulesetpb.Version_VERSION_V4_17_0, 1)
+	_, ok = Rule(rulesetpb.CRSVersion_CRS_VERSION_V4_17_0, 1)
 	assert.False(t, ok)
 }

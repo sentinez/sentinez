@@ -39,8 +39,8 @@ type versionGroups struct {
 	response []ruleGroup
 }
 
-var _versionGroups = map[rulesetpb.Version]versionGroups{
-	rulesetpb.Version_VERSION_V4_16_0: {
+var _versionGroups = map[rulesetpb.CRSVersion]versionGroups{
+	rulesetpb.CRSVersion_CRS_VERSION_V4_16_0: {
 		request: []ruleGroup{
 			{ReqCommonExceptions, rulev4160.Request905CommonExceptionsOrder},
 			{ReqMethodEnforcement, rulev4160.Request911MethodEnforcementOrder},
@@ -79,7 +79,7 @@ var _versionGroups = map[rulesetpb.Version]versionGroups{
 			{0, rulev4160.Response980CorrelationOrder},
 		},
 	},
-	rulesetpb.Version_VERSION_V4_17_0: {
+	rulesetpb.CRSVersion_CRS_VERSION_V4_17_0: {
 		request: []ruleGroup{
 			{ReqCommonExceptions, rulev4170.Request905CommonExceptionsOrder},
 			{ReqMethodEnforcement, rulev4170.Request911MethodEnforcementOrder},
@@ -120,27 +120,27 @@ var _versionGroups = map[rulesetpb.Version]versionGroups{
 	},
 }
 
-// GenerateRulesets maps the setting to the rule content (SecLang
-// directives) loaded into coraza. A setting that is not active, or with
-// the engine off, maps to a rule engine without any ruleset.
-func GenerateRulesets(
-	version rulesetpb.Version, setting *rulesetpb.Setting,
-) (string, error) {
-	if !settingEnabled(setting) {
+// GenerateRulesets maps the CRS setting to the rule content (SecLang
+// directives) loaded into coraza, from the rule files of its version.
+// The engine off maps to a rule engine without any ruleset.
+func GenerateRulesets(crs *rulesetpb.Crs) (string, error) {
+	if !Enabled(crs) {
 		return "SecRuleEngine Off\n", nil
 	}
+
+	version := crs.GetVersion()
 
 	groups, ok := _versionGroups[version]
 	if !ok {
 		return "", fmt.Errorf("%w: %q", ErrUnsupportedVersion, version)
 	}
 
-	if err := validateSetting(setting); err != nil {
+	if err := validateSetting(crs); err != nil {
 		return "", err
 	}
 
-	rulesets := NewRulesetsLoader(setting)
-	loadRulesets(rulesets, groups, setting)
+	rulesets := NewRulesetsLoader(crs)
+	loadRulesets(rulesets, groups, crs)
 
 	return rulesets.Export(), nil
 }
@@ -151,13 +151,13 @@ func GenerateRulesets(
 func loadRulesets(
 	rulesets *RulesetsLoader,
 	groups versionGroups,
-	setting *rulesetpb.Setting,
+	crs *rulesetpb.Crs,
 ) {
-	flag := FlagOf(setting.GetCategories())
+	flag := FlagOf(crs.GetCategories())
 
 	// load setup rules, then the setting on top of them
 	rulesets.Load(gen.SetupOrder)
-	rulesets.Write(setupDirectives(setting))
+	rulesets.Write(setupDirectives(crs))
 
 	// load init rule
 	rulesets.Load(gen.Request901InitializationOrder)
@@ -175,7 +175,7 @@ func loadRulesets(
 	loadGroups(rulesets, groups.response, flag)
 
 	// load global exclusions and overrides
-	rulesets.Write(globalDirectives(setting, rulesets.Loaded))
+	rulesets.Write(globalDirectives(crs, rulesets.Loaded))
 }
 
 func loadGroups(rulesets *RulesetsLoader, groups []ruleGroup, flag Flag) {

@@ -23,7 +23,6 @@ import (
 	crslang "github.com/coreruleset/crslang/types"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
 
 // IDs of the rules generated from a setting, kept below the CRS range
@@ -88,13 +87,9 @@ func FlagOf(categories []rulesetpb.Category) Flag {
 	return flag
 }
 
-// settingEnabled reports whether the setting turns the rule engine on.
-func settingEnabled(s *rulesetpb.Setting) bool {
-	if s.GetStatus() != typepb.Status_STATUS_ACTIVE {
-		return false
-	}
-
-	switch s.GetMode() {
+// Enabled reports whether the mode of crs turns the rule engine on.
+func Enabled(crs *rulesetpb.Crs) bool {
+	switch crs.GetMode() {
 	case rulesetpb.EngineMode_ENGINE_MODE_ON,
 		rulesetpb.EngineMode_ENGINE_MODE_DETECTION_ONLY:
 		return true
@@ -104,14 +99,14 @@ func settingEnabled(s *rulesetpb.Setting) bool {
 }
 
 // blockingLevel tx.blocking_paranoia_level, 0 = default (1).
-func blockingLevel(s *rulesetpb.Setting) uint32 {
+func blockingLevel(s *rulesetpb.Crs) uint32 {
 	return max(s.GetParanoiaLevel(), 1)
 }
 
 // ruleStates global (not expression scoped) rule state overrides by rule
 // ID.
 func ruleStates(
-	s *rulesetpb.Setting,
+	s *rulesetpb.Crs,
 ) map[uint32]rulesetpb.RuleState {
 	states := make(map[uint32]rulesetpb.RuleState, len(s.GetOverrides()))
 
@@ -124,7 +119,7 @@ func ruleStates(
 	return states
 }
 
-func validateSetting(s *rulesetpb.Setting) error {
+func validateSetting(s *rulesetpb.Crs) error {
 	if err := validateRequest(s.GetRequest()); err != nil {
 		return err
 	}
@@ -204,7 +199,7 @@ func validateOverride(o *rulesetpb.RuleOverride) error {
 // setupDirectives maps the setting to the directives overriding setup.conf
 // plus the exclusions and overrides scoped to an expression. They are
 // loaded after the setup rules and before REQUEST-901-INITIALIZATION.
-func setupDirectives(s *rulesetpb.Setting) string {
+func setupDirectives(s *rulesetpb.Crs) string {
 	var sb strings.Builder
 
 	engine := "On"
@@ -241,7 +236,7 @@ func writeRequestPolicy(sb *strings.Builder, r *rulesetpb.RequestPolicy) {
 }
 
 // setupVars setvar actions overriding the CRS setup variables.
-func setupVars(s *rulesetpb.Setting) []string {
+func setupVars(s *rulesetpb.Crs) []string {
 	level := blockingLevel(s)
 	vars := []string{
 		fmt.Sprintf("setvar:tx.blocking_paranoia_level=%d", level),
@@ -297,7 +292,7 @@ func thresholdVars(t *rulesetpb.AnomalyThreshold) []string {
 
 // writeScopedRules exclusions and overrides scoped to an expression are
 // applied per transaction with ctl actions.
-func writeScopedRules(sb *strings.Builder, s *rulesetpb.Setting) {
+func writeScopedRules(sb *strings.Builder, s *rulesetpb.Crs) {
 	id := _scopedRuleId
 
 	write := func(expr *rulepb.Expression, ctls []string) {
@@ -425,7 +420,7 @@ func exclusionCtls(e *rulesetpb.Exclusion) []string {
 // defined, so they are loaded after every ruleset; loaded reports whether
 // a rule ID is part of the loaded rulesets.
 func globalDirectives(
-	s *rulesetpb.Setting, loaded func(id uint32) bool,
+	s *rulesetpb.Crs, loaded func(id uint32) bool,
 ) string {
 	var sb strings.Builder
 

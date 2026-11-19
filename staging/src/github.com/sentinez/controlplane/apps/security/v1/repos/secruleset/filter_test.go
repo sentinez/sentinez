@@ -63,20 +63,31 @@ func TestListConditions(t *testing.T) {
 				rulesetpb.EngineMode_ENGINE_MODE_ON,
 				rulesetpb.EngineMode_ENGINE_MODE_DETECTION_ONLY,
 			}},
-			wantSQL: "SELECT 1 WHERE " +
-				"(setting @> ?::jsonb OR setting @> ?::jsonb)",
+			wantSQL: "SELECT 1 WHERE (setting @> ?::jsonb OR " +
+				"setting @> ?::jsonb OR setting @> ?::jsonb OR " +
+				"setting @> ?::jsonb)",
 			wantArgs: []any{
-				`{"mode":"ENGINE_MODE_ON"}`,
-				`{"mode":"ENGINE_MODE_DETECTION_ONLY"}`,
+				`{"crs":{"mode":"ENGINE_MODE_ON"}}`,
+				`{"managed":{"mode":"ENGINE_MODE_ON"}}`,
+				`{"crs":{"mode":"ENGINE_MODE_DETECTION_ONLY"}}`,
+				`{"managed":{"mode":"ENGINE_MODE_DETECTION_ONLY"}}`,
 			},
 		},
 		{
-			name: "version",
-			give: &listReq{Versions: []rulesetpb.Version{
-				rulesetpb.Version_VERSION_V4_17_0,
+			name: "providers",
+			give: &listReq{Providers: []rulesetpb.Provider{
+				rulesetpb.Provider_PROVIDER_MANAGED,
 			}},
 			wantSQL:  "SELECT 1 WHERE (setting @> ?::jsonb)",
-			wantArgs: []any{`{"version":"VERSION_V4_17_0"}`},
+			wantArgs: []any{`{"provider":"PROVIDER_MANAGED"}`},
+		},
+		{
+			name: "version",
+			give: &listReq{Versions: []rulesetpb.CRSVersion{
+				rulesetpb.CRSVersion_CRS_VERSION_V4_17_0,
+			}},
+			wantSQL:  "SELECT 1 WHERE (setting @> ?::jsonb)",
+			wantArgs: []any{`{"crs":{"version":"CRS_VERSION_V4_17_0"}}`},
 		},
 		{
 			name: "status",
@@ -90,7 +101,7 @@ func TestListConditions(t *testing.T) {
 			name:     "paranoia level",
 			give:     &listReq{ParanoiaLevel: 2},
 			wantSQL:  "SELECT 1 WHERE (setting @> ?::jsonb)",
-			wantArgs: []any{`{"paranoia_level":2}`},
+			wantArgs: []any{`{"crs":{"paranoia_level":2}}`},
 		},
 		{
 			name: "categories",
@@ -100,28 +111,30 @@ func TestListConditions(t *testing.T) {
 			}},
 			wantSQL: "SELECT 1 WHERE (setting @> ?::jsonb)",
 			wantArgs: []any{
-				`{"categories":["CATEGORY_XSS","CATEGORY_SQLI"]}`,
+				`{"crs":{"categories":["CATEGORY_XSS","CATEGORY_SQLI"]}}`,
 			},
 		},
 		{
-			name:     "exclusion tag",
-			give:     &listReq{ExclusionTags: []string{"attack-sqli"}},
-			wantSQL:  "SELECT 1 WHERE (setting @> ?::jsonb)",
-			wantArgs: []any{`{"exclusions":[{"tags":["attack-sqli"]}]}`},
+			name:    "exclusion tag",
+			give:    &listReq{ExclusionTags: []string{"attack-sqli"}},
+			wantSQL: "SELECT 1 WHERE (setting @> ?::jsonb)",
+			wantArgs: []any{
+				`{"crs":{"exclusions":[{"tags":["attack-sqli"]}]}}`,
+			},
 		},
 		{
 			name:    "exclusion rule",
 			give:    &listReq{ExclusionRuleIds: []uint32{942100}},
 			wantSQL: "SELECT 1 WHERE (setting @> ?::jsonb)",
 			wantArgs: []any{
-				`{"exclusions":[{"targets":[{"rule_id":942100}]}]}`,
+				`{"crs":{"exclusions":[{"targets":[{"rule_id":942100}]}]}}`,
 			},
 		},
 		{
 			name:     "override rule",
 			give:     &listReq{OverrideRuleIds: []uint32{920420}},
 			wantSQL:  "SELECT 1 WHERE (setting @> ?::jsonb)",
-			wantArgs: []any{`{"overrides":[{"id":920420}]}`},
+			wantArgs: []any{`{"crs":{"overrides":[{"id":920420}]}}`},
 		},
 		{
 			name: "filters are combined",
@@ -133,9 +146,12 @@ func TestListConditions(t *testing.T) {
 				},
 			},
 			wantSQL: "SELECT 1 WHERE name ILIKE ? " +
-				"AND (setting @> ?::jsonb) AND (setting @> ?::jsonb)",
+				"AND (setting @> ?::jsonb OR setting @> ?::jsonb) " +
+				"AND (setting @> ?::jsonb)",
 			wantArgs: []any{
-				"%prod%", `{"mode":"ENGINE_MODE_ON"}`, `{"paranoia_level":1}`,
+				"%prod%", `{"crs":{"mode":"ENGINE_MODE_ON"}}`,
+				`{"managed":{"mode":"ENGINE_MODE_ON"}}`,
+				`{"crs":{"paranoia_level":1}}`,
 			},
 		},
 	}
@@ -174,10 +190,13 @@ func normalize(args []any) []any {
 
 func TestRulesetRoundTrip(t *testing.T) {
 	give := &rulesetpb.Setting{
-		Mode:          rulesetpb.EngineMode_ENGINE_MODE_ON,
-		ParanoiaLevel: 2,
-		Exclusions: []*rulesetpb.Exclusion{
-			{Tags: []string{"attack-sqli"}},
+		Provider: rulesetpb.Provider_PROVIDER_MANAGED,
+		Crs: &rulesetpb.Crs{
+			Mode:          rulesetpb.EngineMode_ENGINE_MODE_ON,
+			ParanoiaLevel: 2,
+			Exclusions: []*rulesetpb.Exclusion{
+				{Tags: []string{"attack-sqli"}},
+			},
 		},
 	}
 
@@ -191,4 +210,16 @@ func TestRulesetRoundTrip(t *testing.T) {
 	empty, err := marshalRuleset(nil)
 	require.NoError(t, err)
 	assert.Equal(t, "{}", empty)
+}
+
+func TestRulesetUnsetProviderIsOwasp(t *testing.T) {
+	give := &rulesetpb.Setting{Status: typepb.Status_STATUS_ACTIVE}
+
+	data, err := marshalRuleset(give)
+
+	require.NoError(t, err)
+	assert.JSONEq(t,
+		`{"status":"STATUS_ACTIVE","provider":"PROVIDER_OWASP"}`, data)
+	assert.Equal(t, rulesetpb.Provider_PROVIDER_UNSPECIFIED,
+		give.GetProvider(), "the setting of the caller is not changed")
 }

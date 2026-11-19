@@ -61,16 +61,16 @@
           },
           {
             "name": "version",
-            "description": "CRS version of the catalog, unspecified = latest supported.\n\n - VERSION_UNSPECIFIED: = latest supported",
+            "description": "CRS version of the catalog, unspecified = latest supported.\n\n - CRS_VERSION_UNSPECIFIED: = latest supported",
             "in": "query",
             "required": false,
             "type": "string",
             "enum": [
-              "VERSION_UNSPECIFIED",
-              "VERSION_V4_16_0",
-              "VERSION_V4_17_0"
+              "CRS_VERSION_UNSPECIFIED",
+              "CRS_VERSION_V4_16_0",
+              "CRS_VERSION_V4_17_0"
             ],
-            "default": "VERSION_UNSPECIFIED"
+            "default": "CRS_VERSION_UNSPECIFIED"
           },
           {
             "name": "search",
@@ -200,16 +200,16 @@
           },
           {
             "name": "version",
-            "description": "CRS version of the catalog, unspecified = latest supported.\n\n - VERSION_UNSPECIFIED: = latest supported",
+            "description": "CRS version of the catalog, unspecified = latest supported.\n\n - CRS_VERSION_UNSPECIFIED: = latest supported",
             "in": "query",
             "required": false,
             "type": "string",
             "enum": [
-              "VERSION_UNSPECIFIED",
-              "VERSION_V4_16_0",
-              "VERSION_V4_17_0"
+              "CRS_VERSION_UNSPECIFIED",
+              "CRS_VERSION_V4_16_0",
+              "CRS_VERSION_V4_17_0"
             ],
-            "default": "VERSION_UNSPECIFIED"
+            "default": "CRS_VERSION_UNSPECIFIED"
           }
         ],
         "tags": [
@@ -258,16 +258,16 @@
           },
           {
             "name": "version",
-            "description": "CRS version of the catalog, unspecified = latest supported.\n\n - VERSION_UNSPECIFIED: = latest supported",
+            "description": "CRS version of the catalog, unspecified = latest supported.\n\n - CRS_VERSION_UNSPECIFIED: = latest supported",
             "in": "query",
             "required": false,
             "type": "string",
             "enum": [
-              "VERSION_UNSPECIFIED",
-              "VERSION_V4_16_0",
-              "VERSION_V4_17_0"
+              "CRS_VERSION_UNSPECIFIED",
+              "CRS_VERSION_V4_16_0",
+              "CRS_VERSION_V4_17_0"
             ],
-            "default": "VERSION_UNSPECIFIED"
+            "default": "CRS_VERSION_UNSPECIFIED"
           },
           {
             "name": "search",
@@ -880,7 +880,7 @@
           },
           {
             "name": "modes",
-            "description": " - ENGINE_MODE_UNSPECIFIED: = OFF\n - ENGINE_MODE_DETECTION_ONLY: log only, never block",
+            "description": "setting.crs.mode or setting.managed.mode.\n\n - ENGINE_MODE_UNSPECIFIED: = OFF\n - ENGINE_MODE_DETECTION_ONLY: log only, never block",
             "in": "query",
             "required": false,
             "type": "array",
@@ -897,23 +897,23 @@
           },
           {
             "name": "versions",
-            "description": " - VERSION_UNSPECIFIED: = latest supported",
+            "description": "setting.crs.version.\n\n - CRS_VERSION_UNSPECIFIED: = latest supported",
             "in": "query",
             "required": false,
             "type": "array",
             "items": {
               "type": "string",
               "enum": [
-                "VERSION_UNSPECIFIED",
-                "VERSION_V4_16_0",
-                "VERSION_V4_17_0"
+                "CRS_VERSION_UNSPECIFIED",
+                "CRS_VERSION_V4_16_0",
+                "CRS_VERSION_V4_17_0"
               ]
             },
             "collectionFormat": "multi"
           },
           {
             "name": "statuses",
-            "description": " - STATUS_PENDING: Asked to be active, but waiting for what it needs to be served, as a\nresource for certificates that fit its TLS mode: served as disabled,\nand made active once it has them.",
+            "description": "setting.status.\n\n - STATUS_PENDING: Asked to be active, but waiting for what it needs to be served, as a\nresource for certificates that fit its TLS mode: served as disabled,\nand made active once it has them.",
             "in": "query",
             "required": false,
             "type": "array",
@@ -930,7 +930,7 @@
           },
           {
             "name": "paranoiaLevel",
-            "description": "ruleset.paranoia_level, 0 = any.",
+            "description": "setting.crs.paranoia_level, 0 = any.",
             "in": "query",
             "required": false,
             "type": "integer",
@@ -938,7 +938,7 @@
           },
           {
             "name": "categories",
-            "description": "Rule groups all listed in ruleset.categories.\n\n - CATEGORY_COMMON_EXCEPTIONS: ====== REQUEST PHASE ======\n\n905\n - CATEGORY_METHOD_ENFORCEMENT: 911\n - CATEGORY_SCANNER_DETECTION: 913\n - CATEGORY_PROTOCOL_ENFORCEMENT: 920\n - CATEGORY_PROTOCOL_ATTACK: 921\n - CATEGORY_MULTIPART_ATTACK: 922\n - CATEGORY_LFI: 930\n - CATEGORY_RFI: 931\n - CATEGORY_RCE: 932\n - CATEGORY_PHP: 933\n - CATEGORY_GENERIC: 934\n - CATEGORY_XSS: 941\n - CATEGORY_SQLI: 942\n - CATEGORY_SESSION_FIXATION: 943\n - CATEGORY_JAVA: 944\n - CATEGORY_DATA_LEAKAGES: ====== RESPONSE PHASE ======\n\n950\n - CATEGORY_DATA_LEAKAGES_SQL: 951\n - CATEGORY_DATA_LEAKAGES_JAVA: 952\n - CATEGORY_DATA_LEAKAGES_PHP: 953\n - CATEGORY_DATA_LEAKAGES_IIS: 954\n - CATEGORY_WEB_SHELLS: 955\n - CATEGORY_DATA_LEAKAGES_RUBY: 956",
+            "description": "Rule groups all listed in setting.crs.categories.\n\n - CATEGORY_COMMON_EXCEPTIONS: ====== REQUEST PHASE ======\n\n905\n - CATEGORY_METHOD_ENFORCEMENT: 911\n - CATEGORY_SCANNER_DETECTION: 913\n - CATEGORY_PROTOCOL_ENFORCEMENT: 920\n - CATEGORY_PROTOCOL_ATTACK: 921\n - CATEGORY_MULTIPART_ATTACK: 922\n - CATEGORY_LFI: 930\n - CATEGORY_RFI: 931\n - CATEGORY_RCE: 932\n - CATEGORY_PHP: 933\n - CATEGORY_GENERIC: 934\n - CATEGORY_XSS: 941\n - CATEGORY_SQLI: 942\n - CATEGORY_SESSION_FIXATION: 943\n - CATEGORY_JAVA: 944\n - CATEGORY_DATA_LEAKAGES: ====== RESPONSE PHASE ======\n\n950\n - CATEGORY_DATA_LEAKAGES_SQL: 951\n - CATEGORY_DATA_LEAKAGES_JAVA: 952\n - CATEGORY_DATA_LEAKAGES_PHP: 953\n - CATEGORY_DATA_LEAKAGES_IIS: 954\n - CATEGORY_WEB_SHELLS: 955\n - CATEGORY_DATA_LEAKAGES_RUBY: 956",
             "in": "query",
             "required": false,
             "type": "array",
@@ -974,7 +974,7 @@
           },
           {
             "name": "exclusionTags",
-            "description": "Tags excluded by ruleset.exclusions.",
+            "description": "Tags excluded by setting.crs.exclusions.",
             "in": "query",
             "required": false,
             "type": "array",
@@ -985,7 +985,7 @@
           },
           {
             "name": "exclusionRuleIds",
-            "description": "Rules with a variable excluded by ruleset.exclusions.",
+            "description": "Rules with a variable excluded by setting.crs.exclusions.",
             "in": "query",
             "required": false,
             "type": "array",
@@ -997,13 +997,29 @@
           },
           {
             "name": "overrideRuleIds",
-            "description": "Rules with a state changed by ruleset.overrides.",
+            "description": "Rules with a state changed by setting.crs.overrides.",
             "in": "query",
             "required": false,
             "type": "array",
             "items": {
               "type": "integer",
               "format": "int64"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "providers",
+            "description": "setting.provider; PROVIDER_OWASP also matches an unset provider.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "PROVIDER_UNSPECIFIED",
+                "PROVIDER_OWASP",
+                "PROVIDER_MANAGED"
+              ]
             },
             "collectionFormat": "multi"
           }
@@ -1184,6 +1200,16 @@
       },
       "description": "AnomalyThreshold tx.*_anomaly_score_threshold, 0 = CRS default."
     },
+    "v1CRSVersion": {
+      "type": "string",
+      "enum": [
+        "CRS_VERSION_UNSPECIFIED",
+        "CRS_VERSION_V4_16_0",
+        "CRS_VERSION_V4_17_0"
+      ],
+      "default": "CRS_VERSION_UNSPECIFIED",
+      "title": "- CRS_VERSION_UNSPECIFIED: = latest supported"
+    },
     "v1Category": {
       "type": "string",
       "enum": [
@@ -1289,6 +1315,61 @@
           "type": "string"
         }
       }
+    },
+    "v1Crs": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "$ref": "#/definitions/v1EngineMode",
+          "title": "@gotags: yaml:\"mode\""
+        },
+        "version": {
+          "$ref": "#/definitions/v1CRSVersion",
+          "title": "@gotags: yaml:\"version\""
+        },
+        "paranoiaLevel": {
+          "type": "integer",
+          "format": "int64",
+          "description": "tx.blocking_paranoia_level, 0 = default (1).\n\n@gotags: yaml:\"paranoiaLevel\""
+        },
+        "detectionParanoiaLevel": {
+          "type": "integer",
+          "format": "int64",
+          "description": "tx.detection_paranoia_level, 0 = same as paranoia_level.\n\n@gotags: yaml:\"detectionParanoiaLevel\""
+        },
+        "threshold": {
+          "$ref": "#/definitions/v1AnomalyThreshold",
+          "title": "@gotags: yaml:\"threshold\""
+        },
+        "categories": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Category"
+          },
+          "description": "Enabled rule groups, empty = all.\n\n@gotags: yaml:\"categories\""
+        },
+        "request": {
+          "$ref": "#/definitions/v1RequestPolicy",
+          "title": "@gotags: yaml:\"request\""
+        },
+        "exclusions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Exclusion"
+          },
+          "title": "@gotags: yaml:\"exclusions\""
+        },
+        "overrides": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1RuleOverride"
+          },
+          "title": "@gotags: yaml:\"overrides\""
+        }
+      },
+      "description": "Crs OWASP Core Rule Set configuration."
     },
     "v1DeleteSecRateLimitResponse": {
       "type": "object"
@@ -1494,6 +1575,16 @@
         }
       }
     },
+    "v1Managed": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "$ref": "#/definitions/v1EngineMode",
+          "title": "@gotags: yaml:\"mode\""
+        }
+      },
+      "description": "Managed a ruleset maintained by a provider other than OWASP."
+    },
     "v1Operator": {
       "type": "string",
       "enum": [
@@ -1547,6 +1638,15 @@
           "type": "boolean"
         }
       }
+    },
+    "v1Provider": {
+      "type": "string",
+      "enum": [
+        "PROVIDER_UNSPECIFIED",
+        "PROVIDER_OWASP",
+        "PROVIDER_MANAGED"
+      ],
+      "default": "PROVIDER_UNSPECIFIED"
     },
     "v1RequestPolicy": {
       "type": "object",
@@ -1768,61 +1868,24 @@
     "v1Setting": {
       "type": "object",
       "properties": {
-        "mode": {
-          "$ref": "#/definitions/v1EngineMode",
-          "title": "@gotags: yaml:\"mode\""
-        },
-        "version": {
-          "$ref": "#/definitions/v1Version",
-          "title": "@gotags: yaml:\"version\""
-        },
-        "paranoiaLevel": {
-          "type": "integer",
-          "format": "int64",
-          "description": "tx.blocking_paranoia_level, 0 = default (1).\n\n@gotags: yaml:\"paranoiaLevel\""
-        },
-        "detectionParanoiaLevel": {
-          "type": "integer",
-          "format": "int64",
-          "description": "tx.detection_paranoia_level, 0 = same as paranoia_level.\n\n@gotags: yaml:\"detectionParanoiaLevel\""
-        },
-        "threshold": {
-          "$ref": "#/definitions/v1AnomalyThreshold",
-          "title": "@gotags: yaml:\"threshold\""
-        },
-        "categories": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v1Category"
-          },
-          "description": "Enabled rule groups, empty = all.\n\n@gotags: yaml:\"categories\""
-        },
-        "request": {
-          "$ref": "#/definitions/v1RequestPolicy",
-          "title": "@gotags: yaml:\"request\""
-        },
-        "exclusions": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1Exclusion"
-          },
-          "title": "@gotags: yaml:\"exclusions\""
-        },
-        "overrides": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1RuleOverride"
-          },
-          "title": "@gotags: yaml:\"overrides\""
-        },
         "status": {
           "$ref": "#/definitions/typesv1Status",
           "title": "@gotags: yaml:\"status\""
+        },
+        "provider": {
+          "$ref": "#/definitions/v1Provider",
+          "title": "@gotags: yaml:\"provider\""
+        },
+        "crs": {
+          "$ref": "#/definitions/v1Crs",
+          "title": "@gotags: yaml:\"crs\""
+        },
+        "managed": {
+          "$ref": "#/definitions/v1Managed",
+          "title": "@gotags: yaml:\"managed\""
         }
       },
-      "description": "Setting OWASP CRS configuration of a server (namespace)."
+      "description": "Setting the rulesets of a server (namespace): OWASP CRS and the managed\nrulesets of other providers."
     },
     "v1StatusResponse": {
       "type": "object",
@@ -1855,16 +1918,6 @@
           "$ref": "#/definitions/v1SecRuleset"
         }
       }
-    },
-    "v1Version": {
-      "type": "string",
-      "enum": [
-        "VERSION_UNSPECIFIED",
-        "VERSION_V4_16_0",
-        "VERSION_V4_17_0"
-      ],
-      "default": "VERSION_UNSPECIFIED",
-      "title": "- VERSION_UNSPECIFIED: = latest supported"
     }
   },
   "securityDefinitions": {

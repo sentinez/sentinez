@@ -31,8 +31,8 @@ type version struct {
 }
 
 // nolint:lll
-var _versions = map[rulesetpb.Version]*version{
-	rulesetpb.Version_VERSION_V4_16_0: newVersion(
+var _versions = map[rulesetpb.CRSVersion]*version{
+	rulesetpb.CRSVersion_CRS_VERSION_V4_16_0: newVersion(
 		rulev4160.Request901InitializationInfo,
 		rulev4160.Request905CommonExceptionsInfo,
 		rulev4160.Request911MethodEnforcementInfo,
@@ -59,7 +59,7 @@ var _versions = map[rulesetpb.Version]*version{
 		rulev4160.Response959BlockingEvaluationInfo,
 		rulev4160.Response980CorrelationInfo,
 	),
-	rulesetpb.Version_VERSION_V4_17_0: newVersion(
+	rulesetpb.CRSVersion_CRS_VERSION_V4_17_0: newVersion(
 		rulev4170.Request901InitializationInfo,
 		rulev4170.Request905CommonExceptionsInfo,
 		rulev4170.Request911MethodEnforcementInfo,
@@ -111,24 +111,24 @@ func newVersion(files ...[]*rulesetpb.RuleInfo) *version {
 }
 
 // versionOf unspecified = latest supported, as the rule engine does.
-func versionOf(v rulesetpb.Version) *version {
+func versionOf(v rulesetpb.CRSVersion) *version {
 	if found, ok := _versions[v]; ok {
 		return found
 	}
 
-	return _versions[rulesetpb.Version_VERSION_V4_17_0]
+	return _versions[rulesetpb.CRSVersion_CRS_VERSION_V4_17_0]
 }
 
 // Rules returns the rules of a CRS version sorted by ID. The result is
 // shared and must not be modified.
-func Rules(v rulesetpb.Version) []*rulesetpb.RuleInfo {
+func Rules(v rulesetpb.CRSVersion) []*rulesetpb.RuleInfo {
 	return versionOf(v).rules
 }
 
 // Rule returns a rule of a CRS version by ID. The result is shared and
 // must not be modified.
 func Rule(
-	v rulesetpb.Version, id uint32,
+	v rulesetpb.CRSVersion, id uint32,
 ) (*rulesetpb.RuleInfo, bool) {
 	rule, ok := versionOf(v).byId[id]
 	return rule, ok

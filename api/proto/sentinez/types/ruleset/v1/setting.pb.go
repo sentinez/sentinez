@@ -38,6 +38,55 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type Provider int32
+
+const (
+	Provider_PROVIDER_UNSPECIFIED Provider = 0
+	Provider_PROVIDER_OWASP       Provider = 1
+	Provider_PROVIDER_MANAGED     Provider = 2
+)
+
+// Enum value maps for Provider.
+var (
+	Provider_name = map[int32]string{
+		0: "PROVIDER_UNSPECIFIED",
+		1: "PROVIDER_OWASP",
+		2: "PROVIDER_MANAGED",
+	}
+	Provider_value = map[string]int32{
+		"PROVIDER_UNSPECIFIED": 0,
+		"PROVIDER_OWASP":       1,
+		"PROVIDER_MANAGED":     2,
+	}
+)
+
+func (x Provider) Enum() *Provider {
+	p := new(Provider)
+	*p = x
+	return p
+}
+
+func (x Provider) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Provider) Descriptor() protoreflect.EnumDescriptor {
+	return file_sentinez_types_ruleset_v1_setting_proto_enumTypes[0].Descriptor()
+}
+
+func (Provider) Type() protoreflect.EnumType {
+	return &file_sentinez_types_ruleset_v1_setting_proto_enumTypes[0]
+}
+
+func (x Provider) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Provider.Descriptor instead.
+func (Provider) EnumDescriptor() ([]byte, []int) {
+	return file_sentinez_types_ruleset_v1_setting_proto_rawDescGZIP(), []int{0}
+}
+
 type EngineMode int32
 
 const (
@@ -74,11 +123,11 @@ func (x EngineMode) String() string {
 }
 
 func (EngineMode) Descriptor() protoreflect.EnumDescriptor {
-	return file_sentinez_types_ruleset_v1_setting_proto_enumTypes[0].Descriptor()
+	return file_sentinez_types_ruleset_v1_setting_proto_enumTypes[1].Descriptor()
 }
 
 func (EngineMode) Type() protoreflect.EnumType {
-	return &file_sentinez_types_ruleset_v1_setting_proto_enumTypes[0]
+	return &file_sentinez_types_ruleset_v1_setting_proto_enumTypes[1]
 }
 
 func (x EngineMode) Number() protoreflect.EnumNumber {
@@ -87,56 +136,56 @@ func (x EngineMode) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use EngineMode.Descriptor instead.
 func (EngineMode) EnumDescriptor() ([]byte, []int) {
-	return file_sentinez_types_ruleset_v1_setting_proto_rawDescGZIP(), []int{0}
+	return file_sentinez_types_ruleset_v1_setting_proto_rawDescGZIP(), []int{1}
 }
 
-type Version int32
+type CRSVersion int32
 
 const (
-	Version_VERSION_UNSPECIFIED Version = 0 // = latest supported
-	Version_VERSION_V4_16_0     Version = 1
-	Version_VERSION_V4_17_0     Version = 2
+	CRSVersion_CRS_VERSION_UNSPECIFIED CRSVersion = 0 // = latest supported
+	CRSVersion_CRS_VERSION_V4_16_0     CRSVersion = 1
+	CRSVersion_CRS_VERSION_V4_17_0     CRSVersion = 2
 )
 
-// Enum value maps for Version.
+// Enum value maps for CRSVersion.
 var (
-	Version_name = map[int32]string{
-		0: "VERSION_UNSPECIFIED",
-		1: "VERSION_V4_16_0",
-		2: "VERSION_V4_17_0",
+	CRSVersion_name = map[int32]string{
+		0: "CRS_VERSION_UNSPECIFIED",
+		1: "CRS_VERSION_V4_16_0",
+		2: "CRS_VERSION_V4_17_0",
 	}
-	Version_value = map[string]int32{
-		"VERSION_UNSPECIFIED": 0,
-		"VERSION_V4_16_0":     1,
-		"VERSION_V4_17_0":     2,
+	CRSVersion_value = map[string]int32{
+		"CRS_VERSION_UNSPECIFIED": 0,
+		"CRS_VERSION_V4_16_0":     1,
+		"CRS_VERSION_V4_17_0":     2,
 	}
 )
 
-func (x Version) Enum() *Version {
-	p := new(Version)
+func (x CRSVersion) Enum() *CRSVersion {
+	p := new(CRSVersion)
 	*p = x
 	return p
 }
 
-func (x Version) String() string {
+func (x CRSVersion) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (Version) Descriptor() protoreflect.EnumDescriptor {
-	return file_sentinez_types_ruleset_v1_setting_proto_enumTypes[1].Descriptor()
+func (CRSVersion) Descriptor() protoreflect.EnumDescriptor {
+	return file_sentinez_types_ruleset_v1_setting_proto_enumTypes[2].Descriptor()
 }
 
-func (Version) Type() protoreflect.EnumType {
-	return &file_sentinez_types_ruleset_v1_setting_proto_enumTypes[1]
+func (CRSVersion) Type() protoreflect.EnumType {
+	return &file_sentinez_types_ruleset_v1_setting_proto_enumTypes[2]
 }
 
-func (x Version) Number() protoreflect.EnumNumber {
+func (x CRSVersion) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use Version.Descriptor instead.
-func (Version) EnumDescriptor() ([]byte, []int) {
-	return file_sentinez_types_ruleset_v1_setting_proto_rawDescGZIP(), []int{1}
+// Deprecated: Use CRSVersion.Descriptor instead.
+func (CRSVersion) EnumDescriptor() ([]byte, []int) {
+	return file_sentinez_types_ruleset_v1_setting_proto_rawDescGZIP(), []int{2}
 }
 
 // Category CRS rule group, 1:1 with szcrs.Flag.
@@ -235,11 +284,11 @@ func (x Category) String() string {
 }
 
 func (Category) Descriptor() protoreflect.EnumDescriptor {
-	return file_sentinez_types_ruleset_v1_setting_proto_enumTypes[2].Descriptor()
+	return file_sentinez_types_ruleset_v1_setting_proto_enumTypes[3].Descriptor()
 }
 
 func (Category) Type() protoreflect.EnumType {
-	return &file_sentinez_types_ruleset_v1_setting_proto_enumTypes[2]
+	return &file_sentinez_types_ruleset_v1_setting_proto_enumTypes[3]
 }
 
 func (x Category) Number() protoreflect.EnumNumber {
@@ -248,7 +297,7 @@ func (x Category) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Category.Descriptor instead.
 func (Category) EnumDescriptor() ([]byte, []int) {
-	return file_sentinez_types_ruleset_v1_setting_proto_rawDescGZIP(), []int{2}
+	return file_sentinez_types_ruleset_v1_setting_proto_rawDescGZIP(), []int{3}
 }
 
 type RuleState int32
@@ -287,11 +336,11 @@ func (x RuleState) String() string {
 }
 
 func (RuleState) Descriptor() protoreflect.EnumDescriptor {
-	return file_sentinez_types_ruleset_v1_setting_proto_enumTypes[3].Descriptor()
+	return file_sentinez_types_ruleset_v1_setting_proto_enumTypes[4].Descriptor()
 }
 
 func (RuleState) Type() protoreflect.EnumType {
-	return &file_sentinez_types_ruleset_v1_setting_proto_enumTypes[3]
+	return &file_sentinez_types_ruleset_v1_setting_proto_enumTypes[4]
 }
 
 func (x RuleState) Number() protoreflect.EnumNumber {
@@ -300,25 +349,17 @@ func (x RuleState) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use RuleState.Descriptor instead.
 func (RuleState) EnumDescriptor() ([]byte, []int) {
-	return file_sentinez_types_ruleset_v1_setting_proto_rawDescGZIP(), []int{3}
+	return file_sentinez_types_ruleset_v1_setting_proto_rawDescGZIP(), []int{4}
 }
 
-// Setting OWASP CRS configuration of a server (namespace).
+// Setting the rulesets of a server (namespace): OWASP CRS and the managed
+// rulesets of other providers.
 type Setting struct {
-	state   protoimpl.MessageState `protogen:"open.v1"`
-	Mode    EngineMode             `protobuf:"varint,1,opt,name=mode,proto3,enum=sentinez.types.ruleset.v1.EngineMode" json:"mode,omitempty"`    // @gotags: yaml:"mode"
-	Version Version                `protobuf:"varint,2,opt,name=version,proto3,enum=sentinez.types.ruleset.v1.Version" json:"version,omitempty"` // @gotags: yaml:"version"
-	// tx.blocking_paranoia_level, 0 = default (1).
-	ParanoiaLevel uint32 `protobuf:"varint,3,opt,name=paranoia_level,json=paranoiaLevel,proto3" json:"paranoia_level,omitempty"` // @gotags: yaml:"paranoiaLevel"
-	// tx.detection_paranoia_level, 0 = same as paranoia_level.
-	DetectionParanoiaLevel uint32            `protobuf:"varint,4,opt,name=detection_paranoia_level,json=detectionParanoiaLevel,proto3" json:"detection_paranoia_level,omitempty"` // @gotags: yaml:"detectionParanoiaLevel"
-	Threshold              *AnomalyThreshold `protobuf:"bytes,5,opt,name=threshold,proto3" json:"threshold,omitempty"`                                                            // @gotags: yaml:"threshold"
-	// Enabled rule groups, empty = all.
-	Categories    []Category      `protobuf:"varint,6,rep,packed,name=categories,proto3,enum=sentinez.types.ruleset.v1.Category" json:"categories,omitempty"` // @gotags: yaml:"categories"
-	Request       *RequestPolicy  `protobuf:"bytes,7,opt,name=request,proto3" json:"request,omitempty"`                                                       // @gotags: yaml:"request"
-	Exclusions    []*Exclusion    `protobuf:"bytes,8,rep,name=exclusions,proto3" json:"exclusions,omitempty"`                                                 // @gotags: yaml:"exclusions"
-	Overrides     []*RuleOverride `protobuf:"bytes,9,rep,name=overrides,proto3" json:"overrides,omitempty"`                                                   // @gotags: yaml:"overrides"
-	Status        v1.Status       `protobuf:"varint,10,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`                         // @gotags: yaml:"status"
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        v1.Status              `protobuf:"varint,1,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`               // @gotags: yaml:"status"
+	Provider      Provider               `protobuf:"varint,2,opt,name=provider,proto3,enum=sentinez.types.ruleset.v1.Provider" json:"provider,omitempty"` // @gotags: yaml:"provider"
+	Crs           *Crs                   `protobuf:"bytes,3,opt,name=crs,proto3" json:"crs,omitempty"`                                                    // @gotags: yaml:"crs"
+	Managed       *Managed               `protobuf:"bytes,4,opt,name=managed,proto3" json:"managed,omitempty"`                                            // @gotags: yaml:"managed"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -353,74 +394,189 @@ func (*Setting) Descriptor() ([]byte, []int) {
 	return file_sentinez_types_ruleset_v1_setting_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *Setting) GetMode() EngineMode {
+func (x *Setting) GetStatus() v1.Status {
+	if x != nil {
+		return x.Status
+	}
+	return v1.Status(0)
+}
+
+func (x *Setting) GetProvider() Provider {
+	if x != nil {
+		return x.Provider
+	}
+	return Provider_PROVIDER_UNSPECIFIED
+}
+
+func (x *Setting) GetCrs() *Crs {
+	if x != nil {
+		return x.Crs
+	}
+	return nil
+}
+
+func (x *Setting) GetManaged() *Managed {
+	if x != nil {
+		return x.Managed
+	}
+	return nil
+}
+
+// Crs OWASP Core Rule Set configuration.
+type Crs struct {
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Mode    EngineMode             `protobuf:"varint,1,opt,name=mode,proto3,enum=sentinez.types.ruleset.v1.EngineMode" json:"mode,omitempty"`       // @gotags: yaml:"mode"
+	Version CRSVersion             `protobuf:"varint,2,opt,name=version,proto3,enum=sentinez.types.ruleset.v1.CRSVersion" json:"version,omitempty"` // @gotags: yaml:"version"
+	// tx.blocking_paranoia_level, 0 = default (1).
+	ParanoiaLevel uint32 `protobuf:"varint,3,opt,name=paranoia_level,json=paranoiaLevel,proto3" json:"paranoia_level,omitempty"` // @gotags: yaml:"paranoiaLevel"
+	// tx.detection_paranoia_level, 0 = same as paranoia_level.
+	DetectionParanoiaLevel uint32            `protobuf:"varint,4,opt,name=detection_paranoia_level,json=detectionParanoiaLevel,proto3" json:"detection_paranoia_level,omitempty"` // @gotags: yaml:"detectionParanoiaLevel"
+	Threshold              *AnomalyThreshold `protobuf:"bytes,5,opt,name=threshold,proto3" json:"threshold,omitempty"`                                                            // @gotags: yaml:"threshold"
+	// Enabled rule groups, empty = all.
+	Categories    []Category      `protobuf:"varint,6,rep,packed,name=categories,proto3,enum=sentinez.types.ruleset.v1.Category" json:"categories,omitempty"` // @gotags: yaml:"categories"
+	Request       *RequestPolicy  `protobuf:"bytes,7,opt,name=request,proto3" json:"request,omitempty"`                                                       // @gotags: yaml:"request"
+	Exclusions    []*Exclusion    `protobuf:"bytes,8,rep,name=exclusions,proto3" json:"exclusions,omitempty"`                                                 // @gotags: yaml:"exclusions"
+	Overrides     []*RuleOverride `protobuf:"bytes,9,rep,name=overrides,proto3" json:"overrides,omitempty"`                                                   // @gotags: yaml:"overrides"
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Crs) Reset() {
+	*x = Crs{}
+	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Crs) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Crs) ProtoMessage() {}
+
+func (x *Crs) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Crs.ProtoReflect.Descriptor instead.
+func (*Crs) Descriptor() ([]byte, []int) {
+	return file_sentinez_types_ruleset_v1_setting_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *Crs) GetMode() EngineMode {
 	if x != nil {
 		return x.Mode
 	}
 	return EngineMode_ENGINE_MODE_UNSPECIFIED
 }
 
-func (x *Setting) GetVersion() Version {
+func (x *Crs) GetVersion() CRSVersion {
 	if x != nil {
 		return x.Version
 	}
-	return Version_VERSION_UNSPECIFIED
+	return CRSVersion_CRS_VERSION_UNSPECIFIED
 }
 
-func (x *Setting) GetParanoiaLevel() uint32 {
+func (x *Crs) GetParanoiaLevel() uint32 {
 	if x != nil {
 		return x.ParanoiaLevel
 	}
 	return 0
 }
 
-func (x *Setting) GetDetectionParanoiaLevel() uint32 {
+func (x *Crs) GetDetectionParanoiaLevel() uint32 {
 	if x != nil {
 		return x.DetectionParanoiaLevel
 	}
 	return 0
 }
 
-func (x *Setting) GetThreshold() *AnomalyThreshold {
+func (x *Crs) GetThreshold() *AnomalyThreshold {
 	if x != nil {
 		return x.Threshold
 	}
 	return nil
 }
 
-func (x *Setting) GetCategories() []Category {
+func (x *Crs) GetCategories() []Category {
 	if x != nil {
 		return x.Categories
 	}
 	return nil
 }
 
-func (x *Setting) GetRequest() *RequestPolicy {
+func (x *Crs) GetRequest() *RequestPolicy {
 	if x != nil {
 		return x.Request
 	}
 	return nil
 }
 
-func (x *Setting) GetExclusions() []*Exclusion {
+func (x *Crs) GetExclusions() []*Exclusion {
 	if x != nil {
 		return x.Exclusions
 	}
 	return nil
 }
 
-func (x *Setting) GetOverrides() []*RuleOverride {
+func (x *Crs) GetOverrides() []*RuleOverride {
 	if x != nil {
 		return x.Overrides
 	}
 	return nil
 }
 
-func (x *Setting) GetStatus() v1.Status {
+// Managed a ruleset maintained by a provider other than OWASP.
+type Managed struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Mode          EngineMode             `protobuf:"varint,1,opt,name=mode,proto3,enum=sentinez.types.ruleset.v1.EngineMode" json:"mode,omitempty"` // @gotags: yaml:"mode"
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Managed) Reset() {
+	*x = Managed{}
+	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Managed) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Managed) ProtoMessage() {}
+
+func (x *Managed) ProtoReflect() protoreflect.Message {
+	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[2]
 	if x != nil {
-		return x.Status
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
 	}
-	return v1.Status(0)
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Managed.ProtoReflect.Descriptor instead.
+func (*Managed) Descriptor() ([]byte, []int) {
+	return file_sentinez_types_ruleset_v1_setting_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *Managed) GetMode() EngineMode {
+	if x != nil {
+		return x.Mode
+	}
+	return EngineMode_ENGINE_MODE_UNSPECIFIED
 }
 
 // AnomalyThreshold tx.*_anomaly_score_threshold, 0 = CRS default.
@@ -435,7 +591,7 @@ type AnomalyThreshold struct {
 
 func (x *AnomalyThreshold) Reset() {
 	*x = AnomalyThreshold{}
-	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[1]
+	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -447,7 +603,7 @@ func (x *AnomalyThreshold) String() string {
 func (*AnomalyThreshold) ProtoMessage() {}
 
 func (x *AnomalyThreshold) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[1]
+	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -460,7 +616,7 @@ func (x *AnomalyThreshold) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AnomalyThreshold.ProtoReflect.Descriptor instead.
 func (*AnomalyThreshold) Descriptor() ([]byte, []int) {
-	return file_sentinez_types_ruleset_v1_setting_proto_rawDescGZIP(), []int{1}
+	return file_sentinez_types_ruleset_v1_setting_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *AnomalyThreshold) GetInbound() uint32 {
@@ -498,7 +654,7 @@ type RequestPolicy struct {
 
 func (x *RequestPolicy) Reset() {
 	*x = RequestPolicy{}
-	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[2]
+	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -510,7 +666,7 @@ func (x *RequestPolicy) String() string {
 func (*RequestPolicy) ProtoMessage() {}
 
 func (x *RequestPolicy) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[2]
+	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -523,7 +679,7 @@ func (x *RequestPolicy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestPolicy.ProtoReflect.Descriptor instead.
 func (*RequestPolicy) Descriptor() ([]byte, []int) {
-	return file_sentinez_types_ruleset_v1_setting_proto_rawDescGZIP(), []int{2}
+	return file_sentinez_types_ruleset_v1_setting_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *RequestPolicy) GetBodyAccess() bool {
@@ -569,7 +725,7 @@ type Exclusion struct {
 
 func (x *Exclusion) Reset() {
 	*x = Exclusion{}
-	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[3]
+	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -581,7 +737,7 @@ func (x *Exclusion) String() string {
 func (*Exclusion) ProtoMessage() {}
 
 func (x *Exclusion) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[3]
+	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -594,7 +750,7 @@ func (x *Exclusion) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Exclusion.ProtoReflect.Descriptor instead.
 func (*Exclusion) Descriptor() ([]byte, []int) {
-	return file_sentinez_types_ruleset_v1_setting_proto_rawDescGZIP(), []int{3}
+	return file_sentinez_types_ruleset_v1_setting_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *Exclusion) GetTags() []string {
@@ -629,7 +785,7 @@ type ExclusionTarget struct {
 
 func (x *ExclusionTarget) Reset() {
 	*x = ExclusionTarget{}
-	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[4]
+	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -641,7 +797,7 @@ func (x *ExclusionTarget) String() string {
 func (*ExclusionTarget) ProtoMessage() {}
 
 func (x *ExclusionTarget) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[4]
+	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -654,7 +810,7 @@ func (x *ExclusionTarget) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExclusionTarget.ProtoReflect.Descriptor instead.
 func (*ExclusionTarget) Descriptor() ([]byte, []int) {
-	return file_sentinez_types_ruleset_v1_setting_proto_rawDescGZIP(), []int{4}
+	return file_sentinez_types_ruleset_v1_setting_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ExclusionTarget) GetRuleId() uint32 {
@@ -686,7 +842,7 @@ type RuleOverride struct {
 
 func (x *RuleOverride) Reset() {
 	*x = RuleOverride{}
-	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[5]
+	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -698,7 +854,7 @@ func (x *RuleOverride) String() string {
 func (*RuleOverride) ProtoMessage() {}
 
 func (x *RuleOverride) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[5]
+	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -711,7 +867,7 @@ func (x *RuleOverride) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RuleOverride.ProtoReflect.Descriptor instead.
 func (*RuleOverride) Descriptor() ([]byte, []int) {
-	return file_sentinez_types_ruleset_v1_setting_proto_rawDescGZIP(), []int{5}
+	return file_sentinez_types_ruleset_v1_setting_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *RuleOverride) GetId() uint32 {
@@ -752,7 +908,7 @@ type RuleInfo struct {
 
 func (x *RuleInfo) Reset() {
 	*x = RuleInfo{}
-	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[6]
+	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -764,7 +920,7 @@ func (x *RuleInfo) String() string {
 func (*RuleInfo) ProtoMessage() {}
 
 func (x *RuleInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[6]
+	mi := &file_sentinez_types_ruleset_v1_setting_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -777,7 +933,7 @@ func (x *RuleInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RuleInfo.ProtoReflect.Descriptor instead.
 func (*RuleInfo) Descriptor() ([]byte, []int) {
-	return file_sentinez_types_ruleset_v1_setting_proto_rawDescGZIP(), []int{6}
+	return file_sentinez_types_ruleset_v1_setting_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *RuleInfo) GetId() uint32 {
@@ -833,10 +989,15 @@ var File_sentinez_types_ruleset_v1_setting_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_ruleset_v1_setting_proto_rawDesc = "" +
 	"\n" +
-	"'sentinez/types/ruleset/v1/setting.proto\x12\x19sentinez.types.ruleset.v1\x1a\x1bbuf/validate/validate.proto\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1dsentinez/types/v1/known.proto\"\x93\x05\n" +
-	"\aSetting\x129\n" +
-	"\x04mode\x18\x01 \x01(\x0e2%.sentinez.types.ruleset.v1.EngineModeR\x04mode\x12<\n" +
-	"\aversion\x18\x02 \x01(\x0e2\".sentinez.types.ruleset.v1.VersionR\aversion\x12.\n" +
+	"'sentinez/types/ruleset/v1/setting.proto\x12\x19sentinez.types.ruleset.v1\x1a\x1bbuf/validate/validate.proto\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1dsentinez/types/v1/known.proto\"\xed\x01\n" +
+	"\aSetting\x121\n" +
+	"\x06status\x18\x01 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12?\n" +
+	"\bprovider\x18\x02 \x01(\x0e2#.sentinez.types.ruleset.v1.ProviderR\bprovider\x120\n" +
+	"\x03crs\x18\x03 \x01(\v2\x1e.sentinez.types.ruleset.v1.CrsR\x03crs\x12<\n" +
+	"\amanaged\x18\x04 \x01(\v2\".sentinez.types.ruleset.v1.ManagedR\amanaged\"\xdf\x04\n" +
+	"\x03Crs\x129\n" +
+	"\x04mode\x18\x01 \x01(\x0e2%.sentinez.types.ruleset.v1.EngineModeR\x04mode\x12?\n" +
+	"\aversion\x18\x02 \x01(\x0e2%.sentinez.types.ruleset.v1.CRSVersionR\aversion\x12.\n" +
 	"\x0eparanoia_level\x18\x03 \x01(\rB\a\xbaH\x04*\x02\x18\x04R\rparanoiaLevel\x12A\n" +
 	"\x18detection_paranoia_level\x18\x04 \x01(\rB\a\xbaH\x04*\x02\x18\x04R\x16detectionParanoiaLevel\x12I\n" +
 	"\tthreshold\x18\x05 \x01(\v2+.sentinez.types.ruleset.v1.AnomalyThresholdR\tthreshold\x12M\n" +
@@ -847,9 +1008,9 @@ const file_sentinez_types_ruleset_v1_setting_proto_rawDesc = "" +
 	"\n" +
 	"exclusions\x18\b \x03(\v2$.sentinez.types.ruleset.v1.ExclusionR\n" +
 	"exclusions\x12E\n" +
-	"\toverrides\x18\t \x03(\v2'.sentinez.types.ruleset.v1.RuleOverrideR\toverrides\x121\n" +
-	"\x06status\x18\n" +
-	" \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\"o\n" +
+	"\toverrides\x18\t \x03(\v2'.sentinez.types.ruleset.v1.RuleOverrideR\toverrides\"D\n" +
+	"\aManaged\x129\n" +
+	"\x04mode\x18\x01 \x01(\x0e2%.sentinez.types.ruleset.v1.EngineModeR\x04mode\"o\n" +
 	"\x10AnomalyThreshold\x12\x18\n" +
 	"\ainbound\x18\x01 \x01(\rR\ainbound\x12\x1a\n" +
 	"\boutbound\x18\x02 \x01(\rR\boutbound\x12%\n" +
@@ -880,17 +1041,22 @@ const file_sentinez_types_ruleset_v1_setting_proto_rawDesc = "" +
 	"\bseverity\x18\x04 \x01(\tR\bseverity\x12\x10\n" +
 	"\x03msg\x18\x05 \x01(\tR\x03msg\x12\x12\n" +
 	"\x04tags\x18\x06 \x03(\tR\x04tags\x12\x16\n" +
-	"\x06system\x18\a \x01(\bR\x06system*r\n" +
+	"\x06system\x18\a \x01(\bR\x06system*N\n" +
+	"\bProvider\x12\x18\n" +
+	"\x14PROVIDER_UNSPECIFIED\x10\x00\x12\x12\n" +
+	"\x0ePROVIDER_OWASP\x10\x01\x12\x14\n" +
+	"\x10PROVIDER_MANAGED\x10\x02*r\n" +
 	"\n" +
 	"EngineMode\x12\x1b\n" +
 	"\x17ENGINE_MODE_UNSPECIFIED\x10\x00\x12\x13\n" +
 	"\x0fENGINE_MODE_OFF\x10\x01\x12\x1e\n" +
 	"\x1aENGINE_MODE_DETECTION_ONLY\x10\x02\x12\x12\n" +
-	"\x0eENGINE_MODE_ON\x10\x03*L\n" +
-	"\aVersion\x12\x17\n" +
-	"\x13VERSION_UNSPECIFIED\x10\x00\x12\x13\n" +
-	"\x0fVERSION_V4_16_0\x10\x01\x12\x13\n" +
-	"\x0fVERSION_V4_17_0\x10\x02*\xf1\x04\n" +
+	"\x0eENGINE_MODE_ON\x10\x03*[\n" +
+	"\n" +
+	"CRSVersion\x12\x1b\n" +
+	"\x17CRS_VERSION_UNSPECIFIED\x10\x00\x12\x17\n" +
+	"\x13CRS_VERSION_V4_16_0\x10\x01\x12\x17\n" +
+	"\x13CRS_VERSION_V4_17_0\x10\x02*\xf1\x04\n" +
 	"\bCategory\x12\x18\n" +
 	"\x14CATEGORY_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aCATEGORY_COMMON_EXCEPTIONS\x10\x01\x12\x1f\n" +
@@ -934,42 +1100,49 @@ func file_sentinez_types_ruleset_v1_setting_proto_rawDescGZIP() []byte {
 	return file_sentinez_types_ruleset_v1_setting_proto_rawDescData
 }
 
-var file_sentinez_types_ruleset_v1_setting_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_sentinez_types_ruleset_v1_setting_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_sentinez_types_ruleset_v1_setting_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
+var file_sentinez_types_ruleset_v1_setting_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_sentinez_types_ruleset_v1_setting_proto_goTypes = []any{
-	(EngineMode)(0),          // 0: sentinez.types.ruleset.v1.EngineMode
-	(Version)(0),             // 1: sentinez.types.ruleset.v1.Version
-	(Category)(0),            // 2: sentinez.types.ruleset.v1.Category
-	(RuleState)(0),           // 3: sentinez.types.ruleset.v1.RuleState
-	(*Setting)(nil),          // 4: sentinez.types.ruleset.v1.Setting
-	(*AnomalyThreshold)(nil), // 5: sentinez.types.ruleset.v1.AnomalyThreshold
-	(*RequestPolicy)(nil),    // 6: sentinez.types.ruleset.v1.RequestPolicy
-	(*Exclusion)(nil),        // 7: sentinez.types.ruleset.v1.Exclusion
-	(*ExclusionTarget)(nil),  // 8: sentinez.types.ruleset.v1.ExclusionTarget
-	(*RuleOverride)(nil),     // 9: sentinez.types.ruleset.v1.RuleOverride
-	(*RuleInfo)(nil),         // 10: sentinez.types.ruleset.v1.RuleInfo
-	(v1.Status)(0),           // 11: sentinez.types.v1.Status
-	(*v11.Expression)(nil),   // 12: sentinez.types.rule.v1.Expression
+	(Provider)(0),            // 0: sentinez.types.ruleset.v1.Provider
+	(EngineMode)(0),          // 1: sentinez.types.ruleset.v1.EngineMode
+	(CRSVersion)(0),          // 2: sentinez.types.ruleset.v1.CRSVersion
+	(Category)(0),            // 3: sentinez.types.ruleset.v1.Category
+	(RuleState)(0),           // 4: sentinez.types.ruleset.v1.RuleState
+	(*Setting)(nil),          // 5: sentinez.types.ruleset.v1.Setting
+	(*Crs)(nil),              // 6: sentinez.types.ruleset.v1.Crs
+	(*Managed)(nil),          // 7: sentinez.types.ruleset.v1.Managed
+	(*AnomalyThreshold)(nil), // 8: sentinez.types.ruleset.v1.AnomalyThreshold
+	(*RequestPolicy)(nil),    // 9: sentinez.types.ruleset.v1.RequestPolicy
+	(*Exclusion)(nil),        // 10: sentinez.types.ruleset.v1.Exclusion
+	(*ExclusionTarget)(nil),  // 11: sentinez.types.ruleset.v1.ExclusionTarget
+	(*RuleOverride)(nil),     // 12: sentinez.types.ruleset.v1.RuleOverride
+	(*RuleInfo)(nil),         // 13: sentinez.types.ruleset.v1.RuleInfo
+	(v1.Status)(0),           // 14: sentinez.types.v1.Status
+	(*v11.Expression)(nil),   // 15: sentinez.types.rule.v1.Expression
 }
 var file_sentinez_types_ruleset_v1_setting_proto_depIdxs = []int32{
-	0,  // 0: sentinez.types.ruleset.v1.Setting.mode:type_name -> sentinez.types.ruleset.v1.EngineMode
-	1,  // 1: sentinez.types.ruleset.v1.Setting.version:type_name -> sentinez.types.ruleset.v1.Version
-	5,  // 2: sentinez.types.ruleset.v1.Setting.threshold:type_name -> sentinez.types.ruleset.v1.AnomalyThreshold
-	2,  // 3: sentinez.types.ruleset.v1.Setting.categories:type_name -> sentinez.types.ruleset.v1.Category
-	6,  // 4: sentinez.types.ruleset.v1.Setting.request:type_name -> sentinez.types.ruleset.v1.RequestPolicy
-	7,  // 5: sentinez.types.ruleset.v1.Setting.exclusions:type_name -> sentinez.types.ruleset.v1.Exclusion
-	9,  // 6: sentinez.types.ruleset.v1.Setting.overrides:type_name -> sentinez.types.ruleset.v1.RuleOverride
-	11, // 7: sentinez.types.ruleset.v1.Setting.status:type_name -> sentinez.types.v1.Status
-	8,  // 8: sentinez.types.ruleset.v1.Exclusion.targets:type_name -> sentinez.types.ruleset.v1.ExclusionTarget
-	12, // 9: sentinez.types.ruleset.v1.Exclusion.expr:type_name -> sentinez.types.rule.v1.Expression
-	3,  // 10: sentinez.types.ruleset.v1.RuleOverride.state:type_name -> sentinez.types.ruleset.v1.RuleState
-	12, // 11: sentinez.types.ruleset.v1.RuleOverride.expr:type_name -> sentinez.types.rule.v1.Expression
-	2,  // 12: sentinez.types.ruleset.v1.RuleInfo.category:type_name -> sentinez.types.ruleset.v1.Category
-	13, // [13:13] is the sub-list for method output_type
-	13, // [13:13] is the sub-list for method input_type
-	13, // [13:13] is the sub-list for extension type_name
-	13, // [13:13] is the sub-list for extension extendee
-	0,  // [0:13] is the sub-list for field type_name
+	14, // 0: sentinez.types.ruleset.v1.Setting.status:type_name -> sentinez.types.v1.Status
+	0,  // 1: sentinez.types.ruleset.v1.Setting.provider:type_name -> sentinez.types.ruleset.v1.Provider
+	6,  // 2: sentinez.types.ruleset.v1.Setting.crs:type_name -> sentinez.types.ruleset.v1.Crs
+	7,  // 3: sentinez.types.ruleset.v1.Setting.managed:type_name -> sentinez.types.ruleset.v1.Managed
+	1,  // 4: sentinez.types.ruleset.v1.Crs.mode:type_name -> sentinez.types.ruleset.v1.EngineMode
+	2,  // 5: sentinez.types.ruleset.v1.Crs.version:type_name -> sentinez.types.ruleset.v1.CRSVersion
+	8,  // 6: sentinez.types.ruleset.v1.Crs.threshold:type_name -> sentinez.types.ruleset.v1.AnomalyThreshold
+	3,  // 7: sentinez.types.ruleset.v1.Crs.categories:type_name -> sentinez.types.ruleset.v1.Category
+	9,  // 8: sentinez.types.ruleset.v1.Crs.request:type_name -> sentinez.types.ruleset.v1.RequestPolicy
+	10, // 9: sentinez.types.ruleset.v1.Crs.exclusions:type_name -> sentinez.types.ruleset.v1.Exclusion
+	12, // 10: sentinez.types.ruleset.v1.Crs.overrides:type_name -> sentinez.types.ruleset.v1.RuleOverride
+	1,  // 11: sentinez.types.ruleset.v1.Managed.mode:type_name -> sentinez.types.ruleset.v1.EngineMode
+	11, // 12: sentinez.types.ruleset.v1.Exclusion.targets:type_name -> sentinez.types.ruleset.v1.ExclusionTarget
+	15, // 13: sentinez.types.ruleset.v1.Exclusion.expr:type_name -> sentinez.types.rule.v1.Expression
+	4,  // 14: sentinez.types.ruleset.v1.RuleOverride.state:type_name -> sentinez.types.ruleset.v1.RuleState
+	15, // 15: sentinez.types.ruleset.v1.RuleOverride.expr:type_name -> sentinez.types.rule.v1.Expression
+	3,  // 16: sentinez.types.ruleset.v1.RuleInfo.category:type_name -> sentinez.types.ruleset.v1.Category
+	17, // [17:17] is the sub-list for method output_type
+	17, // [17:17] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_types_ruleset_v1_setting_proto_init() }
@@ -982,8 +1155,8 @@ func file_sentinez_types_ruleset_v1_setting_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sentinez_types_ruleset_v1_setting_proto_rawDesc), len(file_sentinez_types_ruleset_v1_setting_proto_rawDesc)),
-			NumEnums:      4,
-			NumMessages:   7,
+			NumEnums:      5,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

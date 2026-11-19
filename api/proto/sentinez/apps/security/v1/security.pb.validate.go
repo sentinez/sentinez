@@ -34,11 +34,11 @@ var (
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
 
-	_ = rulesetpb.Version(0)
+	_ = rulesetpb.CRSVersion(0)
 
-	_ = rulesetpb.Version(0)
+	_ = rulesetpb.CRSVersion(0)
 
-	_ = rulesetpb.Version(0)
+	_ = rulesetpb.CRSVersion(0)
 )
 
 // Validate checks the field values on CreateSecRuleRequest with the rules

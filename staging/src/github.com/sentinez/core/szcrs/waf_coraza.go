@@ -22,11 +22,10 @@ import (
 	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 )
 
-// NewWAF builds a coraza.WAF from the CRS setting of a server.
-func NewWAF(version rulesetpb.Version,
-	rootFs fs.FS, setting *rulesetpb.Setting,
-) (coraza.WAF, error) {
-	rule, err := GenerateRulesets(version, setting)
+// NewWAF builds a coraza.WAF from the CRS setting of a server, rootFs
+// holds the rule files of its version.
+func NewWAF(rootFs fs.FS, crs *rulesetpb.Crs) (coraza.WAF, error) {
+	rule, err := GenerateRulesets(crs)
 	if err != nil {
 		return nil, fmt.Errorf("generate rulesets: %w", err)
 	}

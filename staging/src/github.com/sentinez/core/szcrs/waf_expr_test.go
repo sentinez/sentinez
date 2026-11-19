@@ -21,7 +21,6 @@ import (
 	"github.com/corazawaf/coraza/v3"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
-	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -77,10 +76,9 @@ func exprOf(
 	return expr(and(nil, cond(source, key, op, value)))
 }
 
-func newSetting(e *rulesetpb.Exclusion) *rulesetpb.Setting {
-	return &rulesetpb.Setting{
+func newCrs(e *rulesetpb.Exclusion) *rulesetpb.Crs {
+	return &rulesetpb.Crs{
 		Mode:       rulesetpb.EngineMode_ENGINE_MODE_ON,
-		Status:     typepb.Status_STATUS_ACTIVE,
 		Exclusions: []*rulesetpb.Exclusion{e},
 	}
 }
@@ -90,20 +88,20 @@ func newSetting(e *rulesetpb.Exclusion) *rulesetpb.Setting {
 func blocked(t *testing.T, exclusion *rulesetpb.Exclusion) bool {
 	t.Helper()
 
-	return blockedBy(t, newSetting(exclusion))
+	return blockedBy(t, newCrs(exclusion))
 }
 
-func blockedBy(t *testing.T, setting *rulesetpb.Setting) bool {
+func blockedBy(t *testing.T, crs *rulesetpb.Crs) bool {
 	t.Helper()
 
-	require.NoError(t, validateSetting(setting))
+	require.NoError(t, validateSetting(crs))
 
 	var sb strings.Builder
 	sb.WriteString("SecRuleEngine On\n")
-	writeScopedRules(&sb, setting)
+	writeScopedRules(&sb, crs)
 	sb.WriteString(_attackRule)
 	sb.WriteString(globalDirectives(
-		setting, func(uint32) bool { return true },
+		crs, func(uint32) bool { return true },
 	))
 
 	waf, err := coraza.NewWAF(
@@ -362,7 +360,7 @@ func TestOverrideExpr(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := blockedBy(t, &rulesetpb.Setting{
+			got := blockedBy(t, &rulesetpb.Crs{
 				Overrides: []*rulesetpb.RuleOverride{{
 					Id:    942100,
 					State: rulesetpb.RuleState_RULE_STATE_DISABLED,
@@ -410,7 +408,7 @@ func TestOverrideExprInvalid(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := validateSetting(&rulesetpb.Setting{
+			err := validateSetting(&rulesetpb.Crs{
 				Overrides: []*rulesetpb.RuleOverride{{
 					Id: 942100, State: tt.giveState, Expr: tt.give,
 				}},
@@ -472,7 +470,7 @@ func TestExclusionExprInvalid(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := validateSetting(newSetting(&rulesetpb.Exclusion{
+			err := validateSetting(newCrs(&rulesetpb.Exclusion{
 				Tags: []string{"attack-sqli"}, Expr: tt.give,
 			}))
 

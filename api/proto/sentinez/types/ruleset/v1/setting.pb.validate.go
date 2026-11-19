@@ -44,65 +44,29 @@ func (m *Setting) Validate() error {
 		return nil
 	}
 
-	// no validation rules for Mode
-
-	// no validation rules for Version
-
-	// no validation rules for ParanoiaLevel
-
-	// no validation rules for DetectionParanoiaLevel
-
-	if v, ok := interface{}(m.GetThreshold()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return SettingValidationError{
-				field:  "Threshold",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if v, ok := interface{}(m.GetRequest()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return SettingValidationError{
-				field:  "Request",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	for idx, item := range m.GetExclusions() {
-		_, _ = idx, item
-
-		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return SettingValidationError{
-					field:  fmt.Sprintf("Exclusions[%v]", idx),
-					reason: "embedded message failed validation",
-					cause:  err,
-				}
-			}
-		}
-
-	}
-
-	for idx, item := range m.GetOverrides() {
-		_, _ = idx, item
-
-		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return SettingValidationError{
-					field:  fmt.Sprintf("Overrides[%v]", idx),
-					reason: "embedded message failed validation",
-					cause:  err,
-				}
-			}
-		}
-
-	}
-
 	// no validation rules for Status
+
+	// no validation rules for Provider
+
+	if v, ok := interface{}(m.GetCrs()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return SettingValidationError{
+				field:  "Crs",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetManaged()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return SettingValidationError{
+				field:  "Managed",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	return nil
 }
@@ -160,6 +124,194 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = SettingValidationError{}
+
+// Validate checks the field values on Crs with the rules defined in the proto
+// definition for this message. If any rules are violated, an error is returned.
+func (m *Crs) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Mode
+
+	// no validation rules for Version
+
+	// no validation rules for ParanoiaLevel
+
+	// no validation rules for DetectionParanoiaLevel
+
+	if v, ok := interface{}(m.GetThreshold()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return CrsValidationError{
+				field:  "Threshold",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetRequest()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return CrsValidationError{
+				field:  "Request",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	for idx, item := range m.GetExclusions() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return CrsValidationError{
+					field:  fmt.Sprintf("Exclusions[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	for idx, item := range m.GetOverrides() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return CrsValidationError{
+					field:  fmt.Sprintf("Overrides[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// CrsValidationError is the validation error returned by Crs.Validate if the
+// designated constraints aren't met.
+type CrsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CrsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CrsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CrsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CrsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CrsValidationError) ErrorName() string { return "CrsValidationError" }
+
+// Error satisfies the builtin error interface
+func (e CrsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCrs.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CrsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CrsValidationError{}
+
+// Validate checks the field values on Managed with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *Managed) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	// no validation rules for Mode
+
+	return nil
+}
+
+// ManagedValidationError is the validation error returned by Managed.Validate
+// if the designated constraints aren't met.
+type ManagedValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ManagedValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ManagedValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ManagedValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ManagedValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ManagedValidationError) ErrorName() string { return "ManagedValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ManagedValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sManaged.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ManagedValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ManagedValidationError{}
 
 // Validate checks the field values on AnomalyThreshold with the rules defined
 // in the proto definition for this message. If any rules are violated, an

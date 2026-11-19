@@ -45,11 +45,11 @@ type RulesetsLoader struct {
 
 // NewRulesetsLoader returns a loader applying the rule overrides of the
 // setting to the rules it loads.
-func NewRulesetsLoader(setting *rulesetpb.Setting) *RulesetsLoader {
+func NewRulesetsLoader(crs *rulesetpb.Crs) *RulesetsLoader {
 	return &RulesetsLoader{
 		ids:    make(map[uint32]struct{}),
-		states: ruleStates(setting),
-		level:  blockingLevel(setting),
+		states: ruleStates(crs),
+		level:  blockingLevel(crs),
 	}
 }
 

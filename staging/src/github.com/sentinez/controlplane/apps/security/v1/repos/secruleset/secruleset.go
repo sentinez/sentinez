@@ -29,6 +29,7 @@ import (
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 )
 
 // The setting column holds the proto JSON of the CRS setting: fields by
@@ -202,10 +203,17 @@ func (r *SecRuleset) selectQuery(page *typepb.Pages) sq.SelectBuilder {
 }
 
 // marshalRuleset a nil setting is stored as an empty object,
-// so the setting filters never meet a NULL.
+// so the setting filters never meet a NULL. An unset provider is stored
+// as PROVIDER_OWASP, the one the edge runs it with, so the provider
+// filter is a plain containment.
 func marshalRuleset(setting *rulesetpb.Setting) (string, error) {
 	if setting == nil {
 		return "{}", nil
+	}
+
+	if setting.GetProvider() == rulesetpb.Provider_PROVIDER_UNSPECIFIED {
+		setting = proto.CloneOf(setting)
+		setting.Provider = rulesetpb.Provider_PROVIDER_OWASP
 	}
 
 	data, err := _marshalRuleset.Marshal(setting)

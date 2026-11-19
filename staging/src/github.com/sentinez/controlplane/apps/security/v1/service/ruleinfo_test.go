@@ -119,7 +119,7 @@ func TestListCRSRuleInfos(t *testing.T) {
 		{
 			name: "version",
 			give: &listRules{
-				Version: rulesetpb.Version_VERSION_V4_16_0,
+				Version: rulesetpb.CRSVersion_CRS_VERSION_V4_16_0,
 				Categories: []rulesetpb.Category{
 					rulesetpb.Category_CATEGORY_DATA_LEAKAGES_RUBY,
 				},

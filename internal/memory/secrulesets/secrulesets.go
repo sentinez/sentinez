@@ -26,6 +26,7 @@ import (
 	"github.com/sentinez/pkg/szsync"
 	"github.com/sentinez/sentinez"
 	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
+	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
 
 var (
@@ -48,6 +49,8 @@ type Rulesets struct {
 	space *szsync.Map[string, coraza.WAF]
 }
 
+// Store builds the WAF of namespace from setting. A setting without a
+// CRS to run removes it: the request then skips the WAF.
 func (rs *Rulesets) Store(
 	namespace string, setting *rulesetpb.Setting,
 ) error {
@@ -56,7 +59,12 @@ func (rs *Rulesets) Store(
 		return nil
 	}
 
-	waf, err := newWAF(setting)
+	if !runsCrs(setting) {
+		rs.space.Delete(namespace)
+		return nil
+	}
+
+	waf, err := newWAF(setting.GetCrs())
 	if err != nil {
 		return err
 	}
@@ -91,22 +99,38 @@ func (rs *Rulesets) LoadContext(ctx szhttp.Context) (coraza.WAF, bool) {
 	return rs.Load(ctx.X().GetNamespace())
 }
 
-// newWAF builds the coraza.WAF of setting from the embedded CRS of its
+// runsCrs reports whether the edge runs the OWASP CRS of setting: it is
+// active, its provider is OWASP (unset = OWASP) and its engine is on.
+func runsCrs(setting *rulesetpb.Setting) bool {
+	if setting.GetStatus() != typepb.Status_STATUS_ACTIVE {
+		return false
+	}
+
+	switch setting.GetProvider() {
+	case rulesetpb.Provider_PROVIDER_UNSPECIFIED,
+		rulesetpb.Provider_PROVIDER_OWASP:
+		return szcrs.Enabled(setting.GetCrs())
+	}
+
+	return false
+}
+
+// newWAF builds the coraza.WAF of crs from the embedded CRS of its
 // version.
-func newWAF(setting *rulesetpb.Setting) (coraza.WAF, error) {
-	rootFs, err := crsMap(setting.GetVersion())
+func newWAF(crs *rulesetpb.Crs) (coraza.WAF, error) {
+	rootFs, err := crsMap(crs.GetVersion())
 	if err != nil {
 		return nil, err
 	}
 
-	return szcrs.NewWAF(setting.GetVersion(), rootFs, setting)
+	return szcrs.NewWAF(rootFs, crs)
 }
 
-func crsMap(version rulesetpb.Version) (fs.FS, error) {
+func crsMap(version rulesetpb.CRSVersion) (fs.FS, error) {
 	switch version {
-	case rulesetpb.Version_VERSION_V4_16_0:
+	case rulesetpb.CRSVersion_CRS_VERSION_V4_16_0:
 		return sentinez.WAF4160(), nil
-	case rulesetpb.Version_VERSION_V4_17_0:
+	case rulesetpb.CRSVersion_CRS_VERSION_V4_17_0:
 		return sentinez.WAF4170(), nil
 	}
 
