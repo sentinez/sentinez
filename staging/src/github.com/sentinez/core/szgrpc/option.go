@@ -28,7 +28,7 @@ func WithDiscorvery(enable bool) ServerOption {
 }
 
 // WithAddress sets the address the server listens on, overriding
-// SENZ_ADDRESS.
+// SZ_ADDRESS.
 func WithAddress(addr string) ServerOption {
 	return func(o *Option) {
 		o.address = addr

@@ -37,12 +37,12 @@ import (
 const _setupTimeout = 30 * time.Second
 
 // NewDefaultIngest returns the ingest of the edge events of the
-// SENZ_KAFKA_BROKERS, a disabled one when it is unset.
+// SZ_KAFKA_BROKERS, a disabled one when it is unset.
 func NewDefaultIngest(conf *settingpb.Config) (*ingest.Ingest, error) {
-	brokers := conf.Get(settingpb.Senz_SENZ_KAFKA_BROKERS)
+	brokers := conf.Get(settingpb.Sz_SZ_KAFKA_BROKERS)
 	if brokers == "" {
 		szlog.Warnf("collectorfac: %s unset, ingest disabled",
-			settingpb.Senz_SENZ_KAFKA_BROKERS)
+			settingpb.Sz_SZ_KAFKA_BROKERS)
 		return ingest.New(nil, nil), nil
 	}
 

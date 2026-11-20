@@ -2,9 +2,9 @@
 # deploy/docker/docker-compose.yaml (sentinez.kafka); start it first, these
 # services join its sentinez-network.
 # The edge produces its traffic events straight to Kafka when
-# SENZ_KAFKA_BROKERS=sentinez.kafka:9094 (raw proto, sentinez.event.http.*).
+# SZ_KAFKA_BROKERS=sentinez.kafka:9094 (raw proto, sentinez.event.http.*).
 # Otherwise services export OTLP to the collector when
-# SENZ_OTLP_INTERNAL_ENDPOINT (system logs) / SENZ_OTLP_EXTERNAL_ENDPOINT
+# SZ_OTLP_INTERNAL_ENDPOINT (system logs) / SZ_OTLP_EXTERNAL_ENDPOINT
 # (edge traffic logs) point at sentinez.telemetry.otel-collector:4317; the
 # collector pushes logs, traces and metrics to Kafka (edge traffic logs to sentinez.event.http.*.otlp).
 #

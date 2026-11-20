@@ -83,3 +83,42 @@ func TestMatchAny(t *testing.T) {
 		})
 	}
 }
+
+func TestContainsFold(t *testing.T) {
+	tests := []struct {
+		name string
+		give string
+		want bool
+	}{
+		{"exact", "no-store", true},
+		{"upper case", "Public, NO-STORE", true},
+		{"absent", "public, max-age=60", false},
+		{"shorter", "no-st", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, containsFold([]byte(tt.give), "no-store"))
+		})
+	}
+}
+
+// TestCacheHitServesStoredResponse checks the body and headers of a hit:
+// the body is no longer cloned, so it must still be the stored one.
+func TestCacheHitServesStoredResponse(t *testing.T) {
+	c, w := newBenchCache(), &discard{h: http.Header{}}
+	ctx := newBenchContext(w)
+	next := upstream(http.StatusOK)
+	require.NoError(t, c.Handle(ctx, next))
+
+	clear(w.h)
+	ctx.ResetResponse()
+	called := false
+	require.NoError(t, c.Handle(ctx, chains.HandlerFunc(
+		func(szhttp.Context) error { called = true; return nil })))
+
+	assert.False(t, called)
+	assert.Equal(t, "HIT", w.h.Get("X-Cache"))
+	assert.Equal(t, "some value", w.h.Get("Etag"))
+	assert.Len(t, ctx.ResponseBody(), 16<<10)
+}

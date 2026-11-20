@@ -25,7 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('Metadata');
   const title = t('title');
   const description = t('description');
-  const image = '/assets/sntz-og.png';
+  const image = '/assets/sz-og.png';
 
   return {
     metadataBase: await requestOrigin(),

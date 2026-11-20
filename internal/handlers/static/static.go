@@ -47,10 +47,8 @@ func (*Static) Handle(ctx szhttp.Context, next chains.Handler) error {
 	err := next.Handle(ctx)
 
 	if isStaticAsset(bytesconv.B2s(ctx.Path())) {
-		ctx.SetResponseHeader(
-			szbytestr.HeaderCacheControl,
-			[]byte("public, max-age=3600, immutable"),
-		)
+		ctx.SetResponseHeader(szbytestr.HeaderCacheControl,
+			szbytestr.ValueCacheImmutable)
 	}
 
 	return err

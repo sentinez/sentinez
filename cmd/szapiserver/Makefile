@@ -7,7 +7,7 @@ SZAPISERVER_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))
 sz.apiserver.build: SENTINEZ_OUT ?= apiserver
 sz.apiserver.build:
 	@go build -ldflags="-s -w" -o $(SZAPISERVER_DIR)/bin/$(SENTINEZ_OUT) $(SZAPISERVER_DIR)
-	@echo "[DONE]  senz: sz.apiserver ... ok"
+	@echo "[DONE]  sz: sz.apiserver ... ok"
 
 sz.apiserver.run: SENTINEZ_OUT ?= apiserver
 sz.apiserver.run: sz.apiserver.build

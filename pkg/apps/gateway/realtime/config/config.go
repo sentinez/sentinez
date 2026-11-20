@@ -24,11 +24,11 @@ import (
 var _provider = appconfig.New(appconfig.Spec{
 	Meta:  realtimepb.GetMetaRealtime(),
 	Flags: flags.Parse,
-	Keys: []settingpb.Senz{
-		settingpb.Senz_SENZ_HOSTNAME,
-		settingpb.Senz_SENZ_ADDRESS,
-		settingpb.Senz_SENZ_SECRET_KEY,
-		settingpb.Senz_SENZ_OTLP_INTERNAL_ENDPOINT,
+	Keys: []settingpb.Sz{
+		settingpb.Sz_SZ_HOSTNAME,
+		settingpb.Sz_SZ_ADDRESS,
+		settingpb.Sz_SZ_SECRET_KEY,
+		settingpb.Sz_SZ_OTLP_INTERNAL_ENDPOINT,
 	},
 })
 

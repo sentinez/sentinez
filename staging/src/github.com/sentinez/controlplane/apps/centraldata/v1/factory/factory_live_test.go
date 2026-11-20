@@ -112,8 +112,8 @@ func liveConf(uri string) *settingpb.Config {
 	return &settingpb.Config{
 		Flag: &settingpb.Flag{EnvMode: "dev"},
 		Env: map[string]string{
-			"SENZ_POSTGRES_URI": uri,
-			"SENZ_SYNC_TABLES":  "security.secrules",
+			"SZ_POSTGRES_URI": uri,
+			"SZ_SYNC_TABLES":  "security.secrules",
 		},
 	}
 }

@@ -88,7 +88,7 @@ export function change_OpToJSON(object: Change_Op): string {
 
 /**
  * Envelope is what centraldata publishes on the Olric channel: a Change as
- * marshaled, and its HMAC-SHA256 under SENZ_SYNC_KEY, as the channel does
+ * marshaled, and its HMAC-SHA256 under SZ_SYNC_KEY, as the channel does
  * not authenticate who publishes.
  */
 export interface Envelope {

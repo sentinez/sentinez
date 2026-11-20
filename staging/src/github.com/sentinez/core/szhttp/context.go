@@ -23,6 +23,9 @@ import (
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 )
 
+// Request the request of a context. The []byte its getters return (Host,
+// Path, Header, ...) may be the buffers of the request itself, not a
+// copy: they are read only, valid while the request is.
 type Request interface {
 	Context() context.Context
 	Headers() map[string][][]byte
@@ -50,6 +53,8 @@ type Request interface {
 	SetQuery(key []byte, values ...[]byte)
 	SetPath(p []byte)
 	SetURI(u []byte)
+	// SetBody copies b: the caller may reuse it (e.g. a cached body)
+	// once SetBody returns.
 	SetBody(b []byte)
 	SetStatusCode(code int)
 	SetHost(h []byte)

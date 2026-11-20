@@ -5,10 +5,10 @@ L3 trước khi tới edge.
 
 | Đường dẫn | Vai trò |
 |---|---|
-| [bpf/sentinez/senz.c](../../staging/src/github.com/sentinez/bpf/sentinez/senz.c) | Chương trình XDP `senz_main` |
-| [bpf/sentinez/senz_monitor.h](../../staging/src/github.com/sentinez/bpf/sentinez/senz_monitor.h) | Đếm byte theo IP nguồn |
-| [bpf/sentinez/senz_security.h](../../staging/src/github.com/sentinez/bpf/sentinez/senz_security.h) | Chặn IP/CIDR bằng LPM trie |
-| `bpf/sentinez/senz_bpfe{l,b}.{go,o}` | Code Go + object sinh bởi `bpf2go` |
+| [bpf/sentinez/sz.c](../../staging/src/github.com/sentinez/bpf/sentinez/sz.c) | Chương trình XDP `sz_main` |
+| [bpf/sentinez/sz_monitor.h](../../staging/src/github.com/sentinez/bpf/sentinez/sz_monitor.h) | Đếm byte theo IP nguồn |
+| [bpf/sentinez/sz_security.h](../../staging/src/github.com/sentinez/bpf/sentinez/sz_security.h) | Chặn IP/CIDR bằng LPM trie |
+| `bpf/sentinez/sz_bpfe{l,b}.{go,o}` | Code Go + object sinh bởi `bpf2go` |
 | [internal/dmz/dataplane/](../../internal/dmz/dataplane/) | `Server` (Start/Stop) |
 | [internal/dmz/dataplane/driver/](../../internal/dmz/dataplane/driver/) | `Context`: nạp object, attach XDP, đọc ghi map (`LookupBandwidth`, `BlockCIDR`) |
 | [hack/net/dev/Makefile](../../hack/net/dev/Makefile) | Dựng network namespace để thử nghiệm |
@@ -16,7 +16,7 @@ L3 trước khi tới edge.
 ## 5.1 Chương trình XDP
 
 ```c
-SEC("xdp") int senz_main(struct xdp_md *ctx) {
+SEC("xdp") int sz_main(struct xdp_md *ctx) {
     action = bandwidth_handler(ctx);    // luôn XDP_PASS
     if (action != XDP_PASS) return action;
     return security_rule_handler(ctx);  // XDP_DROP nếu IP nằm trong blocklist
@@ -36,7 +36,7 @@ Macro `debug()` dùng `bpf_printk` (xem bằng
 Biên dịch lại:
 
 ```sh
-cd staging/src/github.com/sentinez/bpf/sentinez && go generate .   # bpf2go Senz ./senz.c
+cd staging/src/github.com/sentinez/bpf/sentinez && go generate .   # bpf2go Sz ./sz.c
 ```
 
 Header libbpf/xdp-tools lấy từ submodule trong `bpf/_submodules`.
@@ -44,8 +44,8 @@ Header libbpf/xdp-tools lấy từ submodule trong `bpf/_submodules`.
 ## 5.2 Phía Go
 
 `driver.NewContext() (*Context, error)`: `rlimit.RemoveMemlock()` →
-`LoadSenzObjects` → giữ `*SenzObjects`. `AttachXDP(ifIndex)` gắn
-`SenzMain` qua `link.AttachXDP`. `Close` gỡ link rồi mới dỡ object. Lỗi có
+`LoadSzObjects` → giữ `*SzObjects`. `AttachXDP(ifIndex)` gắn
+`SzMain` qua `link.AttachXDP`. `Close` gỡ link rồi mới dỡ object. Lỗi có
 tiền tố `driver:`. Package không giữ trạng thái global: `Context` thuộc về
 nơi tạo ra nó.
 

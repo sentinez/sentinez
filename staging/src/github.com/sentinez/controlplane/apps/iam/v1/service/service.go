@@ -156,7 +156,7 @@ func (srv *IAMService) UsernameOrEmailMustUnique(ctx context.Context,
 func (srv *IAMService) usernameMustFree(
 	ctx context.Context, username string) error {
 	// the admin signs in with this name and has no account row
-	if username == srv.config.Get(settingpb.Senz_SENZ_ADMIN_USERNAME) {
+	if username == srv.config.Get(settingpb.Sz_SZ_ADMIN_USERNAME) {
 		return szerror.StatusAlreadyExistsF(
 			"username %s already exists", username)
 	}
@@ -332,7 +332,7 @@ func (srv *IAMService) login(ctx context.Context,
 	req *iampb.LoginRequest) (*iampb.LoginResponse, error) {
 
 	if req.GetEmailOrUsername() ==
-		srv.config.Get(settingpb.Senz_SENZ_ADMIN_USERNAME) {
+		srv.config.Get(settingpb.Sz_SZ_ADMIN_USERNAME) {
 		return srv.loginAdmin(req)
 	}
 
@@ -599,7 +599,7 @@ func (srv *IAMService) coMemberIds(
 // isAdminPassword compares in constant time, and refuses when no admin
 // password is configured.
 func (srv *IAMService) isAdminPassword(password string) bool {
-	want := srv.config.Get(settingpb.Senz_SENZ_ADMIN_PASSWORD)
+	want := srv.config.Get(settingpb.Sz_SZ_ADMIN_PASSWORD)
 	if want == "" {
 		return false
 	}

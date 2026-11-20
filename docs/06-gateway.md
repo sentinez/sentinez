@@ -36,7 +36,7 @@ srv.Visit(ctx,
 `Injection` runs only under the `Scope` prefixes; `/security` is left out
 because SecRule payloads legitimately carry attack patterns.
 
-`XServer.ListenAndServe(addr, opts...)` listens on `SENZ_ADDRESS` (default
+`XServer.ListenAndServe(addr, opts...)` listens on `SZ_ADDRESS` (default
 `defaults.APIServerAddress`, `:9000` inside `grpcgateway`). Listeners and TLS
 config come from the `szhttp` options when set (`WithStdListener`,
 `WithQuicListener`, `WithTLSConfig`). With a certificate
@@ -68,7 +68,7 @@ httpMux:
 - `Logging`: reads the whole body (so it can be logged on error), calls the
   handler, debug-logs when status ≥ 400, then writes an `httppb.IngressEvent` (kind
   `LOG_TYPE_HTTP_INGRESS`) through `szlog`.
-- `CORS(origins)`: only an `Origin` listed in `SENZ_CLIENT_ORIGIN` (one, or
+- `CORS(origins)`: only an `Origin` listed in `SZ_CLIENT_ORIGIN` (one, or
   several separated by commas) is reflected with `Allow-Credentials: true`;
   its preflight gets `204` with methods `GET, HEAD, POST, PUT, DELETE` and
   headers `Content-Type, Accept, Authorization`. Any other origin gets no

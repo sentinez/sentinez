@@ -29,14 +29,14 @@ func TestIdStableAfterNextCall(t *testing.T) {
 		wantPfx string
 	}{
 		{
-			give:    func() string { return NewUUID("senz:u:") },
-			wantPfx: "senz:u:",
+			give:    func() string { return NewUUID("sz:u:") },
+			wantPfx: "sz:u:",
 		}, {
-			give:    func() string { return NewNanoId("senz:n:") },
-			wantPfx: "senz:n:",
+			give:    func() string { return NewNanoId("sz:n:") },
+			wantPfx: "sz:n:",
 		}, {
-			give:    func() string { return NewULID("senz:t:") },
-			wantPfx: "senz:t:",
+			give:    func() string { return NewULID("sz:t:") },
+			wantPfx: "sz:t:",
 		},
 	}
 
@@ -67,7 +67,7 @@ func TestLoadZone(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Setenv("SENZ_ZONE", tt.giveZone)
+			t.Setenv("SZ_ZONE", tt.giveZone)
 
 			assert.Equal(t, tt.want, loadZone())
 		})

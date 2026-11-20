@@ -89,7 +89,7 @@ export default function View() {
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1 font-bold font-['Phudu',sans-serif]">
           <div className="flex size-6 items-center justify-center rounded-md">
-            <Image width={600} height={600} src="/assets/sntz.png" alt="" loading="eager" />
+            <Image width={600} height={600} src="/assets/sz.png" alt="" loading="eager" />
           </div>
           <span className="items-center text-xl text-[#0504aa]">SENTINÉZ</span>
         </div>

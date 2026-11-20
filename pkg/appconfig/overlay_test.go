@@ -27,7 +27,7 @@ type overlayCase struct {
 	name        string
 	giveEnv     map[string]string
 	giveKv      map[string]string
-	giveKeys    []settingpb.Senz
+	giveKeys    []settingpb.Sz
 	wantFound   map[string]string
 	wantSkipped []string
 }
@@ -37,68 +37,68 @@ type kv = map[string]string
 var _overlayCases = []overlayCase{
 	{
 		name:      "a shared key",
-		giveKv:    kv{"SENZ_HOSTNAME": "s6z.io.vn"},
-		wantFound: kv{"SENZ_HOSTNAME": "s6z.io.vn"},
+		giveKv:    kv{"SZ_HOSTNAME": "s6z.io.vn"},
+		wantFound: kv{"SZ_HOSTNAME": "s6z.io.vn"},
 	},
 	{
 		name: "the folder of the service wins over the shared key",
 		giveKv: kv{
-			"SENZ_KAFKA_BROKERS":          "shared:9094",
-			_edge + "/SENZ_KAFKA_BROKERS": "edge:9094",
+			"SZ_KAFKA_BROKERS":          "shared:9094",
+			_edge + "/SZ_KAFKA_BROKERS": "edge:9094",
 		},
-		wantFound: kv{"SENZ_KAFKA_BROKERS": "edge:9094"},
+		wantFound: kv{"SZ_KAFKA_BROKERS": "edge:9094"},
 	},
 	{
 		name:      "the folder of another service is ignored",
-		giveKv:    kv{"sentinez.gateway.apiserver.v1/SENZ_HOSTNAME": "x"},
+		giveKv:    kv{"sentinez.gateway.apiserver.v1/SZ_HOSTNAME": "x"},
 		wantFound: kv{},
 	},
 	{
 		name:    "the environment wins over both",
-		giveEnv: kv{"SENZ_KAFKA_BROKERS": "env:9094"},
+		giveEnv: kv{"SZ_KAFKA_BROKERS": "env:9094"},
 		giveKv: kv{
-			"SENZ_KAFKA_BROKERS":          "shared:9094",
-			_edge + "/SENZ_KAFKA_BROKERS": "edge:9094",
+			"SZ_KAFKA_BROKERS":          "shared:9094",
+			_edge + "/SZ_KAFKA_BROKERS": "edge:9094",
 		},
 		wantFound: kv{},
 	},
 	{
 		name:      "an empty environment value does not win",
-		giveEnv:   kv{"SENZ_HOSTNAME": ""},
-		giveKv:    kv{"SENZ_HOSTNAME": "s6z.io.vn"},
-		wantFound: kv{"SENZ_HOSTNAME": "s6z.io.vn"},
+		giveEnv:   kv{"SZ_HOSTNAME": ""},
+		giveKv:    kv{"SZ_HOSTNAME": "s6z.io.vn"},
+		wantFound: kv{"SZ_HOSTNAME": "s6z.io.vn"},
 	},
 	{
 		name:      "an empty value is ignored",
-		giveKv:    kv{"SENZ_HOSTNAME": ""},
+		giveKv:    kv{"SZ_HOSTNAME": ""},
 		wantFound: kv{},
 	},
 	{
 		name: "keys that only the environment may set are refused",
 		giveKv: kv{
-			"SENZ_CONSUL_URI":         "x",
-			"SENZ_ADDRESS":            "x",
-			"SENZ_MEMBERSHIP_ADDRESS": "x",
-			"SENZ_DISCOVERY_ADDRESS":  "x",
-			_edge + "/SENZ_ZONE":      "x",
+			"SZ_CONSUL_URI":         "x",
+			"SZ_ADDRESS":            "x",
+			"SZ_MEMBERSHIP_ADDRESS": "x",
+			"SZ_DISCOVERY_ADDRESS":  "x",
+			_edge + "/SZ_ZONE":      "x",
 		},
 		wantFound: kv{},
 		wantSkipped: []string{
-			"SENZ_ADDRESS", "SENZ_CONSUL_URI", "SENZ_DISCOVERY_ADDRESS",
-			"SENZ_MEMBERSHIP_ADDRESS", _edge + "/SENZ_ZONE",
+			"SZ_ADDRESS", "SZ_CONSUL_URI", "SZ_DISCOVERY_ADDRESS",
+			"SZ_MEMBERSHIP_ADDRESS", _edge + "/SZ_ZONE",
 		},
 	},
 	{
 		name:        "an unknown key is refused",
-		giveKv:      kv{"SENZ_NOPE": "x", "SENZ_UNSPECIFIED": "x"},
+		giveKv:      kv{"SZ_NOPE": "x", "SZ_UNSPECIFIED": "x"},
 		wantFound:   kv{},
-		wantSkipped: []string{"SENZ_NOPE", "SENZ_UNSPECIFIED"},
+		wantSkipped: []string{"SZ_NOPE", "SZ_UNSPECIFIED"},
 	},
 	{
 		name:      "a key the service does not read is ignored",
-		giveKv:    kv{"SENZ_HOSTNAME": "x", "SENZ_KAFKA_BROKERS": "k"},
-		giveKeys:  []settingpb.Senz{settingpb.Senz_SENZ_KAFKA_BROKERS},
-		wantFound: kv{"SENZ_KAFKA_BROKERS": "k"},
+		giveKv:    kv{"SZ_HOSTNAME": "x", "SZ_KAFKA_BROKERS": "k"},
+		giveKeys:  []settingpb.Sz{settingpb.Sz_SZ_KAFKA_BROKERS},
+		wantFound: kv{"SZ_KAFKA_BROKERS": "k"},
 	},
 }
 

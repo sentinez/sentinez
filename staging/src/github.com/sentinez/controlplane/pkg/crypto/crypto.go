@@ -41,7 +41,7 @@ const (
 )
 
 func TokenGenerator(payload *typepb.Context) (string, error) {
-	sec := szconfig.GetEnv(settingpb.Senz_SENZ_SECRET_KEY)
+	sec := szconfig.GetEnv(settingpb.Sz_SZ_SECRET_KEY)
 	if sec == "" {
 		return "", fmt.Errorf("crypto: secret key is empty")
 	}
@@ -51,7 +51,7 @@ func TokenGenerator(payload *typepb.Context) (string, error) {
 }
 
 func BearerTokenVerifier(bearerToken string) (*typepb.Context, bool) {
-	sec := szconfig.GetEnv(settingpb.Senz_SENZ_SECRET_KEY)
+	sec := szconfig.GetEnv(settingpb.Sz_SZ_SECRET_KEY)
 	if sec == "" {
 		return nil, false
 	}

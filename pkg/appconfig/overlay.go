@@ -22,20 +22,20 @@ import (
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
 
-// KVPrefix is the Consul folder of the env: KVPrefix+"SENZ_KEY" is shared
-// by every service, KVPrefix+"<service_key>/SENZ_KEY" is for one service.
+// KVPrefix is the Consul folder of the env: KVPrefix+"SZ_KEY" is shared
+// by every service, KVPrefix+"<service_key>/SZ_KEY" is for one service.
 const KVPrefix = "sentinez/env/"
 
 // _envOnly are the keys that only the environment may set: the address of
 // Consul itself, and what differs from one instance to the next. The list is
 // mirrored by ENV_ONLY in hack/consul-env-put.sh and by the docs
 // (docs/02-getting-started.md): keep them equal.
-var _envOnly = []settingpb.Senz{
-	settingpb.Senz_SENZ_CONSUL_URI,
-	settingpb.Senz_SENZ_ADDRESS,
-	settingpb.Senz_SENZ_MEMBERSHIP_ADDRESS,
-	settingpb.Senz_SENZ_DISCOVERY_ADDRESS,
-	settingpb.Senz_SENZ_ZONE,
+var _envOnly = []settingpb.Sz{
+	settingpb.Sz_SZ_CONSUL_URI,
+	settingpb.Sz_SZ_ADDRESS,
+	settingpb.Sz_SZ_MEMBERSHIP_ADDRESS,
+	settingpb.Sz_SZ_DISCOVERY_ADDRESS,
+	settingpb.Sz_SZ_ZONE,
 }
 
 // judge looks at the key at path, relative to KVPrefix, for the service of
@@ -43,7 +43,7 @@ var _envOnly = []settingpb.Senz{
 // key name and whether it is in the folder of the service, or an empty name
 // when the key is not for this service. refused is true for a key to warn
 // about: an unknown one, or one that only the env may set.
-func judge(path, serviceKey string, keys []settingpb.Senz,
+func judge(path, serviceKey string, keys []settingpb.Sz,
 ) (name string, scoped, refused bool) {
 	// without a "/" the whole path is the key, and is returned as folder
 	folder, name, scoped := strings.Cut(path, "/")
@@ -55,16 +55,16 @@ func judge(path, serviceKey string, keys []settingpb.Senz,
 		return "", false, false
 	}
 
-	key, known := settingpb.Senz_value[name]
-	senz := settingpb.Senz(key)
+	key, known := settingpb.Sz_value[name]
+	sz := settingpb.Sz(key)
 
-	if !known || senz == settingpb.Senz_SENZ_UNSPECIFIED ||
-		slices.Contains(_envOnly, senz) {
+	if !known || sz == settingpb.Sz_SZ_UNSPECIFIED ||
+		slices.Contains(_envOnly, sz) {
 
 		return "", false, true
 	}
 
-	if len(keys) != 0 && !slices.Contains(keys, senz) {
+	if len(keys) != 0 && !slices.Contains(keys, sz) {
 		return "", false, false
 	}
 
@@ -77,7 +77,7 @@ func judge(path, serviceKey string, keys []settingpb.Senz,
 // both. skipped names what is refused, to be warned about: an unknown key,
 // or one that only the env may set.
 func overlay(env, kv map[string]string, serviceKey string,
-	keys []settingpb.Senz) (found map[string]string, skipped []string) {
+	keys []settingpb.Sz) (found map[string]string, skipped []string) {
 
 	found = make(map[string]string, len(kv))
 	own := make(map[string]string, len(kv))

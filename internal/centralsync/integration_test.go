@@ -61,9 +61,9 @@ type central struct {
 func startCentral(t *testing.T) *central {
 	t.Helper()
 
-	szconfig.SetEnv(settingpb.Senz_SENZ_SERVICE_KEY,
+	szconfig.SetEnv(settingpb.Sz_SZ_SERVICE_KEY,
 		base64.StdEncoding.EncodeToString([]byte("service-secret")))
-	szconfig.SetEnv(settingpb.Senz_SENZ_SECRET_KEY,
+	szconfig.SetEnv(settingpb.Sz_SZ_SECRET_KEY,
 		base64.StdEncoding.EncodeToString([]byte("user-secret")))
 
 	memory, err := memrepo.New()

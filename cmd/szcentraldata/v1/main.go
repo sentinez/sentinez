@@ -60,7 +60,7 @@ func app(c *szrunner.Context[centraldata.CentralData]) {
 		}
 
 		return server.Start(szgrpc.WithAddress(conf.GetDefault(
-			settingpb.Senz_SENZ_ADDRESS, defaults.CentralDataAddress)))
+			settingpb.Sz_SZ_ADDRESS, defaults.CentralDataAddress)))
 	})
 
 	c.OnStop(func(ctx context.Context, server *centraldata.CentralData) error {

@@ -19,7 +19,7 @@ api/proto/sentinez/
 │   └── realtime/v1/         # x_meta only
 └── types/                   # shared types
     ├── v1/                  # known.proto (enums), model.proto (Pages, Metadata), options.proto
-    ├── setting/v1/          # Config, Flag, Senz enum (environment variables)
+    ├── setting/v1/          # Config, Flag, Sz enum (environment variables)
     ├── rule/v1/             # Expression, Condition, Operator, Action
     ├── secrule/v1/          # SecRule runtime, WAF Event
     ├── cdn/v1/              # CDN rule
@@ -47,14 +47,14 @@ response types must differ.
 `Zone`: `DEMILITARIZED` (edge, dataplane), `INTERNAL` (domain services),
 `PRIVATE_API` (apiserver, realtime), `PUBLIC_API`.
 
-These options are processed by the `protoc-gen-go-senz` plugin
-([tools/internal/senz/senz.go](../staging/src/github.com/sentinez/tools/internal/senz/senz.go)),
-which emits `*_senz.pb.go` files.
+These options are processed by the `protoc-gen-go-sz` plugin
+([tools/internal/sz/sz.go](../staging/src/github.com/sentinez/tools/internal/sz/sz.go)),
+which emits `*_sz.pb.go` files.
 
 ### Generated row scanners
 
 For a message with `x_message.scanner = true`
-([tools/internal/senz/scanner.go](../staging/src/github.com/sentinez/tools/internal/senz/scanner.go)),
+([tools/internal/sz/scanner.go](../staging/src/github.com/sentinez/tools/internal/sz/scanner.go)),
 every nested message field is flattened into `<field>_<nested>` columns
 (e.g. `metadata_created_at`, `owner_tenant_id`), and the plugin generates:
 
@@ -95,7 +95,7 @@ paths `api/proto` and `api/third_party/{googleapis,grpc-gateway,protovalidate}`:
 | `protoc-gen-go-grpc` (`require_unimplemented_servers=false`) | `*_grpc.pb.go` |
 | `protoc-gen-grpc-gateway` | `*.pb.gw.go` |
 | `protoc-gen-validate` | `*.pb.validate.go` |
-| `protoc-gen-go-senz` | `*_senz.pb.go` |
+| `protoc-gen-go-sz` | `*_sz.pb.go` |
 | `protoc-gen-go-vtproto` (`features=marshal+unmarshal+size`) | `*_vtproto.pb.go` |
 | `protoc-gen-openapiv2` | `api/docs/v1/<domain>.swagger.json` |
 
@@ -185,7 +185,7 @@ The runtime config passed to every constructor:
 message Config {
   XMeta meta = 1;                // from the service's x_meta
   Flag flag = 2;                 // command-line flags
-  map<string, string> env = 3;   // SENZ_* variables
+  map<string, string> env = 3;   // SZ_* variables
 }
 ```
 

@@ -17,7 +17,6 @@ package cdn
 import (
 	"bytes"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/sentinez/core/szhttp/chains"
@@ -78,7 +77,7 @@ func (c *Cache) Handle(ctx szhttp.Context, next chains.Handler) error {
 		c.buf.Put(keyBuf)
 	}()
 
-	return c.caching(ctx, next, keyBuf.String())
+	return c.caching(ctx, next, keyBuf.Bytes())
 }
 
 // matchAny reports whether a rule of chain matches ctx.
@@ -92,11 +91,13 @@ func matchAny(ctx szhttp.Context, chain []cdnrules.Entry) bool {
 	return false
 }
 
+// caching serves the response cached under key, else stores the one of
+// next. key is a pooled buffer: it is only copied when stored.
 func (c *Cache) caching(
-	ctx szhttp.Context, next chains.Handler, key string,
+	ctx szhttp.Context, next chains.Handler, key []byte,
 ) error {
 
-	resp, ok := c.cached.Get(key)
+	resp, ok := c.cached.Get(bytesconv.B2s(key))
 	if !ok {
 		if err := next.Handle(ctx); err != nil {
 			return err
@@ -116,7 +117,8 @@ func (c *Cache) caching(
 	ctx.SetResponseHeader(szbytestr.HeaderServer, szbytestr.DefaultServerName)
 	// Status must be written before the body, or it is silently dropped.
 	ctx.SetStatusCode(resp.StatusCode)
-	ctx.SetBody(bytes.Clone(resp.Body))
+	// SetBody copies the body: the cached one is shared, never written.
+	ctx.SetBody(resp.Body)
 
 	return nil
 }
@@ -140,9 +142,14 @@ func (c *Cache) makeKey(ctx szhttp.Context) *bytes.Buffer {
 	return keyBuffer
 }
 
-func (c *Cache) setCache(ctx szhttp.Context, key string) {
+func (c *Cache) setCache(ctx szhttp.Context, key []byte) {
+	// checked before the headers are copied out of the response
+	if ctx.StatusCode() != http.StatusOK || len(ctx.ResponseBody()) == 0 {
+		return
+	}
+
 	headers := ctx.ResponseHeader()
-	if !cacheable(ctx, headers) {
+	if !cacheable(headers) {
 		return
 	}
 
@@ -164,29 +171,37 @@ func (c *Cache) setCache(ctx szhttp.Context, key string) {
 		}
 	}
 
-	c.cached.Set(key, cr)
+	c.cached.Set(string(key), cr)
 }
 
-// cacheable reports whether a response can be replayed to other clients.
-// Only complete 200 responses are stored: 206/304 bodies are partial or
-// empty, and an empty body means it was not captured (e.g. too large).
-func cacheable(ctx szhttp.Context, headers map[string][][]byte) bool {
-	if ctx.StatusCode() != http.StatusOK || len(ctx.ResponseBody()) == 0 {
-		return false
-	}
-
+// cacheable reports whether a response, with headers, can be replayed to
+// other clients: no cookie, no private or uncacheable directive. The
+// status and the body are checked by setCache.
+func cacheable(headers map[string][][]byte) bool {
 	if len(headers[httpconst.HeaderSetCookie]) > 0 {
 		return false
 	}
 
 	for _, v := range headers[httpconst.HeaderCacheControl] {
-		cc := strings.ToLower(string(v))
-		if strings.Contains(cc, "no-store") ||
-			strings.Contains(cc, "private") ||
-			strings.Contains(cc, "no-cache") {
+		if containsFold(v, "no-store") ||
+			containsFold(v, "private") ||
+			containsFold(v, "no-cache") {
 			return false
 		}
 	}
 
 	return true
+}
+
+// containsFold reports whether s, lower case ASCII, is in v whatever its
+// case: a Cache-Control directive, matched without copying v.
+func containsFold(v []byte, s string) bool {
+	sb := bytesconv.S2b(s)
+	for i := 0; i+len(sb) <= len(v); i++ {
+		if bytes.EqualFold(v[i:i+len(sb)], sb) {
+			return true
+		}
+	}
+
+	return false
 }

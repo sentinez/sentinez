@@ -367,7 +367,7 @@ setting:
       - id: "script_example"
         name: "tag requests"
         source: |
-          ---@stage before/router
+          ---@stage http:request/router
           ---@param ctx sz.Context
           function tag_edge(ctx)
             log.debug("tag", ctx:host(), ctx:path())

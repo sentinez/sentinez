@@ -79,8 +79,13 @@ func (lim *Limiter) LoadContext(ctx szhttp.Context) []Entry {
 		return nil
 	}
 
-	szlog.Debugf("edge: hit limiter cached %s", ctx.X().GetNamespace())
-	return lim.Load(ctx.X().GetNamespace())
+	ns := ctx.X().GetNamespace()
+	// checked first: boxing ns allocates, logged or not
+	if szlog.Enabled(szlog.LevelDebug) {
+		szlog.Debugf("edge: hit limiter cached %s", ns)
+	}
+
+	return lim.Load(ns)
 }
 
 // Delete removes what serverName holds.

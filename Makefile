@@ -28,7 +28,7 @@ default: default.print 	\
 	sz.centraldata.build
 
 default.print:
-	@echo "[BUILD] senz: build sentinez and services"
+	@echo "[BUILD] sz: build sentinez and services"
 
 # Repo-wide targets, one file per concern.
 include ./hack/make/test.mk

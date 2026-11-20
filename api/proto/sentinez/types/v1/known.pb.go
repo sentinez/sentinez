@@ -153,7 +153,7 @@ const (
 	ControlPlane_CONTROL_PLANE_PORTAL      ControlPlane = 1
 	ControlPlane_CONTROL_PLANE_ADMIN       ControlPlane = 2
 	// SERVICE is an internal service (eg the edge) calling another one; its
-	// tokens are signed with SENZ_SERVICE_KEY, never with SENZ_SECRET_KEY.
+	// tokens are signed with SZ_SERVICE_KEY, never with SZ_SECRET_KEY.
 	ControlPlane_CONTROL_PLANE_SERVICE ControlPlane = 3
 )
 

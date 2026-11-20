@@ -38,7 +38,7 @@ func TestNewPublisherWithoutAddresses(t *testing.T) {
 
 func TestNewPublisherNeedsAKey(t *testing.T) {
 	_, err := NewPublisher(confOf(map[string]string{
-		"SENZ_OLRIC_ADDRESSES": "127.0.0.1:3320",
+		"SZ_OLRIC_ADDRESSES": "127.0.0.1:3320",
 	}))
 
 	require.ErrorIs(t, err, errNoSyncKey)
@@ -47,8 +47,8 @@ func TestNewPublisherNeedsAKey(t *testing.T) {
 func TestNewPublisherRefusesAShortKey(t *testing.T) {
 	short := base64.StdEncoding.EncodeToString([]byte("short"))
 	_, err := NewPublisher(confOf(map[string]string{
-		"SENZ_OLRIC_ADDRESSES": "127.0.0.1:3320",
-		"SENZ_SYNC_KEY":        short,
+		"SZ_OLRIC_ADDRESSES": "127.0.0.1:3320",
+		"SZ_SYNC_KEY":        short,
 	}))
 
 	require.Error(t, err)

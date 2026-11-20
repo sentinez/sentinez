@@ -34,7 +34,7 @@ const MinKeyBytes = 32
 // ErrBadMAC the envelope was not signed with the key.
 var ErrBadMAC = errors.New("szsign: bad mac")
 
-// ParseKey decodes the base64 key (SENZ_SYNC_KEY), which must hold at
+// ParseKey decodes the base64 key (SZ_SYNC_KEY), which must hold at
 // least [MinKeyBytes] bytes.
 func ParseKey(encoded string) ([]byte, error) {
 	key, err := base64.StdEncoding.DecodeString(encoded)

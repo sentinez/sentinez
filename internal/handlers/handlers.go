@@ -22,10 +22,11 @@ import (
 	"github.com/sentinez/sentinez/internal/handlers/logging"
 	"github.com/sentinez/sentinez/internal/handlers/room"
 	"github.com/sentinez/sentinez/internal/handlers/routing"
-	"github.com/sentinez/sentinez/internal/handlers/script"
 	"github.com/sentinez/sentinez/internal/handlers/secure"
 	"github.com/sentinez/sentinez/internal/handlers/static"
 	"github.com/sentinez/sentinez/internal/handlers/trace"
+	"github.com/sentinez/sentinez/internal/handlers/wrap/script"
+	"github.com/sentinez/sentinez/internal/handlers/wrap/stage"
 	"github.com/sentinez/sentinez/internal/memory"
 )
 
@@ -35,7 +36,7 @@ import (
 func New(mem *memory.MemStore, opts ...option.Option) (*chains.Chain, error) {
 	hooks := script.New(mem.Scripts())
 	wrap := func(id string, h chains.Handler) chains.Handler {
-		return Stage(id, hooks.Wrap(id, h))
+		return stage.Wrap(id, hooks.Wrap(id, h))
 	}
 
 	return chains.Build(envplugin.NewEnv(mem, opts...), wrap, plugins()...)
@@ -48,11 +49,11 @@ func plugins() []chains.Plugin {
 		&logging.Logging{},
 		&secure.DomainBased{},
 		&cdn.Cache{},
-		&secure.Limiter{},
+		&secure.SecLimiter{},
 		&room.WaitingRoom{},
 		&static.Static{},
 		&secure.SecRule{},
-		&secure.Rulesets{},
+		&secure.SecRuleset{},
 		&routing.StandardRouter{},
 	}
 }

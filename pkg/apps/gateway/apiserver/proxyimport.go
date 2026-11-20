@@ -52,13 +52,13 @@ type securityImporter interface {
 
 // importProxy reads proxy.yaml from the Consul key of the proxy_config
 // flag and stores it into the tenant and security services. Without
-// SENZ_CONSUL_URI or the key there is nothing to import.
+// SZ_CONSUL_URI or the key there is nothing to import.
 func importProxy(ctx context.Context, conf *settingpb.Config,
 	tenant tenantImporter, security securityImporter) error {
 
-	uri := conf.Get(settingpb.Senz_SENZ_CONSUL_URI)
+	uri := conf.Get(settingpb.Sz_SZ_CONSUL_URI)
 	if uri == "" {
-		szlog.Warnf("proxy import: no SENZ_CONSUL_URI, skipped")
+		szlog.Warnf("proxy import: no SZ_CONSUL_URI, skipped")
 		return nil
 	}
 

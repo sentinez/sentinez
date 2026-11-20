@@ -70,7 +70,7 @@ func RegisterServiceFromEndpoint(
 	}
 
 	dcvr := discovery.GetDiscovery(&options.Options{
-		ConsulURL: appConf.Get(settingpb.Senz_SENZ_CONSUL_URI),
+		ConsulURL: appConf.Get(settingpb.Sz_SZ_CONSUL_URI),
 	})
 
 	szcron.Start(ctx, time.Second*10, func() {

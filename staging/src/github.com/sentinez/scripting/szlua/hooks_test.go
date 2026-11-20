@@ -23,18 +23,18 @@ import (
 
 const _hooksScript = `
 -- any comment
----@stage before/sec_rule
+---@stage http:request/sec_rule
 ---@param ctx sz.Context
----@stage before/sec_ruleset
+---@stage http:request/sec_ruleset
 function whatever_name(ctx) end
 
----@stage after/router
+---@stage http:response/router
 function on_router(ctx) end
 
 function before_cache(ctx) end -- a name alone declares nothing
 
----@stage before/static
----@stage after/static
+---@stage http:request/static
+---@stage http:response/static
 function both(ctx) end
 
 ---@module 'socket'
@@ -51,14 +51,14 @@ func TestCompileHooks(t *testing.T) {
 		giveStage string
 		want      bool
 	}{
-		{Before, "RUL", true},
-		{Before, "RST", true},
-		{After, "ROU", true},
-		{Before, "STC", true},
-		{After, "STC", true},
-		{Before, "ROU", false},
-		{After, "RUL", false},
-		{Before, "CDN", false},
+		{Request, "RUL", true},
+		{Request, "RST", true},
+		{Response, "ROU", true},
+		{Request, "STC", true},
+		{Response, "STC", true},
+		{Request, "ROU", false},
+		{Response, "RUL", false},
+		{Request, "CDN", false},
 	}
 
 	for _, tt := range tests {
@@ -87,27 +87,28 @@ func TestCompileInvalidAnnotation(t *testing.T) {
 func invalidAnnotationTests() []invalidAnnotationTest {
 	return []invalidAnnotationTest{
 		{"empty", "---@stage\nfunction f(c) end",
-			`line 1: @stage takes phase/stage, e.g. before/sec_rule, got ""`},
-		{"no slash", "---@stage before\nfunction f(c) end",
+			`line 1: @stage takes phase/stage, ` +
+				`e.g. http:request/sec_rule, got ""`},
+		{"no slash", "---@stage http:request\nfunction f(c) end",
 			"line 1: @stage takes phase/stage"},
-		{"two stages", "---@stage before/sec_rule router\n" +
+		{"two stages", "---@stage http:request/sec_rule router\n" +
 			"function f(c) end", "line 1: @stage takes phase/stage"},
 		{"bad phase", "---@stage during/router\nfunction f(c) end",
-			`line 1: @stage: phase "during", before or after`},
-		{"stage id", "---@stage before/RUL\nfunction f(c) end",
+			`line 1: @stage: phase "during", http:request or http:response`},
+		{"stage id", "---@stage http:request/RUL\nfunction f(c) end",
 			`line 1: @stage: unknown stage "RUL", one of cache, ` +
 				"sec_rate_limit, waiting_room, static, sec_rule, " +
 				"sec_ruleset, router"},
-		{"local function", "---@stage before/router\n" +
+		{"local function", "---@stage http:request/router\n" +
 			"local function f(c) end",
 			"line 1: @stage must precede a global function"},
-		{"method", "local M = {}\n---@stage before/router\n" +
+		{"method", "local M = {}\n---@stage http:request/router\n" +
 			"function M.f(c) end",
 			"line 2: @stage must precede a global function"},
-		{"at the end", "function f(c) end\n---@stage after/router",
+		{"at the end", "function f(c) end\n---@stage http:response/router",
 			"line 2: @stage must precede a global function"},
-		{"first of the block", "-- x\n---@stage after/router\n" +
-			"---@stage before/router\nlocal x = 1",
+		{"first of the block", "-- x\n---@stage http:response/router\n" +
+			"---@stage http:request/router\nlocal x = 1",
 			"line 2: @stage must precede a global function"},
 	}
 }

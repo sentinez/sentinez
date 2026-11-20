@@ -41,5 +41,5 @@ protoc \
   --grpc-gateway_out="$SENTINEZ_GEN_OUT" \
   --go-vtproto_out="$SENTINEZ_GEN_OUT" \
   --go-vtproto_opt=features=marshal+unmarshal+size \
-  --go-senz_out="$SENTINEZ_GEN_OUT" \
+  --go-sz_out="$SENTINEZ_GEN_OUT" \
   "$(pwd)"/*.proto

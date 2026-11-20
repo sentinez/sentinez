@@ -31,7 +31,7 @@ import (
 func TestGenAndVerifyToken(t *testing.T) {
 	secBase64 := base64.StdEncoding.EncodeToString([]byte("congchualunglinh"))
 
-	szconfig.SetEnv(settingpb.Senz_SENZ_SECRET_KEY, secBase64)
+	szconfig.SetEnv(settingpb.Sz_SZ_SECRET_KEY, secBase64)
 
 	token, err := TokenGenerator(&typepb.Context{
 		Name:     "test gen & verify",
@@ -77,7 +77,7 @@ func claimsWith(set func(jwt.MapClaims)) jwt.MapClaims {
 
 func TestBearerTokenVerifier_Accepts(t *testing.T) {
 	secret := []byte(_testSecret)
-	szconfig.SetEnv(settingpb.Senz_SENZ_SECRET_KEY,
+	szconfig.SetEnv(settingpb.Sz_SZ_SECRET_KEY,
 		base64.StdEncoding.EncodeToString(secret))
 
 	token := signed(t, jwt.SigningMethodHS256, secret,
@@ -92,7 +92,7 @@ func TestBearerTokenVerifier_Accepts(t *testing.T) {
 //nolint:funlen
 func TestBearerTokenVerifier_Refuses(t *testing.T) {
 	secret := []byte(_testSecret)
-	szconfig.SetEnv(settingpb.Senz_SENZ_SECRET_KEY,
+	szconfig.SetEnv(settingpb.Sz_SZ_SECRET_KEY,
 		base64.StdEncoding.EncodeToString(secret))
 
 	tests := []struct {
@@ -131,7 +131,7 @@ func TestBearerTokenVerifier_Refuses(t *testing.T) {
 }
 
 func TestTokenGenerator_Claims(t *testing.T) {
-	szconfig.SetEnv(settingpb.Senz_SENZ_SECRET_KEY,
+	szconfig.SetEnv(settingpb.Sz_SZ_SECRET_KEY,
 		base64.StdEncoding.EncodeToString([]byte(_testSecret)))
 
 	token, err := TokenGenerator(&typepb.Context{

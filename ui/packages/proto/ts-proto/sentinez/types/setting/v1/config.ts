@@ -11,217 +11,217 @@ import { Flag } from "./flags";
 
 export const protobufPackage = "sentinez.types.setting.v1";
 
-export enum Senz {
-  SENZ_UNSPECIFIED = 0,
-  /** SENZ_HOSTNAME - hostname of service. eg s6z.io.vn */
-  SENZ_HOSTNAME = 1,
-  /** SENZ_ADDRESS - http address, api, application ... */
-  SENZ_ADDRESS = 2,
-  /** SENZ_SECRET_KEY - secret key base64 encoded */
-  SENZ_SECRET_KEY = 3,
-  /** SENZ_CLIENT_ORIGIN - origin of client, used to gen passkey */
-  SENZ_CLIENT_ORIGIN = 4,
-  SENZ_TIMESCALE_URI = 5,
-  SENZ_POSTGRES_URI = 6,
-  SENZ_CLICKHOUSE_URI = 7,
-  SENZ_CONSUL_URI = 8,
-  SENZ_MEMBERSHIP_ADDRESS = 9,
-  SENZ_DISCOVERY_ADDRESS = 10,
-  SENZ_ADMIN_USERNAME = 11,
-  SENZ_ADMIN_PASSWORD = 12,
-  /** SENZ_OTLP_INTERNAL_ENDPOINT - OTLP/gRPC collector of the system (application) logs; unset: not exported */
-  SENZ_OTLP_INTERNAL_ENDPOINT = 13,
-  /** SENZ_OTLP_EXTERNAL_ENDPOINT - OTLP/gRPC collector of the edge traffic logs; unset: not exported */
-  SENZ_OTLP_EXTERNAL_ENDPOINT = 14,
+export enum Sz {
+  SZ_UNSPECIFIED = 0,
+  /** SZ_HOSTNAME - hostname of service. eg s6z.io.vn */
+  SZ_HOSTNAME = 1,
+  /** SZ_ADDRESS - http address, api, application ... */
+  SZ_ADDRESS = 2,
+  /** SZ_SECRET_KEY - secret key base64 encoded */
+  SZ_SECRET_KEY = 3,
+  /** SZ_CLIENT_ORIGIN - origin of client, used to gen passkey */
+  SZ_CLIENT_ORIGIN = 4,
+  SZ_TIMESCALE_URI = 5,
+  SZ_POSTGRES_URI = 6,
+  SZ_CLICKHOUSE_URI = 7,
+  SZ_CONSUL_URI = 8,
+  SZ_MEMBERSHIP_ADDRESS = 9,
+  SZ_DISCOVERY_ADDRESS = 10,
+  SZ_ADMIN_USERNAME = 11,
+  SZ_ADMIN_PASSWORD = 12,
+  /** SZ_OTLP_INTERNAL_ENDPOINT - OTLP/gRPC collector of the system (application) logs; unset: not exported */
+  SZ_OTLP_INTERNAL_ENDPOINT = 13,
+  /** SZ_OTLP_EXTERNAL_ENDPOINT - OTLP/gRPC collector of the edge traffic logs; unset: not exported */
+  SZ_OTLP_EXTERNAL_ENDPOINT = 14,
   /**
-   * SENZ_KAFKA_BROKERS - Kafka brokers (comma-separated) the edge traffic events are produced to
-   * directly; takes precedence over SENZ_OTLP_EXTERNAL_ENDPOINT
+   * SZ_KAFKA_BROKERS - Kafka brokers (comma-separated) the edge traffic events are produced to
+   * directly; takes precedence over SZ_OTLP_EXTERNAL_ENDPOINT
    */
-  SENZ_KAFKA_BROKERS = 15,
-  /** SENZ_ZONE - zone the service is deployed in (eg ap-southeast-1a); prefixes generated ids */
-  SENZ_ZONE = 16,
+  SZ_KAFKA_BROKERS = 15,
+  /** SZ_ZONE - zone the service is deployed in (eg ap-southeast-1a); prefixes generated ids */
+  SZ_ZONE = 16,
   /**
-   * SENZ_DATA_KEY - AES-256 key (32 bytes, base64 encoded) the secrets stored in the
+   * SZ_DATA_KEY - AES-256 key (32 bytes, base64 encoded) the secrets stored in the
    * database are encrypted with, eg the CA certificates and their keys
    */
-  SENZ_DATA_KEY = 17,
+  SZ_DATA_KEY = 17,
   /**
-   * SENZ_SERVICE_KEY - HMAC key (base64 encoded) the service tokens are signed and verified
+   * SZ_SERVICE_KEY - HMAC key (base64 encoded) the service tokens are signed and verified
    * with; held by the verifying services only, never by the edge
    */
-  SENZ_SERVICE_KEY = 18,
+  SZ_SERVICE_KEY = 18,
   /**
-   * SENZ_SERVICE_TOKEN - service token the edge presents to centraldata, signed with
-   * SENZ_SERVICE_KEY
+   * SZ_SERVICE_TOKEN - service token the edge presents to centraldata, signed with
+   * SZ_SERVICE_KEY
    */
-  SENZ_SERVICE_TOKEN = 19,
+  SZ_SERVICE_TOKEN = 19,
   /**
-   * SENZ_TLS_CA - internal mTLS: PEM files of the internal CA, and of the certificate and
+   * SZ_TLS_CA - internal mTLS: PEM files of the internal CA, and of the certificate and
    * key of this service
    */
-  SENZ_TLS_CA = 20,
-  SENZ_TLS_CERT = 21,
-  SENZ_TLS_KEY = 22,
+  SZ_TLS_CA = 20,
+  SZ_TLS_CERT = 21,
+  SZ_TLS_KEY = 22,
   /**
-   * SENZ_OLRIC_ADDRESSES - Olric addresses (comma-separated) of the edge cluster centraldata
+   * SZ_OLRIC_ADDRESSES - Olric addresses (comma-separated) of the edge cluster centraldata
    * publishes the changes to
    */
-  SENZ_OLRIC_ADDRESSES = 23,
+  SZ_OLRIC_ADDRESSES = 23,
   /**
-   * SENZ_SYNC_TABLES - tables (comma-separated) centraldata syncs to the edge; the default
+   * SZ_SYNC_TABLES - tables (comma-separated) centraldata syncs to the edge; the default
    * set when empty
    */
-  SENZ_SYNC_TABLES = 24,
+  SZ_SYNC_TABLES = 24,
   /**
-   * SENZ_SYNC_KEY - HMAC key (base64 encoded) the changes centraldata publishes to the
+   * SZ_SYNC_KEY - HMAC key (base64 encoded) the changes centraldata publishes to the
    * edges are signed and verified with; held by centraldata and the edges
    */
-  SENZ_SYNC_KEY = 25,
+  SZ_SYNC_KEY = 25,
   UNRECOGNIZED = -1,
 }
 
-export function senzFromJSON(object: any): Senz {
+export function szFromJSON(object: any): Sz {
   switch (object) {
     case 0:
-    case "SENZ_UNSPECIFIED":
-      return Senz.SENZ_UNSPECIFIED;
+    case "SZ_UNSPECIFIED":
+      return Sz.SZ_UNSPECIFIED;
     case 1:
-    case "SENZ_HOSTNAME":
-      return Senz.SENZ_HOSTNAME;
+    case "SZ_HOSTNAME":
+      return Sz.SZ_HOSTNAME;
     case 2:
-    case "SENZ_ADDRESS":
-      return Senz.SENZ_ADDRESS;
+    case "SZ_ADDRESS":
+      return Sz.SZ_ADDRESS;
     case 3:
-    case "SENZ_SECRET_KEY":
-      return Senz.SENZ_SECRET_KEY;
+    case "SZ_SECRET_KEY":
+      return Sz.SZ_SECRET_KEY;
     case 4:
-    case "SENZ_CLIENT_ORIGIN":
-      return Senz.SENZ_CLIENT_ORIGIN;
+    case "SZ_CLIENT_ORIGIN":
+      return Sz.SZ_CLIENT_ORIGIN;
     case 5:
-    case "SENZ_TIMESCALE_URI":
-      return Senz.SENZ_TIMESCALE_URI;
+    case "SZ_TIMESCALE_URI":
+      return Sz.SZ_TIMESCALE_URI;
     case 6:
-    case "SENZ_POSTGRES_URI":
-      return Senz.SENZ_POSTGRES_URI;
+    case "SZ_POSTGRES_URI":
+      return Sz.SZ_POSTGRES_URI;
     case 7:
-    case "SENZ_CLICKHOUSE_URI":
-      return Senz.SENZ_CLICKHOUSE_URI;
+    case "SZ_CLICKHOUSE_URI":
+      return Sz.SZ_CLICKHOUSE_URI;
     case 8:
-    case "SENZ_CONSUL_URI":
-      return Senz.SENZ_CONSUL_URI;
+    case "SZ_CONSUL_URI":
+      return Sz.SZ_CONSUL_URI;
     case 9:
-    case "SENZ_MEMBERSHIP_ADDRESS":
-      return Senz.SENZ_MEMBERSHIP_ADDRESS;
+    case "SZ_MEMBERSHIP_ADDRESS":
+      return Sz.SZ_MEMBERSHIP_ADDRESS;
     case 10:
-    case "SENZ_DISCOVERY_ADDRESS":
-      return Senz.SENZ_DISCOVERY_ADDRESS;
+    case "SZ_DISCOVERY_ADDRESS":
+      return Sz.SZ_DISCOVERY_ADDRESS;
     case 11:
-    case "SENZ_ADMIN_USERNAME":
-      return Senz.SENZ_ADMIN_USERNAME;
+    case "SZ_ADMIN_USERNAME":
+      return Sz.SZ_ADMIN_USERNAME;
     case 12:
-    case "SENZ_ADMIN_PASSWORD":
-      return Senz.SENZ_ADMIN_PASSWORD;
+    case "SZ_ADMIN_PASSWORD":
+      return Sz.SZ_ADMIN_PASSWORD;
     case 13:
-    case "SENZ_OTLP_INTERNAL_ENDPOINT":
-      return Senz.SENZ_OTLP_INTERNAL_ENDPOINT;
+    case "SZ_OTLP_INTERNAL_ENDPOINT":
+      return Sz.SZ_OTLP_INTERNAL_ENDPOINT;
     case 14:
-    case "SENZ_OTLP_EXTERNAL_ENDPOINT":
-      return Senz.SENZ_OTLP_EXTERNAL_ENDPOINT;
+    case "SZ_OTLP_EXTERNAL_ENDPOINT":
+      return Sz.SZ_OTLP_EXTERNAL_ENDPOINT;
     case 15:
-    case "SENZ_KAFKA_BROKERS":
-      return Senz.SENZ_KAFKA_BROKERS;
+    case "SZ_KAFKA_BROKERS":
+      return Sz.SZ_KAFKA_BROKERS;
     case 16:
-    case "SENZ_ZONE":
-      return Senz.SENZ_ZONE;
+    case "SZ_ZONE":
+      return Sz.SZ_ZONE;
     case 17:
-    case "SENZ_DATA_KEY":
-      return Senz.SENZ_DATA_KEY;
+    case "SZ_DATA_KEY":
+      return Sz.SZ_DATA_KEY;
     case 18:
-    case "SENZ_SERVICE_KEY":
-      return Senz.SENZ_SERVICE_KEY;
+    case "SZ_SERVICE_KEY":
+      return Sz.SZ_SERVICE_KEY;
     case 19:
-    case "SENZ_SERVICE_TOKEN":
-      return Senz.SENZ_SERVICE_TOKEN;
+    case "SZ_SERVICE_TOKEN":
+      return Sz.SZ_SERVICE_TOKEN;
     case 20:
-    case "SENZ_TLS_CA":
-      return Senz.SENZ_TLS_CA;
+    case "SZ_TLS_CA":
+      return Sz.SZ_TLS_CA;
     case 21:
-    case "SENZ_TLS_CERT":
-      return Senz.SENZ_TLS_CERT;
+    case "SZ_TLS_CERT":
+      return Sz.SZ_TLS_CERT;
     case 22:
-    case "SENZ_TLS_KEY":
-      return Senz.SENZ_TLS_KEY;
+    case "SZ_TLS_KEY":
+      return Sz.SZ_TLS_KEY;
     case 23:
-    case "SENZ_OLRIC_ADDRESSES":
-      return Senz.SENZ_OLRIC_ADDRESSES;
+    case "SZ_OLRIC_ADDRESSES":
+      return Sz.SZ_OLRIC_ADDRESSES;
     case 24:
-    case "SENZ_SYNC_TABLES":
-      return Senz.SENZ_SYNC_TABLES;
+    case "SZ_SYNC_TABLES":
+      return Sz.SZ_SYNC_TABLES;
     case 25:
-    case "SENZ_SYNC_KEY":
-      return Senz.SENZ_SYNC_KEY;
+    case "SZ_SYNC_KEY":
+      return Sz.SZ_SYNC_KEY;
     case -1:
     case "UNRECOGNIZED":
     default:
-      return Senz.UNRECOGNIZED;
+      return Sz.UNRECOGNIZED;
   }
 }
 
-export function senzToJSON(object: Senz): string {
+export function szToJSON(object: Sz): string {
   switch (object) {
-    case Senz.SENZ_UNSPECIFIED:
-      return "SENZ_UNSPECIFIED";
-    case Senz.SENZ_HOSTNAME:
-      return "SENZ_HOSTNAME";
-    case Senz.SENZ_ADDRESS:
-      return "SENZ_ADDRESS";
-    case Senz.SENZ_SECRET_KEY:
-      return "SENZ_SECRET_KEY";
-    case Senz.SENZ_CLIENT_ORIGIN:
-      return "SENZ_CLIENT_ORIGIN";
-    case Senz.SENZ_TIMESCALE_URI:
-      return "SENZ_TIMESCALE_URI";
-    case Senz.SENZ_POSTGRES_URI:
-      return "SENZ_POSTGRES_URI";
-    case Senz.SENZ_CLICKHOUSE_URI:
-      return "SENZ_CLICKHOUSE_URI";
-    case Senz.SENZ_CONSUL_URI:
-      return "SENZ_CONSUL_URI";
-    case Senz.SENZ_MEMBERSHIP_ADDRESS:
-      return "SENZ_MEMBERSHIP_ADDRESS";
-    case Senz.SENZ_DISCOVERY_ADDRESS:
-      return "SENZ_DISCOVERY_ADDRESS";
-    case Senz.SENZ_ADMIN_USERNAME:
-      return "SENZ_ADMIN_USERNAME";
-    case Senz.SENZ_ADMIN_PASSWORD:
-      return "SENZ_ADMIN_PASSWORD";
-    case Senz.SENZ_OTLP_INTERNAL_ENDPOINT:
-      return "SENZ_OTLP_INTERNAL_ENDPOINT";
-    case Senz.SENZ_OTLP_EXTERNAL_ENDPOINT:
-      return "SENZ_OTLP_EXTERNAL_ENDPOINT";
-    case Senz.SENZ_KAFKA_BROKERS:
-      return "SENZ_KAFKA_BROKERS";
-    case Senz.SENZ_ZONE:
-      return "SENZ_ZONE";
-    case Senz.SENZ_DATA_KEY:
-      return "SENZ_DATA_KEY";
-    case Senz.SENZ_SERVICE_KEY:
-      return "SENZ_SERVICE_KEY";
-    case Senz.SENZ_SERVICE_TOKEN:
-      return "SENZ_SERVICE_TOKEN";
-    case Senz.SENZ_TLS_CA:
-      return "SENZ_TLS_CA";
-    case Senz.SENZ_TLS_CERT:
-      return "SENZ_TLS_CERT";
-    case Senz.SENZ_TLS_KEY:
-      return "SENZ_TLS_KEY";
-    case Senz.SENZ_OLRIC_ADDRESSES:
-      return "SENZ_OLRIC_ADDRESSES";
-    case Senz.SENZ_SYNC_TABLES:
-      return "SENZ_SYNC_TABLES";
-    case Senz.SENZ_SYNC_KEY:
-      return "SENZ_SYNC_KEY";
-    case Senz.UNRECOGNIZED:
+    case Sz.SZ_UNSPECIFIED:
+      return "SZ_UNSPECIFIED";
+    case Sz.SZ_HOSTNAME:
+      return "SZ_HOSTNAME";
+    case Sz.SZ_ADDRESS:
+      return "SZ_ADDRESS";
+    case Sz.SZ_SECRET_KEY:
+      return "SZ_SECRET_KEY";
+    case Sz.SZ_CLIENT_ORIGIN:
+      return "SZ_CLIENT_ORIGIN";
+    case Sz.SZ_TIMESCALE_URI:
+      return "SZ_TIMESCALE_URI";
+    case Sz.SZ_POSTGRES_URI:
+      return "SZ_POSTGRES_URI";
+    case Sz.SZ_CLICKHOUSE_URI:
+      return "SZ_CLICKHOUSE_URI";
+    case Sz.SZ_CONSUL_URI:
+      return "SZ_CONSUL_URI";
+    case Sz.SZ_MEMBERSHIP_ADDRESS:
+      return "SZ_MEMBERSHIP_ADDRESS";
+    case Sz.SZ_DISCOVERY_ADDRESS:
+      return "SZ_DISCOVERY_ADDRESS";
+    case Sz.SZ_ADMIN_USERNAME:
+      return "SZ_ADMIN_USERNAME";
+    case Sz.SZ_ADMIN_PASSWORD:
+      return "SZ_ADMIN_PASSWORD";
+    case Sz.SZ_OTLP_INTERNAL_ENDPOINT:
+      return "SZ_OTLP_INTERNAL_ENDPOINT";
+    case Sz.SZ_OTLP_EXTERNAL_ENDPOINT:
+      return "SZ_OTLP_EXTERNAL_ENDPOINT";
+    case Sz.SZ_KAFKA_BROKERS:
+      return "SZ_KAFKA_BROKERS";
+    case Sz.SZ_ZONE:
+      return "SZ_ZONE";
+    case Sz.SZ_DATA_KEY:
+      return "SZ_DATA_KEY";
+    case Sz.SZ_SERVICE_KEY:
+      return "SZ_SERVICE_KEY";
+    case Sz.SZ_SERVICE_TOKEN:
+      return "SZ_SERVICE_TOKEN";
+    case Sz.SZ_TLS_CA:
+      return "SZ_TLS_CA";
+    case Sz.SZ_TLS_CERT:
+      return "SZ_TLS_CERT";
+    case Sz.SZ_TLS_KEY:
+      return "SZ_TLS_KEY";
+    case Sz.SZ_OLRIC_ADDRESSES:
+      return "SZ_OLRIC_ADDRESSES";
+    case Sz.SZ_SYNC_TABLES:
+      return "SZ_SYNC_TABLES";
+    case Sz.SZ_SYNC_KEY:
+      return "SZ_SYNC_KEY";
+    case Sz.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
   }

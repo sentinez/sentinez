@@ -36,7 +36,7 @@ srv.Visit(ctx,
 `Injection` chỉ chạy dưới các prefix của `Scope`; `/security` được bỏ ra vì
 payload SecRule chứa pattern tấn công một cách hợp lệ.
 
-`XServer.ListenAndServe(addr, opts...)` listen trên `SENZ_ADDRESS` (mặc định
+`XServer.ListenAndServe(addr, opts...)` listen trên `SZ_ADDRESS` (mặc định
 `defaults.APIServerAddress`, `:9000` bên trong `grpcgateway`). Listener và TLS
 config lấy từ option `szhttp` nếu có (`WithStdListener`, `WithQuicListener`,
 `WithTLSConfig`). Có certificate (`--cert_file`/`--cert_key_file`, hoặc có sẵn
@@ -67,7 +67,7 @@ httpMux:
 
 - `Logging`: đọc toàn bộ body (để log khi lỗi), gọi handler, log debug nếu
   status ≥ 400, rồi ghi `httppb.IngressEvent` (kind `LOG_TYPE_HTTP_INGRESS`) qua `szlog`.
-- `CORS(origins)`: chỉ `Origin` nằm trong `SENZ_CLIENT_ORIGIN` (một, hoặc
+- `CORS(origins)`: chỉ `Origin` nằm trong `SZ_CLIENT_ORIGIN` (một, hoặc
   nhiều giá trị cách nhau bằng dấu phẩy) mới được phản chiếu cùng
   `Allow-Credentials: true`; preflight của nó trả `204` với methods `GET,
   HEAD, POST, PUT, DELETE` và headers `Content-Type, Accept, Authorization`.

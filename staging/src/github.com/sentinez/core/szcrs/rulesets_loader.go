@@ -15,12 +15,11 @@
 package szcrs
 
 import (
-	"bytes"
-	"encoding/base64"
 	"regexp"
 	"strconv"
 	"strings"
 
+	"github.com/sentinez/core/szruleset"
 	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 )
 
@@ -32,88 +31,30 @@ var (
 	_scoreLevelRe = regexp.MustCompile(`(bound_anomaly_score_pl)[2-4]`)
 )
 
-type RulesetsLoader struct {
-	buf bytes.Buffer
-
-	// IDs of the rules loaded so far.
-	ids map[uint32]struct{}
-	// Rule state overrides applied while loading, key: rule ID.
-	states map[uint32]rulesetpb.RuleState
-	// Blocking paranoia level, rules above it are skipped by the CRS.
-	level uint32
+// newLoader returns a loader applying the rule overrides of the setting
+// to the rules it loads.
+func newLoader(crs *rulesetpb.Crs) *szruleset.Loader {
+	return szruleset.NewLoader(ruleOverrides(crs))
 }
 
-// NewRulesetsLoader returns a loader applying the rule overrides of the
-// setting to the rules it loads.
-func NewRulesetsLoader(crs *rulesetpb.Crs) *RulesetsLoader {
-	return &RulesetsLoader{
-		ids:    make(map[uint32]struct{}),
-		states: ruleStates(crs),
-		level:  blockingLevel(crs),
-	}
-}
+// ruleOverrides rewrites the rules of a state override. Rules forced on
+// above the blocking paranoia level are hoisted in front of the others,
+// out of reach of the paranoia level skip rules of their file.
+func ruleOverrides(crs *rulesetpb.Crs) szruleset.Rewrite {
+	states := ruleStates(crs)
+	level := blockingLevel(crs)
 
-// Load appends the rules in order. Rules forced on above the paranoia
-// level are hoisted in front of the others, out of reach of the
-// paranoia level skip rules of their file.
-func (rl *RulesetsLoader) Load(rulesetsFn []func() *rulesetpb.Rule) {
-	rest := make([][]byte, 0, len(rulesetsFn))
-
-	for _, fn := range rulesetsFn {
-		rule := fn()
-
-		conf, err := base64.StdEncoding.DecodeString(rule.GetConfiguration())
-		if err != nil {
-			continue
-		}
-
-		id := ruleId(rule)
-		if id != 0 {
-			rl.ids[id] = struct{}{}
-		}
-
-		switch rl.states[id] {
+	return func(rule *rulesetpb.Rule, conf []byte) ([]byte, bool) {
+		switch states[szruleset.RuleId(rule)] {
 		case rulesetpb.RuleState_RULE_STATE_DETECTION_ONLY:
-			conf = detectionOnly(conf)
+			return detectionOnly(conf), false
 		case rulesetpb.RuleState_RULE_STATE_ENABLED:
-			if ruleLevel(rule) > rl.level {
-				rl.write(forceEnabled(conf))
-				continue
+			if ruleLevel(rule) > level {
+				return forceEnabled(conf), true
 			}
 		}
 
-		rest = append(rest, conf)
-	}
-
-	for _, conf := range rest {
-		rl.write(conf)
-	}
-}
-
-// Write appends raw directives.
-func (rl *RulesetsLoader) Write(directives string) {
-	rl.write([]byte(directives))
-}
-
-// Loaded reports whether the rule ID has been loaded.
-func (rl *RulesetsLoader) Loaded(id uint32) bool {
-	_, ok := rl.ids[id]
-	return ok
-}
-
-func (rl *RulesetsLoader) Export() string {
-	return rl.buf.String()
-}
-
-func (rl *RulesetsLoader) write(conf []byte) {
-	if len(conf) == 0 {
-		return
-	}
-
-	rl.buf.Write(conf)
-
-	if !bytes.HasSuffix(conf, []byte("\n")) {
-		rl.buf.WriteByte('\n')
+		return conf, false
 	}
 }
 
@@ -129,21 +70,6 @@ func detectionOnly(conf []byte) []byte {
 // blocking evaluation always counts.
 func forceEnabled(conf []byte) []byte {
 	return _scoreLevelRe.ReplaceAll(conf, []byte("${1}1"))
-}
-
-// ruleId 0 = not a rule (marker, directive).
-func ruleId(rule *rulesetpb.Rule) uint32 {
-	ids := rule.GetActions().GetFields().GetId()
-	if len(ids) == 0 {
-		return 0
-	}
-
-	id, err := strconv.ParseUint(ids[0], 10, 32)
-	if err != nil {
-		return 0
-	}
-
-	return uint32(id)
 }
 
 // ruleLevel paranoia level of the rule, 0 = none.

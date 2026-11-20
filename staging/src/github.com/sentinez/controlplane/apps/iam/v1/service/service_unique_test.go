@@ -75,7 +75,7 @@ func newLocalTestService(t *testing.T,
 			Return(l.acc, l.err)
 	}
 	conf := &settingpb.Config{Env: map[string]string{
-		settingpb.Senz_SENZ_ADMIN_USERNAME.String(): "root",
+		settingpb.Sz_SZ_ADMIN_USERNAME.String(): "root",
 	}}
 	svc := New(conf, nil, nil, userRepo, accountRepo, nil, nil)
 	return svc, userRepo

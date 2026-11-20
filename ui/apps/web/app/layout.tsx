@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: 'https://s6z.io.vn/images/sntz-og.png',
+        url: 'https://s6z.io.vn/images/sz-og.png',
         width: 1200,
         height: 630,
         alt: 'Sentinéz — On Your Side',
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Sentinéz — On Your Side',
     description: 'Security and protection for modern applications.',
-    images: ['https://s6z.io.vn/images/sntz-og.png'],
+    images: ['https://s6z.io.vn/images/sz-og.png'],
   },
 };
 

@@ -66,7 +66,7 @@ export default function Page() {
             {/* Logo */}
             <div className="flex items-center px-4 py-3 md:px-8 md:py-6 shrink-0 select-none md:border-r border-black/[0.08]">
               <Image
-                src="/sntz.png"
+                src="/sz.png"
                 alt="Sentinez"
                 width={36}
                 height={36}

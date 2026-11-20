@@ -59,7 +59,7 @@ func app(c *szrunner.Context[collector.Collector]) {
 		}
 
 		return server.Start(szgrpc.WithAddress(conf.GetDefault(
-			settingpb.Senz_SENZ_ADDRESS, defaults.CollectorAddress)))
+			settingpb.Sz_SZ_ADDRESS, defaults.CollectorAddress)))
 	})
 
 	c.OnStop(func(ctx context.Context, server *collector.Collector) error {

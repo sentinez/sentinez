@@ -20,7 +20,7 @@ const (
 	Name = "sentinez/1.0"
 
 	// Code is the code of the project.
-	Code = "SENZ"
+	Code = "SZ"
 
 	// BaseName is the lowercase base name of the project.
 	BaseName = "sentinez"

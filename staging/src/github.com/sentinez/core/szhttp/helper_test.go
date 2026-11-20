@@ -16,6 +16,7 @@ package szhttp
 
 import (
 	"testing"
+	"unsafe"
 
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	"github.com/stretchr/testify/assert"
@@ -68,4 +69,31 @@ func TestSetUpstreamHeaderLastWins(t *testing.T) {
 	assert.Equal(t, map[string]string{"X-Tier": "gold"},
 		ctx.x.GetSetHeaders())
 	assert.Equal(t, "gold", ctx.headers["X-Tier"])
+}
+
+// immutableContext a context whose getters return immutable strings.
+type immutableContext struct{ httpContext }
+
+func (immutableContext) ImmutableRequest() {}
+
+func TestKeep(t *testing.T) {
+	tests := []struct {
+		name     string
+		give     Request
+		wantSame bool // the string is b itself, not a copy
+	}{
+		{"immutable request", immutableContext{}, true},
+		{"reused buffers", newFakeContext(), false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			b := []byte("a.example.com")
+
+			got := Keep(tt.give, b)
+
+			assert.Equal(t, "a.example.com", got)
+			assert.Equal(t, tt.wantSame, unsafe.StringData(got) == &b[0])
+		})
+	}
 }

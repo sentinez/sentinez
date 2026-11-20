@@ -1,0 +1,125 @@
+// Copyright 2026 Sentinéz Labs.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package stage
+
+import (
+	"errors"
+	"net/http"
+	"runtime/debug"
+	"time"
+
+	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/core/szhttp/chains"
+	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/sztracer"
+)
+
+var (
+	_ chains.WrapFunc = Wrap
+	_ chains.Handler  = (*stage)(nil)
+)
+
+// Wrap decorates h, the handler running the plugin name, so that an
+// error returned from it (and not already attributed to a deeper stage)
+// is tagged with name and logged once. Because errors unwind from the
+// innermost plugin outwards, the first stage to see an error is the one
+// that produced it.
+//
+// A panic of the plugin is recovered the same way: logged once, with the
+// stage and its stack, by the stage of the plugin that panicked, then the
+// request is answered with a 500 page, so the stages around it, e.g. the
+// logging one, see a request answered with an error status.
+func Wrap(name string, h chains.Handler) chains.Handler {
+	return &stage{name: name, node: h}
+}
+
+type stage struct {
+	name string
+	node chains.Handler
+}
+
+func (s *stage) Handle(ctx szhttp.Context) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = s.recovered(ctx, r)
+		}
+	}()
+
+	return s.handle(ctx)
+}
+
+func (s *stage) handle(ctx szhttp.Context) error {
+	begin := time.Now()
+	err := s.node.Handle(ctx)
+	if err == nil {
+		s.traceStatus(ctx, begin)
+		return nil
+	}
+
+	var se *sztracer.StageError
+	if errors.As(err, &se) {
+		return err
+	}
+
+	se = &sztracer.StageError{
+		Stage: s.name, Elapsed: time.Since(begin), Err: err,
+	}
+	szlog.Errorf("tracer: request %s failed at stage %q status %d after %s: %v",
+		ctx.RequestId(), se.Stage, ctx.StatusCode(), se.Elapsed, err)
+
+	return se
+}
+
+// recovered handles the panic r of the plugin of s: it logs it, then
+// answers the request with a 500 page; the panic handled, only an error
+// writing the page is returned. http.ErrAbortHandler is panicked again:
+// the reverse proxy panics with it to abort a response it cannot finish,
+// and the server, recovering it, closes the connection.
+func (s *stage) recovered(ctx szhttp.Context, r any) error {
+	if r == http.ErrAbortHandler {
+		panic(r)
+	}
+
+	szlog.Errorf("tracer: request %s panicked at stage %q: %v\n%s",
+		ctx.RequestId(), s.name, r, debug.Stack())
+
+	return szhttp.InternalServerError(ctx)
+}
+
+// traceStatus logs a request answered with an error status without an
+// error, e.g. a plugin that rendered a 403 page. Errors unwind from the
+// innermost plugin outwards, so for a request the first stage logged is
+// the one that answered; the stages after it only passed it through.
+// The level is checked first: boxing the arguments costs allocations on
+// every stage of each error response, logged or not.
+func (s *stage) traceStatus(ctx szhttp.Context, begin time.Time) {
+	status := ctx.StatusCode()
+	if status < http.StatusBadRequest || !szlog.Enabled(szlog.LevelDebug) {
+		return
+	}
+
+	szlog.Debugf("tracer: request %s stage %q status %d after %s: %v",
+		ctx.RequestId(), s.name, status, time.Since(begin), requestURL{ctx})
+}
+
+// requestURL the host and URI of a request, read only when it is formatted:
+// both are copied out of the request.
+type requestURL struct {
+	ctx szhttp.Context
+}
+
+func (u requestURL) String() string {
+	return string(u.ctx.Host()) + string(u.ctx.URI())
+}

@@ -21,6 +21,7 @@ import (
 	"github.com/sentinez/core/szmodsec/gen"
 	rulev4160 "github.com/sentinez/core/szmodsec/gen/v4-16-0"
 	rulev4170 "github.com/sentinez/core/szmodsec/gen/v4-17-0"
+	"github.com/sentinez/core/szruleset"
 	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 )
 
@@ -139,7 +140,7 @@ func GenerateRulesets(crs *rulesetpb.Crs) (string, error) {
 		return "", err
 	}
 
-	rulesets := NewRulesetsLoader(crs)
+	rulesets := newLoader(crs)
 	loadRulesets(rulesets, groups, crs)
 
 	return rulesets.Export(), nil
@@ -149,7 +150,7 @@ func GenerateRulesets(crs *rulesetpb.Crs) (string, error) {
 // rules before the CRS reads them, global exclusions and overrides change
 // rules that must already be defined.
 func loadRulesets(
-	rulesets *RulesetsLoader,
+	rulesets *szruleset.Loader,
 	groups versionGroups,
 	crs *rulesetpb.Crs,
 ) {
@@ -178,7 +179,7 @@ func loadRulesets(
 	rulesets.Write(globalDirectives(crs, rulesets.Loaded))
 }
 
-func loadGroups(rulesets *RulesetsLoader, groups []ruleGroup, flag Flag) {
+func loadGroups(rulesets *szruleset.Loader, groups []ruleGroup, flag Flag) {
 	for _, g := range groups {
 		if g.flag == 0 || flag&(AllCRS|g.flag) != 0 {
 			rulesets.Load(g.order)

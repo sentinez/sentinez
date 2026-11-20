@@ -49,15 +49,16 @@ func newEgressEvent(ctx szhttp.Context,
 
 	event.Id = ctx.RequestId()
 	event.Upstream = x.GetUpstream()
-	event.Method = string(ctx.Method())
-	event.Path = string(ctx.Path())
-	event.Queries = string(ctx.QueryStr())
+	// exported after the request: Keep copies what does not outlive it
+	event.Method = szhttp.Keep(ctx, ctx.Method())
+	event.Path = szhttp.Keep(ctx, ctx.Path())
+	event.Queries = szhttp.Keep(ctx, ctx.QueryStr())
 	event.Protocol = ctx.Protocol()
 	event.Scheme = schemeOf(x.GetUpstream())
 	event.Status = int32(ctx.StatusCode())
 	event.ContentLength = _unknownLength
 	ctx.VisitResponseHeaders(func(k, v []byte) {
-		setContentHeader(event, k, v)
+		setContentHeader(ctx, event, k, v)
 	})
 	event.Headers = setHeadersOf(x)
 	event.LatencyMicros = x.GetUpstreamLatencyMicros()
@@ -98,11 +99,13 @@ func setHeadersOf(x *edgepb.ContextExtra) string {
 }
 
 // setContentHeader sets the content type or length of event from the
-// response header k, if it is one of them.
-func setContentHeader(event *egress.EgressEvent, k, v []byte) {
+// response header k of ctx, if it is one of them.
+func setContentHeader(ctx szhttp.Context, event *egress.EgressEvent,
+	k, v []byte) {
+
 	switch {
 	case bytes.EqualFold(k, szbytestr.HeaderContentType):
-		event.ContentType = string(v)
+		event.ContentType = szhttp.Keep(ctx, v)
 	case bytes.EqualFold(k, szbytestr.HeaderContentLength):
 		event.ContentLength = contentLength(v)
 	}

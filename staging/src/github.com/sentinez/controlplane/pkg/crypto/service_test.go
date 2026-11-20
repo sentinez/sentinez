@@ -30,9 +30,9 @@ import (
 func setKeys(t *testing.T, secret, service string) {
 	t.Helper()
 
-	szconfig.SetEnv(settingpb.Senz_SENZ_SECRET_KEY,
+	szconfig.SetEnv(settingpb.Sz_SZ_SECRET_KEY,
 		base64.StdEncoding.EncodeToString([]byte(secret)))
-	szconfig.SetEnv(settingpb.Senz_SENZ_SERVICE_KEY,
+	szconfig.SetEnv(settingpb.Sz_SZ_SERVICE_KEY,
 		base64.StdEncoding.EncodeToString([]byte(service)))
 }
 

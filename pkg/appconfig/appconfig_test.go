@@ -22,16 +22,16 @@ import (
 )
 
 func TestEnvKeysAlwaysHoldTheConsulUri(t *testing.T) {
-	p := New(Spec{Keys: []settingpb.Senz{settingpb.Senz_SENZ_HOSTNAME}})
+	p := New(Spec{Keys: []settingpb.Sz{settingpb.Sz_SZ_HOSTNAME}})
 
-	assert.Equal(t, []settingpb.Senz{
-		settingpb.Senz_SENZ_HOSTNAME, settingpb.Senz_SENZ_CONSUL_URI,
+	assert.Equal(t, []settingpb.Sz{
+		settingpb.Sz_SZ_HOSTNAME, settingpb.Sz_SZ_CONSUL_URI,
 	}, p.envKeys())
-	assert.Equal(t, []settingpb.Senz{settingpb.Senz_SENZ_HOSTNAME}, p.spec.Keys)
+	assert.Equal(t, []settingpb.Sz{settingpb.Sz_SZ_HOSTNAME}, p.spec.Keys)
 }
 
 func TestEnvKeysWithTheConsulUri(t *testing.T) {
-	keys := []settingpb.Senz{settingpb.Senz_SENZ_CONSUL_URI}
+	keys := []settingpb.Sz{settingpb.Sz_SZ_CONSUL_URI}
 
 	assert.Equal(t, keys, New(Spec{Keys: keys}).envKeys())
 }

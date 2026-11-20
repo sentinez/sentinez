@@ -28,20 +28,21 @@ import (
 type Phase int
 
 const (
-	// Before the hook runs before the stage, and may answer the
-	// request: the stage is then skipped.
-	Before Phase = iota + 1
-	// After the hook runs once the stage, and the ones after it,
-	// returned: the response is written, the hook only observes.
-	After
+	// Request (http:request) the hook runs before the stage, and may
+	// answer the request: the stage is then skipped.
+	Request Phase = iota + 1
+	// Response (http:response) the hook runs once the stage, and the
+	// ones after it, returned: the response is written, the hook only
+	// observes.
+	Response
 )
 
 func (p Phase) String() string {
 	switch p {
-	case Before:
-		return "before"
-	case After:
-		return "after"
+	case Request:
+		return "http:request"
+	case Response:
+		return "http:response"
 	}
 
 	return "Phase(" + strconv.Itoa(int(p)) + ")"
@@ -49,7 +50,7 @@ func (p Phase) String() string {
 
 // stage a stage of the edge chain a hook may annotate.
 type stage struct {
-	// name the name of the annotations: ---@stage before/<name>.
+	// name the name of the annotations: ---@stage http:request/<name>.
 	name string
 	// id the id of the plugin of the stage, Stage of the chain.
 	id string
@@ -112,8 +113,8 @@ var _annotation = regexp.MustCompile(`^\s*---\s*@stage\b(.*)$`)
 // order. A ---@stage phase/stage comment hooks the global function it
 // precedes, other comments aside; a function may have several:
 //
-//	---@stage before/sec_rule
-//	---@stage after/router
+//	---@stage http:request/sec_rule
+//	---@stage http:response/router
 //	function check(ctx) end
 func parseHooks(source string,
 	chunk []ast.Stmt) (map[hook][]string, error) {
@@ -169,17 +170,17 @@ func parseStage(s string) (hook, bool, error) {
 	phase, name, ok := strings.Cut(strings.TrimSpace(m[1]), "/")
 	if !ok || strings.ContainsAny(name, " \t") {
 		return hook{}, false, fmt.Errorf("@stage takes phase/stage, "+
-			"e.g. before/sec_rule, got %q", strings.TrimSpace(m[1]))
+			"e.g. http:request/sec_rule, got %q", strings.TrimSpace(m[1]))
 	}
 
-	h := hook{phase: Before}
+	h := hook{phase: Request}
 	switch phase {
-	case "before":
-	case "after":
-		h.phase = After
+	case "http:request":
+	case "http:response":
+		h.phase = Response
 	default:
 		return hook{}, false, fmt.Errorf(
-			"@stage: phase %q, before or after", phase)
+			"@stage: phase %q, http:request or http:response", phase)
 	}
 
 	i := slices.IndexFunc(_stages, func(s stage) bool {

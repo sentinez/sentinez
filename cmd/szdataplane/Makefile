@@ -7,7 +7,7 @@ SZDATAPLANE_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))
 sz.dataplane.build: SENTINEZ_OUT ?= dataplane
 sz.dataplane.build:
 	@go build -ldflags="-s -w" -o $(SZDATAPLANE_DIR)/v1/bin/$(SENTINEZ_OUT) $(SZDATAPLANE_DIR)/v1
-	@echo "[DONE]  senz: sz.dataplane ... ok"
+	@echo "[DONE]  sz: sz.dataplane ... ok"
 
 # The dataplane attaches eBPF/XDP programs inside the "gateway" netns.
 sz.dataplane.run: SENTINEZ_OUT ?= dataplane

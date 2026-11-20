@@ -35,12 +35,12 @@ type TLS struct {
 	KeyFile  string
 }
 
-// TLSFromConfig the files of SENZ_TLS_CA, SENZ_TLS_CERT and SENZ_TLS_KEY.
+// TLSFromConfig the files of SZ_TLS_CA, SZ_TLS_CERT and SZ_TLS_KEY.
 func TLSFromConfig(conf *settingpb.Config) TLS {
 	return TLS{
-		CAFile:   conf.Get(settingpb.Senz_SENZ_TLS_CA),
-		CertFile: conf.Get(settingpb.Senz_SENZ_TLS_CERT),
-		KeyFile:  conf.Get(settingpb.Senz_SENZ_TLS_KEY),
+		CAFile:   conf.Get(settingpb.Sz_SZ_TLS_CA),
+		CertFile: conf.Get(settingpb.Sz_SZ_TLS_CERT),
+		KeyFile:  conf.Get(settingpb.Sz_SZ_TLS_KEY),
 	}
 }
 

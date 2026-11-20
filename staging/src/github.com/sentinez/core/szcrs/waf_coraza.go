@@ -19,6 +19,7 @@ import (
 	"io/fs"
 
 	"github.com/corazawaf/coraza/v3"
+	"github.com/sentinez/core/szruleset"
 	rulesetpb "github.com/sentinez/sentinez/api/proto/sentinez/types/ruleset/v1"
 )
 
@@ -30,7 +31,5 @@ func NewWAF(rootFs fs.FS, crs *rulesetpb.Crs) (coraza.WAF, error) {
 		return nil, fmt.Errorf("generate rulesets: %w", err)
 	}
 
-	conf := coraza.NewWAFConfig().WithRootFS(rootFs).WithDirectives(rule)
-
-	return coraza.NewWAF(conf)
+	return szruleset.NewWAF(rootFs, rule)
 }

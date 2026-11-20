@@ -14,14 +14,14 @@
 
 // Package szlua runs the Lua scripts of the edge. A ---@stage line hooks
 // the global function it precedes, whatever its name, to a stage of the
-// edge handler chain, before or after it:
+// edge handler chain, at http:request or http:response:
 //
-//	---@stage before/sec_rule
+//	---@stage http:request/sec_rule
 //	function deny_debug(ctx)
 //	  if ctx:header("X-Debug") == "1" then ctx:respond(403) end
 //	end
 //
-// The edge calls it before (or after) the stage with a ctx value
+// The edge calls it around the stage with a ctx value
 // to read the request, change its headers or answer it. Scripts run in a
 // sandbox without os, io or any way to load code, under a time limit.
 package szlua

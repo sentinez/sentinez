@@ -54,7 +54,7 @@ func authContext(t *testing.T, userId string) context.Context {
 	t.Helper()
 
 	secret := base64.StdEncoding.EncodeToString([]byte("congchualunglinh"))
-	szconfig.SetEnv(settingpb.Senz_SENZ_SECRET_KEY, secret)
+	szconfig.SetEnv(settingpb.Sz_SZ_SECRET_KEY, secret)
 
 	token, err := crypto.TokenGenerator(&typepb.Context{
 		UserId:   userId,

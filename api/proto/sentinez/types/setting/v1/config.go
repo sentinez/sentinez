@@ -14,7 +14,7 @@
 
 package settingpb
 
-func (x *Config) Get(key Senz) string {
+func (x *Config) Get(key Sz) string {
 	if x.GetEnv() == nil {
 		return ""
 	}
@@ -30,11 +30,11 @@ func (x *Config) Get(key Senz) string {
 // Clustered reports whether the service joins peers: both its membership
 // and discovery addresses are set.
 func (x *Config) Clustered() bool {
-	return x.Get(Senz_SENZ_MEMBERSHIP_ADDRESS) != "" &&
-		x.Get(Senz_SENZ_DISCOVERY_ADDRESS) != ""
+	return x.Get(Sz_SZ_MEMBERSHIP_ADDRESS) != "" &&
+		x.Get(Sz_SZ_DISCOVERY_ADDRESS) != ""
 }
 
-func (x *Config) GetDefault(key Senz, defaultValue string) string {
+func (x *Config) GetDefault(key Sz, defaultValue string) string {
 	val := x.Get(key)
 
 	if val == "" {

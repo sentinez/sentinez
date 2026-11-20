@@ -38,7 +38,7 @@ func Parse() (*settingpb.Flag, error) {
 		pflag.StringVar(&szflag.Get().EnvFile, settingpb.XFlag_EnvFile,
 			szflag.Get().GetEnvFile(), "environment variable config file")
 
-		// proxy.yaml is read from Consul (SENZ_CONSUL_URI) at startup
+		// proxy.yaml is read from Consul (SZ_CONSUL_URI) at startup
 		pflag.StringVar(&szflag.Get().ProxyConfig, settingpb.XFlag_ProxyConfig,
 			szflag.Get().GetProxyConfig(), "Consul KV key of proxy.yaml")
 

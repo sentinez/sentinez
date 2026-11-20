@@ -51,7 +51,7 @@ func setZone(t *testing.T, zone string) {
 
 	prev := _zone
 	t.Cleanup(func() { _zone = prev })
-	t.Setenv("SENZ_ZONE", zone)
+	t.Setenv("SZ_ZONE", zone)
 	_zone = loadZone
 }
 

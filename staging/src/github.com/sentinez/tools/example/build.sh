@@ -9,5 +9,5 @@ protoc \
   -I"$SENTINEZ_PATH"/api/third_party/protovalidate/proto/protovalidate \
     --go_out="$SENTINEZ_GEN_OUT" \
     --go-grpc_out="$SENTINEZ_GEN_OUT" \
-    --go-senz_out="$SENTINEZ_GEN_OUT" \
+    --go-sz_out="$SENTINEZ_GEN_OUT" \
     example.proto

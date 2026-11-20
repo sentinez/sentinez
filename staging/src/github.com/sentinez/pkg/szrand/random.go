@@ -44,7 +44,7 @@ func RandomString(n int) (string, error) {
 	return string(result), nil
 }
 
-// _zone is "<SENZ_ZONE>-", the zone the service is deployed in, prefixing
+// _zone is "<SZ_ZONE>-", the zone the service is deployed in, prefixing
 // every generated id ("" when unset). It is read on the first New*Id call,
 // once the env file is loaded.
 var _zone = sync.OnceValue(loadZone)
@@ -75,7 +75,7 @@ func zoned(p szprefix.Prefix, id string) string {
 }
 
 func loadZone() string {
-	zone := os.Getenv(settingpb.Senz_SENZ_ZONE.String())
+	zone := os.Getenv(settingpb.Sz_SZ_ZONE.String())
 	if zone == "" {
 		return ""
 	}

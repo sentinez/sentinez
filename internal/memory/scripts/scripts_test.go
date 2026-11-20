@@ -26,7 +26,7 @@ func TestStore(t *testing.T) {
 	s := New()
 	good := &edgepb.Script{
 		Id:     "a",
-		Source: "---@stage before/router\nfunction f(c) end",
+		Source: "---@stage http:request/router\nfunction f(c) end",
 	}
 	off := &edgepb.Script{Id: "b", Source: "syntax error (", Disabled: true}
 

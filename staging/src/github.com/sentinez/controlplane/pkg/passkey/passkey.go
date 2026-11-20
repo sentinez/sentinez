@@ -47,11 +47,11 @@ type Store interface {
 }
 
 // ClientOrigins returns the origins of the clients (the console) from
-// SENZ_CLIENT_ORIGIN: one, or several separated by commas.
+// SZ_CLIENT_ORIGIN: one, or several separated by commas.
 func ClientOrigins(config *settingpb.Config) []string {
 	var origins []string
 	for origin := range strings.SplitSeq(
-		config.Get(settingpb.Senz_SENZ_CLIENT_ORIGIN), ",") {
+		config.Get(settingpb.Sz_SZ_CLIENT_ORIGIN), ",") {
 
 		origin = strings.TrimRight(strings.TrimSpace(origin), "/")
 		if origin != "" {
@@ -67,7 +67,7 @@ func NewWebAuthn(config *settingpb.Config) *webauthn.WebAuthn {
 		// Display Name for your site
 		RPDisplayName: szcode.Name,
 		// Generally the FQDN for your site
-		RPID: config.Get(settingpb.Senz_SENZ_HOSTNAME),
+		RPID: config.Get(settingpb.Sz_SZ_HOSTNAME),
 		// The origin URLs allowed for WebAuthn
 		RPOrigins: ClientOrigins(config),
 	}

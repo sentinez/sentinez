@@ -41,8 +41,8 @@ var (
 // newConfig is the Olric config of appConf; started is called once the
 // node accepts connections, clustered or not.
 func newConfig(appConf *settingpb.Config, started func()) *config.Config {
-	membership := appConf.Get(settingpb.Senz_SENZ_MEMBERSHIP_ADDRESS)
-	discovery := appConf.Get(settingpb.Senz_SENZ_DISCOVERY_ADDRESS)
+	membership := appConf.Get(settingpb.Sz_SZ_MEMBERSHIP_ADDRESS)
+	discovery := appConf.Get(settingpb.Sz_SZ_DISCOVERY_ADDRESS)
 
 	conf := config.New("local")
 	conf.Started = started

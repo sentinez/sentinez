@@ -15,6 +15,7 @@
 package szlimiter
 
 import (
+	"strings"
 	"sync"
 	"time"
 
@@ -46,6 +47,9 @@ type record struct {
 	lastBlocking int64
 }
 
+// Allow counts a request of key and reports whether it is under the
+// limit. key may be the bytes of a buffer reused after the call: it is
+// copied when kept.
 func (r *RateLimiter) Allow(key string) bool {
 	if r == nil {
 		return true
@@ -65,7 +69,8 @@ func (r *RateLimiter) AllowN(key string, now time.Time, n int64) bool {
 	rec, ok := r.records.Load(key)
 	if !ok {
 		rec = &record{window: NewSlidingWindow(r.windowSize, r.limit)}
-		r.records.Store(key, rec)
+		// key may alias a buffer of the caller (see Allow)
+		r.records.Store(strings.Clone(key), rec)
 	}
 
 	nowMillis := now.UnixMilli()

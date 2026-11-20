@@ -36,140 +36,140 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type Senz int32
+type Sz int32
 
 const (
-	Senz_SENZ_UNSPECIFIED        Senz = 0
-	Senz_SENZ_HOSTNAME           Senz = 1 // hostname of service. eg s6z.io.vn
-	Senz_SENZ_ADDRESS            Senz = 2 // http address, api, application ...
-	Senz_SENZ_SECRET_KEY         Senz = 3 // secret key base64 encoded
-	Senz_SENZ_CLIENT_ORIGIN      Senz = 4 // origin of client, used to gen passkey
-	Senz_SENZ_TIMESCALE_URI      Senz = 5
-	Senz_SENZ_POSTGRES_URI       Senz = 6
-	Senz_SENZ_CLICKHOUSE_URI     Senz = 7
-	Senz_SENZ_CONSUL_URI         Senz = 8
-	Senz_SENZ_MEMBERSHIP_ADDRESS Senz = 9
-	Senz_SENZ_DISCOVERY_ADDRESS  Senz = 10
-	Senz_SENZ_ADMIN_USERNAME     Senz = 11
-	Senz_SENZ_ADMIN_PASSWORD     Senz = 12
+	Sz_SZ_UNSPECIFIED        Sz = 0
+	Sz_SZ_HOSTNAME           Sz = 1 // hostname of service. eg s6z.io.vn
+	Sz_SZ_ADDRESS            Sz = 2 // http address, api, application ...
+	Sz_SZ_SECRET_KEY         Sz = 3 // secret key base64 encoded
+	Sz_SZ_CLIENT_ORIGIN      Sz = 4 // origin of client, used to gen passkey
+	Sz_SZ_TIMESCALE_URI      Sz = 5
+	Sz_SZ_POSTGRES_URI       Sz = 6
+	Sz_SZ_CLICKHOUSE_URI     Sz = 7
+	Sz_SZ_CONSUL_URI         Sz = 8
+	Sz_SZ_MEMBERSHIP_ADDRESS Sz = 9
+	Sz_SZ_DISCOVERY_ADDRESS  Sz = 10
+	Sz_SZ_ADMIN_USERNAME     Sz = 11
+	Sz_SZ_ADMIN_PASSWORD     Sz = 12
 	// OTLP/gRPC collector of the system (application) logs; unset: not exported
-	Senz_SENZ_OTLP_INTERNAL_ENDPOINT Senz = 13
+	Sz_SZ_OTLP_INTERNAL_ENDPOINT Sz = 13
 	// OTLP/gRPC collector of the edge traffic logs; unset: not exported
-	Senz_SENZ_OTLP_EXTERNAL_ENDPOINT Senz = 14
+	Sz_SZ_OTLP_EXTERNAL_ENDPOINT Sz = 14
 	// Kafka brokers (comma-separated) the edge traffic events are produced to
-	// directly; takes precedence over SENZ_OTLP_EXTERNAL_ENDPOINT
-	Senz_SENZ_KAFKA_BROKERS Senz = 15
+	// directly; takes precedence over SZ_OTLP_EXTERNAL_ENDPOINT
+	Sz_SZ_KAFKA_BROKERS Sz = 15
 	// zone the service is deployed in (eg ap-southeast-1a); prefixes generated ids
-	Senz_SENZ_ZONE Senz = 16
+	Sz_SZ_ZONE Sz = 16
 	// AES-256 key (32 bytes, base64 encoded) the secrets stored in the
 	// database are encrypted with, eg the CA certificates and their keys
-	Senz_SENZ_DATA_KEY Senz = 17
+	Sz_SZ_DATA_KEY Sz = 17
 	// HMAC key (base64 encoded) the service tokens are signed and verified
 	// with; held by the verifying services only, never by the edge
-	Senz_SENZ_SERVICE_KEY Senz = 18
+	Sz_SZ_SERVICE_KEY Sz = 18
 	// service token the edge presents to centraldata, signed with
-	// SENZ_SERVICE_KEY
-	Senz_SENZ_SERVICE_TOKEN Senz = 19
+	// SZ_SERVICE_KEY
+	Sz_SZ_SERVICE_TOKEN Sz = 19
 	// internal mTLS: PEM files of the internal CA, and of the certificate and
 	// key of this service
-	Senz_SENZ_TLS_CA   Senz = 20
-	Senz_SENZ_TLS_CERT Senz = 21
-	Senz_SENZ_TLS_KEY  Senz = 22
+	Sz_SZ_TLS_CA   Sz = 20
+	Sz_SZ_TLS_CERT Sz = 21
+	Sz_SZ_TLS_KEY  Sz = 22
 	// Olric addresses (comma-separated) of the edge cluster centraldata
 	// publishes the changes to
-	Senz_SENZ_OLRIC_ADDRESSES Senz = 23
+	Sz_SZ_OLRIC_ADDRESSES Sz = 23
 	// tables (comma-separated) centraldata syncs to the edge; the default
 	// set when empty
-	Senz_SENZ_SYNC_TABLES Senz = 24
+	Sz_SZ_SYNC_TABLES Sz = 24
 	// HMAC key (base64 encoded) the changes centraldata publishes to the
 	// edges are signed and verified with; held by centraldata and the edges
-	Senz_SENZ_SYNC_KEY Senz = 25
+	Sz_SZ_SYNC_KEY Sz = 25
 )
 
-// Enum value maps for Senz.
+// Enum value maps for Sz.
 var (
-	Senz_name = map[int32]string{
-		0:  "SENZ_UNSPECIFIED",
-		1:  "SENZ_HOSTNAME",
-		2:  "SENZ_ADDRESS",
-		3:  "SENZ_SECRET_KEY",
-		4:  "SENZ_CLIENT_ORIGIN",
-		5:  "SENZ_TIMESCALE_URI",
-		6:  "SENZ_POSTGRES_URI",
-		7:  "SENZ_CLICKHOUSE_URI",
-		8:  "SENZ_CONSUL_URI",
-		9:  "SENZ_MEMBERSHIP_ADDRESS",
-		10: "SENZ_DISCOVERY_ADDRESS",
-		11: "SENZ_ADMIN_USERNAME",
-		12: "SENZ_ADMIN_PASSWORD",
-		13: "SENZ_OTLP_INTERNAL_ENDPOINT",
-		14: "SENZ_OTLP_EXTERNAL_ENDPOINT",
-		15: "SENZ_KAFKA_BROKERS",
-		16: "SENZ_ZONE",
-		17: "SENZ_DATA_KEY",
-		18: "SENZ_SERVICE_KEY",
-		19: "SENZ_SERVICE_TOKEN",
-		20: "SENZ_TLS_CA",
-		21: "SENZ_TLS_CERT",
-		22: "SENZ_TLS_KEY",
-		23: "SENZ_OLRIC_ADDRESSES",
-		24: "SENZ_SYNC_TABLES",
-		25: "SENZ_SYNC_KEY",
+	Sz_name = map[int32]string{
+		0:  "SZ_UNSPECIFIED",
+		1:  "SZ_HOSTNAME",
+		2:  "SZ_ADDRESS",
+		3:  "SZ_SECRET_KEY",
+		4:  "SZ_CLIENT_ORIGIN",
+		5:  "SZ_TIMESCALE_URI",
+		6:  "SZ_POSTGRES_URI",
+		7:  "SZ_CLICKHOUSE_URI",
+		8:  "SZ_CONSUL_URI",
+		9:  "SZ_MEMBERSHIP_ADDRESS",
+		10: "SZ_DISCOVERY_ADDRESS",
+		11: "SZ_ADMIN_USERNAME",
+		12: "SZ_ADMIN_PASSWORD",
+		13: "SZ_OTLP_INTERNAL_ENDPOINT",
+		14: "SZ_OTLP_EXTERNAL_ENDPOINT",
+		15: "SZ_KAFKA_BROKERS",
+		16: "SZ_ZONE",
+		17: "SZ_DATA_KEY",
+		18: "SZ_SERVICE_KEY",
+		19: "SZ_SERVICE_TOKEN",
+		20: "SZ_TLS_CA",
+		21: "SZ_TLS_CERT",
+		22: "SZ_TLS_KEY",
+		23: "SZ_OLRIC_ADDRESSES",
+		24: "SZ_SYNC_TABLES",
+		25: "SZ_SYNC_KEY",
 	}
-	Senz_value = map[string]int32{
-		"SENZ_UNSPECIFIED":            0,
-		"SENZ_HOSTNAME":               1,
-		"SENZ_ADDRESS":                2,
-		"SENZ_SECRET_KEY":             3,
-		"SENZ_CLIENT_ORIGIN":          4,
-		"SENZ_TIMESCALE_URI":          5,
-		"SENZ_POSTGRES_URI":           6,
-		"SENZ_CLICKHOUSE_URI":         7,
-		"SENZ_CONSUL_URI":             8,
-		"SENZ_MEMBERSHIP_ADDRESS":     9,
-		"SENZ_DISCOVERY_ADDRESS":      10,
-		"SENZ_ADMIN_USERNAME":         11,
-		"SENZ_ADMIN_PASSWORD":         12,
-		"SENZ_OTLP_INTERNAL_ENDPOINT": 13,
-		"SENZ_OTLP_EXTERNAL_ENDPOINT": 14,
-		"SENZ_KAFKA_BROKERS":          15,
-		"SENZ_ZONE":                   16,
-		"SENZ_DATA_KEY":               17,
-		"SENZ_SERVICE_KEY":            18,
-		"SENZ_SERVICE_TOKEN":          19,
-		"SENZ_TLS_CA":                 20,
-		"SENZ_TLS_CERT":               21,
-		"SENZ_TLS_KEY":                22,
-		"SENZ_OLRIC_ADDRESSES":        23,
-		"SENZ_SYNC_TABLES":            24,
-		"SENZ_SYNC_KEY":               25,
+	Sz_value = map[string]int32{
+		"SZ_UNSPECIFIED":            0,
+		"SZ_HOSTNAME":               1,
+		"SZ_ADDRESS":                2,
+		"SZ_SECRET_KEY":             3,
+		"SZ_CLIENT_ORIGIN":          4,
+		"SZ_TIMESCALE_URI":          5,
+		"SZ_POSTGRES_URI":           6,
+		"SZ_CLICKHOUSE_URI":         7,
+		"SZ_CONSUL_URI":             8,
+		"SZ_MEMBERSHIP_ADDRESS":     9,
+		"SZ_DISCOVERY_ADDRESS":      10,
+		"SZ_ADMIN_USERNAME":         11,
+		"SZ_ADMIN_PASSWORD":         12,
+		"SZ_OTLP_INTERNAL_ENDPOINT": 13,
+		"SZ_OTLP_EXTERNAL_ENDPOINT": 14,
+		"SZ_KAFKA_BROKERS":          15,
+		"SZ_ZONE":                   16,
+		"SZ_DATA_KEY":               17,
+		"SZ_SERVICE_KEY":            18,
+		"SZ_SERVICE_TOKEN":          19,
+		"SZ_TLS_CA":                 20,
+		"SZ_TLS_CERT":               21,
+		"SZ_TLS_KEY":                22,
+		"SZ_OLRIC_ADDRESSES":        23,
+		"SZ_SYNC_TABLES":            24,
+		"SZ_SYNC_KEY":               25,
 	}
 )
 
-func (x Senz) Enum() *Senz {
-	p := new(Senz)
+func (x Sz) Enum() *Sz {
+	p := new(Sz)
 	*p = x
 	return p
 }
 
-func (x Senz) String() string {
+func (x Sz) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (Senz) Descriptor() protoreflect.EnumDescriptor {
+func (Sz) Descriptor() protoreflect.EnumDescriptor {
 	return file_sentinez_types_setting_v1_config_proto_enumTypes[0].Descriptor()
 }
 
-func (Senz) Type() protoreflect.EnumType {
+func (Sz) Type() protoreflect.EnumType {
 	return &file_sentinez_types_setting_v1_config_proto_enumTypes[0]
 }
 
-func (x Senz) Number() protoreflect.EnumNumber {
+func (x Sz) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use Senz.Descriptor instead.
-func (Senz) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use Sz.Descriptor instead.
+func (Sz) EnumDescriptor() ([]byte, []int) {
 	return file_sentinez_types_setting_v1_config_proto_rawDescGZIP(), []int{0}
 }
 
@@ -244,35 +244,37 @@ const file_sentinez_types_setting_v1_config_proto_rawDesc = "" +
 	"\x03env\x18\x03 \x03(\v2*.sentinez.types.setting.v1.Config.EnvEntryR\x03env\x1a6\n" +
 	"\bEnvEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01*\xd9\x04\n" +
-	"\x04Senz\x12\x14\n" +
-	"\x10SENZ_UNSPECIFIED\x10\x00\x12\x11\n" +
-	"\rSENZ_HOSTNAME\x10\x01\x12\x10\n" +
-	"\fSENZ_ADDRESS\x10\x02\x12\x13\n" +
-	"\x0fSENZ_SECRET_KEY\x10\x03\x12\x16\n" +
-	"\x12SENZ_CLIENT_ORIGIN\x10\x04\x12\x16\n" +
-	"\x12SENZ_TIMESCALE_URI\x10\x05\x12\x15\n" +
-	"\x11SENZ_POSTGRES_URI\x10\x06\x12\x17\n" +
-	"\x13SENZ_CLICKHOUSE_URI\x10\a\x12\x13\n" +
-	"\x0fSENZ_CONSUL_URI\x10\b\x12\x1b\n" +
-	"\x17SENZ_MEMBERSHIP_ADDRESS\x10\t\x12\x1a\n" +
-	"\x16SENZ_DISCOVERY_ADDRESS\x10\n" +
-	"\x12\x17\n" +
-	"\x13SENZ_ADMIN_USERNAME\x10\v\x12\x17\n" +
-	"\x13SENZ_ADMIN_PASSWORD\x10\f\x12\x1f\n" +
-	"\x1bSENZ_OTLP_INTERNAL_ENDPOINT\x10\r\x12\x1f\n" +
-	"\x1bSENZ_OTLP_EXTERNAL_ENDPOINT\x10\x0e\x12\x16\n" +
-	"\x12SENZ_KAFKA_BROKERS\x10\x0f\x12\r\n" +
-	"\tSENZ_ZONE\x10\x10\x12\x11\n" +
-	"\rSENZ_DATA_KEY\x10\x11\x12\x14\n" +
-	"\x10SENZ_SERVICE_KEY\x10\x12\x12\x16\n" +
-	"\x12SENZ_SERVICE_TOKEN\x10\x13\x12\x0f\n" +
-	"\vSENZ_TLS_CA\x10\x14\x12\x11\n" +
-	"\rSENZ_TLS_CERT\x10\x15\x12\x10\n" +
-	"\fSENZ_TLS_KEY\x10\x16\x12\x18\n" +
-	"\x14SENZ_OLRIC_ADDRESSES\x10\x17\x12\x14\n" +
-	"\x10SENZ_SYNC_TABLES\x10\x18\x12\x11\n" +
-	"\rSENZ_SYNC_KEY\x10\x19BLZJgithub.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1;settingpbb\x06proto3"
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01*\xa3\x04\n" +
+	"\x02Sz\x12\x12\n" +
+	"\x0eSZ_UNSPECIFIED\x10\x00\x12\x0f\n" +
+	"\vSZ_HOSTNAME\x10\x01\x12\x0e\n" +
+	"\n" +
+	"SZ_ADDRESS\x10\x02\x12\x11\n" +
+	"\rSZ_SECRET_KEY\x10\x03\x12\x14\n" +
+	"\x10SZ_CLIENT_ORIGIN\x10\x04\x12\x14\n" +
+	"\x10SZ_TIMESCALE_URI\x10\x05\x12\x13\n" +
+	"\x0fSZ_POSTGRES_URI\x10\x06\x12\x15\n" +
+	"\x11SZ_CLICKHOUSE_URI\x10\a\x12\x11\n" +
+	"\rSZ_CONSUL_URI\x10\b\x12\x19\n" +
+	"\x15SZ_MEMBERSHIP_ADDRESS\x10\t\x12\x18\n" +
+	"\x14SZ_DISCOVERY_ADDRESS\x10\n" +
+	"\x12\x15\n" +
+	"\x11SZ_ADMIN_USERNAME\x10\v\x12\x15\n" +
+	"\x11SZ_ADMIN_PASSWORD\x10\f\x12\x1d\n" +
+	"\x19SZ_OTLP_INTERNAL_ENDPOINT\x10\r\x12\x1d\n" +
+	"\x19SZ_OTLP_EXTERNAL_ENDPOINT\x10\x0e\x12\x14\n" +
+	"\x10SZ_KAFKA_BROKERS\x10\x0f\x12\v\n" +
+	"\aSZ_ZONE\x10\x10\x12\x0f\n" +
+	"\vSZ_DATA_KEY\x10\x11\x12\x12\n" +
+	"\x0eSZ_SERVICE_KEY\x10\x12\x12\x14\n" +
+	"\x10SZ_SERVICE_TOKEN\x10\x13\x12\r\n" +
+	"\tSZ_TLS_CA\x10\x14\x12\x0f\n" +
+	"\vSZ_TLS_CERT\x10\x15\x12\x0e\n" +
+	"\n" +
+	"SZ_TLS_KEY\x10\x16\x12\x16\n" +
+	"\x12SZ_OLRIC_ADDRESSES\x10\x17\x12\x12\n" +
+	"\x0eSZ_SYNC_TABLES\x10\x18\x12\x0f\n" +
+	"\vSZ_SYNC_KEY\x10\x19BLZJgithub.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1;settingpbb\x06proto3"
 
 var (
 	file_sentinez_types_setting_v1_config_proto_rawDescOnce sync.Once
@@ -289,7 +291,7 @@ func file_sentinez_types_setting_v1_config_proto_rawDescGZIP() []byte {
 var file_sentinez_types_setting_v1_config_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_sentinez_types_setting_v1_config_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_sentinez_types_setting_v1_config_proto_goTypes = []any{
-	(Senz)(0),        // 0: sentinez.types.setting.v1.Senz
+	(Sz)(0),          // 0: sentinez.types.setting.v1.Sz
 	(*Config)(nil),   // 1: sentinez.types.setting.v1.Config
 	nil,              // 2: sentinez.types.setting.v1.Config.EnvEntry
 	(*v1.XMeta)(nil), // 3: sentinez.types.v1.XMeta

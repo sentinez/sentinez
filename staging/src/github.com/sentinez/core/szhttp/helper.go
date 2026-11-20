@@ -21,6 +21,25 @@ import (
 	"github.com/sentinez/pkg/bytesconv"
 )
 
+// ImmutableRequest is implemented by a request whose getters and header
+// visitors return the bytes of immutable strings (net/http), not of
+// buffers reused once the request is done (Hertz): what they return may
+// be kept past it.
+type ImmutableRequest interface {
+	ImmutableRequest()
+}
+
+// Keep returns b, a value the getters of req returned, as a string that
+// may be kept past the request, e.g. in an event exported later: b itself
+// when req is an ImmutableRequest, else a copy.
+func Keep(req Request, b []byte) string {
+	if _, ok := req.(ImmutableRequest); ok {
+		return bytesconv.B2s(b)
+	}
+
+	return string(b)
+}
+
 // Cookie returns the value of the named request cookie.
 func Cookie(req Request, name string) (string, bool) {
 	header := bytesconv.B2s(req.Header(szbytestr.HeaderCookie))

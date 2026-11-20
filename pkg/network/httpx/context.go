@@ -85,15 +85,30 @@ func NewContext(req *http.Request, resp http.ResponseWriter) *Context {
 	transport := szcontext.GetTransport(req.Context())
 	if transport != nil {
 		fingerprint := ja4.Get(transport.GetConnId())
-		szlog.Debugf("context: found fingerprint: %s", fingerprint)
+		if szlog.Enabled(szlog.LevelDebug) {
+			szlog.Debugf("context: found fingerprint: %s", fingerprint)
+		}
 		hctx.ectx.Request.Fingerprint = fingerprint
 	}
 
 	hctx.ectx.Transport = transport
 	hctx.ectx.Request.Status = http.StatusOK
-	hctx.ectx.Request.Timestamp = timestamppb.Now()
+	hctx.ectx.Request.Timestamp = stamp(
+		hctx.ectx.Request.Timestamp, time.Now())
 
 	return hctx
+}
+
+// stamp sets ts, the timestamp Close kept from the last request of the
+// pooled context, to now; a new one when there is none.
+func stamp(ts *timestamppb.Timestamp, now time.Time) *timestamppb.Timestamp {
+	if ts == nil {
+		return timestamppb.New(now)
+	}
+
+	ts.Seconds, ts.Nanos = now.Unix(), int32(now.Nanosecond())
+
+	return ts
 }
 
 type Context struct {
@@ -122,11 +137,18 @@ func (c *Context) RequestBodyStream() io.Reader {
 	return c.req.Body
 }
 
+// The getters of the request return the bytes of its strings, not a copy:
+// they are read only (see szhttp.Request), and may be kept past the
+// request, the strings being immutable.
+
+// ImmutableRequest implements szhttp.ImmutableRequest.
+func (*Context) ImmutableRequest() {}
+
 // VisitRequestHeaders implements szhttp.Context.
 func (c *Context) VisitRequestHeaders(visitor func(k []byte, v []byte)) {
 	for key, values := range c.req.Header {
 		for _, v := range values {
-			visitor([]byte(key), []byte(v))
+			visitor(bytesconv.S2b(key), bytesconv.S2b(v))
 		}
 	}
 }
@@ -135,7 +157,7 @@ func (c *Context) VisitRequestHeaders(visitor func(k []byte, v []byte)) {
 func (c *Context) VisitResponseHeaders(visitor func(k []byte, v []byte)) {
 	for key, values := range c.resp.Header() {
 		for _, v := range values {
-			visitor([]byte(key), []byte(v))
+			visitor(bytesconv.S2b(key), bytesconv.S2b(v))
 		}
 	}
 }
@@ -147,7 +169,7 @@ func (c *Context) Header(k []byte) []byte {
 		return nil
 	}
 
-	return []byte(values[0])
+	return bytesconv.S2b(values[0])
 }
 
 // Headers implements szhttp.Context.
@@ -162,7 +184,7 @@ func (c *Context) Headers() map[string][][]byte {
 
 // AddResponseHeader implements szhttp.Context.
 func (c *Context) AddResponseHeader(key, value []byte) {
-	c.resp.Header().Add(string(key), string(value))
+	c.resp.Header().Add(headerKey(key), headerValue(value))
 }
 
 // Body implements szhttp.Context.
@@ -194,7 +216,7 @@ func (c *Context) RequestIP() []byte {
 	}
 
 	// 3. Fallback: RemoteAddr
-	return szhttp.StripPort([]byte(c.req.RemoteAddr))
+	return szhttp.StripPort(bytesconv.S2b(c.req.RemoteAddr))
 }
 
 // File implements szhttp.Context.
@@ -216,7 +238,7 @@ func (c *Context) Flush() error {
 
 // Host implements szhttp.Context.
 func (c *Context) Host() []byte {
-	return []byte(c.req.Host)
+	return bytesconv.S2b(c.req.Host)
 }
 
 // JA4 implements szhttp.Context.
@@ -250,7 +272,7 @@ func (c *Context) Query(k []byte) []byte {
 
 // RemoteAddr implements szhttp.Context.
 func (c *Context) RemoteAddr() []byte {
-	return []byte(c.req.RemoteAddr)
+	return bytesconv.S2b(c.req.RemoteAddr)
 }
 
 // ResetResponse implements szhttp.Context.
@@ -293,15 +315,21 @@ func (c *Context) SetPath(path []byte) {
 	c.ectx.Request.Path = bytes.Clone(path)
 }
 
+// SetHost implements szhttp.Context. host is copied: Host returns it, and
+// what it returns is kept past the request (ImmutableRequest).
 func (c *Context) SetHost(host []byte) {
-	sHost := bytesconv.B2s(host)
-	c.req.Host = sHost
+	c.setHost(string(host))
+}
+
+// setHost sets the host of the request to host, kept as is.
+func (c *Context) setHost(host string) {
+	c.req.Host = host
 
 	if c.req.URL != nil {
-		c.req.URL.Host = sHost
+		c.req.URL.Host = host
 	}
 
-	c.ectx.Request.Host = sHost
+	c.ectx.Request.Host = host
 }
 
 // SetQuery implements szhttp.Context.
@@ -342,7 +370,7 @@ func (c *Context) SetQuery(k []byte, v ...[]byte) {
 
 // SetResponseHeader implements szhttp.Context.
 func (c *Context) SetResponseHeader(key []byte, value []byte) {
-	c.resp.Header().Set(string(key), string(value))
+	c.resp.Header().Set(headerKey(key), headerValue(value))
 }
 
 // SetStatusCode implements szhttp.Context.
@@ -404,7 +432,7 @@ func (c *Context) ServerName() string {
 
 // URI implements szhttp.Context.
 func (c *Context) URI() []byte {
-	return []byte(c.req.URL.String())
+	return bytesconv.S2b(c.req.URL.String())
 }
 
 // Unwrap implements szhttp.Context.
@@ -413,7 +441,7 @@ func (c *Context) Unwrap() any {
 }
 
 func (c *Context) QueryStr() []byte {
-	return []byte(c.req.URL.RawQuery)
+	return bytesconv.S2b(c.req.URL.RawQuery)
 }
 
 func (c *Context) Context() context.Context {
@@ -425,11 +453,11 @@ func (c *Context) RequestTime() time.Time {
 }
 
 func (c *Context) Method() []byte {
-	return []byte(c.req.Method)
+	return bytesconv.S2b(c.req.Method)
 }
 
 func (c *Context) Path() []byte {
-	return []byte(c.req.URL.Path)
+	return bytesconv.S2b(c.req.URL.Path)
 }
 
 func (c *Context) JSON(statusCode int, body []byte) error {
@@ -520,7 +548,10 @@ func (c *Context) Close() error {
 	c.ectx.X.Reset()
 	clear(setHeaders)
 	c.ectx.X.SetHeaders = setHeaders
+	// the timestamp too, NewContext sets it again
+	ts := c.ectx.Request.Timestamp
 	c.ectx.Request.Reset()
+	c.ectx.Request.Timestamp = ts
 	c.respBodyBuf.Reset()
 
 	c.bodyOverflow = false

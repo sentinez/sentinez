@@ -32,7 +32,7 @@ var (
 	BadRequest          = []byte("Bad request")
 	MisdirectedRequest  = []byte("Misdirected request")
 	BadGateway          = []byte("Bad gateway")
-	HitCache            = []byte("HIT")
+	HitCache            = []byte(httpconst.ValueHitCache)
 	MethodNotAllowed    = []byte(httpconst.ValueMethodNotAllowed)
 )
 
@@ -65,6 +65,8 @@ var (
 	ValueTextHTML  = []byte(httpconst.ValueTextHTML)
 	ValueNoSniff   = []byte(httpconst.ValueNoSniff)
 	ValueNoStore   = []byte(httpconst.ValueNoStore)
+
+	ValueCacheImmutable = []byte(httpconst.ValueCacheImmutable)
 
 	ValueAllowGetHead = []byte(httpconst.ValueAllowGetHead)
 

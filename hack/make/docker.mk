@@ -50,7 +50,7 @@ compose.edge.leader:
 		'$(SZ_EDGE_KV)/zone/$(SZ_EDGE_ZONE)/status?raw')"
 
 # The role of every running edge: leader when it holds the lock of its
-# zone (SENZ_ZONE, else $(SZ_EDGE_ZONE)), whose node is its hostname and a
+# zone (SZ_ZONE, else $(SZ_EDGE_ZONE)), whose node is its hostname and a
 # suffix; else follower.
 compose.edge.roles:
 	@printf '%-24s %-6s %s\n' EDGE ZONE ROLE
@@ -59,7 +59,7 @@ compose.edge.roles:
 		set -- $$(docker inspect \
 			-f '{{.Config.Hostname}}{{range .Config.Env}} {{.}}{{end}}' $$c); \
 		host=$$1; \
-		zone=$$(printf '%s\n' "$$@" | sed -n 's/^SENZ_ZONE=//p' | \
+		zone=$$(printf '%s\n' "$$@" | sed -n 's/^SZ_ZONE=//p' | \
 			tr A-Z a-z); \
 		zone=$${zone:-$(SZ_EDGE_ZONE)}; \
 		lock=$$(curl -sSf "$(SZ_EDGE_KV)/leader/$$zone?raw" 2>/dev/null); \
@@ -76,7 +76,7 @@ consul.proxy.put:
 		$(CONSUL_ADDR)/v1/kv/$(CONSUL_PROXY_KEY) >/dev/null
 	@echo "put $(CONSUL_PROXY_FILE) at $(CONSUL_PROXY_KEY)"
 
-# Puts the SENZ_* lines of ENV_FILE in the Consul KV: by default the env shared
+# Puts the SZ_* lines of ENV_FILE in the Consul KV: by default the env shared
 # by all the services (deploy/consul/shared.env, copied from its .example),
 # or the file of one service when SERVICE is its service_key. See
 # hack/consul-env-put.sh.

@@ -1480,7 +1480,7 @@
         "CONTROL_PLANE_SERVICE"
       ],
       "default": "CONTROL_PLANE_UNSPECIFIED",
-      "description": " - CONTROL_PLANE_SERVICE: SERVICE is an internal service (eg the edge) calling another one; its\ntokens are signed with SENZ_SERVICE_KEY, never with SENZ_SECRET_KEY."
+      "description": " - CONTROL_PLANE_SERVICE: SERVICE is an internal service (eg the edge) calling another one; its\ntokens are signed with SZ_SERVICE_KEY, never with SZ_SECRET_KEY."
     },
     "v1EgressEvent": {
       "type": "object",

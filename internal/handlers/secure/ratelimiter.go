@@ -17,6 +17,7 @@ package secure
 import (
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/chains"
+	"github.com/sentinez/pkg/bytesconv"
 	"github.com/sentinez/pkg/szlog"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
@@ -29,8 +30,8 @@ import (
 const LimiterId = "LMT"
 
 var (
-	_ chains.Plugin                      = (*Limiter)(nil)
-	_ chains.Provisioner[*envplugin.Env] = (*Limiter)(nil)
+	_ chains.Plugin                      = (*SecLimiter)(nil)
+	_ chains.Provisioner[*envplugin.Env] = (*SecLimiter)(nil)
 )
 
 // _rateLimited the action of a rate limit event, whatever the limiter is
@@ -40,14 +41,14 @@ var _rateLimited = &rulepb.Action{
 	Type: rulepb.ActionType_ACTION_TYPE_RATE_LIMIT,
 }
 
-type Limiter struct {
+type SecLimiter struct {
 	store *secratelimits.Limiter
 	log   szlog.LogCloser
 }
 
-func (*Limiter) ID() string { return LimiterId }
+func (*SecLimiter) ID() string { return LimiterId }
 
-func (l *Limiter) Provision(env *envplugin.Env) error {
+func (l *SecLimiter) Provision(env *envplugin.Env) error {
 	l.store = env.Store().Limiter()
 	l.log = env.Logger(typepb.LogType_LOG_TYPE_SECRATELIMIT)
 	return nil
@@ -56,7 +57,7 @@ func (l *Limiter) Provision(env *envplugin.Env) error {
 // Handle runs the limiters of the namespace in priority order, like the
 // secrules: each one whose expression matches counts the request, keyed by
 // client IP, and the first one over its limit rejects it.
-func (l *Limiter) Handle(ctx szhttp.Context, next chains.Handler) error {
+func (l *SecLimiter) Handle(ctx szhttp.Context, next chains.Handler) error {
 	chain := l.store.LoadContext(ctx)
 	if len(chain) == 0 {
 		return next.Handle(ctx)
@@ -65,7 +66,8 @@ func (l *Limiter) Handle(ctx szhttp.Context, next chains.Handler) error {
 	matched := matchedrule.Acquire()
 	defer func() { _ = matched.Close() }()
 
-	key := string(ctx.RequestIP())
+	// not a copy: Allow copies the key it keeps
+	key := bytesconv.B2s(ctx.RequestIP())
 	for _, e := range chain {
 		if e.Eval(ctx, matched.MatchedRules) && !e.Limiter.Allow(key) {
 			l.logExceeded(ctx, matched.MatchedRules)
@@ -78,7 +80,7 @@ func (l *Limiter) Handle(ctx szhttp.Context, next chains.Handler) error {
 
 // logExceeded emits a rate limit event for the rejected request, listing
 // the limiters matched by mr, the rejecting one last.
-func (l *Limiter) logExceeded(ctx szhttp.Context, mr *rulepb.MatchedRules) {
+func (l *SecLimiter) logExceeded(ctx szhttp.Context, mr *rulepb.MatchedRules) {
 	event := newSecRuleEvent(ctx,
 		rulepb.RuleService_RULE_SERVICE_SECRATELIMIT, _rateLimited, mr)
 

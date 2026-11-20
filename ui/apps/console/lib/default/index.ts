@@ -44,7 +44,7 @@ export const dashboard: {
   user: {
     name: 'shadcn',
     email: 'm@example.com',
-    avatar: '/assets/sntz.png',
+    avatar: '/assets/sz.png',
   },
   tenant: [
     {

@@ -187,7 +187,7 @@ func setter(set func(c *call, k, v string)) lua.LGFunction {
 // runs once the stage answered: it raises an error.
 func respond(L *lua.LState) int {
 	c := callOf(L)
-	if c.phase == After {
+	if c.phase == Response {
 		L.RaiseError("respond: the stage already ran")
 	}
 
