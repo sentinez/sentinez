@@ -16,11 +16,11 @@
 
 
 # LOG_LEVEL: debug, info (default), warn or error
-./senz \
+./sz \
     --log_level "${LOG_LEVEL:-info}" \
     --mode prod \
     --proxy_config ./proxy.yaml \
     --env_file "" \
     --engine quic
-	# --cert_file /etc/senz/ssl/certs/is.s6z.io.vn.cert \
-    # --cert_key_file /etc/senz/ssl/private/is.s6z.io.vn.key \
+	# --cert_file /etc/sz/ssl/certs/is.s6z.io.vn.cert \
+    # --cert_key_file /etc/sz/ssl/private/is.s6z.io.vn.key \

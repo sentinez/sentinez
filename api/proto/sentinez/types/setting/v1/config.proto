@@ -21,52 +21,52 @@ import "sentinez/types/v1/options.proto";
 
 option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1;settingpb";
 
-enum Senz {
-  SENZ_UNSPECIFIED = 0;
-  SENZ_HOSTNAME = 1; // hostname of service. eg s6z.io.vn
-  SENZ_ADDRESS = 2; // http address, api, application ...
-  SENZ_SECRET_KEY = 3; // secret key base64 encoded
-  SENZ_CLIENT_ORIGIN = 4; // origin of client, used to gen passkey
-  SENZ_TIMESCALE_URI = 5;
-  SENZ_POSTGRES_URI = 6;
-  SENZ_CLICKHOUSE_URI = 7;
-  SENZ_CONSUL_URI = 8;
-  SENZ_MEMBERSHIP_ADDRESS = 9;
-  SENZ_DISCOVERY_ADDRESS = 10;
-  SENZ_ADMIN_USERNAME = 11;
-  SENZ_ADMIN_PASSWORD = 12;
+enum Sz {
+  SZ_UNSPECIFIED = 0;
+  SZ_HOSTNAME = 1; // hostname of service. eg s6z.io.vn
+  SZ_ADDRESS = 2; // http address, api, application ...
+  SZ_SECRET_KEY = 3; // secret key base64 encoded
+  SZ_CLIENT_ORIGIN = 4; // origin of client, used to gen passkey
+  SZ_TIMESCALE_URI = 5;
+  SZ_POSTGRES_URI = 6;
+  SZ_CLICKHOUSE_URI = 7;
+  SZ_CONSUL_URI = 8;
+  SZ_MEMBERSHIP_ADDRESS = 9;
+  SZ_DISCOVERY_ADDRESS = 10;
+  SZ_ADMIN_USERNAME = 11;
+  SZ_ADMIN_PASSWORD = 12;
   // OTLP/gRPC collector of the system (application) logs; unset: not exported
-  SENZ_OTLP_INTERNAL_ENDPOINT = 13;
+  SZ_OTLP_INTERNAL_ENDPOINT = 13;
   // OTLP/gRPC collector of the edge traffic logs; unset: not exported
-  SENZ_OTLP_EXTERNAL_ENDPOINT = 14;
+  SZ_OTLP_EXTERNAL_ENDPOINT = 14;
   // Kafka brokers (comma-separated) the edge traffic events are produced to
-  // directly; takes precedence over SENZ_OTLP_EXTERNAL_ENDPOINT
-  SENZ_KAFKA_BROKERS = 15;
+  // directly; takes precedence over SZ_OTLP_EXTERNAL_ENDPOINT
+  SZ_KAFKA_BROKERS = 15;
   // zone the service is deployed in (eg ap-southeast-1a); prefixes generated ids
-  SENZ_ZONE = 16;
+  SZ_ZONE = 16;
   // AES-256 key (32 bytes, base64 encoded) the secrets stored in the
   // database are encrypted with, eg the CA certificates and their keys
-  SENZ_DATA_KEY = 17;
+  SZ_DATA_KEY = 17;
   // HMAC key (base64 encoded) the service tokens are signed and verified
   // with; held by the verifying services only, never by the edge
-  SENZ_SERVICE_KEY = 18;
+  SZ_SERVICE_KEY = 18;
   // service token the edge presents to centraldata, signed with
-  // SENZ_SERVICE_KEY
-  SENZ_SERVICE_TOKEN = 19;
+  // SZ_SERVICE_KEY
+  SZ_SERVICE_TOKEN = 19;
   // internal mTLS: PEM files of the internal CA, and of the certificate and
   // key of this service
-  SENZ_TLS_CA = 20;
-  SENZ_TLS_CERT = 21;
-  SENZ_TLS_KEY = 22;
+  SZ_TLS_CA = 20;
+  SZ_TLS_CERT = 21;
+  SZ_TLS_KEY = 22;
   // Olric addresses (comma-separated) of the edge cluster centraldata
   // publishes the changes to
-  SENZ_OLRIC_ADDRESSES = 23;
+  SZ_OLRIC_ADDRESSES = 23;
   // tables (comma-separated) centraldata syncs to the edge; the default
   // set when empty
-  SENZ_SYNC_TABLES = 24;
+  SZ_SYNC_TABLES = 24;
   // HMAC key (base64 encoded) the changes centraldata publishes to the
   // edges are signed and verified with; held by centraldata and the edges
-  SENZ_SYNC_KEY = 25;
+  SZ_SYNC_KEY = 25;
 }
 
 message Config {

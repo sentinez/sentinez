@@ -47,7 +47,7 @@ RevProxyServer.Start()
  │   │                                  // reverse proxies, CDN, SecRule, limiter, WAF
  │   └─ server.Handle(http.Init(conf, mem).Handle)
  ├─ newTLSConfig(cert, key)  → {GetConfigForClient: transport.FingerprintHello, MinVersion: TLS1.3, Certificates}
- ├─ network.StdListen(SENZ_ADDRESS | 0.0.0.0:443,
+ ├─ network.StdListen(SZ_ADDRESS | 0.0.0.0:443,
  │       WithPassthrough(mem.Passthrough))        // TCP, see 3.6 (TLS modes)
  ├─ network.QuicListen(same addr, WithTLSConfig)    // UDP
  └─ server.ListenAndServe(addr,
@@ -164,6 +164,21 @@ in a `recordWriter` that records the status code and copies the body (up to
 than 64 KiB. `SetPath` copies the path, since callers may pass pooled
 buffers.
 
+**Allocations on the request path.** The `[]byte` getters of `httpx.Context`
+(`Host`, `Path`, `Method`, `QueryStr`, `URI`, `RemoteAddr`, headers) are
+zero-copy views of strings `net/http` already holds (`bytesconv.S2b`): they
+are read-only, and `httpx.Context` implements the marker
+`szhttp.ImmutableRequest`. Whatever outlives the request (the log events,
+which the exporters send asynchronously) takes its strings through
+`szhttp.Keep(ctx, b)`: no copy for an immutable context, `string(b)` for one
+that reuses its buffers (Hertz). Response header names and values the edge
+sets itself are interned (`httpx/intern.go`), and the debug logs are guarded
+by `szlog.Enabled` so their arguments are not boxed when the level is off.
+
+Benchmarks of the path (`make bench`, medians in the
+[README](../README.md#benchmarks)): a request denied at a stage, a CDN hit,
+the rate limiter and a static asset cost 0 to 18 allocations.
+
 ## 3.4 Middleware chain
 
 Built in [internal/handlers/handlers.go](../internal/handlers/handlers.go) with
@@ -174,14 +189,14 @@ needs dependencies, `Provision(*envplugin.Env)`: the
 [Env](../internal/envplugin/env.go) resolves the options once and hands out
 the sub-stores of `MemStore`, the secret key and event loggers
 (`Env.Logger(kind)`), so plugins take no constructor arguments. Every plugin
-is wrapped by `handlers.Stage`, which tags errors with the plugin `ID()`
+is wrapped by `stage.Wrap`, which tags errors with the plugin `ID()`
 (`sztracer.StageError{Stage, Elapsed, Err}`) and logs them once, at the
 stage that produced them; the stage names are exported constants (e.g.
 `secure.SecRuleId`). A panic of a plugin is recovered by its `Stage` too: logged once with the stage and the stack, then answered with a `500` page, so the outer plugins (e.g. `LOG`) still record the request; `http.ErrAbortHandler`, the reverse proxy aborting a response, is panicked again for the server. The edge closes the chain (`Chain.Close`) on shutdown.
 
 | Order | Stage | Plugin | Behavior |
 |---|---|---|---|
-| 0 | `TRC` | `trace.Tracer` | Generates request ID `senz:req:<xid>` when the context has none |
+| 0 | `TRC` | `trace.Tracer` | Generates request ID `sz:req:<xid>` when the context has none |
 | 1 | `LOG` | `logging.Logging` | Calls `next` first, then logs an `httppb.IngressEvent` (JSON, kind `LOG_TYPE_HTTP_INGRESS`, the ingress) and, when `ROU` proxied the request, an `httppb.EgressEvent` of the proxy → upstream origin leg (kind `LOG_TYPE_HTTP_EGRESS`: upstream, origin status, content type/length, latency, and the headers the edge set on the upstream request via `szhttp.SetUpstreamHeader`, sorted by name with credential headers omitted) |
 | 2 | `DMA` | `secure.DomainBased` | The host (port stripped, lower case) is the namespace: it must be the `ingress.resource.domain` of a loaded setting. Otherwise → `403`. A domain in `TLS_MODE_PASSTHROUGH` → `421` (see 3.6). Sets `X().Namespace` and the tenant/resource ids of the setting |
 | 3 | `CDN` | `cdn.Cache` | If the namespace has an active CDN rule whose expression matches: look up the cache by `method+scheme+host+path+query+Accept-Encoding`; hit → return the cached response with `X-Cache: HIT`; miss → continue and store cacheable responses (TTL 1h, see [04-rule-engine.md](04-rule-engine.md#44-cdn-rules)) |
@@ -194,11 +209,11 @@ stage that produced them; the stage names are exported constants (e.g.
 
 The stages after `DMA` also run the Lua hooks of the namespace: the wrap
 of the chain is `Stage(id, hooks.Wrap(id, h))`, with `hooks` of
-[internal/handlers/script](../internal/handlers/script/). A script of the
+[internal/handlers/wrap/script](../internal/handlers/wrap/script/). A script of the
 setting (`scripting.scripts`, compiled into
 [internal/memory/scripts](../internal/memory/scripts/)) hooks a global
-function before or after a stage with `---@stage before/<stage>` or
-`after/<stage>`, by the names `cache`, `sec_rate_limit`, `waiting_room`,
+function before or after a stage with `---@stage http:request/<stage>` or
+`http:response/<stage>`, by the names `cache`, `sec_rate_limit`, `waiting_room`,
 `static`, `sec_rule`, `sec_ruleset` and `router`. A before hook may answer
 the request, which skips the stage; an after hook runs once the stage and
 the ones after it returned. A failing script is logged and skipped. See
@@ -431,7 +446,7 @@ builds the `tls.Config` the namespace dials its HTTPS upstreams with, from
   certificate (mTLS), picked with `certs.PickClient` and sent with the chain
   of its issuers.
 
-Both are opened with `SENZ_DATA_KEY`. TLS 1.2 at least. Without either the
+Both are opened with `SZ_DATA_KEY`. TLS 1.2 at least. Without either the
 config is nil (the system roots, no client certificate). It fails closed:
 when the key is missing or a certificate does not open, the namespace keeps
 no proxy at all, so its upstreams are never dialed without the CAs or the
@@ -459,7 +474,7 @@ All maps use `pkg/szsync.Map[K,V]` (a generic wrapper around `sync.Map`).
 [pkg/cluster](../pkg/cluster/):
 
 - `NewCluster` creates Olric with the `local` config. If the config is
-  `Clustered()` (both `SENZ_MEMBERSHIP_ADDRESS` and `SENZ_DISCOVERY_ADDRESS`
+  `Clustered()` (both `SZ_MEMBERSHIP_ADDRESS` and `SZ_DISCOVERY_ADDRESS`
   are set), it sets `Peers` and binds memberlist to the discovery address.
 - Olric has no compare-and-swap, so it must not hold state a leader
   writes; that goes to Consul, where the writes are fenced (see below).
@@ -547,7 +562,7 @@ its own share of the traffic, and a TLS connection only lands on one edge.
 ### Zone leader election
 
 [pkg/cluster/leader](../pkg/cluster/leader/) elects the one edge that leads
-its zone (`SENZ_ZONE`). Olric is not used for this: its own docs call its
+its zone (`SZ_ZONE`). Olric is not used for this: its own docs call its
 locks approximate (a lock lives on one partition owner, with no replica or
 quorum by default and no monotonic token), so they cannot guarantee a single
 leader. The election goes through a Consul session lock instead, which
@@ -555,13 +570,13 @@ Consul serves from its Raft log.
 
 | Configuration | Behavior |
 |---|---|
-| `conf.Clustered()` + `SENZ_CONSUL_URI` + `SENZ_ZONE` | Campaigns on the Consul key `sentinez/dmz/edge/leader/<zone>`; the zone is lowercased like the `szrand` id prefix, so `SGN` and `sgn` share one key |
-| `conf.Clustered()` without `SENZ_CONSUL_URI` | Startup fails (`errNoConsul`): a cluster never runs without an election |
-| `conf.Clustered()` without `SENZ_ZONE` | Startup fails (`errNoZone`) |
+| `conf.Clustered()` + `SZ_CONSUL_URI` + `SZ_ZONE` | Campaigns on the Consul key `sentinez/dmz/edge/leader/<zone>`; the zone is lowercased like the `szrand` id prefix, so `SGN` and `sgn` share one key |
+| `conf.Clustered()` without `SZ_CONSUL_URI` | Startup fails (`errNoConsul`): a cluster never runs without an election |
+| `conf.Clustered()` without `SZ_ZONE` | Startup fails (`errNoZone`) |
 | Not clustered | Standalone, Consul or not: the node leads at once (term 1) and never loses. What it does as the leader (the centraldata it writes to its own Olric) reaches no other edge, so it never takes the lock of a zone from a cluster |
 
 `conf.Clustered()` ([config.go](../api/proto/sentinez/types/setting/v1/config.go))
-is true when both `SENZ_MEMBERSHIP_ADDRESS` and `SENZ_DISCOVERY_ADDRESS` are
+is true when both `SZ_MEMBERSHIP_ADDRESS` and `SZ_DISCOVERY_ADDRESS` are
 set; `cluster.newConfig` uses the same check to join peers.
 
 A term:
@@ -626,7 +641,7 @@ The `status` record:
 
 | Field | Value |
 |---|---|
-| `zone` | Lowercased `SENZ_ZONE` |
+| `zone` | Lowercased `SZ_ZONE` |
 | `node`, `term` | The leader and its `term.Index` |
 | `updated_at` | UTC time of the write; a record older than ~10s means no leader is writing |
 
@@ -657,7 +672,7 @@ and the zone `status`, `make compose.edge.consul` the Raft peers; stop the
 leading edge and another one leads once its session expires, kill one
 Consul server and the lock still holds. Without a Consul quorum no zone can
 elect a leader. The edges gossip on `:7777` and join through one seed
-(`SENZ_MEMBERSHIP_ADDRESS`); their Olric servers listen on `:3320`. The
+(`SZ_MEMBERSHIP_ADDRESS`); their Olric servers listen on `:3320`. The
 lone `sentinez.dmz.edge` of the main compose is not clustered, so it does
 not campaign, whatever its zone. The two
 Consul servers leave the Raft when stopped (`leave_on_terminate`), so after

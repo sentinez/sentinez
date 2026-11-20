@@ -35,8 +35,8 @@ const _sealedPrefix = "v1:"
 const _keySize = 32
 
 var (
-	// ErrNoDataKey SENZ_DATA_KEY is not set.
-	ErrNoDataKey = errors.New("crypto: SENZ_DATA_KEY is empty")
+	// ErrNoDataKey SZ_DATA_KEY is not set.
+	ErrNoDataKey = errors.New("crypto: SZ_DATA_KEY is empty")
 
 	// ErrOpen a sealed value can not be opened: it is malformed, was
 	// altered, belongs to another record or was sealed with another key.
@@ -73,10 +73,10 @@ func NewSealer(key string) (*Sealer, error) {
 	return &Sealer{aead: aead}, nil
 }
 
-// NewSealerFromEnv returns the Sealer of SENZ_DATA_KEY, ErrNoDataKey when it
+// NewSealerFromEnv returns the Sealer of SZ_DATA_KEY, ErrNoDataKey when it
 // is not set: secrets are never stored in clear because of a missing key.
 func NewSealerFromEnv() (*Sealer, error) {
-	key := szconfig.GetEnv(settingpb.Senz_SENZ_DATA_KEY)
+	key := szconfig.GetEnv(settingpb.Sz_SZ_DATA_KEY)
 	if key == "" {
 		return nil, ErrNoDataKey
 	}

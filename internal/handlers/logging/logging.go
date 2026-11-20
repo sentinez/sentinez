@@ -108,18 +108,21 @@ func (l *Logging) Handle(ctx szhttp.Context, next chains.Handler) error {
 func newEvent(ctx szhttp.Context, ip []byte) *ingress.IngressEvent {
 	event := ingress.Acquire()
 
+	// the event is exported after the request: Keep copies what does not
+	// outlive it
 	event.Id = ctx.RequestId()
 	event.Scheme = ctx.Scheme()
-	event.Host = string(ctx.Host())
-	event.Path = string(ctx.Path())
-	event.Method = string(ctx.Method())
+	event.Host = szhttp.Keep(ctx, ctx.Host())
+	event.Path = szhttp.Keep(ctx, ctx.Path())
+	event.Method = szhttp.Keep(ctx, ctx.Method())
 	event.Protocol = ctx.Protocol()
-	event.UserAgent = string(ctx.Header(szbytestr.HeaderUserAgent))
-	event.ContentType = string(ctx.Header(szbytestr.HeaderContentType))
-	event.Queries = string(ctx.QueryStr())
+	event.UserAgent = szhttp.Keep(ctx, ctx.Header(szbytestr.HeaderUserAgent))
+	event.ContentType = szhttp.Keep(ctx,
+		ctx.Header(szbytestr.HeaderContentType))
+	event.Queries = szhttp.Keep(ctx, ctx.QueryStr())
 	event.Headers = headersOf(ctx)
-	event.RemoteAddress = string(ctx.RemoteAddr())
-	event.ClientIp = string(ip)
+	event.RemoteAddress = szhttp.Keep(ctx, ctx.RemoteAddr())
+	event.ClientIp = szhttp.Keep(ctx, ip)
 	event.Fingerprint = ctx.JA4()
 	event.Timestamp = ctx.RequestTime().UnixMilli()
 

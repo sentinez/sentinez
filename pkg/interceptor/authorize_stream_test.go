@@ -71,7 +71,7 @@ func streams(token, fullMethod string) (context.Context, error) {
 func serviceTokenOf(t *testing.T) string {
 	t.Helper()
 
-	szconfig.SetEnv(settingpb.Senz_SENZ_SERVICE_KEY,
+	szconfig.SetEnv(settingpb.Sz_SZ_SERVICE_KEY,
 		base64.StdEncoding.EncodeToString([]byte("service-secret")))
 
 	token, err := crypto.ServiceTokenGenerator("edge-1", time.Hour)

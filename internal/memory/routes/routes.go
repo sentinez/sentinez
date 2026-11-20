@@ -152,11 +152,14 @@ func (r *Router) Match(ctx szhttp.Context) (string, error) {
 		return "", szerror.F("not found: %s", path)
 	}
 
-	szlog.Debugf(
-		"edge: routing match: ns=%s prefix=%s -> %s (prefix: %s)",
-		namespace, route.loc.GetProxyRewrite(), route.loc.GetProxyPass(),
-		route.loc.GetLocation(),
-	)
+	// checked first: boxing the arguments allocates, logged or not
+	if szlog.Enabled(szlog.LevelDebug) {
+		szlog.Debugf(
+			"edge: routing match: ns=%s prefix=%s -> %s (prefix: %s)",
+			namespace, route.loc.GetProxyRewrite(),
+			route.loc.GetProxyPass(), route.loc.GetLocation(),
+		)
+	}
 
 	return forward(ctx, route)
 }

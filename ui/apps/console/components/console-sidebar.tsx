@@ -236,7 +236,7 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
                 <Link href="/d/console">
                   <div className="text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                     <Image
-                      src="/assets/sntz.png"
+                      src="/assets/sz.png"
                       alt="logo"
                       width={100}
                       height={100}

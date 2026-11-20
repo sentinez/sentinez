@@ -7,7 +7,7 @@ SZCOLLECTOR_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))
 sz.collector.build: SENTINEZ_OUT ?= collector
 sz.collector.build:
 	@go build -ldflags="-s -w" -o $(SZCOLLECTOR_DIR)/v1/bin/$(SENTINEZ_OUT) $(SZCOLLECTOR_DIR)/v1
-	@echo "[DONE]  senz: sz.collector.v1 ... ok"
+	@echo "[DONE]  sz: sz.collector.v1 ... ok"
 
 sz.collector.run: SENTINEZ_OUT ?= collector
 sz.collector.run: sz.collector.build

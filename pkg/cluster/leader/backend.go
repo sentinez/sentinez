@@ -34,8 +34,8 @@ const (
 
 var (
 	errNoConsul = errors.New(
-		"leader: clustered edge needs SENZ_CONSUL_URI to elect a leader")
-	errNoZone = errors.New("leader: SENZ_ZONE is required")
+		"leader: clustered edge needs SZ_CONSUL_URI to elect a leader")
+	errNoZone = errors.New("leader: SZ_ZONE is required")
 )
 
 // New returns the Elector of the zone of conf. A clustered edge is
@@ -54,14 +54,14 @@ func New(conf *settingpb.Config) (*Elector, error) {
 		return newElector(&standalone{node: node}), nil
 	}
 
-	uri := conf.Get(settingpb.Senz_SENZ_CONSUL_URI)
+	uri := conf.Get(settingpb.Sz_SZ_CONSUL_URI)
 	if uri == "" {
 		return nil, errNoConsul
 	}
 
 	// lowercased like the zone prefix of szrand ids, so SGN and sgn
 	// campaign on the same key
-	zone := strings.ToLower(conf.Get(settingpb.Senz_SENZ_ZONE))
+	zone := strings.ToLower(conf.Get(settingpb.Sz_SZ_ZONE))
 	if zone == "" {
 		return nil, errNoZone
 	}

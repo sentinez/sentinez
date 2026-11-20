@@ -27,7 +27,7 @@ import (
 // NewPgxPool create new pool connection for multiple query
 func NewPgxPool(conf *settingpb.Config) (*pgxpool.Pool, error) {
 	return pgxpool.New(
-		context.Background(), conf.Get(settingpb.Senz_SENZ_POSTGRES_URI))
+		context.Background(), conf.Get(settingpb.Sz_SZ_POSTGRES_URI))
 }
 
 // NewPgxConn create new connection for single query

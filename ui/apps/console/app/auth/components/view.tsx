@@ -64,7 +64,7 @@ export default function View({ children }: { children: ReactNode }) {
             className="flex items-center gap-1 font-bold [font-family:'Phudu',sans-serif]"
           >
             <div className="flex size-6 items-center justify-center rounded-md text-primary-foreground">
-              <Image width={600} height={600} src="/assets/sntz.png" alt="Image" loading="eager" />
+              <Image width={600} height={600} src="/assets/sz.png" alt="Image" loading="eager" />
             </div>
             <span className="text-[#0504aa] items-center text-xl">SENTINÉZ</span>
           </a>

@@ -89,7 +89,7 @@ export function IsLoading({ holiday }: { holiday?: Holiday }) {
               },
             }}
           >
-            <Image src="/assets/sntz.png" alt="Sentinez" width={70} height={70} loading="eager" />
+            <Image src="/assets/sz.png" alt="Sentinez" width={70} height={70} loading="eager" />
           </motion.div>
 
           <motion.span

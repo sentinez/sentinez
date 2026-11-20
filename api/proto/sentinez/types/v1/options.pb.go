@@ -370,7 +370,7 @@ type XMethod struct {
 	// holds the tenant or the resource of its audited calls: their owner is
 	// only the one the checks of their access record, if any. Without it,
 	// the request or the response of an audited method must hold a field
-	// x_field.audit marks, protoc-gen-go-senz fails otherwise.
+	// x_field.audit marks, protoc-gen-go-sz fails otherwise.
 	AuditNoOwner  bool `protobuf:"varint,5,opt,name=audit_no_owner,json=auditNoOwner,proto3" json:"audit_no_owner,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

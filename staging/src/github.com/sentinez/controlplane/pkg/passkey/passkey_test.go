@@ -38,7 +38,7 @@ func TestClientOrigins(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			conf := &settingpb.Config{Env: map[string]string{
-				settingpb.Senz_SENZ_CLIENT_ORIGIN.String(): tt.give,
+				settingpb.Sz_SZ_CLIENT_ORIGIN.String(): tt.give,
 			}}
 
 			assert.Equal(t, tt.want, ClientOrigins(conf))

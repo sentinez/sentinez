@@ -8,7 +8,7 @@ SZCENTRALDATA_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)
 sz.centraldata.build: SENTINEZ_OUT ?= centraldata
 sz.centraldata.build:
 	@go build -ldflags="-s -w" -o $(SZCENTRALDATA_DIR)/v1/bin/$(SENTINEZ_OUT) $(SZCENTRALDATA_DIR)/v1
-	@echo "[DONE]  senz: sz.centraldata.v1 ... ok"
+	@echo "[DONE]  sz: sz.centraldata.v1 ... ok"
 
 sz.centraldata.run: SENTINEZ_OUT ?= centraldata
 sz.centraldata.run: sz.centraldata.build

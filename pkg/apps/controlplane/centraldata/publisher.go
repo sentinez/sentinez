@@ -30,17 +30,17 @@ import (
 
 // errNoSyncKey the edges would refuse what is published without a key, and
 // a publisher without one would let anyone forge it.
-var errNoSyncKey = errors.New("SENZ_SYNC_KEY is required with " +
-	"SENZ_OLRIC_ADDRESSES")
+var errNoSyncKey = errors.New("SZ_SYNC_KEY is required with " +
+	"SZ_OLRIC_ADDRESSES")
 
 // NewPublisher returns the Publisher of the changes of centraldata to the
-// Olric cluster of the edges (SENZ_OLRIC_ADDRESSES), signed with
-// SENZ_SYNC_KEY. Without addresses it publishes nothing, which is for
+// Olric cluster of the edges (SZ_OLRIC_ADDRESSES), signed with
+// SZ_SYNC_KEY. Without addresses it publishes nothing, which is for
 // running centraldata alone.
 func NewPublisher(conf *settingpb.Config) (centraldatasvc.Publisher, error) {
-	addrs := splitList(conf.Get(settingpb.Senz_SENZ_OLRIC_ADDRESSES))
+	addrs := splitList(conf.Get(settingpb.Sz_SZ_OLRIC_ADDRESSES))
 	if len(addrs) == 0 {
-		szlog.Warnf("centraldata: no SENZ_OLRIC_ADDRESSES, " +
+		szlog.Warnf("centraldata: no SZ_OLRIC_ADDRESSES, " +
 			"the changes are not published")
 
 		return nopPublisher{}, nil
@@ -60,7 +60,7 @@ func NewPublisher(conf *settingpb.Config) (centraldatasvc.Publisher, error) {
 }
 
 func syncKey(conf *settingpb.Config) ([]byte, error) {
-	encoded := conf.Get(settingpb.Senz_SENZ_SYNC_KEY)
+	encoded := conf.Get(settingpb.Sz_SZ_SYNC_KEY)
 	if encoded == "" {
 		return nil, errNoSyncKey
 	}

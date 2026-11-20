@@ -4,7 +4,7 @@ set -euo pipefail
 NAME="${1:-core}"
 PREFIX="${NAME}"
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
-REMOTE="https://kyerans:${SENZ_GITHUB_TOKEN}@github.com/sentinez/${NAME}.git"
+REMOTE="https://kyerans:${SZ_GITHUB_TOKEN}@github.com/sentinez/${NAME}.git"
 REMOTE_SAFE="https://github.com/sentinez/${NAME}.git"
 
 git config --global pull.rebase false

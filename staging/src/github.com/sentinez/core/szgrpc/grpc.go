@@ -91,7 +91,7 @@ func (s *Server) Serve(conf *settingpb.Config, opts ...ServerOption) error {
 		opt(&s.option)
 	}
 
-	addr := conf.Get(settingpb.Senz_SENZ_ADDRESS)
+	addr := conf.Get(settingpb.Sz_SZ_ADDRESS)
 	if s.option.address != "" {
 		addr = s.option.address
 	}

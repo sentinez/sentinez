@@ -36,12 +36,12 @@ const (
 )
 
 // NewDefaultService returns the centraldata service backed by memory,
-// streaming the tables named by SENZ_SYNC_TABLES (all those synced by
+// streaming the tables named by SZ_SYNC_TABLES (all those synced by
 // default).
 func NewDefaultService(
 	conf *settingpb.Config,
 ) (*centraldatasvc.CentralDataService, error) {
-	tables, err := pgrepo.Parse(conf.Get(settingpb.Senz_SENZ_SYNC_TABLES))
+	tables, err := pgrepo.Parse(conf.Get(settingpb.Sz_SZ_SYNC_TABLES))
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +68,7 @@ func NewSyncer(conf *settingpb.Config,
 	service *centraldatasvc.CentralDataService,
 	publisher centraldatasvc.Publisher,
 ) (*centraldatasvc.Syncer, error) {
-	if conf.Get(settingpb.Senz_SENZ_POSTGRES_URI) == "" {
+	if conf.Get(settingpb.Sz_SZ_POSTGRES_URI) == "" {
 		return nil, nil
 	}
 

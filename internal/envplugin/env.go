@@ -47,7 +47,7 @@ func (e *Env) Store() *memory.MemStore {
 	return e.mem
 }
 
-// SecretKey returns the base64 encoded SENZ_SECRET_KEY.
+// SecretKey returns the base64 encoded SZ_SECRET_KEY.
 func (e *Env) SecretKey() string {
 	return e.opts.SecretKey
 }

@@ -31,7 +31,7 @@ var (
 
 // LoadEnv returns the environment.
 func LoadEnv(
-	envFile string, keys ...settingpb.Senz,
+	envFile string, keys ...settingpb.Sz,
 ) (map[string]string, error) {
 	if envFile != "" {
 		if err := godotenv.Load(envFile); err != nil {
@@ -48,7 +48,7 @@ func LoadEnv(
 			return
 		}
 
-		for key := range settingpb.Senz_value {
+		for key := range settingpb.Sz_value {
 			_envConf[key] = os.Getenv(key)
 		}
 	})
@@ -56,7 +56,7 @@ func LoadEnv(
 	return _envConf, nil
 }
 
-func GetEnv(key settingpb.Senz) string {
+func GetEnv(key settingpb.Sz) string {
 	_lock.Lock()
 	defer _lock.Unlock()
 
@@ -68,7 +68,7 @@ func GetEnv(key settingpb.Senz) string {
 	return ""
 }
 
-func SetEnv(key settingpb.Senz, value string) {
+func SetEnv(key settingpb.Sz, value string) {
 	_lock.Lock()
 	defer _lock.Unlock()
 

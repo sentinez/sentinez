@@ -42,7 +42,7 @@ func Register(ctx context.Context, name, address string,
 
 	portInt, _ := strconv.Atoi(port)
 	dcvr := discovery.GetDiscovery(
-		&options.Options{ConsulURL: conf.Get(settingpb.Senz_SENZ_CONSUL_URI)})
+		&options.Options{ConsulURL: conf.Get(settingpb.Sz_SZ_CONSUL_URI)})
 
 	var (
 		serviceId = ""

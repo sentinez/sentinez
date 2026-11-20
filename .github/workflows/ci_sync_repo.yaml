@@ -22,7 +22,7 @@ jobs:
 
       - name: Sync sentinez/core
         env:
-          SENZ_GITHUB_TOKEN: ${{ secrets.SENZ_GITHUB_TOKEN }}
+          SZ_GITHUB_TOKEN: ${{ secrets.SZ_GITHUB_TOKEN }}
         run: bash hack/ci/action_sync.sh core
 
   pkg:
@@ -37,7 +37,7 @@ jobs:
 
       - name: Sync sentinez/pkg
         env:
-          SENZ_GITHUB_TOKEN: ${{ secrets.SENZ_GITHUB_TOKEN }}
+          SZ_GITHUB_TOKEN: ${{ secrets.SZ_GITHUB_TOKEN }}
         run: bash hack/ci/action_sync.sh pkg
 
   tools:
@@ -52,7 +52,7 @@ jobs:
 
       - name: Sync sentinez/tools
         env:
-          SENZ_GITHUB_TOKEN: ${{ secrets.SENZ_GITHUB_TOKEN }}
+          SZ_GITHUB_TOKEN: ${{ secrets.SZ_GITHUB_TOKEN }}
         run: bash hack/ci/action_sync.sh tools
 
   contrib:
@@ -67,7 +67,7 @@ jobs:
 
       - name: Sync sentinez/contrib
         env:
-          SENZ_GITHUB_TOKEN: ${{ secrets.SENZ_GITHUB_TOKEN }}
+          SZ_GITHUB_TOKEN: ${{ secrets.SZ_GITHUB_TOKEN }}
         run: bash hack/ci/action_sync.sh contrib
 
   controlplane:
@@ -82,7 +82,7 @@ jobs:
 
       - name: Sync sentinez/controlplane
         env:
-          SENZ_GITHUB_TOKEN: ${{ secrets.SENZ_GITHUB_TOKEN }}
+          SZ_GITHUB_TOKEN: ${{ secrets.SZ_GITHUB_TOKEN }}
         run: bash hack/ci/action_sync.sh controlplane
 
   bpf:
@@ -97,7 +97,7 @@ jobs:
 
       - name: Sync sentinez/bpf
         env:
-          SENZ_GITHUB_TOKEN: ${{ secrets.SENZ_GITHUB_TOKEN }}
+          SZ_GITHUB_TOKEN: ${{ secrets.SZ_GITHUB_TOKEN }}
         run: bash hack/ci/action_sync.sh bpf
 
   mcp:
@@ -112,7 +112,7 @@ jobs:
 
       - name: Sync sentinez/mcp
         env:
-          SENZ_GITHUB_TOKEN: ${{ secrets.SENZ_GITHUB_TOKEN }}
+          SZ_GITHUB_TOKEN: ${{ secrets.SZ_GITHUB_TOKEN }}
         run: bash hack/ci/action_sync.sh mcp
 
   go-import:
@@ -127,7 +127,7 @@ jobs:
 
       - name: Sync sentinez/go-import
         env:
-          SENZ_GITHUB_TOKEN: ${{ secrets.SENZ_GITHUB_TOKEN }}
+          SZ_GITHUB_TOKEN: ${{ secrets.SZ_GITHUB_TOKEN }}
         run: bash hack/ci/action_sync.sh go-import
 
   scripting:
@@ -142,5 +142,5 @@ jobs:
 
       - name: Sync sentinez/scripting
         env:
-          SENZ_GITHUB_TOKEN: ${{ secrets.SENZ_GITHUB_TOKEN }}
+          SZ_GITHUB_TOKEN: ${{ secrets.SZ_GITHUB_TOKEN }}
         run: bash hack/ci/action_sync.sh scripting

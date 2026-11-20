@@ -79,7 +79,7 @@ func tokenOf(t *testing.T, plane typepb.ControlPlane) string {
 	t.Helper()
 
 	secret := base64.StdEncoding.EncodeToString([]byte("congchualunglinh"))
-	szconfig.SetEnv(settingpb.Senz_SENZ_SECRET_KEY, secret)
+	szconfig.SetEnv(settingpb.Sz_SZ_SECRET_KEY, secret)
 
 	token, err := crypto.TokenGenerator(&typepb.Context{
 		Name:         "tester",

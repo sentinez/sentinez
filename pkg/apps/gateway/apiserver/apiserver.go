@@ -95,7 +95,7 @@ func (srv *Server) Start(ctx context.Context) error {
 	flag := srv.conf.GetFlag()
 	return srv.server.ListenAndServe(
 		srv.conf.GetDefault(
-			settingpb.Senz_SENZ_ADDRESS, defaults.APIServerAddress),
+			settingpb.Sz_SZ_ADDRESS, defaults.APIServerAddress),
 		szhttp.WithCertificate(flag.GetCertFile(), flag.GetCertKeyFile()),
 	)
 	// for DEBUG:

@@ -27,10 +27,10 @@ import (
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
 
-// newSealer the sealer of SENZ_DATA_KEY, nil when it is not set: the edge
+// newSealer the sealer of SZ_DATA_KEY, nil when it is not set: the edge
 // then serves no certificate of centraldata.
 func newSealer(conf *settingpb.Config) (*crypto.Sealer, error) {
-	key := conf.Get(settingpb.Senz_SENZ_DATA_KEY)
+	key := conf.Get(settingpb.Sz_SZ_DATA_KEY)
 	if key == "" {
 		return nil, nil
 	}

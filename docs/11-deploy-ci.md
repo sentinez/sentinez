@@ -18,7 +18,7 @@ Common pattern: a `golang:1.27.1-alpine` stage (CGO off, `go mod tidy`,
 | Image | Run command |
 |---|---|
 | apiserver | `docker-entrypoint.sh`: `--log_level info --mode prod --env_file ""` (variables come from the container environment) |
-| edge | `docker-entrypoint.sh`: adds `--proxy_config ./proxy.yaml`, `--engine quic`, certs in `/etc/senz/ssl/{certs,private}`. The image **bakes in** `proxy.yaml` and the cert/key pair from `cmd/szedge/v1` |
+| edge | `docker-entrypoint.sh`: adds `--proxy_config ./proxy.yaml`, `--engine quic`, certs in `/etc/sz/ssl/{certs,private}`. The image **bakes in** `proxy.yaml` and the cert/key pair from `cmd/szedge/v1` |
 | greeter, centraldata | Run `/bin/main` |
 
 ## 11.2 Docker Compose
@@ -30,7 +30,7 @@ Common pattern: a `golang:1.27.1-alpine` stage (CGO off, `go mod tidy`,
 |---|---|---|---|
 | `sentinez.postgres` | `postgres:16` | 5432 | user/pass `root/root`, DB `sentinez`, volume `.volume/postgres` |
 | `sentinez.consul` | `hashicorp/consul` | 8500, 8600/udp | `agent -dev` |
-| `sentinez.gateway.apiserver` | `sentinez/apiserver` | 8080 | `env_file: cmd/szapiserver/.env`, overrides `SENZ_POSTGRES_URI` |
+| `sentinez.gateway.apiserver` | `sentinez/apiserver` | 8080 | `env_file: cmd/szapiserver/.env`, overrides `SZ_POSTGRES_URI` |
 | `sentinez.dmz.edge` | `sentinez/edge` | 7443/tcp, 7443/udp (HTTP/3), 6060 (pprof) | `env_file: cmd/szedge/v1/.env` |
 
 Redis, TimescaleDB and NATS are defined but commented out. There are also
@@ -66,7 +66,7 @@ Modules in `staging/src/github.com/sentinez/<name>` are synced to
   `<name>`: `git subtree split --prefix=staging/src/github.com/sentinez/<name>`,
   merges the remote history with the `ours` strategy, then
   `git push --force` to the branch of the same name. Requires the
-  `SENZ_GITHUB_TOKEN` secret.
+  `SZ_GITHUB_TOKEN` secret.
 
 Because the root module points into `staging/` with `replace`, changes in
 staging take effect at the root immediately; after changing a staging

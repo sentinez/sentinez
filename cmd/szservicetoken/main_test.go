@@ -26,7 +26,7 @@ import (
 )
 
 func TestRun(t *testing.T) {
-	t.Setenv("SENZ_SERVICE_KEY",
+	t.Setenv("SZ_SERVICE_KEY",
 		base64.StdEncoding.EncodeToString([]byte("service-secret")))
 	var out bytes.Buffer
 
@@ -57,7 +57,7 @@ func TestRunRejects(t *testing.T) {
 }
 
 func TestRunWithoutKey(t *testing.T) {
-	t.Setenv("SENZ_SERVICE_KEY", "")
+	t.Setenv("SZ_SERVICE_KEY", "")
 
 	err := run([]string{"-name", "edge-1"}, &bytes.Buffer{})
 

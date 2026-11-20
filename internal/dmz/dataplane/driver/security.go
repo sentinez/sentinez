@@ -36,7 +36,7 @@ func (ctx *Context) BlockCIDR(cidr string) error {
 	}
 
 	ones, _ := ipNet.Mask.Size()
-	key := sentinezbpf.SenzIpLpmKey{
+	key := sentinezbpf.SzIpLpmKey{
 		Prefixlen: uint32(ones),
 		Ip:        binary.NativeEndian.Uint32(ip4),
 	}

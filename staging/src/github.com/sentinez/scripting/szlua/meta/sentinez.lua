@@ -8,13 +8,13 @@
 -- A hook is a global function, of any name, preceded by one
 -- ---@stage <phase>/<stage> line per stage and phase it runs at:
 --
---   ---@stage before/sec_rule
---   ---@stage before/sec_ruleset
+--   ---@stage http:request/sec_rule
+--   ---@stage http:request/sec_ruleset
 --   ---@param ctx sz.Context
 --   function deny_debug(ctx) end
 --
--- The stages are sz.Stage. before: the hook may answer the request with
--- ctx:respond, which skips the stage. after: it runs once the response is
+-- The stages are sz.Stage. http:request: the hook may answer the request with
+-- ctx:respond, which skips the stage. http:response: it runs once the response is
 -- written, it only observes. The hooks of a stage run in source order.
 
 ---The stages of the edge chain a hook may annotate, in chain order. The
@@ -88,7 +88,7 @@ function Context:set_header(key, value) end
 ---@param value string
 function Context:set_response_header(key, value) end
 
----Answers the request, ending it: the stage is skipped. In an after
+---Answers the request, ending it: the stage is skipped. In an http:response
 ---hook it raises an error, the response being written already.
 ---@param status integer 100 to 599
 ---@param body? string

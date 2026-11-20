@@ -65,4 +65,4 @@ xoá mục tương ứng.
   của user, và lỗi nếu chưa có account nào mang email đó.
 - Session passkey và registration đang chờ nằm trong bộ nhớ tiến trình: mất
   khi restart và không dùng chung giữa các bản sao apiserver.
-- `SENZ_TIMESCALE_URI`, `SENZ_CLICKHOUSE_URI` khai báo nhưng chưa dùng.
+- `SZ_TIMESCALE_URI`, `SZ_CLICKHOUSE_URI` khai báo nhưng chưa dùng.

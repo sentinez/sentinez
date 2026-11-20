@@ -21,7 +21,7 @@ import (
 	"github.com/sentinez/core/szcrs"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/chains"
-	"github.com/sentinez/pkg/bytesconv"
+	"github.com/sentinez/core/szruleset"
 	"github.com/sentinez/pkg/szlog"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
@@ -34,25 +34,25 @@ import (
 const Ruleset = "RST"
 
 var (
-	_ chains.Plugin                      = (*Rulesets)(nil)
-	_ chains.Provisioner[*envplugin.Env] = (*Rulesets)(nil)
+	_ chains.Plugin                      = (*SecRuleset)(nil)
+	_ chains.Provisioner[*envplugin.Env] = (*SecRuleset)(nil)
 )
 
-type Rulesets struct {
+type SecRuleset struct {
 	log   szlog.LogCloser
 	store *secrulesets.Rulesets
 }
 
-func (*Rulesets) ID() string { return Ruleset }
+func (*SecRuleset) ID() string { return Ruleset }
 
-func (rs *Rulesets) Provision(env *envplugin.Env) error {
+func (rs *SecRuleset) Provision(env *envplugin.Env) error {
 	rs.store = env.Store().Rulesets()
 	rs.log = env.Logger(typepb.LogType_LOG_TYPE_SECRULESET)
 	return nil
 }
 
 // nolint:funlen
-func (rs *Rulesets) Handle(ctx szhttp.Context, next chains.Handler) error {
+func (rs *SecRuleset) Handle(ctx szhttp.Context, next chains.Handler) error {
 	// szlog.Debug("[edge] >>> visit WAF")
 
 	waf, ok := rs.store.LoadContext(ctx)
@@ -60,7 +60,7 @@ func (rs *Rulesets) Handle(ctx szhttp.Context, next chains.Handler) error {
 		return next.Handle(ctx)
 	}
 
-	ruleset := szcrs.NewRulesets(ctx, waf)
+	ruleset := szruleset.NewRulesets(ctx, waf)
 	defer func() {
 		ruleset.Final(func() { rs.capture(ctx, ruleset) })
 		ruleset.Release()
@@ -90,7 +90,7 @@ func (rs *Rulesets) Handle(ctx szhttp.Context, next chains.Handler) error {
 // capture logs the rules of an interrupted request: DENY when the engine
 // blocked it, LOG when the engine is DetectionOnly and would have blocked
 // it. Only DetectionOnly reports an interruption it did not perform.
-func (rs *Rulesets) capture(ctx szhttp.Context, ruleset *szcrs.Rulesets) {
+func (rs *SecRuleset) capture(ctx szhttp.Context, ruleset *szruleset.Rulesets) {
 	matched, it, blocked := ruleset.Matched()
 	if it == nil {
 		return
@@ -104,16 +104,17 @@ func (rs *Rulesets) capture(ctx szhttp.Context, ruleset *szcrs.Rulesets) {
 		event.Behavior = rulepb.RuleBehavior_RULE_BEHAVIOR_DENY
 	}
 
-	inbound, outbound := ruleset.AnomalyScore()
+	inbound, outbound := szcrs.AnomalyScore(ruleset)
 	event.TotalScore = int32(inbound + outbound)
 	event.Service = rulepb.RuleService_RULE_SERVICE_SECRULESET
 	event.MatchedTime = ctx.RequestTime().UnixMilli()
 
+	// exported after the request: Keep copies what does not outlive it
 	event.RequestId = ctx.RequestId()
-	event.RequestDomain = bytesconv.B2s(ctx.Host())
-	event.RequestPath = bytesconv.B2s(ctx.URI())
-	event.RequestIp = bytesconv.B2s(ctx.RequestIP())
-	event.RequestQuery = bytesconv.B2s(ctx.QueryStr())
+	event.RequestDomain = szhttp.Keep(ctx, ctx.Host())
+	event.RequestPath = szhttp.Keep(ctx, ctx.URI())
+	event.RequestIp = szhttp.Keep(ctx, ctx.RequestIP())
+	event.RequestQuery = szhttp.Keep(ctx, ctx.QueryStr())
 	event.RequestScheme = ctx.Scheme()
 	event.ResourceId = ctx.ResourceId()
 	event.TenantId = ctx.TenantId()

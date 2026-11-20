@@ -60,7 +60,9 @@ func NewContext(ctx context.Context, c *app.RequestContext) *Context {
 	transport := szcontext.GetTransport(ctx)
 	if transport != nil {
 		fingerprint := ja4.Get(transport.GetConnId())
-		szlog.Debugf("context: found fingerprint: %s", fingerprint)
+		if szlog.Enabled(szlog.LevelDebug) {
+			szlog.Debugf("context: found fingerprint: %s", fingerprint)
+		}
 		hctx.ectx.Request.Fingerprint = fingerprint
 	}
 

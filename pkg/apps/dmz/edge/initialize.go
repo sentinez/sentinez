@@ -41,7 +41,7 @@ func (s *RevProxyServer) initialize() error {
 
 	chain, err := http.NewHandler(s.memstore,
 		option.WithExporter(s.logExporter),
-		option.WithSecretKey(s.conf.Get(settingpb.Senz_SENZ_SECRET_KEY)),
+		option.WithSecretKey(s.conf.Get(settingpb.Sz_SZ_SECRET_KEY)),
 	)
 	if err != nil {
 		return fmt.Errorf("build chain: %w", err)

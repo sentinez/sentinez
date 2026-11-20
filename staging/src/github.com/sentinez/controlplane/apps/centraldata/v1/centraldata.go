@@ -39,7 +39,7 @@ type CentralData struct {
 
 // NewService creates the centraldata gRPC server. publisher sends the
 // changes of the tables to the edges. The server requires the client
-// certificate of the internal CA when SENZ_TLS_* are set.
+// certificate of the internal CA when SZ_TLS_* are set.
 // opts are the options of the gRPC server, at least the authorization
 // of interceptor.ServerOptions: without it every method is open.
 func NewService(conf *settingpb.Config, publisher centraldatasvc.Publisher,

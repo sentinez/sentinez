@@ -215,7 +215,7 @@ export interface Tls {
 
 /**
  * Certificate one certificate and its private key, if any, both sealed
- * with SENZ_DATA_KEY and bound to id: the cluster never holds them in
+ * with SZ_DATA_KEY and bound to id: the cluster never holds them in
  * clear, each edge opens them with its own key.
  */
 export interface Certificate {

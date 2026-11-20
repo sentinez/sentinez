@@ -67,4 +67,4 @@ Remove an entry once it is fixed.
   user's accounts, and fails unless some account already has that email.
 - Passkey sessions and pending registrations are kept in process memory:
   they are lost on restart and not shared between apiserver replicas.
-- `SENZ_TIMESCALE_URI`, `SENZ_CLICKHOUSE_URI` are declared but unused.
+- `SZ_TIMESCALE_URI`, `SZ_CLICKHOUSE_URI` are declared but unused.

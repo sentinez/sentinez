@@ -134,7 +134,7 @@ type MemStore struct {
 	cdnRules     *cdnrules.Rule
 	certificates *certificates.Certificates
 	// sealer opens the certificates of the settings; nil without
-	// SENZ_DATA_KEY
+	// SZ_DATA_KEY
 	sealer *crypto.Sealer
 }
 

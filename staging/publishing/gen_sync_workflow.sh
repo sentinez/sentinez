@@ -39,7 +39,7 @@ HEADER
 
       - name: Sync sentinez/${n}
         env:
-          SENZ_GITHUB_TOKEN: \${{ secrets.SENZ_GITHUB_TOKEN }}
+          SZ_GITHUB_TOKEN: \${{ secrets.SZ_GITHUB_TOKEN }}
         run: bash hack/ci/action_sync.sh ${n}
 JOB
     done

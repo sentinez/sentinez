@@ -9,7 +9,7 @@ description: Instructions for creating a base handler package following the stan
 
 **PROJECT CONVENTIONS (enforced by `.golangci.yaml`):** every Go file starts with the Apache 2.0 header (`// Copyright 2026 Duc-Hung Ho.`, copy it from any existing file); lines are at most 80 columns (tab = 4) and functions at most 35 lines (`funlen`; use `// nolint:funlen` only when unavoidable, as the iam package does). Verify with `cd staging/src/github.com/sentinez/controlplane && golangci-lint run`.
 
-**DOMAIN DEFINITION:** The protobuf definitions for the domain live in the `api` module at `api/proto/sentinez/apps/<domain>/v1/` (`<domain>.proto` for the service and `model.proto` for models, e.g. `apps/iam/v1/iam.proto`). Review them to understand the service interface, endpoints, and models. Generated code (`*.<domain>pb.go`, `*_grpc.<domain>pb.go`, `*_senz.<domain>pb.go`, `*.<domain>pb.gw.go`, `*.<domain>pb.validate.go`) is produced by that directory's `generate.sh` / `cd api && buf generate`; never edit it by hand. Proto packages are imported as `github.com/sentinez/sentinez/api/proto/sentinez/apps/<domain>/v1` with alias `<domain>pb`. The gRPC service name comes from the proto (e.g. `IdentityAccessManagementService`), so use the real generated names rather than `<Domain>Service` literally.
+**DOMAIN DEFINITION:** The protobuf definitions for the domain live in the `api` module at `api/proto/sentinez/apps/<domain>/v1/` (`<domain>.proto` for the service and `model.proto` for models, e.g. `apps/iam/v1/iam.proto`). Review them to understand the service interface, endpoints, and models. Generated code (`*.<domain>pb.go`, `*_grpc.<domain>pb.go`, `*_sz.<domain>pb.go`, `*.<domain>pb.gw.go`, `*.<domain>pb.validate.go`) is produced by that directory's `generate.sh` / `cd api && buf generate`; never edit it by hand. Proto packages are imported as `github.com/sentinez/sentinez/api/proto/sentinez/apps/<domain>/v1` with alias `<domain>pb`. The gRPC service name comes from the proto (e.g. `IdentityAccessManagementService`), so use the real generated names rather than `<Domain>Service` literally.
 
 When asked to create a new handler for a given functional domain, you must follow the standard handler pattern established in the `sentinez` project (such as in `github.com/sentinez/controlplane/iam/v1/handler/iam.go`). Most IAM methods only delegate (`return iam.service.X(ctx, req)`); add logging and the `headers.GetAuth` / `ss.Check` permission gate only for methods that need them. The handler acts as the gRPC server implementation that handles incoming requests, performs authorization checks, logs activities, and delegates business logic to the underlying service package.
 
@@ -80,7 +80,7 @@ func (hdl *<Domain>Handler) <MethodName>(ctx context.Context,
 		return nil, err
 	}
 	
-	// The permission getter is generated into the *_senz.pb.go file, e.g.
+	// The permission getter is generated into the *_sz.pb.go file, e.g.
 	// iampb.GetIdentityAccessManagementServiceListUsers().
 	err = ss.Check(<domain>pb.Get<Service><MethodName>())
 	if err != nil {

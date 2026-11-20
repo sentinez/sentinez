@@ -141,11 +141,12 @@ func newSecRuleEvent(
 	event.Service = service
 	event.MatchedTime = ctx.RequestTime().UnixMilli()
 
+	// exported after the request: Keep copies what does not outlive it
 	event.RequestId = ctx.RequestId()
-	event.RequestDomain = bytesconv.B2s(ctx.Host())
-	event.RequestPath = bytesconv.B2s(ctx.URI())
-	event.RequestIp = bytesconv.B2s(ctx.RequestIP())
-	event.RequestQuery = bytesconv.B2s(ctx.QueryStr())
+	event.RequestDomain = szhttp.Keep(ctx, ctx.Host())
+	event.RequestPath = szhttp.Keep(ctx, ctx.URI())
+	event.RequestIp = szhttp.Keep(ctx, ctx.RequestIP())
+	event.RequestQuery = szhttp.Keep(ctx, ctx.QueryStr())
 	event.RequestScheme = ctx.Scheme()
 	event.ResourceId = ctx.ResourceId()
 	event.TenantId = ctx.TenantId()

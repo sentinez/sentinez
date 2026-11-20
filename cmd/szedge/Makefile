@@ -8,7 +8,7 @@ SZEDGE_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 sz.edge.build: SENTINEZ_OUT ?= edge
 sz.edge.build:
 	@go build -tags "$(SZ_GOTAGS)" -ldflags="-s -w" -o $(SZEDGE_DIR)/v1/bin/$(SENTINEZ_OUT) $(SZEDGE_DIR)/v1
-	@echo "[DONE]  senz: sz.edge.v1 ... ok"
+	@echo "[DONE]  sz: sz.edge.v1 ... ok"
 
 sz.edge.run: SENTINEZ_OUT ?= edge
 sz.edge.run: sz.edge.build

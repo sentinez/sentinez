@@ -191,8 +191,8 @@ func TestElectorKeepsLeadingAfterTaskDone(t *testing.T) {
 // clusteredEnv the env of a clustered edge, with extra.
 func clusteredEnv(extra map[string]string) map[string]string {
 	env := map[string]string{
-		"SENZ_MEMBERSHIP_ADDRESS": "edge-02:7777",
-		"SENZ_DISCOVERY_ADDRESS":  "0.0.0.0:7777",
+		"SZ_MEMBERSHIP_ADDRESS": "edge-02:7777",
+		"SZ_DISCOVERY_ADDRESS":  "0.0.0.0:7777",
 	}
 	maps.Copy(env, extra)
 
@@ -213,7 +213,7 @@ func TestNewFails(t *testing.T) {
 		{
 			name: "clustered without zone",
 			giveEnv: clusteredEnv(map[string]string{
-				"SENZ_CONSUL_URI": "consul:8500",
+				"SZ_CONSUL_URI": "consul:8500",
 			}),
 			wantErr: errNoZone,
 		},
@@ -239,14 +239,14 @@ func TestNewBackend(t *testing.T) {
 		{
 			name: "lone edge with consul",
 			giveEnv: map[string]string{
-				"SENZ_CONSUL_URI": "consul:8500", "SENZ_ZONE": "SGN",
+				"SZ_CONSUL_URI": "consul:8500", "SZ_ZONE": "SGN",
 			},
 			wantStandalone: true,
 		},
 		{
 			name: "clustered",
 			giveEnv: clusteredEnv(map[string]string{
-				"SENZ_CONSUL_URI": "consul:8500", "SENZ_ZONE": "SGN",
+				"SZ_CONSUL_URI": "consul:8500", "SZ_ZONE": "SGN",
 			}),
 		},
 	}

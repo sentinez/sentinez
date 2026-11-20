@@ -27,7 +27,7 @@ type Options struct {
 	Named    string
 	Level    szlog.Level
 	Exporter *szsdklog.Exporter
-	// SecretKey is base64 encoded (SENZ_SECRET_KEY).
+	// SecretKey is base64 encoded (SZ_SECRET_KEY).
 	SecretKey string
 }
 

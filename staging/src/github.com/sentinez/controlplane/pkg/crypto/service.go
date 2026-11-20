@@ -31,14 +31,14 @@ const (
 	_serviceAudience = "sentinez.service"
 )
 
-// errServiceKey the SENZ_SERVICE_KEY is not set.
+// errServiceKey the SZ_SERVICE_KEY is not set.
 var errServiceKey = errors.New("crypto: service key is empty")
 
 // ServiceTokenGenerator signs a token of the service name, valid for ttl,
-// with SENZ_SERVICE_KEY. Only the operator tooling signs them: the services
+// with SZ_SERVICE_KEY. Only the operator tooling signs them: the services
 // holding a token cannot make another.
 func ServiceTokenGenerator(name string, ttl time.Duration) (string, error) {
-	key := szconfig.GetEnv(settingpb.Senz_SENZ_SERVICE_KEY)
+	key := szconfig.GetEnv(settingpb.Sz_SZ_SERVICE_KEY)
 	if key == "" {
 		return "", errServiceKey
 	}
@@ -53,9 +53,9 @@ func ServiceTokenGenerator(name string, ttl time.Duration) (string, error) {
 }
 
 // ServiceTokenVerifier returns the service of a bearer token signed with
-// SENZ_SERVICE_KEY. It fails for a token of any other control plane.
+// SZ_SERVICE_KEY. It fails for a token of any other control plane.
 func ServiceTokenVerifier(bearerToken string) (*typepb.Context, bool) {
-	key := szconfig.GetEnv(settingpb.Senz_SENZ_SERVICE_KEY)
+	key := szconfig.GetEnv(settingpb.Sz_SZ_SERVICE_KEY)
 	if key == "" {
 		return nil, false
 	}

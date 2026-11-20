@@ -14,26 +14,26 @@ precedes, whatever its name, to a stage of the edge handler chain, as
 `SEC("fentry/...")` does in eBPF:
 
 ```lua
----@stage before/sec_rule
----@stage before/sec_ruleset
+---@stage http:request/sec_rule
+---@stage http:request/sec_ruleset
 ---@param ctx sz.Context
 function deny_debug(ctx)
   if ctx:header("X-Debug") == "1" then
-    ctx:respond(403, "no")      -- ends the request, before only
+    ctx:respond(403, "no")      -- ends the request, http:request only
   end
 end
 
----@stage before/router
----@stage after/router
+---@stage http:request/router
+---@stage http:response/router
 ---@param ctx sz.Context
 function tag(ctx)
   ctx:set_header("X-Edge", "sentinez")
 end
 ```
 
-- `before/<stage>`: runs before the stage; `ctx:respond` ends the request
+- `http:request/<stage>`: runs before the stage; `ctx:respond` ends the request
   there and the stage is skipped.
-- `after/<stage>`: runs once the stage, and the ones after it, returned.
+- `http:response/<stage>`: runs once the stage, and the ones after it, returned.
   The response is written: it only observes.
 - One stage and phase per line; a function may have several lines.
 - The lines must precede a global function (`function name(ctx)`), other
@@ -80,7 +80,7 @@ and the name of the script: the arguments, joined by tabs like `print`.
 `log` table passed as first argument is left out.
 
 ```lua
----@stage before/sec_rule
+---@stage http:request/sec_rule
 function audit(ctx)
   log.debug("path", ctx:path(), "ip", ctx:ip())
   if ctx:header("X-Debug") == "1" then

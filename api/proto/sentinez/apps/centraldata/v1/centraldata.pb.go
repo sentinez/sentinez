@@ -433,7 +433,7 @@ func (x *Change) GetEpoch() string {
 }
 
 // Envelope is what centraldata publishes on the Olric channel: a Change as
-// marshaled, and its HMAC-SHA256 under SENZ_SYNC_KEY, as the channel does
+// marshaled, and its HMAC-SHA256 under SZ_SYNC_KEY, as the channel does
 // not authenticate who publishes.
 type Envelope struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`

@@ -21,12 +21,12 @@ Mỗi app có fx container riêng, nên các app trong cùng process có thể c
 provide một kiểu (ví dụ `config.Config`). Hook dừng có timeout 15 s. Ở mode
 khác `dev`, log của fx bị tắt (`fx.NopLogger`).
 
-OTLP: log hệ thống đẩy về `SENZ_OTLP_INTERNAL_ENDPOINT`, không đặt thì
+OTLP: log hệ thống đẩy về `SZ_OTLP_INTERNAL_ENDPOINT`, không đặt thì
 không push; service name = `meta.service_key`. Exporter được shutdown sau khi
 mọi app đã dừng. Log traffic của edge (node `LOG` trong func chains) được
-đẩy thẳng vào Kafka khi đặt `SENZ_KAFKA_BROKERS` (event proto thô, mỗi log
+đẩy thẳng vào Kafka khi đặt `SZ_KAFKA_BROKERS` (event proto thô, mỗi log
 type một topic, xem `pkg/szkafka`), nếu không thì qua provider OTLP riêng trên
-`SENZ_OTLP_EXTERNAL_ENDPOINT`; exporter do edge server sở hữu và flush trong
+`SZ_OTLP_EXTERNAL_ENDPOINT`; exporter do edge server sở hữu và flush trong
 `Shutdown`. Không đặt biến nào thì không push. Endpoint `https://` dùng TLS.
 
 ## 9.2 `core/szhttp` và `core/szhttp/chains`
@@ -57,7 +57,7 @@ type một topic, xem `pkg/szkafka`), nếu không thì qua provider OTLP riêng
 
 - `szgrpc.New(opts...)`: `WithXMeta`, `WithDiscorvery(bool)`,
   `WithGRPCServerOption(...)`. `Serve(conf, opts...)` listen TCP
-  `SENZ_ADDRESS` (`WithAddress(addr)` ghi đè), in banner, tuỳ chọn đăng ký
+  `SZ_ADDRESS` (`WithAddress(addr)` ghi đè), in banner, tuỳ chọn đăng ký
   địa chỉ listen với Consul. `BufServe(bufLis)` phục vụ qua bufconn.
   `Shutdown` = `GracefulStop`.
 - `core/szgrpc/grpcgateway`: xem [06-gateway.md](06-gateway.md).
@@ -66,7 +66,7 @@ type một topic, xem `pkg/szkafka`), nếu không thì qua provider OTLP riêng
 
 | Gói | Nội dung |
 |---|---|
-| `core` | Hằng `Name` (`sentinez/1.0`, dùng làm header `Server`), `Code` (`SENZ`), `Version`, prefix request ID, `EnvPattern` |
+| `core` | Hằng `Name` (`sentinez/1.0`, dùng làm header `Server`), `Code` (`SZ`), `Version`, prefix request ID, `EnvPattern` |
 | `core/szcontext` | `WithTransportValue` / `GetTransport` cho `netpb.Transport` |
 | `core/szcrypto/certs` | `Parse` (chứng chỉ PEM đầu tiên), `Pick(host, pairs, pool)` / `PickClient(pairs, pool)` (cặp khoá đầu tiên còn hạn, cho host hoặc làm chứng chỉ client, kèm chain các issuer; `ErrNoValidCertificate`), `ChainOf`, `IsSelfSigned` |
 | `core/szcrypto/pow` | Thử thách proof-of-work |
@@ -80,7 +80,7 @@ type một topic, xem `pkg/szkafka`), nếu không thì qua provider OTLP riêng
 | `core/szlimiter`, `core/szrule`, `core/szcrs`, `core/szmodsec` | Xem [04-rule-engine.md](04-rule-engine.md) |
 | `pkg/sztracer` | `StageError{Stage, Elapsed, Err}`, `Origin(err)` |
 | `pkg/szqueue` | `Queue{}` rỗng (cho waiting room) |
-| `pkg/szsdklog` | `New(conf, opts...)`: `Exporter` cho log traffic của edge: Kafka trên `SENZ_KAFKA_BROKERS`, không thì OTLP trên `SENZ_OTLP_EXTERNAL_ENDPOINT`, nil khi không đặt biến nào; `opts` (`szkafka.ConfigOption`) cấu hình producer |
+| `pkg/szsdklog` | `New(conf, opts...)`: `Exporter` cho log traffic của edge: Kafka trên `SZ_KAFKA_BROKERS`, không thì OTLP trên `SZ_OTLP_EXTERNAL_ENDPOINT`, nil khi không đặt biến nào; `opts` (`szkafka.ConfigOption`) cấu hình producer |
 | `pkg/szkafka` | Producer Kafka cho event của edge và consumer theo batch, xem [`szkafka`](#szkafka) |
 
 ## 9.5 `pkg`
@@ -88,7 +88,7 @@ type một topic, xem `pkg/szkafka`), nếu không thì qua provider OTLP riêng
 | Gói | Nội dung |
 |---|---|
 | `szlog` | Logging (chi tiết dưới) |
-| `szconfig` | `LoadEnv(file, keys...)` nạp `.env` bằng godotenv rồi chụp giá trị `SENZ_*` vào map toàn cục; `GetEnv`/`SetEnv` có mutex |
+| `szconfig` | `LoadEnv(file, keys...)` nạp `.env` bằng godotenv rồi chụp giá trị `SZ_*` vào map toàn cục; `GetEnv`/`SetEnv` có mutex |
 | `szflag` | Flag chung `--mode`, `--log_level`; `Parse(meta)` (usage in banner); `Validate` bằng protovalidate |
 | `szerror` | gRPC status chuẩn hoá — xem [07-controlplane.md](07-controlplane.md#77-mã-lỗi) |
 | `szperms` | `Allow(XMethod, ControlPlane)` |
@@ -205,6 +205,6 @@ Adapter Hertz cho `szhttp`:
 
 | Công cụ | Mô tả |
 |---|---|
-| `protoc-gen-go-senz` | Plugin protoc xử lý `x_meta`, `x_message`, `x_field`, `x_method` (hằng tên cột, row scanner, getter của method) |
+| `protoc-gen-go-sz` | Plugin protoc xử lý `x_meta`, `x_message`, `x_field`, `x_method` (hằng tên cột, row scanner, getter của method) |
 | `szruleparser` | `-file <crs.conf> -out <dir>` → file Go chứa rule CRS mã hoá base64 |
 | [tools.go](../../staging/src/github.com/sentinez/tools/tools.go) | Ghim phiên bản các công cụ: templ, buf, bpf2go, bombardier, protoc-go-inject-tag, grpc-gateway, openapiv2, vtproto, sqlc, mockery, protoc-gen-go(-grpc) |

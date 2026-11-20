@@ -40,8 +40,8 @@ RUN go clean -modcache
 COPY cmd/szedge/v1/proxy.yaml /sentinez/edge/v1/proxy.yaml
 COPY cmd/szedge/v1/docker-entrypoint.sh /sentinez/edge/v1/docker-entrypoint.sh
 
-COPY cmd/szedge/v1/is.s6z.io.vn.cert /etc/senz/ssl/certs/
-COPY cmd/szedge/v1/is.s6z.io.vn.key /etc/senz/ssl/private/
+COPY cmd/szedge/v1/is.s6z.io.vn.cert /etc/sz/ssl/certs/
+COPY cmd/szedge/v1/is.s6z.io.vn.key /etc/sz/ssl/private/
 
 
 # Stage run
@@ -52,11 +52,11 @@ RUN apk --no-cache add ca-certificates tzdata
 
 WORKDIR /app
 
-COPY --from=builder /bin/main ./senz
+COPY --from=builder /bin/main ./sz
 COPY --from=builder /sentinez/edge/v1/proxy.yaml ./proxy.yaml
 COPY --from=builder /sentinez/edge/v1/docker-entrypoint.sh ./docker-entrypoint.sh
 
-COPY --from=builder /etc/senz/ssl /etc/senz/ssl
+COPY --from=builder /etc/sz/ssl /etc/sz/ssl
 
 RUN chmod +x ./docker-entrypoint.sh
 

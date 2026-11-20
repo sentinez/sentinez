@@ -59,10 +59,10 @@ func TestLocalConnInvoke(t *testing.T) {
 
 	var header metadata.MD
 	resp, err := newGreeterClient().SayHello(ctx,
-		&greeterpb.SayHelloRequest{Name: "senz"}, grpc.Header(&header))
+		&greeterpb.SayHelloRequest{Name: "sz"}, grpc.Header(&header))
 
 	require.NoError(t, err)
-	assert.Equal(t, "senz|v|", resp.GetMessage())
+	assert.Equal(t, "sz|v|", resp.GetMessage())
 	assert.Equal(t, []string{"set"}, header.Get("x-out"))
 }
 
@@ -88,7 +88,7 @@ func TestLocalConnGateway(t *testing.T) {
 	}{
 		{
 			name:     "valid",
-			giveURL:  "/greeter/say?name=senz",
+			giveURL:  "/greeter/say?name=sz",
 			wantCode: http.StatusOK,
 		},
 		{

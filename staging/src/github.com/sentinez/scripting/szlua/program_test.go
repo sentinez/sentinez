@@ -102,7 +102,7 @@ func TestCompileInvalid(t *testing.T) {
 
 func TestCallReadsAndSets(t *testing.T) {
 	p, err := Compile("t.lua", `
----@stage before/router
+---@stage http:request/router
 function tag(ctx)
   if ctx:header("X-Debug") == "1" and ctx:path() == "/api" then
     ctx:set_header("X-Edge", ctx:method() .. ctx:query("a"))
@@ -113,7 +113,7 @@ end
 	require.NoError(t, err)
 
 	ex := newFake()
-	responded, err := p.Call(context.Background(), Before, "ROU", ex)
+	responded, err := p.Call(context.Background(), Request, "ROU", ex)
 	require.NoError(t, err)
 
 	assert.False(t, responded)
@@ -124,16 +124,16 @@ end
 
 func TestCallRespondStopsTheNextFunctions(t *testing.T) {
 	p, err := Compile("t.lua", `
----@stage before/sec_rule
+---@stage http:request/sec_rule
 function deny(ctx) ctx:respond(403, "no") end
 
----@stage before/sec_rule
+---@stage http:request/sec_rule
 function never(ctx) ctx:set_header("X-Never", "1") end
 `)
 	require.NoError(t, err)
 
 	ex := newFake()
-	responded, err := p.Call(context.Background(), Before, "RUL", ex)
+	responded, err := p.Call(context.Background(), Request, "RUL", ex)
 	require.NoError(t, err)
 
 	assert.True(t, responded)
@@ -144,17 +144,17 @@ function never(ctx) ctx:set_header("X-Never", "1") end
 
 func TestCallRunsInSourceOrder(t *testing.T) {
 	p, err := Compile("t.lua", `
----@stage after/sec_ruleset
+---@stage http:response/sec_ruleset
 function second(ctx) ctx:set_header("X-Order", ctx:header("X-Order") .. "2") end
 
----@stage after/sec_ruleset
+---@stage http:response/sec_ruleset
 function first(ctx) ctx:set_header("X-Order", "1") end
 `)
 	require.NoError(t, err)
 
 	ex := newFake()
 	ex.headers["X-Order"] = "0"
-	_, err = p.Call(context.Background(), After, "RST", ex)
+	_, err = p.Call(context.Background(), Response, "RST", ex)
 	require.NoError(t, err)
 
 	// second runs first: it reads the request header, not what first set
@@ -173,13 +173,13 @@ func TestCallErrors(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			src := "---@stage before/static\n" +
+			src := "---@stage http:request/static\n" +
 				"function f(ctx) " + tt.give + " end"
 			p, err := Compile("t.lua", src)
 			require.NoError(t, err)
 
 			ex := newFake()
-			responded, err := p.Call(context.Background(), Before, "STC", ex)
+			responded, err := p.Call(context.Background(), Request, "STC", ex)
 			assert.Error(t, err)
 			assert.False(t, responded)
 			assert.False(t, ex.answered)
@@ -189,40 +189,40 @@ func TestCallErrors(t *testing.T) {
 
 func TestCallFunctionRedefinedToNil(t *testing.T) {
 	p, err := Compile("t.lua", `
----@stage before/static
+---@stage http:request/static
 function f(ctx) f = nil end
 `)
 	require.NoError(t, err)
 
-	_, err = p.Call(context.Background(), Before, "STC", newFake())
+	_, err = p.Call(context.Background(), Request, "STC", newFake())
 	require.NoError(t, err)
 
 	// the state that ran it was kept: f is gone from it
-	_, err = p.Call(context.Background(), Before, "STC", newFake())
+	_, err = p.Call(context.Background(), Request, "STC", newFake())
 	assert.ErrorContains(t, err, "f is not a function anymore")
 }
 
 func TestCallTimeout(t *testing.T) {
 	p, err := Compile("t.lua", `
----@stage before/cache
+---@stage http:request/cache
 function spin(ctx) while true do end end
 `, WithTimeout(20*time.Millisecond))
 	require.NoError(t, err)
 
 	start := time.Now()
-	_, err = p.Call(context.Background(), Before, "CDN", newFake())
+	_, err = p.Call(context.Background(), Request, "CDN", newFake())
 
 	require.Error(t, err)
 	assert.Less(t, time.Since(start), 2*time.Second)
 
 	// the program still works after a state was discarded
-	_, err = p.Call(context.Background(), Before, "CDN", newFake())
+	_, err = p.Call(context.Background(), Request, "CDN", newFake())
 	assert.Error(t, err)
 }
 
 func TestCallWithoutHook(t *testing.T) {
 	p, err := Compile("t.lua", `
----@stage before/cache
+---@stage http:request/cache
 function f(ctx) ctx:respond(403) end
 `)
 	require.NoError(t, err)
@@ -232,8 +232,8 @@ function f(ctx) ctx:respond(403) end
 		givePhase Phase
 		giveStage string
 	}{
-		{"other stage", Before, "ROU"},
-		{"other phase", After, "CDN"},
+		{"other stage", Request, "ROU"},
+		{"other phase", Response, "CDN"},
 	}
 
 	for _, tt := range tests {
@@ -250,7 +250,7 @@ function f(ctx) ctx:respond(403) end
 
 func TestCallConcurrent(t *testing.T) {
 	p, err := Compile("t.lua", `
----@stage before/sec_rate_limit
+---@stage http:request/sec_rate_limit
 function f(ctx) ctx:set_header("X", ctx:path()) end
 `)
 	require.NoError(t, err)
@@ -260,7 +260,7 @@ function f(ctx) ctx:set_header("X", ctx:path()) end
 		wg.Go(func() {
 			for range 20 {
 				ex := newFake()
-				_, err := p.Call(context.Background(), Before, "LMT", ex)
+				_, err := p.Call(context.Background(), Request, "LMT", ex)
 				assert.NoError(t, err)
 				assert.Equal(t, "/api", ex.setHdr["X"])
 			}
@@ -272,13 +272,13 @@ function f(ctx) ctx:set_header("X", ctx:path()) end
 
 func TestCallAfterCannotRespond(t *testing.T) {
 	p, err := Compile("t.lua", `
----@stage after/sec_rule
+---@stage http:response/sec_rule
 function late(ctx) ctx:respond(500, "late") end
 `)
 	require.NoError(t, err)
 
 	ex := newFake()
-	responded, err := p.Call(context.Background(), After, "RUL", ex)
+	responded, err := p.Call(context.Background(), Response, "RUL", ex)
 
 	assert.ErrorContains(t, err, "the stage already ran")
 	assert.False(t, responded)
@@ -287,11 +287,12 @@ function late(ctx) ctx:respond(500, "late") end
 
 func TestCallErrorNamesTheSection(t *testing.T) {
 	p, err := Compile("t.lua", `
----@stage after/sec_ruleset
+---@stage http:response/sec_ruleset
 function boom(ctx) error("x") end
 `)
 	require.NoError(t, err)
 
-	_, err = p.Call(context.Background(), After, "RST", newFake())
-	assert.ErrorContains(t, err, "script t.lua: after/sec_ruleset: boom:")
+	_, err = p.Call(context.Background(), Response, "RST", newFake())
+	assert.ErrorContains(t, err,
+		"script t.lua: http:response/sec_ruleset: boom:")
 }

@@ -21,12 +21,12 @@ Each app has its own fx container, so apps in the same process can provide
 the same types (for example `config.Config`). Stop hooks get a 15 s timeout.
 In any mode other than `dev`, fx logging is disabled (`fx.NopLogger`).
 
-OTLP: system logs go to `SENZ_OTLP_INTERNAL_ENDPOINT` and are not exported
+OTLP: system logs go to `SZ_OTLP_INTERNAL_ENDPOINT` and are not exported
 when it is unset; service name = `meta.service_key`. The exporter is shut
 down after every app has stopped. The edge traffic logs (func chain `LOG`
-node) go straight to Kafka when `SENZ_KAFKA_BROKERS` is set (raw proto
+node) go straight to Kafka when `SZ_KAFKA_BROKERS` is set (raw proto
 events, one topic per log type, see `pkg/szkafka`), otherwise through their
-own OTLP provider on `SENZ_OTLP_EXTERNAL_ENDPOINT`; the exporter is owned by
+own OTLP provider on `SZ_OTLP_EXTERNAL_ENDPOINT`; the exporter is owned by
 the edge server and flushed in its `Shutdown`. With neither set they are not
 exported. An `https://` endpoint uses TLS.
 
@@ -59,7 +59,7 @@ exported. An `https://` endpoint uses TLS.
 
 - `szgrpc.New(opts...)`: `WithXMeta`, `WithDiscorvery(bool)`,
   `WithGRPCServerOption(...)`. `Serve(conf, opts...)` listens on TCP
-  `SENZ_ADDRESS` (`WithAddress(addr)` overrides it), prints the banner,
+  `SZ_ADDRESS` (`WithAddress(addr)` overrides it), prints the banner,
   optionally registers the listen address with Consul. `BufServe(bufLis)`
   serves over bufconn. `Shutdown` = `GracefulStop`.
 - `core/szgrpc/grpcgateway`: see [06-gateway.md](06-gateway.md).
@@ -68,7 +68,7 @@ exported. An `https://` endpoint uses TLS.
 
 | Package | Contents |
 |---|---|
-| `core` | Constants `Name` (`sentinez/1.0`, used as the `Server` header), `Code` (`SENZ`), `Version`, request ID prefix, `EnvPattern` |
+| `core` | Constants `Name` (`sentinez/1.0`, used as the `Server` header), `Code` (`SZ`), `Version`, request ID prefix, `EnvPattern` |
 | `core/szcontext` | `WithTransportValue` / `GetTransport` for `netpb.Transport` |
 | `core/szcrypto/certs` | `Parse` (first PEM certificate), `Pick(host, pairs, pool)` / `PickClient(pairs, pool)` (first key pair valid now, for host or as a client certificate, with the chain of its issuers; `ErrNoValidCertificate`), `ChainOf`, `IsSelfSigned` |
 | `core/szcrypto/pow` | Proof-of-work challenges |
@@ -82,7 +82,7 @@ exported. An `https://` endpoint uses TLS.
 | `core/szlimiter`, `core/szrule`, `core/szcrs`, `core/szmodsec` | See [04-rule-engine.md](04-rule-engine.md) |
 | `pkg/sztracer` | `StageError{Stage, Elapsed, Err}`, `Origin(err)` |
 | `pkg/szqueue` | Empty `Queue{}` (for the waiting room) |
-| `pkg/szsdklog` | `New(conf, opts...)`: `Exporter` of the edge traffic logs: Kafka on `SENZ_KAFKA_BROKERS`, else OTLP on `SENZ_OTLP_EXTERNAL_ENDPOINT`, nil when neither is set; `opts` (`szkafka.ConfigOption`) configure the producer |
+| `pkg/szsdklog` | `New(conf, opts...)`: `Exporter` of the edge traffic logs: Kafka on `SZ_KAFKA_BROKERS`, else OTLP on `SZ_OTLP_EXTERNAL_ENDPOINT`, nil when neither is set; `opts` (`szkafka.ConfigOption`) configure the producer |
 | `pkg/szkafka` | Kafka producer of the edge events and batch consumer, see [`szkafka`](#szkafka) |
 
 ## 9.5 `pkg`
@@ -90,7 +90,7 @@ exported. An `https://` endpoint uses TLS.
 | Package | Contents |
 |---|---|
 | `szlog` | Logging (details below) |
-| `szconfig` | `LoadEnv(file, keys...)` loads `.env` with godotenv and snapshots `SENZ_*` values into a global map; `GetEnv`/`SetEnv` are mutex-protected |
+| `szconfig` | `LoadEnv(file, keys...)` loads `.env` with godotenv and snapshots `SZ_*` values into a global map; `GetEnv`/`SetEnv` are mutex-protected |
 | `szflag` | Common flags `--mode`, `--log_level`; `Parse(meta)` (usage prints the banner); `Validate` with protovalidate |
 | `szerror` | Standardized gRPC statuses — see [07-controlplane.md](07-controlplane.md#77-error-codes) |
 | `szperms` | `Allow(XMethod, ControlPlane)` |
@@ -208,6 +208,6 @@ Hertz adapter for `szhttp`:
 
 | Tool | Description |
 |---|---|
-| `protoc-gen-go-senz` | protoc plugin handling `x_meta`, `x_message`, `x_field`, `x_method` (column constants, row scanners, method getters) |
+| `protoc-gen-go-sz` | protoc plugin handling `x_meta`, `x_message`, `x_field`, `x_method` (column constants, row scanners, method getters) |
 | `szruleparser` | `-file <crs.conf> -out <dir>` → Go file containing base64-encoded CRS rules |
 | [tools.go](../staging/src/github.com/sentinez/tools/tools.go) | Pins tool versions: templ, buf, bpf2go, bombardier, protoc-go-inject-tag, grpc-gateway, openapiv2, vtproto, sqlc, mockery, protoc-gen-go(-grpc) |

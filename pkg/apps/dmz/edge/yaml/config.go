@@ -46,7 +46,7 @@ type rawGetter interface {
 	GetRaw(ctx context.Context, key string) ([]byte, error)
 }
 
-// LoadSetting reads the proxy config. With SENZ_CONSUL_URI it is the one at
+// LoadSetting reads the proxy config. With SZ_CONSUL_URI it is the one at
 // the Consul key defaults.ProxyConfigKey, the very one the apiserver
 // imports; without the URI, or when Consul has no such key, it is the file
 // named by the proxy_config flag.
@@ -56,7 +56,7 @@ func LoadSetting(appConf *settingpb.Config) (*edgepb.Setting, error) {
 	var data []byte
 	var err error
 
-	if uri := appConf.Get(settingpb.Senz_SENZ_CONSUL_URI); uri != "" {
+	if uri := appConf.Get(settingpb.Sz_SZ_CONSUL_URI); uri != "" {
 		data, err = readConsulProxy(uri, path)
 	} else {
 		data, err = os.ReadFile(path)

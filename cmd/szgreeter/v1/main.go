@@ -54,7 +54,7 @@ func app(c *szrunner.Context[greeter.Greeter]) {
 		}
 
 		return server.Start(szgrpc.WithAddress(conf.GetDefault(
-			settingpb.Senz_SENZ_ADDRESS, defaults.GreeterAddress)))
+			settingpb.Sz_SZ_ADDRESS, defaults.GreeterAddress)))
 	})
 
 	c.OnStop(func(ctx context.Context, server *greeter.Greeter) error {

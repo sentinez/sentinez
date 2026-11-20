@@ -22,7 +22,6 @@ import (
 
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/httpconst"
-	"github.com/sentinez/pkg/bytesconv"
 	"github.com/sentinez/pkg/szlog"
 )
 
@@ -39,13 +38,13 @@ func NewReverseProxy(
 
 	return &ReverseProxy{
 		client: client,
-		host:   bytesconv.S2b(urlParsed.Host),
+		host:   urlParsed.Host,
 	}, nil
 }
 
 type ReverseProxy struct {
 	client *httputil.ReverseProxy
-	host   []byte
+	host   string
 }
 
 func (p *ReverseProxy) Serve(ctx szhttp.Context) {
@@ -62,7 +61,8 @@ func (p *ReverseProxy) Serve(ctx szhttp.Context) {
 		return
 	}
 
-	nctx.SetHost(p.host)
+	// a string, immutable: no copy
+	nctx.setHost(p.host)
 
 	p.client.ServeHTTP(&recordWriter{
 		ResponseWriter: nctx.Response(),

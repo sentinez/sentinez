@@ -95,8 +95,13 @@ func (rs *Rulesets) LoadContext(ctx szhttp.Context) (coraza.WAF, bool) {
 		return nil, false
 	}
 
-	szlog.Debugf("edge: namespace: hit WAF cached %s", ctx.X().GetNamespace())
-	return rs.Load(ctx.X().GetNamespace())
+	ns := ctx.X().GetNamespace()
+	// checked first: boxing ns allocates, logged or not
+	if szlog.Enabled(szlog.LevelDebug) {
+		szlog.Debugf("edge: namespace: hit WAF cached %s", ns)
+	}
+
+	return rs.Load(ns)
 }
 
 // runsCrs reports whether the edge runs the OWASP CRS of setting: it is

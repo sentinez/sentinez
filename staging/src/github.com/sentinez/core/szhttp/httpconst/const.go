@@ -49,6 +49,8 @@ const (
 	ValueNoSniff             = "nosniff"
 	ValueAllowGetHead        = "GET, HEAD"
 	ValueNoStore             = "no-store"
+	ValueCacheImmutable      = "public, max-age=3600, immutable"
+	ValueHitCache            = "HIT"
 
 	SchemeSecure   = "https"
 	SchemeInsecure = "http"

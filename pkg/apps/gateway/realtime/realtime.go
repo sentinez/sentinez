@@ -47,7 +47,7 @@ func (r *Realtime) Start() error {
 	}
 
 	return r.core.ListenAndServe(r.conf.GetDefault(
-		settingpb.Senz_SENZ_ADDRESS, defaults.RealtimeAddress))
+		settingpb.Sz_SZ_ADDRESS, defaults.RealtimeAddress))
 }
 
 func (r *Realtime) Shutdown(_ context.Context) error {

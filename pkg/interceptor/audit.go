@@ -43,7 +43,7 @@ const _auditMessage = "audit"
 // fields hidden. The owner of the call, its tenant and resource, is the
 // one the checks of its access recorded (see auditowner), else the fields
 // x_field.audit marks in the request, then the response;
-// protoc-gen-go-senz requires such a field, or audit_no_owner, of every
+// protoc-gen-go-sz requires such a field, or audit_no_owner, of every
 // audited method. An update that succeeds logs the fields it changed, as
 // its service records them (see auditchange).
 func Audit(log szlog.Log) grpc.UnaryServerInterceptor {

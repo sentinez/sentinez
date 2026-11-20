@@ -41,7 +41,7 @@ Scaffold mẫu cho từng lớp nằm trong `hack/.agent/skills/` (`create-servi
     activities).
   - Cùng schema đó dựng được bảng go-memdb (`dbx.MemDBSchema`): centraldata
     giữ mọi bảng controlplane trong bộ nhớ theo cách này.
-  - Dùng một `pgxpool.Pool` toàn cục từ `SENZ_POSTGRES_URI`.
+  - Dùng một `pgxpool.Pool` toàn cục từ `SZ_POSTGRES_URI`.
 - Helper: `SelectBuilder` (+ phân trang `LIMIT/OFFSET ORDER BY <created at> DESC`
   khi `page.index` và `page.size` > 0), `LimitOffset` (cùng `LIMIT/OFFSET`
   đó, thứ tự để caller tự đặt), `InsertBuilder` (`RETURNING id`),
@@ -70,7 +70,7 @@ Tên bảng ([pkg/sztable](../../staging/src/github.com/sentinez/pkg/sztable/tab
 [Collector](#collector-thu-nạp-event-của-edge)).
 
 Hằng tên cột (`User_Email`, `SecRule_Expr`, ...) được sinh bởi
-`protoc-gen-go-senz` cho message có option `x_message.database_model = true`.
+`protoc-gen-go-sz` cho message có option `x_message.database_model = true`.
 Model đặt thêm `x_message.scanner = true` (mọi model controlplane và event
 của edge) có thêm row scanner được sinh: `<Msg>Columns()`, `<Msg>Values(m)`,
 `ScanOne<Msg>(row)` và `Scan<Msg>(rows)` (xem
@@ -84,7 +84,7 @@ bảng.
 
 [pkg/szstorage/dbx/timescale](../../staging/src/github.com/sentinez/pkg/szstorage/dbx/timescale/)
 xây trên `postgres.Open`: dùng chung pool và tham gia được transaction của
-`postgres.WithTx`. Cần TimescaleDB (`SENZ_POSTGRES_URI` trỏ vào container
+`postgres.WithTx`. Cần TimescaleDB (`SZ_POSTGRES_URI` trỏ vào container
 `sentinez.timescale` mà `hack/timescale-up.sh` bật).
 
 - `timescale.New[T](ctx, conf, timescale.Hypertable{Schema, TimeColumn,
@@ -120,11 +120,11 @@ xây trên `postgres.Open`: dùng chung pool và tham gia được transaction c
 
 | Gói | Chức năng |
 |---|---|
-| `crypto` | `TokenGenerator(*typepb.Context)` ký JWT HS256 với secret = base64-decode(`SENZ_SECRET_KEY`); claim `auth` = `Context.String()` (prototext), `exp`, `iat`, `iss` = `sentinez.iam`, `aud` = `sentinez.controlplane`. `BearerTokenVerifier` bỏ tiền tố `Bearer `, kiểm tra HMAC (chỉ HS256), hạn dùng (bắt buộc), issuer và audience, rồi parse lại `Context`. `ServiceTokenGenerator(name, ttl)` / `ServiceTokenVerifier` làm điều tương tự cho token service (control plane `SERVICE`), với `SENZ_SERVICE_KEY` và `iss` = `aud` = `sentinez.service`, nên không loại nào dùng thay được loại kia. `HashPassword`/`CheckPasswordHash` dùng bcrypt |
+| `crypto` | `TokenGenerator(*typepb.Context)` ký JWT HS256 với secret = base64-decode(`SZ_SECRET_KEY`); claim `auth` = `Context.String()` (prototext), `exp`, `iat`, `iss` = `sentinez.iam`, `aud` = `sentinez.controlplane`. `BearerTokenVerifier` bỏ tiền tố `Bearer `, kiểm tra HMAC (chỉ HS256), hạn dùng (bắt buộc), issuer và audience, rồi parse lại `Context`. `ServiceTokenGenerator(name, ttl)` / `ServiceTokenVerifier` làm điều tương tự cho token service (control plane `SERVICE`), với `SZ_SERVICE_KEY` và `iss` = `aud` = `sentinez.service`, nên không loại nào dùng thay được loại kia. `HashPassword`/`CheckPasswordHash` dùng bcrypt |
 | `headers` | `GetAuth(ctx)` trả người gọi mà interceptor `authz` đã xác thực, nếu không thì đọc và verify metadata `Authorization` (token user, nếu không thì token service) → `Auth{*typepb.Context}`; `Auth.Check(method)` gọi `perms.Allow` (lỗi `PermissionDenied`); `Auth.IsAdmin()`; `Auth.IsService()`; `WithAuth(ctx, auth)` |
 | `authz` | `Unary()` / `Stream()`, cài cùng nhau bằng `ServerOptions()`: các interceptor từ chối mặc định (xem dưới); `Authorizer`: người gọi được làm gì trong các tenant; `Scoped`: giới hạn request list theo resource của người gọi |
 | `loginlimit` | `Limiter`: chặn một key sau N lần đăng nhập thất bại trong một cửa sổ; IAM dùng |
-| `passkey` | `NewWebAuthn(conf)` (RP = `core.Name`, RPID = `SENZ_HOSTNAME`, origins = `ClientOrigins(conf)`, tức `SENZ_CLIENT_ORIGIN` cách nhau bằng dấu phẩy); `Store` in-memory (session WebAuthn + `Registration` đang chờ, xem 7.3) |
+| `passkey` | `NewWebAuthn(conf)` (RP = `core.Name`, RPID = `SZ_HOSTNAME`, origins = `ClientOrigins(conf)`, tức `SZ_CLIENT_ORIGIN` cách nhau bằng dấu phẩy); `Store` in-memory (session WebAuthn + `Registration` đang chờ, xem 7.3) |
 
 `typepb.Context` = `{name, expire_at, user_id, control_plane}`; JWT hết hạn
 sau 1 giờ.
@@ -242,8 +242,8 @@ trùng email:
 
 | RPC | REST | Hành vi |
 |---|---|---|
-| `Login` | `PUT /iam/login` | Nếu username = `SENZ_ADMIN_USERNAME`: so mật khẩu với `SENZ_ADMIN_PASSWORD` trong thời gian hằng số (từ chối khi chưa đặt), cấp token ADMIN (`user_id = sentinez.admin`). Ngược lại: tìm account `LOCAL` theo username/email, bcrypt, lấy user, cấp token. Số lần thất bại bị giới hạn: 10 mỗi account và 50 tổng mỗi client trong 15 phút, sau đó `ResourceExhausted` (HTTP 429) tới hết cửa sổ. Client là hop `X-Forwarded-For` cuối cùng |
-| `CreateAccount` | `POST /iam/account` | Đăng ký bằng mật khẩu. Từ chối (`AlreadyExists`) username hoặc email đã có account `LOCAL`, username dành riêng `SENZ_ADMIN_USERNAME`, và email đã thuộc một user; sau đó tạo `User` (PORTAL) + account `LOCAL` |
+| `Login` | `PUT /iam/login` | Nếu username = `SZ_ADMIN_USERNAME`: so mật khẩu với `SZ_ADMIN_PASSWORD` trong thời gian hằng số (từ chối khi chưa đặt), cấp token ADMIN (`user_id = sentinez.admin`). Ngược lại: tìm account `LOCAL` theo username/email, bcrypt, lấy user, cấp token. Số lần thất bại bị giới hạn: 10 mỗi account và 50 tổng mỗi client trong 15 phút, sau đó `ResourceExhausted` (HTTP 429) tới hết cửa sổ. Client là hop `X-Forwarded-For` cuối cùng |
+| `CreateAccount` | `POST /iam/account` | Đăng ký bằng mật khẩu. Từ chối (`AlreadyExists`) username hoặc email đã có account `LOCAL`, username dành riêng `SZ_ADMIN_USERNAME`, và email đã thuộc một user; sau đó tạo `User` (PORTAL) + account `LOCAL` |
 | `CreateUser` | — (chỉ gRPC) | Chỉ control plane `ADMIN`. Tạo `User` không kèm account nếu email chưa có |
 | `GetUser` | `GET /iam/user` | Theo `id` (từ `iam.users`); người gọi `PORTAL` chỉ lấy được chính mình hoặc user chung tenant, ngoài ra `NotFound` |
 | `ListUsers` | `GET /iam/users` | Lọc `ids`, `emails`, phân trang. Người gọi `PORTAL`: với `ids` chỉ giữ chính mình và user chung tenant; với `emails` là khớp chính xác (tối đa 5, để mời); không truyền gì thì chỉ chính mình |
@@ -357,7 +357,7 @@ máy chủ origin), `CLIENT` (kiểm tra chứng chỉ client, mTLS), `SERVER`
 edge trình cho máy chủ origin, mTLS). Hai usage sau là leaf: chứng chỉ không
 cần là CA, và luôn có khoá riêng. Bản
 ghi bất biến: chỉ tạo, đọc và xoá, không cập nhật. PEM và khoá riêng được mã
-hoá bằng `SENZ_DATA_KEY` trong database, API không bao giờ trả khoá về
+hoá bằng `SZ_DATA_KEY` trong database, API không bao giờ trả khoá về
 (`has_private_key` cho biết có khoá hay không). Fingerprint là duy nhất trong
 một resource.
 
@@ -431,7 +431,7 @@ nên không nhận mask.
 
 ### CentralData: đồng bộ các bảng xuống edge
 
-`szcentraldata` giữ các bảng trong `SENZ_SYNC_TABLES` (mặc định:
+`szcentraldata` giữ các bảng trong `SZ_SYNC_TABLES` (mặc định:
 `security.secrules`, `security.secratelimits`, `security.secrulesets`,
 `tenant.resources`, `tenant.cacertificates`) trong go-memdb, và edge leader
 của mỗi zone đi theo nó thay cho các edge khác:
@@ -461,8 +461,8 @@ postgres ──trigger: pg_notify(id)──► centraldata ──Olric pub/sub�
   `Change`, rồi một `Snapshot{version, epoch}`. Các row là của version đó:
   edge áp các thay đổi được publish sau nó.
 - **Live: Olric.** Centraldata publish mỗi `Change` trong một `Envelope` ký
-  HMAC-SHA256 bằng `SENZ_SYNC_KEY`, trên channel
-  `sentinez.centraldata.changes` của cluster edge (`SENZ_OLRIC_ADDRESSES`,
+  HMAC-SHA256 bằng `SZ_SYNC_KEY`, trên channel
+  `sentinez.centraldata.changes` của cluster edge (`SZ_OLRIC_ADDRESSES`,
   qua Olric cluster client: nó không là member). Pub/sub là at-most-once, nên
   edge ([internal/centralsync](../../internal/centralsync/follower.go))
   subscribe trước khi gọi `Sync`, bỏ những gì không ký bằng key hoặc không
@@ -483,7 +483,7 @@ postgres ──trigger: pg_notify(id)──► centraldata ──Olric pub/sub�
   snapshot không có, tức các resource bị xoá trong lúc zone không có leader.
   Leader đã bị hạ vẫn có thể ghi cho tới khi nhận ra mất lock (TTL session
   Consul); nó ghi đúng những gì centraldata giữ, và lần nạp của leader kế
-  tiếp sẽ sửa lại. Không có `SENZ_SERVICE_TOKEN` thì leader không theo
+  tiếp sẽ sửa lại. Không có `SZ_SERVICE_TOKEN` thì leader không theo
   centraldata; nếu không tới được centraldata, các edge chạy bằng file và
   cluster, và leader thử lại nền. Lần resync chỉ dựng lại các resource có
   row thay đổi, và những resource map còn giữ mà snapshot không còn; các lần
@@ -503,12 +503,12 @@ postgres ──trigger: pg_notify(id)──► centraldata ──Olric pub/sub�
 - **Tin cậy.** `Sync` chỉ mở cho `CONTROL_PLANE_SERVICE`. Edge gọi qua mTLS
   (certificate của CA nội bộ, `hack/mkcert-internal.sh`) với token service
   (`go run ./cmd/szservicetoken -name <CN của certificate>`) ký bằng
-  `SENZ_SERVICE_KEY`, chỉ centraldata giữ: edge giữ token, không giữ key.
+  `SZ_SERVICE_KEY`, chỉ centraldata giữ: edge giữ token, không giữ key.
   Tên trong token phải là CN của certificate của kết nối. Token service không
   mở method nào không liệt kê control plane service, và token user không bao
   giờ mở được `Sync`.
 - **CA certificate** đi đúng như bảng lưu: pem và private key vẫn được seal
-  bằng `SENZ_DATA_KEY`, thứ centraldata không bao giờ đọc. Edge đặt chúng vào
+  bằng `SZ_DATA_KEY`, thứ centraldata không bao giờ đọc. Edge đặt chúng vào
   `ingress.tls` của setting theo usage (`SERVER` → `certificates`,
   `UPSTREAM` → `upstream_cas`, `UPSTREAM_CLIENT` → `upstream_certificates`)
   và chỉ mở khi nạp setting (xem [03-edge.md](03-edge.md#upstream-tls-ca-riêng-mtls)). Ai
@@ -567,7 +567,7 @@ credential); `resource_id`/
 `tenant_id` của nó do stage `DomainBased` của edge đặt
 (`SetResourceId`/`SetTenantId`). Chúng không nằm trong `schema.All()`:
 centraldata không giữ event trong bộ nhớ. Hằng tên cột lấy từ
-`event_senz.pb.go`, sinh bởi `generate.sh` của `types/secrule/v1`,
+`event_sz.pb.go`, sinh bởi `generate.sh` của `types/secrule/v1`,
 `types/ruleset/v1` và `types/net/http/v1`.
 
 Bảng egress có một dòng cho mỗi request mà edge proxy tới upstream origin
@@ -727,15 +727,15 @@ này giữ dung lượng của các trường repeated cho lần `UnmarshalVT` s
 gom event của một batch vào `pools.Batch` và `defer` `Close` của nó để trả
 tất cả về pool.
 
-Cấu hình: `SENZ_KAFKA_BROKERS` (không đặt: ingest bị tắt kèm cảnh báo,
-gRPC server vẫn chạy) và database của `SENZ_POSTGRES_URI`. Các giới hạn
+Cấu hình: `SZ_KAFKA_BROKERS` (không đặt: ingest bị tắt kèm cảnh báo,
+gRPC server vẫn chạy) và database của `SZ_POSTGRES_URI`. Các giới hạn
 giữ bộ nhớ của consumer nằm ở
 [09-core-shared.md](09-core-shared.md#szkafka).
 
 ## 7.7 Mã lỗi
 
 [pkg/szerror](../../staging/src/github.com/sentinez/pkg/szerror/errors.go)
-cung cấp gRPC status có định dạng `SENZ-<code>: <ERRORS_...>` và các hàm
+cung cấp gRPC status có định dạng `SZ-<code>: <ERRORS_...>` và các hàm
 `StatusXxxF(format, ...)` (`NotFound`, `Unauthorized`, `Forbidden`,
 `InvalidData`/`InvalidArgument`, `AlreadyExists`, `Internal`,
 `Unimplemented`). Sentinel `ErrNotFound`, `ErrInvalidData`, `ErrUnimplemented`

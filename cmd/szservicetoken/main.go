@@ -13,10 +13,10 @@
 // limitations under the License.
 
 // Command szservicetoken signs the token a service (eg an edge) presents to
-// the control plane, with SENZ_SERVICE_KEY. Run it where the key lives and
-// give the token to the service as SENZ_SERVICE_TOKEN.
+// the control plane, with SZ_SERVICE_KEY. Run it where the key lives and
+// give the token to the service as SZ_SERVICE_TOKEN.
 //
-//	SENZ_SERVICE_KEY=... szservicetoken -name edge-1 -ttl 720h
+//	SZ_SERVICE_KEY=... szservicetoken -name edge-1 -ttl 720h
 //
 // The name must be the common name of the certificate of the service.
 package main
@@ -57,8 +57,8 @@ func run(args []string, out io.Writer) error {
 		return fmt.Errorf("-ttl must be positive")
 	}
 
-	szconfig.SetEnv(settingpb.Senz_SENZ_SERVICE_KEY,
-		os.Getenv(settingpb.Senz_SENZ_SERVICE_KEY.String()))
+	szconfig.SetEnv(settingpb.Sz_SZ_SERVICE_KEY,
+		os.Getenv(settingpb.Sz_SZ_SERVICE_KEY.String()))
 
 	token, err := crypto.ServiceTokenGenerator(*name, *ttl)
 	if err != nil {

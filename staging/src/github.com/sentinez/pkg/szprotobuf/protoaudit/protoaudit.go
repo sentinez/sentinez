@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // Package protoaudit finds the fields x_field.audit marks as the owner of
-// an audited call: the audit interceptor reads them, protoc-gen-go-senz
+// an audited call: the audit interceptor reads them, protoc-gen-go-sz
 // checks every audited method has one.
 package protoaudit
 

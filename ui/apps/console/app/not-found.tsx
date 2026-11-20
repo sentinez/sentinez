@@ -11,7 +11,7 @@ export default function NotFound() {
     <div className="flex flex-col gap-2 items-center justify-center h-screen">
       <div className="flex flex-col gap-5">
         <div className="flex gap-2 items-center">
-          <Image src="/assets/sntz.png" alt="sen" width={150} height={150} loading="eager" />
+          <Image src="/assets/sz.png" alt="sen" width={150} height={150} loading="eager" />
           <div className=" flex flex-col gap-2">
             <div className="font-medium text-7xl font-mono mx-2">404</div>
             <div className="font-medium text-2xl font-mono mx-2">{t('title')}</div>

@@ -15,7 +15,7 @@
 # limitations under the License.
 
 
-# Puts the SENZ_* lines of an env file in the Consul KV, where the services
+# Puts the SZ_* lines of an env file in the Consul KV, where the services
 # read them (see pkg/appconfig): shared by all of them under sentinez/env/,
 # or for one service under sentinez/env/<service_key>/.
 #
@@ -29,7 +29,7 @@ set -e
 set -o pipefail
 
 # the same keys as _envOnly in pkg/appconfig/overlay.go: keep them equal
-ENV_ONLY=" SENZ_CONSUL_URI SENZ_ADDRESS SENZ_MEMBERSHIP_ADDRESS SENZ_DISCOVERY_ADDRESS SENZ_ZONE "
+ENV_ONLY=" SZ_CONSUL_URI SZ_ADDRESS SZ_MEMBERSHIP_ADDRESS SZ_DISCOVERY_ADDRESS SZ_ZONE "
 
 error_exit() {
   echo "Error: $1" >&2
@@ -57,7 +57,7 @@ while IFS= read -r line || [ -n "$line" ]; do
   key="${key%"${key##*[![:space:]]}"}"
 
   case "$key" in
-    SENZ_*) ;;
+    SZ_*) ;;
     *) continue ;;
   esac
 

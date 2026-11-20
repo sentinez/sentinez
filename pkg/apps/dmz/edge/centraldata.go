@@ -35,7 +35,7 @@ var errCentralConfig = errors.New("centraldata sync is not configured")
 
 // Lead campaigns for the leadership of the zone until ctx ends. The leader
 // keeps the zone Status in Consul and, when the edge holds a service token
-// (SENZ_SERVICE_TOKEN), follows centraldata for the whole cluster: it
+// (SZ_SERVICE_TOKEN), follows centraldata for the whole cluster: it
 // writes the settings of the tables to the synced map every edge loads.
 func (s *RevProxyServer) Lead(ctx context.Context) error {
 	if !s.beginLead() {
@@ -44,7 +44,7 @@ func (s *RevProxyServer) Lead(ctx context.Context) error {
 	defer s.leading.Done()
 
 	var follow leader.Task
-	if s.conf.Get(settingpb.Senz_SENZ_SERVICE_TOKEN) != "" {
+	if s.conf.Get(settingpb.Sz_SZ_SERVICE_TOKEN) != "" {
 		follow = s.followCentralData
 	}
 
@@ -109,7 +109,7 @@ func (s *RevProxyServer) followCentralData(ctx context.Context,
 }
 
 func (s *RevProxyServer) newFollower() (*centralsync.Follower, error) {
-	key, err := szsign.ParseKey(s.conf.Get(settingpb.Senz_SENZ_SYNC_KEY))
+	key, err := szsign.ParseKey(s.conf.Get(settingpb.Sz_SZ_SYNC_KEY))
 	if err != nil {
 		return nil, errors.Join(errCentralConfig, err)
 	}
@@ -131,11 +131,11 @@ func (s *RevProxyServer) dialCentralData(context.Context,
 ) (centraldatapb.CentralDataServiceClient, io.Closer, error) {
 	tls := connection.TLSFromConfig(s.conf)
 	opt := &options.Options{
-		ConsulURL: s.conf.Get(settingpb.Senz_SENZ_CONSUL_URI),
+		ConsulURL: s.conf.Get(settingpb.Sz_SZ_CONSUL_URI),
 	}
 
 	cl, conn, err := client.NewCentralData(opt, tls,
-		s.conf.Get(settingpb.Senz_SENZ_SERVICE_TOKEN))
+		s.conf.Get(settingpb.Sz_SZ_SERVICE_TOKEN))
 	if err != nil {
 		return nil, nil, err
 	}

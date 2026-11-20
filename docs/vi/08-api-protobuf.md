@@ -19,7 +19,7 @@ api/proto/sentinez/
 │   └── realtime/v1/         # chỉ khai báo x_meta
 └── types/                   # kiểu dùng chung
     ├── v1/                  # known.proto (enum), model.proto (Pages, Metadata), options.proto
-    ├── setting/v1/          # Config, Flag, enum Senz (biến môi trường)
+    ├── setting/v1/          # Config, Flag, enum Sz (biến môi trường)
     ├── rule/v1/             # Expression, Condition, Operator, Action
     ├── secrule/v1/          # SecRule runtime, Event WAF
     ├── cdn/v1/              # CDN rule
@@ -47,14 +47,14 @@ response trùng type.
 `Zone`: `DEMILITARIZED` (edge, dataplane), `INTERNAL` (domain service),
 `PRIVATE_API` (apiserver, realtime), `PUBLIC_API`.
 
-Plugin xử lý các option này là `protoc-gen-go-senz`
-([tools/internal/senz/senz.go](../../staging/src/github.com/sentinez/tools/internal/senz/senz.go)),
-sinh file `*_senz.pb.go`.
+Plugin xử lý các option này là `protoc-gen-go-sz`
+([tools/internal/sz/sz.go](../../staging/src/github.com/sentinez/tools/internal/sz/sz.go)),
+sinh file `*_sz.pb.go`.
 
 ### Row scanner được sinh
 
 Với message có `x_message.scanner = true`
-([tools/internal/senz/scanner.go](../../staging/src/github.com/sentinez/tools/internal/senz/scanner.go)),
+([tools/internal/sz/scanner.go](../../staging/src/github.com/sentinez/tools/internal/sz/scanner.go)),
 mọi field kiểu message lồng nhau được flatten thành cột `<field>_<nested>`
 (ví dụ `metadata_created_at`, `owner_tenant_id`), và plugin sinh:
 
@@ -95,7 +95,7 @@ Mỗi thư mục domain có `generate.sh` gọi `protoc` với include
 | `protoc-gen-go-grpc` (`require_unimplemented_servers=false`) | `*_grpc.pb.go` |
 | `protoc-gen-grpc-gateway` | `*.pb.gw.go` |
 | `protoc-gen-validate` | `*.pb.validate.go` |
-| `protoc-gen-go-senz` | `*_senz.pb.go` |
+| `protoc-gen-go-sz` | `*_sz.pb.go` |
 | `protoc-gen-go-vtproto` (`features=marshal+unmarshal+size`) | `*_vtproto.pb.go` |
 | `protoc-gen-openapiv2` | `api/docs/v1/<domain>.swagger.json` |
 
@@ -184,7 +184,7 @@ Cấu hình runtime truyền vào mọi constructor:
 message Config {
   XMeta meta = 1;                // từ x_meta của service
   Flag flag = 2;                 // command-line flags
-  map<string, string> env = 3;   // biến SENZ_*
+  map<string, string> env = 3;   // biến SZ_*
 }
 ```
 

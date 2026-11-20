@@ -65,8 +65,8 @@ func newPasskeyFixture(t *testing.T) *passkeyFixture {
 		accounts: accountrepo.NewMockIAccount(t),
 	}
 	conf := &settingpb.Config{Env: map[string]string{
-		settingpb.Senz_SENZ_HOSTNAME.String():      "localhost",
-		settingpb.Senz_SENZ_CLIENT_ORIGIN.String(): "http://localhost",
+		settingpb.Sz_SZ_HOSTNAME.String():      "localhost",
+		settingpb.Sz_SZ_CLIENT_ORIGIN.String(): "http://localhost",
 	}}
 	f.svc = New(conf, nil, f.store, f.users, f.accounts, nil, nil)
 
@@ -77,7 +77,7 @@ func newPasskeyFixture(t *testing.T) *passkeyFixture {
 func signedIn(t *testing.T, userId string) context.Context {
 	t.Helper()
 
-	szconfig.SetEnv(settingpb.Senz_SENZ_SECRET_KEY,
+	szconfig.SetEnv(settingpb.Sz_SZ_SECRET_KEY,
 		base64.StdEncoding.EncodeToString([]byte("congchualunglinh")))
 
 	token, err := crypto.TokenGenerator(&typepb.Context{

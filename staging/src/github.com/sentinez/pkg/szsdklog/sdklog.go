@@ -28,7 +28,7 @@ import (
 )
 
 // Exporter is where the edge traffic logs go: Kafka when
-// SENZ_KAFKA_BROKERS is set, else OTLP when SENZ_OTLP_EXTERNAL_ENDPOINT is
+// SZ_KAFKA_BROKERS is set, else OTLP when SZ_OTLP_EXTERNAL_ENDPOINT is
 // set, else nowhere. A nil *Exporter exports nothing.
 type Exporter struct {
 	kafka *szkafka.Producer
@@ -42,7 +42,7 @@ func New(conf *settingpb.Config,
 	opts ...szkafka.ConfigOption) (*Exporter, error) {
 	service := conf.GetMeta().GetServiceKey()
 
-	if brokers := conf.Get(settingpb.Senz_SENZ_KAFKA_BROKERS); brokers != "" {
+	if brokers := conf.Get(settingpb.Sz_SZ_KAFKA_BROKERS); brokers != "" {
 		p, err := szkafka.NewProducer(
 			szkafka.ConfigOf(brokers, service, opts...))
 		if err != nil {
@@ -51,7 +51,7 @@ func New(conf *settingpb.Config,
 		return &Exporter{kafka: p}, nil
 	}
 
-	endpoint := conf.Get(settingpb.Senz_SENZ_OTLP_EXTERNAL_ENDPOINT)
+	endpoint := conf.Get(settingpb.Sz_SZ_OTLP_EXTERNAL_ENDPOINT)
 	if endpoint == "" {
 		return nil, nil
 	}

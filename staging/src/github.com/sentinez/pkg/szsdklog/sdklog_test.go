@@ -24,8 +24,8 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	kafka := settingpb.Senz_SENZ_KAFKA_BROKERS.String()
-	otlp := settingpb.Senz_SENZ_OTLP_EXTERNAL_ENDPOINT.String()
+	kafka := settingpb.Sz_SZ_KAFKA_BROKERS.String()
+	otlp := settingpb.Sz_SZ_OTLP_EXTERNAL_ENDPOINT.String()
 	tests := []struct {
 		name      string
 		giveEnv   map[string]string

@@ -34,5 +34,5 @@ type Mock struct{}
 func (*Mock) ID() string { return MockId }
 
 func (*Mock) Handle(ctx szhttp.Context, _ chains.Handler) error {
-	return ctx.String(http.StatusOK, []byte(""))
+	return ctx.String(http.StatusOK, nil)
 }

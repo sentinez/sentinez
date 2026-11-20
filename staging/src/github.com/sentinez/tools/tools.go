@@ -30,7 +30,7 @@ import (
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2"
 	_ "github.com/planetscale/vtprotobuf/cmd/protoc-gen-go-vtproto"
-	_ "github.com/sentinez/tools/cmd/protoc-gen-go-senz"
+	_ "github.com/sentinez/tools/cmd/protoc-gen-go-sz"
 	_ "github.com/sentinez/tools/cmd/szruleparser"
 	_ "github.com/sqlc-dev/sqlc/cmd/sqlc"
 	_ "github.com/vektra/mockery/v3"

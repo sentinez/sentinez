@@ -46,7 +46,7 @@ type Spec struct {
 	// Flags parses the flags of the service.
 	Flags func() (*settingpb.Flag, error)
 	// Keys are the env keys the service reads; none means all of them.
-	Keys []settingpb.Senz
+	Keys []settingpb.Sz
 }
 
 // Provider loads the config of a service once.
@@ -91,25 +91,25 @@ func (p *Provider) load() (*settingpb.Config, error) {
 }
 
 // envKeys are the keys to load from the environment: those of the spec, and
-// always SENZ_CONSUL_URI, or a service that lists its keys would never reach
+// always SZ_CONSUL_URI, or a service that lists its keys would never reach
 // Consul. None means all of them.
-func (p *Provider) envKeys() []settingpb.Senz {
+func (p *Provider) envKeys() []settingpb.Sz {
 	if len(p.spec.Keys) == 0 {
 		return nil
 	}
 
 	keys := slices.Clone(p.spec.Keys)
-	if !slices.Contains(keys, settingpb.Senz_SENZ_CONSUL_URI) {
-		keys = append(keys, settingpb.Senz_SENZ_CONSUL_URI)
+	if !slices.Contains(keys, settingpb.Sz_SZ_CONSUL_URI) {
+		keys = append(keys, settingpb.Sz_SZ_CONSUL_URI)
 	}
 
 	return keys
 }
 
 // addConsul sets in env what Consul gives for the keys the environment
-// leaves empty. Without SENZ_CONSUL_URI there is nothing to read.
+// leaves empty. Without SZ_CONSUL_URI there is nothing to read.
 func (p *Provider) addConsul(env map[string]string) error {
-	uri := env[settingpb.Senz_SENZ_CONSUL_URI.String()]
+	uri := env[settingpb.Sz_SZ_CONSUL_URI.String()]
 	if uri == "" {
 		return nil
 	}
@@ -134,7 +134,7 @@ func (p *Provider) addConsul(env map[string]string) error {
 	names := make([]string, 0, len(found))
 	for name, value := range found {
 		// env is the map of szconfig: this is what GetEnv gives too
-		szconfig.SetEnv(settingpb.Senz(settingpb.Senz_value[name]), value)
+		szconfig.SetEnv(settingpb.Sz(settingpb.Sz_value[name]), value)
 		names = append(names, name)
 	}
 

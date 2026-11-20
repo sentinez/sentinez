@@ -54,7 +54,7 @@ func (s *Server) Start(networkInterface string) error {
 	return s.grpc.Serve(s.conf,
 		szgrpc.WithDiscorvery(false),
 		szgrpc.WithAddress(s.conf.GetDefault(
-			settingpb.Senz_SENZ_ADDRESS, defaults.DataplaneAddress)),
+			settingpb.Sz_SZ_ADDRESS, defaults.DataplaneAddress)),
 	)
 }
 

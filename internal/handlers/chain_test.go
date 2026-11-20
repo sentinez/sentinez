@@ -25,6 +25,7 @@ import (
 	"github.com/sentinez/pkg/sztracer"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/envplugin"
+	"github.com/sentinez/sentinez/internal/handlers/wrap/stage"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -98,7 +99,7 @@ func TestBuildHandle(t *testing.T) {
 				&fake{id: "C", log: &log},
 			}
 
-			chain, err := chains.Build(newEnv(), Stage, plugins...)
+			chain, err := chains.Build(newEnv(), stage.Wrap, plugins...)
 			require.NoError(t, err)
 
 			log = nil
@@ -111,7 +112,7 @@ func TestBuildHandle(t *testing.T) {
 func TestBuildProvision(t *testing.T) {
 	var log []string
 
-	_, err := chains.Build(newEnv(), Stage,
+	_, err := chains.Build(newEnv(), stage.Wrap,
 		&fake{id: "A", log: &log},
 		&fake{id: "B", log: &log, provisionErr: errFake},
 		&fake{id: "C", log: &log},
@@ -127,7 +128,7 @@ func TestBuildProvision(t *testing.T) {
 
 func TestChainClose(t *testing.T) {
 	var log []string
-	chain, err := chains.Build(newEnv(), Stage,
+	chain, err := chains.Build(newEnv(), stage.Wrap,
 		&fake{id: "A", log: &log},
 		&fake{id: "B", log: &log},
 	)
@@ -140,7 +141,7 @@ func TestChainClose(t *testing.T) {
 
 func TestStageError(t *testing.T) {
 	var log []string
-	chain, err := chains.Build(newEnv(), Stage,
+	chain, err := chains.Build(newEnv(), stage.Wrap,
 		&fake{id: "A", log: &log},
 		&fake{id: "B", log: &log, handleErr: errFake},
 	)

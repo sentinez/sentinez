@@ -23,7 +23,7 @@ import (
 type contextKey string
 
 const (
-	_transport contextKey = "senz.transport"
+	_transport contextKey = "sz.transport"
 )
 
 func WithTransportValue(

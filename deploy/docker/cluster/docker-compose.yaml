@@ -29,18 +29,18 @@ x-edge: &edge
     - ../../../cmd/szedge/v1/.env
     - ../edge.env # later files win: in-network hosts
   # the internal mTLS (make sz.centraldata.cert sz.edge.cert), the files of
-  # SENZ_TLS_* of ../edge.env: only the CA and its own pair
+  # SZ_TLS_* of ../edge.env: only the CA and its own pair
   volumes:
-    - ../../certs/internal/ca.pem:/etc/senz/internal/ca.pem:ro
-    - ../../certs/internal/sentinez.dmz.edge.pem:/etc/senz/internal/sentinez.dmz.edge.pem:ro
-    - ../../certs/internal/sentinez.dmz.edge-key.pem:/etc/senz/internal/sentinez.dmz.edge-key.pem:ro
+    - ../../certs/internal/ca.pem:/etc/sz/internal/ca.pem:ro
+    - ../../certs/internal/sentinez.dmz.edge.pem:/etc/sz/internal/sentinez.dmz.edge.pem:ro
+    - ../../certs/internal/sentinez.dmz.edge-key.pem:/etc/sz/internal/sentinez.dmz.edge-key.pem:ro
 
 x-edge-env: &edge-env
   # the debug logs of the sync: what the leader loads from centraldata,
   # what the others sync from it (docker-entrypoint.sh)
   LOG_LEVEL: debug
-  SENZ_DISCOVERY_ADDRESS: 0.0.0.0:7777
-  SENZ_ZONE: HAN
+  SZ_DISCOVERY_ADDRESS: 0.0.0.0:7777
+  SZ_ZONE: HAN
 
 services:
   sentinez.consul.02:
@@ -63,9 +63,9 @@ services:
     container_name: sentinez.dmz.edge.01
     environment:
       <<: *edge-env
-      SENZ_CONSUL_URI: http://sentinez.consul:8500
+      SZ_CONSUL_URI: http://sentinez.consul:8500
       # Olric retries the join 10 times, 1s apart: time enough for edge.02
-      SENZ_MEMBERSHIP_ADDRESS: sentinez.dmz.edge.02:7777
+      SZ_MEMBERSHIP_ADDRESS: sentinez.dmz.edge.02:7777
     ports:
       - "7444:7443"
       - "7444:7443/udp"
@@ -76,8 +76,8 @@ services:
     container_name: sentinez.dmz.edge.02
     environment:
       <<: *edge-env
-      SENZ_CONSUL_URI: http://sentinez.consul.02:8500
-      SENZ_MEMBERSHIP_ADDRESS: sentinez.dmz.edge.01:7777
+      SZ_CONSUL_URI: http://sentinez.consul.02:8500
+      SZ_MEMBERSHIP_ADDRESS: sentinez.dmz.edge.01:7777
     depends_on:
       - sentinez.consul.02
       - sentinez.dmz.edge.01
@@ -91,8 +91,8 @@ services:
     container_name: sentinez.dmz.edge.03
     environment:
       <<: *edge-env
-      SENZ_CONSUL_URI: http://sentinez.consul.03:8500
-      SENZ_MEMBERSHIP_ADDRESS: sentinez.dmz.edge.01:7777
+      SZ_CONSUL_URI: http://sentinez.consul.03:8500
+      SZ_MEMBERSHIP_ADDRESS: sentinez.dmz.edge.01:7777
     depends_on:
       - sentinez.consul.03
       - sentinez.dmz.edge.01

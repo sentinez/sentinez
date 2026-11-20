@@ -157,7 +157,7 @@ func (s *RevProxyServer) Start() error {
 
 	var (
 		addr = s.conf.GetDefault(
-			settingpb.Senz_SENZ_ADDRESS, defaults.HTTPSAddress)
+			settingpb.Sz_SZ_ADDRESS, defaults.HTTPSAddress)
 
 		certFile = s.conf.GetFlag().GetCertFile()
 		keyFile  = s.conf.GetFlag().GetCertKeyFile()

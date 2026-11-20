@@ -28,7 +28,7 @@ import (
 // Context the loaded eBPF objects, and the XDP link once attached. Close
 // releases both.
 type Context struct {
-	obj  *sentinezbpf.SenzObjects
+	obj  *sentinezbpf.SzObjects
 	link link.Link
 }
 
@@ -38,8 +38,8 @@ func NewContext() (*Context, error) {
 		return nil, fmt.Errorf("driver: remove memlock: %w", err)
 	}
 
-	var objs sentinezbpf.SenzObjects
-	if err := sentinezbpf.LoadSenzObjects(&objs, nil); err != nil {
+	var objs sentinezbpf.SzObjects
+	if err := sentinezbpf.LoadSzObjects(&objs, nil); err != nil {
 		return nil, fmt.Errorf("driver: load objects: %w", err)
 	}
 
@@ -49,7 +49,7 @@ func NewContext() (*Context, error) {
 // AttachXDP attaches the XDP program to the interface of index ifIndex.
 func (ctx *Context) AttachXDP(ifIndex int) error {
 	l, err := link.AttachXDP(link.XDPOptions{
-		Program:   ctx.obj.SenzMain,
+		Program:   ctx.obj.SzMain,
 		Interface: ifIndex,
 	})
 	if err != nil {

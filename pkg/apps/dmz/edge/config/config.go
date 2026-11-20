@@ -24,24 +24,24 @@ import (
 var _provider = appconfig.New(appconfig.Spec{
 	Meta:  edgepb.GetMetaEdge(),
 	Flags: edgeflags.Parse,
-	Keys: []settingpb.Senz{
-		settingpb.Senz_SENZ_ADDRESS,
-		settingpb.Senz_SENZ_SECRET_KEY,
-		settingpb.Senz_SENZ_MEMBERSHIP_ADDRESS,
-		settingpb.Senz_SENZ_DISCOVERY_ADDRESS,
-		settingpb.Senz_SENZ_OTLP_INTERNAL_ENDPOINT,
-		settingpb.Senz_SENZ_OTLP_EXTERNAL_ENDPOINT,
-		settingpb.Senz_SENZ_KAFKA_BROKERS,
-		settingpb.Senz_SENZ_CONSUL_URI,
-		settingpb.Senz_SENZ_ZONE,
+	Keys: []settingpb.Sz{
+		settingpb.Sz_SZ_ADDRESS,
+		settingpb.Sz_SZ_SECRET_KEY,
+		settingpb.Sz_SZ_MEMBERSHIP_ADDRESS,
+		settingpb.Sz_SZ_DISCOVERY_ADDRESS,
+		settingpb.Sz_SZ_OTLP_INTERNAL_ENDPOINT,
+		settingpb.Sz_SZ_OTLP_EXTERNAL_ENDPOINT,
+		settingpb.Sz_SZ_KAFKA_BROKERS,
+		settingpb.Sz_SZ_CONSUL_URI,
+		settingpb.Sz_SZ_ZONE,
 		// centraldata: the edge follows it when it holds a service token
-		settingpb.Senz_SENZ_SERVICE_TOKEN,
-		settingpb.Senz_SENZ_SYNC_KEY,
-		settingpb.Senz_SENZ_TLS_CA,
-		settingpb.Senz_SENZ_TLS_CERT,
-		settingpb.Senz_SENZ_TLS_KEY,
+		settingpb.Sz_SZ_SERVICE_TOKEN,
+		settingpb.Sz_SZ_SYNC_KEY,
+		settingpb.Sz_SZ_TLS_CA,
+		settingpb.Sz_SZ_TLS_CERT,
+		settingpb.Sz_SZ_TLS_KEY,
 		// opens the certificates centraldata gives the edge to serve
-		settingpb.Senz_SENZ_DATA_KEY,
+		settingpb.Sz_SZ_DATA_KEY,
 	},
 })
 

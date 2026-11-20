@@ -23,8 +23,8 @@ import (
 )
 
 func TestNewConfigReportsStarted(t *testing.T) {
-	membership := settingpb.Senz_SENZ_MEMBERSHIP_ADDRESS.String()
-	discovery := settingpb.Senz_SENZ_DISCOVERY_ADDRESS.String()
+	membership := settingpb.Sz_SZ_MEMBERSHIP_ADDRESS.String()
+	discovery := settingpb.Sz_SZ_DISCOVERY_ADDRESS.String()
 
 	tests := []struct {
 		name string

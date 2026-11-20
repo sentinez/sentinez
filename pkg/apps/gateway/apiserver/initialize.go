@@ -94,7 +94,7 @@ func (srv *Server) useMiddleware(conf *settingpb.Config) {
 
 	origins := passkey.ClientOrigins(conf)
 	if len(origins) == 0 {
-		szlog.Warnf("no SENZ_CLIENT_ORIGIN: cross origin calls are refused")
+		szlog.Warnf("no SZ_CLIENT_ORIGIN: cross origin calls are refused")
 	}
 
 	srv.server.Use(middleware.CORS(origins))
