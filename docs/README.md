@@ -7,7 +7,7 @@ platform made of an edge proxy with a WAF (OWASP CRS via Coraza), a custom
 rule engine (SecRule), rate limiting, a CDN cache, an eBPF/XDP dataplane and
 a web console.
 
-It was written by reading the source directly at commit `47e5f876` (branch
+It was written by reading the source directly at commit `0cdeaf9c` (branch
 `main`). When the code changes, update the matching file (and its Vietnamese
 counterpart in [vi/](vi/)).
 

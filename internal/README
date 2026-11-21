@@ -1,4 +1,51 @@
 internal
-
 =======================================================================
 
+Private code of the root module (it cannot be imported from outside
+github.com/sentinez/sentinez). The service wiring that uses it is in
+pkg/apps/dmz/{edge,dataplane}; the docs are in docs/03-edge.md and
+docs/05-dataplane-ebpf.md.
+
+dmz/                 demilitarized zone: the edge and the dataplane
+  edge/engine        HTTP engine constructors, chosen by --engine
+                     (Quic, Hertz, Standard)
+  edge/http          builds the edge handler from the chain (http.Init)
+  edge/http/option   options every chain plugin reads (level, exporter,
+                     secret key)
+  edge/transport     TLS (JA4 fingerprint) and OnConnect hooks
+  edge/api.go        the gRPC service of the edge (RevProxyService)
+  edge/events/{pub,sub}
+                     empty for now
+  dataplane          attaches the XDP program, then serves gRPC
+  dataplane/driver   loads the eBPF objects and drives the maps
+                     (context, security, monitor); the map API
+
+handlers/            the edge HTTP chain, one plugin per package
+  handlers.go        New builds the chain; plugins() lists the plugins in
+                     request order: trace, logging, domain, cdn, limiter,
+                     waiting room, static, SecRule, SecRuleset, router
+                     (linked by core/szhttp/chains.Build)
+  trace logging routing cdn room static
+  secure             domain, SecRateLimit, SecRule and SecRuleset plugins
+  wrap/stage         wraps a plugin with the stage error and timing
+  wrap/script        runs the Lua hooks of a domain around each stage
+
+memory/              per-namespace runtime state of the edge (MemStore)
+  memory.go          the store: routes, upstreams, rules, limiters, WAF,
+                     CDN, certificates, scripts
+  sync.go            settings shared by the edge nodes (Olric maps)
+  central.go         the settings built from the tables of centraldata
+  tls.go passthrough.go
+                     TLS modes, upstream TLS and passthrough
+  secrules secratelimits secrulesets cdnrules routes upstream
+  certificates scripts settings
+                     one package per kind of state
+
+centralsync/         keeps the edge equal to the tables centraldata syncs:
+                     loads them with the Sync stream, then follows the
+                     changes published on the Olric channel
+
+envplugin/           Env: what the chain plugins provision themselves from
+                     (memory, options, shared GeoIP databases)
+
+defaults/            fallback listen addresses when the setting is unset

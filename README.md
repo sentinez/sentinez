@@ -63,22 +63,38 @@ make bench                # or BENCH_COUNT=10 make bench
 
 <!-- bench:start -->
 
-_go1.27.1, linux/amd64, 13th Gen Intel(R) Core(TM) i7-1355U; median of 6 runs, 2026-11-20._
+_go1.27.1, linux/amd64, 13th Gen Intel(R) Core(TM) i7-1355U; median of 6 runs, 2026-11-21._
 
 | Package | Benchmark | ns/op | B/op | allocs/op |
 |---|---|--:|--:|--:|
-| `internal/handlers` | StageDenied | 400 | 0 | 0 |
-| `internal/handlers/cdn` | CacheHit | 1054 | 240 | 18 |
-| `internal/handlers/cdn` | CacheMissUncacheable | 1044 | 384 | 28 |
-| `internal/handlers/logging` | NewEvent | 1440 | 1072 | 3 |
-| `internal/handlers/logging` | NewEgressEvent | 348 | 48 | 2 |
-| `internal/handlers/secure` | SecLimiterAllowed | 179 | 0 | 0 |
-| `internal/handlers/static` | StaticAsset | 90.3 | 16 | 1 |
-| `internal/handlers/wrap/script` | HooksOneStage | 1520 | 560 | 9 |
-| `pkg/network/httpx` | ContextLifecycle | 617 | 80 | 4 |
-| `pkg/network/httpx` | ContextGetters | 135 | 48 | 1 |
-| `pkg/network/httpx` | ContextVisitRequestHeaders | 119 | 0 | 0 |
-| `pkg/network/httpx` | ContextSetResponseHeader | 72.2 | 16 | 1 |
+| `internal/handlers` | StageDenied | 660 | 0 | 0 |
+| `internal/handlers/cdn` | CacheHit | 1671 | 240 | 18 |
+| `internal/handlers/cdn` | CacheMissUncacheable | 1826 | 384 | 28 |
+| `internal/handlers/logging` | NewEvent | 1658 | 1072 | 3 |
+| `internal/handlers/logging` | NewEgressEvent | 537 | 48 | 2 |
+| `internal/handlers/secure` | SecLimiterAllowed | 302 | 0 | 0 |
+| `internal/handlers/secure` | SecLimiterExceeded | 9042 | 11024 | 36 |
+| `internal/handlers/secure` | SecLimiterNoRules | 23.3 | 0 | 0 |
+| `internal/handlers/secure` | SecRuleNoRules | 27.6 | 0 | 0 |
+| `internal/handlers/secure` | SecRuleNoMatch | 87.0 | 0 | 0 |
+| `internal/handlers/secure` | SecRuleBlock | 8356 | 10968 | 34 |
+| `internal/handlers/secure` | SecRuleActions | 1197 | 80 | 3 |
+| `internal/handlers/secure` | SecRuleChallenge | 27232 | 55560 | 41 |
+| `internal/handlers/secure` | DomainBased | 108 | 0 | 0 |
+| `internal/handlers/secure` | Misdirected | 32.7 | 0 | 0 |
+| `internal/handlers/secure` | SecRuleset/clean | 656218 | 185990 | 3155 |
+| `internal/handlers/secure` | SecRuleset/attack | 928707 | 166314 | 3236 |
+| `internal/handlers/secure` | SecRulesetNoWAF | 5820 | 6961 | 27 |
+| `internal/handlers/secure` | Evaluate | 60.3 | 0 | 0 |
+| `internal/handlers/secure` | ApplyActions | 320 | 24 | 2 |
+| `internal/handlers/secure` | Redirect | 402 | 83 | 5 |
+| `internal/handlers/secure` | NewSecRuleEvent | 1018 | 96 | 3 |
+| `internal/handlers/static` | StaticAsset | 134 | 16 | 1 |
+| `internal/handlers/wrap/script` | HooksOneStage | 1938 | 560 | 9 |
+| `pkg/network/httpx` | ContextLifecycle | 936 | 80 | 4 |
+| `pkg/network/httpx` | ContextGetters | 160 | 48 | 1 |
+| `pkg/network/httpx` | ContextVisitRequestHeaders | 191 | 0 | 0 |
+| `pkg/network/httpx` | ContextSetResponseHeader | 95.0 | 16 | 1 |
 
 <!-- bench:end -->
 

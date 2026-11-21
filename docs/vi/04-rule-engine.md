@@ -204,12 +204,23 @@ Chạy lại toàn bộ: `bash hack/ruleparser.sh`.
 
 ### Ghép directive
 
-`szcrs.GenerateRulesets(version, flag)`
+`szcrs.GenerateRulesets(crs)`
 ([waf_loader.go](../../staging/src/github.com/sentinez/core/szcrs/waf_loader.go))
-nối theo thứ tự:
+chuyển setting CRS (`ruleset.v1.Crs`) thành directive SecLang: engine tắt →
+`SecRuleEngine Off`; version lạ → `ErrUnsupportedVersion`; setting được
+validate, rồi `szruleset.Loader` nối theo thứ tự:
 
-1. `setup` → 2. `REQUEST-901-INITIALIZATION` → 3. rule theo version + flag →
-4. `audit` → 5. `default` → 6. `REQUEST-949-BLOCKING-EVALUATION`.
+1. rule `setup` + directive của setting (`setupDirectives`) →
+2. `REQUEST-901-INITIALIZATION` → 3. các nhóm request của version, mỗi nhóm
+chỉ nạp khi flag bật → 4. `audit` → 5. `default` →
+6. `REQUEST-949-BLOCKING-EVALUATION` → 7. các nhóm response →
+8. exclusion toàn cục và rule override (`globalDirectives`, ghi cuối vì chúng
+sửa các rule phải được định nghĩa trước).
+
+Thứ tự là quan trọng. Hook `Rewrite` của loader (`ruleOverrides`) áp trạng
+thái rule: `DETECTION_ONLY` chuyển điểm anomaly của rule sang counter
+`tx.detection_only_*` mà blocking evaluation không đọc; rule ép `ENABLED` trên
+mức paranoia chặn được tính điểm ở level 1 và đưa lên trước trong file của nó.
 
 `Flag` là bitmask (`waf_flag.go`) cho từng file CRS (905…944, 950…980). Hiện
 chỉ hai flag có rule sinh sẵn:
@@ -219,14 +230,16 @@ chỉ hai flag có rule sinh sẵn:
 | `ReqAppAttackRCE` (932) | có | có |
 | `ReqAppAttackSQLI` (942) | có | dùng lại bản v4.16.0 |
 
-`szcrs.NewWAF(version, fs, flag)` tạo `coraza.WAF` với `RootFS` là các file
-`*.data` nhúng trong [sentinez.go](../../sentinez.go) (`WAF4160()`,
-`WAF4170()`).
+`szcrs.NewWAF(rootFs, crs)` sinh directive rồi giao cho `szruleset.NewWAF`,
+hàm này tạo `coraza.WAF` với `RootFS` là các file `*.data` nhúng trong
+[sentinez.go](../../sentinez.go) (`WAF4160()`, `WAF4170()`).
 
 ### Xử lý trong request
 
-[core/szcrs](../../staging/src/github.com/sentinez/core/szcrs/) — phỏng
-theo middleware HTTP của Coraza:
+[core/szruleset](../../staging/src/github.com/sentinez/core/szruleset/) —
+runtime Coraza không phụ thuộc provider (`Loader`, `NewWAF`, `Rulesets`),
+phỏng theo middleware HTTP của Coraza. `szcrs` giữ phần riêng của OWASP CRS
+(flag, paranoia level, setting, `AnomalyScore`, `IsFrameworkRule`):
 
 | Bước | Hàm | Chi tiết |
 |---|---|---|

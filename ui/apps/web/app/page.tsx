@@ -25,15 +25,15 @@ const MULTI_LANG_TEXTS = [
 const CARDS = [
   {
     label: 'WEB APPLICATION FIREWALL',
-    title: 'PROTECT',
-    link: '/dashboard',
+    title: 'CONSOLE',
+    link: 'https://console.s6z.io.vn',
     linkLabel: 'GET STARTED',
   },
   {
-    label: 'REAL-TIME THREAT DETECTION',
-    title: 'DETECT',
-    link: '/threats',
-    linkLabel: 'VIEW THREATS',
+    label: 'DOCUMENTATION',
+    title: 'ENGINEERING',
+    link: '/engineering',
+    linkLabel: 'READ THE DOCS',
   },
   {
     label: 'OPEN PLATFORM',

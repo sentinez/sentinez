@@ -207,12 +207,24 @@ Regenerate everything with `bash hack/ruleparser.sh`.
 
 ### Assembling directives
 
-`szcrs.GenerateRulesets(version, flag)`
+`szcrs.GenerateRulesets(crs)`
 ([waf_loader.go](../staging/src/github.com/sentinez/core/szcrs/waf_loader.go))
-concatenates, in order:
+maps the CRS setting (`ruleset.v1.Crs`) to SecLang directives: engine off →
+`SecRuleEngine Off`; an unknown version → `ErrUnsupportedVersion`; the
+setting is validated, then a `szruleset.Loader` concatenates, in order:
 
-1. `setup` → 2. `REQUEST-901-INITIALIZATION` → 3. version + flag rules →
-4. `audit` → 5. `default` → 6. `REQUEST-949-BLOCKING-EVALUATION`.
+1. `setup` rules + the directives of the setting (`setupDirectives`) →
+2. `REQUEST-901-INITIALIZATION` → 3. request groups of the version, each
+loaded when its flag is on → 4. `audit` → 5. `default` →
+6. `REQUEST-949-BLOCKING-EVALUATION` → 7. response groups →
+8. global exclusions and rule overrides (`globalDirectives`, written last
+because they change rules that must already be defined).
+
+The order matters. The loader's `Rewrite` hook (`ruleOverrides`) applies the
+rule states: `DETECTION_ONLY` moves the anomaly score of a rule to
+`tx.detection_only_*` counters the blocking evaluation never reads, and a rule
+forced `ENABLED` above the blocking paranoia level is scored at level 1 and
+hoisted in front of its file.
 
 `Flag` is a bitmask (`waf_flag.go`) with one bit per CRS file (905…944,
 950…980). Only two flags have generated rules so far:
@@ -222,14 +234,17 @@ concatenates, in order:
 | `ReqAppAttackRCE` (932) | yes | yes |
 | `ReqAppAttackSQLI` (942) | yes | reuses the v4.16.0 rules |
 
-`szcrs.NewWAF(version, fs, flag)` builds a `coraza.WAF` whose `RootFS` is the
-set of `*.data` files embedded in [sentinez.go](../sentinez.go) (`WAF4160()`,
+`szcrs.NewWAF(rootFs, crs)` generates the directives and hands them to
+`szruleset.NewWAF`, which builds a `coraza.WAF` whose `RootFS` is the set of
+`*.data` files embedded in [sentinez.go](../sentinez.go) (`WAF4160()`,
 `WAF4170()`).
 
 ### Per-request processing
 
-[core/szcrs](../staging/src/github.com/sentinez/core/szcrs/) — modeled
-on Coraza's HTTP middleware:
+[core/szruleset](../staging/src/github.com/sentinez/core/szruleset/) — the
+provider-agnostic Coraza runtime (`Loader`, `NewWAF`, `Rulesets`), modeled
+on Coraza's HTTP middleware. `szcrs` keeps what is specific to the OWASP CRS
+(flags, paranoia levels, setting, `AnomalyScore`, `IsFrameworkRule`):
 
 | Step | Function | Details |
 |---|---|---|
