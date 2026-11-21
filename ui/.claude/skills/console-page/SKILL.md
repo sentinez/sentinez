@@ -12,18 +12,20 @@ For the API client the page calls, follow the `swagger-api-client` skill first.
 
 ## 1. Sidebar-tab pages MUST show the loading effect
 
-Every page reached from the **root sidebar** (`app/d/console/(root)/...`, `app/d/setting`, `app/tenant`)
-or the **domain sidebar** (`app/d/console/[domain]/...`) keeps an intentional delay so
-`loading.tsx` is visible when switching tabs. This is deliberate. Never remove it as
-"dead code", and add it to every new sidebar-level page.
+Switching tabs in the **root sidebar** (`app/d/console/(root)/...`, `app/d/setting`)
+or the **domain sidebar** (`app/d/console/[domain]/...`) covers the page with the
+spinner for `TAB_LOADING_MILLIS` (`lib/delays.ts`). `ConsoleSidebarInset` does it through
+`TabLoading` (`components/tab-loading.tsx`), so a page adds nothing for it. The page renders
+and fetches under the cover. When the cover lifts, the page shows its data, or the table
+skeleton if the fetch is still running. This is deliberate: never remove it. Never add a
+server-side wait (`await sleep`) to `page.tsx`: it would delay the fetch instead of running
+alongside it.
 
 ```tsx
 // page.tsx (server component, no 'use client')
 import View from './view';
-import { pageDelay } from '@/lib/delays';
 
-export default async function Page() {
-  await pageDelay();
+export default function Page() {
   return <View />;
 }
 ```
@@ -37,18 +39,19 @@ export default function Loading() {
 }
 ```
 
-- The delay is `PAGE_DELAY_MILLIS` in `lib/delays.ts`; change it there only. A page with server work passes it in (`await pageDelay(getTranslations('X'))`): the wait is then at least the delay, longer if the work is. Same as the existing pages (`sec-rule`, `tenant`, `member`, `analytic/*`).
-- The interactive UI goes in `view.tsx` (`'use client'`); `page.tsx` only waits and renders it.
-- Sub-pages that are not sidebar tabs (`new/`, `[id]/`) are client components and do not
-  need the delay. `[id]/` still gets a `loading.tsx` and shows `<IsLoading />` while
-  fetching.
+- `loading.tsx` stays. It shows the same spinner while the server is actually slow.
+- The interactive UI goes in `view.tsx` (`'use client'`); `page.tsx` only renders it.
+  A page with server work awaits only that work (`const t = await getTranslations('X')`).
+- Moving into a tab's own sub pages (`new/`, `[id]/`) or back out of them is not a tab
+  switch, so it gets no cover. `[id]/` still gets a `loading.tsx` and shows `<IsLoading />`
+  while fetching.
 - New sidebar entries are registered in `lib/default/index.ts`.
 
 ## 2. Route layout for a CRUD resource
 
 ```
 <resource>/
-  page.tsx        # await pageDelay() -> <View />
+  page.tsx        # <View />
   loading.tsx
   view.tsx        # list: @tanstack/react-table, filter, column toggle, pagination, delete dialog
   new/page.tsx    # create form -> create<X>({ x: xOf(form) }) -> toast + router.back()
@@ -129,7 +132,7 @@ there is no `/[locale]` URL segment.
 
 - Client components: `const t = useTranslations('SecRule')`; shared words
   (Save, Cancel, Delete, Loading..., No results.) are in `Common`.
-- Server components (`page.tsx` with the delay): `await getTranslations('Domain')`.
+- Server components (`page.tsx`): `await getTranslations('Domain')`.
 - Helpers outside React (`validateXxxForm`, `getColumns`, `handleStatusError`) take the
   translator as a parameter, typed `ReturnType<typeof useTranslations<'Validation'>>`.
 - Table columns set `meta: { label: t('...') }` so the "Columns" menu is translated.

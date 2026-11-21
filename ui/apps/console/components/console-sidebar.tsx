@@ -30,6 +30,7 @@ import PreviewHeader from './preview-header';
 import PreviewFooter from './preview-footer';
 import { ChevronLeft, Search } from 'lucide-react';
 import SidebarLoading from './sidebar-loading';
+import { TabLoading } from './tab-loading';
 import { ComponentProps, ReactNode, useEffect, useMemo, useState, useTransition } from 'react';
 import { useLocalUser } from '@/components/user-menu';
 import { isUnder } from '@/lib/session';
@@ -388,7 +389,7 @@ export function ConsoleSidebarInset({ children }: { children: ReactNode }) {
     <SidebarInset className="min-w-0">
       <div className="flex min-h-screen flex-col">
         <PreviewHeader username={user.name} />
-        <div className="flex flex-1 flex-col gap-4">{children}</div>
+        <TabLoading>{children}</TabLoading>
       </div>
       <PreviewFooter />
     </SidebarInset>
