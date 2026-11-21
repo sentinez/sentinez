@@ -79,7 +79,7 @@ exported. An `https://` endpoint uses TLS.
 | `pkg/szstorage/dbx` | See [07-controlplane.md](07-controlplane.md#71-storage-layer-pkgszstoragedbx) |
 | `pkg/szstorage/dbx/timescale` | Hypertables and continuous aggregates, see [07-controlplane.md](07-controlplane.md#timescaledb-hypertables-and-continuous-aggregates) |
 | `pkg/szstorage/{cache/keyval,dbx/clickhouse,search/elastic}` | Empty packages (planned) |
-| `core/szlimiter`, `core/szrule`, `core/szcrs`, `core/szmodsec` | See [04-rule-engine.md](04-rule-engine.md) |
+| `core/szlimiter`, `core/szrule`, `core/szcrs`, `core/szruleset`, `core/szmodsec` | See [04-rule-engine.md](04-rule-engine.md) |
 | `pkg/sztracer` | `StageError{Stage, Elapsed, Err}`, `Origin(err)` |
 | `pkg/szqueue` | Empty `Queue{}` (for the waiting room) |
 | `pkg/szsdklog` | `New(conf, opts...)`: `Exporter` of the edge traffic logs: Kafka on `SZ_KAFKA_BROKERS`, else OTLP on `SZ_OTLP_EXTERNAL_ENDPOINT`, nil when neither is set; `opts` (`szkafka.ConfigOption`) configure the producer |

@@ -6,7 +6,7 @@ Bộ tài liệu mô tả mã nguồn Sentinéz — nền tảng bảo mật vi�
 edge proxy có WAF (OWASP CRS qua Coraza), rule engine tuỳ biến (SecRule),
 rate limiting, CDN cache, dataplane eBPF/XDP và web console.
 
-Tài liệu được viết từ việc đọc trực tiếp source code tại commit `47e5f876`
+Tài liệu được viết từ việc đọc trực tiếp source code tại commit `0cdeaf9c`
 (nhánh `main`). Khi code thay đổi, hãy cập nhật file tương ứng.
 
 ## Mục lục

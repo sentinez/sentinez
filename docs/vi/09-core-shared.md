@@ -77,7 +77,7 @@ type một topic, xem `pkg/szkafka`), nếu không thì qua provider OTLP riêng
 | `pkg/szstorage/dbx` | Xem [07-controlplane.md](07-controlplane.md#71-lớp-lưu-trữ-pkgszstoragedbx) |
 | `pkg/szstorage/dbx/timescale` | Hypertable và continuous aggregate, xem [07-controlplane.md](07-controlplane.md#timescaledb-hypertable-và-continuous-aggregate) |
 | `pkg/szstorage/{cache/keyval,dbx/clickhouse,search/elastic}` | Package rỗng (dự kiến) |
-| `core/szlimiter`, `core/szrule`, `core/szcrs`, `core/szmodsec` | Xem [04-rule-engine.md](04-rule-engine.md) |
+| `core/szlimiter`, `core/szrule`, `core/szcrs`, `core/szruleset`, `core/szmodsec` | Xem [04-rule-engine.md](04-rule-engine.md) |
 | `pkg/sztracer` | `StageError{Stage, Elapsed, Err}`, `Origin(err)` |
 | `pkg/szqueue` | `Queue{}` rỗng (cho waiting room) |
 | `pkg/szsdklog` | `New(conf, opts...)`: `Exporter` cho log traffic của edge: Kafka trên `SZ_KAFKA_BROKERS`, không thì OTLP trên `SZ_OTLP_EXTERNAL_ENDPOINT`, nil khi không đặt biến nào; `opts` (`szkafka.ConfigOption`) cấu hình producer |
