@@ -27,7 +27,7 @@ function fileOf(lang: Lang, slug: string) {
 }
 
 function titleOf(src: string, fallback: string) {
-  return /^#\s+(.+)$/m.exec(src)?.[1].trim() ?? fallback;
+  return /^#\s+(.+)$/m.exec(src)?.[1]?.trim() ?? fallback;
 }
 
 /** All pages of a language, README first, then 01-… in order. */
@@ -59,7 +59,7 @@ export async function readDoc(lang: Lang, slug: string): Promise<string | null> 
  */
 export function resolveHref(href: string, lang: Lang): string {
   if (/^([a-z]+:|#|\/\/)/i.test(href)) return href;
-  const [target, hash = ''] = href.split('#');
+  const [target = '', hash = ''] = href.split('#');
   const suffix = hash ? `#${hash}` : '';
   if (target === '') return suffix;
 
