@@ -1,10 +1,9 @@
 import { ResourceView } from '../../../components/resource-view';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 import { getTranslations } from 'next-intl/server';
-import { pageDelay } from '@/lib/delays';
 
 export default async function Page() {
-  const t = await pageDelay(getTranslations('Resource'));
+  const t = await getTranslations('Resource');
 
   return (
     <PageLayout>
