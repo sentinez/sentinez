@@ -21,10 +21,11 @@ import (
 
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/chains"
-	"github.com/sentinez/core/szhttp/variable"
 	"github.com/sentinez/pkg/szlog"
-	"github.com/sentinez/scripting/szlua"
+	"github.com/sentinez/scripting"
+	"github.com/sentinez/scripting/phase"
 	"github.com/sentinez/sentinez/internal/memory/scripts"
+	"github.com/sentinez/sentinez/pkg/pools/exchange"
 )
 
 var _ chains.WrapFunc = (*Hooks)(nil).Wrap
@@ -40,7 +41,7 @@ func New(store *scripts.Scripts) *Hooks {
 }
 
 // Wrap returns h, the handler running the plugin id, with the hooks of
-// the stage id around it. A stage scripts may not hook (szlua.Stages) is
+// the stage id around it. A stage scripts may not hook (scripting.Stages) is
 // returned as is.
 //
 // The hooks of ---@stage http:request/<stage> run before the plugin: a
@@ -48,7 +49,7 @@ func New(store *scripts.Scripts) *Hooks {
 // http:response/<stage> run when the plugin, and the ones after it,
 // returned: the response is written, they only observe.
 func (h *Hooks) Wrap(id string, next chains.Handler) chains.Handler {
-	if !slices.Contains(szlua.Stages(), id) {
+	if !slices.Contains(scripting.Stages(), id) {
 		return next
 	}
 
@@ -67,22 +68,24 @@ func (h *hooked) Handle(ctx szhttp.Context) error {
 		return h.next.Handle(ctx)
 	}
 
-	ex := &exchange{Context: ctx}
-	if h.run(ctx, programs, szlua.Request, ex) {
+	ex := exchange.Acquire(ctx)
+	defer exchange.Release(ex)
+
+	if h.run(ctx, programs, phase.Request, ex) {
 		return nil
 	}
 
 	err := h.next.Handle(ctx)
-	h.run(ctx, programs, szlua.Response, ex)
+	h.run(ctx, programs, phase.Response, ex)
 
 	return err
 }
 
 // hooks reports whether a script of programs hooks the stage, at either
-// phase: the exchange of the hooks is only allocated then.
-func (h *hooked) hooks(programs []*szlua.Program) bool {
+// phase: the exchange of the hooks is only acquired then.
+func (h *hooked) hooks(programs []*scripting.Program) bool {
 	for _, p := range programs {
-		if p.Has(szlua.Request, h.stage) || p.Has(szlua.Response, h.stage) {
+		if p.Has(phase.Request, h.stage) || p.Has(phase.Response, h.stage) {
 			return true
 		}
 	}
@@ -93,11 +96,11 @@ func (h *hooked) hooks(programs []*szlua.Program) bool {
 // run calls the hooks of each script at phase, and reports whether one
 // answered the request. A script that fails is skipped: the request goes
 // on.
-func (h *hooked) run(ctx szhttp.Context, programs []*szlua.Program,
-	phase szlua.Phase, ex *exchange) bool {
+func (h *hooked) run(ctx szhttp.Context, programs []*scripting.Program,
+	at phase.Phase, ex *exchange.Exchange) bool {
 
 	for _, p := range programs {
-		responded, err := p.Call(ctx.Context(), phase, h.stage, ex)
+		responded, err := p.Call(ctx.Context(), at, h.stage, ex)
 		if err != nil {
 			szlog.Warnf("script: request %s: %v", ctx.RequestId(), err)
 
@@ -110,37 +113,4 @@ func (h *hooked) run(ctx szhttp.Context, programs []*szlua.Program,
 	}
 
 	return false
-}
-
-// exchange the request of a hook: the headers it sets are validated, and
-// the ones sent upstream are recorded for the egress log.
-type exchange struct {
-	szhttp.Context
-}
-
-var _ szlua.Exchange = (*exchange)(nil)
-
-func (e *exchange) SetHeader(k, v string) {
-	if variable.IsValidHeaderKey(k) {
-		szhttp.SetUpstreamHeader(e.Context, k, v)
-	}
-}
-
-func (e *exchange) SetResponseHeader(k, v string) {
-	if variable.IsValidHeaderKey(k) {
-		e.Context.SetResponseHeader([]byte(k), []byte(v))
-	}
-}
-
-// Log writes a line of log.debug or log.info of a script, with the id of
-// the request.
-func (e *exchange) Log(level szlua.Level, script, msg string) {
-	rid := e.RequestId()
-	if level == szlua.LevelDebug {
-		szlog.Debugf("script: request %s: %s: %s", rid, script, msg)
-
-		return
-	}
-
-	szlog.Infof("script: request %s: %s: %s", rid, script, msg)
 }

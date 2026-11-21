@@ -18,7 +18,7 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/sentinez/scripting/szlua"
+	"github.com/sentinez/scripting"
 	"github.com/sentinez/sentinez/internal/handlers/secure"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -27,7 +27,7 @@ import (
 // TestScriptStagesAreTheChain the stages a script may hook are the
 // plugins of the chain after DMA, which resolves the namespace the
 // scripts are looked up by: a plugin added, removed or renamed there has
-// to be in szlua.Stages too, or no hook reaches it.
+// to be in scripting.Stages too, or no hook reaches it.
 func TestScriptStagesAreTheChain(t *testing.T) {
 	ids := make([]string, 0, len(plugins()))
 	for _, p := range plugins() {
@@ -37,5 +37,5 @@ func TestScriptStagesAreTheChain(t *testing.T) {
 	dma := slices.Index(ids, secure.DomainBasedId)
 	require.GreaterOrEqual(t, dma, 0)
 
-	assert.Equal(t, ids[dma+1:], szlua.Stages())
+	assert.Equal(t, ids[dma+1:], scripting.Stages())
 }

@@ -8,7 +8,7 @@
 
 This module runs the Lua scripts of the edge in a sandbox.
 
-`szlua` compiles a script (`Compile`) and calls its hooks (`Program.Call`).
+`scripting` compiles a script (`Compile`) and calls its hooks (`Program.Call`).
 A `---@stage <phase>/<stage>` line hooks the global function it
 precedes, whatever its name, to a stage of the edge handler chain, as
 `SEC("fentry/...")` does in eBPF:
@@ -56,7 +56,7 @@ The stages, in the order of the edge chain
 | `router` | `ROU` | `routing.StandardRouter`, to the upstream |
 
 The stages before the namespace of the request is known (`TRC`, `LOG`,
-`DMA`) have no hooks. `szlua.Stages` returns the ids, the ones `Has` and
+`DMA`) have no hooks. `scripting.Stages` returns the ids, the ones `Has` and
 `Call` take; a test of the edge (`TestScriptStagesAreTheChain`) checks
 them against the chain.
 
@@ -97,9 +97,23 @@ The sandbox opens `base`, `table`, `string` and `math` only: there is no
 `os`, `io`, `load` or `require`. Each call is limited to 50ms (`WithTimeout`),
 and a script that fails or times out is skipped by the edge.
 
+## Packages
+
+| Package | |
+|---|---|
+| `scripting` | `Compile`, `Program` (`Has`, `Call`) and `Stages` |
+| `scripting/exchange` | `Exchange`, the request the host hands a hook, and the log `Level` |
+| `scripting/phase` | `Phase`: `Request` (`http:request`), `Response` (`http:response`) |
+| `internal/hooks` | parses the `---@stage` lines into the hooks of a script; the stage table |
+| `internal/api` | the `ctx` and `log` APIs; `Run` calls the hooks of a stage in a Lua state |
+| `internal/sandbox` | the Lua state: the libraries a script may use, no more |
+
+The host implements `exchange.Exchange` and calls
+`Program.Call(ctx, phase.Request, stage, ex)` around each stage.
+
 ## Editor support
 
-`szlua/meta/sentinez.lua` declares `ctx` (`sz.Context`) for lua-language-server
+`meta/sentinez.lua` declares `ctx` (`sz.Context`) for lua-language-server
 (LuaLS / EmmyLua): annotate a hook with `---@param ctx sz.Context` for completion
 and type checks. `.luarc.json` loads it for this directory; elsewhere add the
 directory to `workspace.library`. `TestMetaMatchesContext` keeps it in step with

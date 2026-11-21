@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package szlua runs the Lua scripts of the edge. A ---@stage line hooks
+// Package scripting runs the Lua scripts of the edge. A ---@stage line hooks
 // the global function it precedes, whatever its name, to a stage of the
 // edge handler chain, at http:request or http:response:
 //
@@ -24,4 +24,4 @@
 // The edge calls it around the stage with a ctx value
 // to read the request, change its headers or answer it. Scripts run in a
 // sandbox without os, io or any way to load code, under a time limit.
-package szlua
+package scripting

@@ -12,5 +12,5 @@
     "bit": "disable",
     "utf8": "disable"
   },
-  "workspace.library": ["szlua/meta"]
+  "workspace.library": ["meta"]
 }

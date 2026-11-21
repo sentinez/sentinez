@@ -12,42 +12,90 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package szlua
+package api
 
 import (
 	"context"
+	"fmt"
+	"maps"
+	"slices"
 	"strings"
 
+	"github.com/sentinez/scripting/exchange"
+	"github.com/sentinez/scripting/phase"
 	lua "github.com/yuin/gopher-lua"
 )
 
 const (
-	_ctxType = "szlua.ctx"
+	_ctxType = "sz.scripting.lua.ctx"
 
-	// Longest log line of a script, in bytes: the rest is cut.
-	_maxLogLen = 1024
-	// Most log lines of a hook call: the others are dropped.
-	_maxLogLines = 16
+	// MaxLogLen is the longest log line of a script, in bytes: the rest is cut.
+	MaxLogLen = 1024
+	// MaxLogLines is the most log lines of a hook call: the others are dropped.
+	MaxLogLines = 16
 )
 
 // call the state of one hook call, the Value of the ctx userdata and of
 // the context of the Lua state, for the log table.
 type call struct {
-	ex        Exchange
+	ex        exchange.Exchange
 	script    string
-	phase     Phase
+	phase     phase.Phase
 	responded bool
 	logged    int
 }
+
+// Run calls the global functions funcs of L, the hooks of script at
+// phase at, with a ctx on ex, until one answers the request, and reports
+// whether one did. ctx bounds the time of the calls.
+func Run(ctx context.Context, L *lua.LState, funcs []string,
+	ex exchange.Exchange, script string, at phase.Phase) (bool, error) {
+
+	c := &call{ex: ex, script: script, phase: at}
+
+	ud := L.NewUserData()
+	ud.Value = c
+	L.SetMetatable(ud, L.GetTypeMetatable(_ctxType))
+	// A script may keep ctx in a global: once the call ends, its methods
+	// raise an error instead of reaching an exchange the host reused.
+	defer func() { ud.Value = nil }()
+
+	L.SetContext(context.WithValue(ctx, callKey{}, c))
+	defer L.RemoveContext()
+
+	for _, fn := range funcs {
+		f, ok := L.GetGlobal(fn).(*lua.LFunction)
+		if !ok {
+			return false, fmt.Errorf("%s is not a function anymore", fn)
+		}
+
+		err := L.CallByParam(lua.P{Fn: f, Protect: true}, ud)
+		if err != nil {
+			return false, fmt.Errorf("%s: %w", fn, err)
+		}
+
+		if c.responded {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
+// CtxMethods returns the sorted names of the methods of ctx.
+func CtxMethods() []string { return slices.Sorted(maps.Keys(_ctxMethods)) }
+
+// LogFuncs returns the sorted names of the functions of the log table.
+func LogFuncs() []string { return slices.Sorted(maps.Keys(_logFuncs)) }
 
 // callKey the key of the call in the context of the Lua state.
 type callKey struct{}
 
 // _logFuncs the functions of the log table, one by level, as
 // meta/sentinez.lua declares them.
-var _logFuncs = map[string]Level{
-	LevelDebug.String(): LevelDebug,
-	LevelInfo.String():  LevelInfo,
+var _logFuncs = map[string]exchange.Level{
+	exchange.LevelDebug.String(): exchange.LevelDebug,
+	exchange.LevelInfo.String():  exchange.LevelInfo,
 }
 
 // _ctxMethods the methods of ctx, as meta/sentinez.lua declares them.
@@ -61,6 +109,12 @@ var _ctxMethods = map[string]lua.LGFunction{
 	"set_header":          setter(setHeader),
 	"set_response_header": setter(setResponseHeader),
 	"respond":             respond,
+}
+
+// Register adds the global table log and the ctx type to L.
+func Register(L *lua.LState) {
+	registerLog(L)
+	registerCtx(L)
 }
 
 // registerCtx adds the ctx type to L.
@@ -96,10 +150,10 @@ func registerLog(L *lua.LState) {
 // argument is the log table, its upvalue: it is left out. Outside of a
 // hook call, while the script body runs, the line is dropped: there is no
 // request to log it with.
-func logAt(level Level) lua.LGFunction {
+func logAt(level exchange.Level) lua.LGFunction {
 	return func(L *lua.LState) int {
 		c := currentCall(L.Context())
-		if c == nil || c.logged >= _maxLogLines {
+		if c == nil || c.logged >= MaxLogLines {
 			return 0
 		}
 
@@ -134,14 +188,14 @@ func logLine(L *lua.LState, first int) string {
 		}
 
 		b.WriteString(L.ToStringMeta(L.Get(i)).String())
-		if b.Len() > _maxLogLen {
+		if b.Len() > MaxLogLen {
 			break
 		}
 	}
 
 	s := b.String()
-	if len(s) > _maxLogLen {
-		s = strings.ToValidUTF8(s[:_maxLogLen], "")
+	if len(s) > MaxLogLen {
+		s = strings.ToValidUTF8(s[:MaxLogLen], "")
 	}
 
 	return s
@@ -187,7 +241,7 @@ func setter(set func(c *call, k, v string)) lua.LGFunction {
 // runs once the stage answered: it raises an error.
 func respond(L *lua.LState) int {
 	c := callOf(L)
-	if c.phase == Response {
+	if c.phase == phase.Response {
 		L.RaiseError("respond: the stage already ran")
 	}
 

@@ -12,15 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package szlua
+package scripting
 
 import (
-	"maps"
 	"os"
 	"regexp"
 	"slices"
 	"testing"
 
+	"github.com/sentinez/scripting/internal/api"
+	"github.com/sentinez/scripting/internal/hooks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -33,18 +34,13 @@ func TestMetaMatchesContext(t *testing.T) {
 	require.NoError(t, err)
 
 	methods := declared(src, `(?m)^function Context:(\w+)\(`)
-	assert.Equal(t, slices.Sorted(maps.Keys(_ctxMethods)), methods)
+	assert.Equal(t, api.CtxMethods(), methods)
 
 	logs := declared(src, `(?m)^function log\.(\w+)\(`)
-	assert.Equal(t, slices.Sorted(maps.Keys(_logFuncs)), logs)
-
-	names := make([]string, 0, len(_stages))
-	for _, s := range _stages {
-		names = append(names, s.name)
-	}
+	assert.Equal(t, api.LogFuncs(), logs)
 
 	stages := declared(src, `(?m)^---\| "(\w+)"`)
-	assert.Equal(t, slices.Sorted(slices.Values(names)), stages)
+	assert.Equal(t, slices.Sorted(slices.Values(hooks.StageNames())), stages)
 }
 
 // declared the sorted names the pattern captures in src.

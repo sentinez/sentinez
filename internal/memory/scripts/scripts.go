@@ -21,17 +21,17 @@ import (
 
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/pkg/szsync"
-	"github.com/sentinez/scripting/szlua"
+	"github.com/sentinez/scripting"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 )
 
 // Scripts the compiled scripts by namespace.
 type Scripts struct {
-	sets *szsync.Map[string, []*szlua.Program]
+	sets *szsync.Map[string, []*scripting.Program]
 }
 
 func New() *Scripts {
-	return &Scripts{sets: szsync.NewMap[string, []*szlua.Program]()}
+	return &Scripts{sets: szsync.NewMap[string, []*scripting.Program]()}
 }
 
 // Store compiles the enabled scripts of namespace, in their given order,
@@ -40,7 +40,7 @@ func New() *Scripts {
 // compile fails the whole call and leaves the previous scripts in place.
 func (s *Scripts) Store(namespace string, scripts []*edgepb.Script) error {
 	held := s.Load(namespace)
-	programs := make([]*szlua.Program, 0, len(scripts))
+	programs := make([]*scripting.Program, 0, len(scripts))
 
 	for _, sc := range scripts {
 		if sc.GetDisabled() {
@@ -72,29 +72,29 @@ func (s *Scripts) Store(namespace string, scripts []*edgepb.Script) error {
 }
 
 // compiled the program of held with name and source, or a new one.
-func compiled(held []*szlua.Program, name,
-	source string) (*szlua.Program, error) {
+func compiled(held []*scripting.Program, name,
+	source string) (*scripting.Program, error) {
 
-	i := slices.IndexFunc(held, func(p *szlua.Program) bool {
+	i := slices.IndexFunc(held, func(p *scripting.Program) bool {
 		return p.Name() == name && p.Source() == source
 	})
 	if i >= 0 {
 		return held[i], nil
 	}
 
-	return szlua.Compile(name, source)
+	return scripting.Compile(name, source)
 }
 
 // Load returns the scripts of namespace. The result is shared and must not
 // be modified.
-func (s *Scripts) Load(namespace string) []*szlua.Program {
+func (s *Scripts) Load(namespace string) []*scripting.Program {
 	programs, _ := s.sets.Load(namespace)
 
 	return programs
 }
 
 // LoadContext returns the scripts of the namespace of the request.
-func (s *Scripts) LoadContext(ctx szhttp.Context) []*szlua.Program {
+func (s *Scripts) LoadContext(ctx szhttp.Context) []*scripting.Program {
 	if s == nil {
 		return nil
 	}
