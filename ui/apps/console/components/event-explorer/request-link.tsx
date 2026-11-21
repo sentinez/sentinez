@@ -1,7 +1,7 @@
 'use client';
 
 import type { ComponentProps } from 'react';
-import Link from 'next/link';
+import { HoverLink } from '@/components/hover-link';
 import { useTranslations } from 'next-intl';
 import { ArrowUpRight } from 'lucide-react';
 
@@ -47,9 +47,9 @@ export function RequestLink({
 }
 
 /** A link in a row of the table: a click on it does not open the row */
-export function RowLink({ className, ...props }: ComponentProps<typeof Link>) {
+export function RowLink({ className, ...props }: ComponentProps<typeof HoverLink>) {
   return (
-    <Link
+    <HoverLink
       {...props}
       className={cn('font-mono text-xs text-blue-700 underline dark:text-blue-400', className)}
       onClick={(e) => e.stopPropagation()}

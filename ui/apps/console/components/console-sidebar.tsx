@@ -22,7 +22,7 @@ import {
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { dashboard, NavItem } from '@/lib/default';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { TeamSwitcher } from './team-switcher';
 import { cn } from '@sentinez/ui/lib/utils';
 import Link from 'next/link';
@@ -85,6 +85,9 @@ function bestUrl(item: NavItem, pathname: string): string | undefined {
   return best;
 }
 
+/** A tab with sub tabs opens its first sub tab. */
+const tabUrl = (item: NavItem) => item.items?.[0]?.url ?? item.url;
+
 function domainUrl(url: string, domain: string) {
   if (!url.startsWith('/d/console/')) return url;
   const parts = url.split('/');
@@ -99,7 +102,6 @@ function domainUrl(url: string, domain: string) {
 export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: NavItem[] }) {
   const t = useTranslations('Nav');
   const ts = useTranslations('Sidebar');
-  const router = useRouter();
   const pathname = usePathname();
 
   const [, startTransitionNavMain] = useTransition();
@@ -151,9 +153,9 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
     setLoading(false);
   }, [pathname, navMain]);
 
+  // The tabs are Links (they navigate and prefetch); the click handlers only
+  // move the selection at once and close the mobile panel.
   const handlerSidebarNavMainClick = (item: NavItem, index: number) => {
-    router.push(item.url);
-
     startTransitionNavMain(() => {
       setActiveItem(item);
       setChildItems(item.items);
@@ -170,9 +172,7 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
     });
   };
 
-  const navigateTo = (url: string) => {
-    router.push(url);
-
+  const selectUrl = (url: string) => {
     startTransitionChildren(() => {
       setActiveUrl(url);
       if (isMobile) {
@@ -181,9 +181,7 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
     });
   };
 
-  /** A tab with sub tabs opens its first sub tab. */
-  const handlerSidebarChildrenClick = (item: NavItem) =>
-    navigateTo(item.items?.[0]?.url ?? item.url);
+  const handlerSidebarChildrenClick = (item: NavItem) => selectUrl(tabUrl(item));
 
   return (
     <Sidebar
@@ -256,16 +254,18 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
                 {navMain.map((item, index) => (
                   <SidebarMenuItem key={item.titleKey}>
                     <SidebarMenuButton
+                      asChild
                       tooltip={{
                         children: t(item.titleKey),
                         hidden: false,
                       }}
-                      onClick={() => handlerSidebarNavMainClick(item, index)}
                       isActive={activeItem?.titleKey === item.titleKey}
                       className="px-2.5 md:px-2 cursor-pointer"
                     >
-                      <item.icon />
-                      <span>{t(item.titleKey)}</span>
+                      <Link href={item.url} onClick={() => handlerSidebarNavMainClick(item, index)}>
+                        <item.icon />
+                        <span>{t(item.titleKey)}</span>
+                      </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
@@ -332,14 +332,19 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
                         {/* A tab with sub tabs always shows them */}
                         <SidebarMenuItem>
                           <SidebarMenuButton
+                            asChild
                             tooltip={t(item.titleKey)}
                             size="default"
-                            onClick={() => handlerSidebarChildrenClick(item)}
                             className="px-2.5 md:px-2 cursor-pointer"
                             isActive={activeUrl === item.url}
                           >
-                            {item.icon && <item.icon />}
-                            <span>{t(item.titleKey)}</span>
+                            <Link
+                              href={tabUrl(item)}
+                              onClick={() => handlerSidebarChildrenClick(item)}
+                            >
+                              {item.icon && <item.icon />}
+                              <span>{t(item.titleKey)}</span>
+                            </Link>
                           </SidebarMenuButton>
                           {!!item.items?.length && (
                             <SidebarMenuSub>
@@ -348,17 +353,16 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
                                   <SidebarMenuSubButton
                                     asChild
                                     isActive={activeUrl === subItem.url}
-                                    onClick={() => navigateTo(subItem.url)}
                                     className="px-2.5 md:px-2 cursor-pointer"
                                   >
-                                    <div>
+                                    <Link href={subItem.url} onClick={() => selectUrl(subItem.url)}>
                                       {subItem.icon && <subItem.icon />}
                                       <span
                                         className={activeUrl === subItem.url ? 'font-semibold' : ''}
                                       >
                                         {t(subItem.titleKey)}
                                       </span>
-                                    </div>
+                                    </Link>
                                   </SidebarMenuSubButton>
                                 </SidebarMenuSubItem>
                               ))}

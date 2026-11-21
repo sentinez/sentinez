@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { HoverLink } from '@/components/hover-link';
 import {
   flexRender,
   getCoreRowModel,
@@ -94,12 +95,12 @@ export const getColumns = (
         <div className="flex items-center gap-3 min-w-0">
           <MemberAvatar name={name} seed={r.user?.fullName || r.member.userId} />
           <div className="grid min-w-0 leading-tight">
-            <Link
+            <HoverLink
               className="truncate text-blue-700 font-semibold underline"
               href={`./member/${r.member.id}`}
             >
               {name}
-            </Link>
+            </HoverLink>
             {r.user?.email && (
               <span className="truncate text-xs text-muted-foreground">{r.user.email}</span>
             )}

@@ -27,6 +27,7 @@ import {
   DropdownMenuTrigger,
 } from '@sentinez/ui/components/dropdown-menu';
 import { Input } from '@sentinez/ui/components/input';
+import { Skeleton } from '@sentinez/ui/components/skeleton';
 import {
   TableBody,
   TableCell,
@@ -55,13 +56,14 @@ import { FixedTable } from '@/components/fixed-table';
 // "STATUS_ACTIVE" -> "active"
 const enumLabel = (v: string, prefix: string) => v.replace(prefix, '').toLowerCase();
 
-function rowOf(r: Resource, visitors: VisitorBucket[] = []): Payment {
+// `visitors` is undefined while the histogram of the page loads
+function rowOf(r: Resource, visitors: Map<string, VisitorBucket[]> | undefined): Payment {
   return {
     id: r.id,
     status: enumLabel(statusToJSON(r.status), 'STATUS_') as Payment['status'],
     name: r.domain ?? '',
     tlsMode: r.tlsMode,
-    visitors,
+    visitors: visitors ? (visitors.get(r.id) ?? []) : undefined,
   };
 }
 
@@ -70,7 +72,8 @@ export type Payment = {
   status: 'active' | 'disable' | 'pending' | 'success' | 'failed';
   name: string;
   tlsMode: TlsMode;
-  visitors: VisitorBucket[];
+  // undefined while the histogram loads
+  visitors?: VisitorBucket[];
 };
 
 /** The label of a TLS mode */
@@ -112,6 +115,25 @@ async function visitorsOf(
     console.warn('[domain] unique visitors failed:', err);
   }
   return visitors;
+}
+
+// The visitors of the resources of the page, undefined until the histogram of
+// that page is in (a newer page does not show the older one's).
+function usePageVisitors(resources: Resource[]) {
+  const [loaded, setLoaded] = React.useState<{
+    of: Resource[];
+    visitors: Map<string, VisitorBucket[]>;
+  }>();
+  React.useEffect(() => {
+    if (resources.length === 0) return;
+    const controller = new AbortController();
+    visitorsOf(resources, controller.signal).then(
+      (visitors) => setLoaded({ of: resources, visitors }),
+      () => {}, // aborted: a newer page is loading
+    );
+    return () => controller.abort();
+  }, [resources]);
+  return loaded?.of === resources ? loaded.visitors : undefined;
 }
 
 type DomainTranslator = ReturnType<typeof useTranslations<'Domain'>>;
@@ -158,7 +180,11 @@ export const getColumns = (t: DomainTranslator): ColumnDef<Payment>[] => [
     header: () => <div className="w-full">{t('uniqueVisitor')}</div>,
     cell: ({ row }) => (
       <div className="w-full max-h-16 overflow-hidden flex items-center">
-        <UniqueVisitorChart data={row.original.visitors} />
+        {row.original.visitors ? (
+          <UniqueVisitorChart data={row.original.visitors} />
+        ) : (
+          <Skeleton className="h-8 w-full" />
+        )}
       </div>
     ),
   },
@@ -198,18 +224,31 @@ export function ResourceTable() {
     async (page: Pages, signal: AbortSignal) => {
       const list = await listResources({ page, tenantIds: [tenantId] }, { signal });
       if (!list) throw new Error('list resources failed');
-      const visitors = await visitorsOf(list.resources, signal);
-      const items = list.resources.map((r) => rowOf(r, visitors.get(r.id)));
-      return { items, total: list.total };
+      return { items: list.resources, total: list.total };
     },
     [tenantId],
   );
-  const { items, total, loading, pagination, setPagination, pageCount, refresh } = usePagedList(
+  const {
+    items: resources,
+    total,
+    loading,
+    pagination,
+    setPagination,
+    pageCount,
+    refresh,
+  } = usePagedList(
     fetchPage,
     t('loadFailed'),
     10,
     // Wait for the selected tenant: it is unknown while rendering on the server
     tenantId !== '',
+  );
+  // The histogram needs the ids of the page, so it loads after the list: the
+  // rows show first and the chart cells fill in when it comes.
+  const visitors = usePageVisitors(resources);
+  const items = React.useMemo(
+    () => resources.map((r) => rowOf(r, visitors)),
+    [resources, visitors],
   );
   const table = useReactTable({
     data: items,
