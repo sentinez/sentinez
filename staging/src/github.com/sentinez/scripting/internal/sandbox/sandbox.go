@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package szlua
+package sandbox
 
 import (
 	lua "github.com/yuin/gopher-lua"
@@ -31,8 +31,8 @@ var _removed = []string{
 	"collectgarbage", "getfenv", "setfenv", "newproxy",
 }
 
-// newState a state with the base, table, string and math libraries only.
-func newState() *lua.LState {
+// NewState a state with the base, table, string and math libraries only.
+func NewState() *lua.LState {
 	L := lua.NewState(lua.Options{
 		SkipOpenLibs:    true,
 		CallStackSize:   _callStackSize,
@@ -57,9 +57,6 @@ func newState() *lua.LState {
 	for _, name := range _removed {
 		L.SetGlobal(name, lua.LNil)
 	}
-
-	registerLog(L)
-	registerCtx(L)
 
 	return L
 }

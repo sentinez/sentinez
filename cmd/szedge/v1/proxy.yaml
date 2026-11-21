@@ -359,7 +359,7 @@ setting:
   # log.info(...) and log.debug(...) (or log:info, log:debug) write to
   # the logs of the request.
   # A script that fails is skipped; each call has a 50ms limit.
-  # Editor types: staging/src/github.com/sentinez/scripting/szlua/meta
+  # Editor types: staging/src/github.com/sentinez/scripting/meta
   # (LuaLS), annotate the hooks with ---@param ctx sz.Context.
   # ----------------------------------------------------------
   scripting:

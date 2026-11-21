@@ -20,7 +20,7 @@ This is a **multi-module monorepo** using `replace` directives in the root [go.m
 | ↳ `bpf` | eBPF programs (cilium/ebpf) |
 | ↳ `contrib/httphz` | HTTP helpers |
 | ↳ `tools` | Code gen / rule parser tooling |
-| ↳ `scripting` | Lua runtime of the edge (`szlua`, gopher-lua): sandbox, hooks declared by `---@stage http:request|response/<stage>` (the stage names map to the chain plugin ids in `szlua._stages`, checked against `plugins()` by `internal/handlers/script_stages_test.go`), `ctx` and `log` APIs; LuaLS types in `szlua/meta/sentinez.lua`. The edge side: `internal/memory/scripts` (compiled per namespace) and `internal/handlers/wrap/script` (the chain wrap) |
+| ↳ `scripting` | Lua runtime of the edge (package `scripting`, gopher-lua): sandbox (`internal/sandbox`), hooks declared by `---@stage http:request|response/<stage>` (the stage names map to the chain plugin ids in `_stages` of `internal/hooks`, exposed by `scripting.Stages()` and checked against `plugins()` by `internal/handlers/script_stages_test.go`), `ctx` and `log` APIs (`internal/api`, whose `Run` calls the hooks of a stage); the host implements `exchange.Exchange` and passes a `phase.Phase` (`scripting/{exchange,phase}`); LuaLS types in `meta/sentinez.lua`. The edge side: `internal/memory/scripts` (compiled per namespace) and `internal/handlers/wrap/script` (the chain wrap) |
 | `ui/` | pnpm + turbo workspace: `apps/{console,web,template}`, `packages/{ui,proto,eslint-config,tsconfig}` |
 | `deploy/` | caddy, nginx, docker, monitoring configs, `ruleroot` (CRS rules), `hosts` (the local domain names, for /etc/hosts) |
 | `_submodules/` | git submodules: coreruleset, googleapis, grpc-gateway, opentelemetry-proto, protovalidate (`git submodule update --init --recursive`) |

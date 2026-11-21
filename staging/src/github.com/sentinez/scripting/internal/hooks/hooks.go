@@ -12,41 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package szlua
+package hooks
 
 import (
 	"fmt"
 	"regexp"
 	"slices"
-	"strconv"
 	"strings"
 
+	"github.com/sentinez/scripting/phase"
 	"github.com/yuin/gopher-lua/ast"
 )
-
-// Phase is when a hook runs, relative to its stage.
-type Phase int
-
-const (
-	// Request (http:request) the hook runs before the stage, and may
-	// answer the request: the stage is then skipped.
-	Request Phase = iota + 1
-	// Response (http:response) the hook runs once the stage, and the
-	// ones after it, returned: the response is written, the hook only
-	// observes.
-	Response
-)
-
-func (p Phase) String() string {
-	switch p {
-	case Request:
-		return "http:request"
-	case Response:
-		return "http:response"
-	}
-
-	return "Phase(" + strconv.Itoa(int(p)) + ")"
-}
 
 // stage a stage of the edge chain a hook may annotate.
 type stage struct {
@@ -70,7 +46,7 @@ var _stages = []stage{
 }
 
 // Stages returns the ids of the stages a hook may annotate, in chain
-// order: the ids Has and Call take.
+// order.
 func Stages() []string {
 	ids := make([]string, 0, len(_stages))
 	for _, s := range _stages {
@@ -80,8 +56,8 @@ func Stages() []string {
 	return ids
 }
 
-// stageName the name of the stage id, the id when it is none.
-func stageName(id string) string {
+// StageName the name of the stage id, the id when it is none.
+func StageName(id string) string {
 	i := slices.IndexFunc(_stages, func(s stage) bool { return s.id == id })
 	if i < 0 {
 		return id
@@ -90,35 +66,49 @@ func stageName(id string) string {
 	return _stages[i].name
 }
 
-// stageNames the names of the stages, for the errors.
-func stageNames() string {
+// StageNames returns the names of the stages, in chain order.
+func StageNames() []string {
 	names := make([]string, 0, len(_stages))
 	for _, s := range _stages {
 		names = append(names, s.name)
 	}
 
-	return strings.Join(names, ", ")
+	return names
 }
 
 // hook a stage, by id, and the phase of it a function runs at.
 type hook struct {
-	phase Phase
+	phase phase.Phase
 	stage string
+}
+
+// Set the global functions each hook runs, in source order.
+type Set struct {
+	funcs map[hook][]string
+}
+
+// Funcs returns the functions hooking the stage id at the phase at, in
+// source order.
+func (s Set) Funcs(at phase.Phase, id string) []string {
+	return s.funcs[hook{phase: at, stage: id}]
+}
+
+// Has reports whether a function hooks the stage id at the phase at.
+func (s Set) Has(at phase.Phase, id string) bool {
+	return len(s.Funcs(at, id)) > 0
 }
 
 // _annotation ---@stage <phase>/<stage>
 var _annotation = regexp.MustCompile(`^\s*---\s*@stage\b(.*)$`)
 
-// parseHooks the global functions each hook of source runs, in source
+// Parse the global functions each hook of source runs, in source
 // order. A ---@stage phase/stage comment hooks the global function it
 // precedes, other comments aside; a function may have several:
 //
 //	---@stage http:request/sec_rule
 //	---@stage http:response/router
 //	function check(ctx) end
-func parseHooks(source string,
-	chunk []ast.Stmt) (map[hook][]string, error) {
-
+func Parse(source string, chunk []ast.Stmt) (Set, error) {
 	funcs := globalFuncs(chunk)
 	hooks := make(map[hook][]string)
 
@@ -127,7 +117,7 @@ func parseHooks(source string,
 		s := strings.TrimSpace(line)
 		if s != "" && !strings.HasPrefix(s, "--") {
 			if err := p.bind(hooks, funcs[i+1]); err != nil {
-				return nil, err
+				return Set{}, err
 			}
 
 			continue
@@ -135,7 +125,7 @@ func parseHooks(source string,
 
 		h, ok, err := parseStage(s)
 		if err != nil {
-			return nil, fmt.Errorf("line %d: %w", i+1, err)
+			return Set{}, fmt.Errorf("line %d: %w", i+1, err)
 		}
 
 		if ok {
@@ -143,7 +133,7 @@ func parseHooks(source string,
 		}
 	}
 
-	return hooks, p.bind(hooks, "")
+	return Set{funcs: hooks}, p.bind(hooks, "")
 }
 
 // pending the hooks of the comments above a line of code.
@@ -167,20 +157,20 @@ func parseStage(s string) (hook, bool, error) {
 		return hook{}, false, nil
 	}
 
-	phase, name, ok := strings.Cut(strings.TrimSpace(m[1]), "/")
+	ph, name, ok := strings.Cut(strings.TrimSpace(m[1]), "/")
 	if !ok || strings.ContainsAny(name, " \t") {
 		return hook{}, false, fmt.Errorf("@stage takes phase/stage, "+
 			"e.g. http:request/sec_rule, got %q", strings.TrimSpace(m[1]))
 	}
 
-	h := hook{phase: Request}
-	switch phase {
+	h := hook{phase: phase.Request}
+	switch ph {
 	case "http:request":
 	case "http:response":
-		h.phase = Response
+		h.phase = phase.Response
 	default:
 		return hook{}, false, fmt.Errorf(
-			"@stage: phase %q, http:request or http:response", phase)
+			"@stage: phase %q, http:request or http:response", ph)
 	}
 
 	i := slices.IndexFunc(_stages, func(s stage) bool {
@@ -188,7 +178,8 @@ func parseStage(s string) (hook, bool, error) {
 	})
 	if i < 0 {
 		return hook{}, false, fmt.Errorf(
-			"@stage: unknown stage %q, one of %s", name, stageNames())
+			"@stage: unknown stage %q, one of %s", name,
+			strings.Join(StageNames(), ", "))
 	}
 
 	h.stage = _stages[i].id

@@ -22,7 +22,7 @@ import (
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/chains"
 	"github.com/sentinez/pkg/szlog"
-	"github.com/sentinez/scripting/szlua"
+	"github.com/sentinez/scripting"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	"github.com/sentinez/sentinez/internal/memory/scripts"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
@@ -46,7 +46,7 @@ function noop(ctx) end`,
 	var h chains.Handler = chains.HandlerFunc(
 		func(szhttp.Context) error { return nil })
 
-	stages := szlua.Stages()
+	stages := scripting.Stages()
 	for i := len(stages) - 1; i >= 0; i-- {
 		h = hooks.Wrap(stages[i], h)
 	}

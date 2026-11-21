@@ -12,13 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package szlua
+package scripting
 
 import (
 	"context"
 	"strings"
 	"testing"
 
+	"github.com/sentinez/scripting/internal/api"
+	"github.com/sentinez/scripting/phase"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -33,7 +35,7 @@ func callHook(t *testing.T, body string) *fakeExchange {
 	require.NoError(t, err)
 
 	ex := newFake()
-	_, err = p.Call(context.Background(), Request, "ROU", ex)
+	_, err = p.Call(context.Background(), phase.Request, "ROU", ex)
 	require.NoError(t, err)
 
 	return ex
@@ -76,11 +78,11 @@ func TestLog(t *testing.T) {
 func TestLogLimits(t *testing.T) {
 	long := callHook(t, `log.info(string.rep("é", 2000))`)
 	require.Len(t, long.logs, 1)
-	assert.LessOrEqual(t, len(long.logs[0]), len("info t.lua: ")+_maxLogLen)
+	assert.LessOrEqual(t, len(long.logs[0]), len("info t.lua: ")+api.MaxLogLen)
 	assert.True(t, strings.HasSuffix(long.logs[0], "é"), "cut on a rune")
 
 	many := callHook(t, `for i = 1, 100 do log:info(i) end`)
-	assert.Len(t, many.logs, _maxLogLines)
+	assert.Len(t, many.logs, api.MaxLogLines)
 }
 
 func TestLogInScriptBodyIsDropped(t *testing.T) {
@@ -93,7 +95,7 @@ function f(ctx) end
 	require.NoError(t, err)
 
 	ex := newFake()
-	_, err = p.Call(context.Background(), Request, "ROU", ex)
+	_, err = p.Call(context.Background(), phase.Request, "ROU", ex)
 	require.NoError(t, err)
 	assert.Empty(t, ex.logs)
 }
@@ -104,6 +106,6 @@ func TestLogIsNotAFunction(t *testing.T) {
 			`log("info", "x")`+" end")
 	require.NoError(t, err)
 
-	_, err = p.Call(context.Background(), Request, "ROU", newFake())
+	_, err = p.Call(context.Background(), phase.Request, "ROU", newFake())
 	assert.ErrorContains(t, err, "attempt to call a non-function object")
 }

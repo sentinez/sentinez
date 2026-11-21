@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package szlua
+package scripting
 
 import (
 	"context"
@@ -20,6 +20,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/sentinez/scripting/exchange"
+	"github.com/sentinez/scripting/phase"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -67,7 +69,7 @@ func (f *fakeExchange) SetResponseHeader(k, v string) {
 	f.respHdr[k] = v
 }
 
-func (f *fakeExchange) Log(level Level, script, msg string) {
+func (f *fakeExchange) Log(level exchange.Level, script, msg string) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	f.logs = append(f.logs, level.String()+" "+script+": "+msg)
@@ -113,7 +115,7 @@ end
 	require.NoError(t, err)
 
 	ex := newFake()
-	responded, err := p.Call(context.Background(), Request, "ROU", ex)
+	responded, err := p.Call(context.Background(), phase.Request, "ROU", ex)
 	require.NoError(t, err)
 
 	assert.False(t, responded)
@@ -133,7 +135,7 @@ function never(ctx) ctx:set_header("X-Never", "1") end
 	require.NoError(t, err)
 
 	ex := newFake()
-	responded, err := p.Call(context.Background(), Request, "RUL", ex)
+	responded, err := p.Call(context.Background(), phase.Request, "RUL", ex)
 	require.NoError(t, err)
 
 	assert.True(t, responded)
@@ -154,7 +156,7 @@ function first(ctx) ctx:set_header("X-Order", "1") end
 
 	ex := newFake()
 	ex.headers["X-Order"] = "0"
-	_, err = p.Call(context.Background(), Response, "RST", ex)
+	_, err = p.Call(context.Background(), phase.Response, "RST", ex)
 	require.NoError(t, err)
 
 	// second runs first: it reads the request header, not what first set
@@ -179,7 +181,8 @@ func TestCallErrors(t *testing.T) {
 			require.NoError(t, err)
 
 			ex := newFake()
-			responded, err := p.Call(context.Background(), Request, "STC", ex)
+			responded, err := p.Call(context.Background(),
+				phase.Request, "STC", ex)
 			assert.Error(t, err)
 			assert.False(t, responded)
 			assert.False(t, ex.answered)
@@ -194,11 +197,11 @@ function f(ctx) f = nil end
 `)
 	require.NoError(t, err)
 
-	_, err = p.Call(context.Background(), Request, "STC", newFake())
+	_, err = p.Call(context.Background(), phase.Request, "STC", newFake())
 	require.NoError(t, err)
 
 	// the state that ran it was kept: f is gone from it
-	_, err = p.Call(context.Background(), Request, "STC", newFake())
+	_, err = p.Call(context.Background(), phase.Request, "STC", newFake())
 	assert.ErrorContains(t, err, "f is not a function anymore")
 }
 
@@ -210,13 +213,13 @@ function spin(ctx) while true do end end
 	require.NoError(t, err)
 
 	start := time.Now()
-	_, err = p.Call(context.Background(), Request, "CDN", newFake())
+	_, err = p.Call(context.Background(), phase.Request, "CDN", newFake())
 
 	require.Error(t, err)
 	assert.Less(t, time.Since(start), 2*time.Second)
 
 	// the program still works after a state was discarded
-	_, err = p.Call(context.Background(), Request, "CDN", newFake())
+	_, err = p.Call(context.Background(), phase.Request, "CDN", newFake())
 	assert.Error(t, err)
 }
 
@@ -229,11 +232,11 @@ function f(ctx) ctx:respond(403) end
 
 	tests := []struct {
 		name      string
-		givePhase Phase
+		givePhase phase.Phase
 		giveStage string
 	}{
-		{"other stage", Request, "ROU"},
-		{"other phase", Response, "CDN"},
+		{"other stage", phase.Request, "ROU"},
+		{"other phase", phase.Response, "CDN"},
 	}
 
 	for _, tt := range tests {
@@ -260,7 +263,7 @@ function f(ctx) ctx:set_header("X", ctx:path()) end
 		wg.Go(func() {
 			for range 20 {
 				ex := newFake()
-				_, err := p.Call(context.Background(), Request, "LMT", ex)
+				_, err := p.Call(context.Background(), phase.Request, "LMT", ex)
 				assert.NoError(t, err)
 				assert.Equal(t, "/api", ex.setHdr["X"])
 			}
@@ -278,7 +281,7 @@ function late(ctx) ctx:respond(500, "late") end
 	require.NoError(t, err)
 
 	ex := newFake()
-	responded, err := p.Call(context.Background(), Response, "RUL", ex)
+	responded, err := p.Call(context.Background(), phase.Response, "RUL", ex)
 
 	assert.ErrorContains(t, err, "the stage already ran")
 	assert.False(t, responded)
@@ -292,7 +295,24 @@ function boom(ctx) error("x") end
 `)
 	require.NoError(t, err)
 
-	_, err = p.Call(context.Background(), Response, "RST", newFake())
+	_, err = p.Call(context.Background(), phase.Response, "RST", newFake())
 	assert.ErrorContains(t, err,
 		"script t.lua: http:response/sec_ruleset: boom:")
+}
+
+func TestCallKeptCtxIsDead(t *testing.T) {
+	p, err := Compile("t.lua", `
+local kept
+---@stage http:request/router
+function keep(ctx) kept = ctx end
+---@stage http:response/router
+function reuse(ctx) kept:path() end
+`)
+	require.NoError(t, err)
+
+	_, err = p.Call(context.Background(), phase.Request, "ROU", newFake())
+	require.NoError(t, err)
+
+	_, err = p.Call(context.Background(), phase.Response, "ROU", newFake())
+	assert.ErrorContains(t, err, "ctx expected")
 }

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package szlua
+package scripting
 
 import (
 	"context"
@@ -20,6 +20,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sentinez/scripting/exchange"
+	"github.com/sentinez/scripting/internal/api"
+	"github.com/sentinez/scripting/internal/hooks"
+	"github.com/sentinez/scripting/internal/sandbox"
+	"github.com/sentinez/scripting/phase"
 	lua "github.com/yuin/gopher-lua"
 	"github.com/yuin/gopher-lua/parse"
 )
@@ -28,6 +33,10 @@ const (
 	_defaultLimit  = 50 * time.Millisecond
 	_maxIdleStates = 64
 )
+
+// Stages returns the ids of the stages a hook may annotate, in chain
+// order: the ids Has and Call take.
+func Stages() []string { return hooks.Stages() }
 
 // Option configures a Program.
 type Option interface{ apply(*Program) }
@@ -47,7 +56,7 @@ type Program struct {
 	name    string
 	source  string
 	proto   *lua.FunctionProto
-	hooks   map[hook][]string
+	hooks   hooks.Set
 	timeout time.Duration
 	idle    chan *lua.LState
 }
@@ -81,7 +90,7 @@ func compile(name, source string) (*Program, error) {
 		return nil, err
 	}
 
-	hooks, err := parseHooks(source, chunk)
+	set, err := hooks.Parse(source, chunk)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +104,7 @@ func compile(name, source string) (*Program, error) {
 		name:    name,
 		source:  source,
 		proto:   proto,
-		hooks:   hooks,
+		hooks:   set,
 		timeout: _defaultLimit,
 		idle:    make(chan *lua.LState, _maxIdleStates),
 	}, nil
@@ -108,19 +117,19 @@ func (p *Program) Name() string { return p.name }
 func (p *Program) Source() string { return p.source }
 
 // Has reports whether a function of the script hooks the stage at
-// phase.
-func (p *Program) Has(phase Phase, stage string) bool {
-	return len(p.hooks[hook{phase: phase, stage: stage}]) > 0
+// the given phase.
+func (p *Program) Has(at phase.Phase, stage string) bool {
+	return p.hooks.Has(at, stage)
 }
 
 // Call runs the functions hooking the stage at phase, in source order,
 // until one answers the request, and reports whether one did. They share
 // the time limit. An error, a timeout included, stops there and discards
 // the Lua state.
-func (p *Program) Call(ctx context.Context, phase Phase, stage string,
-	ex Exchange) (bool, error) {
+func (p *Program) Call(ctx context.Context, at phase.Phase, stage string,
+	ex exchange.Exchange) (bool, error) {
 
-	funcs := p.hooks[hook{phase: phase, stage: stage}]
+	funcs := p.hooks.Funcs(at, stage)
 	if len(funcs) == 0 {
 		return false, nil
 	}
@@ -130,56 +139,26 @@ func (p *Program) Call(ctx context.Context, phase Phase, stage string,
 		return false, fmt.Errorf("script %s: %w", p.name, err)
 	}
 
-	c := &call{ex: ex, script: p.name, phase: phase}
-	if err := p.run(ctx, L, funcs, c); err != nil {
+	ctx, cancel := context.WithTimeout(ctx, p.timeout)
+	defer cancel()
+
+	responded, err := api.Run(ctx, L, funcs, ex, p.name, at)
+	if err != nil {
 		L.Close()
 
 		return false, fmt.Errorf("script %s: %s/%s: %w",
-			p.name, phase, stageName(stage), err)
+			p.name, at, hooks.StageName(stage), err)
 	}
 
 	p.release(L)
 
-	return c.responded, nil
-}
-
-// run calls the global functions funcs in L under the time limit, with c
-// as their ctx, until one answers the request.
-func (p *Program) run(ctx context.Context, L *lua.LState, funcs []string,
-	c *call) error {
-
-	ctx, cancel := context.WithTimeout(ctx, p.timeout)
-	defer cancel()
-
-	L.SetContext(context.WithValue(ctx, callKey{}, c))
-	defer L.RemoveContext()
-
-	ud := L.NewUserData()
-	ud.Value = c
-	L.SetMetatable(ud, L.GetTypeMetatable(_ctxType))
-
-	for _, fn := range funcs {
-		f, ok := L.GetGlobal(fn).(*lua.LFunction)
-		if !ok {
-			return fmt.Errorf("%s is not a function anymore", fn)
-		}
-
-		err := L.CallByParam(lua.P{Fn: f, Protect: true}, ud)
-		if err != nil {
-			return fmt.Errorf("%s: %w", fn, err)
-		}
-
-		if c.responded {
-			return nil
-		}
-	}
-
-	return nil
+	return responded, nil
 }
 
 // fresh a state with the script body run.
 func (p *Program) fresh() (*lua.LState, error) {
-	L := newState()
+	L := sandbox.NewState()
+	api.Register(L)
 
 	ctx, cancel := context.WithTimeout(context.Background(), p.timeout)
 	defer cancel()

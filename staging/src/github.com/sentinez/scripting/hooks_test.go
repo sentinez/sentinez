@@ -12,11 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package szlua
+package scripting
 
 import (
 	"testing"
 
+	"github.com/sentinez/scripting/phase"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -47,18 +48,18 @@ func TestCompileHooks(t *testing.T) {
 	require.NoError(t, err)
 
 	tests := []struct {
-		givePhase Phase
+		givePhase phase.Phase
 		giveStage string
 		want      bool
 	}{
-		{Request, "RUL", true},
-		{Request, "RST", true},
-		{Response, "ROU", true},
-		{Request, "STC", true},
-		{Response, "STC", true},
-		{Request, "ROU", false},
-		{Response, "RUL", false},
-		{Request, "CDN", false},
+		{phase.Request, "RUL", true},
+		{phase.Request, "RST", true},
+		{phase.Response, "ROU", true},
+		{phase.Request, "STC", true},
+		{phase.Response, "STC", true},
+		{phase.Request, "ROU", false},
+		{phase.Response, "RUL", false},
+		{phase.Request, "CDN", false},
 	}
 
 	for _, tt := range tests {
