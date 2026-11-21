@@ -5,7 +5,7 @@ import type { PaginationState } from '@tanstack/react-table';
 import axios from 'axios';
 import { toast } from '@/lib/toast';
 import type { Pages } from '@/lib/api/pages';
-import { withMinLoading } from '@/lib/min-loading';
+import { withMinLoading } from '@/lib/delays';
 
 export interface PagedResult<T> {
   items: T[];

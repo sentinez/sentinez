@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { ReactNode, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
+import { LANG_SWAP } from '@/lib/motion';
 import { useTranslations } from 'next-intl';
 import Language from '@/components/language';
 import LetterGlitch from '@/components/letter-glitch/letter-glitch';
@@ -89,10 +90,7 @@ export default function View({ children }: { children: ReactNode }) {
               <AnimatePresence mode="wait">
                 <motion.span
                   key={langIndex}
-                  initial={{ y: 25, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -25, opacity: 0 }}
-                  transition={{ duration: 0.4, ease: 'easeInOut' }}
+                  {...LANG_SWAP}
                   className="text-[#0a0a0a] text-[clamp(1.5rem,4.5vw,4.5rem)] whitespace-nowrap block"
                 >
                   {MULTI_LANG_TEXTS[langIndex]}

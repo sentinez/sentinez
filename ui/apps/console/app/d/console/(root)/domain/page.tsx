@@ -4,11 +4,12 @@ import { Button } from '@sentinez/ui/components/button';
 import { PlusIcon } from 'lucide-react';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
+import { pageDelay } from '@/lib/delays';
 
 export default async function Page() {
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-  const t = await getTranslations('Domain');
-  const tc = await getTranslations('Common');
+  const [t, tc] = await pageDelay(
+    Promise.all([getTranslations('Domain'), getTranslations('Common')]),
+  );
 
   return (
     <PageLayout>

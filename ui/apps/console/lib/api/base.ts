@@ -6,11 +6,17 @@ import { SENTINEZ_ACCESS_TOKEN_KEY } from '@/lib/const';
 // which forwards them to the server-only API_BASE_PATH.
 export const API_BASE_PATH = '/api';
 
+// A request that gets no answer by then fails (ECONNABORTED), so a hung API
+// ends a loading skeleton with the error toast instead of spinning forever.
+// A call can pass its own `timeout`.
+export const API_TIMEOUT_MILLIS = 15_000;
+
 // Every lib/api module imports this file, so registering here covers all API
 // calls. The token is only sent to our own API, never to another origin.
 axios.interceptors.request.use((config) => {
   if (typeof window === 'undefined') return config;
   if (!config.url?.startsWith(`${API_BASE_PATH}/`)) return config;
+  config.timeout ||= API_TIMEOUT_MILLIS;
   if (config.headers.has('Authorization')) return config;
 
   const token = window.localStorage.getItem(SENTINEZ_ACCESS_TOKEN_KEY);

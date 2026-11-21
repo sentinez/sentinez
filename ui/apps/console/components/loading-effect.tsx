@@ -7,17 +7,8 @@ import { Progress } from '@sentinez/ui/components/progress';
 import { Field, FieldLabel } from '@sentinez/ui/components/field';
 import { useTranslations } from 'next-intl';
 import { Holiday, holidayById, holidayOn } from '@/components/holiday';
-
-const _timeoutMillis = 900;
-const _holidayTimeoutMillis = 1800;
-
-/**
- * How long the splash stays. On a holiday it stays a bit longer: the
- * greeting fades in by 1s, then is left long enough to read.
- */
-function timeoutOf(holiday?: Holiday) {
-  return holiday ? _holidayTimeoutMillis : _timeoutMillis;
-}
+import { splashMillis } from '@/lib/delays';
+import { SPLASH_GREETING, SPLASH_LOGO, SPLASH_NAME } from '@/lib/motion';
 
 export default function LoadingEffect({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
@@ -30,7 +21,7 @@ export default function LoadingEffect({ children }: { children: ReactNode }) {
     const today = holidayById(preview) ?? holidayOn(new Date());
     setHoliday(today);
 
-    const timer = setTimeout(() => setLoading(false), timeoutOf(today));
+    const timer = setTimeout(() => setLoading(false), splashMillis(!!today));
 
     return () => clearTimeout(timer);
   }, []);
@@ -43,7 +34,7 @@ export default function LoadingEffect({ children }: { children: ReactNode }) {
 }
 
 export function IsLoading({ holiday }: { holiday?: Holiday }) {
-  const timeout = timeoutOf(holiday);
+  const timeout = splashMillis(!!holiday);
   const t = useTranslations('Loading');
 
   useEffect(() => {
@@ -68,39 +59,12 @@ export function IsLoading({ holiday }: { holiday?: Holiday }) {
     <div className="fixed inset-0 flex items-center justify-center bg-background z-50 font-['Phudu',sans-serif]">
       <div className="relative flex flex-col items-center gap-4">
         <div className="flex items-center">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8, x: 50 }}
-            animate={{
-              opacity: 1,
-              scale: 1,
-              x: 0,
-            }}
-            transition={{
-              opacity: {
-                duration: 0.2,
-              },
-              scale: {
-                duration: 0.2,
-              },
-              x: {
-                delay: 0.25,
-                duration: 0.4,
-                ease: [0.22, 1, 0.36, 1],
-              },
-            }}
-          >
+          <motion.div {...SPLASH_LOGO}>
             <Image src="/assets/sz.png" alt="Sentinez" width={70} height={70} loading="eager" />
           </motion.div>
 
           <motion.span
-            initial={{ opacity: 0, x: 0 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, scale: 0 }}
-
-            transition={{
-              delay: 0.5,
-              duration: 0.4,
-            }}
+            {...SPLASH_NAME}
             className="text-5xl font-bold text-[#0504aa]"
           >
             Sentinéz
@@ -108,9 +72,7 @@ export function IsLoading({ holiday }: { holiday?: Holiday }) {
         </div>
         {holiday && (
           <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.4 }}
+            {...SPLASH_GREETING}
             className={`text-lg font-semibold ${holiday.color}`}
           >
             {t(`holiday.${holiday.id}`)}

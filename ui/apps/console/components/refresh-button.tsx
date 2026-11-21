@@ -6,8 +6,7 @@ import { cn } from '@sentinez/ui/lib/utils';
 import { RefreshCw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
-// A click keeps the icon spinning at least this long, so a fast fetch still shows
-const MIN_SPIN_MILLIS = 500;
+import { MIN_LOADING_MILLIS } from '@/lib/delays';
 
 interface Props {
   onRefresh: () => void;
@@ -24,7 +23,7 @@ export function RefreshButton({ onRefresh, loading = false, className }: Props) 
 
   useEffect(() => {
     if (!holding) return;
-    const timer = setTimeout(() => setHolding(false), MIN_SPIN_MILLIS);
+    const timer = setTimeout(() => setHolding(false), MIN_LOADING_MILLIS);
     return () => clearTimeout(timer);
   }, [holding]);
 

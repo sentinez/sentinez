@@ -2,10 +2,10 @@ import { getTranslations } from 'next-intl/server';
 
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 import { SettingView } from './view';
+import { pageDelay } from '@/lib/delays';
 
 export default async function Page() {
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-  const t = await getTranslations('ResourceSetting');
+  const t = await pageDelay(getTranslations('ResourceSetting'));
 
   return (
     <PageLayout>

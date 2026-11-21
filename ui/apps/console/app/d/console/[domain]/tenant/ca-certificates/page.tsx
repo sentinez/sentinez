@@ -1,6 +1,7 @@
 import View from './view';
+import { pageDelay } from '@/lib/delays';
 
 export default async function Page() {
-  await new Promise((resolve) => setTimeout(resolve, 1500));
+  await pageDelay();
   return <View />;
 }

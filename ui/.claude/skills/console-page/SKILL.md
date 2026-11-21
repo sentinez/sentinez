@@ -20,9 +20,10 @@ or the **domain sidebar** (`app/d/console/[domain]/...`) keeps an intentional de
 ```tsx
 // page.tsx (server component, no 'use client')
 import View from './view';
+import { pageDelay } from '@/lib/delays';
 
 export default async function Page() {
-  await new Promise((resolve) => setTimeout(resolve, 1500));
+  await pageDelay();
   return <View />;
 }
 ```
@@ -36,7 +37,7 @@ export default function Loading() {
 }
 ```
 
-- Use **1500 ms**, same as the existing pages (`sec-rule`, `tenant`, `member`, `analytic/*`).
+- The delay is `PAGE_DELAY_MILLIS` in `lib/delays.ts`; change it there only. A page with server work passes it in (`await pageDelay(getTranslations('X'))`): the wait is then at least the delay, longer if the work is. Same as the existing pages (`sec-rule`, `tenant`, `member`, `analytic/*`).
 - The interactive UI goes in `view.tsx` (`'use client'`); `page.tsx` only waits and renders it.
 - Sub-pages that are not sidebar tabs (`new/`, `[id]/`) are client components and do not
   need the delay. `[id]/` still gets a `loading.tsx` and shows `<IsLoading />` while
@@ -47,7 +48,7 @@ export default function Loading() {
 
 ```
 <resource>/
-  page.tsx        # 1500 ms delay -> <View />
+  page.tsx        # await pageDelay() -> <View />
   loading.tsx
   view.tsx        # list: @tanstack/react-table, filter, column toggle, pagination, delete dialog
   new/page.tsx    # create form -> create<X>({ x: xOf(form) }) -> toast + router.back()

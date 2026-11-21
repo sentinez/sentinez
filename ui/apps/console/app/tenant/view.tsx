@@ -23,7 +23,7 @@ import { UserMenu } from '@/components/user-menu';
 import { useApi } from '@/hooks/use-api';
 import { useDebounced } from '@/hooks/use-debounced';
 import { listTenants } from '@/lib/api/tenant';
-import { withMinLoading } from '@/lib/min-loading';
+import { withMinLoading } from '@/lib/delays';
 
 import { Tenant, TeamJoin, TenantSkeleton } from './components/card';
 
