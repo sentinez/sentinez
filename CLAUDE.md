@@ -58,6 +58,10 @@ Because modules are separate, `go test ./...` at the root does **not** cover `st
 
 Enterprise features live in a private repo whose URL is never committed (`SCALE_REPO`, from the env or the gitignored `hack/make/scale.local.mk`), checked out as `scale/` (a nested git repo, gitignored here) inside the root module, so it may import `internal/`. Its files are `//go:build enterprise`; each exported function has a public `scale/*_oss.go` stub (`//go:build !enterprise`), the only tracked files besides `pkg_import.go`. Add the stub with every new scale function, or the OSS build breaks, then `make scale.track` (git skips new files under the nested repo until they are in the index).
 
+## UI (`ui/`)
+
+Run from `ui/` (pnpm workspace + turbo; versions pinned in `package.json`/`.nvmrc`): `pnpm dev` / `pnpm build` / `pnpm lint` (turbo, all apps), `pnpm format` (prettier). Per app, e.g. `apps/console` (Next.js + turbopack, next-intl, axios, TanStack Table): `pnpm dev`, `pnpm lint` (`--max-warnings 0`), `pnpm typecheck`. There is no JS test runner. Shared components live in `packages/ui` (import `@sentinez/ui/components/<name>`; add shadcn components there with `pnpm dlx shadcn@latest add <name>`), generated TS protos in `packages/proto` (`@sentinez/proto`). Console API clients live in `apps/console/lib/api/<service>/` (skill `swagger-api-client`); pages follow the `console-page` skill in `ui/.claude/skills/`, which you must read before touching any `page.tsx`/`view.tsx`/`loading.tsx`.
+
 Other tooling: `mockery` for mocks, `templ generate` for templ templates, `buf` for protobuf (`cd api && buf generate`).
 
 ## Go style guide
