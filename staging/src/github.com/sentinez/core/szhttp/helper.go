@@ -18,7 +18,7 @@ import (
 	"net/http"
 
 	"github.com/sentinez/core/szbytestr"
-	"github.com/sentinez/pkg/bytesconv"
+	"github.com/sentinez/contrib/pkg/bytesconv"
 )
 
 // ImmutableRequest is implemented by a request whose getters and header

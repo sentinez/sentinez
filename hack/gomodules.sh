@@ -23,6 +23,7 @@ GO_MODULES=(
   staging/src/github.com/sentinez/core
   staging/src/github.com/sentinez/pkg
   staging/src/github.com/sentinez/controlplane
+  staging/src/github.com/sentinez/contrib/pkg
   staging/src/github.com/sentinez/contrib/httphz
   staging/src/github.com/sentinez/tools
   staging/src/github.com/sentinez/scripting

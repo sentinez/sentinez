@@ -96,7 +96,6 @@ exported. An `https://` endpoint uses TLS.
 | `szperms` | `Allow(XMethod, ControlPlane)` |
 | `szsync` | `Map[K,V]` (generic `sync.Map`), `Pool[T]` (`NewPool`, `NewPoolCtr`) |
 | `szrand` | `RandomString` (crypto/rand), `NewUUID` (record keys, never zoned), `NewNanoId`, `NewULID` (request/event ids) — each takes a `szprefix.Prefix` and joins it with `szprefix.Separator` |
-| `bytesconv` | Fork of fasthttp/Hertz: zero-copy `B2s`/`S2b`, character tables, number parsing |
 | `szjson` | `Marshal`/`Unmarshal` via `bytedance/sonic` |
 | `szprotobuf` | Timestamp/Duration conversion, `Compare` for go-cmp, `Validate` |
 | `szprotobuf/protox` | Binary `Marshal`/`Unmarshal`, `Struct(any)` → `structpb.Struct` |

@@ -30,7 +30,7 @@ import (
 	"github.com/sentinez/core/szcontext"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/httpconst"
-	"github.com/sentinez/pkg/bytesconv"
+	"github.com/sentinez/contrib/pkg/bytesconv"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szprefix"
 	"github.com/sentinez/pkg/szrand"

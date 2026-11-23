@@ -23,7 +23,7 @@ import (
 
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/httpconst"
-	"github.com/sentinez/pkg/bytesconv"
+	"github.com/sentinez/contrib/pkg/bytesconv"
 	httppb "github.com/sentinez/sentinez/api/proto/sentinez/types/net/http/v1"
 )
 

@@ -20,7 +20,7 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/sentinez/core/szhttp"
-	"github.com/sentinez/pkg/bytesconv"
+	"github.com/sentinez/contrib/pkg/bytesconv"
 	"github.com/sentinez/pkg/szerror"
 	"github.com/sentinez/pkg/szlog"
 	realtimemnt "github.com/sentinez/sentinez/pkg/apps/gateway/realtime/manager"

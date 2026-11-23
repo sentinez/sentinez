@@ -3,6 +3,7 @@ module github.com/sentinez/core
 go 1.27.1
 
 replace (
+	github.com/sentinez/contrib/pkg => ../contrib/pkg
 	github.com/sentinez/pkg => ../pkg
 	github.com/sentinez/sentinez/api => ../../../../../api
 )
@@ -16,6 +17,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.30.0
 	github.com/quasilyte/go-ruleguard/dsl v0.3.23
 	github.com/quic-go/quic-go v0.63.0
+	github.com/sentinez/contrib/pkg v0.0.0-00010101000000-000000000000
 	github.com/sentinez/pkg v0.0.0-00010101000000-000000000000
 	github.com/sentinez/sentinez/api v0.0.0
 	github.com/sony/gobreaker v1.0.0

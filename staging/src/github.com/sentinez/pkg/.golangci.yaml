@@ -53,10 +53,6 @@ linters:
         - name: unused-parameter
         - name: unreachable-code
         - name: redefines-builtin-id
-  exclusions:
-    paths:
-      # fork of fasthttp: keeps its license header and generated tables
-      - bytesconv/
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0

@@ -3,6 +3,7 @@ module github.com/sentinez/contrib/httphz
 go 1.27.1
 
 replace (
+	github.com/sentinez/contrib/pkg => ../pkg
 	github.com/sentinez/core => ../../core
 	github.com/sentinez/pkg => ../../pkg
 	github.com/sentinez/sentinez/api => ../../../../../../api
@@ -45,6 +46,7 @@ require (
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/quic-go/quic-go v0.63.0 // indirect
+	github.com/sentinez/contrib/pkg v0.0.0-00010101000000-000000000000 // indirect
 	github.com/tidwall/gjson v1.18.0 // indirect
 	github.com/tidwall/match v1.2.0 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect

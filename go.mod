@@ -5,6 +5,7 @@ go 1.27.1
 replace (
 	github.com/sentinez/bpf => ./staging/src/github.com/sentinez/bpf
 	github.com/sentinez/contrib/httphz => ./staging/src/github.com/sentinez/contrib/httphz
+	github.com/sentinez/contrib/pkg => ./staging/src/github.com/sentinez/contrib/pkg
 	github.com/sentinez/controlplane => ./staging/src/github.com/sentinez/controlplane
 	github.com/sentinez/core => ./staging/src/github.com/sentinez/core
 	github.com/sentinez/pkg => ./staging/src/github.com/sentinez/pkg
@@ -27,6 +28,7 @@ require (
 	github.com/redis/go-redis/v9 v9.8.0
 	github.com/sentinez/bpf v0.0.0-00010101000000-000000000000
 	github.com/sentinez/contrib/httphz v0.0.0-00010101000000-000000000000
+	github.com/sentinez/contrib/pkg v0.0.0-00010101000000-000000000000
 	github.com/sentinez/controlplane v0.0.0-00010101000000-000000000000
 	github.com/sentinez/core v0.0.0-20260513071300-d9570928a8b6
 	github.com/sentinez/pkg v0.0.0-20260320080007-e18dc9bbf0a7

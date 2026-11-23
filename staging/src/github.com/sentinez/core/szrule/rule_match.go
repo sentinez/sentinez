@@ -21,7 +21,7 @@ import (
 	"strings"
 
 	chttp "github.com/sentinez/core/szhttp"
-	"github.com/sentinez/pkg/bytesconv"
+	"github.com/sentinez/contrib/pkg/bytesconv"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 )
 

@@ -276,7 +276,7 @@ func _defaultRepos() []Repo {
 			"event queue, store, cron."},
 		{"controlplane", "Domain services: IAM, tenant, security, " +
 			"analytic, central data."},
-		{"contrib", "Contributed helpers (httphz)."},
+		{"contrib", "Contributed helpers (httphz, bytesconv)."},
 		{"bpf", "eBPF programs (cilium/ebpf)."},
 		{"tools", "Code generation and rule parser tooling."},
 		{"mcp", "Model Context Protocol integration."},
