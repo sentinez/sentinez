@@ -57,7 +57,8 @@ Modules in `staging/src/github.com/sentinez/<name>` are synced to
 
 - Targets are listed in
   [staging/publishing/rules.yaml](../staging/publishing/rules.yaml)
-  (`core`, `pkg`, `tools`, `contrib`, `controlplane`, `bpf`), together
+  (`core`, `pkg`, `tools`, `contrib`, `controlplane`, `bpf`,
+  `integration`, `go-import`, `scripting`), together
   with the branches (`staging`, `main`).
 - The workflow [ci_sync_repo.yaml](../.github/workflows/ci_sync_repo.yaml)
   is **generated** by `bash staging/publishing/gen_sync_workflow.sh` — edit
@@ -76,14 +77,16 @@ module's dependencies, run `go mod tidy` in that module **and** at the root.
 
 | Workflow | Trigger | Job |
 |---|---|---|
-| `ci_lint.yaml` | push `main`, `release/*`; PRs | `golangci-lint v2.13.2` via `hack/golint.sh` (`go mod tidy && golangci-lint run` at the root); `buf lint` via `hack/protolint.sh` |
-| `ci_test.yaml` | push `main`, `release/*`; PRs | `go mod download && go test ./...` (root module only) |
+| `ci_lint.yaml` | push `main`, `release/*`; PRs | `golangci-lint v2.13.2` via `hack/golint.sh` (`go mod tidy && golangci-lint run` in every module of `hack/gomodules.sh`); `buf lint` via `hack/protolint.sh` |
+| `ci_test.yaml` | push `main`, `release/*`; PRs | `go test ./...` in every module of `hack/gomodules.sh` (`hack/gotest.sh`) |
 | `ci_sync_repo.yaml` | push `staging`, `main` | Syncs staging modules |
 
 Dependabot updates `gomod` (root) and `npm` (`ui/apps/console`) daily.
 
-Note: CI lint/test only cover the root module; staging modules must be
-linted locally with `make lint`.
+CI does not run `make fmt.go.check` or build the services. Before a release,
+`make release.check` runs every gate
+([14-test-plan.md](14-test-plan.md)). The sync pushes branches, never
+tags: [13-release.md](13-release.md) describes how to tag a release.
 
 ## 11.6 GitLab mirror
 

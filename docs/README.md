@@ -27,6 +27,8 @@ counterpart in [vi/](vi/)).
 | 10 | [Web console (UI)](10-ui.md) | pnpm/turbo workspace, console app, API calls |
 | 11 | [Deployment, CI & module publishing](11-deploy-ci.md) | Docker, monitoring, GitHub Actions, staging sync |
 | 12 | [Known issues](12-known-issues.md) | Bugs, unfinished parts and risks found while reading the code |
+| 13 | [Release](13-release.md) | Versions, the go.mod of the staged modules, the tagging order, the checklist |
+| 14 | [Release test plan](14-test-plan.md) | Automated gates (`make release.check`) and manual test cases |
 
 ## Reading conventions
 

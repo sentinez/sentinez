@@ -25,6 +25,8 @@ Tài liệu được viết từ việc đọc trực tiếp source code tại c
 | 10 | [Web console (UI)](10-ui.md) | Workspace pnpm/turbo, app console, gọi API |
 | 11 | [Triển khai, CI & phát hành module](11-deploy-ci.md) | Docker, monitoring, GitHub Actions, đồng bộ staging |
 | 12 | [Các vấn đề đã biết](12-known-issues.md) | Lỗi, phần chưa hoàn thiện và rủi ro phát hiện khi đọc code |
+| 13 | [Phát hành](13-release.md) | Version, go.mod của các module staging, thứ tự gắn tag, checklist |
+| 14 | [Kế hoạch kiểm thử release](14-test-plan.md) | Cổng tự động (`make release.check`) và các test case thủ công |
 
 ## Quy ước đọc tài liệu
 
