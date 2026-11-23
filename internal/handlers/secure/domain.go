@@ -18,8 +18,8 @@ import (
 	"github.com/sentinez/core/szhttp/chains"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 
-	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/contrib/pkg/bytesconv"
+	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/pkg/sznormalize"
 	"github.com/sentinez/sentinez/internal/envplugin"
 	"github.com/sentinez/sentinez/internal/memory/settings"

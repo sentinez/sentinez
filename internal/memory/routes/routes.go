@@ -20,10 +20,10 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"github.com/sentinez/contrib/pkg/bytesconv"
 	"github.com/sentinez/core/szbytestr"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/variable"
-	"github.com/sentinez/contrib/pkg/bytesconv"
 	"github.com/sentinez/pkg/szerror"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szsync"

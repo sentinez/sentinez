@@ -22,10 +22,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sentinez/contrib/pkg/bytesconv"
 	"github.com/sentinez/core/szcrypto/pow"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/httpconst"
-	"github.com/sentinez/contrib/pkg/bytesconv"
 )
 
 // ChallengePath receives the solved proof-of-work form of the challenge

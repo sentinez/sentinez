@@ -21,10 +21,10 @@ import (
 
 	"github.com/sentinez/core/szhttp/chains"
 
+	"github.com/sentinez/contrib/pkg/bytesconv"
 	"github.com/sentinez/core/szbytestr"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/httpconst"
-	"github.com/sentinez/contrib/pkg/bytesconv"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szstorage/cache/mem"
 	"github.com/sentinez/pkg/szsync"

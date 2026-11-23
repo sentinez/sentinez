@@ -23,10 +23,10 @@ import (
 	"github.com/corazawaf/coraza/v3"
 	"github.com/corazawaf/coraza/v3/experimental"
 	"github.com/corazawaf/coraza/v3/types"
+	"github.com/sentinez/contrib/pkg/bytesconv"
 	"github.com/sentinez/core/szbytestr"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/httpconst"
-	"github.com/sentinez/contrib/pkg/bytesconv"
 )
 
 func processRequestHandler(ctx szhttp.Context, tx types.Transaction) error {
