@@ -20,8 +20,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/sentinez/contrib/pkg/bytesconv"
 	chttp "github.com/sentinez/core/szhttp"
-	"github.com/sentinez/pkg/bytesconv"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 )
 

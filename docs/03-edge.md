@@ -166,7 +166,7 @@ buffers.
 
 **Allocations on the request path.** The `[]byte` getters of `httpx.Context`
 (`Host`, `Path`, `Method`, `QueryStr`, `URI`, `RemoteAddr`, headers) are
-zero-copy views of strings `net/http` already holds (`bytesconv.S2b`): they
+zero-copy views of strings `net/http` already holds (`contrib/pkg/bytesconv`, `S2b`): they
 are read-only, and `httpx.Context` implements the marker
 `szhttp.ImmutableRequest`. Whatever outlives the request (the log events,
 which the exporters send asynchronously) takes its strings through

@@ -94,7 +94,6 @@ type một topic, xem `pkg/szkafka`), nếu không thì qua provider OTLP riêng
 | `szperms` | `Allow(XMethod, ControlPlane)` |
 | `szsync` | `Map[K,V]` (generic `sync.Map`), `Pool[T]` (`NewPool`, `NewPoolCtr`) |
 | `szrand` | `RandomString` (crypto/rand), `NewUUID` (khoá bản ghi, không gắn zone), `NewNanoId`, `NewULID` (id request/event) — đều nhận `szprefix.Prefix` và nối bằng `szprefix.Separator` |
-| `bytesconv` | Fork từ fasthttp/Hertz: `B2s`/`S2b` zero-copy, bảng tra ký tự, parse số |
 | `szjson` | `Marshal`/`Unmarshal` bằng `bytedance/sonic` |
 | `szprotobuf` | Chuyển đổi Timestamp/Duration, `Compare` cho go-cmp, `Validate` |
 | `szprotobuf/protox` | `Marshal`/`Unmarshal` nhị phân, `Struct(any)` → `structpb.Struct` |

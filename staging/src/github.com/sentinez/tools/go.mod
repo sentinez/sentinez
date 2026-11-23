@@ -3,6 +3,7 @@ module github.com/sentinez/tools
 go 1.27.1
 
 replace (
+	github.com/sentinez/contrib/pkg => ../contrib/pkg
 	github.com/sentinez/core => ../core
 	github.com/sentinez/pkg => ../pkg
 	github.com/sentinez/sentinez/api => ../../../../../api

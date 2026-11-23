@@ -1,0 +1,75 @@
+version: "2"
+run:
+  modules-download-mode: readonly
+linters:
+  default: none
+  enable:
+    - errcheck
+    - gocritic
+    - funlen
+    - govet
+    - lll
+    - misspell
+    - revive
+    - staticcheck
+  settings:
+    gocritic:
+      # only the project rules: see hack/lint/rules.go
+      disable-all: true
+      enabled-checks:
+        - ruleguard
+      settings:
+        ruleguard:
+          rules: ${base-path}/../../../../../../hack/lint/rules.go
+          failOn: all
+    lll:
+      line-length: 80
+      tab-width: 4
+    misspell:
+      ignore-rules:
+        - sentinez
+    funlen:
+      lines: 35
+      statements: 0
+    revive:
+      rules:
+        # - name: var-naming
+        - name: blank-imports
+        - name: context-as-argument
+        - name: dot-imports
+        - name: error-return
+        - name: error-naming
+        - name: error-strings
+        - name: increment-decrement
+        - name: var-declaration
+        - name: range
+        - name: receiver-naming
+        - name: time-naming
+        - name: unexported-return
+        - name: indent-error-flow
+        - name: errorf
+        - name: empty-block
+        - name: superfluous-else
+        - name: unused-parameter
+        - name: unreachable-code
+        - name: redefines-builtin-id
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+      - bytesconv/
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

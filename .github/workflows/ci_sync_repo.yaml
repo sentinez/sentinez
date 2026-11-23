@@ -100,8 +100,8 @@ jobs:
           SZ_GITHUB_TOKEN: ${{ secrets.SZ_GITHUB_TOKEN }}
         run: bash hack/ci/action_sync.sh bpf
 
-  mcp:
-    name: sync sentinez/mcp
+  integration:
+    name: sync sentinez/integration
     runs-on: ubuntu-latest
 
     steps:
@@ -110,10 +110,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Sync sentinez/mcp
+      - name: Sync sentinez/integration
         env:
           SZ_GITHUB_TOKEN: ${{ secrets.SZ_GITHUB_TOKEN }}
-        run: bash hack/ci/action_sync.sh mcp
+        run: bash hack/ci/action_sync.sh integration
 
   go-import:
     name: sync sentinez/go-import

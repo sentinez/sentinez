@@ -21,11 +21,11 @@ import (
 	"net/url"
 	"strconv"
 
+	"github.com/sentinez/contrib/pkg/bytesconv"
 	"github.com/sentinez/core/szbytestr"
 	"github.com/sentinez/core/szcrypto/pow"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/chains"
-	"github.com/sentinez/pkg/bytesconv"
 	"github.com/sentinez/pkg/szlog"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
