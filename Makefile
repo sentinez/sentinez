@@ -38,6 +38,7 @@ include ./hack/make/fmt.mk
 include ./hack/make/docker.mk
 include ./hack/make/certs.mk
 include ./hack/make/scale.mk
+include ./hack/make/release.mk
 
 include ./hack/net/dev/Makefile
 include ./api/Makefile

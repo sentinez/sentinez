@@ -48,11 +48,11 @@ The stages, in the order of the edge chain
 | Stage | Id | Plugin |
 |---|---|---|
 | `cache` | `CDN` | `cdn.Cache` |
-| `sec_rate_limit` | `LMT` | `secure.Limiter` |
+| `sec_limiter` | `LMT` | `secure.SecLimiter` |
 | `waiting_room` | `ROM` | `room.WaitingRoom` |
 | `static` | `STC` | `static.Static` |
 | `sec_rule` | `RUL` | `secure.SecRule` |
-| `sec_ruleset` | `RST` | `secure.Rulesets` (OWASP CRS) |
+| `sec_ruleset` | `RST` | `secure.SecRuleset` (OWASP CRS) |
 | `router` | `ROU` | `routing.StandardRouter`, to the upstream |
 
 The stages before the namespace of the request is known (`TRC`, `LOG`,
@@ -97,19 +97,48 @@ The sandbox opens `base`, `table`, `string` and `math` only: there is no
 `os`, `io`, `load` or `require`. Each call is limited to 50ms (`WithTimeout`),
 and a script that fails or times out is skipped by the edge.
 
+## Usage
+
+```sh
+go get github.com/sentinez/scripting
+```
+
+```go
+prog, err := scripting.Compile("audit.lua", source,
+	scripting.WithTimeout(20*time.Millisecond))
+if err != nil {
+	return err // syntax error, misplaced ---@stage, or a failing script body
+}
+
+// around the stage whose id is "RUL" (sec_rule):
+if prog.Has(phase.Request, "RUL") {
+	responded, err := prog.Call(ctx, phase.Request, "RUL", ex)
+	// responded: a hook answered, skip the stage
+}
+```
+
+- `Compile` parses the script, reads its `---@stage` lines and runs the body
+  once, so a broken script fails there, not at the first request.
+- A `Program` is safe for concurrent use: each call takes a Lua state of its
+  own, kept for reuse unless the call failed or timed out.
+- `Call` runs the hooks of the stage in source order until one responds, and
+  reports whether one did. The hooks share the time limit (50ms by default).
+- `Has` is a cheap check to skip the call when the script hooks nothing there.
+
+The host implements `exchange.Exchange` (the request, `SetHeader`,
+`SetResponseHeader`, `String` to answer it, `Log`) and calls
+`Program.Call(ctx, phase.Request, stage, ex)` around each stage.
+
 ## Packages
 
 | Package | |
 |---|---|
-| `scripting` | `Compile`, `Program` (`Has`, `Call`) and `Stages` |
+| `scripting` | `Compile`, `Program` (`Has`, `Call`, `Name`, `Source`), `WithTimeout` and `Stages` |
 | `scripting/exchange` | `Exchange`, the request the host hands a hook, and the log `Level` |
 | `scripting/phase` | `Phase`: `Request` (`http:request`), `Response` (`http:response`) |
 | `internal/hooks` | parses the `---@stage` lines into the hooks of a script; the stage table |
 | `internal/api` | the `ctx` and `log` APIs; `Run` calls the hooks of a stage in a Lua state |
 | `internal/sandbox` | the Lua state: the libraries a script may use, no more |
-
-The host implements `exchange.Exchange` and calls
-`Program.Call(ctx, phase.Request, stage, ex)` around each stage.
 
 ## Editor support
 

@@ -351,7 +351,7 @@ setting:
   # ----------------------------------------------------------
   # A ---@stage <phase>/<stage> line hooks the global function it
   # precedes, whatever its name, before or after a stage of the edge
-  # chain: cache, sec_rate_limit, waiting_room, static, sec_rule,
+  # chain: cache, sec_limiter, waiting_room, static, sec_rule,
   # sec_ruleset, router (in chain order). One line per phase and stage.
   # ctx reads the request (method, path, host, ip, header, query),
   # sets headers (set_header: sent upstream, set_response_header)

@@ -22,11 +22,11 @@
 ---no hooks.
 ---@alias sz.Stage
 ---| "cache" # CDN: cdn.Cache
----| "sec_rate_limit" # LMT: secure.Limiter
+---| "sec_limiter" # LMT: secure.SecLimiter
 ---| "waiting_room" # ROM: room.WaitingRoom
 ---| "static" # STC: static.Static
 ---| "sec_rule" # RUL: secure.SecRule
----| "sec_ruleset" # RST: secure.Rulesets (OWASP CRS)
+---| "sec_ruleset" # RST: secure.SecRuleset (OWASP CRS)
 ---| "router" # ROU: routing.StandardRouter, to the upstream
 
 ---Writes lines to the logs of the request, with the request id and the

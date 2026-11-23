@@ -491,7 +491,7 @@ type Condition struct {
 	// The source of the field
 	// Example: "User-Agent" or "country"
 	Source FieldSource `protobuf:"varint,1,opt,name=source,proto3,enum=sentinez.types.rule.v1.FieldSource" json:"source,omitempty" yaml:"source"` // @gotags: yaml:"source"
-	Key    string      `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty" yaml:"key"`                                                // @gotags: yaml:"key"
+	Key    string      `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty" yaml:"key"`                                                   // @gotags: yaml:"key"
 	// Supported operators: "eq", "ne", "contains",
 	// "matches", "in", "prefix", "suffix", "gt", "lt"
 	Operator Operator `protobuf:"varint,3,opt,name=operator,proto3,enum=sentinez.types.rule.v1.Operator" json:"operator,omitempty" yaml:"operator"` // @gotags: yaml:"operator"

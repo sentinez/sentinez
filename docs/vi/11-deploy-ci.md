@@ -56,7 +56,8 @@ Các module trong `staging/src/github.com/sentinez/<name>` được đồng bộ
 
 - Danh sách đích:
   [staging/publishing/rules.yaml](../../staging/publishing/rules.yaml)
-  (`core`, `pkg`, `tools`, `contrib`, `controlplane`, `bpf`) và nhánh
+  (`core`, `pkg`, `tools`, `contrib`, `controlplane`, `bpf`,
+  `integration`, `go-import`, `scripting`) và nhánh
   (`staging`, `main`).
 - Workflow [ci_sync_repo.yaml](../../.github/workflows/ci_sync_repo.yaml) được
   **sinh ra** bởi `bash staging/publishing/gen_sync_workflow.sh` — sửa
@@ -74,14 +75,16 @@ chạy `go mod tidy` trong module đó **và** ở root.
 
 | Workflow | Kích hoạt | Việc làm |
 |---|---|---|
-| `ci_lint.yaml` | push `main`, `release/*`; PR | `golangci-lint v2.13.2` qua `hack/golint.sh` (`go mod tidy && golangci-lint run` ở root); `buf lint` qua `hack/protolint.sh` |
-| `ci_test.yaml` | push `main`, `release/*`; PR | `go mod download && go test ./...` (chỉ module root) |
+| `ci_lint.yaml` | push `main`, `release/*`; PR | `golangci-lint v2.13.2` qua `hack/golint.sh` (`go mod tidy && golangci-lint run` trong mọi module của `hack/gomodules.sh`); `buf lint` qua `hack/protolint.sh` |
+| `ci_test.yaml` | push `main`, `release/*`; PR | `go test ./...` trong mọi module của `hack/gomodules.sh` (`hack/gotest.sh`) |
 | `ci_sync_repo.yaml` | push `staging`, `main` | Đồng bộ module staging |
 
 Dependabot cập nhật `gomod` (root) và `npm` (`ui/apps/console`) hằng ngày.
 
-Lưu ý: CI lint/test chỉ chạy ở module root; lint các module staging phải chạy
-local bằng `make lint`.
+CI không chạy `make fmt.go.check` và không build service. Trước khi release,
+`make release.check` chạy toàn bộ các cổng
+([14-test-plan.md](14-test-plan.md)). Job sync chỉ đẩy nhánh, không đẩy tag:
+xem cách gắn tag release ở [13-release.md](13-release.md).
 
 ## 11.6 Mirror GitLab
 
