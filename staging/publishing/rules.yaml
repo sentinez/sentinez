@@ -11,6 +11,6 @@ rules:
   - destination: contrib
   - destination: controlplane
   - destination: bpf
-  - destination: mcp
+  - destination: integration
   - destination: go-import
   - destination: scripting

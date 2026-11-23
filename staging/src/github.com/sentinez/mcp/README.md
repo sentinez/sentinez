@@ -1,9 +1,0 @@
-# github.com/sentinez/mcp
-
-> ⚠️ **This is an automatically published [staged repository](https://github.com/sentinez/mcp) for Sentinez**.   
-> Contributions, including issues and pull requests, should be made to the main Sentinez repository: [https://github.com/sentinez/sentinez](https://github.com/sentinez/sentinez).  
-> This repository is read-only for importing, and not used for direct contributions.
-
-=======================================================================
-
-This package provides all API package module needed in the project
