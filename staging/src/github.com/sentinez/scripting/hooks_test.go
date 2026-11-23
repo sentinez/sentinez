@@ -98,7 +98,7 @@ func invalidAnnotationTests() []invalidAnnotationTest {
 			`line 1: @stage: phase "during", http:request or http:response`},
 		{"stage id", "---@stage http:request/RUL\nfunction f(c) end",
 			`line 1: @stage: unknown stage "RUL", one of cache, ` +
-				"sec_rate_limit, waiting_room, static, sec_rule, " +
+				"sec_limiter, waiting_room, static, sec_rule, " +
 				"sec_ruleset, router"},
 		{"local function", "---@stage http:request/router\n" +
 			"local function f(c) end",

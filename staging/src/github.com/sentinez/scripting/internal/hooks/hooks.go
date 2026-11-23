@@ -36,13 +36,13 @@ type stage struct {
 // order. The stages before the namespace of the request is known (TRC,
 // LOG, DMA) have no hooks. The edge tests the ids against its chain.
 var _stages = []stage{
-	{name: "cache", id: "CDN"},          // cdn.Cache
-	{name: "sec_rate_limit", id: "LMT"}, // secure.Limiter
-	{name: "waiting_room", id: "ROM"},   // room.WaitingRoom
-	{name: "static", id: "STC"},         // static.Static
-	{name: "sec_rule", id: "RUL"},       // secure.SecRule
-	{name: "sec_ruleset", id: "RST"},    // secure.Rulesets
-	{name: "router", id: "ROU"},         // routing.StandardRouter
+	{name: "cache", id: "CDN"},        // cdn.Cache
+	{name: "sec_limiter", id: "LMT"},  // secure.SecLimiter
+	{name: "waiting_room", id: "ROM"}, // room.WaitingRoom
+	{name: "static", id: "STC"},       // static.Static
+	{name: "sec_rule", id: "RUL"},     // secure.SecRule
+	{name: "sec_ruleset", id: "RST"},  // secure.SecRuleset
+	{name: "router", id: "ROU"},       // routing.StandardRouter
 }
 
 // Stages returns the ids of the stages a hook may annotate, in chain

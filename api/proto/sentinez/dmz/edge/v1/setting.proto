@@ -37,7 +37,7 @@ message Setting {
 
 // Scripting the Lua scripts of a domain. A ---@stage <phase>/<stage> line
 // hooks the global function it precedes before or after a stage of the
-// edge chain: cache, sec_rate_limit, waiting_room, static, sec_rule,
+// edge chain: cache, sec_limiter, waiting_room, static, sec_rule,
 // sec_ruleset or router.
 message Scripting {
   repeated Script scripts = 1; // @gotags: yaml:"scripts"

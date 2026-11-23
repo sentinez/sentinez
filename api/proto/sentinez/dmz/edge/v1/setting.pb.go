@@ -201,13 +201,13 @@ func (ProxyProtocol) EnumDescriptor() ([]byte, []int) {
 // Setting edge setting per user
 type Setting struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
-	Metadata       *Metadata              `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty" yaml:"metadata"`                                   // @gotags: yaml:"metadata"
-	Ingress        *Ingress               `protobuf:"bytes,2,opt,name=ingress,proto3" json:"ingress,omitempty" yaml:"ingress"`                                     // @gotags: yaml:"ingress"
-	Security       *Security              `protobuf:"bytes,3,opt,name=security,proto3" json:"security,omitempty" yaml:"security"`                                   // @gotags: yaml:"security"
+	Metadata       *Metadata              `protobuf:"bytes,1,opt,name=metadata,proto3" json:"metadata,omitempty" yaml:"metadata"`                                          // @gotags: yaml:"metadata"
+	Ingress        *Ingress               `protobuf:"bytes,2,opt,name=ingress,proto3" json:"ingress,omitempty" yaml:"ingress"`                                             // @gotags: yaml:"ingress"
+	Security       *Security              `protobuf:"bytes,3,opt,name=security,proto3" json:"security,omitempty" yaml:"security"`                                          // @gotags: yaml:"security"
 	TrafficControl *TrafficControl        `protobuf:"bytes,4,opt,name=traffic_control,json=trafficControl,proto3" json:"traffic_control,omitempty" yaml:"traffic_control"` // @gotags: yaml:"traffic_control"
-	Personal       *Personal              `protobuf:"bytes,5,opt,name=personal,proto3" json:"personal,omitempty" yaml:"personal"`                                   // @gotags: yaml:"personal"
-	Delivery       *Delivery              `protobuf:"bytes,6,opt,name=delivery,proto3" json:"delivery,omitempty" yaml:"delivery"`                                   // @gotags: yaml:"delivery"
-	Scripting      *Scripting             `protobuf:"bytes,7,opt,name=scripting,proto3" json:"scripting,omitempty" yaml:"scripting"`                                 // @gotags: yaml:"scripting"
+	Personal       *Personal              `protobuf:"bytes,5,opt,name=personal,proto3" json:"personal,omitempty" yaml:"personal"`                                          // @gotags: yaml:"personal"
+	Delivery       *Delivery              `protobuf:"bytes,6,opt,name=delivery,proto3" json:"delivery,omitempty" yaml:"delivery"`                                          // @gotags: yaml:"delivery"
+	Scripting      *Scripting             `protobuf:"bytes,7,opt,name=scripting,proto3" json:"scripting,omitempty" yaml:"scripting"`                                       // @gotags: yaml:"scripting"
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -293,7 +293,7 @@ func (x *Setting) GetScripting() *Scripting {
 
 // Scripting the Lua scripts of a domain. A ---@stage <phase>/<stage> line
 // hooks the global function it precedes before or after a stage of the
-// edge chain: cache, sec_rate_limit, waiting_room, static, sec_rule,
+// edge chain: cache, sec_limiter, waiting_room, static, sec_rule,
 // sec_ruleset or router.
 type Scripting struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -342,9 +342,9 @@ func (x *Scripting) GetScripts() []*Script {
 // Script a Lua source run in the sandbox of the edge.
 type Script struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty" yaml:"id"`              // @gotags: yaml:"id"
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`          // @gotags: yaml:"name"
-	Source        string                 `protobuf:"bytes,3,opt,name=source,proto3" json:"source,omitempty" yaml:"source"`      // @gotags: yaml:"source"
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty" yaml:"id"`                    // @gotags: yaml:"id"
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`              // @gotags: yaml:"name"
+	Source        string                 `protobuf:"bytes,3,opt,name=source,proto3" json:"source,omitempty" yaml:"source"`        // @gotags: yaml:"source"
 	Disabled      bool                   `protobuf:"varint,4,opt,name=disabled,proto3" json:"disabled,omitempty" yaml:"disabled"` // @gotags: yaml:"disabled"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -668,8 +668,8 @@ type Resource struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Id of the resource, filled into the events of its requests;
 	// "rsrc_default" when empty.
-	Id        string      `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty" yaml:"id"`               // @gotags: yaml:"id"
-	Name      string      `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`           // @gotags: yaml:"name"
+	Id        string      `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty" yaml:"id"`                      // @gotags: yaml:"id"
+	Name      string      `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty" yaml:"name"`                // @gotags: yaml:"name"
 	Locations []*Location `protobuf:"bytes,3,rep,name=locations,proto3" json:"locations,omitempty" yaml:"locations"` // @gotags: yaml:"locations"
 	// Domain the resource is served at, the namespace of the setting: the
 	// edge keys its stores by it and matches the request host against it,
@@ -748,9 +748,9 @@ func (x *Resource) GetTlsMode() TlsMode {
 
 type Location struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
-	Location        string                 `protobuf:"bytes,1,opt,name=location,proto3" json:"location,omitempty" yaml:"location"`                                                                                                                  // @gotags: yaml:"location"
-	ProxyRewrite    string                 `protobuf:"bytes,2,opt,name=proxy_rewrite,json=proxyRewrite,proto3" json:"proxy_rewrite,omitempty" yaml:"proxyRewrite"`                                                                                      // @gotags: yaml:"proxyRewrite"
-	ProxyPass       []*Upstream            `protobuf:"bytes,3,rep,name=proxy_pass,json=proxyPass,proto3" json:"proxy_pass,omitempty" yaml:"proxyPass"`                                                                                               // @gotags: yaml:"proxyPass"
+	Location        string                 `protobuf:"bytes,1,opt,name=location,proto3" json:"location,omitempty" yaml:"location"`                                                                                                                         // @gotags: yaml:"location"
+	ProxyRewrite    string                 `protobuf:"bytes,2,opt,name=proxy_rewrite,json=proxyRewrite,proto3" json:"proxy_rewrite,omitempty" yaml:"proxyRewrite"`                                                                                         // @gotags: yaml:"proxyRewrite"
+	ProxyPass       []*Upstream            `protobuf:"bytes,3,rep,name=proxy_pass,json=proxyPass,proto3" json:"proxy_pass,omitempty" yaml:"proxyPass"`                                                                                                     // @gotags: yaml:"proxyPass"
 	BalanceStrategy BalanceStrategy        `protobuf:"varint,4,opt,name=balance_strategy,json=balanceStrategy,proto3,enum=sentinez.dmz.edge.v1.BalanceStrategy" json:"balance_strategy,omitempty" yaml:"balanceStrategy"`                                  // @gotags: yaml:"balanceStrategy"
 	ProxySetHeaders map[string]string      `protobuf:"bytes,5,rep,name=proxy_set_headers,json=proxySetHeaders,proto3" json:"proxy_set_headers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value" yaml:"proxySetHeaders"` // @gotags: yaml:"proxySetHeaders"
 	unknownFields   protoimpl.UnknownFields
@@ -825,7 +825,7 @@ func (x *Location) GetProxySetHeaders() map[string]string {
 // Security user-specific WAF, rate limiting, or bot protection rules
 type Security struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Ruleset       *v11.Setting           `protobuf:"bytes,1,opt,name=ruleset,proto3" json:"ruleset,omitempty" yaml:"ruleset"`   // @gotags: yaml:"ruleset"
+	Ruleset       *v11.Setting           `protobuf:"bytes,1,opt,name=ruleset,proto3" json:"ruleset,omitempty" yaml:"ruleset"`    // @gotags: yaml:"ruleset"
 	Secrules      []*SecRule             `protobuf:"bytes,2,rep,name=secrules,proto3" json:"secrules,omitempty" yaml:"secrules"` // @gotags: yaml:"secrules"
 	Limiters      []*RateLimit           `protobuf:"bytes,3,rep,name=limiters,proto3" json:"limiters,omitempty" yaml:"limiters"` // @gotags: yaml:"limiters"
 	unknownFields protoimpl.UnknownFields
@@ -929,10 +929,10 @@ func (x *SecRule) GetIngress() *v12.SecRule {
 
 type RateLimit struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Ingress       *v12.SecRule           `protobuf:"bytes,1,opt,name=ingress,proto3" json:"ingress,omitempty" yaml:"ingress"`                              // @gotags: yaml:"ingress"
-	TimeWindow    string                 `protobuf:"bytes,11,opt,name=time_window,json=timeWindow,proto3" json:"time_window,omitempty" yaml:"timeWindow"`     //@gotags: yaml:"timeWindow"
+	Ingress       *v12.SecRule           `protobuf:"bytes,1,opt,name=ingress,proto3" json:"ingress,omitempty" yaml:"ingress"`                                  // @gotags: yaml:"ingress"
+	TimeWindow    string                 `protobuf:"bytes,11,opt,name=time_window,json=timeWindow,proto3" json:"time_window,omitempty" yaml:"timeWindow"`      //@gotags: yaml:"timeWindow"
 	MaxRequests   int64                  `protobuf:"varint,12,opt,name=max_requests,json=maxRequests,proto3" json:"max_requests,omitempty" yaml:"maxRequests"` //@gotags: yaml:"maxRequests"
-	Timeout       string                 `protobuf:"bytes,13,opt,name=timeout,proto3" json:"timeout,omitempty" yaml:"timeout"`                             //@gotags: yaml:"timeout"
+	Timeout       string                 `protobuf:"bytes,13,opt,name=timeout,proto3" json:"timeout,omitempty" yaml:"timeout"`                                 //@gotags: yaml:"timeout"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1115,7 +1115,7 @@ func (*Personal) Descriptor() ([]byte, []int) {
 
 type Upstream struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Server        string                 `protobuf:"bytes,1,opt,name=server,proto3" json:"server,omitempty" yaml:"server"`                                              // @gotags: yaml:"server"
+	Server        string                 `protobuf:"bytes,1,opt,name=server,proto3" json:"server,omitempty" yaml:"server"`                                                // @gotags: yaml:"server"
 	Protocol      ProxyProtocol          `protobuf:"varint,2,opt,name=protocol,proto3,enum=sentinez.dmz.edge.v1.ProxyProtocol" json:"protocol,omitempty" yaml:"protocol"` // @gotags: yaml:"protocol"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

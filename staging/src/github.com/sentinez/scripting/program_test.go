@@ -253,7 +253,7 @@ function f(ctx) ctx:respond(403) end
 
 func TestCallConcurrent(t *testing.T) {
 	p, err := Compile("t.lua", `
----@stage http:request/sec_rate_limit
+---@stage http:request/sec_limiter
 function f(ctx) ctx:set_header("X", ctx:path()) end
 `)
 	require.NoError(t, err)
