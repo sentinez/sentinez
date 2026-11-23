@@ -2,9 +2,7 @@ module github.com/sentinez/pkg
 
 go 1.27.1
 
-replace (
-	github.com/sentinez/sentinez/api => ../../../../../api
-)
+replace github.com/sentinez/sentinez/api => ../../../../../api
 
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.12-20260825204119-511051f7f437.1
