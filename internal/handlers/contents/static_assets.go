@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package static
+package contents
 
 import (
 	"path/filepath"
@@ -25,10 +25,10 @@ import (
 	"github.com/sentinez/core/szhttp"
 )
 
-// StaticId is the chain stage name of Static.
-const StaticId = "STC"
+// StaticAssetsId is the chain stage name of StaticAssets.
+const StaticAssetsId = "staticassets"
 
-var _ chains.Plugin = (*Static)(nil)
+var _ chains.Plugin = (*StaticAssets)(nil)
 
 // _staticExts lists the extensions of the assets marked cacheable.
 var _staticExts = map[string]struct{}{
@@ -37,11 +37,11 @@ var _staticExts = map[string]struct{}{
 	".ttf": {}, ".eot": {}, ".map": {},
 }
 
-type Static struct{}
+type StaticAssets struct{}
 
-func (*Static) ID() string { return StaticId }
+func (*StaticAssets) ID() string { return StaticAssetsId }
 
-func (*Static) Handle(ctx szhttp.Context, next chains.Handler) error {
+func (*StaticAssets) Handle(ctx szhttp.Context, next chains.Handler) error {
 	// szlog.Debug("[edge] >>> visit static")
 
 	err := next.Handle(ctx)

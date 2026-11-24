@@ -31,11 +31,13 @@ func callHook(t *testing.T, body string) *fakeExchange {
 	t.Helper()
 
 	p, err := Compile("t.lua",
-		"---@stage http:request/router\nfunction f(ctx)\n"+body+"\nend")
+		"---@stage http.request/router\n"+
+			"function f(ctx)\n"+body+"\nend")
 	require.NoError(t, err)
 
 	ex := newFake()
-	_, err = p.Call(context.Background(), phase.Request, "ROU", ex)
+	_, err = p.Call(context.Background(), phase.Request,
+		"router", ex)
 	require.NoError(t, err)
 
 	return ex
@@ -89,23 +91,25 @@ func TestLogInScriptBodyIsDropped(t *testing.T) {
 	p, err := Compile("t.lua", `
 log.info("loaded")
 log:debug("loaded")
----@stage http:request/router
+---@stage http.request/router
 function f(ctx) end
 `)
 	require.NoError(t, err)
 
 	ex := newFake()
-	_, err = p.Call(context.Background(), phase.Request, "ROU", ex)
+	_, err = p.Call(context.Background(), phase.Request,
+		"router", ex)
 	require.NoError(t, err)
 	assert.Empty(t, ex.logs)
 }
 
 func TestLogIsNotAFunction(t *testing.T) {
 	p, err := Compile("t.lua",
-		"---@stage http:request/router\nfunction f(ctx) "+
+		"---@stage http.request/router\nfunction f(ctx) "+
 			`log("info", "x")`+" end")
 	require.NoError(t, err)
 
-	_, err = p.Call(context.Background(), phase.Request, "ROU", newFake())
+	_, err = p.Call(context.Background(), phase.Request,
+		"router", newFake())
 	assert.ErrorContains(t, err, "attempt to call a non-function object")
 }

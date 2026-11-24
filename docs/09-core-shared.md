@@ -23,7 +23,7 @@ In any mode other than `dev`, fx logging is disabled (`fx.NopLogger`).
 
 OTLP: system logs go to `SZ_OTLP_INTERNAL_ENDPOINT` and are not exported
 when it is unset; service name = `meta.service_key`. The exporter is shut
-down after every app has stopped. The edge traffic logs (func chain `LOG`
+down after every app has stopped. The edge traffic logs (func chain `logging`
 node) go straight to Kafka when `SZ_KAFKA_BROKERS` is set (raw proto
 events, one topic per log type, see `pkg/szkafka`), otherwise through their
 own OTLP provider on `SZ_OTLP_EXTERNAL_ENDPOINT`; the exporter is owned by

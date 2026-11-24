@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package script
+package handlers
 
 import (
 	"net/http"
@@ -66,22 +66,23 @@ func storeOf(t *testing.T, source string) *scripts.Scripts {
 
 func TestWrapSkipsStagesWithoutHooks(t *testing.T) {
 	next := chains.HandlerFunc(func(szhttp.Context) error { return nil })
-	h := New(scripts.New())
+	h := newScriptHooks(scripts.New())
 
-	for _, id := range []string{"TRC", "LOG", "DMA"} {
-		wrapped := h.Wrap(id, next)
+	ids := []string{"tracing", "logging", "domain"}
+	for _, id := range ids {
+		wrapped := h.wrap(id, next)
 		assert.IsType(t, next, wrapped, id)
 	}
 }
 
 func TestBeforeRespondEndsRequest(t *testing.T) {
 	store := storeOf(t, `
----@stage http:request/sec_rule
+---@stage http.request/secrule
 function deny(ctx) ctx:respond(403, "no") end
 `)
 	f := newFixture(t, _ns)
 
-	err := New(store).Wrap("RUL", f.next).Handle(f.ctx)
+	err := newScriptHooks(store).wrap("secrule", f.next).Handle(f.ctx)
 
 	require.NoError(t, err)
 	assert.False(t, f.called, "the stage is skipped")
@@ -91,12 +92,12 @@ function deny(ctx) ctx:respond(403, "no") end
 
 func TestBeforeSetsHeaderAndContinues(t *testing.T) {
 	store := storeOf(t, `
----@stage http:request/router
+---@stage http.request/router
 function tag(ctx) ctx:set_header("X-Edge", "sz") end
 `)
 	f := newFixture(t, _ns)
 
-	err := New(store).Wrap("ROU", f.next).Handle(f.ctx)
+	err := newScriptHooks(store).wrap("router", f.next).Handle(f.ctx)
 
 	require.NoError(t, err)
 	assert.True(t, f.called)
@@ -106,12 +107,12 @@ function tag(ctx) ctx:set_header("X-Edge", "sz") end
 
 func TestHookOfAnotherStageDoesNotRun(t *testing.T) {
 	store := storeOf(t, `
----@stage http:request/sec_rule
+---@stage http.request/secrule
 function deny(ctx) ctx:respond(403, "no") end
 `)
 	f := newFixture(t, _ns)
 
-	err := New(store).Wrap("ROU", f.next).Handle(f.ctx)
+	err := newScriptHooks(store).wrap("router", f.next).Handle(f.ctx)
 
 	require.NoError(t, err)
 	assert.True(t, f.called)
@@ -119,12 +120,12 @@ function deny(ctx) ctx:respond(403, "no") end
 
 func TestOtherNamespaceHasNoHooks(t *testing.T) {
 	store := storeOf(t, `
----@stage http:request/sec_rule
+---@stage http.request/secrule
 function deny(ctx) ctx:respond(403, "no") end
 `)
 	f := newFixture(t, "other.example.com")
 
-	err := New(store).Wrap("RUL", f.next).Handle(f.ctx)
+	err := newScriptHooks(store).wrap("secrule", f.next).Handle(f.ctx)
 
 	require.NoError(t, err)
 	assert.True(t, f.called)
@@ -132,12 +133,12 @@ function deny(ctx) ctx:respond(403, "no") end
 
 func TestFailingScriptFailsOpen(t *testing.T) {
 	store := storeOf(t, `
----@stage http:request/sec_rule
+---@stage http.request/secrule
 function boom(ctx) error("boom") end
 `)
 	f := newFixture(t, _ns)
 
-	err := New(store).Wrap("RUL", f.next).Handle(f.ctx)
+	err := newScriptHooks(store).wrap("secrule", f.next).Handle(f.ctx)
 
 	require.NoError(t, err)
 	assert.True(t, f.called)
@@ -145,12 +146,12 @@ function boom(ctx) error("boom") end
 
 func TestAfterRunsAfterStageAndCannotRespond(t *testing.T) {
 	store := storeOf(t, `
----@stage http:response/sec_rule
+---@stage http.response/secrule
 function late(ctx) ctx:respond(500, "late") end
 `)
 	f := newFixture(t, _ns)
 
-	err := New(store).Wrap("RUL", f.next).Handle(f.ctx)
+	err := newScriptHooks(store).wrap("secrule", f.next).Handle(f.ctx)
 
 	require.NoError(t, err)
 	assert.True(t, f.called)
@@ -159,12 +160,12 @@ function late(ctx) ctx:respond(500, "late") end
 
 func TestLogReachesTheEdge(t *testing.T) {
 	store := storeOf(t, `
----@stage http:request/router
+---@stage http.request/router
 function f(ctx) log.info("hello", ctx:path()) log:debug("dbg") end
 `)
 	f := newFixture(t, _ns)
 
-	err := New(store).Wrap("ROU", f.next).Handle(f.ctx)
+	err := newScriptHooks(store).wrap("router", f.next).Handle(f.ctx)
 
 	require.NoError(t, err)
 	assert.True(t, f.called)

@@ -20,10 +20,10 @@ import "strconv"
 type Phase int
 
 const (
-	// Request (http:request) the hook runs before the stage, and may
+	// Request (http.request) the hook runs before the stage, and may
 	// answer the request: the stage is then skipped.
 	Request Phase = iota + 1
-	// Response (http:response) the hook runs once the stage, and the
+	// Response (http.response) the hook runs once the stage, and the
 	// ones after it, returned: the response is written, the hook only
 	// observes.
 	Response
@@ -32,9 +32,9 @@ const (
 func (p Phase) String() string {
 	switch p {
 	case Request:
-		return "http:request"
+		return "http.request"
 	case Response:
-		return "http:response"
+		return "http.response"
 	}
 
 	return "Phase(" + strconv.Itoa(int(p)) + ")"

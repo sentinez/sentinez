@@ -45,8 +45,48 @@ func and(
 	return &rulepb.AndCondition{Rules: rules, OrCondition: or}
 }
 
-// nolint:funlen
+// ofRules the expression matching all of rules.
+func ofRules(rules ...*rulepb.Rule) *rulepb.Expression {
+	return &rulepb.Expression{
+		OrCondition: []*rulepb.AndCondition{and(nil, rules...)},
+	}
+}
+
 func TestExprString(t *testing.T) {
+	login := strRule(_path, "", _eq, structpb.NewStringValue("/login"))
+	debug := strRule(_header, "X-Debug", _eq, structpb.NewStringValue("1"))
+	regex := strRule(_path, "", rulepb.Operator_OPERATOR_MATCHES,
+		structpb.NewStringValue("^/a"))
+	invalid := strRule(_path, "", rulepb.Operator_OPERATOR_MATCHES,
+		structpb.NewStringValue("("))
+
+	tests := []struct {
+		name string
+		give *rulepb.Expression
+		want string
+	}{
+		{name: "nil", want: "true"},
+		{
+			name: "lua",
+			give: &rulepb.Expression{OrCondition: []*rulepb.AndCondition{
+				and(nil, login, debug), and(nil, login),
+			}},
+			want: `ctx:path() == "/login" and ctx:header("X-Debug") == "1"` +
+				` or ctx:path() == "/login"`,
+		},
+		{"regex", ofRules(regex), `re.match(ctx:path(), "^/a")`},
+		{"not declarative", ofRules(invalid), `path matches "("`},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, ExprString(tt.give))
+		})
+	}
+}
+
+// nolint:funlen
+func TestExprText(t *testing.T) {
 	login := strRule(_path, "", _eq, structpb.NewStringValue("/login"))
 	apiKey := strRule(
 		_header, "x-api-key", _eq, structpb.NewStringValue("k"),
@@ -106,7 +146,7 @@ func TestExprString(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, ExprString(tt.give))
+			assert.Equal(t, tt.want, exprText(tt.give))
 		})
 	}
 }

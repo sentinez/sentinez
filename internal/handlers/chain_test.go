@@ -24,8 +24,7 @@ import (
 	"github.com/sentinez/core/szhttp/chains"
 	"github.com/sentinez/pkg/sztracer"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
-	"github.com/sentinez/sentinez/internal/envplugin"
-	"github.com/sentinez/sentinez/internal/handlers/wrap/stage"
+	"github.com/sentinez/sentinez/internal/envhandlers"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -45,7 +44,7 @@ type fake struct {
 
 func (f *fake) ID() string { return f.id }
 
-func (f *fake) Provision(env *envplugin.Env) error {
+func (f *fake) Provision(env *envhandlers.Env) error {
 	*f.log = append(*f.log, "provision "+f.id+" "+env.SecretKey())
 	return f.provisionErr
 }
@@ -69,8 +68,8 @@ func newContext() szhttp.Context {
 	return httpx.NewContext(req, httptest.NewRecorder())
 }
 
-func newEnv() *envplugin.Env {
-	return envplugin.NewEnv(nil, option.WithSecretKey("key"))
+func newEnv() *envhandlers.Env {
+	return envhandlers.NewEnv(nil, option.WithSecretKey("key"))
 }
 
 func TestBuildHandle(t *testing.T) {
@@ -99,7 +98,7 @@ func TestBuildHandle(t *testing.T) {
 				&fake{id: "C", log: &log},
 			}
 
-			chain, err := chains.Build(newEnv(), stage.Wrap, plugins...)
+			chain, err := chains.Build(newEnv(), wrapStage, plugins...)
 			require.NoError(t, err)
 
 			log = nil
@@ -112,7 +111,7 @@ func TestBuildHandle(t *testing.T) {
 func TestBuildProvision(t *testing.T) {
 	var log []string
 
-	_, err := chains.Build(newEnv(), stage.Wrap,
+	_, err := chains.Build(newEnv(), wrapStage,
 		&fake{id: "A", log: &log},
 		&fake{id: "B", log: &log, provisionErr: errFake},
 		&fake{id: "C", log: &log},
@@ -128,7 +127,7 @@ func TestBuildProvision(t *testing.T) {
 
 func TestChainClose(t *testing.T) {
 	var log []string
-	chain, err := chains.Build(newEnv(), stage.Wrap,
+	chain, err := chains.Build(newEnv(), wrapStage,
 		&fake{id: "A", log: &log},
 		&fake{id: "B", log: &log},
 	)
@@ -141,7 +140,7 @@ func TestChainClose(t *testing.T) {
 
 func TestStageError(t *testing.T) {
 	var log []string
-	chain, err := chains.Build(newEnv(), stage.Wrap,
+	chain, err := chains.Build(newEnv(), wrapStage,
 		&fake{id: "A", log: &log},
 		&fake{id: "B", log: &log, handleErr: errFake},
 	)

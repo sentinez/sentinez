@@ -49,7 +49,7 @@ xoá mục tương ứng.
 - [#399](https://github.com/sentinez/sentinez/issues/399) Gỡ một namespace (resource bị xoá, `ingress.resource.domain` đổi)
   vẫn giữ các reverse proxy thường (`plainProxy`) của nó: chúng được key theo
   upstream và dùng chung giữa các namespace, không có đếm tham chiếu.
-- [#400](https://github.com/sentinez/sentinez/issues/400) Waiting room (`ROM`) chỉ chuyển tiếp request, `pkg/szqueue` rỗng.
+- [#400](https://github.com/sentinez/sentinez/issues/400) Waiting room (`waitingroom`) chỉ chuyển tiếp request, `pkg/szqueue` rỗng.
 - [#401](https://github.com/sentinez/sentinez/issues/401) `pkg/sztopic`, `pkg/szstorage/{cache/keyval,dbx/clickhouse,
   search/elastic}` là package rỗng; `SZ_TIMESCALE_URI`, `SZ_CLICKHOUSE_URI`
   khai báo nhưng chưa dùng.

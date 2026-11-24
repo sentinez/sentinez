@@ -24,12 +24,29 @@ web console at one version.
   body, JA4 and TLS fields. Actions: `BLOCK`, `CHALLENGE` (proof-of-work
   page with a `pow-pass` cookie) and `REDIRECT`.
 - Rate limiters scoped per key, each selected by an ingress expression.
+- Lua rule scripts: a secrule or a rate limiter may set `script` in place of
+  `expr` (and `action`). A secrule script defines `match(ctx)` returning an
+  action constant (`return SZ_BLOCK`) or `{type = SZ_REDIRECT, params = ...}`;
+  a limiter script defines `key(ctx)`, true for the requests to count. The
+  edge converts the script to its expression when it loads
+  (`core/szrule/rulescript`) and runs no Lua for a rule: a script outside of
+  the declarative form is refused. Every condition of an expression has its
+  Lua form: `re.match` for a regex, `ctx:ip_in` for a CIDR, `ctx:body()`,
+  `ctx:ja4()`, `ctx:tls()`, and `ctx:has_header`/`ctx:has_query` for a
+  presence; the hooks may call them too.
+- `AndCondition.and_condition`: an `and` holds as many `or` groups as it
+  needs, so `(a or b) and (c or d)` is one expression. A script converts to
+  an expression and back with no group multiplied out into branches
+  (`scripting.Node` replaces the list of branches; 256 conditions at most
+  instead of 64 branches), and `ExprString` keeps the parentheses. The CRS
+  exclusions still multiply the groups out into SecLang chains (64 at most).
+  An edge older than the field ignores it: deploy the edges first.
 - OWASP CRS 4.16.0 and 4.17.0 on Coraza. Paranoia and detection levels,
   anomaly thresholds, rule exclusions scoped by expressions.
 - CDN cache with `X-Cache: HIT`.
 - Lua hooks around the chain stages, declared with
-  `---@stage http:request|response/<stage>`. The stages are `cache`,
-  `sec_limiter`, `waiting_room`, `static`, `sec_rule`, `sec_ruleset` and
+  `---@stage http.request|response/<stage>`. The stages are `caching`,
+  `secratelimit`, `waitingroom`, `staticassets`, `secrule`, `secruleset` and
   `router`. Each call has a 50 ms limit.
 - Clustering through embedded Olric, and zone leader election through Consul.
 - JA4 fingerprints, GeoIP-enriched request logs, and upstream latency.

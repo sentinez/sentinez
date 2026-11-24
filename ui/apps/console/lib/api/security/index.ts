@@ -120,6 +120,7 @@ export const SAMPLE_RULES: SecRule[] = [
             cond(FieldSource.FIELD_SOURCE_METHOD, Operator.OPERATOR_NE, 'GET'),
           ],
           orCondition: [],
+          andCondition: [],
         },
       ],
     } as Expression,
@@ -137,6 +138,7 @@ export const SAMPLE_RULES: SecRule[] = [
             cond(FieldSource.FIELD_SOURCE_HEADER, Operator.OPERATOR_CONTAINS, 'curl', 'User-Agent'),
           ],
           orCondition: [],
+          andCondition: [],
         },
         {
           rules: [
@@ -148,6 +150,7 @@ export const SAMPLE_RULES: SecRule[] = [
             ),
           ],
           orCondition: [],
+          andCondition: [],
         },
       ],
     } as Expression,
@@ -163,6 +166,7 @@ export const SAMPLE_RULES: SecRule[] = [
         {
           rules: [cond(FieldSource.FIELD_SOURCE_IP, Operator.OPERATOR_IN, ['10.0.0.0/8'])],
           orCondition: [],
+          andCondition: [],
         },
       ],
     } as Expression,
@@ -194,6 +198,7 @@ const generatedExpr = (id: string, path: string): Expression =>
           },
         ],
         orCondition: [],
+        andCondition: [],
       },
     ],
   }) as Expression;
@@ -244,6 +249,7 @@ export const SAMPLE_RATE_LIMITS: SecRateLimit[] = [
               cond(FieldSource.FIELD_SOURCE_METHOD, Operator.OPERATOR_EQ, 'POST'),
             ],
             orCondition: [],
+            andCondition: [],
           },
         ],
       } as Expression,
@@ -264,6 +270,7 @@ export const SAMPLE_RATE_LIMITS: SecRateLimit[] = [
           {
             rules: [cond(FieldSource.FIELD_SOURCE_PATH, Operator.OPERATOR_PREFIX, '/api')],
             orCondition: [],
+            andCondition: [],
           },
         ],
       } as Expression,
@@ -284,10 +291,12 @@ export const SAMPLE_RATE_LIMITS: SecRateLimit[] = [
           {
             rules: [cond(FieldSource.FIELD_SOURCE_PATH, Operator.OPERATOR_PREFIX, '/search')],
             orCondition: [],
+            andCondition: [],
           },
           {
             rules: [cond(FieldSource.FIELD_SOURCE_PATH, Operator.OPERATOR_PREFIX, '/autocomplete')],
             orCondition: [],
+            andCondition: [],
           },
         ],
       } as Expression,

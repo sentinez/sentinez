@@ -67,7 +67,7 @@ sau dùng lại trạng thái mà các test trước tạo ra.
 | Id | Các bước | Kết quả mong đợi |
 |---|---|---|
 | EDG-01 | `curl -k https://$EDGE/local/anything` | Upstream nhận `/anything` (do `proxyRewrite`) kèm `X-Forwarded-*`, `X-Real-IP` và `Host` |
-| EDG-02 | Gửi request với một `Host` mà không setting nào có | Trang `403` từ `DMA` |
+| EDG-02 | Gửi request với một `Host` mà không setting nào có | Trang `403` từ `domain` |
 | EDG-03 | `curl -k --http3 https://$EDGE/local/` | Được phục vụ qua HTTP/3. Log của request có JA4 fingerprint |
 | EDG-04 | Làm cho mọi upstream của một location không truy cập được | Trang `502` |
 | EDG-05 | Xem log của một request | Dòng log có request id, `tenant_id`, `resource_id`, và các trường GeoIP nếu là IP public |
@@ -100,11 +100,15 @@ sau dùng lại trạng thái mà các test trước tạo ra.
 | Id | Các bước | Kết quả mong đợi |
 |---|---|---|
 | LUA-01 | Dùng `script_example` có sẵn; gửi request tới `/local/` | Upstream nhận header `X-Edge: sentinez`. Khi bật debug log, dòng `tag` có trong log của request |
-| LUA-02 | Hook `http:request/sec_rule` bằng một hàm gọi `ctx:respond(418, "teapot")`, rồi gửi request tới `/block` | Nhận `418 teapot`. Stage SecRule bị bỏ qua nên không có `403` |
-| LUA-03 | Hook `http:response/router` bằng một hàm gọi `ctx:set_response_header("X-Seen", "1")` | Response có `X-Seen: 1` |
+| LUA-02 | Hook `http.request/secrule` bằng một hàm gọi `ctx:respond(418, "teapot")`, rồi gửi request tới `/block` | Nhận `418 teapot`. Stage SecRule bị bỏ qua nên không có `403` |
+| LUA-03 | Hook `http.response/router` bằng một hàm gọi `ctx:set_response_header("X-Seen", "1")` | Response có `X-Seen: 1` |
 | LUA-04 | Một hàm lặp vô hạn | Mỗi request vẫn được phục vụ, script chạy tối đa khoảng 50 ms. Lỗi của script được ghi log và chain chạy tiếp |
-| LUA-05 | `---@stage http:request/sec_rate_limit` (tên cũ) | Edge ghi log `edge: load '<domain>': … @stage: unknown stage "sec_rate_limit", one of cache, sec_limiter, …` và không nạp script nào của namespace, các script đã nạp từ trước được giữ lại. Phần còn lại của namespace vẫn được nạp |
+| LUA-05 | `---@stage http.request/sec_rate_limit` (tên cũ) | Edge ghi log `edge: load '<domain>': … @stage: unknown stage "sec_rate_limit", one of caching, secratelimit, …` và không nạp script nào của namespace, các script đã nạp từ trước được giữ lại. Phần còn lại của namespace vẫn được nạp |
 | LUA-06 | Gọi `os.execute`, `io.open` hoặc `require` trong script | Không dùng được (bị sandbox chặn) |
+| LUA-07 | `script` của secrule: `if ctx:method() == "GET" and (ctx:path():sub(1, 2) == "/a" or ctx:path():sub(1, 2) == "/b") then return SZ_BLOCK end`; gửi `GET /a`, `GET /c`, `POST /a` | Chỉ `GET /a` bị chặn. Event `secrule: matched` đặt tên rule bằng điều kiện Lua, giữ nguyên ngoặc |
+| LUA-08 | `script` của secrule dùng `re.match(ctx:path(), "^/wp-")`, `ctx:ip_in("10.0.0.0/8")`, `ctx:has_header("X-Debug")` hoặc `ctx:tls()` | Nạp được và khớp như `expr` tương ứng (`MATCHES`, CIDR của IP, có header, TLS) |
+| LUA-09 | `script` của secrule có biến local, vòng lặp, hoặc pattern `re.match` sai | Setting bị từ chối với lỗi bọc `not declarative`, chain cũ được giữ |
+| LUA-10 | `expr` của secrule có hai nhóm `or`, nhóm thứ hai trong `andCondition` (rule "Challenge GET/HEAD on /a or /b" có sẵn) | `GET /a/x` bị challenge; `GET /c` và `POST /a/x` thì không |
 
 ### CLS: cluster
 

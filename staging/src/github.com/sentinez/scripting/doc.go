@@ -14,9 +14,9 @@
 
 // Package scripting runs the Lua scripts of the edge. A ---@stage line hooks
 // the global function it precedes, whatever its name, to a stage of the
-// edge handler chain, at http:request or http:response:
+// edge handler chain, at http.request or http.response:
 //
-//	---@stage http:request/sec_rule
+//	---@stage http.request/secrule
 //	function deny_debug(ctx)
 //	  if ctx:header("X-Debug") == "1" then ctx:respond(403) end
 //	end
@@ -24,4 +24,14 @@
 // The edge calls it around the stage with a ctx value
 // to read the request, change its headers or answer it. Scripts run in a
 // sandbox without os, io or any way to load code, under a time limit.
+//
+// A secrule or a rate limiter may also be a Lua source in place of its
+// expression: Program.Invoke calls its global function (match for a
+// secrule, key for a limiter) with a read-only ctx and returns its Value. A
+// match function returns an action constant, as an eBPF program returns
+// XDP_DROP:
+//
+//	function match(ctx)
+//	  if ctx:header("X-Debug") == "1" then return SZ_BLOCK end
+//	end
 package scripting

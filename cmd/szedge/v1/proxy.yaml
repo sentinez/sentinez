@@ -275,8 +275,62 @@ setting:
           action:
             type: ACTION_TYPE_CHALLENGE
 
-    # Like secrules, every limiter needs an ingress expr: it only counts
-    # the requests the expr matches (the edge refuses to start without).
+      # Several or groups in one rule: (GET or HEAD) and (path /a or /b)
+      # takes a second group in andCondition, which must match as well
+      # (each element carries its own orCondition).
+      - ingress:
+          name: "Challenge GET/HEAD on /a or /b"
+          status: STATUS_ACTIVE
+          expr:
+            orCondition:
+              - orCondition:
+                  - rules:
+                    - condition:
+                        source: FIELD_SOURCE_METHOD
+                        operator: OPERATOR_EQ
+                        value: "GET"
+                  - rules:
+                    - condition:
+                        source: FIELD_SOURCE_METHOD
+                        operator: OPERATOR_EQ
+                        value: "HEAD"
+                andCondition:
+                  - orCondition:
+                      - rules:
+                        - condition:
+                            source: FIELD_SOURCE_PATH
+                            operator: OPERATOR_PREFIX
+                            value: "/a"
+                      - rules:
+                        - condition:
+                            source: FIELD_SOURCE_PATH
+                            operator: OPERATOR_PREFIX
+                            value: "/b"
+          action:
+            type: ACTION_TYPE_CHALLENGE
+
+      # Lua rule: a script in place of expr and action. It defines a
+      # global match(ctx) returning nil or false (no match), an action
+      # constant (SZ_BLOCK, SZ_CHALLENGE, SZ_REDIRECT, SZ_LOG,
+      # SZ_MODIFY_HEADER, SZ_SET_TAG, SZ_ROUTE_TO), as an eBPF program
+      # returns XDP_DROP, or a table {type = SZ_REDIRECT, params = {...}}.
+      # ctx only reads the request here, and no ---@stage line is allowed.
+      - ingress:
+          name: "Script: block X-Debug"
+          status: STATUS_ACTIVE
+          script: |
+            ---@param ctx sz.Context
+            function match(ctx)
+              if ctx:header("X-Debug") == "1" then
+                return SZ_BLOCK
+              end
+            end
+
+    # Every limiter needs an ingress expr or script: it only counts the
+    # requests it matches (the edge refuses to start without). A script
+    # defines key(ctx) returning true for the requests to count, under the
+    # client IP: the edge converts it to its expr at load, as a secrule
+    # script, and refuses one outside of the declarative form.
     limiters:
       - ingress:
           name: "Rate limit every path"
@@ -290,6 +344,19 @@ setting:
                     value: "/"
         timeWindow: 5s
         maxRequests: 100
+        timeout: 5s
+      - ingress:
+          name: "Script: rate limit the login"
+          status: STATUS_ACTIVE
+          script: |
+            ---@param ctx sz.Context
+            function key(ctx)
+              if ctx:path() == "/login" then
+                return true
+              end
+            end
+        timeWindow: 5s
+        maxRequests: 20
         timeout: 5s
 
   # ----------------------------------------------------------
@@ -351,8 +418,9 @@ setting:
   # ----------------------------------------------------------
   # A ---@stage <phase>/<stage> line hooks the global function it
   # precedes, whatever its name, before or after a stage of the edge
-  # chain: cache, sec_limiter, waiting_room, static, sec_rule,
-  # sec_ruleset, router (in chain order). One line per phase and stage.
+  # chain, by plugin id: caching, secratelimit, waitingroom, staticassets,
+  # secrule, secruleset, router (in chain order). One line per phase
+  # and stage.
   # ctx reads the request (method, path, host, ip, header, query),
   # sets headers (set_header: sent upstream, set_response_header)
   # and answers it (respond(status, body), before only).
@@ -367,7 +435,7 @@ setting:
       - id: "script_example"
         name: "tag requests"
         source: |
-          ---@stage http:request/router
+          ---@stage http.request/router
           ---@param ctx sz.Context
           function tag_edge(ctx)
             log.debug("tag", ctx:host(), ctx:path())

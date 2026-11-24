@@ -21,16 +21,16 @@ import (
 	"github.com/sentinez/contrib/pkg/bytesconv"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/pkg/sznormalize"
-	"github.com/sentinez/sentinez/internal/envplugin"
+	"github.com/sentinez/sentinez/internal/envhandlers"
 	"github.com/sentinez/sentinez/internal/memory/settings"
 )
 
 // DomainBasedId is the chain stage name of DomainBased.
-const DomainBasedId = "DMA"
+const DomainBasedId = "domain"
 
 var (
-	_ chains.Plugin                      = (*DomainBased)(nil)
-	_ chains.Provisioner[*envplugin.Env] = (*DomainBased)(nil)
+	_ chains.Plugin                        = (*DomainBased)(nil)
+	_ chains.Provisioner[*envhandlers.Env] = (*DomainBased)(nil)
 )
 
 // DomainBased resolves the namespace of the request: its host, the
@@ -42,7 +42,7 @@ type DomainBased struct {
 
 func (*DomainBased) ID() string { return DomainBasedId }
 
-func (d *DomainBased) Provision(env *envplugin.Env) error {
+func (d *DomainBased) Provision(env *envhandlers.Env) error {
 	d.settings = env.Store().Setting()
 	return nil
 }

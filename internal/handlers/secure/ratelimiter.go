@@ -21,17 +21,17 @@ import (
 	"github.com/sentinez/pkg/szlog"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/envplugin"
+	"github.com/sentinez/sentinez/internal/envhandlers"
 	"github.com/sentinez/sentinez/internal/memory/secratelimits"
 	"github.com/sentinez/sentinez/pkg/pools/matchedrule"
 )
 
-// LimiterId is the chain stage name of Limiter.
-const LimiterId = "LMT"
+// SecLimiterId is the chain stage name of SecLimiter.
+const SecLimiterId = "secratelimit"
 
 var (
-	_ chains.Plugin                      = (*SecLimiter)(nil)
-	_ chains.Provisioner[*envplugin.Env] = (*SecLimiter)(nil)
+	_ chains.Plugin                        = (*SecLimiter)(nil)
+	_ chains.Provisioner[*envhandlers.Env] = (*SecLimiter)(nil)
 )
 
 // _rateLimited the action of a rate limit event, whatever the limiter is
@@ -46,9 +46,9 @@ type SecLimiter struct {
 	log   szlog.LogCloser
 }
 
-func (*SecLimiter) ID() string { return LimiterId }
+func (*SecLimiter) ID() string { return SecLimiterId }
 
-func (l *SecLimiter) Provision(env *envplugin.Env) error {
+func (l *SecLimiter) Provision(env *envhandlers.Env) error {
 	l.store = env.Store().Limiter()
 	l.log = env.Logger(typepb.LogType_LOG_TYPE_SECRATELIMIT)
 	return nil

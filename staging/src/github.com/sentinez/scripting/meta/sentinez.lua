@@ -8,26 +8,26 @@
 -- A hook is a global function, of any name, preceded by one
 -- ---@stage <phase>/<stage> line per stage and phase it runs at:
 --
---   ---@stage http:request/sec_rule
---   ---@stage http:request/sec_ruleset
+--   ---@stage http.request/secrule
+--   ---@stage http.request/secruleset
 --   ---@param ctx sz.Context
 --   function deny_debug(ctx) end
 --
--- The stages are sz.Stage. http:request: the hook may answer the request with
--- ctx:respond, which skips the stage. http:response: it runs once the response is
+-- The stages are sz.Stage. http.request: the hook may answer the request with
+-- ctx:respond, which skips the stage. http.response: it runs once the response is
 -- written, it only observes. The hooks of a stage run in source order.
 
 ---The stages of the edge chain a hook may annotate, in chain order. The
----ones before the namespace of the request is known (TRC, LOG, DMA) have
----no hooks.
+---ones before the namespace of the request is known (tracing,
+---logging, domain) have no hooks.
 ---@alias sz.Stage
----| "cache" # CDN: cdn.Cache
----| "sec_limiter" # LMT: secure.SecLimiter
----| "waiting_room" # ROM: room.WaitingRoom
----| "static" # STC: static.Static
----| "sec_rule" # RUL: secure.SecRule
----| "sec_ruleset" # RST: secure.SecRuleset (OWASP CRS)
----| "router" # ROU: routing.StandardRouter, to the upstream
+---| "caching" # CDN cache
+---| "secratelimit" # rate limiters
+---| "waitingroom" # waiting room
+---| "staticassets" # static assets
+---| "secrule" # secrules
+---| "secruleset" # OWASP CRS
+---| "router" # to the upstream
 
 ---Writes lines to the logs of the request, with the request id and the
 ---name of the script: the arguments, as tostring prints them, joined by
@@ -44,6 +44,17 @@ function log.debug(...) end
 ---A line at the info level.
 ---@param ... any
 function log.info(...) end
+
+---Regular expressions, of the RE2 syntax of Go: not Lua patterns.
+---@class sz.Re
+re = {}
+
+---Whether s holds a match of pattern, e.g. re.match(ctx:path(), "^/api/").
+---An invalid pattern raises an error.
+---@param s string
+---@param pattern string
+---@return boolean
+function re.match(s, pattern) end
 
 ---A hook: called with the request, its result is ignored.
 ---@alias sz.Hook fun(ctx: sz.Context)
@@ -78,6 +89,33 @@ function Context:header(key) end
 ---@return string
 function Context:query(key) end
 
+---Whether the request has the header, even empty: its name as received.
+---@param key string
+---@return boolean
+function Context:has_header(key) end
+
+---Whether the request has the query parameter, even empty.
+---@param key string
+---@return boolean
+function Context:has_query(key) end
+
+---The request body.
+---@return string
+function Context:body() end
+
+---The JA4 fingerprint of the TLS client hello, "" without TLS.
+---@return string
+function Context:ja4() end
+
+---Whether the request came over TLS.
+---@return boolean
+function Context:tls() end
+
+---Whether the client IP is in the CIDR prefix, e.g. "10.0.0.0/8".
+---@param cidr string
+---@return boolean
+function Context:ip_in(cidr) end
+
 ---Sets a header of the request sent upstream. An invalid name is ignored.
 ---@param key string
 ---@param value string
@@ -88,8 +126,57 @@ function Context:set_header(key, value) end
 ---@param value string
 function Context:set_response_header(key, value) end
 
----Answers the request, ending it: the stage is skipped. In an http:response
+---Answers the request, ending it: the stage is skipped. In an http.response
 ---hook it raises an error, the response being written already.
 ---@param status integer 100 to 599
 ---@param body? string
 function Context:respond(status, body) end
+
+-- Rule scripts. A secrule or a rate limiter may be a Lua source in place
+-- of its expr: it defines one global function the edge calls for each
+-- request. ctx is read-only there: set_header, set_response_header and
+-- respond raise an error, the request is changed through the action. A
+-- rule that fails or runs over the time limit is skipped. A rule script has
+-- no ---@stage line.
+
+---The name of an action, as its SZ_ constant holds it.
+---@alias sz.Action
+---| "block"
+---| "challenge"
+---| "log"
+---| "modify_header"
+---| "redirect"
+---| "route_to"
+---| "set_tag"
+
+-- The actions a secrule script returns, as an eBPF program returns
+-- XDP_DROP: return SZ_BLOCK, or {type = SZ_REDIRECT, params = {...}}. The
+-- name ("block") is the same.
+
+---@type sz.Action
+SZ_BLOCK = "block"
+---@type sz.Action
+SZ_CHALLENGE = "challenge"
+---@type sz.Action
+SZ_LOG = "log"
+---@type sz.Action
+SZ_MODIFY_HEADER = "modify_header"
+---@type sz.Action
+SZ_REDIRECT = "redirect"
+---@type sz.Action
+SZ_ROUTE_TO = "route_to"
+---@type sz.Action
+SZ_SET_TAG = "set_tag"
+
+---An action, or a table with the action and its params, as the action of
+---a rule takes them.
+---@alias sz.RuleAction sz.Action | { type: sz.Action, params?: table }
+
+---The function of a secrule script: nil or false when the request does not
+---match, else the action to take.
+---@alias sz.Match fun(ctx: sz.Context): sz.RuleAction|nil|false
+
+---The function of a rate limiter script: the key the request is counted
+---under (256 bytes at most), true for the client IP, nil or false not to
+---count it.
+---@alias sz.Key fun(ctx: sz.Context): string|boolean|nil

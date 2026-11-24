@@ -189,3 +189,29 @@ func anyValue(t *testing.T, v any) *structpb.Value {
 
 	return val
 }
+
+// TestNormalizeAndConditions the conditions of the and groups get their id
+// and string value like the ones of the or groups.
+func TestNormalizeAndConditions(t *testing.T) {
+	inAnd := &rulepb.Condition{Value: anyValue(t, 1)}
+	inOr := &rulepb.Condition{Value: anyValue(t, 2)}
+	rule := &secrulepb.SecRule{Expr: &rulepb.Expression{
+		OrCondition: []*rulepb.AndCondition{{
+			AndCondition: []*rulepb.AndCondition{{
+				Rules: []*rulepb.Rule{{Condition: inAnd}},
+				AndCondition: []*rulepb.AndCondition{{
+					OrCondition: []*rulepb.AndCondition{
+						{Rules: []*rulepb.Rule{{Condition: inOr}}},
+					},
+				}},
+			}},
+		}},
+	}}
+
+	normalizeSecRule(rule)
+
+	assert.NotEmpty(t, inAnd.GetId())
+	assert.NotEmpty(t, inOr.GetId())
+	assert.Equal(t, "1", inAnd.GetValue().GetStringValue())
+	assert.Equal(t, "2", inOr.GetValue().GetStringValue())
+}

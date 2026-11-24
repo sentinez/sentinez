@@ -45,7 +45,7 @@ centralsync/         keeps the edge equal to the tables centraldata syncs:
                      loads them with the Sync stream, then follows the
                      changes published on the Olric channel
 
-envplugin/           Env: what the chain plugins provision themselves from
+envhandlers/         Env: what the chain plugins provision themselves from
                      (memory, options, shared GeoIP databases)
 
 defaults/            fallback listen addresses when the setting is unset

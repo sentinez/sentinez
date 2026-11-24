@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cdn
+package contents
 
 import (
 	"bytes"
@@ -29,19 +29,19 @@ import (
 	"github.com/sentinez/pkg/szstorage/cache/mem"
 	"github.com/sentinez/pkg/szsync"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/envplugin"
+	"github.com/sentinez/sentinez/internal/envhandlers"
 	"github.com/sentinez/sentinez/internal/memory/cdnrules"
 )
 
-// CacheId is the chain stage name of Cache.
-const CacheId = "CDN"
+// CachingId is the chain stage name of Caching.
+const CachingId = "caching"
 
 var (
-	_ chains.Plugin                      = (*Cache)(nil)
-	_ chains.Provisioner[*envplugin.Env] = (*Cache)(nil)
+	_ chains.Plugin                        = (*Caching)(nil)
+	_ chains.Provisioner[*envhandlers.Env] = (*Caching)(nil)
 )
 
-type Cache struct {
+type Caching struct {
 	store *cdnrules.Rule
 
 	cached *mem.Cache[*CachedResponse]
@@ -49,9 +49,9 @@ type Cache struct {
 	log    szlog.LogCloser
 }
 
-func (*Cache) ID() string { return CacheId }
+func (*Caching) ID() string { return CachingId }
 
-func (c *Cache) Provision(env *envplugin.Env) error {
+func (c *Caching) Provision(env *envhandlers.Env) error {
 	c.store = env.Store().CDNRules()
 	c.cached = mem.New[*CachedResponse](time.Hour, time.Hour)
 	c.buf = szsync.NewPool[bytes.Buffer]()
@@ -62,7 +62,7 @@ func (c *Cache) Provision(env *envplugin.Env) error {
 // Handle serves and stores the responses any active CDN rule of the
 // namespace matches, tried in priority order. System paths are answered
 // by the edge itself and never cached.
-func (c *Cache) Handle(ctx szhttp.Context, next chains.Handler) error {
+func (c *Caching) Handle(ctx szhttp.Context, next chains.Handler) error {
 	if bytes.HasPrefix(ctx.Path(), szbytestr.PathSystemPrefix) {
 		return next.Handle(ctx)
 	}
@@ -93,7 +93,7 @@ func matchAny(ctx szhttp.Context, chain []cdnrules.Entry) bool {
 
 // caching serves the response cached under key, else stores the one of
 // next. key is a pooled buffer: it is only copied when stored.
-func (c *Cache) caching(
+func (c *Caching) caching(
 	ctx szhttp.Context, next chains.Handler, key []byte,
 ) error {
 
@@ -129,7 +129,7 @@ type CachedResponse struct {
 	Body       []byte
 }
 
-func (c *Cache) makeKey(ctx szhttp.Context) *bytes.Buffer {
+func (c *Caching) makeKey(ctx szhttp.Context) *bytes.Buffer {
 	keyBuffer := c.buf.Get()
 	_, _ = keyBuffer.Write(ctx.Method())
 	_, _ = keyBuffer.WriteString(ctx.Scheme())
@@ -142,7 +142,7 @@ func (c *Cache) makeKey(ctx szhttp.Context) *bytes.Buffer {
 	return keyBuffer
 }
 
-func (c *Cache) setCache(ctx szhttp.Context, key []byte) {
+func (c *Caching) setCache(ctx szhttp.Context, key []byte) {
 	// checked before the headers are copied out of the response
 	if ctx.StatusCode() != http.StatusOK || len(ctx.ResponseBody()) == 0 {
 		return

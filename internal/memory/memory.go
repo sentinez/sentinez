@@ -50,7 +50,7 @@ var (
 	_lock   sync.Mutex
 	_shared *cluster.Cluster
 
-	errLimiterNoExpr = errors.New("missing ingress expr")
+	errLimiterNoExpr = errors.New("missing ingress expr or script")
 )
 
 func NewMemStore(conf *settingpb.Config) (*MemStore, error) {
@@ -386,18 +386,17 @@ func upstreamServers(res *edgepb.Resource) []*edgepb.Upstream {
 }
 
 func (m *MemStore) LoadRateLimiter(s *edgepb.Setting) error {
+	ns := s.GetIngress().GetResource().GetDomain()
 	limiters := s.GetSecurity().GetLimiters()
 	entries := make([]secratelimits.Entry, 0, len(limiters))
 
 	for i, l := range limiters {
-		// a nil expr matches every request: a limiter must say what it counts
-		if len(l.GetIngress().GetExpr().GetOrCondition()) == 0 {
-			return fmt.Errorf("rate limiter %d: %w", i, errLimiterNoExpr)
+		if err := checkLimiter(l); err != nil {
+			return fmt.Errorf("rate limiter %d: %w", i, err)
 		}
 
 		if l.GetIngress().GetStatus() != typepb.Status_STATUS_ACTIVE {
-			szlog.Infof("edge:limiter: ignore '%s'",
-				s.GetIngress().GetResource().GetDomain())
+			szlog.Infof("edge:limiter: ignore '%s'", ns)
 			continue
 		}
 
@@ -409,7 +408,18 @@ func (m *MemStore) LoadRateLimiter(s *edgepb.Setting) error {
 		entries = append(entries, entry)
 	}
 
-	m.limiter.Store(s.GetIngress().GetResource().GetDomain(), entries)
+	m.limiter.Store(ns, entries)
+
+	return nil
+}
+
+// checkLimiter a limiter must say what it counts: an expr, a nil one would
+// match every request, or a script (scripts.KeyRule rejects both).
+func checkLimiter(l *edgepb.RateLimit) error {
+	rule := l.GetIngress()
+	if len(rule.GetExpr().GetOrCondition()) == 0 && rule.GetScript() == "" {
+		return errLimiterNoExpr
+	}
 
 	return nil
 }
@@ -431,9 +441,7 @@ func (m *MemStore) LoadSecRule(s *edgepb.Setting) error {
 		rules = append(rules, rule.GetIngress())
 	}
 
-	m.secRule.Store(s.GetIngress().GetResource().GetDomain(), rules)
-
-	return nil
+	return m.secRule.Store(s.GetIngress().GetResource().GetDomain(), rules)
 }
 
 // LoadScripts compiles the Lua scripts of s.
@@ -455,7 +463,10 @@ func newLimiterEntry(l *edgepb.RateLimit) (secratelimits.Entry, error) {
 		return secratelimits.Entry{}, fmt.Errorf("timeout: %w", err)
 	}
 
-	rule := l.GetIngress()
+	rule, err := scripts.KeyRule(l.GetIngress())
+	if err != nil {
+		return secratelimits.Entry{}, err
+	}
 
 	return secratelimits.Entry{
 		Eval:    szrule.NewEval(rule.GetId(), rule.GetExpr()),

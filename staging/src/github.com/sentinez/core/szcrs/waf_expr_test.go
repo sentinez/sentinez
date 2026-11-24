@@ -478,3 +478,84 @@ func TestExclusionExprInvalid(t *testing.T) {
 		})
 	}
 }
+
+// andGroups the expression (path a or path b) and (method c or method d):
+// the second or group is an and condition of the first.
+func andGroups(a, b, c, d string) *rulepb.Expression {
+	const (
+		path   = rulepb.FieldSource_FIELD_SOURCE_PATH
+		method = rulepb.FieldSource_FIELD_SOURCE_METHOD
+		eq     = rulepb.Operator_OPERATOR_EQ
+	)
+
+	return expr(&rulepb.AndCondition{
+		OrCondition: []*rulepb.AndCondition{
+			and(nil, cond(path, "", eq, a)),
+			and(nil, cond(path, "", eq, b)),
+		},
+		AndCondition: []*rulepb.AndCondition{{
+			OrCondition: []*rulepb.AndCondition{
+				and(nil, cond(method, "", eq, c)),
+				and(nil, cond(method, "", eq, d)),
+			},
+		}},
+	})
+}
+
+// TestExclusionAndGroups the exclusion applies when both or groups match
+// POST /api/search.
+func TestExclusionAndGroups(t *testing.T) {
+	tests := []struct {
+		name        string
+		give        *rulepb.Expression
+		wantBlocked bool
+	}{
+		{"both", andGroups("/x", "/api/search", "GET", "POST"), false},
+		{"path only", andGroups("/x", "/api/search", "GET", "PUT"), true},
+		{"method only", andGroups("/x", "/y", "GET", "POST"), true},
+		{"none", andGroups("/x", "/y", "GET", "PUT"), true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := blocked(t, &rulesetpb.Exclusion{
+				Tags: []string{"attack-sqli"}, Expr: tt.give,
+			})
+
+			assert.Equal(t, tt.wantBlocked, got)
+		})
+	}
+}
+
+func TestExclusionAndGroupsChains(t *testing.T) {
+	chains, err := exprChains(andGroups("/a", "/b", "GET", "POST"))
+	require.NoError(t, err)
+	assert.Len(t, chains, 4)
+}
+
+// TestExclusionTooManyChains the groups multiply out in SecLang: eight or
+// groups of two make 256 chains, more than _maxChains.
+func TestExclusionTooManyChains(t *testing.T) {
+	const (
+		path = rulepb.FieldSource_FIELD_SOURCE_PATH
+		eq   = rulepb.Operator_OPERATOR_EQ
+	)
+
+	group := func() *rulepb.AndCondition {
+		return &rulepb.AndCondition{OrCondition: []*rulepb.AndCondition{
+			and(nil, cond(path, "", eq, "/a")),
+			and(nil, cond(path, "", eq, "/b")),
+		}}
+	}
+
+	root := group()
+	for range 7 {
+		root.AndCondition = append(root.AndCondition, group())
+	}
+
+	err := validateSetting(newCrs(&rulesetpb.Exclusion{
+		Tags: []string{"attack-sqli"}, Expr: expr(root),
+	}))
+
+	require.ErrorIs(t, err, ErrInvalidSetting)
+}

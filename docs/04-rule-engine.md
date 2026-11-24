@@ -17,16 +17,30 @@ Expression
  └─ or_condition: []AndCondition        // OR across entries
       ├─ rules: []Rule                   // AND across rules
       │    └─ condition: Condition{source, key, operator, value}
-      └─ or_condition: []AndCondition    // nested: AND(rules) && OR(children)
+      ├─ or_condition: []AndCondition    // nested: AND(rules) && OR(children)
+      └─ and_condition: []AndCondition   // AND(each), every one with its own groups
 ```
 
 Semantics ([core/szrule/rule_expr.go](../staging/src/github.com/sentinez/core/szrule/rule_expr.go)):
 
 - `execOrCond(nil) == true` — an empty expression **always matches**.
 - An `AndCondition` matches when all its `rules` match **and** its child
-  `or_condition` (if any) matches.
+  `or_condition` (if any) matches **and** every one of its `and_condition`
+  matches (each is an `AndCondition`, with its rules and groups).
+  `(a or b) and (c or d)` is `{or_condition: [a, b], and_condition:
+  [{or_condition: [c, d]}]}`: an `and` holds as many or groups as it needs,
+  the first in `or_condition`, the others in `and_condition`.
+- `ValidateExpression` allows 256 conditions and 8 levels of groups
+  (`or_condition` and `and_condition` both count a level).
+- An edge older than `and_condition` ignores it, so such a rule matches
+  more than it says (a `BLOCK` blocks more): deploy the edges before a rule
+  uses it.
 - IDs/names of matching rules are appended to `rulepb.MatchedRules` (if one
-  is passed in).
+  is passed in). The name is `szrule.ExprString` of the expression: its Lua
+  condition (`ctx:path() == "/login" and ctx:header("X-Debug") ~= ""`, from
+  `rulescript.ToCondition`), or a text form (`path matches "("`) for one a
+  script cannot write (an invalid regex). Groups keep their parentheses:
+  `ctx:path() == "/a" and (ctx:method() == "GET" or ctx:method() == "PUT")`.
 
 API:
 
@@ -67,13 +81,13 @@ Notes:
 ## 4.3 SecRule
 
 Runtime type: `types.secrule.v1.SecRule{id, name, description, expr, action,
-status, priority}`. At the edge
+status, priority, script}`. At the edge
 ([internal/memory/secrules/secrule.go](../internal/memory/secrules/secrule.go)):
 
 - Only `STATUS_ACTIVE` rules are kept.
 - Rules are sorted by **descending priority**, stable (equal priorities keep
   declaration order).
-- The `RUL` node
+- The `secrule` node
   ([internal/handlers/secure](../internal/handlers/secure/action.go))
   walks the chain in that order and keeps every matching rule:
   - **Terminal** actions end the request; the strongest one matched wins,
@@ -122,6 +136,59 @@ map_value}` (console: one value for `REDIRECT`/`ROUTE_TO`, key/value rows for
 `MODIFY_HEADER`/`SET_TAG`); there is no sync to the edge yet, so the edge
 only reads `params` from `proxy.yaml`.
 
+### Lua rule scripts
+
+A secrule (or a rate limiter, see 4.5) may set `script`, a Lua source, in
+place of `expr` and `action`; a rule with both, or with neither, is refused
+when the setting loads. A secrule script defines a global `match(ctx)`:
+
+```yaml
+secrules:
+  - ingress:
+      name: "Script: block X-Debug"
+      status: STATUS_ACTIVE
+      script: |
+        ---@param ctx sz.Context
+        function match(ctx)
+          if ctx:header("X-Debug") == "1" then
+            return SZ_BLOCK
+          end
+          if ctx:path() == "/old" then
+            return {type = SZ_REDIRECT, params = {location = "/new"}}
+          end
+        end
+```
+
+- `nil` or `false`: the rule does not match.
+- An action constant, as an eBPF program returns `XDP_DROP`: `SZ_BLOCK`,
+  `SZ_CHALLENGE`, `SZ_REDIRECT`, `SZ_LOG`, `SZ_MODIFY_HEADER`, `SZ_SET_TAG`,
+  `SZ_ROUTE_TO` (`RATE_LIMIT` is not one). Each holds the action name
+  (`SZ_BLOCK == "block"`), which a script may return as well.
+- A table `{type = SZ_REDIRECT, params = {...}}`: the action with the
+  `params` of the table above.
+
+The edge runs no Lua for a rule. When the setting loads,
+[szrule/rulescript](../staging/src/github.com/sentinez/core/szrule/rulescript/rulescript.go)
+converts the script to the `expr` + `action` it declares
+([scripts.Rule](../internal/memory/scripts/scripts.go)), and `szrule`
+evaluates it like any `expr` rule (priority, terminal ranking, the
+`secrule: matched` event, which lists its conditions). The script must be of
+the declarative form of `scripting.ParseMatch`: branches of
+`if <conditions> then return <action> end` over `ctx:path()`,
+`ctx:header(k)`, `ctx:body()`, `ctx:ja4()`... Every condition of an `expr`
+has its Lua form: `MATCHES` is `re.match(ctx:path(), "^/a")`, an IP CIDR
+`ctx:ip_in("10.0.0.0/8")`, TLS `ctx:tls()`, a header or query presence
+`ctx:has_header("X-A")` (`not` for NE, NOT_IN), an IN list an `or` of its
+values. `not`, `and`, `or` and parentheses nest as deep as the expression
+does, up to 256 conditions (`scripting.MaxConditions`): no group is
+multiplied out into branches. A script outside of the form (a local, a
+loop...) fails the load with an error wrapping `scripting.ErrNotDeclarative`,
+and the previous chain stays.
+`ToScript`/`FromScript` (`ToKeyScript`/`FromKeyScript` for a limiter)
+convert both ways. The `---@stage` hooks still run as Lua.
+
+### SecRule shapes
+
 There are three SecRule shapes in the protos:
 
 | Type | Used in |
@@ -137,7 +204,7 @@ There are three SecRule shapes in the protos:
 of CDN rules
 ([internal/memory/cdnrules](../internal/memory/cdnrules/cdnrules.go)): only
 `STATUS_ACTIVE` rules, sorted by **descending priority**, stable (equal
-priorities keep declaration order). The `CDN` node caches a request when at
+priorities keep declaration order). The `caching` node caches a request when at
 least one rule matches, tried in that order. System paths (`/.sentinez/`)
 are never cached. The cache is `patrickmn/go-cache` with a 1h TTL.
 
@@ -176,14 +243,36 @@ allow  ⇔ count + n ≤ limit
 
 - `SlidingWindow` holds two `LocalWindow`s (prev/curr); `advance` shifts the
   windows using `now.Truncate(size)`.
-- `RateLimiter` keeps one `SlidingWindow` per key (IP) and a `timeout`
+- `RateLimiter` keeps one `SlidingWindow` per key and a `timeout`
   mechanism: after a key exceeds the limit, every request from that key is
   rejected for `timeout` ms. Other keys are not affected.
 - `Window.Sync` is a hook for syncing with a central store in the future
   (currently a no-op).
 
 Configured in `security.limiters[]`: `timeWindow`, `maxRequests`, `timeout`
-(`time.ParseDuration` strings).
+(`time.ParseDuration` strings). Every limiter needs an `ingress.expr` or an
+`ingress.script` (not both): it only counts the requests it selects. An
+`expr` limiter counts them under the client IP. A script defines a global
+`key(ctx)` returning `true` for the requests to count, converted to its
+`expr` when it loads like a secrule script; the request is counted under the
+client IP too:
+
+```yaml
+limiters:
+  - ingress:
+      name: "Script: rate limit the login"
+      status: STATUS_ACTIVE
+      script: |
+        ---@param ctx sz.Context
+        function key(ctx)
+          if ctx:path() == "/login" then
+            return true
+          end
+        end
+    timeWindow: 5s
+    maxRequests: 20
+    timeout: 5s
+```
 
 ## 4.6 WAF — OWASP CRS on Coraza
 

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package stage
+package handlers
 
 import (
 	"errors"
@@ -27,11 +27,11 @@ import (
 )
 
 var (
-	_ chains.WrapFunc = Wrap
+	_ chains.WrapFunc = wrapStage
 	_ chains.Handler  = (*stage)(nil)
 )
 
-// Wrap decorates h, the handler running the plugin name, so that an
+// wrapStage decorates h, the handler running the plugin name, so that an
 // error returned from it (and not already attributed to a deeper stage)
 // is tagged with name and logged once. Because errors unwind from the
 // innermost plugin outwards, the first stage to see an error is the one
@@ -41,7 +41,7 @@ var (
 // stage and its stack, by the stage of the plugin that panicked, then the
 // request is answered with a 500 page, so the stages around it, e.g. the
 // logging one, see a request answered with an error status.
-func Wrap(name string, h chains.Handler) chains.Handler {
+func wrapStage(name string, h chains.Handler) chains.Handler {
 	return &stage{name: name, node: h}
 }
 

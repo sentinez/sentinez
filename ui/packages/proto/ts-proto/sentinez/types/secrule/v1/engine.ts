@@ -20,6 +20,15 @@ export interface SecRule {
   status: Status;
   priority: number;
   exprPreview: string;
+  /**
+   * A Lua source the edge runs in place of expr and action; a rule sets
+   * one or the other. A secrule defines a global match(ctx) returning nil
+   * or false (no match), an action constant (SZ_BLOCK) or an action table
+   * ({type = SZ_REDIRECT, params = {location = "/"}}). A rate limiter
+   * defines a global key(ctx) returning the key the request is counted
+   * under, true for the client IP, or nil or false not to count it.
+   */
+  script: string;
 }
 
 function createBaseSecRule(): SecRule {
@@ -32,6 +41,7 @@ function createBaseSecRule(): SecRule {
     status: 0,
     priority: 0,
     exprPreview: "",
+    script: "",
   };
 }
 
@@ -60,6 +70,9 @@ export const SecRule: MessageFns<SecRule> = {
     }
     if (message.exprPreview !== "") {
       writer.uint32(66).string(message.exprPreview);
+    }
+    if (message.script !== "") {
+      writer.uint32(74).string(message.script);
     }
     return writer;
   },
@@ -141,6 +154,14 @@ export const SecRule: MessageFns<SecRule> = {
             message.exprPreview = reader.string();
             continue;
           }
+          case 9: {
+            if (tag !== 74) {
+              break;
+            }
+
+            message.script = reader.string();
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -167,6 +188,7 @@ export const SecRule: MessageFns<SecRule> = {
         : isSet(object.expr_preview)
         ? globalThis.String(object.expr_preview)
         : "",
+      script: isSet(object.script) ? globalThis.String(object.script) : "",
     };
   },
 
@@ -196,6 +218,9 @@ export const SecRule: MessageFns<SecRule> = {
     if (message.exprPreview !== "") {
       obj.exprPreview = message.exprPreview;
     }
+    if (message.script !== "") {
+      obj.script = message.script;
+    }
     return obj;
   },
 
@@ -216,6 +241,7 @@ export const SecRule: MessageFns<SecRule> = {
     message.status = object.status ?? 0;
     message.priority = object.priority ?? 0;
     message.exprPreview = object.exprPreview ?? "";
+    message.script = object.script ?? "";
     return message;
   },
 };

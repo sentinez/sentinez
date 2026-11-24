@@ -139,9 +139,9 @@ Top-level directories:
    [03-edge.md](03-edge.md#32-fingerprints--connection-context)).
 4. The server (`quichttpx` by default) calls the handler → an `httpx.Context`
    is taken from a pool and given the fingerprint.
-5. The middleware chain runs in order `TRACE → LOG → DMA → CDN → LMT → ROM →
-   STC → RUL → WAF → ROU` (see [03-edge.md](03-edge.md)).
-6. `ROU` finds the location by longest prefix, rewrites the path, sets
+5. The middleware chain runs in order `tracing → logging → domain → caching →
+   secratelimit → waitingroom → staticassets → secrule → secruleset → router` (see [03-edge.md](03-edge.md)).
+6. `router` finds the location by longest prefix, rewrites the path, sets
    headers and reverse-proxies to the upstream.
 
 ### Admin operation (control path)

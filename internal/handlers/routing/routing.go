@@ -24,7 +24,7 @@ import (
 )
 
 // MockId is the chain stage name of Mock.
-const MockId = "MCK"
+const MockId = "mock"
 
 var _ chains.Plugin = (*Mock)(nil)
 

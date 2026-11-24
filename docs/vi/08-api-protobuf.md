@@ -199,15 +199,15 @@ Cấu hình edge cho một namespace — xem [03-edge.md](03-edge.md#35-cấu-h�
 `{metadata, transport: net.v1.Transport, request: net.http.v1.Request, x:
 ContextExtra{namespace, ...matched ids/names, upstream,
 upstream_timestamp, upstream_latency_micros}}` — trạng thái của một request ở
-edge, gắn với `szhttp.Context`. Router (`ROU`) ghi ba trường `upstream` quanh
+edge, gắn với `szhttp.Context`. Router (`router`) ghi ba trường `upstream` quanh
 lời gọi reverse proxy, để log egress dùng.
 
 ### Event log
 
 | Type | Logger kind | Phát bởi |
 |---|---|---|
-| `net.http.v1.IngressEvent` | `LOG_TYPE_HTTP_INGRESS` | Node `LOG` ở edge, middleware `Logging` ở apiserver |
-| `net.http.v1.EgressEvent` | `LOG_TYPE_HTTP_EGRESS` | Node `LOG` ở edge, với request được proxy tới upstream origin; cùng `id` với event ingress của nó. Trường `headers` ghi nhận các header được gửi tới upstream |
+| `net.http.v1.IngressEvent` | `LOG_TYPE_HTTP_INGRESS` | Node `logging` ở edge, middleware `Logging` ở apiserver |
+| `net.http.v1.EgressEvent` | `LOG_TYPE_HTTP_EGRESS` | Node `logging` ở edge, với request được proxy tới upstream origin; cùng `id` với event ingress của nó. Trường `headers` ghi nhận các header được gửi tới upstream |
 | `secrule.v1.Event` | `LOG_TYPE_SECRULESET` | Node `WAF` khi transaction bị interrupt |
 
 `ContextExtra` (`dmz/edge/v1/context.proto`) lưu metadata theo từng request của edge,

@@ -76,6 +76,8 @@ func (m *SecRule) Validate() error {
 
 	// no validation rules for ExprPreview
 
+	// no validation rules for Script
+
 	return nil
 }
 

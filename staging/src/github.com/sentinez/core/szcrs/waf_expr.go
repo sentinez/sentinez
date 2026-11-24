@@ -37,39 +37,102 @@ type exprTarget struct {
 	count      bool // number of values instead of the values
 }
 
+// _maxChains the most chains an expression is translated to.
+const _maxChains = 64
+
 // conjunctions flattens the expression to its disjunctive normal form:
 // it matches when every condition of any conjunction matches. An empty
-// expression is a single empty conjunction, matching every request.
-func conjunctions(expr *rulepb.Expression) [][]*rulepb.Condition {
+// expression is a single empty conjunction, matching every request. SecLang
+// chains only and, so the or groups of an expression with several of them
+// in a group are multiplied out: more than _maxChains conjunctions is an
+// error.
+func conjunctions(expr *rulepb.Expression) ([][]*rulepb.Condition, error) {
 	return expandOr(expr.GetOrCondition())
 }
 
-func expandOr(or []*rulepb.AndCondition) [][]*rulepb.Condition {
+func expandOr(or []*rulepb.AndCondition) ([][]*rulepb.Condition, error) {
 	if len(or) == 0 {
-		return [][]*rulepb.Condition{nil}
+		return [][]*rulepb.Condition{nil}, nil
 	}
 
 	var conjs [][]*rulepb.Condition
 
 	for _, and := range or {
-		own := make([]*rulepb.Condition, 0, len(and.GetRules()))
-		for _, r := range and.GetRules() {
-			own = append(own, r.GetCondition())
+		more, err := expandAnd(and)
+		if err != nil {
+			return nil, err
 		}
 
-		for _, nested := range expandOr(and.GetOrCondition()) {
-			conj := make([]*rulepb.Condition, 0, len(own)+len(nested))
-			conjs = append(conjs, append(append(conj, own...), nested...))
+		if conjs = append(conjs, more...); len(conjs) > _maxChains {
+			return nil, errTooManyChains
 		}
 	}
 
-	return conjs
+	return conjs, nil
+}
+
+var errTooManyChains = fmt.Errorf(
+	"%w: expression needs more than %d chains", ErrInvalidSetting,
+	_maxChains)
+
+// expandAnd the conjunctions matching as and: its rules, one of its or
+// group and one of each of its and groups.
+func expandAnd(and *rulepb.AndCondition) ([][]*rulepb.Condition, error) {
+	own := make([]*rulepb.Condition, 0, len(and.GetRules()))
+	for _, r := range and.GetRules() {
+		own = append(own, r.GetCondition())
+	}
+
+	conjs := [][]*rulepb.Condition{own}
+
+	nested, err := expandOr(and.GetOrCondition())
+	if err != nil {
+		return nil, err
+	}
+
+	if conjs, err = multiply(conjs, nested); err != nil {
+		return nil, err
+	}
+
+	for _, sub := range and.GetAndCondition() {
+		more, err := expandAnd(sub)
+		if err != nil {
+			return nil, err
+		}
+
+		if conjs, err = multiply(conjs, more); err != nil {
+			return nil, err
+		}
+	}
+
+	return conjs, nil
+}
+
+// multiply every conjunction of a joined to every one of b.
+func multiply(a, b [][]*rulepb.Condition) ([][]*rulepb.Condition, error) {
+	if len(a)*len(b) > _maxChains {
+		return nil, errTooManyChains
+	}
+
+	out := make([][]*rulepb.Condition, 0, len(a)*len(b))
+	for _, x := range a {
+		for _, y := range b {
+			conj := make([]*rulepb.Condition, 0, len(x)+len(y))
+			out = append(out, append(append(conj, x...), y...))
+		}
+	}
+
+	return out, nil
 }
 
 // exprChains translates the expression to SecLang: one chain of rules
 // per conjunction, a chain matching when all its rules match.
 func exprChains(expr *rulepb.Expression) ([][]*crslang.SecRule, error) {
-	conjs := conjunctions(expr)
+	conjs, err := conjunctions(expr)
+	if err != nil {
+		return nil, err
+	}
+
 	chains := make([][]*crslang.SecRule, 0, len(conjs))
 
 	for _, conj := range conjs {

@@ -68,7 +68,7 @@ because later tests reuse the state that earlier ones create.
 | Id | Steps | Expected |
 |---|---|---|
 | EDG-01 | `curl -k https://$EDGE/local/anything` | The upstream receives `/anything` (from `proxyRewrite`) along with `X-Forwarded-*`, `X-Real-IP` and `Host` |
-| EDG-02 | Request with a `Host` that no setting has | `403` page from `DMA` |
+| EDG-02 | Request with a `Host` that no setting has | `403` page from `domain` |
 | EDG-03 | `curl -k --http3 https://$EDGE/local/` | Served over HTTP/3. A JA4 fingerprint is in the log of the request |
 | EDG-04 | Make every upstream of a location unreachable | `502` page |
 | EDG-05 | Request with an id in the log | The log line has the request id, `tenant_id` and `resource_id`, and GeoIP fields for a public IP |
@@ -101,11 +101,15 @@ because later tests reuse the state that earlier ones create.
 | Id | Steps | Expected |
 |---|---|---|
 | LUA-01 | The shipped `script_example`; request `/local/` | The upstream receives `X-Edge: sentinez`. With debug logs on, the `tag` line is in the log of the request |
-| LUA-02 | Hook `http:request/sec_rule` with a function that calls `ctx:respond(418, "teapot")`, then request `/block` | `418 teapot`. The SecRule stage is skipped, so there is no `403` |
-| LUA-03 | Hook `http:response/router` with a function that calls `ctx:set_response_header("X-Seen", "1")` | The response has `X-Seen: 1` |
+| LUA-02 | Hook `http.request/secrule` with a function that calls `ctx:respond(418, "teapot")`, then request `/block` | `418 teapot`. The SecRule stage is skipped, so there is no `403` |
+| LUA-03 | Hook `http.response/router` with a function that calls `ctx:set_response_header("X-Seen", "1")` | The response has `X-Seen: 1` |
 | LUA-04 | A function that loops forever | Each request is served after at most about 50 ms of script time. The script error is logged and the chain goes on |
-| LUA-05 | `---@stage http:request/sec_rate_limit` (the old name) | The edge logs `edge: load '<domain>': … @stage: unknown stage "sec_rate_limit", one of cache, sec_limiter, …` and loads none of the namespace's scripts, keeping the ones it held before. The rest of the namespace still loads |
+| LUA-05 | `---@stage http.request/sec_rate_limit` (the old name) | The edge logs `edge: load '<domain>': … @stage: unknown stage "sec_rate_limit", one of caching, secratelimit, …` and loads none of the namespace's scripts, keeping the ones it held before. The rest of the namespace still loads |
 | LUA-06 | `os.execute`, `io.open` or `require` in a script | Not available (sandbox) |
+| LUA-07 | A secrule `script` of `if ctx:method() == "GET" and (ctx:path():sub(1, 2) == "/a" or ctx:path():sub(1, 2) == "/b") then return SZ_BLOCK end`; request `GET /a`, `GET /c`, `POST /a` | Only `GET /a` is blocked. The `secrule: matched` event names the rule by its Lua condition, parentheses kept |
+| LUA-08 | A secrule `script` using `re.match(ctx:path(), "^/wp-")`, `ctx:ip_in("10.0.0.0/8")`, `ctx:has_header("X-Debug")` or `ctx:tls()` | It loads and matches as the same `expr` (`MATCHES`, an IP CIDR, a header presence, TLS) would |
+| LUA-09 | A secrule `script` with a local variable, a loop, or an invalid `re.match` pattern | The setting is refused with an error wrapping `not declarative`, and the previous chain stays |
+| LUA-10 | A secrule `expr` of two or groups, the second in `andCondition` (the shipped "Challenge GET/HEAD on /a or /b") | `GET /a/x` is challenged; `GET /c` and `POST /a/x` are not |
 
 ### CLS: cluster
 

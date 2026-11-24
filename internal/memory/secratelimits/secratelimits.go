@@ -41,7 +41,8 @@ func New() *Limiter {
 	return _limiterInst
 }
 
-// Entry is a rate limiter applied to the requests matching Eval.
+// Entry is a rate limiter applied to the requests matching Eval, counted
+// under the client IP.
 type Entry struct {
 	Eval    szrule.EvalFunc
 	Rule    *secrulepb.SecRule

@@ -1200,8 +1200,17 @@
             "type": "object",
             "$ref": "#/definitions/v1AndCondition"
           }
+        },
+        "andCondition": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AndCondition"
+          }
         }
-      }
+      },
+      "description": "rules AND (one of or_condition) AND (every one of and_condition)\n\nAn empty or_condition matches. and_condition holds the groups of a second\n(or third...) or group, each one carrying its own: (a or b) and (c or d)\nis {or_condition: [a, b], and_condition: [{or_condition: [c, d]}]}.",
+      "title": "A group matching when its rules, its or group and all its and groups do:"
     },
     "v1AnomalyThreshold": {
       "type": "object",

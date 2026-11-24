@@ -24,18 +24,18 @@ import (
 
 const _hooksScript = `
 -- any comment
----@stage http:request/sec_rule
+---@stage http.request/secrule
 ---@param ctx sz.Context
----@stage http:request/sec_ruleset
+---@stage http.request/secruleset
 function whatever_name(ctx) end
 
----@stage http:response/router
+---@stage http.response/router
 function on_router(ctx) end
 
 function before_cache(ctx) end -- a name alone declares nothing
 
----@stage http:request/static
----@stage http:response/static
+---@stage http.request/staticassets
+---@stage http.response/staticassets
 function both(ctx) end
 
 ---@module 'socket'
@@ -52,14 +52,14 @@ func TestCompileHooks(t *testing.T) {
 		giveStage string
 		want      bool
 	}{
-		{phase.Request, "RUL", true},
-		{phase.Request, "RST", true},
-		{phase.Response, "ROU", true},
-		{phase.Request, "STC", true},
-		{phase.Response, "STC", true},
-		{phase.Request, "ROU", false},
-		{phase.Response, "RUL", false},
-		{phase.Request, "CDN", false},
+		{phase.Request, "secrule", true},
+		{phase.Request, "secruleset", true},
+		{phase.Response, "router", true},
+		{phase.Request, "staticassets", true},
+		{phase.Response, "staticassets", true},
+		{phase.Request, "router", false},
+		{phase.Response, "secrule", false},
+		{phase.Request, "caching", false},
 	}
 
 	for _, tt := range tests {
@@ -89,27 +89,31 @@ func invalidAnnotationTests() []invalidAnnotationTest {
 	return []invalidAnnotationTest{
 		{"empty", "---@stage\nfunction f(c) end",
 			`line 1: @stage takes phase/stage, ` +
-				`e.g. http:request/sec_rule, got ""`},
-		{"no slash", "---@stage http:request\nfunction f(c) end",
+				`e.g. http.request/secrule, got ""`},
+		{"no slash", "---@stage http.request\nfunction f(c) end",
 			"line 1: @stage takes phase/stage"},
-		{"two stages", "---@stage http:request/sec_rule router\n" +
+		{"two stages", "---@stage http.request/secrule router\n" +
 			"function f(c) end", "line 1: @stage takes phase/stage"},
-		{"bad phase", "---@stage during/router\nfunction f(c) end",
-			`line 1: @stage: phase "during", http:request or http:response`},
-		{"stage id", "---@stage http:request/RUL\nfunction f(c) end",
-			`line 1: @stage: unknown stage "RUL", one of cache, ` +
-				"sec_limiter, waiting_room, static, sec_rule, " +
-				"sec_ruleset, router"},
-		{"local function", "---@stage http:request/router\n" +
+		{"bad phase",
+			"---@stage during/router\nfunction f(c) end",
+			`line 1: @stage: phase "during", http.request or http.response`},
+		{"stage id", "---@stage http.request/RUL\nfunction f(c) end",
+			`line 1: @stage: unknown stage "RUL", one of ` +
+				"caching, secratelimit, waitingroom, staticassets, secrule, " +
+				"secruleset, router"},
+		{"local function", "---@stage http.request/router\n" +
 			"local function f(c) end",
 			"line 1: @stage must precede a global function"},
-		{"method", "local M = {}\n---@stage http:request/router\n" +
+		{"method", "local M = {}\n" +
+			"---@stage http.request/router\n" +
 			"function M.f(c) end",
 			"line 2: @stage must precede a global function"},
-		{"at the end", "function f(c) end\n---@stage http:response/router",
+		{"at the end", "function f(c) end\n" +
+			"---@stage http.response/router",
 			"line 2: @stage must precede a global function"},
-		{"first of the block", "-- x\n---@stage http:response/router\n" +
-			"---@stage http:request/router\nlocal x = 1",
+		{"first of the block", "-- x\n" +
+			"---@stage http.response/router\n" +
+			"---@stage http.request/router\nlocal x = 1",
 			"line 2: @stage must precede a global function"},
 	}
 }
@@ -118,5 +122,5 @@ func TestStagesCopy(t *testing.T) {
 	c := Stages()
 	c[0] = "x"
 
-	assert.Equal(t, "CDN", Stages()[0])
+	assert.Equal(t, "caching", Stages()[0])
 }

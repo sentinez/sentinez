@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 	"maps"
+	"net/netip"
 	"slices"
 	"strings"
 
@@ -43,6 +44,9 @@ type call struct {
 	phase     phase.Phase
 	responded bool
 	logged    int
+	// readonly a rule call: ctx reads the request, it may not change or
+	// answer it.
+	readonly bool
 }
 
 // Run calls the global functions funcs of L, the hooks of script at
@@ -53,15 +57,8 @@ func Run(ctx context.Context, L *lua.LState, funcs []string,
 
 	c := &call{ex: ex, script: script, phase: at}
 
-	ud := L.NewUserData()
-	ud.Value = c
-	L.SetMetatable(ud, L.GetTypeMetatable(_ctxType))
-	// A script may keep ctx in a global: once the call ends, its methods
-	// raise an error instead of reaching an exchange the host reused.
-	defer func() { ud.Value = nil }()
-
-	L.SetContext(context.WithValue(ctx, callKey{}, c))
-	defer L.RemoveContext()
+	ud := bind(ctx, L, c)
+	defer unbind(L, ud)
 
 	for _, fn := range funcs {
 		f, ok := L.GetGlobal(fn).(*lua.LFunction)
@@ -80,6 +77,58 @@ func Run(ctx context.Context, L *lua.LState, funcs []string,
 	}
 
 	return false, nil
+}
+
+// Invoke calls the global function fn of L, a rule of script, with a
+// read-only ctx on ex, and returns its first result. ctx bounds the time
+// of the call; fn is the name of a function the caller checked.
+func Invoke(ctx context.Context, L *lua.LState, fn string,
+	ex exchange.Exchange, script string) (lua.LValue, error) {
+
+	c := &call{ex: ex, script: script, phase: phase.Request, readonly: true}
+
+	ud := bind(ctx, L, c)
+	defer unbind(L, ud)
+
+	f, ok := L.GetGlobal(fn).(*lua.LFunction)
+	if !ok {
+		return nil, fmt.Errorf("%s is not a function", fn)
+	}
+
+	err := L.CallByParam(lua.P{Fn: f, NRet: 1, Protect: true}, ud)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", fn, err)
+	}
+
+	res := L.Get(-1)
+	L.Pop(1)
+
+	return res, nil
+}
+
+// bind the ctx userdata of c, the call of L until unbind.
+func bind(ctx context.Context, L *lua.LState, c *call) *lua.LUserData {
+	ud := L.NewUserData()
+	ud.Value = c
+	L.SetMetatable(ud, L.GetTypeMetatable(_ctxType))
+	L.SetContext(context.WithValue(ctx, callKey{}, c))
+
+	return ud
+}
+
+// unbind ends the call of ud. A script may keep ctx in a global: once the
+// call ends, its methods raise an error instead of reaching an exchange
+// the host reused.
+func unbind(L *lua.LState, ud *lua.LUserData) {
+	L.RemoveContext()
+	ud.Value = nil
+}
+
+// HasFunc reports whether L defines the global function name.
+func HasFunc(L *lua.LState, name string) bool {
+	_, ok := L.GetGlobal(name).(*lua.LFunction)
+
+	return ok
 }
 
 // CtxMethods returns the sorted names of the methods of ctx.
@@ -106,14 +155,23 @@ var _ctxMethods = map[string]lua.LGFunction{
 	"ip":                  reader(ip),
 	"header":              keyed(header),
 	"query":               keyed(query),
+	"has_header":          has(hasHeader),
+	"has_query":           has(hasQuery),
+	"body":                reader(body),
+	"ja4":                 ja4,
+	"tls":                 tls,
+	"ip_in":               ipIn,
 	"set_header":          setter(setHeader),
 	"set_response_header": setter(setResponseHeader),
 	"respond":             respond,
 }
 
-// Register adds the global table log and the ctx type to L.
+// Register adds the global tables log and re, the action constants and
+// the ctx type to L.
 func Register(L *lua.LState) {
 	registerLog(L)
+	registerRe(L)
+	registerActions(L)
 	registerCtx(L)
 }
 
@@ -130,6 +188,10 @@ func ip(c *call) []byte     { return c.ex.RequestIP() }
 
 func header(c *call, k string) []byte { return c.ex.Header([]byte(k)) }
 func query(c *call, k string) []byte  { return c.ex.Query([]byte(k)) }
+func body(c *call) []byte             { return c.ex.Body() }
+
+func hasHeader(c *call, k string) bool { return c.ex.HasHeader([]byte(k)) }
+func hasQuery(c *call, k string) bool  { return c.ex.HasQuery([]byte(k)) }
 
 func setHeader(c *call, k, v string)         { c.ex.SetHeader(k, v) }
 func setResponseHeader(c *call, k, v string) { c.ex.SetResponseHeader(k, v) }
@@ -211,6 +273,17 @@ func callOf(L *lua.LState) *call {
 	return c
 }
 
+// writable the call of L, which a ctx method changing the request
+// requires not read-only: a rule only reads.
+func writable(L *lua.LState) *call {
+	c := callOf(L)
+	if c.readonly {
+		L.RaiseError("ctx is read-only in a rule")
+	}
+
+	return c
+}
+
 func reader(get func(c *call) []byte) lua.LGFunction {
 	return func(L *lua.LState) int {
 		L.Push(lua.LString(get(callOf(L))))
@@ -228,9 +301,48 @@ func keyed(get func(c *call, k string) []byte) lua.LGFunction {
 	}
 }
 
-func setter(set func(c *call, k, v string)) lua.LGFunction {
+func has(get func(c *call, k string) bool) lua.LGFunction {
 	return func(L *lua.LState) int {
 		c := callOf(L)
+		L.Push(lua.LBool(get(c, L.CheckString(2))))
+
+		return 1
+	}
+}
+
+// ja4 ctx:ja4() the JA4 fingerprint, "" without TLS.
+func ja4(L *lua.LState) int {
+	L.Push(lua.LString(callOf(L).ex.JA4()))
+
+	return 1
+}
+
+// tls ctx:tls() reports whether the request came over TLS.
+func tls(L *lua.LState) int {
+	L.Push(lua.LBool(callOf(L).ex.TLS()))
+
+	return 1
+}
+
+// ipIn ctx:ip_in(cidr) reports whether the client IP is in the prefix
+// cidr, e.g. "10.0.0.0/8".
+func ipIn(L *lua.LState) int {
+	c := callOf(L)
+
+	prefix, err := netip.ParsePrefix(L.CheckString(2))
+	if err != nil {
+		L.ArgError(2, "a CIDR prefix expected")
+	}
+
+	addr, err := netip.ParseAddr(string(c.ex.RequestIP()))
+	L.Push(lua.LBool(err == nil && prefix.Contains(addr)))
+
+	return 1
+}
+
+func setter(set func(c *call, k, v string)) lua.LGFunction {
+	return func(L *lua.LState) int {
+		c := writable(L)
 		set(c, L.CheckString(2), L.CheckString(3))
 
 		return 0
@@ -240,7 +352,7 @@ func setter(set func(c *call, k, v string)) lua.LGFunction {
 // respond ctx:respond(status, body) answers the request. An after hook
 // runs once the stage answered: it raises an error.
 func respond(L *lua.LState) int {
-	c := callOf(L)
+	c := writable(L)
 	if c.phase == phase.Response {
 		L.RaiseError("respond: the stage already ran")
 	}

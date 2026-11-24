@@ -15,6 +15,7 @@
 package secrules
 
 import (
+	"fmt"
 	"sort"
 	"sync"
 
@@ -25,6 +26,7 @@ import (
 	"github.com/sentinez/pkg/szsync"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	"github.com/sentinez/sentinez/internal/memory/scripts"
 )
 
 var (
@@ -42,7 +44,8 @@ func New() *SecRule {
 	return _ruleInst
 }
 
-// Entry is a compiled rule ready to be evaluated.
+// Entry is a rule ready to be evaluated: a script rule is converted to its
+// expr and action when it loads (scripts.Rule), no Lua runs.
 type Entry struct {
 	Eval szrule.EvalFunc
 	Rule *secrulepb.SecRule
@@ -54,9 +57,12 @@ type SecRule struct {
 
 // Store replaces the rule chain of namespace. Inactive rules are skipped
 // and the rest are ordered by priority: a higher priority value runs
-// first, ties keep their given order.
-func (sr *SecRule) Store(namespace string, rules []*secrulepb.SecRule) {
+// first, ties keep their given order. A script out of the declarative
+// form, or a rule with both an expr and a script, fails the whole call and
+// leaves the previous chain in place.
+func (sr *SecRule) Store(namespace string, rules []*secrulepb.SecRule) error {
 	chain := make([]Entry, 0, len(rules))
+
 	for _, r := range rules {
 		if r.GetStatus() != typepb.Status_STATUS_ACTIVE {
 			continue
@@ -65,10 +71,12 @@ func (sr *SecRule) Store(namespace string, rules []*secrulepb.SecRule) {
 		val, _ := szjson.Marshal(r)
 		szlog.Debugf("rule: load config: %s", val)
 
-		chain = append(chain, Entry{
-			Eval: szrule.NewEval(r.GetId(), r.GetExpr()),
-			Rule: r,
-		})
+		e, err := newEntry(r)
+		if err != nil {
+			return fmt.Errorf("secrule %s: %w", r.GetName(), err)
+		}
+
+		chain = append(chain, e)
 	}
 
 	sort.SliceStable(chain, func(i, j int) bool {
@@ -77,10 +85,22 @@ func (sr *SecRule) Store(namespace string, rules []*secrulepb.SecRule) {
 
 	if len(chain) == 0 {
 		sr.chains.Delete(namespace)
-		return
+		return nil
 	}
 
 	sr.chains.Store(namespace, chain)
+
+	return nil
+}
+
+// newEntry the entry of r, its script converted to its expr and action.
+func newEntry(r *secrulepb.SecRule) (Entry, error) {
+	r, err := scripts.Rule(r)
+	if err != nil {
+		return Entry{}, err
+	}
+
+	return Entry{Eval: szrule.NewEval(r.GetId(), r.GetExpr()), Rule: r}, nil
 }
 
 // Load returns the priority-ordered chain of namespace. The result is

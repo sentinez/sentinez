@@ -172,7 +172,34 @@ export interface Setting {
     | Personal
     | undefined;
   /** @gotags: yaml:"delivery" */
-  delivery?: Delivery | undefined;
+  delivery?:
+    | Delivery
+    | undefined;
+  /** @gotags: yaml:"scripting" */
+  scripting?: Scripting | undefined;
+}
+
+/**
+ * Scripting the Lua scripts of a domain. A ---@stage <phase>/<stage> line
+ * hooks the global function it precedes before or after a stage of the
+ * edge chain, by plugin id: caching, secratelimit, waitingroom, staticassets, secrule, secruleset
+ * or router.
+ */
+export interface Scripting {
+  /** @gotags: yaml:"scripts" */
+  scripts: Script[];
+}
+
+/** Script a Lua source run in the sandbox of the edge. */
+export interface Script {
+  /** @gotags: yaml:"id" */
+  id: string;
+  /** @gotags: yaml:"name" */
+  name: string;
+  /** @gotags: yaml:"source" */
+  source: string;
+  /** @gotags: yaml:"disabled" */
+  disabled: boolean;
 }
 
 /**
@@ -337,6 +364,7 @@ function createBaseSetting(): Setting {
     trafficControl: undefined,
     personal: undefined,
     delivery: undefined,
+    scripting: undefined,
   };
 }
 
@@ -359,6 +387,9 @@ export const Setting: MessageFns<Setting> = {
     }
     if (message.delivery !== undefined) {
       Delivery.encode(message.delivery, writer.uint32(50).fork()).join();
+    }
+    if (message.scripting !== undefined) {
+      Scripting.encode(message.scripting, writer.uint32(58).fork()).join();
     }
     return writer;
   },
@@ -424,6 +455,14 @@ export const Setting: MessageFns<Setting> = {
             message.delivery = Delivery.decode(reader, reader.uint32());
             continue;
           }
+          case 7: {
+            if (tag !== 58) {
+              break;
+            }
+
+            message.scripting = Scripting.decode(reader, reader.uint32());
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -448,6 +487,7 @@ export const Setting: MessageFns<Setting> = {
         : undefined,
       personal: isSet(object.personal) ? Personal.fromJSON(object.personal) : undefined,
       delivery: isSet(object.delivery) ? Delivery.fromJSON(object.delivery) : undefined,
+      scripting: isSet(object.scripting) ? Scripting.fromJSON(object.scripting) : undefined,
     };
   },
 
@@ -470,6 +510,9 @@ export const Setting: MessageFns<Setting> = {
     }
     if (message.delivery !== undefined) {
       obj.delivery = Delivery.toJSON(message.delivery);
+    }
+    if (message.scripting !== undefined) {
+      obj.scripting = Scripting.toJSON(message.scripting);
     }
     return obj;
   },
@@ -497,6 +540,195 @@ export const Setting: MessageFns<Setting> = {
     message.delivery = (object.delivery !== undefined && object.delivery !== null)
       ? Delivery.fromPartial(object.delivery)
       : undefined;
+    message.scripting = (object.scripting !== undefined && object.scripting !== null)
+      ? Scripting.fromPartial(object.scripting)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseScripting(): Scripting {
+  return { scripts: [] };
+}
+
+export const Scripting: MessageFns<Scripting> = {
+  encode(message: Scripting, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.scripts) {
+      Script.encode(v!, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Scripting {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseScripting();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.scripts.push(Script.decode(reader, reader.uint32()));
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): Scripting {
+    return {
+      scripts: globalThis.Array.isArray(object?.scripts) ? object.scripts.map((e: any) => Script.fromJSON(e)) : [],
+    };
+  },
+
+  toJSON(message: Scripting): unknown {
+    const obj: any = {};
+    if (message.scripts?.length) {
+      obj.scripts = message.scripts.map((e) => Script.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Scripting>, I>>(base?: I): Scripting {
+    return Scripting.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Scripting>, I>>(object: I): Scripting {
+    const message = createBaseScripting();
+    message.scripts = object.scripts?.map((e) => Script.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseScript(): Script {
+  return { id: "", name: "", source: "", disabled: false };
+}
+
+export const Script: MessageFns<Script> = {
+  encode(message: Script, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.name !== "") {
+      writer.uint32(18).string(message.name);
+    }
+    if (message.source !== "") {
+      writer.uint32(26).string(message.source);
+    }
+    if (message.disabled !== false) {
+      writer.uint32(32).bool(message.disabled);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Script {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseScript();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.name = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.source = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 32) {
+              break;
+            }
+
+            message.disabled = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+
+  fromJSON(object: any): Script {
+    return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      source: isSet(object.source) ? globalThis.String(object.source) : "",
+      disabled: isSet(object.disabled) ? globalThis.Boolean(object.disabled) : false,
+    };
+  },
+
+  toJSON(message: Script): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.source !== "") {
+      obj.source = message.source;
+    }
+    if (message.disabled !== false) {
+      obj.disabled = message.disabled;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<Script>, I>>(base?: I): Script {
+    return Script.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<Script>, I>>(object: I): Script {
+    const message = createBaseScript();
+    message.id = object.id ?? "";
+    message.name = object.name ?? "";
+    message.source = object.source ?? "";
+    message.disabled = object.disabled ?? false;
     return message;
   },
 };

@@ -24,20 +24,20 @@ import (
 	"github.com/sentinez/core/szhttp/chains"
 	"github.com/sentinez/pkg/szlog"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/envplugin"
+	"github.com/sentinez/sentinez/internal/envhandlers"
 	"github.com/sentinez/sentinez/pkg/geoip"
 	"github.com/sentinez/sentinez/pkg/pools/ingress"
 )
 
 // LoggingId is the chain stage name of Logging.
-const LoggingId = "LOG"
+const LoggingId = "logging"
 
 // _headersSizeHint presizes the headers of an event: most requests fit.
 const _headersSizeHint = 1 << 10
 
 var (
-	_ chains.Plugin                      = (*Logging)(nil)
-	_ chains.Provisioner[*envplugin.Env] = (*Logging)(nil)
+	_ chains.Plugin                        = (*Logging)(nil)
+	_ chains.Provisioner[*envhandlers.Env] = (*Logging)(nil)
 
 	// _credentialHeaders are left out of the exported events.
 	_credentialHeaders = [...][]byte{
@@ -60,7 +60,7 @@ type Logging struct {
 
 func (*Logging) ID() string { return LoggingId }
 
-func (l *Logging) Provision(env *envplugin.Env) error {
+func (l *Logging) Provision(env *envhandlers.Env) error {
 	geo, err := env.GeoIP()
 	if err != nil {
 		return err
