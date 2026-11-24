@@ -26,7 +26,7 @@ import (
 )
 
 // DomainBasedId is the chain stage name of DomainBased.
-const DomainBasedId = "DMA"
+const DomainBasedId = "domain"
 
 var (
 	_ chains.Plugin                      = (*DomainBased)(nil)

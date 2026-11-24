@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cdn
+package contents
 
 import (
 	"bytes"
@@ -45,7 +45,7 @@ func (*discard) Write(b []byte) (int, error) { return len(b), nil }
 func (*discard) WriteHeader(int)             {}
 
 // newBenchCache a Cache whose namespace has a rule matching every request.
-func newBenchCache() *Cache {
+func newBenchCache() *Caching {
 	store := cdnrules.New()
 	store.Store(_benchNamespace, &edgepb.Delivery{
 		Cdn: []*cdnpb.CDN{{Rule: &cdnpb.Rule{
@@ -57,7 +57,7 @@ func newBenchCache() *Cache {
 		}}},
 	})
 
-	return &Cache{
+	return &Caching{
 		store:  store,
 		cached: mem.New[*CachedResponse](time.Hour, time.Hour),
 		buf:    szsync.NewPool[bytes.Buffer](),

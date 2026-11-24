@@ -25,13 +25,12 @@ import (
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/envplugin"
+	"github.com/sentinez/sentinez/internal/handlers/contents"
 	"github.com/sentinez/sentinez/internal/handlers/logging"
 	"github.com/sentinez/sentinez/internal/handlers/room"
 	"github.com/sentinez/sentinez/internal/handlers/routing"
 	"github.com/sentinez/sentinez/internal/handlers/secure"
-	"github.com/sentinez/sentinez/internal/handlers/static"
-	"github.com/sentinez/sentinez/internal/handlers/trace"
-	"github.com/sentinez/sentinez/internal/handlers/wrap/stage"
+	"github.com/sentinez/sentinez/internal/handlers/tracing"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 	"github.com/stretchr/testify/require"
@@ -108,10 +107,10 @@ func newTestChain(tb testing.TB) *chains.Chain {
 	env := envplugin.NewEnv(nil,
 		option.WithLevel(szlog.LevelError),
 	)
-	chain, err := chains.Build(env, stage.Wrap,
-		&trace.Tracer{},
+	chain, err := chains.Build(env, nil,
+		&tracing.Tracer{},
 		&room.WaitingRoom{},
-		&static.Static{},
+		&contents.StaticAssets{},
 		&logging.Logging{},
 		&secure.DomainBased{},
 		&secure.SecRule{},

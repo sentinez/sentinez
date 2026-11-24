@@ -66,12 +66,12 @@ Ghi chú:
 ## 4.3 SecRule
 
 Runtime type: `types.secrule.v1.SecRule{id, name, description, expr, action,
-status, priority}`. Ở edge
+status, priority, script}`. Ở edge
 ([internal/memory/secrules/secrule.go](../../internal/memory/secrules/secrule.go)):
 
 - Chỉ giữ rule `STATUS_ACTIVE`.
 - Sắp xếp **priority giảm dần**, ổn định (cùng priority giữ thứ tự khai báo).
-- Node `RUL`
+- Node `secrule`
   ([internal/handlers/secure](../../internal/handlers/secure/action.go))
   duyệt chuỗi theo thứ tự trên và giữ mọi rule khớp:
   - Action **kết thúc** dừng request; action mạnh nhất trong các rule khớp
@@ -120,6 +120,54 @@ Control plane lưu giá trị action dạng `ActionValue{str_value, map_value}`
 `MODIFY_HEADER`/`SET_TAG`); chưa có kênh đồng bộ xuống edge, nên edge chỉ đọc
 `params` từ `proxy.yaml`.
 
+### Rule viết bằng Lua
+
+Một secrule (hoặc rate limiter, xem 4.5) có thể đặt `script`, một đoạn Lua,
+thay cho `expr` và `action`; rule có cả hai, hoặc không có cái nào, bị từ chối
+khi nạp setting. Script của secrule định nghĩa hàm global `match(ctx)`:
+
+```yaml
+secrules:
+  - ingress:
+      name: "Script: block X-Debug"
+      status: STATUS_ACTIVE
+      script: |
+        ---@param ctx sz.Context
+        function match(ctx)
+          if ctx:header("X-Debug") == "1" then
+            return SZ_BLOCK
+          end
+          if ctx:path() == "/old" then
+            return {type = SZ_REDIRECT, params = {location = "/new"}}
+          end
+        end
+```
+
+- `nil` hoặc `false`: rule không khớp.
+- Một hằng action, như chương trình eBPF trả `XDP_DROP`: `SZ_BLOCK`,
+  `SZ_CHALLENGE`, `SZ_REDIRECT`, `SZ_LOG`, `SZ_MODIFY_HEADER`, `SZ_SET_TAG`,
+  `SZ_ROUTE_TO` (không có `RATE_LIMIT`). Mỗi hằng chứa tên action
+  (`SZ_BLOCK == "block"`), script trả thẳng tên cũng được.
+- Một table `{type = SZ_REDIRECT, params = {...}}`: action kèm `params` như
+  bảng trên.
+
+Action đi qua cùng luồng đánh giá với rule `expr` (priority, xếp hạng action
+terminal, event `secrule: matched`). Ở đây `ctx` chỉ đọc request:
+`set_header`, `set_response_header` và `respond` báo lỗi. Script được kiểm tra
+lúc nạp: phải định nghĩa `match` và không có dòng `---@stage`. Script lỗi khi
+chạy, hoặc quá giới hạn 50 ms, được log rồi bỏ qua (fail-open). Các method
+của ctx và sandbox giống hook
+([README scripting](../../staging/src/github.com/sentinez/scripting/README.md)).
+
+[internal/rulescript](../../internal/rulescript/rulescript.go) chuyển
+`expr` + `action` thành script như trên và ngược lại (`ToScript`/`FromScript`,
+`ToKeyScript`/`FromKeyScript` cho limiter): script ở dạng khai báo của
+`scripting.ParseMatch` (các nhánh `if <điều kiện> then return <action> end`
+trên `ctx:path()`, `ctx:header(k)`...). Điều kiện không viết được (regex,
+CIDR, body...) trả lỗi bọc `scripting.ErrNotDeclarative`.
+
+### Các dạng SecRule
+
 Có ba dạng SecRule trong proto:
 
 | Type | Dùng ở |
@@ -135,7 +183,7 @@ Có ba dạng SecRule trong proto:
 rule
 ([internal/memory/cdnrules](../../internal/memory/cdnrules/cdnrules.go)):
 chỉ rule `STATUS_ACTIVE`, sắp xếp **priority giảm dần**, ổn định (cùng
-priority giữ thứ tự khai báo). Node `CDN` cache request khi có ít nhất một
+priority giữ thứ tự khai báo). Node `caching` cache request khi có ít nhất một
 rule khớp, thử theo thứ tự đó. Đường dẫn hệ thống (`/.sentinez/`) không bao
 giờ được cache. Cache là `patrickmn/go-cache` TTL 1h.
 
@@ -174,14 +222,36 @@ allow  ⇔ count + n ≤ limit
 
 - `SlidingWindow` giữ 2 `LocalWindow` (prev/curr); `advance` dịch cửa sổ theo
   `now.Truncate(size)`.
-- `RateLimiter` giữ một `SlidingWindow` cho mỗi key (IP) và cơ chế
+- `RateLimiter` giữ một `SlidingWindow` cho mỗi key và cơ chế
   `timeout`: sau khi một key vượt ngưỡng, mọi request của key đó bị từ chối
   trong `timeout` ms.
 - `Window.Sync` là hook để đồng bộ với kho tập trung trong tương lai (hiện
   no-op).
 
 Cấu hình ở `security.limiters[]`: `timeWindow`, `maxRequests`, `timeout` (chuỗi
-`time.ParseDuration`).
+`time.ParseDuration`). Mỗi limiter cần `ingress.expr` hoặc `ingress.script`
+(không cả hai): nó chỉ đếm các request nó chọn. Limiter `expr` đếm theo IP
+client. Script định nghĩa hàm global `key(ctx)` trả key để đếm request (tối
+đa 256 byte), `true` để đếm theo IP client, hoặc `nil`/`false` để không đếm:
+
+```yaml
+limiters:
+  - ingress:
+      name: "Script: rate limit per API key"
+      status: STATUS_ACTIVE
+      script: |
+        ---@param ctx sz.Context
+        function key(ctx)
+          local k = ctx:header("X-Api-Key")
+          if k ~= "" then return k end
+        end
+    timeWindow: 5s
+    maxRequests: 20
+    timeout: 5s
+```
+
+Các quy tắc của script secrule cũng áp dụng: `ctx` chỉ đọc, không
+`---@stage`, `key` được kiểm tra lúc nạp, fail-open khi chạy.
 
 ## 4.6 WAF — OWASP CRS trên Coraza
 

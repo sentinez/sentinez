@@ -23,7 +23,7 @@ khác `dev`, log của fx bị tắt (`fx.NopLogger`).
 
 OTLP: log hệ thống đẩy về `SZ_OTLP_INTERNAL_ENDPOINT`, không đặt thì
 không push; service name = `meta.service_key`. Exporter được shutdown sau khi
-mọi app đã dừng. Log traffic của edge (node `LOG` trong func chains) được
+mọi app đã dừng. Log traffic của edge (node `logging` trong func chains) được
 đẩy thẳng vào Kafka khi đặt `SZ_KAFKA_BROKERS` (event proto thô, mỗi log
 type một topic, xem `pkg/szkafka`), nếu không thì qua provider OTLP riêng trên
 `SZ_OTLP_EXTERNAL_ENDPOINT`; exporter do edge server sở hữu và flush trong

@@ -137,9 +137,9 @@ Thư mục cấp root:
    [03-edge.md](03-edge.md#32-fingerprint--context-kết-nối)).
 4. Server (mặc định `quichttpx`) gọi handler → tạo `httpx.Context` (lấy từ
    pool), gán fingerprint.
-5. Chain middleware chạy theo thứ tự `TRACE → LOG → DMA → CDN → LMT → ROM →
-   STC → RUL → WAF → ROU` (xem [03-edge.md](03-edge.md)).
-6. `ROU` tìm location theo longest-prefix, rewrite path, set header, gọi
+5. Chain middleware chạy theo thứ tự `tracing → logging → domain → caching →
+   secratelimit → waitingroom → staticassets → secrule → secruleset → router` (xem [03-edge.md](03-edge.md)).
+6. `router` tìm location theo longest-prefix, rewrite path, set header, gọi
    reverse proxy tới upstream.
 
 ### Thao tác quản trị (control path)

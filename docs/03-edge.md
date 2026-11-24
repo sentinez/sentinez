@@ -189,32 +189,33 @@ needs dependencies, `Provision(*envplugin.Env)`: the
 [Env](../internal/envplugin/env.go) resolves the options once and hands out
 the sub-stores of `MemStore`, the secret key and event loggers
 (`Env.Logger(kind)`), so plugins take no constructor arguments. Every plugin
-is wrapped by `stage.Wrap`, which tags errors with the plugin `ID()`
+is wrapped by `wrapStage` ([internal/handlers/stage.go](../internal/handlers/stage.go)), which tags errors with the plugin `ID()`
 (`sztracer.StageError{Stage, Elapsed, Err}`) and logs them once, at the
 stage that produced them; the stage names are exported constants (e.g.
-`secure.SecRuleId`). A panic of a plugin is recovered by its `Stage` too: logged once with the stage and the stack, then answered with a `500` page, so the outer plugins (e.g. `LOG`) still record the request; `http.ErrAbortHandler`, the reverse proxy aborting a response, is panicked again for the server. The edge closes the chain (`Chain.Close`) on shutdown.
+`secure.SecRuleId`). A panic of a plugin is recovered by its stage too: logged once with the stage and the stack, then answered with a `500` page, so the outer plugins (e.g. `logging`) still record the request; `http.ErrAbortHandler`, the reverse proxy aborting a response, is panicked again for the server. The edge closes the chain (`Chain.Close`) on shutdown.
 
-| Order | Stage | Plugin | Behavior |
+| Order | Stage (plugin id) | Plugin | Behavior |
 |---|---|---|---|
-| 0 | `TRC` | `trace.Tracer` | Generates request ID `sz:req:<xid>` when the context has none |
-| 1 | `LOG` | `logging.Logging` | Calls `next` first, then logs an `httppb.IngressEvent` (JSON, kind `LOG_TYPE_HTTP_INGRESS`, the ingress) and, when `ROU` proxied the request, an `httppb.EgressEvent` of the proxy → upstream origin leg (kind `LOG_TYPE_HTTP_EGRESS`: upstream, origin status, content type/length, latency, and the headers the edge set on the upstream request via `szhttp.SetUpstreamHeader`, sorted by name with credential headers omitted) |
-| 2 | `DMA` | `secure.DomainBased` | The host (port stripped, lower case) is the namespace: it must be the `ingress.resource.domain` of a loaded setting. Otherwise → `403`. A domain in `TLS_MODE_PASSTHROUGH` → `421` (see 3.6). Sets `X().Namespace` and the tenant/resource ids of the setting |
-| 3 | `CDN` | `cdn.Cache` | If the namespace has an active CDN rule whose expression matches: look up the cache by `method+scheme+host+path+query+Accept-Encoding`; hit → return the cached response with `X-Cache: HIT`; miss → continue and store cacheable responses (TTL 1h, see [04-rule-engine.md](04-rule-engine.md#44-cdn-rules)) |
-| 4 | `LMT` | `secure.SecLimiter` | for each limiter whose required `ingress.expr` matches (priority order, like `RUL`): `limiter.Allow(IP)`; exceeded → `429` |
-| 5 | `ROM` | `room.WaitingRoom` | Placeholder, just forwards |
-| 6 | `STC` | `static.Static` | After the rest of the chain, if the path has a static extension (`.css .js .png ...`) sets `Cache-Control: public, max-age=3600, immutable` |
-| 7 | `RUL` | `secure.SecRule` | Walks the active SecRules by descending priority; the first matching rule with action `BLOCK` → `403`; other actions are only debug-logged and evaluation continues |
-| 8 | `RST` | `secure.SecRuleset` | Coraza transaction: `ExecIngress` (headers/body) → rest of chain → `ExecEgress` (response). Blocked with status 403 → 403 page. Finally logs a `secrulepb.Event` (`LOG_TYPE_SECRULESET`) if the transaction was interrupted |
-| 9 | `ROU` | `routing.StandardRouter` | Ends the chain: finds the route, rewrites the path, sets headers, calls `ReverseProxy.Serve` of the namespace's proxy to the upstream; none → `502` |
+| 0 | `tracing` | `tracing.Tracer` | Generates request ID `sz:req:<xid>` when the context has none |
+| 1 | `logging` | `logging.Logging` | Calls `next` first, then logs an `httppb.IngressEvent` (JSON, kind `LOG_TYPE_HTTP_INGRESS`, the ingress) and, when `router` proxied the request, an `httppb.EgressEvent` of the proxy → upstream origin leg (kind `LOG_TYPE_HTTP_EGRESS`: upstream, origin status, content type/length, latency, and the headers the edge set on the upstream request via `szhttp.SetUpstreamHeader`, sorted by name with credential headers omitted) |
+| 2 | `domain` | `secure.DomainBased` | The host (port stripped, lower case) is the namespace: it must be the `ingress.resource.domain` of a loaded setting. Otherwise → `403`. A domain in `TLS_MODE_PASSTHROUGH` → `421` (see 3.6). Sets `X().Namespace` and the tenant/resource ids of the setting |
+| 3 | `caching` | `contents.Caching` | If the namespace has an active CDN rule whose expression matches: look up the cache by `method+scheme+host+path+query+Accept-Encoding`; hit → return the cached response with `X-Cache: HIT`; miss → continue and store cacheable responses (TTL 1h, see [04-rule-engine.md](04-rule-engine.md#44-cdn-rules)) |
+| 4 | `secratelimit` | `secure.SecLimiter` | for each limiter, in priority order like `secrule`: an `ingress.expr` that matches counts the client IP, an `ingress.script` returns the key (`key(ctx)`, see [04-rule-engine.md](04-rule-engine.md#45-rate-limiter)); `limiter.Allow(key)` exceeded → `429` |
+| 5 | `waitingroom` | `room.WaitingRoom` | Placeholder, just forwards |
+| 6 | `staticassets` | `contents.StaticAssets` | After the rest of the chain, if the path has a static extension (`.css .js .png ...`) sets `Cache-Control: public, max-age=3600, immutable` |
+| 7 | `secrule` | `secure.SecRule` | Walks the active SecRules (an `expr` + `action`, or a Lua `match(ctx)` script) by descending priority and applies the matched actions, see [04-rule-engine.md](04-rule-engine.md#43-secrule) |
+| 8 | `secruleset` | `secure.SecRuleset` | Coraza transaction: `ExecIngress` (headers/body) → rest of chain → `ExecEgress` (response). Blocked with status 403 → 403 page. Finally logs a `secrulepb.Event` (`LOG_TYPE_SECRULESET`) if the transaction was interrupted |
+| 9 | `router` | `routing.StandardRouter` | Ends the chain: finds the route, rewrites the path, sets headers, calls `ReverseProxy.Serve` of the namespace's proxy to the upstream; none → `502` |
 
-The stages after `DMA` also run the Lua hooks of the namespace: the wrap
-of the chain is `Stage(id, hooks.Wrap(id, h))`, with `hooks` of
-[internal/handlers/wrap/script](../internal/handlers/wrap/script/). A script of the
+The stages after `domain` also run the Lua hooks of the namespace: the wrap
+of the chain is `wrapStage(id, hooks.wrap(id, h))`, with `hooks` of
+[internal/handlers/hook.go](../internal/handlers/hook.go); both wraps are
+private to the package `handlers`. A script of the
 setting (`scripting.scripts`, compiled into
 [internal/memory/scripts](../internal/memory/scripts/)) hooks a global
-function before or after a stage with `---@stage http:request/<stage>` or
-`http:response/<stage>`, by the names `cache`, `sec_limiter`, `waiting_room`,
-`static`, `sec_rule`, `sec_ruleset` and `router`. A before hook may answer
+function before or after a stage with `---@stage http.request/<stage>` or
+`http.response/<stage>`, by the names `caching`, `secratelimit`, `waitingroom`,
+`staticassets`, `secrule`, `secruleset` and `router`. A before hook may answer
 the request, which skips the stage; an after hook runs once the stage and
 the ones after it returned. A failing script is logged and skipped. See
 the [scripting README](../staging/src/github.com/sentinez/scripting/README.md).
@@ -432,7 +433,7 @@ reads the client hello of each connection in its own goroutine
 Limits: no SecRule, rate limit, CDN or request log for a passthrough
 domain; TCP only (a QUIC handshake falls back to TCP); port 443 fixed. A
 request that still reaches HTTP for such a domain (no SNI, QUIC, or a
-connection coalesced from another domain) gets `421` from `DMA`.
+connection coalesced from another domain) gets `421` from `domain`.
 
 ### Upstream TLS (custom CA, mTLS)
 

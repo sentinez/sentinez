@@ -24,56 +24,25 @@ import (
 	"github.com/yuin/gopher-lua/ast"
 )
 
-// stage a stage of the edge chain a hook may annotate.
-type stage struct {
-	// name the name of the annotations: ---@stage http:request/<name>.
-	name string
-	// id the id of the plugin of the stage, Stage of the chain.
-	id string
-}
-
-// _stages the stages of the edge chain a hook may annotate, in chain
-// order. The stages before the namespace of the request is known (TRC,
-// LOG, DMA) have no hooks. The edge tests the ids against its chain.
-var _stages = []stage{
-	{name: "cache", id: "CDN"},        // cdn.Cache
-	{name: "sec_limiter", id: "LMT"},  // secure.SecLimiter
-	{name: "waiting_room", id: "ROM"}, // room.WaitingRoom
-	{name: "static", id: "STC"},       // static.Static
-	{name: "sec_rule", id: "RUL"},     // secure.SecRule
-	{name: "sec_ruleset", id: "RST"},  // secure.SecRuleset
-	{name: "router", id: "ROU"},       // routing.StandardRouter
+// _stages the ids of the plugins of the edge chain a hook may annotate, in
+// chain order: ---@stage http.request/<id>. The plugins before the
+// namespace of the request is known (tracing, logging,
+// domain) have no hooks. The edge tests the ids against its
+// chain.
+var _stages = []string{
+	"caching",
+	"secratelimit",
+	"waitingroom",
+	"staticassets",
+	"secrule",
+	"secruleset",
+	"router",
 }
 
 // Stages returns the ids of the stages a hook may annotate, in chain
 // order.
 func Stages() []string {
-	ids := make([]string, 0, len(_stages))
-	for _, s := range _stages {
-		ids = append(ids, s.id)
-	}
-
-	return ids
-}
-
-// StageName the name of the stage id, the id when it is none.
-func StageName(id string) string {
-	i := slices.IndexFunc(_stages, func(s stage) bool { return s.id == id })
-	if i < 0 {
-		return id
-	}
-
-	return _stages[i].name
-}
-
-// StageNames returns the names of the stages, in chain order.
-func StageNames() []string {
-	names := make([]string, 0, len(_stages))
-	for _, s := range _stages {
-		names = append(names, s.name)
-	}
-
-	return names
+	return slices.Clone(_stages)
 }
 
 // hook a stage, by id, and the phase of it a function runs at.
@@ -108,8 +77,8 @@ var _annotation = regexp.MustCompile(`^\s*---\s*@stage\b(.*)$`)
 // order. A ---@stage phase/stage comment hooks the global function it
 // precedes, other comments aside; a function may have several:
 //
-//	---@stage http:request/sec_rule
-//	---@stage http:response/router
+//	---@stage http.request/secrule
+//	---@stage http.response/router
 //	function check(ctx) end
 func Parse(source string, chunk []ast.Stmt) (Set, error) {
 	funcs := globalFuncs(chunk)
@@ -163,29 +132,26 @@ func parseStage(s string) (hook, bool, error) {
 	ph, name, ok := strings.Cut(strings.TrimSpace(m[1]), "/")
 	if !ok || strings.ContainsAny(name, " \t") {
 		return hook{}, false, fmt.Errorf("@stage takes phase/stage, "+
-			"e.g. http:request/sec_rule, got %q", strings.TrimSpace(m[1]))
+			"e.g. http.request/secrule, got %q", strings.TrimSpace(m[1]))
 	}
 
 	h := hook{phase: phase.Request}
 	switch ph {
-	case "http:request":
-	case "http:response":
+	case "http.request":
+	case "http.response":
 		h.phase = phase.Response
 	default:
 		return hook{}, false, fmt.Errorf(
-			"@stage: phase %q, http:request or http:response", ph)
+			"@stage: phase %q, http.request or http.response", ph)
 	}
 
-	i := slices.IndexFunc(_stages, func(s stage) bool {
-		return s.name == name
-	})
-	if i < 0 {
+	if !slices.Contains(_stages, name) {
 		return hook{}, false, fmt.Errorf(
 			"@stage: unknown stage %q, one of %s", name,
-			strings.Join(StageNames(), ", "))
+			strings.Join(_stages, ", "))
 	}
 
-	h.stage = _stages[i].id
+	h.stage = name
 
 	return h, true, nil
 }

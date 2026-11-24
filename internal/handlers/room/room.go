@@ -21,7 +21,7 @@ import (
 )
 
 // WaitingRoomId is the chain stage name of WaitingRoom.
-const WaitingRoomId = "ROM"
+const WaitingRoomId = "waitingroom"
 
 var _ chains.Plugin = (*WaitingRoom)(nil)
 

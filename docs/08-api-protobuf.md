@@ -201,15 +201,15 @@ Edge config for one namespace — see
 `{metadata, transport: net.v1.Transport, request: net.http.v1.Request, x:
 ContextExtra{namespace, ...matched ids/names, upstream,
 upstream_timestamp, upstream_latency_micros}}` — per-request edge state,
-attached to `szhttp.Context`. The router (`ROU`) sets the three `upstream`
+attached to `szhttp.Context`. The router (`router`) sets the three `upstream`
 fields around the reverse proxy call, for the egress log.
 
 ### Log events
 
 | Type | Logger kind | Emitted by |
 |---|---|---|
-| `net.http.v1.IngressEvent` | `LOG_TYPE_HTTP_INGRESS` | Edge `LOG` node, apiserver `Logging` middleware |
-| `net.http.v1.EgressEvent` | `LOG_TYPE_HTTP_EGRESS` | Edge `LOG` node, for a request proxied to its upstream origin; same `id` as its ingress event. Field `headers` records the request headers set on the upstream |
+| `net.http.v1.IngressEvent` | `LOG_TYPE_HTTP_INGRESS` | Edge `logging` node, apiserver `Logging` middleware |
+| `net.http.v1.EgressEvent` | `LOG_TYPE_HTTP_EGRESS` | Edge `logging` node, for a request proxied to its upstream origin; same `id` as its ingress event. Field `headers` records the request headers set on the upstream |
 | `secrule.v1.Event` | `LOG_TYPE_SECRULESET` | Edge `WAF` node when a transaction is interrupted |
 
 `ContextExtra` (`dmz/edge/v1/context.proto`) records per-request edge metadata

@@ -26,7 +26,7 @@ import (
 )
 
 // StandardRouterId is the chain stage name of StandardRouter.
-const StandardRouterId = "ROU"
+const StandardRouterId = "router"
 
 var (
 	_ chains.Plugin                      = (*StandardRouter)(nil)

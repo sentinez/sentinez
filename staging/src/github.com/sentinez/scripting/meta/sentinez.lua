@@ -8,26 +8,26 @@
 -- A hook is a global function, of any name, preceded by one
 -- ---@stage <phase>/<stage> line per stage and phase it runs at:
 --
---   ---@stage http:request/sec_rule
---   ---@stage http:request/sec_ruleset
+--   ---@stage http.request/secrule
+--   ---@stage http.request/secruleset
 --   ---@param ctx sz.Context
 --   function deny_debug(ctx) end
 --
--- The stages are sz.Stage. http:request: the hook may answer the request with
--- ctx:respond, which skips the stage. http:response: it runs once the response is
+-- The stages are sz.Stage. http.request: the hook may answer the request with
+-- ctx:respond, which skips the stage. http.response: it runs once the response is
 -- written, it only observes. The hooks of a stage run in source order.
 
 ---The stages of the edge chain a hook may annotate, in chain order. The
----ones before the namespace of the request is known (TRC, LOG, DMA) have
----no hooks.
+---ones before the namespace of the request is known (tracing,
+---logging, domain) have no hooks.
 ---@alias sz.Stage
----| "cache" # CDN: cdn.Cache
----| "sec_limiter" # LMT: secure.SecLimiter
----| "waiting_room" # ROM: room.WaitingRoom
----| "static" # STC: static.Static
----| "sec_rule" # RUL: secure.SecRule
----| "sec_ruleset" # RST: secure.SecRuleset (OWASP CRS)
----| "router" # ROU: routing.StandardRouter, to the upstream
+---| "caching" # CDN cache
+---| "secratelimit" # rate limiters
+---| "waitingroom" # waiting room
+---| "staticassets" # static assets
+---| "secrule" # secrules
+---| "secruleset" # OWASP CRS
+---| "router" # to the upstream
 
 ---Writes lines to the logs of the request, with the request id and the
 ---name of the script: the arguments, as tostring prints them, joined by
@@ -88,7 +88,7 @@ function Context:set_header(key, value) end
 ---@param value string
 function Context:set_response_header(key, value) end
 
----Answers the request, ending it: the stage is skipped. In an http:response
+---Answers the request, ending it: the stage is skipped. In an http.response
 ---hook it raises an error, the response being written already.
 ---@param status integer 100 to 599
 ---@param body? string
@@ -101,10 +101,38 @@ function Context:respond(status, body) end
 -- rule that fails or runs over the time limit is skipped. A rule script has
 -- no ---@stage line.
 
----An action name: "block", "challenge", "redirect", "log", "modify_header",
----"set_tag" or "route_to"; or a table with the type and its params, as the
----action of a rule takes them.
----@alias sz.RuleAction string | { type: string, params?: table }
+---The name of an action, as its SZ_ constant holds it.
+---@alias sz.Action
+---| "block"
+---| "challenge"
+---| "log"
+---| "modify_header"
+---| "redirect"
+---| "route_to"
+---| "set_tag"
+
+-- The actions a secrule script returns, as an eBPF program returns
+-- XDP_DROP: return SZ_BLOCK, or {type = SZ_REDIRECT, params = {...}}. The
+-- name ("block") is the same.
+
+---@type sz.Action
+SZ_BLOCK = "block"
+---@type sz.Action
+SZ_CHALLENGE = "challenge"
+---@type sz.Action
+SZ_LOG = "log"
+---@type sz.Action
+SZ_MODIFY_HEADER = "modify_header"
+---@type sz.Action
+SZ_REDIRECT = "redirect"
+---@type sz.Action
+SZ_ROUTE_TO = "route_to"
+---@type sz.Action
+SZ_SET_TAG = "set_tag"
+
+---An action, or a table with the action and its params, as the action of
+---a rule takes them.
+---@alias sz.RuleAction sz.Action | { type: sz.Action, params?: table }
 
 ---The function of a secrule script: nil or false when the request does not
 ---match, else the action to take.

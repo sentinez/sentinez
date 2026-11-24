@@ -37,7 +37,7 @@ import (
 )
 
 // SecRuleId is the chain stage name of SecRule.
-const SecRuleId = "RUL"
+const SecRuleId = "secrule"
 
 var (
 	_ chains.Plugin                      = (*SecRule)(nil)

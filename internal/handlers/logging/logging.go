@@ -30,7 +30,7 @@ import (
 )
 
 // LoggingId is the chain stage name of Logging.
-const LoggingId = "LOG"
+const LoggingId = "logging"
 
 // _headersSizeHint presizes the headers of an event: most requests fit.
 const _headersSizeHint = 1 << 10

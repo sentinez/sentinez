@@ -68,8 +68,8 @@ _go1.27.1, linux/amd64, 13th Gen Intel(R) Core(TM) i7-1355U; median of 6 runs, 2
 | Package | Benchmark | ns/op | B/op | allocs/op |
 |---|---|--:|--:|--:|
 | `internal/handlers` | StageDenied | 405 | 0 | 0 |
-| `internal/handlers/cdn` | CacheHit | 1000 | 240 | 18 |
-| `internal/handlers/cdn` | CacheMissUncacheable | 966 | 384 | 28 |
+| `internal/handlers/contents` | CacheHit | 1000 | 240 | 18 |
+| `internal/handlers/contents` | CacheMissUncacheable | 966 | 384 | 28 |
 | `internal/handlers/logging` | NewEvent | 1276 | 1072 | 3 |
 | `internal/handlers/logging` | NewEgressEvent | 327 | 48 | 2 |
 | `internal/handlers/secure` | SecLimiterAllowed | 174 | 0 | 0 |
@@ -89,8 +89,8 @@ _go1.27.1, linux/amd64, 13th Gen Intel(R) Core(TM) i7-1355U; median of 6 runs, 2
 | `internal/handlers/secure` | ApplyActions | 194 | 24 | 2 |
 | `internal/handlers/secure` | Redirect | 247 | 83 | 5 |
 | `internal/handlers/secure` | NewSecRuleEvent | 629 | 96 | 3 |
-| `internal/handlers/static` | StaticAsset | 82.4 | 16 | 1 |
-| `internal/handlers/wrap/script` | HooksOneStage | 1582 | 544 | 8 |
+| `internal/handlers/contents` | StaticAsset | 82.4 | 16 | 1 |
+| `internal/handlers` | HooksOneStage | 1582 | 544 | 8 |
 | `pkg/network/httpx` | ContextLifecycle | 582 | 80 | 4 |
 | `pkg/network/httpx` | ContextGetters | 119 | 48 | 1 |
 | `pkg/network/httpx` | ContextVisitRequestHeaders | 115 | 0 | 0 |

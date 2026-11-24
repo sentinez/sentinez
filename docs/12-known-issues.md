@@ -52,7 +52,7 @@ Remove an entry once it is fixed.
   `ingress.resource.domain`) keeps its plain reverse proxies (`plainProxy`):
   they are keyed by upstream and shared between namespaces, with no
   reference count.
-- [#400](https://github.com/sentinez/sentinez/issues/400) The waiting room (`ROM`) is a pass-through and `pkg/szqueue` is
+- [#400](https://github.com/sentinez/sentinez/issues/400) The waiting room (`waitingroom`) is a pass-through and `pkg/szqueue` is
   empty.
 - [#401](https://github.com/sentinez/sentinez/issues/401) `pkg/sztopic`, `pkg/szstorage/{cache/keyval,dbx/clickhouse,
   search/elastic}` are empty packages; `SZ_TIMESCALE_URI`,

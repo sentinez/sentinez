@@ -167,32 +167,33 @@ dependency, `Provision(*envplugin.Env)`:
 [Env](../../internal/envplugin/env.go) resolve option một lần và cấp các
 sub-store của `MemStore`, secret key và logger sự kiện (`Env.Logger(kind)`),
 nên plugin không nhận tham số constructor. Mỗi plugin được bọc bởi
-`stage.Wrap` để gắn `ID()` của plugin vào lỗi
+`wrapStage` ([internal/handlers/stage.go](../../internal/handlers/stage.go)) để gắn `ID()` của plugin vào lỗi
 (`sztracer.StageError{Stage, Elapsed, Err}`) và log một lần duy nhất ở stage
-gây lỗi; tên stage là hằng exported (vd `secure.SecRuleId`). Panic của plugin cũng được `Stage` của nó bắt: log một lần kèm stage và stack, rồi trả trang `500`, nên các plugin bên ngoài (vd `LOG`) vẫn ghi lại request; `http.ErrAbortHandler`, khi reverse proxy huỷ response, được panic lại cho server. Edge đóng chain
+gây lỗi; tên stage là hằng exported (vd `secure.SecRuleId`). Panic của plugin cũng được stage của nó bắt: log một lần kèm stage và stack, rồi trả trang `500`, nên các plugin bên ngoài (vd `logging`) vẫn ghi lại request; `http.ErrAbortHandler`, khi reverse proxy huỷ response, được panic lại cho server. Edge đóng chain
 (`Chain.Close`) khi shutdown.
 
-| Thứ tự | Stage | Plugin | Hành vi |
+| Thứ tự | Stage (plugin id) | Plugin | Hành vi |
 |---|---|---|---|
-| 0 | `TRC` | `trace.Tracer` | Sinh request ID `sz:req:<xid>` nếu context chưa có |
-| 1 | `LOG` | `logging.Logging` | Gọi `next` trước, sau đó log `httppb.IngressEvent` (JSON, kind `LOG_TYPE_HTTP_INGRESS`, chiều ingress) và, nếu `ROU` đã proxy request, một `httppb.EgressEvent` cho chặng proxy → upstream origin (kind `LOG_TYPE_HTTP_EGRESS`: upstream, status của origin, content type/length, latency, cùng các header do edge thiết lập gửi tới upstream qua `szhttp.SetUpstreamHeader`, được sắp xếp theo tên và lược bỏ header nhạy cảm) |
-| 2 | `DMA` | `secure.DomainBased` | Host (bỏ port, chữ thường) là namespace: phải là `ingress.resource.domain` của một setting đã nạp. Sai → `403`. Domain ở `TLS_MODE_PASSTHROUGH` → `421` (xem 3.6). Gán `X().Namespace` và tenant/resource id của setting |
-| 3 | `CDN` | `cdn.Cache` | Nếu có CDN rule active cho namespace và expression khớp: tra cache theo key `method+scheme+host+path+query+Accept-Encoding`; hit → trả response với `X-Cache: HIT`; miss → chạy tiếp và lưu response cache được (TTL 1h, xem [04-rule-engine.md](04-rule-engine.md#44-cdn-rules)) |
-| 4 | `LMT` | `secure.SecLimiter` | với mỗi limiter có `ingress.expr` (bắt buộc) khớp, theo priority như `RUL`: `limiter.Allow(IP)`; vượt → `429` |
-| 5 | `ROM` | `room.WaitingRoom` | Placeholder, chỉ chuyển tiếp |
-| 6 | `STC` | `static.Static` | Sau khi chạy tiếp, nếu path có đuôi tĩnh (`.css .js .png ...`) thì set `Cache-Control: public, max-age=3600, immutable` |
-| 7 | `RUL` | `secure.SecRule` | Duyệt các SecRule active theo priority giảm dần; rule đầu tiên khớp có action `BLOCK` → `403`; action khác chỉ log debug và đi tiếp |
-| 8 | `RST` | `secure.SecRuleset` | Coraza transaction: `ExecIngress` (header/body) → chạy tiếp → `ExecEgress` (response). Bị chặn với status 403 → trang 403. Cuối cùng log `secrulepb.Event` (`LOG_TYPE_SECRULESET`) nếu bị interrupt |
-| 9 | `ROU` | `routing.StandardRouter` | Kết thúc chain: tìm route, rewrite path, set header, gọi `ReverseProxy.Serve` của proxy tới upstream thuộc namespace; không có → `502` |
+| 0 | `tracing` | `tracing.Tracer` | Sinh request ID `sz:req:<xid>` nếu context chưa có |
+| 1 | `logging` | `logging.Logging` | Gọi `next` trước, sau đó log `httppb.IngressEvent` (JSON, kind `LOG_TYPE_HTTP_INGRESS`, chiều ingress) và, nếu `router` đã proxy request, một `httppb.EgressEvent` cho chặng proxy → upstream origin (kind `LOG_TYPE_HTTP_EGRESS`: upstream, status của origin, content type/length, latency, cùng các header do edge thiết lập gửi tới upstream qua `szhttp.SetUpstreamHeader`, được sắp xếp theo tên và lược bỏ header nhạy cảm) |
+| 2 | `domain` | `secure.DomainBased` | Host (bỏ port, chữ thường) là namespace: phải là `ingress.resource.domain` của một setting đã nạp. Sai → `403`. Domain ở `TLS_MODE_PASSTHROUGH` → `421` (xem 3.6). Gán `X().Namespace` và tenant/resource id của setting |
+| 3 | `caching` | `contents.Caching` | Nếu có CDN rule active cho namespace và expression khớp: tra cache theo key `method+scheme+host+path+query+Accept-Encoding`; hit → trả response với `X-Cache: HIT`; miss → chạy tiếp và lưu response cache được (TTL 1h, xem [04-rule-engine.md](04-rule-engine.md#44-cdn-rules)) |
+| 4 | `secratelimit` | `secure.SecLimiter` | với mỗi limiter, theo priority như `secrule`: `ingress.expr` khớp thì đếm theo IP client, `ingress.script` trả key (`key(ctx)`, xem [04-rule-engine.md](04-rule-engine.md#45-rate-limiter)); `limiter.Allow(key)` vượt → `429` |
+| 5 | `waitingroom` | `room.WaitingRoom` | Placeholder, chỉ chuyển tiếp |
+| 6 | `staticassets` | `contents.StaticAssets` | Sau khi chạy tiếp, nếu path có đuôi tĩnh (`.css .js .png ...`) thì set `Cache-Control: public, max-age=3600, immutable` |
+| 7 | `secrule` | `secure.SecRule` | Duyệt các SecRule active (`expr` + `action`, hoặc script Lua `match(ctx)`) theo priority giảm dần và áp dụng các action khớp, xem [04-rule-engine.md](04-rule-engine.md#43-secrule) |
+| 8 | `secruleset` | `secure.SecRuleset` | Coraza transaction: `ExecIngress` (header/body) → chạy tiếp → `ExecEgress` (response). Bị chặn với status 403 → trang 403. Cuối cùng log `secrulepb.Event` (`LOG_TYPE_SECRULESET`) nếu bị interrupt |
+| 9 | `router` | `routing.StandardRouter` | Kết thúc chain: tìm route, rewrite path, set header, gọi `ReverseProxy.Serve` của proxy tới upstream thuộc namespace; không có → `502` |
 
-Các stage sau `DMA` còn chạy hook Lua của namespace: wrap của chain là
-`Stage(id, hooks.Wrap(id, h))`, với `hooks` thuộc
-[internal/handlers/wrap/script](../../internal/handlers/wrap/script/). Script của
+Các stage sau `domain` còn chạy hook Lua của namespace: wrap của chain là
+`wrapStage(id, hooks.wrap(id, h))`, với `hooks` thuộc
+[internal/handlers/hook.go](../../internal/handlers/hook.go); cả hai wrap
+đều private trong package `handlers`. Script của
 setting (`scripting.scripts`, được compile vào
 [internal/memory/scripts](../../internal/memory/scripts/)) gắn một hàm
-global vào trước hoặc sau một stage bằng `---@stage http:request/<stage>` hoặc
-`http:response/<stage>`, với các tên `cache`, `sec_limiter`, `waiting_room`,
-`static`, `sec_rule`, `sec_ruleset` và `router`. Hook `before` có thể trả
+global vào trước hoặc sau một stage bằng `---@stage http.request/<stage>` hoặc
+`http.response/<stage>`, với các tên `caching`, `secratelimit`, `waitingroom`,
+`staticassets`, `secrule`, `secruleset` và `router`. Hook `before` có thể trả
 lời request, khi đó stage bị bỏ qua; hook `after` chạy khi stage và các
 stage sau nó đã trả về. Script lỗi được log rồi bỏ qua. Xem
 [README của scripting](../../staging/src/github.com/sentinez/scripting/README.md).
@@ -405,7 +406,7 @@ SNI; timeout 10s).
 Giới hạn: domain passthrough không có SecRule, rate limit, CDN hay log
 request; chỉ TCP (handshake QUIC thất bại, client quay về TCP); cổng 443 cố
 định. Request vẫn tới tầng HTTP của domain đó (không SNI, QUIC, hoặc kết nối
-dùng chung từ domain khác) nhận `421` từ `DMA`.
+dùng chung từ domain khác) nhận `421` từ `domain`.
 
 ### Upstream TLS (CA riêng, mTLS)
 

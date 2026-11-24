@@ -22,7 +22,6 @@ import (
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/chains"
 	"github.com/sentinez/pkg/szlog"
-	"github.com/sentinez/sentinez/internal/handlers/wrap/stage"
 	"github.com/stretchr/testify/require"
 )
 
@@ -56,7 +55,7 @@ func BenchmarkStageDenied(b *testing.B) {
 		chained = append(chained, &pass{id: strconv.Itoa(i)})
 	}
 
-	chain, err := chains.Build(newEnv(), stage.Wrap,
+	chain, err := chains.Build(newEnv(), wrapStage,
 		append(chained, &deny{})...)
 	require.NoError(b, err)
 

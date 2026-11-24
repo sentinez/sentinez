@@ -20,21 +20,23 @@ import (
 	"github.com/yuin/gopher-lua/ast"
 )
 
-// parseAction the action e returns: a name, or {type = name, params = t}.
+// parseAction the action e returns: a constant (SZ_BLOCK), a name, or
+// {type = SZ_REDIRECT, params = t}.
 func parseAction(e ast.Expr) (Action, error) {
-	switch x := e.(type) {
-	case *ast.StringExpr:
-		if !IsAction(x.Value) {
-			return Action{}, lineErr(e, "unknown action "+
-				strconv.Quote(x.Value))
-		}
-
-		return Action{Name: x.Value}, nil
-	case *ast.TableExpr:
-		return tableAction(x)
+	if t, ok := e.(*ast.TableExpr); ok {
+		return tableAction(t)
 	}
 
-	return Action{}, lineErr(e, "return an action name or table")
+	name, err := actionName(e)
+	if err != nil {
+		return Action{}, lineErr(e, "return an action or action table")
+	}
+
+	if !IsAction(name) {
+		return Action{}, lineErr(e, "unknown action "+strconv.Quote(name))
+	}
+
+	return Action{Name: name}, nil
 }
 
 func tableAction(t *ast.TableExpr) (Action, error) {
@@ -67,13 +69,18 @@ func tableAction(t *ast.TableExpr) (Action, error) {
 	return a, nil
 }
 
+// actionName the name of the action e names: SZ_BLOCK or "block".
 func actionName(e ast.Expr) (string, error) {
-	s, ok := e.(*ast.StringExpr)
-	if !ok {
-		return "", lineErr(e, "the action type is a string")
+	switch x := e.(type) {
+	case *ast.IdentExpr:
+		if name, ok := _actionConsts[x.Value]; ok {
+			return name, nil
+		}
+	case *ast.StringExpr:
+		return x.Value, nil
 	}
 
-	return s.Value, nil
+	return "", lineErr(e, "the action is an SZ_ constant or a string")
 }
 
 // paramsOf the fields of the table constructor e.

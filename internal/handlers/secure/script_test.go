@@ -111,7 +111,7 @@ func TestScriptRuleRejected(t *testing.T) {
 	}{
 		{"no match func", &secrulepb.SecRule{Script: `function x() end`}},
 		{"stage hook", &secrulepb.SecRule{
-			Script: "---@stage http:request/router\n" +
+			Script: "---@stage http.request/router\n" +
 				"function match(ctx) end",
 		}},
 		{"syntax", &secrulepb.SecRule{Script: `function (`}},

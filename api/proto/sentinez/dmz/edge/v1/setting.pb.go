@@ -293,8 +293,8 @@ func (x *Setting) GetScripting() *Scripting {
 
 // Scripting the Lua scripts of a domain. A ---@stage <phase>/<stage> line
 // hooks the global function it precedes before or after a stage of the
-// edge chain: cache, sec_limiter, waiting_room, static, sec_rule,
-// sec_ruleset or router.
+// edge chain, by plugin id: caching, secratelimit, waitingroom, staticassets, secrule, secruleset
+// or router.
 type Scripting struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Scripts       []*Script              `protobuf:"bytes,1,rep,name=scripts,proto3" json:"scripts,omitempty" yaml:"scripts"` // @gotags: yaml:"scripts"

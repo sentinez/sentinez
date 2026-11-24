@@ -14,26 +14,26 @@ precedes, whatever its name, to a stage of the edge handler chain, as
 `SEC("fentry/...")` does in eBPF:
 
 ```lua
----@stage http:request/sec_rule
----@stage http:request/sec_ruleset
+---@stage http.request/secrule
+---@stage http.request/secruleset
 ---@param ctx sz.Context
 function deny_debug(ctx)
   if ctx:header("X-Debug") == "1" then
-    ctx:respond(403, "no")      -- ends the request, http:request only
+    ctx:respond(403, "no")      -- ends the request, http.request only
   end
 end
 
----@stage http:request/router
----@stage http:response/router
+---@stage http.request/router
+---@stage http.response/router
 ---@param ctx sz.Context
 function tag(ctx)
   ctx:set_header("X-Edge", "sentinez")
 end
 ```
 
-- `http:request/<stage>`: runs before the stage; `ctx:respond` ends the request
+- `http.request/<stage>`: runs before the stage; `ctx:respond` ends the request
   there and the stage is skipped.
-- `http:response/<stage>`: runs once the stage, and the ones after it, returned.
+- `http.response/<stage>`: runs once the stage, and the ones after it, returned.
   The response is written: it only observes.
 - One stage and phase per line; a function may have several lines.
 - The lines must precede a global function (`function name(ctx)`), other
@@ -45,20 +45,20 @@ end
 The stages, in the order of the edge chain
 (`internal/handlers/handlers.go`):
 
-| Stage | Id | Plugin |
-|---|---|---|
-| `cache` | `CDN` | `cdn.Cache` |
-| `sec_limiter` | `LMT` | `secure.SecLimiter` |
-| `waiting_room` | `ROM` | `room.WaitingRoom` |
-| `static` | `STC` | `static.Static` |
-| `sec_rule` | `RUL` | `secure.SecRule` |
-| `sec_ruleset` | `RST` | `secure.SecRuleset` (OWASP CRS) |
-| `router` | `ROU` | `routing.StandardRouter`, to the upstream |
+| Stage (plugin id) | Plugin |
+|---|---|
+| `caching` | `contents.Caching` |
+| `secratelimit` | `secure.SecLimiter` |
+| `waitingroom` | `room.WaitingRoom` |
+| `staticassets` | `contents.StaticAssets` |
+| `secrule` | `secure.SecRule` |
+| `secruleset` | `secure.SecRuleset` (OWASP CRS) |
+| `router` | `routing.StandardRouter`, to the upstream |
 
-The stages before the namespace of the request is known (`TRC`, `LOG`,
-`DMA`) have no hooks. `scripting.Stages` returns the ids, the ones `Has` and
-`Call` take; a test of the edge (`TestScriptStagesAreTheChain`) checks
-them against the chain.
+The stages before the namespace of the request is known
+(`tracing`, `logging`, `domain`) have no hooks.
+`scripting.Stages` returns the ids, the ones `Has` and `Call` take; a test
+of the edge (`TestScriptStagesAreTheChain`) checks them against the chain.
 
 | `ctx` | |
 |---|---|
@@ -80,7 +80,7 @@ and the name of the script: the arguments, joined by tabs like `print`.
 `log` table passed as first argument is left out.
 
 ```lua
----@stage http:request/sec_rule
+---@stage http.request/secrule
 function audit(ctx)
   log.debug("path", ctx:path(), "ip", ctx:ip())
   if ctx:header("X-Debug") == "1" then
@@ -92,6 +92,66 @@ end
 
 A line is cut at 1024 bytes and a hook call logs 16 lines at most. In the
 script body, outside of a hook, there is no request: the line is dropped.
+
+## Rule scripts
+
+A secrule or a rate limiter of the edge may be a Lua source in place of its
+expression. It has no `---@stage` line: it defines one global function the
+edge calls for each request, with a read-only `ctx` (`set_header`,
+`set_response_header` and `respond` raise an error).
+
+A secrule defines `match(ctx)`. It returns `nil` or `false` when the request
+does not match, else the action, as an eBPF program returns `XDP_DROP`:
+
+```lua
+---@param ctx sz.Context
+function match(ctx)
+  if ctx:header("X-Debug") == "1" then
+    return SZ_BLOCK
+  end
+  if ctx:path() == "/old" then
+    return {type = SZ_REDIRECT, params = {location = "/new"}}
+  end
+end
+```
+
+| Constant | Value |
+|---|---|
+| `SZ_BLOCK` | `"block"` |
+| `SZ_CHALLENGE` | `"challenge"` |
+| `SZ_LOG` | `"log"` |
+| `SZ_MODIFY_HEADER` | `"modify_header"` |
+| `SZ_REDIRECT` | `"redirect"` |
+| `SZ_ROUTE_TO` | `"route_to"` |
+| `SZ_SET_TAG` | `"set_tag"` |
+
+The constants hold the action names, so `return "block"` is the same. A
+table `{type = SZ_REDIRECT, params = {...}}` adds the params of the action.
+
+A rate limiter defines `key(ctx)`: the key to count the request under (a
+string), `true` for the client IP, `nil` or `false` not to count it.
+
+```lua
+function key(ctx)
+  local k = ctx:header("X-Api-Key")
+  if k ~= "" then return k end
+end
+```
+
+The host compiles the rule with `Compile`, checks it with `Hooked` (false)
+and `HasFunc(scripting.MatchFunc)` (or `KeyFunc`), then calls
+`Program.Invoke(ctx, "match", ex)` for each request: the result is a
+`Value` (`KindNil`, `KindBool`, `KindString`, `KindTable`) free of the Lua
+types.
+
+`ParseMatch` and `ParseKey` read a script of the declarative form, branches
+of `if <conditions> then return <action> end` over `ctx:path()`,
+`ctx:header(k)`..., into a `Rule`; `MatchSource` and `KeySource` write a
+`Rule` back as Lua (`return SZ_BLOCK`). A script out of that form returns
+`ErrNotDeclarative`. The edge converts its protobuf expressions with them
+(`internal/rulescript`).
+
+## Sandbox
 
 The sandbox opens `base`, `table`, `string` and `math` only: there is no
 `os`, `io`, `load` or `require`. Each call is limited to 50ms (`WithTimeout`),
@@ -110,9 +170,9 @@ if err != nil {
 	return err // syntax error, misplaced ---@stage, or a failing script body
 }
 
-// around the stage whose id is "RUL" (sec_rule):
-if prog.Has(phase.Request, "RUL") {
-	responded, err := prog.Call(ctx, phase.Request, "RUL", ex)
+// around the stage whose id is "secrule" (secure.SecRule):
+if prog.Has(phase.Request, "secrule") {
+	responded, err := prog.Call(ctx, phase.Request, "secrule", ex)
 	// responded: a hook answered, skip the stage
 }
 ```
@@ -133,17 +193,19 @@ The host implements `exchange.Exchange` (the request, `SetHeader`,
 
 | Package | |
 |---|---|
-| `scripting` | `Compile`, `Program` (`Has`, `Call`, `Name`, `Source`), `WithTimeout` and `Stages` |
+| `scripting` | `Compile`, `Program` (`Has`, `Call`, `Invoke`, `HasFunc`, `Hooked`, `Name`, `Source`), `Value`, `WithTimeout` and `Stages`; the rule forms `Rule`, `ParseMatch`, `MatchSource`, `ParseKey`, `KeySource` |
 | `scripting/exchange` | `Exchange`, the request the host hands a hook, and the log `Level` |
-| `scripting/phase` | `Phase`: `Request` (`http:request`), `Response` (`http:response`) |
+| `scripting/phase` | `Phase`: `Request` (`http.request`), `Response` (`http.response`) |
 | `internal/hooks` | parses the `---@stage` lines into the hooks of a script; the stage table |
-| `internal/api` | the `ctx` and `log` APIs; `Run` calls the hooks of a stage in a Lua state |
+| `internal/api` | the `ctx` and `log` APIs and the `SZ_` action constants; `Run` calls the hooks of a stage in a Lua state, `Invoke` the function of a rule |
 | `internal/sandbox` | the Lua state: the libraries a script may use, no more |
 
 ## Editor support
 
-`meta/sentinez.lua` declares `ctx` (`sz.Context`) for lua-language-server
+`meta/sentinez.lua` declares `ctx` (`sz.Context`), `log`, the stages
+(`sz.Stage`), the action constants (`sz.Action`) and the rule functions
+(`sz.Match`, `sz.Key`) for lua-language-server
 (LuaLS / EmmyLua): annotate a hook with `---@param ctx sz.Context` for completion
 and type checks. `.luarc.json` loads it for this directory; elsewhere add the
 directory to `workspace.library`. `TestMetaMatchesContext` keeps it in step with
-the methods of `ctx`.
+the methods of `ctx`, the `log` functions, the stages and the actions.

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package trace
+package tracing
 
 import (
 	"github.com/sentinez/core/szhttp"
@@ -22,7 +22,7 @@ import (
 )
 
 // TracerId is the chain stage name of Tracer.
-const TracerId = "TRC"
+const TracerId = "tracing"
 
 var _ chains.Plugin = (*Tracer)(nil)
 

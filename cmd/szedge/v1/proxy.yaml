@@ -277,9 +277,10 @@ setting:
 
       # Lua rule: a script in place of expr and action. It defines a
       # global match(ctx) returning nil or false (no match), an action
-      # name (block, challenge, redirect, log, modify_header, set_tag,
-      # route_to) or a table {type = "...", params = {...}}. ctx only
-      # reads the request here, and no ---@stage line is allowed.
+      # constant (SZ_BLOCK, SZ_CHALLENGE, SZ_REDIRECT, SZ_LOG,
+      # SZ_MODIFY_HEADER, SZ_SET_TAG, SZ_ROUTE_TO), as an eBPF program
+      # returns XDP_DROP, or a table {type = SZ_REDIRECT, params = {...}}.
+      # ctx only reads the request here, and no ---@stage line is allowed.
       - ingress:
           name: "Script: block X-Debug"
           status: STATUS_ACTIVE
@@ -287,7 +288,7 @@ setting:
             ---@param ctx sz.Context
             function match(ctx)
               if ctx:header("X-Debug") == "1" then
-                return "block"
+                return SZ_BLOCK
               end
             end
 
@@ -381,8 +382,9 @@ setting:
   # ----------------------------------------------------------
   # A ---@stage <phase>/<stage> line hooks the global function it
   # precedes, whatever its name, before or after a stage of the edge
-  # chain: cache, sec_limiter, waiting_room, static, sec_rule,
-  # sec_ruleset, router (in chain order). One line per phase and stage.
+  # chain, by plugin id: caching, secratelimit, waitingroom, staticassets,
+  # secrule, secruleset, router (in chain order). One line per phase
+  # and stage.
   # ctx reads the request (method, path, host, ip, header, query),
   # sets headers (set_header: sent upstream, set_response_header)
   # and answers it (respond(status, body), before only).
@@ -397,7 +399,7 @@ setting:
       - id: "script_example"
         name: "tag requests"
         source: |
-          ---@stage http:request/router
+          ---@stage http.request/router
           ---@param ctx sz.Context
           function tag_edge(ctx)
             log.debug("tag", ctx:host(), ctx:path())

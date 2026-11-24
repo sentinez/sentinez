@@ -109,7 +109,7 @@ Tên biến là các giá trị của enum `Sz` trong
 | `SZ_DISCOVERY_ADDRESS` | edge | `host:port` bind memberlist (mặc định `0.0.0.0:3322`) |
 | `SZ_ADMIN_USERNAME` / `SZ_ADMIN_PASSWORD` | IAM | Tài khoản admin tĩnh |
 | `SZ_OTLP_INTERNAL_ENDPOINT` | tất cả | Collector OTLP/gRPC cho log hệ thống; không đặt thì không push |
-| `SZ_OTLP_EXTERNAL_ENDPOINT` | edge | Collector OTLP/gRPC cho log traffic của edge (node `LOG` trong func chains); không đặt thì không push |
+| `SZ_OTLP_EXTERNAL_ENDPOINT` | edge | Collector OTLP/gRPC cho log traffic của edge (node `logging` trong func chains); không đặt thì không push |
 | `SZ_KAFKA_BROKERS` | edge | Kafka broker (phân tách bằng dấu phẩy) mà edge đẩy thẳng event traffic tới, dạng proto thô (`pkg/szkafka`); được ưu tiên hơn `SZ_OTLP_EXTERNAL_ENDPOINT` |
 | `SZ_ZONE` | edge | Zone nơi node được deploy (vd `ap-southeast-1a`); làm tiền tố cho mọi id sinh từ `szrand` `NewULID`/`NewNanoId` (id request và event của handler chain: `<zone>-req_<ulid>`, `<zone>-srevt_<ulid>`, `<zone>-rsevt_<ulid>`; không đặt: `req_<ulid>`). Primary key (`NewUUID`) không bao giờ gắn zone. Cũng là zone mà edge tranh quyền leader; bắt buộc khi có `SZ_CONSUL_URI` |
 

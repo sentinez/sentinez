@@ -49,8 +49,8 @@ type SecRule struct {
 	ExprPreview string                 `protobuf:"bytes,8,opt,name=expr_preview,json=exprPreview,proto3" json:"expr_preview,omitempty"`
 	// A Lua source the edge runs in place of expr and action; a rule sets
 	// one or the other. A secrule defines a global match(ctx) returning nil
-	// or false (no match), an action name ("block") or an action table
-	// ({type = "redirect", params = {location = "/"}}). A rate limiter
+	// or false (no match), an action constant (SZ_BLOCK) or an action table
+	// ({type = SZ_REDIRECT, params = {location = "/"}}). A rate limiter
 	// defines a global key(ctx) returning the key the request is counted
 	// under, true for the client IP, or nil or false not to count it.
 	Script        string `protobuf:"bytes,9,opt,name=script,proto3" json:"script,omitempty"`

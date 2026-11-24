@@ -36,8 +36,10 @@ func TestInvokeResult(t *testing.T) {
 			Value{Kind: KindBool, Bool: true}},
 		{"string", `function match(ctx) return ctx:ip() end`,
 			Value{Kind: KindString, Str: "10.0.0.1"}},
+		{"constant", `function match(ctx) return SZ_BLOCK end`,
+			Value{Kind: KindString, Str: "block"}},
 		{"table", `function match(ctx)
-			return {type = "redirect", params = {n = 1, ok = true}}
+			return {type = SZ_REDIRECT, params = {n = 1, ok = true}}
 		end`, Value{Kind: KindTable, Table: map[string]any{
 			"type":   "redirect",
 			"params": map[string]any{"n": float64(1), "ok": true},
@@ -103,7 +105,7 @@ func TestHasFuncHooked(t *testing.T) {
 	assert.False(t, p.HasFunc("key"))
 	assert.False(t, p.Hooked())
 
-	p, err = Compile("hook", "---@stage http:request/router\n"+
+	p, err = Compile("hook", "---@stage http.request/router\n"+
 		"function h(ctx) end")
 	require.NoError(t, err)
 	assert.True(t, p.Hooked())

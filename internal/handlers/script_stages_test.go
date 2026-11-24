@@ -25,7 +25,7 @@ import (
 )
 
 // TestScriptStagesAreTheChain the stages a script may hook are the
-// plugins of the chain after DMA, which resolves the namespace the
+// plugins of the chain after domain, which resolves the namespace the
 // scripts are looked up by: a plugin added, removed or renamed there has
 // to be in scripting.Stages too, or no hook reaches it.
 func TestScriptStagesAreTheChain(t *testing.T) {

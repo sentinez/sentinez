@@ -21,6 +21,8 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+
+	"github.com/sentinez/scripting/internal/api"
 )
 
 // _number the values of the numeric conditions: a decimal literal Lua
@@ -161,15 +163,15 @@ func fieldLua(c Cond) (string, error) {
 	return "ctx:" + method + "()", nil
 }
 
-// actionLua the value a secrule script returns for a: its name, or a
-// table with its params.
+// actionLua the value a secrule script returns for a: its constant
+// (SZ_BLOCK), or a table with its params.
 func actionLua(a Action) (string, error) {
 	if !IsAction(a.Name) {
 		return "", fmt.Errorf("%w: action %q", ErrNotDeclarative, a.Name)
 	}
 
 	if len(a.Params) == 0 {
-		return quote(a.Name), nil
+		return api.ActionConst(a.Name), nil
 	}
 
 	params, err := tableLua(a.Params, 0)
@@ -177,7 +179,8 @@ func actionLua(a Action) (string, error) {
 		return "", err
 	}
 
-	return "{type = " + quote(a.Name) + ", params = " + params + "}", nil
+	return "{type = " + api.ActionConst(a.Name) + ", params = " + params +
+		"}", nil
 }
 
 // tableLua the table constructor of m, its keys sorted.

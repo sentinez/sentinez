@@ -30,8 +30,8 @@ import (
 	secrulesetpool "github.com/sentinez/sentinez/pkg/pools/secruleset"
 )
 
-// Ruleset is the chain stage name of Rulesets.
-const Ruleset = "RST"
+// SecRulesetId is the chain stage name of SecRuleset.
+const SecRulesetId = "secruleset"
 
 var (
 	_ chains.Plugin                      = (*SecRuleset)(nil)
@@ -43,7 +43,7 @@ type SecRuleset struct {
 	store *secrulesets.Rulesets
 }
 
-func (*SecRuleset) ID() string { return Ruleset }
+func (*SecRuleset) ID() string { return SecRulesetId }
 
 func (rs *SecRuleset) Provision(env *envplugin.Env) error {
 	rs.store = env.Store().Rulesets()

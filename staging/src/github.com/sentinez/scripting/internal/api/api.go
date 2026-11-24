@@ -153,9 +153,11 @@ var _ctxMethods = map[string]lua.LGFunction{
 	"respond":             respond,
 }
 
-// Register adds the global table log and the ctx type to L.
+// Register adds the global table log, the action constants and the ctx
+// type to L.
 func Register(L *lua.LState) {
 	registerLog(L)
+	registerActions(L)
 	registerCtx(L)
 }
 

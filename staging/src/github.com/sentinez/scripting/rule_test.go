@@ -128,3 +128,16 @@ func TestRuleSourceRuns(t *testing.T) {
 		})
 	}
 }
+
+func TestMatchSourceReturnsConstant(t *testing.T) {
+	src, err := MatchSource(Rule{Any: [][]Cond{nil},
+		Action: Action{Name: "block"}})
+	require.NoError(t, err)
+	assert.Contains(t, src, "return SZ_BLOCK")
+
+	src, err = MatchSource(Rule{Any: [][]Cond{nil}, Action: Action{
+		Name: "redirect", Params: map[string]any{"location": "/"},
+	}})
+	require.NoError(t, err)
+	assert.Contains(t, src, "{type = SZ_REDIRECT, params =")
+}

@@ -147,7 +147,7 @@ func (p *Program) Call(ctx context.Context, at phase.Phase, stage string,
 		L.Close()
 
 		return false, fmt.Errorf("script %s: %s/%s: %w",
-			p.name, at, hooks.StageName(stage), err)
+			p.name, at, stage, err)
 	}
 
 	p.release(L)

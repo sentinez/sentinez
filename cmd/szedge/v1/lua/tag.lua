@@ -1,4 +1,4 @@
----@stage http:request/router
+---@stage http.request/router
 ---@param ctx sz.Context
 function TagEdge(ctx)
     log.debug("tag", ctx:host(), ctx:path())

@@ -14,7 +14,12 @@
 
 package scripting
 
-import "errors"
+import (
+	"errors"
+	"slices"
+
+	"github.com/sentinez/scripting/internal/api"
+)
 
 // The global functions of the rule scripts.
 const (
@@ -106,26 +111,28 @@ type Cond struct {
 	Value  string
 }
 
-// Action the action of a secrule: its name, as a script returns it
-// ("block"), and its params.
+// Action the action of a secrule: its name ("block", which a script
+// returns as SZ_BLOCK or "block"), and its params.
 type Action struct {
 	Name string
 	// Params string, float64, bool or map[string]any fields.
 	Params map[string]any
 }
 
-// _actionNames the actions a secrule script may return.
-var _actionNames = map[string]struct{}{
-	"block": {}, "log": {}, "modify_header": {}, "redirect": {},
-	"set_tag": {}, "route_to": {}, "challenge": {},
-}
-
 // IsAction reports whether a secrule script may return the action name.
 func IsAction(name string) bool {
-	_, ok := _actionNames[name]
-
-	return ok
+	return slices.Contains(api.Actions(), name)
 }
+
+// _actionConsts the action names by their global constant: SZ_BLOCK.
+var _actionConsts = func() map[string]string {
+	m := make(map[string]string)
+	for _, name := range api.Actions() {
+		m[api.ActionConst(name)] = name
+	}
+
+	return m
+}()
 
 // Rule the declarative form of a rule script: it matches a request when
 // one of the branches of Any does, a branch being the conjunction of its
@@ -137,9 +144,9 @@ func IsAction(name string) bool {
 //
 //	function match(ctx)
 //	  if ctx:path() == "/admin" and not (ctx:ip() == "10.0.0.1") then
-//	    return "block"
+//	    return SZ_BLOCK
 //	  end
-//	  if ctx:header("X-Debug") ~= "" then return "block" end
+//	  if ctx:header("X-Debug") ~= "" then return SZ_BLOCK end
 //	end
 type Rule struct {
 	Any    [][]Cond

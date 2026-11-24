@@ -27,9 +27,10 @@ function match(r)
   -- admin pages, outside of the office
   if (r:path() == "/admin" or r:path():sub(1, 7) == "/admin/")
       and not (r:ip() == "10.0.0.1" or r:ip() == "10.0.0.2") then
-    return {type = "block"}
+    return {type = SZ_BLOCK}
   end
   if not (r:header("X-Debug") ~= "1") then return "block" end
+  if r:ip() == "10.0.0.3" then return SZ_BLOCK end
 end`
 
 	got, err := ParseMatch(src)
@@ -45,6 +46,7 @@ end`
 		append([]Cond{{Source: SourcePath, Op: OpPrefix,
 			Value: "/admin/"}}, notOffice...),
 		{{Source: SourceHeader, Key: "X-Debug", Op: OpEq, Value: "1"}},
+		{{Source: SourceIP, Op: OpEq, Value: "10.0.0.3"}},
 	}, Action: Action{Name: "block"}}
 
 	assert.Equal(t, want, got)
@@ -52,13 +54,14 @@ end`
 
 func TestParseMatchNotDeclarative(t *testing.T) {
 	tests := map[string]string{
-		"other name":  `function check(ctx) return "block" end`,
-		"two params":  `function match(ctx, x) return "block" end`,
-		"extra stmt":  "x = 1\nfunction match(ctx) return \"block\" end",
-		"no branch":   `function match(ctx) end`,
-		"local":       `function match(ctx) local p = ctx:path() end`,
-		"loop":        `function match(ctx) while true do end end`,
-		"unknown act": `function match(ctx) return "nuke" end`,
+		"other name":       `function check(ctx) return "block" end`,
+		"two params":       `function match(ctx, x) return "block" end`,
+		"extra stmt":       "x = 1\nfunction match(ctx) return \"block\" end",
+		"no branch":        `function match(ctx) end`,
+		"unknown constant": `function match(ctx) return SZ_DROP end`,
+		"local":            `function match(ctx) local p = ctx:path() end`,
+		"loop":             `function match(ctx) while true do end end`,
+		"unknown act":      `function match(ctx) return "nuke" end`,
 		"else": matchIf(`ctx:ip() == "1"`,
 			`return "block" else return "log"`),
 		"two actions": "function match(ctx)\n" +

@@ -67,13 +67,13 @@ Notes:
 ## 4.3 SecRule
 
 Runtime type: `types.secrule.v1.SecRule{id, name, description, expr, action,
-status, priority}`. At the edge
+status, priority, script}`. At the edge
 ([internal/memory/secrules/secrule.go](../internal/memory/secrules/secrule.go)):
 
 - Only `STATUS_ACTIVE` rules are kept.
 - Rules are sorted by **descending priority**, stable (equal priorities keep
   declaration order).
-- The `RUL` node
+- The `secrule` node
   ([internal/handlers/secure](../internal/handlers/secure/action.go))
   walks the chain in that order and keeps every matching rule:
   - **Terminal** actions end the request; the strongest one matched wins,
@@ -122,6 +122,56 @@ map_value}` (console: one value for `REDIRECT`/`ROUTE_TO`, key/value rows for
 `MODIFY_HEADER`/`SET_TAG`); there is no sync to the edge yet, so the edge
 only reads `params` from `proxy.yaml`.
 
+### Lua rule scripts
+
+A secrule (or a rate limiter, see 4.5) may set `script`, a Lua source, in
+place of `expr` and `action`; a rule with both, or with neither, is refused
+when the setting loads. A secrule script defines a global `match(ctx)`:
+
+```yaml
+secrules:
+  - ingress:
+      name: "Script: block X-Debug"
+      status: STATUS_ACTIVE
+      script: |
+        ---@param ctx sz.Context
+        function match(ctx)
+          if ctx:header("X-Debug") == "1" then
+            return SZ_BLOCK
+          end
+          if ctx:path() == "/old" then
+            return {type = SZ_REDIRECT, params = {location = "/new"}}
+          end
+        end
+```
+
+- `nil` or `false`: the rule does not match.
+- An action constant, as an eBPF program returns `XDP_DROP`: `SZ_BLOCK`,
+  `SZ_CHALLENGE`, `SZ_REDIRECT`, `SZ_LOG`, `SZ_MODIFY_HEADER`, `SZ_SET_TAG`,
+  `SZ_ROUTE_TO` (`RATE_LIMIT` is not one). Each holds the action name
+  (`SZ_BLOCK == "block"`), which a script may return as well.
+- A table `{type = SZ_REDIRECT, params = {...}}`: the action with the
+  `params` of the table above.
+
+The action goes through the same evaluation as an `expr` rule (priority,
+terminal ranking, the `secrule: matched` event). `ctx` only reads the request
+there: `set_header`, `set_response_header` and `respond` raise an error. The
+script is checked when it loads: it must define `match` and has no
+`---@stage` line. A script that fails at a request, or runs over the 50 ms
+limit, is logged and skipped (fail-open). The ctx methods and the sandbox are
+those of the hooks
+([scripting README](../staging/src/github.com/sentinez/scripting/README.md)).
+
+[internal/rulescript](../internal/rulescript/rulescript.go) converts an
+`expr` + `action` to such a script and back (`ToScript`/`FromScript`,
+`ToKeyScript`/`FromKeyScript` for a limiter): the script form is the
+declarative one of `scripting.ParseMatch` (`if <conditions> then return
+<action> end` branches over `ctx:path()`, `ctx:header(k)`...). A condition it
+cannot write (a regex, a CIDR, the body...) is an error wrapping
+`scripting.ErrNotDeclarative`.
+
+### SecRule shapes
+
 There are three SecRule shapes in the protos:
 
 | Type | Used in |
@@ -137,7 +187,7 @@ There are three SecRule shapes in the protos:
 of CDN rules
 ([internal/memory/cdnrules](../internal/memory/cdnrules/cdnrules.go)): only
 `STATUS_ACTIVE` rules, sorted by **descending priority**, stable (equal
-priorities keep declaration order). The `CDN` node caches a request when at
+priorities keep declaration order). The `caching` node caches a request when at
 least one rule matches, tried in that order. System paths (`/.sentinez/`)
 are never cached. The cache is `patrickmn/go-cache` with a 1h TTL.
 
@@ -176,14 +226,37 @@ allow  ⇔ count + n ≤ limit
 
 - `SlidingWindow` holds two `LocalWindow`s (prev/curr); `advance` shifts the
   windows using `now.Truncate(size)`.
-- `RateLimiter` keeps one `SlidingWindow` per key (IP) and a `timeout`
+- `RateLimiter` keeps one `SlidingWindow` per key and a `timeout`
   mechanism: after a key exceeds the limit, every request from that key is
   rejected for `timeout` ms. Other keys are not affected.
 - `Window.Sync` is a hook for syncing with a central store in the future
   (currently a no-op).
 
 Configured in `security.limiters[]`: `timeWindow`, `maxRequests`, `timeout`
-(`time.ParseDuration` strings).
+(`time.ParseDuration` strings). Every limiter needs an `ingress.expr` or an
+`ingress.script` (not both): it only counts the requests it selects. An
+`expr` limiter counts them under the client IP. A script defines a global
+`key(ctx)` returning the key to count the request under (at most 256 bytes),
+`true` for the client IP, or `nil`/`false` not to count it:
+
+```yaml
+limiters:
+  - ingress:
+      name: "Script: rate limit per API key"
+      status: STATUS_ACTIVE
+      script: |
+        ---@param ctx sz.Context
+        function key(ctx)
+          local k = ctx:header("X-Api-Key")
+          if k ~= "" then return k end
+        end
+    timeWindow: 5s
+    maxRequests: 20
+    timeout: 5s
+```
+
+The rules of a secrule script hold here too: read-only `ctx`, no `---@stage`,
+`key` checked at load, fail-open at a request.
 
 ## 4.6 WAF — OWASP CRS on Coraza
 

@@ -27,8 +27,8 @@ import (
 )
 
 // TestMetaMatchesContext the annotations of meta/sentinez.lua declare the
-// methods ctx has, the functions of the log table and the stages, no
-// more, no less.
+// methods ctx has, the functions of the log table, the stages and the
+// actions, no more, no less.
 func TestMetaMatchesContext(t *testing.T) {
 	src, err := os.ReadFile("meta/sentinez.lua")
 	require.NoError(t, err)
@@ -39,8 +39,14 @@ func TestMetaMatchesContext(t *testing.T) {
 	logs := declared(src, `(?m)^function log\.(\w+)\(`)
 	assert.Equal(t, api.LogFuncs(), logs)
 
-	stages := declared(src, `(?m)^---\| "(\w+)"`)
-	assert.Equal(t, slices.Sorted(slices.Values(hooks.StageNames())), stages)
+	stages := declared(src, `(?m)^---\| "([\w.]+)" #`)
+	assert.Equal(t, slices.Sorted(slices.Values(hooks.Stages())), stages)
+
+	actions := declared(src, `(?m)^---\| "(\w+)"$`)
+	assert.Equal(t, api.Actions(), actions)
+
+	consts := declared(src, `(?m)^(SZ_\w+) = "\w+"$`)
+	assert.Equal(t, sortedConsts(), consts)
 }
 
 // declared the sorted names the pattern captures in src.
@@ -48,6 +54,16 @@ func declared(src []byte, pattern string) []string {
 	var names []string
 	for _, m := range regexp.MustCompile(pattern).FindAllSubmatch(src, -1) {
 		names = append(names, string(m[1]))
+	}
+
+	return slices.Sorted(slices.Values(names))
+}
+
+// sortedConsts the sorted constants of the actions.
+func sortedConsts() []string {
+	var names []string
+	for _, a := range api.Actions() {
+		names = append(names, api.ActionConst(a))
 	}
 
 	return slices.Sorted(slices.Values(names))

@@ -20,7 +20,6 @@ import (
 
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/chains"
-	"github.com/sentinez/sentinez/internal/handlers/wrap/stage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -49,7 +48,7 @@ func TestStageRecoversPanic(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var log []string
-			chain, err := chains.Build(newEnv(), stage.Wrap,
+			chain, err := chains.Build(newEnv(), wrapStage,
 				&fake{id: "A", log: &log},
 				&panicker{value: tt.give},
 			)
@@ -66,7 +65,7 @@ func TestStageRecoversPanic(t *testing.T) {
 }
 
 func TestStageRepanicsAbort(t *testing.T) {
-	chain, err := chains.Build(newEnv(), stage.Wrap, &panicker{
+	chain, err := chains.Build(newEnv(), wrapStage, &panicker{
 		value: func() { panic(http.ErrAbortHandler) },
 	})
 	require.NoError(t, err)

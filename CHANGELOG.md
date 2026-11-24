@@ -24,12 +24,17 @@ web console at one version.
   body, JA4 and TLS fields. Actions: `BLOCK`, `CHALLENGE` (proof-of-work
   page with a `pow-pass` cookie) and `REDIRECT`.
 - Rate limiters scoped per key, each selected by an ingress expression.
+- Lua rule scripts: a secrule or a rate limiter may set `script` in place of
+  `expr` (and `action`). A secrule script defines `match(ctx)` returning an
+  action constant (`return SZ_BLOCK`) or `{type = SZ_REDIRECT, params = ...}`;
+  a limiter script defines `key(ctx)`, the key to count the request under.
+  `internal/rulescript` converts an expression to a script and back.
 - OWASP CRS 4.16.0 and 4.17.0 on Coraza. Paranoia and detection levels,
   anomaly thresholds, rule exclusions scoped by expressions.
 - CDN cache with `X-Cache: HIT`.
 - Lua hooks around the chain stages, declared with
-  `---@stage http:request|response/<stage>`. The stages are `cache`,
-  `sec_limiter`, `waiting_room`, `static`, `sec_rule`, `sec_ruleset` and
+  `---@stage http.request|response/<stage>`. The stages are `caching`,
+  `secratelimit`, `waitingroom`, `staticassets`, `secrule`, `secruleset` and
   `router`. Each call has a 50 ms limit.
 - Clustering through embedded Olric, and zone leader election through Consul.
 - JA4 fingerprints, GeoIP-enriched request logs, and upstream latency.

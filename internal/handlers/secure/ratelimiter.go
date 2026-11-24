@@ -26,8 +26,8 @@ import (
 	"github.com/sentinez/sentinez/pkg/pools/matchedrule"
 )
 
-// LimiterId is the chain stage name of Limiter.
-const LimiterId = "LMT"
+// SecLimiterId is the chain stage name of SecLimiter.
+const SecLimiterId = "secratelimit"
 
 var (
 	_ chains.Plugin                      = (*SecLimiter)(nil)
@@ -46,7 +46,7 @@ type SecLimiter struct {
 	log   szlog.LogCloser
 }
 
-func (*SecLimiter) ID() string { return LimiterId }
+func (*SecLimiter) ID() string { return SecLimiterId }
 
 func (l *SecLimiter) Provision(env *envplugin.Env) error {
 	l.store = env.Store().Limiter()

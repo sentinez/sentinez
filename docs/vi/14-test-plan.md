@@ -67,7 +67,7 @@ sau dùng lại trạng thái mà các test trước tạo ra.
 | Id | Các bước | Kết quả mong đợi |
 |---|---|---|
 | EDG-01 | `curl -k https://$EDGE/local/anything` | Upstream nhận `/anything` (do `proxyRewrite`) kèm `X-Forwarded-*`, `X-Real-IP` và `Host` |
-| EDG-02 | Gửi request với một `Host` mà không setting nào có | Trang `403` từ `DMA` |
+| EDG-02 | Gửi request với một `Host` mà không setting nào có | Trang `403` từ `domain` |
 | EDG-03 | `curl -k --http3 https://$EDGE/local/` | Được phục vụ qua HTTP/3. Log của request có JA4 fingerprint |
 | EDG-04 | Làm cho mọi upstream của một location không truy cập được | Trang `502` |
 | EDG-05 | Xem log của một request | Dòng log có request id, `tenant_id`, `resource_id`, và các trường GeoIP nếu là IP public |
@@ -100,10 +100,10 @@ sau dùng lại trạng thái mà các test trước tạo ra.
 | Id | Các bước | Kết quả mong đợi |
 |---|---|---|
 | LUA-01 | Dùng `script_example` có sẵn; gửi request tới `/local/` | Upstream nhận header `X-Edge: sentinez`. Khi bật debug log, dòng `tag` có trong log của request |
-| LUA-02 | Hook `http:request/sec_rule` bằng một hàm gọi `ctx:respond(418, "teapot")`, rồi gửi request tới `/block` | Nhận `418 teapot`. Stage SecRule bị bỏ qua nên không có `403` |
-| LUA-03 | Hook `http:response/router` bằng một hàm gọi `ctx:set_response_header("X-Seen", "1")` | Response có `X-Seen: 1` |
+| LUA-02 | Hook `http.request/secrule` bằng một hàm gọi `ctx:respond(418, "teapot")`, rồi gửi request tới `/block` | Nhận `418 teapot`. Stage SecRule bị bỏ qua nên không có `403` |
+| LUA-03 | Hook `http.response/router` bằng một hàm gọi `ctx:set_response_header("X-Seen", "1")` | Response có `X-Seen: 1` |
 | LUA-04 | Một hàm lặp vô hạn | Mỗi request vẫn được phục vụ, script chạy tối đa khoảng 50 ms. Lỗi của script được ghi log và chain chạy tiếp |
-| LUA-05 | `---@stage http:request/sec_rate_limit` (tên cũ) | Edge ghi log `edge: load '<domain>': … @stage: unknown stage "sec_rate_limit", one of cache, sec_limiter, …` và không nạp script nào của namespace, các script đã nạp từ trước được giữ lại. Phần còn lại của namespace vẫn được nạp |
+| LUA-05 | `---@stage http.request/sec_rate_limit` (tên cũ) | Edge ghi log `edge: load '<domain>': … @stage: unknown stage "sec_rate_limit", one of caching, secratelimit, …` và không nạp script nào của namespace, các script đã nạp từ trước được giữ lại. Phần còn lại của namespace vẫn được nạp |
 | LUA-06 | Gọi `os.execute`, `io.open` hoặc `require` trong script | Không dùng được (bị sandbox chặn) |
 
 ### CLS: cluster

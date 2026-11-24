@@ -12,9 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package script runs the Lua scripts of a namespace around the stages of
-// the edge chain.
-package script
+package handlers
 
 import (
 	"slices"
@@ -28,27 +26,27 @@ import (
 	"github.com/sentinez/sentinez/pkg/pools/exchange"
 )
 
-var _ chains.WrapFunc = (*Hooks)(nil).Wrap
+var _ chains.WrapFunc = (*scriptHooks)(nil).wrap
 
-// Hooks wraps the handlers of the plugins to call the hooks of the
-// scripts of the namespace of the request.
-type Hooks struct {
+// scriptHooks wraps the handlers of the plugins to call the hooks of the
+// Lua scripts of the namespace of the request.
+type scriptHooks struct {
 	store *scripts.Scripts
 }
 
-func New(store *scripts.Scripts) *Hooks {
-	return &Hooks{store: store}
+func newScriptHooks(store *scripts.Scripts) *scriptHooks {
+	return &scriptHooks{store: store}
 }
 
-// Wrap returns h, the handler running the plugin id, with the hooks of
+// wrap returns h, the handler running the plugin id, with the hooks of
 // the stage id around it. A stage scripts may not hook (scripting.Stages) is
 // returned as is.
 //
-// The hooks of ---@stage http:request/<stage> run before the plugin: a
+// The hooks of ---@stage http.request/<stage> run before the plugin: a
 // script answering the request ends it there. The ones of
-// http:response/<stage> run when the plugin, and the ones after it,
+// http.response/<stage> run when the plugin, and the ones after it,
 // returned: the response is written, they only observe.
-func (h *Hooks) Wrap(id string, next chains.Handler) chains.Handler {
+func (h *scriptHooks) wrap(id string, next chains.Handler) chains.Handler {
 	if !slices.Contains(scripting.Stages(), id) {
 		return next
 	}

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cdn
+package contents
 
 import (
 	"net/http"
@@ -50,7 +50,7 @@ func TestCacheSkipsSystemPaths(t *testing.T) {
 				return nil
 			})
 
-			require.NoError(t, (&Cache{}).Handle(ctx, next))
+			require.NoError(t, (&Caching{}).Handle(ctx, next))
 			assert.True(t, called)
 		})
 	}
