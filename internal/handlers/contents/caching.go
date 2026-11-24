@@ -29,7 +29,7 @@ import (
 	"github.com/sentinez/pkg/szstorage/cache/mem"
 	"github.com/sentinez/pkg/szsync"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/envplugin"
+	"github.com/sentinez/sentinez/internal/envhandlers"
 	"github.com/sentinez/sentinez/internal/memory/cdnrules"
 )
 
@@ -37,8 +37,8 @@ import (
 const CachingId = "caching"
 
 var (
-	_ chains.Plugin                      = (*Caching)(nil)
-	_ chains.Provisioner[*envplugin.Env] = (*Caching)(nil)
+	_ chains.Plugin                        = (*Caching)(nil)
+	_ chains.Provisioner[*envhandlers.Env] = (*Caching)(nil)
 )
 
 type Caching struct {
@@ -51,7 +51,7 @@ type Caching struct {
 
 func (*Caching) ID() string { return CachingId }
 
-func (c *Caching) Provision(env *envplugin.Env) error {
+func (c *Caching) Provision(env *envhandlers.Env) error {
 	c.store = env.Store().CDNRules()
 	c.cached = mem.New[*CachedResponse](time.Hour, time.Hour)
 	c.buf = szsync.NewPool[bytes.Buffer]()

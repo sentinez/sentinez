@@ -24,7 +24,7 @@ import (
 	"github.com/sentinez/core/szhttp/chains"
 	"github.com/sentinez/pkg/sztracer"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
-	"github.com/sentinez/sentinez/internal/envplugin"
+	"github.com/sentinez/sentinez/internal/envhandlers"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -44,7 +44,7 @@ type fake struct {
 
 func (f *fake) ID() string { return f.id }
 
-func (f *fake) Provision(env *envplugin.Env) error {
+func (f *fake) Provision(env *envhandlers.Env) error {
 	*f.log = append(*f.log, "provision "+f.id+" "+env.SecretKey())
 	return f.provisionErr
 }
@@ -68,8 +68,8 @@ func newContext() szhttp.Context {
 	return httpx.NewContext(req, httptest.NewRecorder())
 }
 
-func newEnv() *envplugin.Env {
-	return envplugin.NewEnv(nil, option.WithSecretKey("key"))
+func newEnv() *envhandlers.Env {
+	return envhandlers.NewEnv(nil, option.WithSecretKey("key"))
 }
 
 func TestBuildHandle(t *testing.T) {

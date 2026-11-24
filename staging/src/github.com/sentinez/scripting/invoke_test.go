@@ -110,3 +110,55 @@ func TestHasFuncHooked(t *testing.T) {
 	require.NoError(t, err)
 	assert.True(t, p.Hooked())
 }
+
+func TestInvokeReads(t *testing.T) {
+	tests := []struct {
+		name string
+		give string
+		want bool
+	}{
+		{"has_header", `ctx:has_header("X-Debug")`, true},
+		{"has_header absent", `ctx:has_header("X-None")`, false},
+		{"has_query", `ctx:has_query("q")`, true},
+		{"body", `ctx:body() == '{"a":1}'`, true},
+		{"ja4", `ctx:ja4() == "t13d1516h2"`, true},
+		{"tls", `ctx:tls()`, true},
+		{"ip_in", `ctx:ip_in("10.0.0.0/8")`, true},
+		{"ip_in out", `ctx:ip_in("192.168.0.0/16")`, false},
+		{"re.match", `re.match(ctx:path(), "^/a.i$")`, true},
+		{"re.match none", `re.match(ctx:path(), "^/b")`, false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			src := "function match(ctx) return " + tt.give + " end"
+			p, err := Compile("rule", src)
+			require.NoError(t, err)
+
+			got, err := p.Invoke(context.Background(), "match", newFake())
+			require.NoError(t, err)
+			assert.Equal(t, Value{Kind: KindBool, Bool: tt.want}, got)
+		})
+	}
+}
+
+func TestInvokeReadError(t *testing.T) {
+	tests := []struct {
+		name string
+		give string
+	}{
+		{"bad regex", `re.match(ctx:path(), "(")`},
+		{"bad cidr", `ctx:ip_in("10.0.0.1")`},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			src := "function match(ctx) return " + tt.give + " end"
+			p, err := Compile("rule", src)
+			require.NoError(t, err)
+
+			_, err = p.Invoke(context.Background(), "match", newFake())
+			assert.Error(t, err)
+		})
+	}
+}

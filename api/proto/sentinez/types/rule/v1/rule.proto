@@ -94,9 +94,17 @@ message Rule {
   Condition condition = 1; // @gotags: yaml:"condition"
 }
 
+// A group matching when its rules, its or group and all its and groups do:
+//
+//   rules AND (one of or_condition) AND (every one of and_condition)
+//
+// An empty or_condition matches. and_condition holds the groups of a second
+// (or third...) or group, each one carrying its own: (a or b) and (c or d)
+// is {or_condition: [a, b], and_condition: [{or_condition: [c, d]}]}.
 message AndCondition {
   repeated Rule rules = 1;
   repeated AndCondition or_condition = 2;
+  repeated AndCondition and_condition = 3;
 }
 
 message Expression {

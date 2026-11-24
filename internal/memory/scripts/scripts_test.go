@@ -17,7 +17,10 @@ package scripts
 import (
 	"testing"
 
+	"github.com/sentinez/scripting"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
+	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
+	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -46,4 +49,70 @@ func TestStore(t *testing.T) {
 	assert.Empty(t, s.Load("ns"))
 
 	assert.Empty(t, (*Scripts)(nil).LoadContext(nil))
+}
+
+const (
+	_matchSrc = `function match(ctx)
+  if ctx:path() == "/admin" then
+    return "block"
+  end
+end`
+	_keySrc = `function key(ctx)
+  if ctx:path() == "/login" then
+    return true
+  end
+end`
+	_luaSrc = `function match(ctx) return ctx:header("X") end`
+
+	_none  = rulepb.ActionType_ACTION_TYPE_UNSPECIFIED
+	_block = rulepb.ActionType_ACTION_TYPE_BLOCK
+)
+
+func TestRule(t *testing.T) {
+	tests := []struct {
+		name       string
+		give       *secrulepb.SecRule
+		wantErr    error
+		wantAction rulepb.ActionType
+	}{
+		{"match", &secrulepb.SecRule{Script: _matchSrc}, nil, _block},
+		{"no script", &secrulepb.SecRule{}, nil, _none},
+		{"lua", &secrulepb.SecRule{Script: _luaSrc},
+			scripting.ErrNotDeclarative, _none},
+		{"expr too", &secrulepb.SecRule{Script: _matchSrc,
+			Expr: &rulepb.Expression{
+				OrCondition: []*rulepb.AndCondition{{}},
+			}}, ErrExprAndScript, _none},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := Rule(tt.give)
+			require.ErrorIs(t, err, tt.wantErr)
+			assert.Equal(t, tt.wantAction, got.GetAction().GetType())
+			assert.Empty(t, got.GetScript())
+		})
+	}
+}
+
+func TestRuleKeepsSource(t *testing.T) {
+	give := &secrulepb.SecRule{Id: "a", Script: _matchSrc}
+
+	got, err := Rule(give)
+	require.NoError(t, err)
+	assert.Len(t, got.GetExpr().GetOrCondition(), 1)
+	assert.Equal(t, "a", got.GetId())
+	assert.Equal(t, _matchSrc, give.GetScript(), "r is not modified")
+}
+
+func TestKeyRule(t *testing.T) {
+	got, err := KeyRule(&secrulepb.SecRule{Script: _keySrc})
+	require.NoError(t, err)
+	assert.Len(t, got.GetExpr().GetOrCondition(), 1)
+	assert.Empty(t, got.GetScript())
+
+	_, err = KeyRule(&secrulepb.SecRule{
+		Script: `function key(ctx) return ctx:header("K") end`,
+	})
+	require.ErrorIs(t, err, scripting.ErrNotDeclarative)
 }

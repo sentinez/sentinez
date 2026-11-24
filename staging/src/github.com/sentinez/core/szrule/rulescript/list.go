@@ -15,8 +15,6 @@
 package rulescript
 
 import (
-	"strings"
-
 	"github.com/sentinez/scripting"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -39,64 +37,41 @@ const (
 	_notIn = rulepb.Operator_OPERATOR_NOT_IN
 )
 
-// listAlts the branches of field compared by op to the values: one per
-// value equal to it, or a single one different from all of them.
-func listAlts(field scripting.Cond, op rulepb.Operator,
-	values []*structpb.Value) ([][]scripting.Cond, error) {
+// listNode the node of field compared by op to the values: one of the
+// values equal to it, or none of them.
+func listNode(field scripting.Cond, op rulepb.Operator,
+	values []*structpb.Value) (scripting.Node, error) {
 
 	oneOf, ok := _listOps[field.Source][op]
 	if !ok || len(values) == 0 {
-		return nil, unsupported("list with %s", op)
+		return scripting.Node{}, unsupported("list with %s", op)
 	}
 
-	conds := make([]scripting.Cond, 0, len(values))
+	cmp := scripting.OpNe
+	if oneOf {
+		cmp = scripting.OpEq
+	}
+
+	nodes := make([]scripting.Node, 0, len(values))
 	for _, v := range values {
 		s, ok := v.GetKind().(*structpb.Value_StringValue)
-		isCIDR := ok && field.Source == scripting.SourceIP &&
-			strings.Contains(s.StringValue, "/")
-		if !ok || isCIDR {
-			return nil, unsupported("list value %v", v)
+		if !ok {
+			return scripting.Node{}, unsupported("list value %v", v)
 		}
 
 		c := field
-		c.Op, c.Value = scripting.OpNe, s.StringValue
-		if oneOf {
-			c.Op = scripting.OpEq
+		c.Op, c.Value = cmp, s.StringValue
+		if c.Source == scripting.SourceIP {
+			// a slash: a CIDR prefix, IN ip_in, NOT_IN not ip_in
+			c.Op, _ = ipOp(cmp, s.StringValue)
 		}
 
-		conds = append(conds, c)
+		nodes = append(nodes, scripting.Leaf(c))
 	}
 
-	if !oneOf {
-		return [][]scripting.Cond{conds}, nil
+	if oneOf {
+		return scripting.Any(nodes...), nil
 	}
 
-	alts := make([][]scripting.Cond, 0, len(conds))
-	for _, c := range conds {
-		alts = append(alts, []scripting.Cond{c})
-	}
-
-	return alts, nil
-}
-
-// condPb the condition of c.
-func condPb(c scripting.Cond) *rulepb.Condition {
-	cond := &rulepb.Condition{
-		Key:   c.Key,
-		Value: structpb.NewStringValue(c.Value),
-	}
-
-	for src, s := range _sources {
-		if s == c.Source {
-			cond.Source = src
-		}
-	}
-
-	for op, o := range _ops {
-		if o == c.Op {
-			cond.Operator = op
-		}
-	}
-
-	return cond
+	return scripting.All(nodes...), nil
 }

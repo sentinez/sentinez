@@ -33,7 +33,7 @@ import (
 // parentheses the comparisons MatchSource writes. Any other script returns
 // an error wrapping ErrNotDeclarative, with the line at fault.
 func ParseMatch(source string) (Rule, error) {
-	anyOf, rets, err := parseScript(source, MatchFunc)
+	match, rets, err := parseScript(source, MatchFunc)
 	if err != nil {
 		return Rule{}, err
 	}
@@ -53,52 +53,58 @@ func ParseMatch(source string) (Rule, error) {
 		action = a
 	}
 
-	return Rule{Any: anyOf, Action: action}, nil
+	return Rule{Match: match, Action: action}, nil
 }
 
-// ParseKey reads the branches of a rate limiter script of the form
+// ParseKey reads the condition of a rate limiter script of the form
 // KeySource writes: as ParseMatch, each branch returning true.
-func ParseKey(source string) ([][]Cond, error) {
-	anyOf, rets, err := parseScript(source, KeyFunc)
+func ParseKey(source string) (Node, error) {
+	match, rets, err := parseScript(source, KeyFunc)
 	if err != nil {
-		return nil, err
+		return Node{}, err
 	}
 
 	for _, ret := range rets {
 		if _, ok := ret.(*ast.TrueExpr); !ok {
-			return nil, lineErr(ret, "a key branch returns true: the "+
+			return Node{}, lineErr(ret, "a key branch returns true: the "+
 				"client IP")
 		}
 	}
 
-	return anyOf, nil
+	return match, nil
 }
 
-// parseScript the branches of the function fn of source, and the
-// expression each one returns.
-func parseScript(source, fn string) ([][]Cond, []ast.Expr, error) {
+// parseScript the condition matching one of the branches of the function
+// fn of source, and the expression each one returns.
+func parseScript(source, fn string) (Node, []ast.Expr, error) {
 	chunk, err := parse.Parse(strings.NewReader(source), fn)
 	if err != nil {
-		return nil, nil, err
+		return Node{}, nil, err
 	}
 
 	p, body, err := parseFunc(chunk, fn)
 	if err != nil {
-		return nil, nil, err
+		return Node{}, nil, err
 	}
 
 	for i, stmt := range body {
 		last := i == len(body)-1
 		if err := p.stmt(stmt, last); err != nil {
-			return nil, nil, err
+			return Node{}, nil, err
 		}
 	}
 
-	if len(p.anyOf) == 0 {
-		return nil, nil, fmt.Errorf("%w: %w", ErrNotDeclarative, errNoBranch)
+	if len(p.branches) == 0 {
+		return Node{}, nil, fmt.Errorf("%w: %w", ErrNotDeclarative,
+			errNoBranch)
 	}
 
-	return p.anyOf, p.rets, nil
+	match := Any(p.branches...)
+	if match.count() > MaxConditions {
+		return Node{}, nil, errTooMany
+	}
+
+	return match, p.rets, nil
 }
 
 // parseFunc the parser of the function fn, the only statement of chunk,
@@ -126,58 +132,56 @@ func parseFunc(chunk []ast.Stmt, fn string) (*parser, []ast.Stmt, error) {
 
 // parser reads the branches of a function, ctx the name of its parameter.
 type parser struct {
-	ctx   string
-	anyOf [][]Cond
-	rets  []ast.Expr
+	ctx      string
+	branches []Node
+	rets     []ast.Expr
 }
 
 // stmt adds the branch of stmt, an if or, last, a return.
 func (p *parser) stmt(stmt ast.Stmt, last bool) error {
+	branch, ret, err := p.branchOf(stmt, last)
+	if err != nil {
+		return err
+	}
+
+	p.branches = append(p.branches, branch)
+	p.rets = append(p.rets, ret)
+
+	return nil
+}
+
+// branchOf the condition of stmt and the expression it returns: a return,
+// last, matches every request.
+func (p *parser) branchOf(stmt ast.Stmt, last bool) (Node, ast.Expr, error) {
 	if ret, ok := stmt.(*ast.ReturnStmt); ok && last {
 		expr, err := returned(ret)
-		if err != nil {
-			return err
-		}
 
-		return p.add([][]Cond{nil}, expr)
+		return All(), expr, err
 	}
 
 	s, ok := stmt.(*ast.IfStmt)
 	if !ok {
-		return lineErr(stmt, "only if ... then return ... end statements")
+		return Node{}, nil, lineErr(stmt,
+			"only if ... then return ... end statements")
 	}
 
 	if len(s.Else) > 0 || len(s.Then) != 1 {
-		return lineErr(s, "an if holds one return, without else")
+		return Node{}, nil, lineErr(s, "an if holds one return, without else")
 	}
 
 	ret, ok := s.Then[0].(*ast.ReturnStmt)
 	if !ok {
-		return lineErr(s.Then[0], "an if holds one return")
+		return Node{}, nil, lineErr(s.Then[0], "an if holds one return")
 	}
 
 	expr, err := returned(ret)
 	if err != nil {
-		return err
+		return Node{}, nil, err
 	}
 
-	branches, err := p.dnf(s.Condition, false)
-	if err != nil {
-		return err
-	}
+	branch, err := p.tree(s.Condition, false)
 
-	return p.add(branches, expr)
-}
-
-func (p *parser) add(branches [][]Cond, ret ast.Expr) error {
-	if len(p.anyOf)+len(branches) > _maxBranches {
-		return lineErr(ret, "too many branches")
-	}
-
-	p.anyOf = append(p.anyOf, branches...)
-	p.rets = append(p.rets, ret)
-
-	return nil
+	return branch, expr, err
 }
 
 func returned(ret *ast.ReturnStmt) (ast.Expr, error) {
@@ -188,72 +192,60 @@ func returned(ret *ast.ReturnStmt) (ast.Expr, error) {
 	return ret.Exprs[0], nil
 }
 
-// dnf the branches of e, its negation when neg, in disjunctive normal
-// form.
-func (p *parser) dnf(e ast.Expr, neg bool) ([][]Cond, error) {
+// tree the node of e, its negation when neg: not is pushed down to the
+// conditions, by De Morgan.
+func (p *parser) tree(e ast.Expr, neg bool) (Node, error) {
 	switch x := e.(type) {
 	case *ast.UnaryNotOpExpr:
-		return p.dnf(x.Expr, !neg)
+		return p.tree(x.Expr, !neg)
 	case *ast.LogicalOpExpr:
 		return p.logical(x, neg)
 	}
 
 	c, err := p.cond(e)
 	if err != nil {
-		return nil, err
+		return Node{}, err
 	}
 
 	if neg {
 		if c, err = negate(c, e); err != nil {
-			return nil, err
+			return Node{}, err
 		}
 	}
 
-	return [][]Cond{{c}}, nil
+	return Leaf(c), nil
 }
 
-// logical the branches of x, an and or an or, as De Morgan negates them
-// when neg.
-func (p *parser) logical(x *ast.LogicalOpExpr, neg bool) ([][]Cond, error) {
-	lhs, err := p.dnf(x.Lhs, neg)
+// logical the node of x, an and or an or, as De Morgan negates it when
+// neg.
+func (p *parser) logical(x *ast.LogicalOpExpr, neg bool) (Node, error) {
+	lhs, err := p.tree(x.Lhs, neg)
 	if err != nil {
-		return nil, err
+		return Node{}, err
 	}
 
-	rhs, err := p.dnf(x.Rhs, neg)
+	rhs, err := p.tree(x.Rhs, neg)
 	if err != nil {
-		return nil, err
+		return Node{}, err
 	}
 
-	and := (x.Operator == "and") != neg
-	if !and {
-		return append(lhs, rhs...), nil
+	if (x.Operator == "and") != neg {
+		return All(lhs, rhs), nil
 	}
 
-	if len(lhs)*len(rhs) > _maxBranches {
-		return nil, lineErr(x, "too many branches")
-	}
-
-	out := make([][]Cond, 0, len(lhs)*len(rhs))
-	for _, l := range lhs {
-		for _, r := range rhs {
-			out = append(out, append(append([]Cond{}, l...), r...))
-		}
-	}
-
-	return out, nil
+	return Any(lhs, rhs), nil
 }
 
-// negate c, the condition e reads: an equality only.
+// negate c, the condition e reads: an equality, an ip_in or a
+// presence only.
 func negate(c Cond, e ast.Expr) (Cond, error) {
-	switch c.Op {
-	case OpEq:
-		c.Op = OpNe
-	case OpNe:
-		c.Op = OpEq
-	default:
-		return Cond{}, lineErr(e, "not applies to == and ~= only")
+	op, ok := _negations[c.Op]
+	if !ok {
+		return Cond{}, lineErr(e, "not applies to ==, ~=, ctx:tls(), "+
+			"ctx:ip_in, ctx:has_header and ctx:has_query only")
 	}
+
+	c.Op = op
 
 	return c, nil
 }

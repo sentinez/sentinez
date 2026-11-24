@@ -45,6 +45,17 @@ function log.debug(...) end
 ---@param ... any
 function log.info(...) end
 
+---Regular expressions, of the RE2 syntax of Go: not Lua patterns.
+---@class sz.Re
+re = {}
+
+---Whether s holds a match of pattern, e.g. re.match(ctx:path(), "^/api/").
+---An invalid pattern raises an error.
+---@param s string
+---@param pattern string
+---@return boolean
+function re.match(s, pattern) end
+
 ---A hook: called with the request, its result is ignored.
 ---@alias sz.Hook fun(ctx: sz.Context)
 
@@ -77,6 +88,33 @@ function Context:header(key) end
 ---@param key string
 ---@return string
 function Context:query(key) end
+
+---Whether the request has the header, even empty: its name as received.
+---@param key string
+---@return boolean
+function Context:has_header(key) end
+
+---Whether the request has the query parameter, even empty.
+---@param key string
+---@return boolean
+function Context:has_query(key) end
+
+---The request body.
+---@return string
+function Context:body() end
+
+---The JA4 fingerprint of the TLS client hello, "" without TLS.
+---@return string
+function Context:ja4() end
+
+---Whether the request came over TLS.
+---@return boolean
+function Context:tls() end
+
+---Whether the client IP is in the CIDR prefix, e.g. "10.0.0.0/8".
+---@param cidr string
+---@return boolean
+function Context:ip_in(cidr) end
 
 ---Sets a header of the request sent upstream. An invalid name is ignored.
 ---@param key string

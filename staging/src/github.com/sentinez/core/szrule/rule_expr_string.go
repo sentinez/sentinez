@@ -19,6 +19,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/sentinez/core/szrule/rulescript"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	"google.golang.org/protobuf/types/known/structpb"
 )
@@ -29,14 +30,30 @@ const (
 	_matchAll       = "true"
 )
 
-// ExprString renders the expression in a human readable form, e.g.
+// ExprString renders the expression as the Lua condition of its rule
+// script (rulescript.ToCondition), e.g.
+//
+//	ctx:path() == "/login" and ctx:header("x-api-key") ~= ""
+//
+// An expression a script cannot write (an invalid regex, more conditions
+// than scripting.MaxConditions...) is rendered in a human readable form
+// instead (exprText). An empty
+// expression, or an empty conjunction, matches every request and is
+// rendered as "true" by both.
+func ExprString(expr *rulepb.Expression) string {
+	if s, err := rulescript.ToCondition(expr); err == nil {
+		return s
+	}
+
+	return exprText(expr)
+}
+
+// exprText renders the expression in a human readable form, e.g.
 //
 //	(path eq "/login" and header["x-api-key"] ne "") or ip in ["10.0.0.1"]
 //
-// "and" binds tighter than "or", as in the evaluator. An empty
-// expression, or an empty conjunction, matches every request and is
-// rendered as "true".
-func ExprString(expr *rulepb.Expression) string {
+// "and" binds tighter than "or", as in the evaluator.
+func exprText(expr *rulepb.Expression) string {
 	var b strings.Builder
 
 	writeOr(&b, expr.GetOrCondition())
@@ -62,12 +79,13 @@ func writeOr(b *strings.Builder, or []*rulepb.AndCondition) {
 }
 
 // writeAnd writes the rules of the conjunction followed by its nested
-// disjunction. With group set, a conjunction of several terms is
-// wrapped in parentheses.
+// disjunction and the conjunctions it also needs. With group set, a
+// conjunction of several terms is wrapped in parentheses.
 func writeAnd(b *strings.Builder, and *rulepb.AndCondition, group bool) {
 	rules, nested := and.GetRules(), and.GetOrCondition()
+	also := and.GetAndCondition()
 
-	terms := len(rules)
+	terms := len(rules) + len(also)
 	if len(nested) > 0 {
 		terms++
 	}
@@ -90,15 +108,38 @@ func writeAnd(b *strings.Builder, and *rulepb.AndCondition, group bool) {
 		writeCondition(b, r.GetCondition())
 	}
 
-	if len(nested) == 0 {
-		return
+	if len(nested) > 0 {
+		if len(rules) > 0 {
+			b.WriteString(" and ")
+		}
+
+		writeNested(b, nested, len(rules) > 0 || len(also) > 0)
 	}
 
-	if len(rules) > 0 {
-		b.WriteString(" and ")
-	}
+	writeAlso(b, and, len(rules)+len(nested) > 0)
+}
 
-	writeNested(b, nested, len(rules) > 0)
+// writeAlso writes the and groups of and, each joined by "and" to the
+// terms before it, when follows is set.
+func writeAlso(b *strings.Builder, and *rulepb.AndCondition, follows bool) {
+	for i, sub := range and.GetAndCondition() {
+		if i > 0 || follows {
+			b.WriteString(" and ")
+		}
+
+		// an or group alone: "and" binds tighter
+		wrap := len(sub.GetRules()) == 0 && len(sub.GetAndCondition()) == 0 &&
+			len(sub.GetOrCondition()) > 1
+		if wrap {
+			b.WriteByte('(')
+		}
+
+		writeAnd(b, sub, false)
+
+		if wrap {
+			b.WriteByte(')')
+		}
+	}
 }
 
 // writeNested writes a nested disjunction. It is wrapped in

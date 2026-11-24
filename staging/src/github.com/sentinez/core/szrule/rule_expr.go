@@ -43,13 +43,29 @@ func execOrCond(ctx chttp.Request, orCond []*rulepb.AndCondition) bool {
 	}
 
 	for _, andCond := range orCond {
-		if execAndCond(ctx, andCond) &&
-			execOrCond(ctx, andCond.GetOrCondition()) {
+		if matchAnd(ctx, andCond) {
 			return true
 		}
 	}
 
 	return false
+}
+
+// matchAnd reports whether the rules, the or group and every and group of
+// andCond match.
+func matchAnd(ctx chttp.Request, andCond *rulepb.AndCondition) bool {
+	if !execAndCond(ctx, andCond) ||
+		!execOrCond(ctx, andCond.GetOrCondition()) {
+		return false
+	}
+
+	for _, sub := range andCond.GetAndCondition() {
+		if !matchAnd(ctx, sub) {
+			return false
+		}
+	}
+
+	return true
 }
 
 func execAndCond(ctx chttp.Request, andCond *rulepb.AndCondition) bool {

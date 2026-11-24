@@ -275,6 +275,40 @@ setting:
           action:
             type: ACTION_TYPE_CHALLENGE
 
+      # Several or groups in one rule: (GET or HEAD) and (path /a or /b)
+      # takes a second group in andCondition, which must match as well
+      # (each element carries its own orCondition).
+      - ingress:
+          name: "Challenge GET/HEAD on /a or /b"
+          status: STATUS_ACTIVE
+          expr:
+            orCondition:
+              - orCondition:
+                  - rules:
+                    - condition:
+                        source: FIELD_SOURCE_METHOD
+                        operator: OPERATOR_EQ
+                        value: "GET"
+                  - rules:
+                    - condition:
+                        source: FIELD_SOURCE_METHOD
+                        operator: OPERATOR_EQ
+                        value: "HEAD"
+                andCondition:
+                  - orCondition:
+                      - rules:
+                        - condition:
+                            source: FIELD_SOURCE_PATH
+                            operator: OPERATOR_PREFIX
+                            value: "/a"
+                      - rules:
+                        - condition:
+                            source: FIELD_SOURCE_PATH
+                            operator: OPERATOR_PREFIX
+                            value: "/b"
+          action:
+            type: ACTION_TYPE_CHALLENGE
+
       # Lua rule: a script in place of expr and action. It defines a
       # global match(ctx) returning nil or false (no match), an action
       # constant (SZ_BLOCK, SZ_CHALLENGE, SZ_REDIRECT, SZ_LOG,
@@ -294,8 +328,9 @@ setting:
 
     # Every limiter needs an ingress expr or script: it only counts the
     # requests it matches (the edge refuses to start without). A script
-    # defines key(ctx) returning the key to count the request under, true
-    # for the client IP, nil or false not to count it.
+    # defines key(ctx) returning true for the requests to count, under the
+    # client IP: the edge converts it to its expr at load, as a secrule
+    # script, and refuses one outside of the declarative form.
     limiters:
       - ingress:
           name: "Rate limit every path"
@@ -311,13 +346,14 @@ setting:
         maxRequests: 100
         timeout: 5s
       - ingress:
-          name: "Script: rate limit per API key"
+          name: "Script: rate limit the login"
           status: STATUS_ACTIVE
           script: |
             ---@param ctx sz.Context
             function key(ctx)
-              local k = ctx:header("X-Api-Key")
-              if k ~= "" then return k end
+              if ctx:path() == "/login" then
+                return true
+              end
             end
         timeWindow: 5s
         maxRequests: 20

@@ -31,6 +31,9 @@ var _actions = []string{
 // Actions the names of the actions a secrule script may return, sorted.
 func Actions() []string { return slices.Clone(_actions) }
 
+// IsAction reports whether a secrule script may return the action name.
+func IsAction(name string) bool { return slices.Contains(_actions, name) }
+
 // ActionConst the global constant of the action name: SZ_ and the name in
 // upper case. Its value is the name.
 func ActionConst(name string) string {

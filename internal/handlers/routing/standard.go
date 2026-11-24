@@ -20,7 +20,7 @@ import (
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/chains"
 	"github.com/sentinez/pkg/szlog"
-	"github.com/sentinez/sentinez/internal/envplugin"
+	"github.com/sentinez/sentinez/internal/envhandlers"
 	"github.com/sentinez/sentinez/internal/memory/routes"
 	"github.com/sentinez/sentinez/internal/memory/upstream"
 )
@@ -29,8 +29,8 @@ import (
 const StandardRouterId = "router"
 
 var (
-	_ chains.Plugin                      = (*StandardRouter)(nil)
-	_ chains.Provisioner[*envplugin.Env] = (*StandardRouter)(nil)
+	_ chains.Plugin                        = (*StandardRouter)(nil)
+	_ chains.Provisioner[*envhandlers.Env] = (*StandardRouter)(nil)
 )
 
 // StandardRouter proxies the request to the upstream of its route,
@@ -43,7 +43,7 @@ type StandardRouter struct {
 
 func (*StandardRouter) ID() string { return StandardRouterId }
 
-func (r *StandardRouter) Provision(env *envplugin.Env) error {
+func (r *StandardRouter) Provision(env *envhandlers.Env) error {
 	r.route = env.Store().Route()
 	r.proxy = env.Store().ReverseProxy()
 	return nil

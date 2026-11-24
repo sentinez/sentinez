@@ -18,10 +18,12 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/sentinez/scripting"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
+	"github.com/sentinez/sentinez/internal/memory/scripts"
 	"github.com/sentinez/sentinez/internal/memory/secratelimits"
 )
 
@@ -94,6 +96,10 @@ func newRateLimit(
 	}
 }
 
+const _keySrc = `function key(ctx)
+  if ctx:path() == "/login" then return true end
+end`
+
 type limiterScriptTest struct {
 	name    string
 	give    *secrulepb.SecRule
@@ -102,15 +108,16 @@ type limiterScriptTest struct {
 
 func limiterScriptTests() []limiterScriptTest {
 	return []limiterScriptTest{
-		{"script", &secrulepb.SecRule{
-			Script: `function key(ctx) return true end`,
-		}, nil},
+		{"script", &secrulepb.SecRule{Script: _keySrc}, nil},
+		{"not declarative", &secrulepb.SecRule{
+			Script: `function key(ctx) return ctx:header("K") end`,
+		}, scripting.ErrNotDeclarative},
 		{"both", &secrulepb.SecRule{
-			Script: `function key(ctx) return true end`,
+			Script: _keySrc,
 			Expr: &rulepb.Expression{
 				OrCondition: []*rulepb.AndCondition{{}},
 			},
-		}, errLimiterBoth},
+		}, scripts.ErrExprAndScript},
 		{"neither", &secrulepb.SecRule{}, errLimiterNoExpr},
 	}
 }

@@ -34,11 +34,11 @@ const _actionPrefix = "ACTION_TYPE_"
 var errNoCondition = errors.New("rule without condition")
 
 // ToScript the secrule script of expr and action: FromScript reads them
-// back. A condition a script cannot write (a regex, a CIDR, the body...)
-// returns an error wrapping scripting.ErrNotDeclarative.
+// back. A condition a script cannot write (an invalid regex, a value that
+// is not a string...) returns an error wrapping scripting.ErrNotDeclarative.
 func ToScript(expr *rulepb.Expression, action *rulepb.Action,
 ) (string, error) {
-	anyOf, err := branchesOf(expr)
+	match, err := nodeOf(expr)
 	if err != nil {
 		return "", err
 	}
@@ -48,7 +48,7 @@ func ToScript(expr *rulepb.Expression, action *rulepb.Action,
 		return "", err
 	}
 
-	return scripting.MatchSource(scripting.Rule{Any: anyOf, Action: a})
+	return scripting.MatchSource(scripting.Rule{Match: match, Action: a})
 }
 
 // FromScript the expr and action of a secrule script of the declarative
@@ -66,57 +66,104 @@ func FromScript(source string) (*rulepb.Expression, *rulepb.Action,
 		return nil, nil, err
 	}
 
-	return exprOf(r.Any), action, nil
+	return exprOf(r.Match), action, nil
+}
+
+// ToCondition the Lua condition of expr, the if of the scripts ToScript
+// and ToKeyScript write (scripting.CondSource). A condition a script
+// cannot write returns an error wrapping scripting.ErrNotDeclarative.
+func ToCondition(expr *rulepb.Expression) (string, error) {
+	match, err := nodeOf(expr)
+	if err != nil {
+		return "", err
+	}
+
+	return scripting.CondSource(match)
 }
 
 // ToKeyScript the rate limiter script counting, under the client IP, the
 // requests expr matches: FromKeyScript reads expr back.
 func ToKeyScript(expr *rulepb.Expression) (string, error) {
-	anyOf, err := branchesOf(expr)
+	match, err := nodeOf(expr)
 	if err != nil {
 		return "", err
 	}
 
-	return scripting.KeySource(anyOf)
+	return scripting.KeySource(match)
 }
 
 // FromKeyScript the expr of a rate limiter script of the declarative
 // form (scripting.ParseKey).
 func FromKeyScript(source string) (*rulepb.Expression, error) {
-	anyOf, err := scripting.ParseKey(source)
+	match, err := scripting.ParseKey(source)
 	if err != nil {
 		return nil, err
 	}
 
-	return exprOf(anyOf), nil
+	return exprOf(match), nil
 }
 
-// exprOf the expression of the branches anyOf: an and condition each.
-func exprOf(anyOf [][]scripting.Cond) *rulepb.Expression {
-	expr := &rulepb.Expression{
-		OrCondition: make([]*rulepb.AndCondition, 0, len(anyOf)),
+// exprOf the expression of the condition match: each of its branches is
+// an or condition of the expression, an and condition.
+func exprOf(match scripting.Node) *rulepb.Expression {
+	return &rulepb.Expression{OrCondition: andsOf(match.Branches())}
+}
+
+// andsOf the and condition of each of nodes.
+func andsOf(nodes []scripting.Node) []*rulepb.AndCondition {
+	ands := make([]*rulepb.AndCondition, 0, len(nodes))
+	for _, n := range nodes {
+		ands = append(ands, andOf(n))
 	}
 
-	for _, branch := range anyOf {
-		and := &rulepb.AndCondition{
-			Rules: make([]*rulepb.Rule, 0, len(branch)),
-		}
+	return ands
+}
 
-		for _, c := range branch {
-			and.Rules = append(and.Rules, &rulepb.Rule{Condition: condPb(c)})
-		}
-
-		expr.OrCondition = append(expr.OrCondition, and)
+// andOf the and condition matching as n: its conditions are the rules, its
+// first or group the or condition, and each other group an and condition
+// of its own, as (a or b) and (c or d) is
+//
+//	{or_condition: [a, b], and_condition: [{or_condition: [c, d]}]}
+func andOf(n scripting.Node) *rulepb.AndCondition {
+	switch {
+	case n.Cond != nil:
+		return &rulepb.AndCondition{Rules: rulesOf(n)}
+	case n.IsOr():
+		return &rulepb.AndCondition{OrCondition: andsOf(n.Nodes)}
 	}
 
-	return expr
+	and := &rulepb.AndCondition{}
+	for _, c := range n.Nodes {
+		switch {
+		case c.Cond != nil:
+			and.Rules = append(and.Rules, rulesOf(c)...)
+		case c.IsOr() && len(and.OrCondition) == 0:
+			and.OrCondition = andsOf(c.Nodes)
+		default:
+			and.AndCondition = append(and.AndCondition, andOf(c))
+		}
+	}
+
+	return and
+}
+
+// rulesOf the rule of the leaf n.
+func rulesOf(n scripting.Node) []*rulepb.Rule {
+	return []*rulepb.Rule{{Condition: condPb(*n.Cond)}}
+}
+
+// ActionName the name a script returns the action type t by, ok false
+// when no script action has t.
+func ActionName(t rulepb.ActionType) (name string, ok bool) {
+	name = strings.ToLower(strings.TrimPrefix(t.String(), _actionPrefix))
+
+	return name, scripting.IsAction(name)
 }
 
 // actionOf the script action of a.
 func actionOf(a *rulepb.Action) (scripting.Action, error) {
-	name := strings.ToLower(
-		strings.TrimPrefix(a.GetType().String(), _actionPrefix))
-	if !scripting.IsAction(name) {
+	name, ok := ActionName(a.GetType())
+	if !ok {
 		return scripting.Action{}, fmt.Errorf("%w: action %s",
 			scripting.ErrNotDeclarative, a.GetType())
 	}

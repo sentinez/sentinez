@@ -105,6 +105,10 @@ sau dùng lại trạng thái mà các test trước tạo ra.
 | LUA-04 | Một hàm lặp vô hạn | Mỗi request vẫn được phục vụ, script chạy tối đa khoảng 50 ms. Lỗi của script được ghi log và chain chạy tiếp |
 | LUA-05 | `---@stage http.request/sec_rate_limit` (tên cũ) | Edge ghi log `edge: load '<domain>': … @stage: unknown stage "sec_rate_limit", one of caching, secratelimit, …` và không nạp script nào của namespace, các script đã nạp từ trước được giữ lại. Phần còn lại của namespace vẫn được nạp |
 | LUA-06 | Gọi `os.execute`, `io.open` hoặc `require` trong script | Không dùng được (bị sandbox chặn) |
+| LUA-07 | `script` của secrule: `if ctx:method() == "GET" and (ctx:path():sub(1, 2) == "/a" or ctx:path():sub(1, 2) == "/b") then return SZ_BLOCK end`; gửi `GET /a`, `GET /c`, `POST /a` | Chỉ `GET /a` bị chặn. Event `secrule: matched` đặt tên rule bằng điều kiện Lua, giữ nguyên ngoặc |
+| LUA-08 | `script` của secrule dùng `re.match(ctx:path(), "^/wp-")`, `ctx:ip_in("10.0.0.0/8")`, `ctx:has_header("X-Debug")` hoặc `ctx:tls()` | Nạp được và khớp như `expr` tương ứng (`MATCHES`, CIDR của IP, có header, TLS) |
+| LUA-09 | `script` của secrule có biến local, vòng lặp, hoặc pattern `re.match` sai | Setting bị từ chối với lỗi bọc `not declarative`, chain cũ được giữ |
+| LUA-10 | `expr` của secrule có hai nhóm `or`, nhóm thứ hai trong `andCondition` (rule "Challenge GET/HEAD on /a or /b" có sẵn) | `GET /a/x` bị challenge; `GET /c` và `POST /a/x` thì không |
 
 ### CLS: cluster
 

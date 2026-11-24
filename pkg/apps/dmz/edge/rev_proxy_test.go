@@ -24,7 +24,7 @@ import (
 
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
-	"github.com/sentinez/sentinez/internal/envplugin"
+	"github.com/sentinez/sentinez/internal/envhandlers"
 	"github.com/sentinez/sentinez/internal/handlers/contents"
 	"github.com/sentinez/sentinez/internal/handlers/logging"
 	"github.com/sentinez/sentinez/internal/handlers/room"
@@ -104,7 +104,7 @@ func TestHandleChain(t *testing.T) {
 func newTestChain(tb testing.TB) *chains.Chain {
 	tb.Helper()
 
-	env := envplugin.NewEnv(nil,
+	env := envhandlers.NewEnv(nil,
 		option.WithLevel(szlog.LevelError),
 	)
 	chain, err := chains.Build(env, nil,

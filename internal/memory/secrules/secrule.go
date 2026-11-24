@@ -15,7 +15,6 @@
 package secrules
 
 import (
-	"errors"
 	"fmt"
 	"sort"
 	"sync"
@@ -25,14 +24,9 @@ import (
 	"github.com/sentinez/pkg/szjson"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szsync"
-	"github.com/sentinez/scripting"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"github.com/sentinez/sentinez/internal/memory/scripts"
-)
-
-var (
-	errExprAndScript = errors.New("expr and script are exclusive")
 )
 
 var (
@@ -50,12 +44,11 @@ func New() *SecRule {
 	return _ruleInst
 }
 
-// Entry is a compiled rule ready to be evaluated: Eval, or Script when the
-// rule is a Lua source.
+// Entry is a rule ready to be evaluated: a script rule is converted to its
+// expr and action when it loads (scripts.Rule), no Lua runs.
 type Entry struct {
-	Eval   szrule.EvalFunc
-	Script *scripting.Program
-	Rule   *secrulepb.SecRule
+	Eval szrule.EvalFunc
+	Rule *secrulepb.SecRule
 }
 
 type SecRule struct {
@@ -64,12 +57,10 @@ type SecRule struct {
 
 // Store replaces the rule chain of namespace. Inactive rules are skipped
 // and the rest are ordered by priority: a higher priority value runs
-// first, ties keep their given order. A script that does not compile, or a
-// rule with both an expr and a script, fails the whole call and leaves the
-// previous chain in place; a script whose name and source did not change
-// is kept as compiled.
+// first, ties keep their given order. A script out of the declarative
+// form, or a rule with both an expr and a script, fails the whole call and
+// leaves the previous chain in place.
 func (sr *SecRule) Store(namespace string, rules []*secrulepb.SecRule) error {
-	held := sr.Load(namespace)
 	chain := make([]Entry, 0, len(rules))
 
 	for _, r := range rules {
@@ -80,7 +71,7 @@ func (sr *SecRule) Store(namespace string, rules []*secrulepb.SecRule) error {
 		val, _ := szjson.Marshal(r)
 		szlog.Debugf("rule: load config: %s", val)
 
-		e, err := newEntry(held, r)
+		e, err := newEntry(r)
 		if err != nil {
 			return fmt.Errorf("secrule %s: %w", r.GetName(), err)
 		}
@@ -102,29 +93,14 @@ func (sr *SecRule) Store(namespace string, rules []*secrulepb.SecRule) error {
 	return nil
 }
 
-// newEntry compiles r, reusing the program of held for an unchanged script.
-func newEntry(held []Entry, r *secrulepb.SecRule) (Entry, error) {
-	if r.GetScript() == "" {
-		return Entry{Eval: szrule.NewEval(r.GetId(), r.GetExpr()), Rule: r}, nil
-	}
-
-	if len(r.GetExpr().GetOrCondition()) > 0 {
-		return Entry{}, errExprAndScript
-	}
-
-	programs := make([]*scripting.Program, 0, len(held))
-	for _, e := range held {
-		if e.Script != nil {
-			programs = append(programs, e.Script)
-		}
-	}
-
-	p, err := scripts.Rule(programs, r, scripting.MatchFunc)
+// newEntry the entry of r, its script converted to its expr and action.
+func newEntry(r *secrulepb.SecRule) (Entry, error) {
+	r, err := scripts.Rule(r)
 	if err != nil {
 		return Entry{}, err
 	}
 
-	return Entry{Script: p, Rule: r}, nil
+	return Entry{Eval: szrule.NewEval(r.GetId(), r.GetExpr()), Rule: r}, nil
 }
 
 // Load returns the priority-ordered chain of namespace. The result is

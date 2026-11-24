@@ -185,8 +185,6 @@ func (p *Program) Invoke(ctx context.Context, fn string,
 	ctx, cancel := context.WithTimeout(ctx, p.timeout)
 	defer cancel()
 
-	var v Value
-
 	res, err := api.Invoke(ctx, L, fn, ex, p.name)
 	if err != nil {
 		L.Close()
@@ -197,7 +195,8 @@ func (p *Program) Invoke(ctx context.Context, fn string,
 	// The state is intact when only the result is unsupported.
 	p.release(L)
 
-	if v, err = convert(res); err != nil {
+	v, err := convert(res)
+	if err != nil {
 		return Value{}, fmt.Errorf("script %s: %w", p.name, err)
 	}
 

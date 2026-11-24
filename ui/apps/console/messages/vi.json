@@ -738,6 +738,7 @@
     "andGroupN": "Nhóm AND {n}",
     "removeGroup": "Xóa nhóm AND {n}",
     "noConditions": "Nhóm này chưa có điều kiện nào.",
+    "nestedGroups": "Nhóm này còn chứa các nhóm lồng. Chúng được giữ nguyên: hãy sửa bằng script.",
     "conditionN": "Điều kiện {n}",
     "removeCondition": "Xóa điều kiện {n}",
     "source": "Nguồn",

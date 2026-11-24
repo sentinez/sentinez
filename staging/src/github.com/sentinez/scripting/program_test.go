@@ -57,6 +57,17 @@ func (f *fakeExchange) Header(k []byte) []byte {
 	return []byte(f.headers[string(k)])
 }
 
+func (f *fakeExchange) HasHeader(k []byte) bool {
+	_, ok := f.headers[string(k)]
+
+	return ok
+}
+
+func (f *fakeExchange) HasQuery(k []byte) bool { return string(k) == "q" }
+func (f *fakeExchange) Body() []byte           { return []byte(`{"a":1}`) }
+func (f *fakeExchange) JA4() string            { return "t13d1516h2" }
+func (f *fakeExchange) TLS() bool              { return true }
+
 func (f *fakeExchange) SetHeader(k, v string) {
 	f.mu.Lock()
 	defer f.mu.Unlock()

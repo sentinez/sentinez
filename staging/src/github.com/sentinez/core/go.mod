@@ -5,6 +5,7 @@ go 1.27.1
 replace (
 	github.com/sentinez/contrib/pkg => ../contrib/pkg
 	github.com/sentinez/pkg => ../pkg
+	github.com/sentinez/scripting => ../scripting
 	github.com/sentinez/sentinez/api => ../../../../../api
 )
 
@@ -19,6 +20,7 @@ require (
 	github.com/quic-go/quic-go v0.63.0
 	github.com/sentinez/contrib/pkg v0.0.0-00010101000000-000000000000
 	github.com/sentinez/pkg v0.0.0-00010101000000-000000000000
+	github.com/sentinez/scripting v0.0.0-00010101000000-000000000000
 	github.com/sentinez/sentinez/api v0.0.0
 	github.com/sony/gobreaker v1.0.0
 	github.com/stretchr/testify v1.12.1
@@ -72,6 +74,7 @@ require (
 	github.com/tidwall/match v1.2.0 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/valllabh/ocsf-schema-golang v1.0.3 // indirect
+	github.com/yuin/gopher-lua v1.1.1 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/contrib/bridges/otelzap v0.20.1 // indirect
 	go.opentelemetry.io/otel v1.47.0 // indirect

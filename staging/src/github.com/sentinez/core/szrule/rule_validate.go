@@ -26,6 +26,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/sentinez/contrib/pkg/bytesconv"
+	"github.com/sentinez/scripting"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	"google.golang.org/protobuf/types/known/structpb"
 )
@@ -40,14 +41,39 @@ const (
 	_maxValueLen = 4096
 	// Most items of a list value.
 	_maxListLen = 256
+	// Most conditions of an expression, all its groups together: as many
+	// as its script may hold.
+	_maxConditions = scripting.MaxConditions
 )
 
-// ValidateExpression checks every condition of expr against Schema. The
-// error wraps ErrInvalidCondition and starts with the JSON path of the
-// first invalid condition, e.g. "orCondition[0].rules[1]". An empty
-// expression is valid: it matches every request.
+// ValidateExpression checks every condition of expr against Schema, and
+// that it holds _maxConditions at most. The error wraps
+// ErrInvalidCondition and starts with the JSON path of the first invalid
+// condition, e.g. "orCondition[0].rules[1]". An empty expression is
+// valid: it matches every request.
 func ValidateExpression(expr *rulepb.Expression) error {
-	return validateOr(expr.GetOrCondition(), "orCondition", 1)
+	if err := validateOr(expr.GetOrCondition(), "orCondition", 1); err != nil {
+		return err
+	}
+
+	// the groups are no deeper than _maxDepth here: counting recurses
+	if n := countOr(expr.GetOrCondition()); n > _maxConditions {
+		return conditionErrorf("%d conditions, at most %d", n,
+			_maxConditions)
+	}
+
+	return nil
+}
+
+// countOr the conditions of the groups or, nested ones included.
+func countOr(or []*rulepb.AndCondition) int {
+	n := 0
+	for _, and := range or {
+		n += len(and.GetRules()) + countOr(and.GetOrCondition()) +
+			countOr(and.GetAndCondition())
+	}
+
+	return n
 }
 
 // ValidateCondition checks c against Schema: a known source, the key of
@@ -95,7 +121,8 @@ func validateOr(or []*rulepb.AndCondition, path string, depth int) error {
 }
 
 func validateAnd(and *rulepb.AndCondition, path string, depth int) error {
-	if len(and.GetRules()) == 0 && len(and.GetOrCondition()) == 0 {
+	if len(and.GetRules()) == 0 && len(and.GetOrCondition()) == 0 &&
+		len(and.GetAndCondition()) == 0 {
 		return fmt.Errorf("%s: %w: empty group", path, ErrInvalidCondition)
 	}
 
@@ -105,7 +132,14 @@ func validateAnd(and *rulepb.AndCondition, path string, depth int) error {
 		}
 	}
 
-	return validateOr(and.GetOrCondition(), path+".orCondition", depth+1)
+	err := validateOr(and.GetOrCondition(), path+".orCondition", depth+1)
+	if err != nil {
+		return err
+	}
+
+	// the and groups are the or groups of the same level: they nest
+	// one deeper as well
+	return validateOr(and.GetAndCondition(), path+".andCondition", depth+1)
 }
 
 // variantFor the variant of the key: the one of its key mode, checked

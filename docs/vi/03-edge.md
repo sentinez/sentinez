@@ -160,11 +160,11 @@ có thể truyền buffer lấy từ pool.
 ## 3.4 Chain middleware
 
 Dựng trong [internal/handlers/handlers.go](../../internal/handlers/handlers.go) bằng
-`chains.Build(envplugin.NewEnv(mem, opts...), wrap, plugins()...)`, với
+`chains.Build(envhandlers.NewEnv(mem, opts...), wrap, plugins()...)`, với
 `wrap` là `Stage` bọc quanh các hook Lua của stage (xem bên dưới). Mỗi
 plugin cài `chains.Plugin` (`ID()`, `Handle(ctx, next)`) và, nếu cần
-dependency, `Provision(*envplugin.Env)`:
-[Env](../../internal/envplugin/env.go) resolve option một lần và cấp các
+dependency, `Provision(*envhandlers.Env)`:
+[Env](../../internal/envhandlers/envhandlers.go) resolve option một lần và cấp các
 sub-store của `MemStore`, secret key và logger sự kiện (`Env.Logger(kind)`),
 nên plugin không nhận tham số constructor. Mỗi plugin được bọc bởi
 `wrapStage` ([internal/handlers/stage.go](../../internal/handlers/stage.go)) để gắn `ID()` của plugin vào lỗi
@@ -178,10 +178,10 @@ gây lỗi; tên stage là hằng exported (vd `secure.SecRuleId`). Panic của 
 | 1 | `logging` | `logging.Logging` | Gọi `next` trước, sau đó log `httppb.IngressEvent` (JSON, kind `LOG_TYPE_HTTP_INGRESS`, chiều ingress) và, nếu `router` đã proxy request, một `httppb.EgressEvent` cho chặng proxy → upstream origin (kind `LOG_TYPE_HTTP_EGRESS`: upstream, status của origin, content type/length, latency, cùng các header do edge thiết lập gửi tới upstream qua `szhttp.SetUpstreamHeader`, được sắp xếp theo tên và lược bỏ header nhạy cảm) |
 | 2 | `domain` | `secure.DomainBased` | Host (bỏ port, chữ thường) là namespace: phải là `ingress.resource.domain` của một setting đã nạp. Sai → `403`. Domain ở `TLS_MODE_PASSTHROUGH` → `421` (xem 3.6). Gán `X().Namespace` và tenant/resource id của setting |
 | 3 | `caching` | `contents.Caching` | Nếu có CDN rule active cho namespace và expression khớp: tra cache theo key `method+scheme+host+path+query+Accept-Encoding`; hit → trả response với `X-Cache: HIT`; miss → chạy tiếp và lưu response cache được (TTL 1h, xem [04-rule-engine.md](04-rule-engine.md#44-cdn-rules)) |
-| 4 | `secratelimit` | `secure.SecLimiter` | với mỗi limiter, theo priority như `secrule`: `ingress.expr` khớp thì đếm theo IP client, `ingress.script` trả key (`key(ctx)`, xem [04-rule-engine.md](04-rule-engine.md#45-rate-limiter)); `limiter.Allow(key)` vượt → `429` |
+| 4 | `secratelimit` | `secure.SecLimiter` | với mỗi limiter, theo priority như `secrule`: `ingress.expr` khớp thì đếm theo IP client, `ingress.script` (`key(ctx)`, chuyển thành expr lúc nạp) cũng vậy, xem [04-rule-engine.md](04-rule-engine.md#45-rate-limiter)); `limiter.Allow(key)` vượt → `429` |
 | 5 | `waitingroom` | `room.WaitingRoom` | Placeholder, chỉ chuyển tiếp |
 | 6 | `staticassets` | `contents.StaticAssets` | Sau khi chạy tiếp, nếu path có đuôi tĩnh (`.css .js .png ...`) thì set `Cache-Control: public, max-age=3600, immutable` |
-| 7 | `secrule` | `secure.SecRule` | Duyệt các SecRule active (`expr` + `action`, hoặc script Lua `match(ctx)`) theo priority giảm dần và áp dụng các action khớp, xem [04-rule-engine.md](04-rule-engine.md#43-secrule) |
+| 7 | `secrule` | `secure.SecRule` | Duyệt các SecRule active (`expr` + `action`, hoặc script `match(ctx)` được chuyển thành chúng lúc nạp) theo priority giảm dần và áp dụng các action khớp, xem [04-rule-engine.md](04-rule-engine.md#43-secrule) |
 | 8 | `secruleset` | `secure.SecRuleset` | Coraza transaction: `ExecIngress` (header/body) → chạy tiếp → `ExecEgress` (response). Bị chặn với status 403 → trang 403. Cuối cùng log `secrulepb.Event` (`LOG_TYPE_SECRULESET`) nếu bị interrupt |
 | 9 | `router` | `routing.StandardRouter` | Kết thúc chain: tìm route, rewrite path, set header, gọi `ReverseProxy.Serve` của proxy tới upstream thuộc namespace; không có → `502` |
 

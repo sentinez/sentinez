@@ -21,7 +21,7 @@ package handlers
 import (
 	"github.com/sentinez/core/szhttp/chains"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
-	"github.com/sentinez/sentinez/internal/envplugin"
+	"github.com/sentinez/sentinez/internal/envhandlers"
 	"github.com/sentinez/sentinez/internal/handlers/contents"
 	"github.com/sentinez/sentinez/internal/handlers/logging"
 	"github.com/sentinez/sentinez/internal/handlers/room"
@@ -40,7 +40,7 @@ func New(mem *memory.MemStore, opts ...option.Option) (*chains.Chain, error) {
 		return wrapStage(id, hooks.wrap(id, h))
 	}
 
-	return chains.Build(envplugin.NewEnv(mem, opts...), wrap, plugins()...)
+	return chains.Build(envhandlers.NewEnv(mem, opts...), wrap, plugins()...)
 }
 
 // plugins returns the edge chain plugins, in request order.

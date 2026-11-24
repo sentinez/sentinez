@@ -29,7 +29,6 @@ import (
 	"github.com/sentinez/core/szrule"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szsync"
-	"github.com/sentinez/scripting"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -52,7 +51,6 @@ var (
 	_shared *cluster.Cluster
 
 	errLimiterNoExpr = errors.New("missing ingress expr or script")
-	errLimiterBoth   = errors.New("ingress expr and script are exclusive")
 )
 
 func NewMemStore(conf *settingpb.Config) (*MemStore, error) {
@@ -391,7 +389,6 @@ func (m *MemStore) LoadRateLimiter(s *edgepb.Setting) error {
 	ns := s.GetIngress().GetResource().GetDomain()
 	limiters := s.GetSecurity().GetLimiters()
 	entries := make([]secratelimits.Entry, 0, len(limiters))
-	held := m.limiter.Load(ns)
 
 	for i, l := range limiters {
 		if err := checkLimiter(l); err != nil {
@@ -403,7 +400,7 @@ func (m *MemStore) LoadRateLimiter(s *edgepb.Setting) error {
 			continue
 		}
 
-		entry, err := newLimiterEntry(held, l)
+		entry, err := newLimiterEntry(l)
 		if err != nil {
 			return fmt.Errorf("rate limiter: parse: %w", err)
 		}
@@ -417,15 +414,10 @@ func (m *MemStore) LoadRateLimiter(s *edgepb.Setting) error {
 }
 
 // checkLimiter a limiter must say what it counts: an expr, a nil one would
-// match every request, or a script, not both.
+// match every request, or a script (scripts.KeyRule rejects both).
 func checkLimiter(l *edgepb.RateLimit) error {
 	rule := l.GetIngress()
-	hasExpr := len(rule.GetExpr().GetOrCondition()) > 0
-
-	switch {
-	case hasExpr && rule.GetScript() != "":
-		return errLimiterBoth
-	case !hasExpr && rule.GetScript() == "":
+	if len(rule.GetExpr().GetOrCondition()) == 0 && rule.GetScript() == "" {
 		return errLimiterNoExpr
 	}
 
@@ -460,8 +452,7 @@ func (m *MemStore) LoadScripts(s *edgepb.Setting) error {
 	)
 }
 
-func newLimiterEntry(held []secratelimits.Entry, l *edgepb.RateLimit,
-) (secratelimits.Entry, error) {
+func newLimiterEntry(l *edgepb.RateLimit) (secratelimits.Entry, error) {
 	size, err := time.ParseDuration(l.GetTimeWindow())
 	if err != nil {
 		return secratelimits.Entry{}, fmt.Errorf("time window: %w", err)
@@ -472,32 +463,14 @@ func newLimiterEntry(held []secratelimits.Entry, l *edgepb.RateLimit,
 		return secratelimits.Entry{}, fmt.Errorf("timeout: %w", err)
 	}
 
-	rule := l.GetIngress()
-	entry := secratelimits.Entry{
+	rule, err := scripts.KeyRule(l.GetIngress())
+	if err != nil {
+		return secratelimits.Entry{}, err
+	}
+
+	return secratelimits.Entry{
+		Eval:    szrule.NewEval(rule.GetId(), rule.GetExpr()),
 		Rule:    rule,
 		Limiter: szlimiter.NewRateLimiter(timeout, size, l.GetMaxRequests()),
-	}
-
-	if rule.GetScript() == "" {
-		entry.Eval = szrule.NewEval(rule.GetId(), rule.GetExpr())
-		return entry, nil
-	}
-
-	entry.Script, err = limiterScript(held, rule)
-
-	return entry, err
-}
-
-// limiterScript the program of the script of rule, the held one when it
-// did not change.
-func limiterScript(held []secratelimits.Entry, rule *secrulepb.SecRule,
-) (*scripting.Program, error) {
-	programs := make([]*scripting.Program, 0, len(held))
-	for _, e := range held {
-		if e.Script != nil {
-			programs = append(programs, e.Script)
-		}
-	}
-
-	return scripts.Rule(programs, rule, scripting.KeyFunc)
+	}, nil
 }

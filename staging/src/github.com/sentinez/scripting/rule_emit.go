@@ -17,6 +17,7 @@ package scripting
 import (
 	"fmt"
 	"maps"
+	"net/netip"
 	"regexp"
 	"slices"
 	"strconv"
@@ -40,19 +41,49 @@ func MatchSource(r Rule) (string, error) {
 		return "", err
 	}
 
-	return emit(MatchFunc, r.Any, ret)
+	return emit(MatchFunc, r.Match, ret)
 }
 
 // KeySource the source of the rate limiter script counting, under the
-// client IP, the requests one of the branches of anyOf matches: ParseKey
-// reads anyOf back from it.
-func KeySource(anyOf [][]Cond) (string, error) {
-	return emit(KeyFunc, anyOf, "true")
+// client IP, the requests match matches: ParseKey reads match back from
+// it.
+func KeySource(match Node) (string, error) {
+	return emit(KeyFunc, match, "true")
 }
 
-func emit(fn string, anyOf [][]Cond, ret string) (string, error) {
-	if len(anyOf) == 0 {
-		return "", errNoBranch
+// CondSource the Lua condition match matches, the if of the scripts
+// MatchSource and KeySource write:
+//
+//	ctx:path() == "/login" and (ctx:header("X-A") ~= "" or ctx:ip() == "1")
+//
+// "and" binds tighter than "or" in Lua, as in a Node: an or group in an
+// and group is put in parentheses. A condition matching every request is
+// "true".
+func CondSource(match Node) (string, error) {
+	if err := checkNode(match); err != nil {
+		return "", err
+	}
+
+	return nodeLua(match)
+}
+
+// checkNode that n has a branch and is not larger than MaxConditions.
+func checkNode(n Node) error {
+	if n.IsOr() && len(n.Nodes) == 0 {
+		// the edge matches no request: no script says that
+		return errNoBranch
+	}
+
+	if n.count() > MaxConditions {
+		return errTooMany
+	}
+
+	return nil
+}
+
+func emit(fn string, match Node, ret string) (string, error) {
+	if err := checkNode(match); err != nil {
+		return "", err
 	}
 
 	var b strings.Builder
@@ -60,18 +91,14 @@ func emit(fn string, anyOf [][]Cond, ret string) (string, error) {
 	b.WriteString(fn)
 	b.WriteString("(ctx)\n")
 
-	for _, branch := range anyOf {
-		if len(branch) == 0 {
-			// matches every request: the next branches never run
-			b.WriteString("  return ")
-			b.WriteString(ret)
-			b.WriteString("\n")
-
-			break
-		}
-
+	for _, branch := range match.Branches() {
 		if err := emitBranch(&b, branch, ret); err != nil {
 			return "", err
+		}
+
+		if branch.matchesAll() {
+			// the next branches never run
+			break
 		}
 	}
 
@@ -80,19 +107,24 @@ func emit(fn string, anyOf [][]Cond, ret string) (string, error) {
 	return b.String(), nil
 }
 
-func emitBranch(b *strings.Builder, branch []Cond, ret string) error {
-	conds := make([]string, 0, len(branch))
-	for _, c := range branch {
-		s, err := condLua(c)
-		if err != nil {
-			return err
-		}
+// emitBranch the if of branch, or the return of a branch matching every
+// request.
+func emitBranch(b *strings.Builder, branch Node, ret string) error {
+	if branch.matchesAll() {
+		b.WriteString("  return ")
+		b.WriteString(ret)
+		b.WriteString("\n")
 
-		conds = append(conds, s)
+		return nil
+	}
+
+	cond, err := nodeLua(branch)
+	if err != nil {
+		return err
 	}
 
 	b.WriteString("  if ")
-	b.WriteString(strings.Join(conds, " and "))
+	b.WriteString(cond)
 	b.WriteString(" then\n    return ")
 	b.WriteString(ret)
 	b.WriteString("\n  end\n")
@@ -100,8 +132,71 @@ func emitBranch(b *strings.Builder, branch []Cond, ret string) error {
 	return nil
 }
 
+// nodeLua the Lua expression of n.
+func nodeLua(n Node) (string, error) {
+	if n.Cond != nil {
+		return condLua(*n.Cond)
+	}
+
+	if n.IsOr() && len(n.Nodes) == 0 {
+		return "", errNoBranch
+	}
+
+	parts := make([]string, 0, len(n.Nodes))
+	for _, c := range n.Nodes {
+		if c.matchesAll() {
+			if n.And {
+				continue
+			}
+
+			// an or group with a branch matching every request does
+			return "true", nil
+		}
+
+		s, err := nodeLua(c)
+		if err != nil {
+			return "", err
+		}
+
+		parts = append(parts, groupLua(n, c, s))
+	}
+
+	return joinLua(n.And, parts), nil
+}
+
+// groupLua the expression s of child, in parentheses in an and group when
+// child is an or group: "and" binds tighter.
+func groupLua(parent, child Node, s string) string {
+	if parent.And && child.IsOr() {
+		return "(" + s + ")"
+	}
+
+	return s
+}
+
+// joinLua the parts joined by "and", or by "or", "true" when there are none.
+func joinLua(and bool, parts []string) string {
+	switch {
+	case len(parts) == 0:
+		return "true"
+	case and:
+		return strings.Join(parts, " and ")
+	}
+
+	return strings.Join(parts, " or ")
+}
+
 // condLua the Lua expression of c.
 func condLua(c Cond) (string, error) {
+	switch {
+	case c.Source == SourceTLS:
+		return tlsLua(c)
+	case c.Op == OpWithin || c.Op == OpNotWithin:
+		return withinLua(c)
+	case c.Op == OpExists || c.Op == OpAbsent:
+		return existsLua(c)
+	}
+
 	field, err := fieldLua(c)
 	if err != nil {
 		return "", err
@@ -124,8 +219,15 @@ func stringCondLua(field string, c Cond) (string, error) {
 	n := strconv.Itoa(len(c.Value))
 
 	if c.Value == "" && slices.Contains(
-		[]Op{OpContains, OpPrefix, OpSuffix}, c.Op) {
+		[]Op{OpContains, OpPrefix, OpSuffix, OpMatches}, c.Op) {
 		return "", fmt.Errorf("%w: empty value", ErrNotDeclarative)
+	}
+
+	if c.Source == SourceIP && (c.Op != OpEq && c.Op != OpNe ||
+		strings.Contains(c.Value, "/")) {
+		// ctx:ip() is an address: ip_in reads a prefix
+		return "", fmt.Errorf("%w: ip %d %q", ErrNotDeclarative, c.Op,
+			c.Value)
 	}
 
 	switch c.Op {
@@ -139,9 +241,64 @@ func stringCondLua(field string, c Cond) (string, error) {
 		return field + ":sub(1, " + n + ") == " + v, nil
 	case OpSuffix:
 		return field + ":sub(-" + n + ") == " + v, nil
+	case OpMatches:
+		return matchesLua(field, c.Value)
 	}
 
 	return "", fmt.Errorf("%w: operator %d", ErrNotDeclarative, c.Op)
+}
+
+func matchesLua(field, pattern string) (string, error) {
+	if _, err := regexp.Compile(pattern); err != nil {
+		return "", fmt.Errorf("%w: %w", ErrNotDeclarative, err)
+	}
+
+	return "re.match(" + field + ", " + quote(pattern) + ")", nil
+}
+
+// tlsLua ctx:tls(), or not ctx:tls(), as c compares it to "true".
+func tlsLua(c Cond) (string, error) {
+	if c.Key != "" || c.Value != "true" && c.Value != "false" ||
+		c.Op != OpEq && c.Op != OpNe {
+		return "", fmt.Errorf("%w: tls %d %q", ErrNotDeclarative, c.Op,
+			c.Value)
+	}
+
+	isTLS := (c.Op == OpEq) == (c.Value == "true")
+
+	return not(!isTLS) + "ctx:tls()", nil
+}
+
+// withinLua ctx:ip_in("prefix"), or its negation.
+func withinLua(c Cond) (string, error) {
+	if _, err := netip.ParsePrefix(c.Value); err != nil ||
+		c.Source != SourceIP || c.Key != "" {
+		return "", fmt.Errorf("%w: ip in %q", ErrNotDeclarative, c.Value)
+	}
+
+	return not(c.Op == OpNotWithin) + "ctx:ip_in(" + quote(c.Value) + ")",
+		nil
+}
+
+// existsLua ctx:has_header("key"), or its negation.
+func existsLua(c Cond) (string, error) {
+	if !c.Source.Keyed() || c.Key == "" || c.Value != "" {
+		return "", fmt.Errorf("%w: presence of %q", ErrNotDeclarative,
+			c.Key)
+	}
+
+	method := _presenceMethods[c.Source]
+
+	return not(c.Op == OpAbsent) + "ctx:" + method + "(" + quote(c.Key) +
+		")", nil
+}
+
+func not(neg bool) string {
+	if neg {
+		return "not "
+	}
+
+	return ""
 }
 
 // fieldLua the ctx call reading the source of c.

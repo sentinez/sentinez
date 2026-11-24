@@ -21,7 +21,7 @@ import (
 	"github.com/sentinez/pkg/szlog"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/envplugin"
+	"github.com/sentinez/sentinez/internal/envhandlers"
 	"github.com/sentinez/sentinez/internal/memory/secratelimits"
 	"github.com/sentinez/sentinez/pkg/pools/matchedrule"
 )
@@ -30,8 +30,8 @@ import (
 const SecLimiterId = "secratelimit"
 
 var (
-	_ chains.Plugin                      = (*SecLimiter)(nil)
-	_ chains.Provisioner[*envplugin.Env] = (*SecLimiter)(nil)
+	_ chains.Plugin                        = (*SecLimiter)(nil)
+	_ chains.Provisioner[*envhandlers.Env] = (*SecLimiter)(nil)
 )
 
 // _rateLimited the action of a rate limit event, whatever the limiter is
@@ -48,7 +48,7 @@ type SecLimiter struct {
 
 func (*SecLimiter) ID() string { return SecLimiterId }
 
-func (l *SecLimiter) Provision(env *envplugin.Env) error {
+func (l *SecLimiter) Provision(env *envhandlers.Env) error {
 	l.store = env.Store().Limiter()
 	l.log = env.Logger(typepb.LogType_LOG_TYPE_SECRATELIMIT)
 	return nil
@@ -66,37 +66,16 @@ func (l *SecLimiter) Handle(ctx szhttp.Context, next chains.Handler) error {
 	matched := matchedrule.Acquire()
 	defer func() { _ = matched.Close() }()
 
-	run := scriptRun{ctx: ctx}
-	defer run.Close()
-
 	// not a copy: Allow copies the key it keeps
-	ip := bytesconv.B2s(ctx.RequestIP())
+	key := bytesconv.B2s(ctx.RequestIP())
 	for _, e := range chain {
-		key, ok := counted(&run, e, ip, matched.MatchedRules)
-		if ok && !e.Limiter.Allow(key) {
+		if e.Eval(ctx, matched.MatchedRules) && !e.Limiter.Allow(key) {
 			l.logExceeded(ctx, matched.MatchedRules)
 			return szhttp.TooManyRequests(ctx)
 		}
 	}
 
 	return next.Handle(ctx)
-}
-
-// counted the key the request is counted under by e, ok false when it is
-// not: the client IP for an expr, the one its script returns otherwise.
-func counted(run *scriptRun, e secratelimits.Entry, ip string,
-	mr *rulepb.MatchedRules) (key string, ok bool) {
-
-	if e.Script == nil {
-		return ip, e.Eval(run.ctx, mr)
-	}
-
-	key, ok = run.key(e.Script, ip)
-	if ok {
-		matched(mr, e.Rule)
-	}
-
-	return key, ok
 }
 
 // logExceeded emits a rate limit event for the rejected request, listing

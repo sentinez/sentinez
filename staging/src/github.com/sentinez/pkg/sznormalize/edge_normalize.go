@@ -88,11 +88,19 @@ func normalizeSecRule(rule *secrulepb.SecRule) {
 
 func normalizeOrCond(orCond []*rulepb.AndCondition) {
 	for _, and := range orCond {
-		for _, rule := range and.GetRules() {
-			normalizeCondition(rule.GetCondition())
-		}
+		normalizeAndCond(and)
+	}
+}
 
-		normalizeOrCond(and.GetOrCondition())
+func normalizeAndCond(and *rulepb.AndCondition) {
+	for _, rule := range and.GetRules() {
+		normalizeCondition(rule.GetCondition())
+	}
+
+	normalizeOrCond(and.GetOrCondition())
+
+	for _, sub := range and.GetAndCondition() {
+		normalizeAndCond(sub)
 	}
 }
 

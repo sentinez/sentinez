@@ -738,6 +738,7 @@
     "andGroupN": "AND group {n}",
     "removeGroup": "Remove AND group {n}",
     "noConditions": "No conditions in this group.",
+    "nestedGroups": "This group also holds nested groups. They are kept as they are: edit them as a script.",
     "conditionN": "Condition {n}",
     "removeCondition": "Remove condition {n}",
     "source": "Source",

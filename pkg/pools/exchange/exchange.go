@@ -61,6 +61,21 @@ func (e *Exchange) Close() error {
 	return nil
 }
 
+// HasHeader reports whether the request has the header k, as the
+// presence conditions of szrule read it.
+func (e *Exchange) HasHeader(k []byte) bool {
+	_, ok := e.Headers()[string(k)]
+
+	return ok
+}
+
+// HasQuery reports whether the request has the query parameter k.
+func (e *Exchange) HasQuery(k []byte) bool {
+	_, ok := e.Queries()[string(k)]
+
+	return ok
+}
+
 // SetHeader sets a header of the request sent upstream.
 func (e *Exchange) SetHeader(k, v string) {
 	if variable.IsValidHeaderKey(k) {

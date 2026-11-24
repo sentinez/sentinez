@@ -15,7 +15,10 @@
 package scripting
 
 import (
+	"net/netip"
+	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/yuin/gopher-lua/ast"
 )
@@ -26,10 +29,113 @@ func (p *parser) cond(e ast.Expr) (Cond, error) {
 	case *ast.RelationalOpExpr:
 		return p.relational(x)
 	case *ast.FuncCallExpr:
-		return p.contains(x)
+		return p.call(x)
 	}
 
 	return Cond{}, lineErr(e, "unsupported condition")
+}
+
+// call a condition of a boolean call: field:find("v", 1, true),
+// re.match(field, "v"), ctx:tls(), ctx:ip_in("cidr"), ctx:has_header("k")
+// or ctx:has_query("k").
+func (p *parser) call(x *ast.FuncCallExpr) (Cond, error) {
+	if isRe(x.Func) {
+		return p.matches(x)
+	}
+
+	recv, ok := x.Receiver.(*ast.IdentExpr)
+	if !ok || recv.Value != p.ctx {
+		return p.contains(x)
+	}
+
+	switch x.Method {
+	case "tls":
+		if len(x.Args) == 0 {
+			return Cond{Source: SourceTLS, Op: OpEq, Value: "true"}, nil
+		}
+	case "ip_in":
+		return ipIn(x)
+	}
+
+	for src, method := range _presenceMethods {
+		if method == x.Method {
+			return presence(x, src)
+		}
+	}
+
+	return Cond{}, lineErr(x, "unsupported condition")
+}
+
+// isRe whether e is re.match.
+func isRe(e ast.Expr) bool {
+	get, ok := e.(*ast.AttrGetExpr)
+	if !ok {
+		return false
+	}
+
+	obj, isIdent := get.Object.(*ast.IdentExpr)
+	key, isStr := get.Key.(*ast.StringExpr)
+
+	return isIdent && isStr && obj.Value == "re" && key.Value == "match"
+}
+
+// matches re.match(field, "pattern").
+func (p *parser) matches(x *ast.FuncCallExpr) (Cond, error) {
+	if len(x.Args) != 2 {
+		return Cond{}, lineErr(x, `re.match(field, "pattern") expected`)
+	}
+
+	c, ok := p.field(x.Args[0])
+	v, isStr := x.Args[1].(*ast.StringExpr)
+	if !ok || !isStr || v.Value == "" {
+		return Cond{}, lineErr(x, `re.match(field, "pattern") expected`)
+	}
+
+	if _, err := regexp.Compile(v.Value); err != nil {
+		return Cond{}, lineErr(x, err.Error())
+	}
+
+	c.Op, c.Value = OpMatches, v.Value
+
+	return c, nil
+}
+
+// ipIn ctx:ip_in("cidr").
+func ipIn(x *ast.FuncCallExpr) (Cond, error) {
+	v, ok := stringArg(x)
+	if !ok {
+		return Cond{}, lineErr(x, `ctx:ip_in("cidr") expected`)
+	}
+
+	if _, err := netip.ParsePrefix(v); err != nil {
+		return Cond{}, lineErr(x, err.Error())
+	}
+
+	return Cond{Source: SourceIP, Op: OpWithin, Value: v}, nil
+}
+
+// presence ctx:has_header("k") or ctx:has_query("k").
+func presence(x *ast.FuncCallExpr, src Source) (Cond, error) {
+	k, ok := stringArg(x)
+	if !ok || k == "" {
+		return Cond{}, lineErr(x, "ctx:"+x.Method+`("name") expected`)
+	}
+
+	return Cond{Source: src, Key: k, Op: OpExists}, nil
+}
+
+// stringArg the string literal x takes as its only argument.
+func stringArg(x *ast.FuncCallExpr) (string, bool) {
+	if len(x.Args) != 1 {
+		return "", false
+	}
+
+	v, ok := x.Args[0].(*ast.StringExpr)
+	if !ok {
+		return "", false
+	}
+
+	return v.Value, true
 }
 
 // relational field == "v", field ~= "v", field:sub(...) == "v" or
@@ -46,6 +152,9 @@ func (p *parser) relational(x *ast.RelationalOpExpr) (Cond, error) {
 
 	c, ok := p.field(x.Lhs)
 	switch {
+	case ok && c.Source == SourceIP && strings.Contains(v.Value, "/"):
+		return Cond{}, lineErr(x, `ctx:ip() is an address: `+
+			`ctx:ip_in("cidr") reads a prefix`)
 	case ok && x.Operator == "==":
 		c.Op = OpEq
 	case ok && x.Operator == "~=":
@@ -61,10 +170,16 @@ func (p *parser) relational(x *ast.RelationalOpExpr) (Cond, error) {
 	return c, nil
 }
 
-// _relOps the numeric operator of each Lua comparison.
-var _relOps = map[string]Op{
-	">": OpGt, ">=": OpGte, "<": OpLt, "<=": OpLte,
-}
+// _relOps the numeric operator of each Lua comparison: _numericOps
+// inverted.
+var _relOps = func() map[string]Op {
+	m := make(map[string]Op, len(_numericOps))
+	for op, rel := range _numericOps {
+		m[rel] = op
+	}
+
+	return m
+}()
 
 // numeric tonumber(field) <op> n.
 func (p *parser) numeric(x *ast.RelationalOpExpr) (Cond, bool) {
@@ -148,7 +263,8 @@ func (p *parser) field(e ast.Expr) (Cond, bool) {
 	}
 
 	for src, method := range _sourceMethods {
-		if method == call.Method {
+		// ctx:tls() is a boolean, a condition by itself
+		if method == call.Method && src != SourceTLS {
 			return fieldOf(src, call.Args)
 		}
 	}

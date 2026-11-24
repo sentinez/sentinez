@@ -17,16 +17,30 @@ Expression
  └─ or_condition: []AndCondition        // OR across entries
       ├─ rules: []Rule                   // AND across rules
       │    └─ condition: Condition{source, key, operator, value}
-      └─ or_condition: []AndCondition    // nested: AND(rules) && OR(children)
+      ├─ or_condition: []AndCondition    // nested: AND(rules) && OR(children)
+      └─ and_condition: []AndCondition   // AND(each), every one with its own groups
 ```
 
 Semantics ([core/szrule/rule_expr.go](../staging/src/github.com/sentinez/core/szrule/rule_expr.go)):
 
 - `execOrCond(nil) == true` — an empty expression **always matches**.
 - An `AndCondition` matches when all its `rules` match **and** its child
-  `or_condition` (if any) matches.
+  `or_condition` (if any) matches **and** every one of its `and_condition`
+  matches (each is an `AndCondition`, with its rules and groups).
+  `(a or b) and (c or d)` is `{or_condition: [a, b], and_condition:
+  [{or_condition: [c, d]}]}`: an `and` holds as many or groups as it needs,
+  the first in `or_condition`, the others in `and_condition`.
+- `ValidateExpression` allows 256 conditions and 8 levels of groups
+  (`or_condition` and `and_condition` both count a level).
+- An edge older than `and_condition` ignores it, so such a rule matches
+  more than it says (a `BLOCK` blocks more): deploy the edges before a rule
+  uses it.
 - IDs/names of matching rules are appended to `rulepb.MatchedRules` (if one
-  is passed in).
+  is passed in). The name is `szrule.ExprString` of the expression: its Lua
+  condition (`ctx:path() == "/login" and ctx:header("X-Debug") ~= ""`, from
+  `rulescript.ToCondition`), or a text form (`path matches "("`) for one a
+  script cannot write (an invalid regex). Groups keep their parentheses:
+  `ctx:path() == "/a" and (ctx:method() == "GET" or ctx:method() == "PUT")`.
 
 API:
 
@@ -153,22 +167,25 @@ secrules:
 - A table `{type = SZ_REDIRECT, params = {...}}`: the action with the
   `params` of the table above.
 
-The action goes through the same evaluation as an `expr` rule (priority,
-terminal ranking, the `secrule: matched` event). `ctx` only reads the request
-there: `set_header`, `set_response_header` and `respond` raise an error. The
-script is checked when it loads: it must define `match` and has no
-`---@stage` line. A script that fails at a request, or runs over the 50 ms
-limit, is logged and skipped (fail-open). The ctx methods and the sandbox are
-those of the hooks
-([scripting README](../staging/src/github.com/sentinez/scripting/README.md)).
-
-[internal/rulescript](../internal/rulescript/rulescript.go) converts an
-`expr` + `action` to such a script and back (`ToScript`/`FromScript`,
-`ToKeyScript`/`FromKeyScript` for a limiter): the script form is the
-declarative one of `scripting.ParseMatch` (`if <conditions> then return
-<action> end` branches over `ctx:path()`, `ctx:header(k)`...). A condition it
-cannot write (a regex, a CIDR, the body...) is an error wrapping
-`scripting.ErrNotDeclarative`.
+The edge runs no Lua for a rule. When the setting loads,
+[szrule/rulescript](../staging/src/github.com/sentinez/core/szrule/rulescript/rulescript.go)
+converts the script to the `expr` + `action` it declares
+([scripts.Rule](../internal/memory/scripts/scripts.go)), and `szrule`
+evaluates it like any `expr` rule (priority, terminal ranking, the
+`secrule: matched` event, which lists its conditions). The script must be of
+the declarative form of `scripting.ParseMatch`: branches of
+`if <conditions> then return <action> end` over `ctx:path()`,
+`ctx:header(k)`, `ctx:body()`, `ctx:ja4()`... Every condition of an `expr`
+has its Lua form: `MATCHES` is `re.match(ctx:path(), "^/a")`, an IP CIDR
+`ctx:ip_in("10.0.0.0/8")`, TLS `ctx:tls()`, a header or query presence
+`ctx:has_header("X-A")` (`not` for NE, NOT_IN), an IN list an `or` of its
+values. `not`, `and`, `or` and parentheses nest as deep as the expression
+does, up to 256 conditions (`scripting.MaxConditions`): no group is
+multiplied out into branches. A script outside of the form (a local, a
+loop...) fails the load with an error wrapping `scripting.ErrNotDeclarative`,
+and the previous chain stays.
+`ToScript`/`FromScript` (`ToKeyScript`/`FromKeyScript` for a limiter)
+convert both ways. The `---@stage` hooks still run as Lua.
 
 ### SecRule shapes
 
@@ -236,27 +253,26 @@ Configured in `security.limiters[]`: `timeWindow`, `maxRequests`, `timeout`
 (`time.ParseDuration` strings). Every limiter needs an `ingress.expr` or an
 `ingress.script` (not both): it only counts the requests it selects. An
 `expr` limiter counts them under the client IP. A script defines a global
-`key(ctx)` returning the key to count the request under (at most 256 bytes),
-`true` for the client IP, or `nil`/`false` not to count it:
+`key(ctx)` returning `true` for the requests to count, converted to its
+`expr` when it loads like a secrule script; the request is counted under the
+client IP too:
 
 ```yaml
 limiters:
   - ingress:
-      name: "Script: rate limit per API key"
+      name: "Script: rate limit the login"
       status: STATUS_ACTIVE
       script: |
         ---@param ctx sz.Context
         function key(ctx)
-          local k = ctx:header("X-Api-Key")
-          if k ~= "" then return k end
+          if ctx:path() == "/login" then
+            return true
+          end
         end
     timeWindow: 5s
     maxRequests: 20
     timeout: 5s
 ```
-
-The rules of a secrule script hold here too: read-only `ctx`, no `---@stage`,
-`key` checked at load, fail-open at a request.
 
 ## 4.6 WAF — OWASP CRS on Coraza
 

@@ -62,6 +62,7 @@ export const createEmptyRule = (): Rule => ({
 export const createEmptyAndCondition = (): AndCondition => ({
   rules: [createEmptyRule()],
   orCondition: [],
+  andCondition: [],
 });
 
 export const createEmptyExpression = (): Expression => ({
@@ -309,6 +310,10 @@ export function QueryBuilderGroup({ groupIndex, className, ...props }: QueryBuil
         <p className="py-2 text-center text-sm text-balance text-muted-foreground">
           {t('noConditions')}
         </p>
+      )}
+
+      {(group.orCondition.length > 0 || group.andCondition.length > 0) && (
+        <p className="text-sm text-balance text-muted-foreground">{t('nestedGroups')}</p>
       )}
 
       {group.rules.map((rule, ruleIndex) => (

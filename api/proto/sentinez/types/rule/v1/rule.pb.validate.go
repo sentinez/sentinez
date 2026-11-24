@@ -303,6 +303,21 @@ func (m *AndCondition) Validate() error {
 
 	}
 
+	for idx, item := range m.GetAndCondition() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AndConditionValidationError{
+					field:  fmt.Sprintf("AndCondition[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
 	return nil
 }
 

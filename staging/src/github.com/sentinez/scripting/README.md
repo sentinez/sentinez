@@ -64,6 +64,10 @@ of the edge (`TestScriptStagesAreTheChain`) checks them against the chain.
 |---|---|
 | `method()`, `path()`, `host()`, `ip()` | the request |
 | `header(k)`, `query(k)` | a header or query parameter, "" if absent |
+| `has_header(k)`, `has_query(k)` | whether the request has it, even empty |
+| `body()`, `ja4()` | the request body, the JA4 fingerprint ("" without TLS) |
+| `tls()` | whether the request came over TLS |
+| `ip_in(cidr)` | whether the client IP is in the prefix, e.g. `"10.0.0.0/8"` |
 | `set_header(k, v)` | a header of the request sent upstream |
 | `set_response_header(k, v)` | a header of the response |
 | `respond(status, body)` | answers the request (100 to 599) |
@@ -78,6 +82,11 @@ and the name of the script: the arguments, joined by tabs like `print`.
 
 `log:info(...)` and `log:debug(...)` work too: called with a colon, the
 `log` table passed as first argument is left out.
+
+The global table `re` has `re.match(s, pattern)`: whether `s` holds a match
+of `pattern`, a regular expression of the RE2 syntax of Go (not a Lua
+pattern); an invalid one raises an error. The first 256 patterns stay
+compiled.
 
 ```lua
 ---@stage http.request/secrule
@@ -96,9 +105,11 @@ script body, outside of a hook, there is no request: the line is dropped.
 ## Rule scripts
 
 A secrule or a rate limiter of the edge may be a Lua source in place of its
-expression. It has no `---@stage` line: it defines one global function the
-edge calls for each request, with a read-only `ctx` (`set_header`,
-`set_response_header` and `respond` raise an error).
+expression. It has no `---@stage` line: it defines one global function, with
+a read-only `ctx` (`set_header`, `set_response_header` and `respond` raise
+an error). The edge does not call it: it converts the script to its
+expression when it loads (`ParseMatch`/`ParseKey`, below), so the script
+must be of the declarative form.
 
 A secrule defines `match(ctx)`. It returns `nil` or `false` when the request
 does not match, else the action, as an eBPF program returns `XDP_DROP`:
@@ -129,7 +140,9 @@ The constants hold the action names, so `return "block"` is the same. A
 table `{type = SZ_REDIRECT, params = {...}}` adds the params of the action.
 
 A rate limiter defines `key(ctx)`: the key to count the request under (a
-string), `true` for the client IP, `nil` or `false` not to count it.
+string), `true` for the client IP, `nil` or `false` not to count it. The
+edge holds the declarative form only, `return true`: it counts under the
+client IP.
 
 ```lua
 function key(ctx)
@@ -138,18 +151,40 @@ function key(ctx)
 end
 ```
 
-The host compiles the rule with `Compile`, checks it with `Hooked` (false)
-and `HasFunc(scripting.MatchFunc)` (or `KeyFunc`), then calls
-`Program.Invoke(ctx, "match", ex)` for each request: the result is a
+A host that runs the rule as Lua compiles it with `Compile`, checks it with
+`Hooked` (false) and `HasFunc(scripting.MatchFunc)` (or `KeyFunc`), then
+calls `Program.Invoke(ctx, "match", ex)` for each request: the result is a
 `Value` (`KindNil`, `KindBool`, `KindString`, `KindTable`) free of the Lua
 types.
 
 `ParseMatch` and `ParseKey` read a script of the declarative form, branches
-of `if <conditions> then return <action> end` over `ctx:path()`,
-`ctx:header(k)`..., into a `Rule`; `MatchSource` and `KeySource` write a
-`Rule` back as Lua (`return SZ_BLOCK`). A script out of that form returns
-`ErrNotDeclarative`. The edge converts its protobuf expressions with them
-(`internal/rulescript`).
+of `if <conditions> then return <action> end`, into a `Rule`; `MatchSource`
+and `KeySource` write a `Rule` back as Lua (`return SZ_BLOCK`). The
+condition of a `Rule` is a `Node` tree: a `Leaf` of one `Cond`, or a group
+of `All` or `Any` of its nodes (`MaxConditions` conditions at most, no group
+multiplied out). The builders keep the canonical form a script is read to:
+nested groups of one kind merged, conditions before groups.
+`CondSource` writes the condition alone, with the parentheses an `or` in an
+`and` needs. A condition
+combines with `and`, `or`, `not` and parentheses the comparisons below,
+`field` one of `ctx:path()`, `ctx:method()`, `ctx:host()`, `ctx:ip()`,
+`ctx:header("k")`, `ctx:query("k")`, `ctx:body()`, `ctx:ja4()`:
+
+| Lua | `Cond` |
+|---|---|
+| `field == "v"`, `field ~= "v"` | `OpEq`, `OpNe` |
+| `field:find("v", 1, true)` | `OpContains` |
+| `field:sub(1, #v) == "v"`, `field:sub(-#v) == "v"` | `OpPrefix`, `OpSuffix` |
+| `tonumber(field) > 10` (`>=`, `<`, `<=`) | `OpGt`, `OpGte`, `OpLt`, `OpLte` |
+| `re.match(field, "^/a")` | `OpMatches` |
+| `ctx:ip_in("10.0.0.0/8")`, `not ctx:ip_in(...)` | `OpWithin`, `OpNotWithin` |
+| `ctx:has_header("k")`, `ctx:has_query("k")`, with `not` | `OpExists`, `OpAbsent` |
+| `ctx:tls()`, `not ctx:tls()` | `SourceTLS`, `OpEq`/`OpNe` `"true"` |
+
+`not` applies to the equalities, `ip_in`, `has_*` and `tls` only. A script
+out of that form returns `ErrNotDeclarative`. The edge converts its protobuf expressions with them
+(`core/szrule/rulescript`), and its rule scripts to expressions: it refuses
+a rule script out of that form.
 
 ## Sandbox
 

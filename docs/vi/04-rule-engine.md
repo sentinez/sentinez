@@ -17,15 +17,30 @@ Expression
  └─ or_condition: []AndCondition        // OR giữa các phần tử
       ├─ rules: []Rule                   // AND giữa các rule
       │    └─ condition: Condition{source, key, operator, value}
-      └─ or_condition: []AndCondition    // lồng nhau: AND(rules) && OR(con)
+      ├─ or_condition: []AndCondition    // lồng nhau: AND(rules) && OR(con)
+      └─ and_condition: []AndCondition   // AND(từng phần tử), mỗi phần tử có nhóm riêng
 ```
 
 Ngữ nghĩa ([core/szrule/rule_expr.go](../../staging/src/github.com/sentinez/core/szrule/rule_expr.go)):
 
 - `execOrCond(nil) == true` — expression rỗng **luôn khớp**.
 - Một `AndCondition` khớp khi mọi `rules` khớp **và** `or_condition` con (nếu
-  có) khớp.
+  có) khớp **và** mọi phần tử của `and_condition` khớp (mỗi phần tử là một
+  `AndCondition` với rules và nhóm riêng). `(a or b) and (c or d)` là
+  `{or_condition: [a, b], and_condition: [{or_condition: [c, d]}]}`: một
+  `and` chứa bao nhiêu nhóm `or` cũng được, nhóm đầu trong `or_condition`,
+  các nhóm sau trong `and_condition`.
+- `ValidateExpression` cho tối đa 256 điều kiện và 8 tầng nhóm
+  (`or_condition` và `and_condition` đều tính là một tầng).
+- Edge cũ hơn `and_condition` bỏ qua field này, nên rule khớp rộng hơn ý
+  định (rule `BLOCK` chặn nhiều hơn): hãy deploy edge trước khi rule dùng
+  nó.
 - ID/tên các rule khớp được ghi vào `rulepb.MatchedRules` (nếu truyền vào).
+  Tên là `szrule.ExprString` của biểu thức: điều kiện Lua của nó
+  (`ctx:path() == "/login" and ctx:header("X-Debug") ~= ""`, từ
+  `rulescript.ToCondition`), hoặc dạng chữ (`path matches "("`) với biểu
+  thức script không viết được (regex sai). Các nhóm giữ nguyên ngoặc:
+  `ctx:path() == "/a" and (ctx:method() == "GET" or ctx:method() == "PUT")`.
 
 API:
 
@@ -151,20 +166,24 @@ secrules:
 - Một table `{type = SZ_REDIRECT, params = {...}}`: action kèm `params` như
   bảng trên.
 
-Action đi qua cùng luồng đánh giá với rule `expr` (priority, xếp hạng action
-terminal, event `secrule: matched`). Ở đây `ctx` chỉ đọc request:
-`set_header`, `set_response_header` và `respond` báo lỗi. Script được kiểm tra
-lúc nạp: phải định nghĩa `match` và không có dòng `---@stage`. Script lỗi khi
-chạy, hoặc quá giới hạn 50 ms, được log rồi bỏ qua (fail-open). Các method
-của ctx và sandbox giống hook
-([README scripting](../../staging/src/github.com/sentinez/scripting/README.md)).
-
-[internal/rulescript](../../internal/rulescript/rulescript.go) chuyển
-`expr` + `action` thành script như trên và ngược lại (`ToScript`/`FromScript`,
-`ToKeyScript`/`FromKeyScript` cho limiter): script ở dạng khai báo của
-`scripting.ParseMatch` (các nhánh `if <điều kiện> then return <action> end`
-trên `ctx:path()`, `ctx:header(k)`...). Điều kiện không viết được (regex,
-CIDR, body...) trả lỗi bọc `scripting.ErrNotDeclarative`.
+Edge không chạy Lua cho rule. Lúc nạp setting,
+[szrule/rulescript](../../staging/src/github.com/sentinez/core/szrule/rulescript/rulescript.go)
+chuyển script thành `expr` + `action` nó khai báo
+([scripts.Rule](../../internal/memory/scripts/scripts.go)), rồi `szrule` đánh
+giá như mọi rule `expr` (priority, xếp hạng action terminal, event
+`secrule: matched`, liệt kê các điều kiện). Script phải ở dạng khai báo của
+`scripting.ParseMatch`: các nhánh `if <điều kiện> then return <action> end`
+trên `ctx:path()`, `ctx:header(k)`, `ctx:body()`, `ctx:ja4()`... Mọi điều
+kiện của `expr` đều có dạng Lua: `MATCHES` là `re.match(ctx:path(), "^/a")`,
+CIDR của IP là `ctx:ip_in("10.0.0.0/8")`, TLS là `ctx:tls()`, kiểm tra có
+header hoặc query là `ctx:has_header("X-A")` (`not` cho NE, NOT_IN), list IN
+thành một `or` của các giá trị. `not`, `and`, `or` và ngoặc lồng bao sâu
+tùy biểu thức, tối đa 256 điều kiện (`scripting.MaxConditions`): không nhóm
+nào bị nhân ra thành nhiều nhánh. Script ngoài dạng đó (biến local, vòng
+lặp...) làm việc nạp thất bại với lỗi bọc `scripting.ErrNotDeclarative`,
+chain cũ được giữ.
+`ToScript`/`FromScript` (`ToKeyScript`/`FromKeyScript` cho limiter) chuyển
+hai chiều. Hook `---@stage` vẫn chạy bằng Lua.
 
 ### Các dạng SecRule
 
@@ -231,27 +250,26 @@ allow  ⇔ count + n ≤ limit
 Cấu hình ở `security.limiters[]`: `timeWindow`, `maxRequests`, `timeout` (chuỗi
 `time.ParseDuration`). Mỗi limiter cần `ingress.expr` hoặc `ingress.script`
 (không cả hai): nó chỉ đếm các request nó chọn. Limiter `expr` đếm theo IP
-client. Script định nghĩa hàm global `key(ctx)` trả key để đếm request (tối
-đa 256 byte), `true` để đếm theo IP client, hoặc `nil`/`false` để không đếm:
+client. Script định nghĩa hàm global `key(ctx)` trả `true` cho các request
+cần đếm, được chuyển thành `expr` lúc nạp như script secrule; request cũng
+được đếm theo IP client:
 
 ```yaml
 limiters:
   - ingress:
-      name: "Script: rate limit per API key"
+      name: "Script: rate limit the login"
       status: STATUS_ACTIVE
       script: |
         ---@param ctx sz.Context
         function key(ctx)
-          local k = ctx:header("X-Api-Key")
-          if k ~= "" then return k end
+          if ctx:path() == "/login" then
+            return true
+          end
         end
     timeWindow: 5s
     maxRequests: 20
     timeout: 5s
 ```
-
-Các quy tắc của script secrule cũng áp dụng: `ctx` chỉ đọc, không
-`---@stage`, `key` được kiểm tra lúc nạp, fail-open khi chạy.
 
 ## 4.6 WAF — OWASP CRS trên Coraza
 

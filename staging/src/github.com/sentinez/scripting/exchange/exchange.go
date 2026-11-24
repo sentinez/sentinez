@@ -25,6 +25,16 @@ type Exchange interface {
 	RequestIP() []byte
 	Header(k []byte) []byte
 	Query(k []byte) []byte
+	// HasHeader reports whether the request has the header k, its name
+	// as received.
+	HasHeader(k []byte) bool
+	// HasQuery reports whether the request has the query parameter k.
+	HasQuery(k []byte) bool
+	Body() []byte
+	// JA4 the JA4 fingerprint of the TLS client hello, "" without one.
+	JA4() string
+	// TLS reports whether the request came over TLS.
+	TLS() bool
 	// SetHeader sets a header of the request sent upstream.
 	SetHeader(k, v string)
 	SetResponseHeader(k, v string)

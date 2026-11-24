@@ -182,11 +182,11 @@ the rate limiter and a static asset cost 0 to 18 allocations.
 ## 3.4 Middleware chain
 
 Built in [internal/handlers/handlers.go](../internal/handlers/handlers.go) with
-`chains.Build(envplugin.NewEnv(mem, opts...), wrap, plugins()...)`, where
+`chains.Build(envhandlers.NewEnv(mem, opts...), wrap, plugins()...)`, where
 `wrap` is `Stage` around the Lua hooks of the stage (see below). Each
 plugin implements `chains.Plugin` (`ID()`, `Handle(ctx, next)`) and, when it
-needs dependencies, `Provision(*envplugin.Env)`: the
-[Env](../internal/envplugin/env.go) resolves the options once and hands out
+needs dependencies, `Provision(*envhandlers.Env)`: the
+[Env](../internal/envhandlers/envhandlers.go) resolves the options once and hands out
 the sub-stores of `MemStore`, the secret key and event loggers
 (`Env.Logger(kind)`), so plugins take no constructor arguments. Every plugin
 is wrapped by `wrapStage` ([internal/handlers/stage.go](../internal/handlers/stage.go)), which tags errors with the plugin `ID()`
@@ -200,10 +200,10 @@ stage that produced them; the stage names are exported constants (e.g.
 | 1 | `logging` | `logging.Logging` | Calls `next` first, then logs an `httppb.IngressEvent` (JSON, kind `LOG_TYPE_HTTP_INGRESS`, the ingress) and, when `router` proxied the request, an `httppb.EgressEvent` of the proxy → upstream origin leg (kind `LOG_TYPE_HTTP_EGRESS`: upstream, origin status, content type/length, latency, and the headers the edge set on the upstream request via `szhttp.SetUpstreamHeader`, sorted by name with credential headers omitted) |
 | 2 | `domain` | `secure.DomainBased` | The host (port stripped, lower case) is the namespace: it must be the `ingress.resource.domain` of a loaded setting. Otherwise → `403`. A domain in `TLS_MODE_PASSTHROUGH` → `421` (see 3.6). Sets `X().Namespace` and the tenant/resource ids of the setting |
 | 3 | `caching` | `contents.Caching` | If the namespace has an active CDN rule whose expression matches: look up the cache by `method+scheme+host+path+query+Accept-Encoding`; hit → return the cached response with `X-Cache: HIT`; miss → continue and store cacheable responses (TTL 1h, see [04-rule-engine.md](04-rule-engine.md#44-cdn-rules)) |
-| 4 | `secratelimit` | `secure.SecLimiter` | for each limiter, in priority order like `secrule`: an `ingress.expr` that matches counts the client IP, an `ingress.script` returns the key (`key(ctx)`, see [04-rule-engine.md](04-rule-engine.md#45-rate-limiter)); `limiter.Allow(key)` exceeded → `429` |
+| 4 | `secratelimit` | `secure.SecLimiter` | for each limiter, in priority order like `secrule`: an `ingress.expr` that matches counts the client IP, an `ingress.script` (`key(ctx)`, converted to its expr at load) counts it too, see [04-rule-engine.md](04-rule-engine.md#45-rate-limiter)); `limiter.Allow(key)` exceeded → `429` |
 | 5 | `waitingroom` | `room.WaitingRoom` | Placeholder, just forwards |
 | 6 | `staticassets` | `contents.StaticAssets` | After the rest of the chain, if the path has a static extension (`.css .js .png ...`) sets `Cache-Control: public, max-age=3600, immutable` |
-| 7 | `secrule` | `secure.SecRule` | Walks the active SecRules (an `expr` + `action`, or a Lua `match(ctx)` script) by descending priority and applies the matched actions, see [04-rule-engine.md](04-rule-engine.md#43-secrule) |
+| 7 | `secrule` | `secure.SecRule` | Walks the active SecRules (an `expr` + `action`, or a `match(ctx)` script converted to them at load) by descending priority and applies the matched actions, see [04-rule-engine.md](04-rule-engine.md#43-secrule) |
 | 8 | `secruleset` | `secure.SecRuleset` | Coraza transaction: `ExecIngress` (headers/body) → rest of chain → `ExecEgress` (response). Blocked with status 403 → 403 page. Finally logs a `secrulepb.Event` (`LOG_TYPE_SECRULESET`) if the transaction was interrupted |
 | 9 | `router` | `routing.StandardRouter` | Ends the chain: finds the route, rewrites the path, sets headers, calls `ReverseProxy.Serve` of the namespace's proxy to the upstream; none → `502` |
 

@@ -518,9 +518,19 @@ export interface Rule {
   condition?: Condition | undefined;
 }
 
+/**
+ * A group matching when its rules, its or group and all its and groups do:
+ *
+ *   rules AND (one of or_condition) AND (every one of and_condition)
+ *
+ * An empty or_condition matches. and_condition holds the groups of a second
+ * (or third...) or group, each one carrying its own: (a or b) and (c or d)
+ * is {or_condition: [a, b], and_condition: [{or_condition: [c, d]}]}.
+ */
 export interface AndCondition {
   rules: Rule[];
   orCondition: AndCondition[];
+  andCondition: AndCondition[];
 }
 
 export interface Expression {
@@ -851,7 +861,7 @@ export const Rule: MessageFns<Rule> = {
 };
 
 function createBaseAndCondition(): AndCondition {
-  return { rules: [], orCondition: [] };
+  return { rules: [], orCondition: [], andCondition: [] };
 }
 
 export const AndCondition: MessageFns<AndCondition> = {
@@ -861,6 +871,9 @@ export const AndCondition: MessageFns<AndCondition> = {
     }
     for (const v of message.orCondition) {
       AndCondition.encode(v!, writer.uint32(18).fork()).join();
+    }
+    for (const v of message.andCondition) {
+      AndCondition.encode(v!, writer.uint32(26).fork()).join();
     }
     return writer;
   },
@@ -894,6 +907,14 @@ export const AndCondition: MessageFns<AndCondition> = {
             message.orCondition.push(AndCondition.decode(reader, reader.uint32()));
             continue;
           }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.andCondition.push(AndCondition.decode(reader, reader.uint32()));
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -914,6 +935,11 @@ export const AndCondition: MessageFns<AndCondition> = {
         : globalThis.Array.isArray(object?.or_condition)
         ? object.or_condition.map((e: any) => AndCondition.fromJSON(e))
         : [],
+      andCondition: globalThis.Array.isArray(object?.andCondition)
+        ? object.andCondition.map((e: any) => AndCondition.fromJSON(e))
+        : globalThis.Array.isArray(object?.and_condition)
+        ? object.and_condition.map((e: any) => AndCondition.fromJSON(e))
+        : [],
     };
   },
 
@@ -925,6 +951,9 @@ export const AndCondition: MessageFns<AndCondition> = {
     if (message.orCondition?.length) {
       obj.orCondition = message.orCondition.map((e) => AndCondition.toJSON(e));
     }
+    if (message.andCondition?.length) {
+      obj.andCondition = message.andCondition.map((e) => AndCondition.toJSON(e));
+    }
     return obj;
   },
 
@@ -935,6 +964,7 @@ export const AndCondition: MessageFns<AndCondition> = {
     const message = createBaseAndCondition();
     message.rules = object.rules?.map((e) => Rule.fromPartial(e)) || [];
     message.orCondition = object.orCondition?.map((e) => AndCondition.fromPartial(e)) || [];
+    message.andCondition = object.andCondition?.map((e) => AndCondition.fromPartial(e)) || [];
     return message;
   },
 };

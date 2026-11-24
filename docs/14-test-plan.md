@@ -106,6 +106,10 @@ because later tests reuse the state that earlier ones create.
 | LUA-04 | A function that loops forever | Each request is served after at most about 50 ms of script time. The script error is logged and the chain goes on |
 | LUA-05 | `---@stage http.request/sec_rate_limit` (the old name) | The edge logs `edge: load '<domain>': … @stage: unknown stage "sec_rate_limit", one of caching, secratelimit, …` and loads none of the namespace's scripts, keeping the ones it held before. The rest of the namespace still loads |
 | LUA-06 | `os.execute`, `io.open` or `require` in a script | Not available (sandbox) |
+| LUA-07 | A secrule `script` of `if ctx:method() == "GET" and (ctx:path():sub(1, 2) == "/a" or ctx:path():sub(1, 2) == "/b") then return SZ_BLOCK end`; request `GET /a`, `GET /c`, `POST /a` | Only `GET /a` is blocked. The `secrule: matched` event names the rule by its Lua condition, parentheses kept |
+| LUA-08 | A secrule `script` using `re.match(ctx:path(), "^/wp-")`, `ctx:ip_in("10.0.0.0/8")`, `ctx:has_header("X-Debug")` or `ctx:tls()` | It loads and matches as the same `expr` (`MATCHES`, an IP CIDR, a header presence, TLS) would |
+| LUA-09 | A secrule `script` with a local variable, a loop, or an invalid `re.match` pattern | The setting is refused with an error wrapping `not declarative`, and the previous chain stays |
+| LUA-10 | A secrule `expr` of two or groups, the second in `andCondition` (the shipped "Challenge GET/HEAD on /a or /b") | `GET /a/x` is challenged; `GET /c` and `POST /a/x` are not |
 
 ### CLS: cluster
 

@@ -667,10 +667,18 @@ func (x *Rule) GetCondition() *Condition {
 	return nil
 }
 
+// A group matching when its rules, its or group and all its and groups do:
+//
+//	rules AND (one of or_condition) AND (every one of and_condition)
+//
+// An empty or_condition matches. and_condition holds the groups of a second
+// (or third...) or group, each one carrying its own: (a or b) and (c or d)
+// is {or_condition: [a, b], and_condition: [{or_condition: [c, d]}]}.
 type AndCondition struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Rules         []*Rule                `protobuf:"bytes,1,rep,name=rules,proto3" json:"rules,omitempty"`
 	OrCondition   []*AndCondition        `protobuf:"bytes,2,rep,name=or_condition,json=orCondition,proto3" json:"or_condition,omitempty"`
+	AndCondition  []*AndCondition        `protobuf:"bytes,3,rep,name=and_condition,json=andCondition,proto3" json:"and_condition,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -715,6 +723,13 @@ func (x *AndCondition) GetRules() []*Rule {
 func (x *AndCondition) GetOrCondition() []*AndCondition {
 	if x != nil {
 		return x.OrCondition
+	}
+	return nil
+}
+
+func (x *AndCondition) GetAndCondition() []*AndCondition {
+	if x != nil {
+		return x.AndCondition
 	}
 	return nil
 }
@@ -1061,10 +1076,11 @@ const file_sentinez_types_rule_v1_rule_proto_rawDesc = "" +
 	"\x04type\x18\x01 \x01(\x0e2\".sentinez.types.rule.v1.ActionTypeR\x04type\x12/\n" +
 	"\x06params\x18\x02 \x01(\v2\x17.google.protobuf.StructR\x06params\"G\n" +
 	"\x04Rule\x12?\n" +
-	"\tcondition\x18\x01 \x01(\v2!.sentinez.types.rule.v1.ConditionR\tcondition\"\x8b\x01\n" +
+	"\tcondition\x18\x01 \x01(\v2!.sentinez.types.rule.v1.ConditionR\tcondition\"\xd6\x01\n" +
 	"\fAndCondition\x122\n" +
 	"\x05rules\x18\x01 \x03(\v2\x1c.sentinez.types.rule.v1.RuleR\x05rules\x12G\n" +
-	"\for_condition\x18\x02 \x03(\v2$.sentinez.types.rule.v1.AndConditionR\vorCondition\"U\n" +
+	"\for_condition\x18\x02 \x03(\v2$.sentinez.types.rule.v1.AndConditionR\vorCondition\x12I\n" +
+	"\rand_condition\x18\x03 \x03(\v2$.sentinez.types.rule.v1.AndConditionR\fandCondition\"U\n" +
 	"\n" +
 	"Expression\x12G\n" +
 	"\for_condition\x18\x01 \x03(\v2$.sentinez.types.rule.v1.AndConditionR\vorCondition\"6\n" +
@@ -1192,19 +1208,20 @@ var file_sentinez_types_rule_v1_rule_proto_depIdxs = []int32{
 	7,  // 5: sentinez.types.rule.v1.Rule.condition:type_name -> sentinez.types.rule.v1.Condition
 	9,  // 6: sentinez.types.rule.v1.AndCondition.rules:type_name -> sentinez.types.rule.v1.Rule
 	10, // 7: sentinez.types.rule.v1.AndCondition.or_condition:type_name -> sentinez.types.rule.v1.AndCondition
-	10, // 8: sentinez.types.rule.v1.Expression.or_condition:type_name -> sentinez.types.rule.v1.AndCondition
-	1,  // 9: sentinez.types.rule.v1.OperatorSpec.operator:type_name -> sentinez.types.rule.v1.Operator
-	6,  // 10: sentinez.types.rule.v1.OperatorSpec.value_kind:type_name -> sentinez.types.rule.v1.ValueKind
-	5,  // 11: sentinez.types.rule.v1.SourceVariant.key_mode:type_name -> sentinez.types.rule.v1.KeyMode
-	13, // 12: sentinez.types.rule.v1.SourceVariant.operators:type_name -> sentinez.types.rule.v1.OperatorSpec
-	0,  // 13: sentinez.types.rule.v1.SourceSpec.source:type_name -> sentinez.types.rule.v1.FieldSource
-	14, // 14: sentinez.types.rule.v1.SourceSpec.variants:type_name -> sentinez.types.rule.v1.SourceVariant
-	15, // 15: sentinez.types.rule.v1.ConditionSchema.sources:type_name -> sentinez.types.rule.v1.SourceSpec
-	16, // [16:16] is the sub-list for method output_type
-	16, // [16:16] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	10, // 8: sentinez.types.rule.v1.AndCondition.and_condition:type_name -> sentinez.types.rule.v1.AndCondition
+	10, // 9: sentinez.types.rule.v1.Expression.or_condition:type_name -> sentinez.types.rule.v1.AndCondition
+	1,  // 10: sentinez.types.rule.v1.OperatorSpec.operator:type_name -> sentinez.types.rule.v1.Operator
+	6,  // 11: sentinez.types.rule.v1.OperatorSpec.value_kind:type_name -> sentinez.types.rule.v1.ValueKind
+	5,  // 12: sentinez.types.rule.v1.SourceVariant.key_mode:type_name -> sentinez.types.rule.v1.KeyMode
+	13, // 13: sentinez.types.rule.v1.SourceVariant.operators:type_name -> sentinez.types.rule.v1.OperatorSpec
+	0,  // 14: sentinez.types.rule.v1.SourceSpec.source:type_name -> sentinez.types.rule.v1.FieldSource
+	14, // 15: sentinez.types.rule.v1.SourceSpec.variants:type_name -> sentinez.types.rule.v1.SourceVariant
+	15, // 16: sentinez.types.rule.v1.ConditionSchema.sources:type_name -> sentinez.types.rule.v1.SourceSpec
+	17, // [17:17] is the sub-list for method output_type
+	17, // [17:17] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_sentinez_types_rule_v1_rule_proto_init() }

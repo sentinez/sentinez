@@ -27,7 +27,7 @@ import (
 )
 
 // TestMetaMatchesContext the annotations of meta/sentinez.lua declare the
-// methods ctx has, the functions of the log table, the stages and the
+// methods ctx has, the functions of the log and re tables, the stages and the
 // actions, no more, no less.
 func TestMetaMatchesContext(t *testing.T) {
 	src, err := os.ReadFile("meta/sentinez.lua")
@@ -38,6 +38,9 @@ func TestMetaMatchesContext(t *testing.T) {
 
 	logs := declared(src, `(?m)^function log\.(\w+)\(`)
 	assert.Equal(t, api.LogFuncs(), logs)
+
+	res := declared(src, `(?m)^function re\.(\w+)\(`)
+	assert.Equal(t, api.ReFuncs(), res)
 
 	stages := declared(src, `(?m)^---\| "([\w.]+)" #`)
 	assert.Equal(t, slices.Sorted(slices.Values(hooks.Stages())), stages)

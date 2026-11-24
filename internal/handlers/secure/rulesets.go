@@ -25,7 +25,7 @@ import (
 	"github.com/sentinez/pkg/szlog"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/envplugin"
+	"github.com/sentinez/sentinez/internal/envhandlers"
 	"github.com/sentinez/sentinez/internal/memory/secrulesets"
 	secrulesetpool "github.com/sentinez/sentinez/pkg/pools/secruleset"
 )
@@ -34,8 +34,8 @@ import (
 const SecRulesetId = "secruleset"
 
 var (
-	_ chains.Plugin                      = (*SecRuleset)(nil)
-	_ chains.Provisioner[*envplugin.Env] = (*SecRuleset)(nil)
+	_ chains.Plugin                        = (*SecRuleset)(nil)
+	_ chains.Provisioner[*envhandlers.Env] = (*SecRuleset)(nil)
 )
 
 type SecRuleset struct {
@@ -45,7 +45,7 @@ type SecRuleset struct {
 
 func (*SecRuleset) ID() string { return SecRulesetId }
 
-func (rs *SecRuleset) Provision(env *envplugin.Env) error {
+func (rs *SecRuleset) Provision(env *envhandlers.Env) error {
 	rs.store = env.Store().Rulesets()
 	rs.log = env.Logger(typepb.LogType_LOG_TYPE_SECRULESET)
 	return nil

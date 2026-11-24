@@ -18,11 +18,9 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/sentinez/scripting"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/memory/secratelimits"
 	"github.com/sentinez/sentinez/internal/memory/secrules"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -53,20 +51,15 @@ type scriptEvalTest struct {
 
 func scriptEvalTests() []scriptEvalTest {
 	return []scriptEvalTest{
-		{"no match", `function match(ctx) end`, _none, ""},
-		{"false", `function match(ctx) return false end`, _none, ""},
+		// evaluated as the expr it converts to, matched by its conditions
 		{"named", `function match(ctx) return "block" end`, _block,
-			"script"},
+			"true"},
 		{"table", `function match(ctx)
 			return {type = "redirect", params = {location = "/new"}}
-		end`, _redirect, "script"},
-		{"unknown action", `function match(ctx) return "nuke" end`,
-			_none, ""},
-		{"runtime error", `function match(ctx) error("boom") end`,
-			_none, ""},
+		end`, _redirect, "true"},
 		{"path", `function match(ctx)
 			if ctx:path() == "/x" then return "block" end
-		end`, _block, "script"},
+		end`, _block, `ctx:path() == "/x"`},
 	}
 }
 
@@ -104,96 +97,34 @@ func TestEvaluateScriptParams(t *testing.T) {
 	assert.Equal(t, "/new", paramString(got, _paramLocation))
 }
 
+// TestScriptRuleRejected a script that does not convert to an expr fails
+// the load: no Lua runs at request time. scripts.Rule tests the rule with
+// an expr too.
 func TestScriptRuleRejected(t *testing.T) {
 	tests := []struct {
 		name string
-		give *secrulepb.SecRule
+		give string
 	}{
-		{"no match func", &secrulepb.SecRule{Script: `function x() end`}},
-		{"stage hook", &secrulepb.SecRule{
-			Script: "---@stage http.request/router\n" +
-				"function match(ctx) end",
-		}},
-		{"syntax", &secrulepb.SecRule{Script: `function (`}},
-		{"expr and script", &secrulepb.SecRule{
-			Script: `function match(ctx) end`,
-			Expr: &rulepb.Expression{
-				OrCondition: []*rulepb.AndCondition{{}},
-			},
-		}},
+		{"no match func", `function x() end`},
+		{"stage hook", "---@stage http.request/router\n" +
+			"function match(ctx) end"},
+		{"syntax", `function (`},
+		{"no branch", `function match(ctx) end`},
+		{"unknown action", `function match(ctx) return "nuke" end`},
+		{"not declarative", `function match(ctx)
+			local a = "block"
+			return a
+		end`},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.give.Status = typepb.Status_STATUS_ACTIVE
-
-			err := secrules.New().Store("script-reject", []*secrulepb.SecRule{
-				tt.give,
-			})
+			err := secrules.New().Store("script-reject", []*secrulepb.SecRule{{
+				Status: typepb.Status_STATUS_ACTIVE, Script: tt.give,
+			}})
 
 			require.Error(t, err)
 			assert.Empty(t, secrules.New().Load("script-reject"))
 		})
 	}
-}
-
-func TestScriptKey(t *testing.T) {
-	tests := []struct {
-		name    string
-		give    scripting.Value
-		want    string
-		wantOk  bool
-		wantErr bool
-	}{
-		{"nil", scripting.Value{Kind: scripting.KindNil}, "", false, false},
-		{"false", scripting.Value{Kind: scripting.KindBool}, "", false, false},
-		{"true", scripting.Value{Kind: scripting.KindBool, Bool: true},
-			"1.1.1.1", true, false},
-		{"string", scripting.Value{Kind: scripting.KindString, Str: "k"},
-			"k", true, false},
-		{"empty string", scripting.Value{Kind: scripting.KindString},
-			"", false, false},
-		{"too long", scripting.Value{
-			Kind: scripting.KindString, Str: string(make([]byte, 257)),
-		}, "", false, true},
-		{"table", scripting.Value{Kind: scripting.KindTable},
-			"", false, true},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, ok, err := scriptKey(tt.give, "1.1.1.1")
-
-			assert.Equal(t, tt.want, got)
-			assert.Equal(t, tt.wantOk, ok)
-			assert.Equal(t, tt.wantErr, err != nil)
-		})
-	}
-}
-
-func TestCountedScript(t *testing.T) {
-	p, err := scripting.Compile("limit", `function key(ctx)
-		local k = ctx:header("X-Api-Key")
-		if k == "" then return true end
-		return k
-	end`)
-	require.NoError(t, err)
-
-	e := secratelimits.Entry{
-		Script: p, Rule: &secrulepb.SecRule{Id: "srlim_1", Name: "per key"},
-	}
-	ctx := newTestContext(http.MethodGet, "/", "", nil)
-	run := scriptRun{ctx: ctx}
-	defer run.Close()
-
-	mr := &rulepb.MatchedRules{}
-	key, ok := counted(&run, e, "9.9.9.9", mr)
-	assert.True(t, ok)
-	assert.Equal(t, "9.9.9.9", key)
-
-	ctx.SetHeader([]byte("X-Api-Key"), []byte("abc"))
-	key, ok = counted(&run, e, "9.9.9.9", mr)
-	assert.True(t, ok)
-	assert.Equal(t, "abc", key)
-	assert.Equal(t, []string{"per key", "per key"}, mr.GetNames())
 }

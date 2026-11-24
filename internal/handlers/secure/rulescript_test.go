@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rulescript
+package secure
 
 import (
 	"context"
@@ -22,6 +22,7 @@ import (
 
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szrule"
+	"github.com/sentinez/core/szrule/rulescript"
 	"github.com/sentinez/scripting"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
@@ -56,6 +57,13 @@ const (
 	_ip     = rulepb.FieldSource_FIELD_SOURCE_IP
 	_header = rulepb.FieldSource_FIELD_SOURCE_HEADER
 	_query  = rulepb.FieldSource_FIELD_SOURCE_QUERY
+
+	_opEq     = rulepb.Operator_OPERATOR_EQ
+	_opNe     = rulepb.Operator_OPERATOR_NE
+	_opGt     = rulepb.Operator_OPERATOR_GT
+	_opIn     = rulepb.Operator_OPERATOR_IN
+	_opNotIn  = rulepb.Operator_OPERATOR_NOT_IN
+	_opPrefix = rulepb.Operator_OPERATOR_PREFIX
 )
 
 // exprs the expressions of the tests: the ones of proxy.yaml, nested or
@@ -64,25 +72,25 @@ func exprs(t *testing.T) map[string]*rulepb.Expression {
 	return map[string]*rulepb.Expression{
 		"proxy.yaml": {OrCondition: []*rulepb.AndCondition{
 			{Rules: []*rulepb.Rule{
-				cond(_path, "", _eq, str("/block")),
-				cond(_method, "", _ne, str("POST")),
+				cond(_path, "", _opEq, str("/block")),
+				cond(_method, "", _opNe, str("POST")),
 			}},
-			{Rules: []*rulepb.Rule{cond(_ip, "", _eq, str("1.1.1.1"))}},
+			{Rules: []*rulepb.Rule{cond(_ip, "", _opEq, str("1.1.1.1"))}},
 		}},
 		"nested": {OrCondition: []*rulepb.AndCondition{{
 			Rules: []*rulepb.Rule{cond(_path, "",
-				rulepb.Operator_OPERATOR_PREFIX, str("/api"))},
+				_opPrefix, str("/api"))},
 			OrCondition: []*rulepb.AndCondition{
-				{Rules: []*rulepb.Rule{cond(_header, "X-Debug", _eq,
+				{Rules: []*rulepb.Rule{cond(_header, "X-Debug", _opEq,
 					str("1"))}},
 				{Rules: []*rulepb.Rule{cond(_query, "n",
-					rulepb.Operator_OPERATOR_GT, str("5"))}},
+					_opGt, str("5"))}},
 			},
 		}}},
 		"lists": {OrCondition: []*rulepb.AndCondition{{
 			Rules: []*rulepb.Rule{
-				cond(_method, "", _in, list(t, "GET", "HEAD")),
-				cond(_header, "X-Tier", _notIn, list(t, "gold", "vip")),
+				cond(_method, "", _opIn, list(t, "GET", "HEAD")),
+				cond(_header, "X-Tier", _opNotIn, list(t, "gold", "vip")),
 			},
 		}}},
 		"all": nil,
@@ -114,13 +122,13 @@ func TestToScriptMatchesExpr(t *testing.T) {
 
 	for name, expr := range exprs(t) {
 		t.Run(name, func(t *testing.T) {
-			src, err := ToScript(expr, action)
+			src, err := rulescript.ToScript(expr, action)
 			require.NoError(t, err)
 
 			p, err := scripting.Compile(name, src)
 			require.NoError(t, err, src)
 
-			back, gotAction, err := FromScript(src)
+			back, gotAction, err := rulescript.FromScript(src)
 			require.NoError(t, err, src)
 			assert.True(t, proto.Equal(action, gotAction))
 

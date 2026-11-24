@@ -29,7 +29,7 @@ import (
 	"github.com/sentinez/pkg/szlog"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/envplugin"
+	"github.com/sentinez/sentinez/internal/envhandlers"
 	"github.com/sentinez/sentinez/internal/memory/secrules"
 	"github.com/sentinez/sentinez/pkg/challenge"
 	"github.com/sentinez/sentinez/pkg/pools/matchedrule"
@@ -40,8 +40,8 @@ import (
 const SecRuleId = "secrule"
 
 var (
-	_ chains.Plugin                      = (*SecRule)(nil)
-	_ chains.Provisioner[*envplugin.Env] = (*SecRule)(nil)
+	_ chains.Plugin                        = (*SecRule)(nil)
+	_ chains.Provisioner[*envhandlers.Env] = (*SecRule)(nil)
 )
 
 type SecRule struct {
@@ -52,7 +52,7 @@ type SecRule struct {
 
 func (*SecRule) ID() string { return SecRuleId }
 
-func (sr *SecRule) Provision(env *envplugin.Env) error {
+func (sr *SecRule) Provision(env *envhandlers.Env) error {
 	challenge, err := challenge.New(env.SecretKey())
 	if err != nil {
 		return fmt.Errorf("new challenge: %w", err)

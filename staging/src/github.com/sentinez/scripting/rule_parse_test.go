@@ -15,6 +15,7 @@
 package scripting
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -36,18 +37,21 @@ end`
 	got, err := ParseMatch(src)
 	require.NoError(t, err)
 
-	notOffice := []Cond{
-		{Source: SourceIP, Op: OpNe, Value: "10.0.0.1"},
-		{Source: SourceIP, Op: OpNe, Value: "10.0.0.2"},
-	}
-	want := Rule{Any: [][]Cond{
-		append([]Cond{{Source: SourcePath, Op: OpEq, Value: "/admin"}},
-			notOffice...),
-		append([]Cond{{Source: SourcePath, Op: OpPrefix,
-			Value: "/admin/"}}, notOffice...),
-		{{Source: SourceHeader, Key: "X-Debug", Op: OpEq, Value: "1"}},
-		{{Source: SourceIP, Op: OpEq, Value: "10.0.0.3"}},
-	}, Action: Action{Name: "block"}}
+	// the admin pages are one group now, not one branch per path
+	want := Rule{Match: Any(
+		All(
+			Leaf(Cond{Source: SourceIP, Op: OpNe, Value: "10.0.0.1"}),
+			Leaf(Cond{Source: SourceIP, Op: OpNe, Value: "10.0.0.2"}),
+			Any(
+				Leaf(Cond{Source: SourcePath, Op: OpEq, Value: "/admin"}),
+				Leaf(Cond{Source: SourcePath, Op: OpPrefix,
+					Value: "/admin/"}),
+			),
+		),
+		Leaf(Cond{Source: SourceHeader, Key: "X-Debug", Op: OpEq,
+			Value: "1"}),
+		Leaf(Cond{Source: SourceIP, Op: OpEq, Value: "10.0.0.3"}),
+	), Action: Action{Name: "block"}}
 
 	assert.Equal(t, want, got)
 }
@@ -77,6 +81,24 @@ func TestParseMatchNotDeclarative(t *testing.T) {
 	}
 }
 
+func TestParseMatchReads(t *testing.T) {
+	src := matchIf(`not ctx:tls() and not ctx:ip_in("10.0.0.0/8")`+
+		` and not (ctx:has_query("a") or ctx:header("b") ~= "")`,
+		`return SZ_BLOCK`)
+
+	got, err := ParseMatch(src)
+	require.NoError(t, err)
+
+	want := Rule{Match: all(
+		Cond{Source: SourceTLS, Op: OpNe, Value: "true"},
+		Cond{Source: SourceIP, Op: OpNotWithin, Value: "10.0.0.0/8"},
+		Cond{Source: SourceQuery, Key: "a", Op: OpAbsent},
+		Cond{Source: SourceHeader, Key: "b", Op: OpEq},
+	), Action: Action{Name: "block"}}
+
+	assert.Equal(t, want, got)
+}
+
 func TestParseMatchSyntax(t *testing.T) {
 	_, err := ParseMatch(`function match(ctx`)
 	require.Error(t, err)
@@ -93,6 +115,18 @@ func TestParseMatchUnsupportedCondition(t *testing.T) {
 		"hex number":  `tonumber(ctx:query("n")) > 0x10`,
 		"no key":      `ctx:header() == "a"`,
 		"bare field":  `ctx:path()`,
+		"tls compare": `ctx:tls() == "true"`,
+		"tls number":  `tonumber(ctx:tls()) > 1`,
+		"ip cidr":     `ctx:ip() == "10.0.0.0/8"`,
+		"ip_in addr":  `ctx:ip_in("10.0.0.1")`,
+		"ip_in var":   `ctx:ip_in(ctx:host())`,
+		"bad regex":   `re.match(ctx:path(), "(")`,
+		"regex var":   `re.match(ctx:path(), ctx:host())`,
+		"regex tls":   `re.match(ctx:tls(), "t")`,
+		"not regex":   `not re.match(ctx:path(), "a")`,
+		"other re":    `re.find(ctx:path(), "a")`,
+		"has no key":  `ctx:has_header("")`,
+		"tls arg":     `ctx:tls("x")`,
 	}
 
 	for name, cond := range tests {
@@ -114,5 +148,17 @@ func TestParseKeyNotTrue(t *testing.T) {
 		if ctx:header("X-Api-Key") ~= "" then return ctx:header("X-Api-Key") end
 	end`)
 
+	require.ErrorIs(t, err, ErrNotDeclarative)
+}
+
+func TestParseMatchTooMany(t *testing.T) {
+	conds := make([]string, 0, MaxConditions+1)
+	for range MaxConditions + 1 {
+		conds = append(conds, `ctx:ip() == "1"`)
+	}
+
+	src := matchIf(strings.Join(conds, " and "), `return SZ_BLOCK`)
+
+	_, err := ParseMatch(src)
 	require.ErrorIs(t, err, ErrNotDeclarative)
 }
