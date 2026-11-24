@@ -52,12 +52,15 @@ func evaluate(
 ) (*rulepb.Action, []*rulepb.Action) {
 	var terminal *rulepb.Action
 
+	run := scriptRun{ctx: ctx}
+	defer run.Close()
+
 	for _, e := range chain {
-		if !e.Eval(ctx, mr) {
+		action, ok := run.match(e, mr)
+		if !ok {
 			continue
 		}
 
-		action := e.Rule.GetAction()
 		rank := terminalRank(action.GetType())
 		switch {
 		case action.GetType() == rulepb.ActionType_ACTION_TYPE_BLOCK:

@@ -43,6 +43,9 @@ type call struct {
 	phase     phase.Phase
 	responded bool
 	logged    int
+	// readonly a rule call: ctx reads the request, it may not change or
+	// answer it.
+	readonly bool
 }
 
 // Run calls the global functions funcs of L, the hooks of script at
@@ -80,6 +83,45 @@ func Run(ctx context.Context, L *lua.LState, funcs []string,
 	}
 
 	return false, nil
+}
+
+// Invoke calls the global function fn of L, a rule of script, with a
+// read-only ctx on ex, and returns its first result. ctx bounds the time
+// of the call; fn is the name of a function the caller checked.
+func Invoke(ctx context.Context, L *lua.LState, fn string,
+	ex exchange.Exchange, script string) (lua.LValue, error) {
+
+	c := &call{ex: ex, script: script, phase: phase.Request, readonly: true}
+
+	ud := L.NewUserData()
+	ud.Value = c
+	L.SetMetatable(ud, L.GetTypeMetatable(_ctxType))
+	defer func() { ud.Value = nil }()
+
+	L.SetContext(context.WithValue(ctx, callKey{}, c))
+	defer L.RemoveContext()
+
+	f, ok := L.GetGlobal(fn).(*lua.LFunction)
+	if !ok {
+		return nil, fmt.Errorf("%s is not a function", fn)
+	}
+
+	err := L.CallByParam(lua.P{Fn: f, NRet: 1, Protect: true}, ud)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", fn, err)
+	}
+
+	res := L.Get(-1)
+	L.Pop(1)
+
+	return res, nil
+}
+
+// HasFunc reports whether L defines the global function name.
+func HasFunc(L *lua.LState, name string) bool {
+	_, ok := L.GetGlobal(name).(*lua.LFunction)
+
+	return ok
 }
 
 // CtxMethods returns the sorted names of the methods of ctx.
@@ -231,6 +273,10 @@ func keyed(get func(c *call, k string) []byte) lua.LGFunction {
 func setter(set func(c *call, k, v string)) lua.LGFunction {
 	return func(L *lua.LState) int {
 		c := callOf(L)
+		if c.readonly {
+			L.RaiseError("ctx is read-only in a rule")
+		}
+
 		set(c, L.CheckString(2), L.CheckString(3))
 
 		return 0
@@ -241,6 +287,10 @@ func setter(set func(c *call, k, v string)) lua.LGFunction {
 // runs once the stage answered: it raises an error.
 func respond(L *lua.LState) int {
 	c := callOf(L)
+	if c.readonly {
+		L.RaiseError("ctx is read-only in a rule")
+	}
+
 	if c.phase == phase.Response {
 		L.RaiseError("respond: the stage already ran")
 	}

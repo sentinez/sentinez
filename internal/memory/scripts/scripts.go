@@ -16,6 +16,7 @@
 package scripts
 
 import (
+	"errors"
 	"fmt"
 	"slices"
 
@@ -23,7 +24,10 @@ import (
 	"github.com/sentinez/pkg/szsync"
 	"github.com/sentinez/scripting"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
+	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 )
+
+var errRuleStage = errors.New("a rule script has no @stage hook")
 
 // Scripts the compiled scripts by namespace.
 type Scripts struct {
@@ -83,6 +87,33 @@ func compiled(held []*scripting.Program, name,
 	}
 
 	return scripting.Compile(name, source)
+}
+
+// Rule the program of the script of r, named by its name or else its id:
+// compiled, checked to define the global function fn, its entry point,
+// and to hook no stage.
+func Rule(held []*scripting.Program, r *secrulepb.SecRule,
+	fn string) (*scripting.Program, error) {
+
+	name := r.GetName()
+	if name == "" {
+		name = r.GetId()
+	}
+
+	p, err := compiled(held, name, r.GetScript())
+	if err != nil {
+		return nil, err
+	}
+
+	if p.Hooked() {
+		return nil, errRuleStage
+	}
+
+	if !p.HasFunc(fn) {
+		return nil, fmt.Errorf("script must define %s(ctx)", fn)
+	}
+
+	return p, nil
 }
 
 // Load returns the scripts of namespace. The result is shared and must not

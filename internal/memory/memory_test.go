@@ -93,3 +93,68 @@ func newRateLimit(
 		MaxRequests: limit,
 	}
 }
+
+type limiterScriptTest struct {
+	name    string
+	give    *secrulepb.SecRule
+	wantErr error
+}
+
+func limiterScriptTests() []limiterScriptTest {
+	return []limiterScriptTest{
+		{"script", &secrulepb.SecRule{
+			Script: `function key(ctx) return true end`,
+		}, nil},
+		{"both", &secrulepb.SecRule{
+			Script: `function key(ctx) return true end`,
+			Expr: &rulepb.Expression{
+				OrCondition: []*rulepb.AndCondition{{}},
+			},
+		}, errLimiterBoth},
+		{"neither", &secrulepb.SecRule{}, errLimiterNoExpr},
+	}
+}
+
+func TestLoadRateLimiterScript(t *testing.T) {
+	tests := limiterScriptTests()
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.give.Status = typepb.Status_STATUS_ACTIVE
+			m := &MemStore{limiter: secratelimits.New()}
+
+			err := m.LoadRateLimiter(&edgepb.Setting{
+				Ingress: &edgepb.Ingress{Resource: &edgepb.Resource{
+					Domain: "script-" + tt.name,
+				}},
+				Security: &edgepb.Security{Limiters: []*edgepb.RateLimit{{
+					Ingress: tt.give, TimeWindow: "1s", Timeout: "1s",
+				}}},
+			})
+
+			if !errors.Is(err, tt.wantErr) {
+				t.Fatalf("LoadRateLimiter: %v, want %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestLoadRateLimiterScriptNoKey(t *testing.T) {
+	m := &MemStore{limiter: secratelimits.New()}
+	err := m.LoadRateLimiter(&edgepb.Setting{
+		Ingress: &edgepb.Ingress{
+			Resource: &edgepb.Resource{Domain: "script-nokey"},
+		},
+		Security: &edgepb.Security{Limiters: []*edgepb.RateLimit{{
+			Ingress: &secrulepb.SecRule{
+				Status: typepb.Status_STATUS_ACTIVE,
+				Script: `function match(ctx) end`,
+			},
+			TimeWindow: "1s", Timeout: "1s",
+		}}},
+	})
+
+	if err == nil {
+		t.Fatal("LoadRateLimiter: want an error for a script without key")
+	}
+}

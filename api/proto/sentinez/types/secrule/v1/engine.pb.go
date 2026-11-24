@@ -38,15 +38,22 @@ const (
 )
 
 type SecRule struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	Expr          *v1.Expression         `protobuf:"bytes,4,opt,name=expr,proto3" json:"expr,omitempty"`
-	Action        *v1.Action             `protobuf:"bytes,5,opt,name=action,proto3" json:"action,omitempty"`
-	Status        v11.Status             `protobuf:"varint,6,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`
-	Priority      int32                  `protobuf:"varint,7,opt,name=priority,proto3" json:"priority,omitempty"`
-	ExprPreview   string                 `protobuf:"bytes,8,opt,name=expr_preview,json=exprPreview,proto3" json:"expr_preview,omitempty"`
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	Id          string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name        string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Description string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	Expr        *v1.Expression         `protobuf:"bytes,4,opt,name=expr,proto3" json:"expr,omitempty"`
+	Action      *v1.Action             `protobuf:"bytes,5,opt,name=action,proto3" json:"action,omitempty"`
+	Status      v11.Status             `protobuf:"varint,6,opt,name=status,proto3,enum=sentinez.types.v1.Status" json:"status,omitempty"`
+	Priority    int32                  `protobuf:"varint,7,opt,name=priority,proto3" json:"priority,omitempty"`
+	ExprPreview string                 `protobuf:"bytes,8,opt,name=expr_preview,json=exprPreview,proto3" json:"expr_preview,omitempty"`
+	// A Lua source the edge runs in place of expr and action; a rule sets
+	// one or the other. A secrule defines a global match(ctx) returning nil
+	// or false (no match), an action name ("block") or an action table
+	// ({type = "redirect", params = {location = "/"}}). A rate limiter
+	// defines a global key(ctx) returning the key the request is counted
+	// under, true for the client IP, or nil or false not to count it.
+	Script        string `protobuf:"bytes,9,opt,name=script,proto3" json:"script,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -137,11 +144,18 @@ func (x *SecRule) GetExprPreview() string {
 	return ""
 }
 
+func (x *SecRule) GetScript() string {
+	if x != nil {
+		return x.Script
+	}
+	return ""
+}
+
 var File_sentinez_types_secrule_v1_engine_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_secrule_v1_engine_proto_rawDesc = "" +
 	"\n" +
-	"&sentinez/types/secrule/v1/engine.proto\x12\x19sentinez.types.secrule.v1\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1dsentinez/types/v1/known.proto\"\xb1\x02\n" +
+	"&sentinez/types/secrule/v1/engine.proto\x12\x19sentinez.types.secrule.v1\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1dsentinez/types/v1/known.proto\"\xc9\x02\n" +
 	"\aSecRule\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
@@ -150,7 +164,8 @@ const file_sentinez_types_secrule_v1_engine_proto_rawDesc = "" +
 	"\x06action\x18\x05 \x01(\v2\x1e.sentinez.types.rule.v1.ActionR\x06action\x121\n" +
 	"\x06status\x18\x06 \x01(\x0e2\x19.sentinez.types.v1.StatusR\x06status\x12\x1a\n" +
 	"\bpriority\x18\a \x01(\x05R\bpriority\x12!\n" +
-	"\fexpr_preview\x18\b \x01(\tR\vexprPreviewBLZJgithub.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1;secrulepbb\x06proto3"
+	"\fexpr_preview\x18\b \x01(\tR\vexprPreview\x12\x16\n" +
+	"\x06script\x18\t \x01(\tR\x06scriptBLZJgithub.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1;secrulepbb\x06proto3"
 
 var (
 	file_sentinez_types_secrule_v1_engine_proto_rawDescOnce sync.Once

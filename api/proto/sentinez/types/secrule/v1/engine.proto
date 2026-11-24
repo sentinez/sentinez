@@ -31,4 +31,12 @@ message SecRule {
   sentinez.types.v1.Status status = 6;
   int32 priority = 7;
   string expr_preview = 8;
+
+  // A Lua source the edge runs in place of expr and action; a rule sets
+  // one or the other. A secrule defines a global match(ctx) returning nil
+  // or false (no match), an action name ("block") or an action table
+  // ({type = "redirect", params = {location = "/"}}). A rate limiter
+  // defines a global key(ctx) returning the key the request is counted
+  // under, true for the client IP, or nil or false not to count it.
+  string script = 9;
 }

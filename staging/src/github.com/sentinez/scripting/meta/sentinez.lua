@@ -93,3 +93,24 @@ function Context:set_response_header(key, value) end
 ---@param status integer 100 to 599
 ---@param body? string
 function Context:respond(status, body) end
+
+-- Rule scripts. A secrule or a rate limiter may be a Lua source in place
+-- of its expr: it defines one global function the edge calls for each
+-- request. ctx is read-only there: set_header, set_response_header and
+-- respond raise an error, the request is changed through the action. A
+-- rule that fails or runs over the time limit is skipped. A rule script has
+-- no ---@stage line.
+
+---An action name: "block", "challenge", "redirect", "log", "modify_header",
+---"set_tag" or "route_to"; or a table with the type and its params, as the
+---action of a rule takes them.
+---@alias sz.RuleAction string | { type: string, params?: table }
+
+---The function of a secrule script: nil or false when the request does not
+---match, else the action to take.
+---@alias sz.Match fun(ctx: sz.Context): sz.RuleAction|nil|false
+
+---The function of a rate limiter script: the key the request is counted
+---under (256 bytes at most), true for the client IP, nil or false not to
+---count it.
+---@alias sz.Key fun(ctx: sz.Context): string|boolean|nil

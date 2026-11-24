@@ -35,6 +35,7 @@ import (
 	"github.com/sentinez/sentinez/internal/memory/secrules"
 	"github.com/sentinez/sentinez/internal/memory/secrulesets"
 	"github.com/sentinez/sentinez/internal/memory/settings"
+	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
@@ -147,12 +148,13 @@ func benchSecRule(
 	b.Helper()
 
 	store := secrules.New()
-	store.Store(ns, []*secrulepb.SecRule{{
+	err := store.Store(ns, []*secrulepb.SecRule{{
 		Id:     "srule_bench",
 		Status: typepb.Status_STATUS_ACTIVE,
 		Expr:   expr,
 		Action: &rulepb.Action{Type: typ},
 	}})
+	require.NoError(b, err)
 	b.Cleanup(func() { store.Delete(ns) })
 
 	ctx := newTestContext(http.MethodGet, "/", "", httptest.NewRecorder())

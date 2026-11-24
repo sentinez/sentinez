@@ -155,6 +155,55 @@ func (p *Program) Call(ctx context.Context, at phase.Phase, stage string,
 	return responded, nil
 }
 
+// Hooked reports whether a function of the script hooks a stage.
+func (p *Program) Hooked() bool { return p.hooks.Any() }
+
+// HasFunc reports whether the script body defines the global function
+// name: a rule checks its entry point at load, not at the first request.
+func (p *Program) HasFunc(name string) bool {
+	L, err := p.acquire()
+	if err != nil {
+		return false
+	}
+
+	defer p.release(L)
+
+	return api.HasFunc(L, name)
+}
+
+// Invoke calls the global function fn, a rule, with a read-only ctx on ex
+// and returns its result. An error, a timeout included, discards the Lua
+// state.
+func (p *Program) Invoke(ctx context.Context, fn string,
+	ex exchange.Exchange) (Value, error) {
+
+	L, err := p.acquire()
+	if err != nil {
+		return Value{}, fmt.Errorf("script %s: %w", p.name, err)
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, p.timeout)
+	defer cancel()
+
+	var v Value
+
+	res, err := api.Invoke(ctx, L, fn, ex, p.name)
+	if err != nil {
+		L.Close()
+
+		return Value{}, fmt.Errorf("script %s: %w", p.name, err)
+	}
+
+	// The state is intact when only the result is unsupported.
+	p.release(L)
+
+	if v, err = convert(res); err != nil {
+		return Value{}, fmt.Errorf("script %s: %w", p.name, err)
+	}
+
+	return v, nil
+}
+
 // fresh a state with the script body run.
 func (p *Program) fresh() (*lua.LState, error) {
 	L := sandbox.NewState()

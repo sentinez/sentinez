@@ -66,16 +66,37 @@ func (l *SecLimiter) Handle(ctx szhttp.Context, next chains.Handler) error {
 	matched := matchedrule.Acquire()
 	defer func() { _ = matched.Close() }()
 
+	run := scriptRun{ctx: ctx}
+	defer run.Close()
+
 	// not a copy: Allow copies the key it keeps
-	key := bytesconv.B2s(ctx.RequestIP())
+	ip := bytesconv.B2s(ctx.RequestIP())
 	for _, e := range chain {
-		if e.Eval(ctx, matched.MatchedRules) && !e.Limiter.Allow(key) {
+		key, ok := counted(&run, e, ip, matched.MatchedRules)
+		if ok && !e.Limiter.Allow(key) {
 			l.logExceeded(ctx, matched.MatchedRules)
 			return szhttp.TooManyRequests(ctx)
 		}
 	}
 
 	return next.Handle(ctx)
+}
+
+// counted the key the request is counted under by e, ok false when it is
+// not: the client IP for an expr, the one its script returns otherwise.
+func counted(run *scriptRun, e secratelimits.Entry, ip string,
+	mr *rulepb.MatchedRules) (key string, ok bool) {
+
+	if e.Script == nil {
+		return ip, e.Eval(run.ctx, mr)
+	}
+
+	key, ok = run.key(e.Script, ip)
+	if ok {
+		matched(mr, e.Rule)
+	}
+
+	return key, ok
 }
 
 // logExceeded emits a rate limit event for the rejected request, listing

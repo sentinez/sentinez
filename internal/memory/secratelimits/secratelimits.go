@@ -23,6 +23,7 @@ import (
 	"github.com/sentinez/core/szrule"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szsync"
+	"github.com/sentinez/scripting"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
 )
 
@@ -41,9 +42,11 @@ func New() *Limiter {
 	return _limiterInst
 }
 
-// Entry is a rate limiter applied to the requests matching Eval.
+// Entry is a rate limiter applied to the requests matching Eval, or
+// counted under the key Script returns.
 type Entry struct {
 	Eval    szrule.EvalFunc
+	Script  *scripting.Program
 	Rule    *secrulepb.SecRule
 	Limiter *szlimiter.RateLimiter
 }

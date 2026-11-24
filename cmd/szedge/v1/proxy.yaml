@@ -275,8 +275,26 @@ setting:
           action:
             type: ACTION_TYPE_CHALLENGE
 
-    # Like secrules, every limiter needs an ingress expr: it only counts
-    # the requests the expr matches (the edge refuses to start without).
+      # Lua rule: a script in place of expr and action. It defines a
+      # global match(ctx) returning nil or false (no match), an action
+      # name (block, challenge, redirect, log, modify_header, set_tag,
+      # route_to) or a table {type = "...", params = {...}}. ctx only
+      # reads the request here, and no ---@stage line is allowed.
+      - ingress:
+          name: "Script: block X-Debug"
+          status: STATUS_ACTIVE
+          script: |
+            ---@param ctx sz.Context
+            function match(ctx)
+              if ctx:header("X-Debug") == "1" then
+                return "block"
+              end
+            end
+
+    # Every limiter needs an ingress expr or script: it only counts the
+    # requests it matches (the edge refuses to start without). A script
+    # defines key(ctx) returning the key to count the request under, true
+    # for the client IP, nil or false not to count it.
     limiters:
       - ingress:
           name: "Rate limit every path"
@@ -290,6 +308,18 @@ setting:
                     value: "/"
         timeWindow: 5s
         maxRequests: 100
+        timeout: 5s
+      - ingress:
+          name: "Script: rate limit per API key"
+          status: STATUS_ACTIVE
+          script: |
+            ---@param ctx sz.Context
+            function key(ctx)
+              local k = ctx:header("X-Api-Key")
+              if k ~= "" then return k end
+            end
+        timeWindow: 5s
+        maxRequests: 20
         timeout: 5s
 
   # ----------------------------------------------------------

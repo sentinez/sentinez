@@ -93,6 +93,9 @@ func (s Set) Funcs(at phase.Phase, id string) []string {
 	return s.funcs[hook{phase: at, stage: id}]
 }
 
+// Any reports whether a function hooks any stage.
+func (s Set) Any() bool { return len(s.funcs) > 0 }
+
 // Has reports whether a function hooks the stage id at the phase at.
 func (s Set) Has(at phase.Phase, id string) bool {
 	return len(s.Funcs(at, id)) > 0

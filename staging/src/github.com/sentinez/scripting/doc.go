@@ -24,4 +24,8 @@
 // The edge calls it around the stage with a ctx value
 // to read the request, change its headers or answer it. Scripts run in a
 // sandbox without os, io or any way to load code, under a time limit.
+//
+// A secrule or a rate limiter may also be a Lua source in place of its
+// expression: Program.Invoke calls its global function (match for a
+// secrule, key for a limiter) with a read-only ctx and returns its Value.
 package scripting
