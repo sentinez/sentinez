@@ -19,9 +19,10 @@ import (
 	"fmt"
 	"time"
 
+	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/dmz/edge/http"
-	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
+	"github.com/sentinez/sentinez/pkg/option"
 )
 
 // _syncTimeout bounds the wait for the cluster and the first load of the
@@ -40,6 +41,7 @@ func (s *RevProxyServer) initialize() error {
 	close(s.synced)
 
 	chain, err := http.NewHandler(s.memstore,
+		option.WithNamed(edgepb.GetMetaEdgeServiceKey()),
 		option.WithExporter(s.logExporter),
 		option.WithSecretKey(s.conf.Get(settingpb.Sz_SZ_SECRET_KEY)),
 	)

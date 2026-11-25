@@ -17,18 +17,13 @@ package option
 import (
 	"testing"
 
-	"github.com/sentinez/pkg/szsdklog"
-
 	"github.com/sentinez/pkg/szlog"
-	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
+	"github.com/sentinez/pkg/szsdklog"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNewDefaults(t *testing.T) {
-	want := Options{
-		Named: edgepb.GetMetaEdgeServiceKey(),
-		Level: szlog.LevelInfo,
-	}
+	want := Options{Level: szlog.LevelInfo}
 
 	assert.Equal(t, want, New())
 }

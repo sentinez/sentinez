@@ -19,7 +19,6 @@ package option
 import (
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szsdklog"
-	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 )
 
 // Options is the resolved configuration of a chain node.
@@ -40,7 +39,6 @@ type Option interface {
 // name, LevelInfo, no OTLP logger).
 func New(opts ...Option) Options {
 	o := Options{
-		Named: edgepb.GetMetaEdgeServiceKey(),
 		Level: szlog.LevelInfo,
 	}
 	for _, opt := range opts {
