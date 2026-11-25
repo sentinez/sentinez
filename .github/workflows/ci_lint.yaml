@@ -1,11 +1,10 @@
 name: CI / Lint
 
 on:
-  push:
+  # only the pull requests into main
+  pull_request:
     branches:
       - main
-      - 'release/*'
-  pull_request:
 
 jobs:
   golangci-lint:

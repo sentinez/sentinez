@@ -51,6 +51,7 @@ import { Resource as EdgeResource, TlsMode } from '@sentinez/proto/sentinez/dmz/
 import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 import axios, { AxiosError, AxiosHeaders } from 'axios';
 
+import { DAY_MILLIS, sampleRandom } from '@/lib/api/analytic/common';
 import { API_BASE_PATH } from '@/lib/api/base';
 import { ALL_SAMPLE_USERS } from '@/lib/api/iam/user';
 import { applyMask } from '@/lib/api/mask';
@@ -658,7 +659,114 @@ export const SAMPLE_CA_CERTIFICATES: CaCertificate[] = [
   }),
 ];
 
-let sampleCaStore: CaCertificate[] = [...SAMPLE_CA_CERTIFICATES];
+// A date days from now (before it when negative): the samples keep their
+// expiry badges (expired, expiring soon) whenever the console runs
+const caDaysFromNow = (days: number) => new Date(Date.now() + days * DAY_MILLIS);
+
+// The more samples of the first resource: one of each usage the base ones
+// lack, one expiring soon
+const SAMPLE_CA_EXTRAS: CaCertificate[] = [
+  sampleCa(4, {
+    name: 'shop.example.com',
+    description: 'The certificate the edge serves, renewed soon',
+    provider: 'Acme Trust',
+    subject: 'CN=shop.example.com',
+    issuer: 'CN=Acme Issuing CA',
+    usage: CaCertificateUsage.CA_CERTIFICATE_USAGE_SERVER,
+    hasPrivateKey: true,
+    notBefore: caDaysFromNow(-353),
+    notAfter: caDaysFromNow(12),
+  }),
+  sampleCa(5, {
+    name: 'Origin mTLS client',
+    description: 'Presented by the edge to the origin servers',
+    provider: 'Acme Trust',
+    subject: 'CN=edge.sentinez,O=Acme Trust',
+    issuer: 'CN=Acme Issuing CA',
+    usage: CaCertificateUsage.CA_CERTIFICATE_USAGE_UPSTREAM_CLIENT,
+    hasPrivateKey: true,
+    notBefore: caDaysFromNow(-165),
+    notAfter: caDaysFromNow(200),
+  }),
+  sampleCa(6, {
+    name: 'Partner Client CA',
+    description: 'Signs the client certificates of the partner apps',
+    provider: 'Partner PKI',
+    subject: 'CN=Partner Client CA,O=Partner PKI',
+    issuer: 'CN=Partner Client CA,O=Partner PKI',
+    usage: CaCertificateUsage.CA_CERTIFICATE_USAGE_CLIENT,
+    selfSigned: true,
+  }),
+];
+
+const SAMPLE_CA_USAGES = [
+  CaCertificateUsage.CA_CERTIFICATE_USAGE_UPSTREAM,
+  CaCertificateUsage.CA_CERTIFICATE_USAGE_CLIENT,
+  CaCertificateUsage.CA_CERTIFICATE_USAGE_SERVER,
+  CaCertificateUsage.CA_CERTIFICATE_USAGE_UPSTREAM_CLIENT,
+];
+const SAMPLE_CA_PROVIDERS = ['Acme Trust', 'Contoso PKI', 'Internal PKI'];
+
+// A sample hex string of length, the same for the same seed
+function caHexOf(seed: string, length: number): string {
+  const random = sampleRandom(seed);
+  return Array.from({ length }, () => Math.floor(random() * 16).toString(16)).join('');
+}
+
+// The days the k-th generated sample has left: some expired, some expiring
+// soon, the others valid for months or years
+function caDaysLeftOf(k: number): number {
+  if (k % 7 === 0) return -(10 + (k % 50));
+  if (k % 5 === 0) return 3 + (k % 25);
+  return 60 + ((k * 37) % 900);
+}
+
+// The k-th generated sample (from 1), of the resource of domain: numbered
+// after the base and extra ones
+function generatedCa(k: number, resource: Resource): CaCertificate {
+  const n = SAMPLE_CA_CERTIFICATES.length + SAMPLE_CA_EXTRAS.length + k;
+  const usage = SAMPLE_CA_USAGES[k % SAMPLE_CA_USAGES.length]!;
+  const provider = SAMPLE_CA_PROVIDERS[k % SAMPLE_CA_PROVIDERS.length]!;
+  // the server and upstream client ones are leaf certificates with their key
+  const leaf =
+    usage === CaCertificateUsage.CA_CERTIFICATE_USAGE_SERVER ||
+    usage === CaCertificateUsage.CA_CERTIFICATE_USAGE_UPSTREAM_CLIENT;
+  const name =
+    usage === CaCertificateUsage.CA_CERTIFICATE_USAGE_SERVER
+      ? `*.${resource.domain}`
+      : leaf
+        ? `edge-client-${k}.${resource.domain}`
+        : `${provider} Issuing CA ${k}`;
+  const selfSigned = !leaf && k % 3 === 0;
+  const daysLeft = caDaysLeftOf(k);
+  return sampleCa(n, {
+    name,
+    description: leaf ? `Generated for ${resource.domain}` : `Generated CA of ${provider}`,
+    owner: { resourceId: resource.id, tenantId: SAMPLE_TENANT_ID },
+    provider,
+    usage,
+    subject: `CN=${name},O=${provider}`,
+    issuer: selfSigned ? `CN=${name},O=${provider}` : `CN=${provider} Root CA,O=${provider}`,
+    selfSigned,
+    hasPrivateKey: leaf,
+    serialNumber: caHexOf(`${n}|serial`, 16),
+    fingerprintSha256: caHexOf(`${n}|sha256`, 64),
+    notBefore: caDaysFromNow(daysLeft - (leaf ? 365 : 3650)),
+    notAfter: caDaysFromNow(daysLeft),
+  });
+}
+
+// The generated samples: every sample resource has some, the first one
+// more than a page (10) with the base and extra ones
+const SAMPLE_CA_GENERATED: CaCertificate[] = [...SAMPLE_RESOURCES, ...generatedResources]
+  .flatMap((resource, i) => Array.from({ length: i === 0 ? 9 : 1 + (i % 4) }, () => resource))
+  .map((resource, k) => generatedCa(k + 1, resource));
+
+let sampleCaStore: CaCertificate[] = [
+  ...SAMPLE_CA_CERTIFICATES,
+  ...SAMPLE_CA_EXTRAS,
+  ...SAMPLE_CA_GENERATED,
+];
 
 const CA_PEM_BLOCK = /-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/g;
 
@@ -666,7 +774,7 @@ const CA_PEM_BLOCK = /-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE---
 function sampleCaOf(req: CreateCaCertificateRequest): CaCertificate[] {
   const blocks = req.pem.match(CA_PEM_BLOCK) ?? [req.pem];
   const now = new Date();
-  const nextYear = new Date(now.getTime() + 365 * 24 * 3600 * 1000);
+  const nextYear = new Date(now.getTime() + 365 * DAY_MILLIS);
 
   return blocks.map((pem, i) => {
     const n = i + 1;

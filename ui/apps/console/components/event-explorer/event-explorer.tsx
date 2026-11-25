@@ -34,6 +34,7 @@ import {
 } from './time-range';
 import { TimeRangePicker } from './time-range-picker';
 import { filterParam, type EventConfig, type FieldFilter } from './types';
+import { CompactNumber } from '@/components/compact-number';
 
 const FIRST_PAGE: PaginationState = { pageIndex: 0, pageSize: DEFAULT_PAGE_SIZE };
 
@@ -285,7 +286,7 @@ export function EventExplorer<T>({
         <Card className="gap-2 py-4">
           <CardHeader className="flex flex-wrap items-center gap-x-3 gap-y-2 px-3 sm:px-4">
             <div className="flex shrink-0 items-baseline gap-2">
-              <span className="text-2xl font-bold tabular-nums">{format.number(hits)}</span>
+              <CompactNumber value={hits} className="text-2xl font-bold tabular-nums" />
               <span className="text-sm text-muted-foreground">{t('hits')}</span>
             </div>
             {bucket !== undefined && (

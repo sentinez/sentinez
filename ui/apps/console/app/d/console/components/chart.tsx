@@ -1,16 +1,15 @@
 'use client';
 
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
+import { Area, AreaChart, CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts';
 
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
-} from '@sentinez/ui/components/chart';
+import { ChartContainer, ChartTooltip } from '@sentinez/ui/components/chart';
 import type { HistogramPoint } from '@sentinez/proto/sentinez/apps/analytic/v1/event';
 import { useFormatter, useTranslations } from 'next-intl';
-import { useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import { compactNumber } from '@/lib/number';
+import { CompactTooltipContent } from '@/components/chart-tooltip';
+import { CompactNumber } from '@/components/compact-number';
+import { CHART_COLORS, RESOURCE_CHART, SPARKLINE, seriesConfig } from '@/lib/chart';
 
 // VisitorBucket the unique visitors of the bucket starting at time (millis)
 export type VisitorBucket = { time: number; visitors: number };
@@ -24,19 +23,18 @@ export const bucketOf = (p: HistogramPoint): VisitorBucket => ({
 // The start of an hourly bucket, as "14:00"
 export const HOUR_FORMAT = { hour: '2-digit', minute: '2-digit' } as const;
 
-// The area of the visitors series, shared by both charts
+// The visitors series: the line of the sparkline, the area of the resource
+// chart
 const VISITOR_AREA = {
   dataKey: 'visitors',
-  type: 'monotone',
   stroke: 'var(--color-visitors)',
   fill: 'var(--color-visitors)',
-  strokeWidth: 2,
 } as const;
 
 function useVisitorConfig() {
   const t = useTranslations('Resource');
   return useMemo(
-    () => ({ visitors: { label: t('visitors'), color: 'var(--chart-1)' } }) satisfies ChartConfig,
+    () => seriesConfig([{ id: 'visitors', label: t('visitors'), color: CHART_COLORS[0] }]),
     [t],
   );
 }
@@ -51,26 +49,80 @@ function useBucketLabel() {
 }
 
 // Sparkline of the unique visitors of a resource, oldest bucket first
-export function UniqueVisitorChart({ data }: { data: VisitorBucket[] }) {
+// The tooltip of the sparkline, on one line: the hour of the bucket (the
+// buckets are the last 24 hours, the hour is enough) and its visitors
+function SparklineTooltip({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: readonly { payload?: VisitorBucket }[];
+}) {
+  const t = useTranslations('Resource');
+  const format = useFormatter();
+  const bucket = payload?.[0]?.payload;
+  if (!active || !bucket) return null;
+  return (
+    <div
+      className={SPARKLINE.tooltipClassName}
+      style={{ width: SPARKLINE.tooltipWidth }}
+      aria-label={t('visitors')}
+    >
+      <span className="text-muted-foreground">
+        {format.dateTime(new Date(bucket.time), HOUR_FORMAT)}
+      </span>
+      <span className="truncate font-mono font-medium tabular-nums">
+        {compactNumber(bucket.visitors)}
+      </span>
+    </div>
+  );
+}
+
+export function UniqueVisitorChart({
+  data,
+  strokeWidth = 1.5,
+}: {
+  data: VisitorBucket[];
+  /** The width of the line (px) */
+  strokeWidth?: number;
+}) {
   const t = useTranslations('Domain');
   const config = useVisitorConfig();
-  const bucketLabel = useBucketLabel();
+  // The line is hidden until its animation starts: on the first render its
+  // path is not measured yet, and recharts would draw it whole for a frame
+  // (a dasharray of zeros is a solid stroke) before growing it from nothing
+  const [started, setStarted] = useState(!SPARKLINE.animation.isAnimationActive);
+  // stable: a new callback would restart the animation on every render
+  const onAnimationStart = useCallback(() => setStarted(true), []);
   if (data.length === 0) {
-    return <div className="text-xs text-muted-foreground">{t('noVisitorData')}</div>;
+    return (
+      <div className={`${SPARKLINE.boxClassName} text-xs text-muted-foreground`}>
+        {t('noVisitorData')}
+      </div>
+    );
   }
 
   return (
-    <div className="w-full h-16 overflow-hidden">
-      <ChartContainer config={config} className="h-16 w-full">
-        <AreaChart data={data} margin={{ top: 4, bottom: 4, left: 0, right: 0 }}>
-          <ChartTooltip
-            cursor={false}
-            content={<ChartTooltipContent labelFormatter={bucketLabel} />}
-          />
-          <Area {...VISITOR_AREA} dot={false} fillOpacity={0.4} />
-        </AreaChart>
-      </ChartContainer>
-    </div>
+    <ChartContainer
+      config={config}
+      className={SPARKLINE.className}
+      initialDimension={SPARKLINE.initialDimension}
+    >
+      <LineChart data={data} margin={SPARKLINE.margin}>
+        <ChartTooltip {...SPARKLINE.tooltip} cursor={false} content={<SparklineTooltip />} />
+        <Line
+          dataKey={VISITOR_AREA.dataKey}
+          type={SPARKLINE.curve}
+          stroke={VISITOR_AREA.stroke}
+          strokeWidth={strokeWidth}
+          activeDot={SPARKLINE.activeDot}
+          dot={false}
+          {...SPARKLINE.animation}
+          strokeOpacity={started ? 1 : 0}
+          onAnimationStart={onAnimationStart}
+        />
+      </LineChart>
+    </ChartContainer>
   );
 }
 
@@ -93,7 +145,7 @@ export function ResourceVisitorChart({ data, total }: { data: VisitorBucket[]; t
       <div className="flex gap-8">
         <div>
           <div className="text-sm text-muted-foreground">{t('total24h')}</div>
-          <div className="text-2xl font-bold tabular-nums">{format.number(total)}</div>
+          <CompactNumber value={total} className="block text-2xl font-bold tabular-nums" />
         </div>
         <div>
           <div className="text-sm text-muted-foreground">{t('peakHour')}</div>
@@ -101,29 +153,33 @@ export function ResourceVisitorChart({ data, total }: { data: VisitorBucket[]; t
             {peak ? hourOf(peak.time) : '—'}{' '}
             {peak && (
               <span className="text-sm font-normal text-muted-foreground">
-                ({format.number(peak.visitors)})
+                (<CompactNumber value={peak.visitors} />)
               </span>
             )}
           </div>
         </div>
       </div>
-      <ChartContainer config={config} className="h-64 w-full">
-        <AreaChart data={data} margin={{ top: 8, bottom: 0, left: 0, right: 8 }}>
+      <ChartContainer config={config} className={RESOURCE_CHART.className}>
+        <AreaChart data={data} margin={RESOURCE_CHART.margin}>
           <CartesianGrid vertical={false} />
-          <XAxis
-            dataKey="time"
-            tickFormatter={hourOf}
-            tickLine={false}
-            axisLine={false}
-            tickMargin={8}
-            interval={3}
-          />
-          <YAxis tickLine={false} axisLine={false} width={36} allowDecimals={false} />
+          <XAxis {...RESOURCE_CHART.xAxis} tickFormatter={hourOf} />
+          <YAxis {...RESOURCE_CHART.yAxis} tickFormatter={compactNumber} />
           <ChartTooltip
             cursor={false}
-            content={<ChartTooltipContent indicator="line" labelFormatter={bucketLabel} />}
+            content={
+              <CompactTooltipContent
+                config={config}
+                indicator="line"
+                labelFormatter={bucketLabel}
+              />
+            }
           />
-          <Area {...VISITOR_AREA} fillOpacity={0.3} />
+          <Area
+            {...VISITOR_AREA}
+            type={RESOURCE_CHART.curve}
+            strokeWidth={RESOURCE_CHART.strokeWidth}
+            fillOpacity={RESOURCE_CHART.fillOpacity}
+          />
         </AreaChart>
       </ChartContainer>
     </div>

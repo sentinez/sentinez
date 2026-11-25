@@ -24,6 +24,9 @@ import {
   intervalOf,
   ofRequests,
   sampleBuckets,
+  sampleDayCurve,
+  sampleOneOf,
+  sampleRandom,
 } from './common';
 
 // ---- Sample audit logs, used as fallback when the API call fails ----
@@ -120,34 +123,60 @@ const SAMPLE_USERS = [
   { userId: 'user_bob', name: 'Bob' },
 ];
 
-// The samples of tenantId, the latest first, one every 7 minutes over the
-// 24 hours before end
+// The samples are made per slot of SAMPLE_SLOT_MILLIS
+const SAMPLE_SLOT_MILLIS = 7 * 60 * 1000;
+
+// The number of samples of tenantId in the slot of index slot, random but
+// the same for the same tenant and slot: busier by day, a burst of calls
+// now and then, none in some slots
+function sampleSlotCount(tenantId: string, slot: number): number {
+  const random = sampleRandom(`${tenantId}|${slot}`);
+  const day = sampleDayCurve(slot * SAMPLE_SLOT_MILLIS);
+  const burst = random() < 0.05 ? 3 : 1;
+  return Math.floor((0.9 + 0.6 * day + random()) * burst);
+}
+
+// The k-th sample of tenantId in the slot of index slot: its call (of
+// calls, the sampleCalls of tenantId), user, address, latency and time in
+// the slot random, but the same for the same tenant, slot and k
+function sampleAuditLog(tenantId: string, calls: SampleCall[], slot: number, k: number): AuditLog {
+  const random = sampleRandom(`${tenantId}|${slot}|${k}`);
+  const oneOf = <T>(list: readonly T[]) => sampleOneOf(random, list);
+  const call = oneOf(calls);
+  const user = oneOf(SAMPLE_USERS);
+  return {
+    id: `aud_SAMPLE${String(slot).padStart(10, '0')}${String(k).padStart(2, '0')}`,
+    method: call.method,
+    userId: user.userId,
+    name: user.name,
+    controlPlane: ControlPlane.CONTROL_PLANE_PORTAL,
+    remoteAddr: `${oneOf(SAMPLE_IPS)}:${40000 + Math.floor(random() * 20000)}`,
+    userAgent: SAMPLE_AGENT,
+    request: call.request,
+    code: call.code ?? 0,
+    error: call.error ?? '',
+    latency: { seconds: 0, nanos: Math.round(3 + random() * random() * 120) * 1_000_000 },
+    tenantId: call.tenantless ? '' : tenantId,
+    timestamp: slot * SAMPLE_SLOT_MILLIS + Math.floor(random() * SAMPLE_SLOT_MILLIS),
+    resourceId: call.resourceId ?? '',
+    change: call.change && { fields: call.change },
+  };
+}
+
+// The samples of tenantId over the 24 hours before end, the latest first:
+// a random number of them per slot (sampleSlotCount)
 function sampleAuditLogs(end: number, tenantId: string): AuditLog[] {
+  const last = Math.floor(end / SAMPLE_SLOT_MILLIS);
+  const slots = Math.floor((24 * HOUR_MILLIS) / SAMPLE_SLOT_MILLIS);
   const calls = sampleCalls(tenantId);
-  const step = 7 * 60 * 1000;
-  const last = Math.floor(end / step) * step;
-  return Array.from({ length: Math.floor((24 * HOUR_MILLIS) / step) }, (_, i) => {
-    const seed = Math.floor(last / step) - i;
-    const call = calls[seed % calls.length]!;
-    const user = SAMPLE_USERS[seed % SAMPLE_USERS.length]!;
-    return {
-      id: `aud_SAMPLE${String(seed).padStart(12, '0')}`,
-      method: call.method,
-      userId: user.userId,
-      name: user.name,
-      controlPlane: ControlPlane.CONTROL_PLANE_PORTAL,
-      remoteAddr: `${SAMPLE_IPS[seed % SAMPLE_IPS.length]}:${40000 + (seed % 20000)}`,
-      userAgent: SAMPLE_AGENT,
-      request: call.request,
-      code: call.code ?? 0,
-      error: call.error ?? '',
-      latency: { seconds: 0, nanos: ((seed % 40) + 3) * 1_000_000 },
-      tenantId: call.tenantless ? '' : tenantId,
-      timestamp: last - i * step,
-      resourceId: call.resourceId ?? '',
-      change: call.change && { fields: call.change },
-    };
-  });
+  return Array.from({ length: slots }, (_, i) => last - i)
+    .flatMap((slot) =>
+      Array.from({ length: sampleSlotCount(tenantId, slot) }, (_, k) =>
+        sampleAuditLog(tenantId, calls, slot, k),
+      ),
+    )
+    .filter((l) => l.timestamp < end)
+    .sort((a, b) => b.timestamp - a.timestamp);
 }
 
 // The record of a log as the API filters and counts it, by grpc code

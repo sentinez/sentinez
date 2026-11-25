@@ -5,6 +5,8 @@ import { Skeleton } from '@sentinez/ui/components/skeleton';
 import { TableCell, TableRow } from '@sentinez/ui/components/table';
 
 const DEFAULT_ROWS = 5;
+// The skeleton of a cell, unless its column gives its own
+const DEFAULT_SKELETON = 'h-5 w-full';
 
 interface Props<T> {
   table: Table<T>;
@@ -23,7 +25,7 @@ export function TableSkeletonRows<T>({ table }: Props<T>) {
     <TableRow key={i} className="max-h-fit" aria-hidden>
       {table.getVisibleLeafColumns().map((column) => (
         <TableCell key={column.id}>
-          <Skeleton className="h-5 w-full" />
+          <Skeleton className={column.columnDef.meta?.skeletonClassName ?? DEFAULT_SKELETON} />
         </TableCell>
       ))}
     </TableRow>

@@ -34,8 +34,8 @@ export function ResourceView() {
 
       <Separator />
 
-      <ResourceLatency resourceId={resource.id} />
       <ResourceVisitors resourceId={resource.id} />
+      <ResourceLatency resourceId={resource.id} />
     </div>
   );
 }

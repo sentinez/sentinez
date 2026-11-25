@@ -110,7 +110,10 @@ export default function CaCertificatePage({ params }: { params: Promise<{ id: st
         )}
       </PageLayoutHeader>
 
-      <PageLayoutContent size="sm">
+      {/* md: a read-only page, its cards stacked, each wide enough for the
+          12rem labels of its rows beside the values (the sm width is for
+          the forms) */}
+      <PageLayoutContent size="md">
         {!cert && (
           <p className="py-10 text-center text-muted-foreground">{t('loadDetailFailed')}</p>
         )}
@@ -118,44 +121,42 @@ export default function CaCertificatePage({ params }: { params: Promise<{ id: st
           <>
             <SummaryCard cert={cert} now={now} />
 
-            <div className="grid gap-6 lg:grid-cols-2">
-              <InfoCard title={t('identity')}>
-                <InfoRow label={t('subject')} mono>
-                  {cert.subject}
-                </InfoRow>
-                <InfoRow label={t('issuer')} mono>
-                  {cert.issuer}
-                </InfoRow>
-                <InfoRow label={t('provider')}>{cert.provider || '—'}</InfoRow>
-                <InfoRow label={t('serialNumber')} mono>
-                  {cert.serialNumber}
-                </InfoRow>
-                <InfoRow label={t('fingerprint')} mono>
-                  <CopyValue
-                    value={cert.fingerprintSha256}
-                    label={t('copyFingerprint')}
-                    onCopy={copy}
-                  />
-                </InfoRow>
-              </InfoCard>
+            <InfoCard title={t('identity')}>
+              <InfoRow label={t('subject')} mono>
+                {cert.subject}
+              </InfoRow>
+              <InfoRow label={t('issuer')} mono>
+                {cert.issuer}
+              </InfoRow>
+              <InfoRow label={t('provider')}>{cert.provider || '—'}</InfoRow>
+              <InfoRow label={t('serialNumber')} mono>
+                {cert.serialNumber}
+              </InfoRow>
+              <InfoRow label={t('fingerprint')} mono>
+                <CopyValue
+                  value={cert.fingerprintSha256}
+                  label={t('copyFingerprint')}
+                  onCopy={copy}
+                />
+              </InfoRow>
+            </InfoCard>
 
-              <InfoCard title={t('details')}>
-                <InfoRow label={t('id')} mono>
-                  <CopyValue value={cert.id} label={t('copyId')} onCopy={copy} />
-                </InfoRow>
-                <InfoRow label={t('description')}>{cert.description || '—'}</InfoRow>
-                <InfoRow label={t('usage')}>
-                  <span className="font-medium">{caUsageLabel(t, cert.usage)}</span>
-                  <span className="mt-1 block text-muted-foreground">
-                    {caUsageHelp(t, cert.usage)}
-                  </span>
-                </InfoRow>
-                <InfoRow label={t('privateKey')}>
-                  {cert.hasPrivateKey ? t('keyStoredHelp') : t('none')}
-                </InfoRow>
-                <InfoRow label={t('selfSigned')}>{cert.selfSigned ? t('yes') : t('no')}</InfoRow>
-              </InfoCard>
-            </div>
+            <InfoCard title={t('details')}>
+              <InfoRow label={t('id')} mono>
+                <CopyValue value={cert.id} label={t('copyId')} onCopy={copy} />
+              </InfoRow>
+              <InfoRow label={t('description')}>{cert.description || '—'}</InfoRow>
+              <InfoRow label={t('usage')}>
+                <span className="font-medium">{caUsageLabel(t, cert.usage)}</span>
+                <span className="mt-1 block text-muted-foreground">
+                  {caUsageHelp(t, cert.usage)}
+                </span>
+              </InfoRow>
+              <InfoRow label={t('privateKey')}>
+                {cert.hasPrivateKey ? t('keyStoredHelp') : t('none')}
+              </InfoRow>
+              <InfoRow label={t('selfSigned')}>{cert.selfSigned ? t('yes') : t('no')}</InfoRow>
+            </InfoCard>
 
             <Card>
               <CardHeader className="border-b">

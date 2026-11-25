@@ -42,6 +42,7 @@ import { usePagedList } from '@/hooks/use-paged-list';
 import { useTenantId } from '@/hooks/use-tenant-id';
 import { TablePagination } from '@/components/table-pagination';
 import { TableSkeletonRows } from '@/components/table-skeleton';
+import { SPARKLINE } from '@/lib/chart';
 import type { Pages } from '@/lib/api/pages';
 import type { Resource } from '@sentinez/proto/sentinez/apps/tenant/v1/model';
 import { statusToJSON } from '@sentinez/proto/sentinez/types/v1/known';
@@ -136,6 +137,9 @@ function usePageVisitors(resources: Resource[]) {
   return loaded?.of === resources ? loaded.visitors : undefined;
 }
 
+// The width of the line of the unique visitor chart of a row (px)
+const VISITOR_STROKE_WIDTH = 2.5;
+
 type DomainTranslator = ReturnType<typeof useTranslations<'Domain'>>;
 
 export const getColumns = (t: DomainTranslator): ColumnDef<Payment>[] => [
@@ -175,15 +179,15 @@ export const getColumns = (t: DomainTranslator): ColumnDef<Payment>[] => [
   },
   {
     accessorKey: 'unique visitor',
-    size: 160,
-    meta: { label: t('uniqueVisitor') },
+    size: SPARKLINE.columnSize,
+    meta: { label: t('uniqueVisitor'), skeletonClassName: SPARKLINE.skeletonClassName },
     header: () => <div className="w-full">{t('uniqueVisitor')}</div>,
     cell: ({ row }) => (
-      <div className="w-full max-h-16 overflow-hidden flex items-center">
+      <div className={SPARKLINE.boxClassName}>
         {row.original.visitors ? (
-          <UniqueVisitorChart data={row.original.visitors} />
+          <UniqueVisitorChart data={row.original.visitors} strokeWidth={VISITOR_STROKE_WIDTH} />
         ) : (
-          <Skeleton className="h-8 w-full" />
+          <Skeleton className={SPARKLINE.skeletonClassName} />
         )}
       </div>
     ),
