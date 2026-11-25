@@ -20,7 +20,6 @@ package handlers
 
 import (
 	"github.com/sentinez/core/szhttp/chains"
-	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/envhandlers"
 	"github.com/sentinez/sentinez/internal/handlers/contents"
 	"github.com/sentinez/sentinez/internal/handlers/logging"
@@ -29,6 +28,7 @@ import (
 	"github.com/sentinez/sentinez/internal/handlers/secure"
 	"github.com/sentinez/sentinez/internal/handlers/tracing"
 	"github.com/sentinez/sentinez/internal/memory"
+	"github.com/sentinez/sentinez/pkg/option"
 )
 
 // New builds the edge chain: the plugins, in request order, provision

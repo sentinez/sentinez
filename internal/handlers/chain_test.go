@@ -23,9 +23,9 @@ import (
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szhttp/chains"
 	"github.com/sentinez/pkg/sztracer"
-	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/envhandlers"
 	"github.com/sentinez/sentinez/pkg/network/httpx"
+	"github.com/sentinez/sentinez/pkg/option"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

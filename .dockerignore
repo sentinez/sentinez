@@ -1,5 +1,5 @@
 .github/
-scale/.git
+pkg/scale/.git
 .idea/
 .vscode/
 

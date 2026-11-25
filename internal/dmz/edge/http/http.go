@@ -16,9 +16,9 @@ package http
 
 import (
 	"github.com/sentinez/core/szhttp/chains"
-	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/handlers"
 	"github.com/sentinez/sentinez/internal/memory"
+	"github.com/sentinez/sentinez/pkg/option"
 )
 
 // NewHandler builds the edge chain reading ms; opts configure every

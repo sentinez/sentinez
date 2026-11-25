@@ -87,9 +87,9 @@ next-env.d.ts
 .idea/
 
 _audit
-# Enterprise features: the private repository is checked out in scale/
+# Enterprise features: the private repository is checked out in pkg/scale/
 # (make scale.checkout), its URL set in scale.local.mk; only the stubs are public.
 /hack/make/scale.local.mk
-/scale/*
-!/scale/pkg_import.go
-!/scale/*_oss.go
+/pkg/scale/*
+!/pkg/scale/pkg_import.go
+!/pkg/scale/*_oss.go

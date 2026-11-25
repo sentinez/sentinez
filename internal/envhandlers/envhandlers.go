@@ -19,10 +19,10 @@ import (
 
 	"github.com/sentinez/pkg/szlog"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
-	"github.com/sentinez/sentinez/internal/dmz/edge/http/option"
 	"github.com/sentinez/sentinez/internal/memory"
 	"github.com/sentinez/sentinez/pkg/geoip"
-	"github.com/sentinez/sentinez/scale"
+	"github.com/sentinez/sentinez/pkg/option"
+	"github.com/sentinez/sentinez/pkg/scale"
 )
 
 // _geoip loads the compiled-in databases once: the chains share them.
