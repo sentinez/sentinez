@@ -20,12 +20,20 @@ import {
   ChartLegend,
   ChartLegendContent,
   ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
 } from '@sentinez/ui/components/chart';
 import type { HistogramPoint } from '@sentinez/proto/sentinez/apps/analytic/v1/event';
 import type { HistogramResolution } from '@sentinez/proto/sentinez/types/v1/known';
 import { SECOND_MILLIS } from '@/lib/api/analytic';
+import { compactNumber } from '@/lib/number';
+import { CompactTooltipContent } from '@/components/chart-tooltip';
+import {
+  BAR_CURSOR,
+  CHART_MARGIN,
+  DIMMED_OPACITY,
+  X_AXIS,
+  Y_AXIS,
+  seriesConfig,
+} from '@/lib/chart';
 import { DATE_TIME_ZONE, SECONDS_TICK, tickFormatOf } from './time-range';
 import type { SeriesDef } from './types';
 
@@ -179,13 +187,7 @@ export function EventHistogram({
     if (from === undefined || to === undefined) return;
     onSelectRange(from, Math.max(to, from + SECOND_MILLIS));
   };
-  const config = useMemo(
-    () =>
-      Object.fromEntries(
-        series.map((s) => [s.id, { label: s.label, color: s.color }]),
-      ) satisfies ChartConfig,
-    [series],
-  );
+  const config = useMemo(() => seriesConfig(series), [series]);
   const secondOf = (time?: number) =>
     time === undefined ? '' : format.dateTime(new Date(time), SECONDS_TICK);
 
@@ -202,18 +204,11 @@ export function EventHistogram({
     return (
       <>
         <CartesianGrid vertical={false} />
-        <XAxis
-          dataKey="time"
-          tickFormatter={tickOf}
-          tickLine={false}
-          axisLine={false}
-          tickMargin={8}
-          minTickGap={32}
-        />
-        <YAxis tickLine={false} axisLine={false} width={40} allowDecimals={false} />
+        <XAxis {...X_AXIS} tickFormatter={tickOf} />
+        <YAxis {...Y_AXIS} tickFormatter={compactNumber} />
         <ChartTooltip
-          cursor={{ fill: 'var(--muted)', opacity: 0.6 }}
-          content={<ChartTooltipContent labelFormatter={labelOf} />}
+          cursor={BAR_CURSOR}
+          content={<CompactTooltipContent config={config} labelFormatter={labelOf} />}
         />
         {shown.length > 1 && <ChartLegend content={<ChartLegendContent />} />}
         {shown.map((s, i) => (
@@ -229,20 +224,20 @@ export function EventHistogram({
             {data.map((d) => (
               <Cell
                 key={d.time}
-                fillOpacity={selected === undefined || selected === d.time ? 1 : 0.35}
+                fillOpacity={selected === undefined || selected === d.time ? 1 : DIMMED_OPACITY}
               />
             ))}
           </Bar>
         ))}
       </>
     );
-  }, [data, series, selected, bucketMillis, resolution, format]);
+  }, [data, series, selected, bucketMillis, resolution, format, config]);
 
   return (
     <ChartContainer config={config} className="h-56 w-full select-none">
       <BarChart
         data={data}
-        margin={{ top: 8, bottom: 0, left: 0, right: 8 }}
+        margin={CHART_MARGIN}
         onMouseDown={(state, event) =>
           setDrag({ startX: xOf(event), endX: xOf(event), bucket: timeAt(state) })
         }

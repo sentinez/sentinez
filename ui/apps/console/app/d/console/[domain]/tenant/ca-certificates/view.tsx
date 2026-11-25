@@ -99,28 +99,33 @@ export const getColumns = (
   },
   {
     accessorKey: 'usage',
-    size: 130,
+    // the longest label, "Upstream client (mTLS)", fits whole
+    size: 180,
     meta: { label: t('usage') },
     header: () => <div>{t('usage')}</div>,
     cell: ({ row }) => {
       const label = caUsageLabel(t, row.original.usage);
-      // a long label is cut inside its cell, it never spills over the next one
+      // a long label is cut with an ellipsis inside its cell, it never
+      // spills over the next one
       return (
-        <Badge variant="outline" className="max-w-full" title={label}>
-          {label}
-        </Badge>
+        <div className="flex min-w-0">
+          <Badge variant="outline" className="max-w-full" title={label}>
+            <span className="truncate">{label}</span>
+          </Badge>
+        </div>
       );
     },
   },
   {
     id: 'expires',
     accessorFn: (c) => c.notAfter?.getTime() ?? 0,
-    size: 220,
+    // the date and the "Expiring soon" badge side by side
+    size: 240,
     meta: { label: t('expires') },
     header: () => <div>{t('expires')}</div>,
     cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-        <span className="truncate tabular-nums">
+      <div className="flex min-w-0 items-center gap-2">
+        <span className="min-w-0 truncate tabular-nums">
           {row.original.notAfter
             ? format.dateTime(row.original.notAfter, { dateStyle: 'medium' })
             : '—'}

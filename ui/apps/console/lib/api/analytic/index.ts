@@ -16,11 +16,14 @@ import { type Pages, paginate } from '@/lib/api/pages';
 import { SAMPLE_TENANT_ID } from '@/lib/api/tenant';
 import {
   type ApiOptions,
+  type SampleLevel,
   SAMPLE_IPS,
   VISITORS_RESOLUTION,
   getJSON,
   intervalOf,
   sampleBuckets,
+  sampleLevel,
+  sampleRandom,
 } from './common';
 
 export {
@@ -97,17 +100,17 @@ export async function listActivities(
   );
 }
 
-// The unique visitor histogram of the sample visitors, so both agree: the
-// distinct ips per bucket and resource
+// The unique visitor histogram of the samples: per bucket and resource,
+// all the visitors of sampleVisitorCount (not only the listed ones)
 function sampleVisitorPoints(req: GetUniqueVisitorHistogramRequest): HistogramPoint[] {
-  const counts = new Map<string, HistogramPoint>();
-  for (const v of sampleVisitors(req)) {
-    const key = `${v.time?.getTime()}|${v.resourceId}`;
-    const point = counts.get(key) ?? { time: v.time, resourceId: v.resourceId, key: 0, total: 0 };
-    point.total++;
-    counts.set(key, point);
-  }
-  return [...counts.values()];
+  return sampleBuckets(sampleResolution(req), req.to).flatMap((time) =>
+    req.resourceIds.map((resourceId) => ({
+      time,
+      resourceId,
+      key: 0,
+      total: sampleVisitorCount(resourceId, time),
+    })),
+  );
 }
 
 // GET /analytic/visitors/histogram
@@ -134,18 +137,52 @@ export async function getUniqueVisitorHistogram(
 const sampleResolution = (req: { resolution: HistogramResolution }) =>
   req.resolution || VISITORS_RESOLUTION;
 
+// The unique visitors of a busy sample bucket, large to test the layout
+// (wide numbers in the charts, the axes and the tables)
+const SAMPLE_VISITOR_SCALE = 6000;
+// The most visitors a sample bucket lists (sampleVisitors); the histogram
+// counts them all
+const SAMPLE_LISTED_VISITORS = 150;
+
+// The sample ip of a visitor: the known SAMPLE_IPS first, then made up ones
+const sampleIp = (n: number) =>
+  SAMPLE_IPS[n] ?? `198.51.${100 + Math.floor(n / 250)}.${(n % 250) + 1}`;
+
+// The traffic of the sample visitors (sampleLevel)
+const SAMPLE_VISITOR_LEVEL: SampleLevel = {
+  quiet: 0.3,
+  mean: 0.55,
+  day: 0.35,
+  noise: 0.3,
+  burst: 2,
+};
+
+// The unique visitors of a resource in the bucket at time (sampleLevel)
+function sampleVisitorCount(resourceId: string, time: Date): number {
+  return Math.round(sampleLevel(resourceId, time, SAMPLE_VISITOR_LEVEL) * SAMPLE_VISITOR_SCALE);
+}
+
+// The listed sample visitors of a resource in the bucket at time (at most
+// SAMPLE_LISTED_VISITORS of sampleVisitorCount), the most requests first:
+// the SAMPLE_IPS every bucket, the others of a pool shifting per bucket, so
+// the day has thousands of distinct ips
+function sampleBucketVisitors(resourceId: string, time: Date): VisitorPoint[] {
+  const count = Math.min(SAMPLE_LISTED_VISITORS, sampleVisitorCount(resourceId, time));
+  const random = sampleRandom(`${resourceId}|${time.getTime()}|list`);
+  const shift = (Math.floor(time.getTime() / 60_000) * 53) % 5000;
+  return Array.from({ length: count }, (_, n) => ({
+    time,
+    resourceId,
+    clientIp: sampleIp(n < SAMPLE_IPS.length ? n : n + shift),
+    total: Math.round((20000 / (n + 1)) * (0.5 + random())) + Math.floor(random() * 40) + 1,
+  }));
+}
+
 // Sample visitors of each resource per bucket of the resolution
-// (sampleBuckets): the most requests first in each bucket
+// (sampleBuckets)
 function sampleVisitors(req: ListVisitorsRequest): VisitorPoint[] {
-  return sampleBuckets(sampleResolution(req), req.to).flatMap((time, i) =>
-    req.resourceIds.flatMap((resourceId) =>
-      SAMPLE_IPS.slice(0, 2 + (i % 4)).map((clientIp, n) => ({
-        time,
-        resourceId,
-        clientIp,
-        total: Math.round(60 / (n + 1) + 20 * Math.sin((i + n) / 3)) + 25,
-      })),
-    ),
+  return sampleBuckets(sampleResolution(req), req.to).flatMap((time) =>
+    req.resourceIds.flatMap((resourceId) => sampleBucketVisitors(resourceId, time)),
   );
 }
 

@@ -29,6 +29,7 @@ import { paginate } from '@/lib/api/pages';
 import { SAMPLE_TENANT_ID } from '@/lib/api/tenant';
 import {
   type ApiOptions,
+  type SampleLevel,
   type SampleRecord,
   DAY_MILLIS,
   HOUR_MILLIS,
@@ -42,6 +43,9 @@ import {
   intervalOf,
   resolutionOfSpan,
   sampleBuckets,
+  sampleLevel,
+  sampleOneOf,
+  sampleRandom,
 } from './common';
 
 // ---- Sample events, used as fallback when the API call fails ----
@@ -99,37 +103,59 @@ const pick = <T>(list: T[], k: number) => list[k % list.length] as T;
 // A small hash of a string, to pick a sample value spread over the requests
 const hashOf = (value: string) => [...value].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7);
 
-// The n-th sample request of a resource in the bucket starting at time
+// The n-th sample request of a resource in the bucket starting at time:
+// its values random, but the same for the same resource, bucket and n
 function sampleIngressEvent(resourceId: string, time: Date, millis: number, n: number) {
   const seed = Math.floor(time.getTime() / millis) + n * 7;
-  const path = pick(SAMPLE_PATHS, seed + n);
+  const random = sampleRandom(`${resourceId}|${time.getTime()}|${n}`);
+  const oneOf = <T>(list: readonly T[]) => sampleOneOf(random, list);
+  const path = oneOf(SAMPLE_PATHS);
   // The probes of the admin page carry an attack, that CRS denies
   const admin = path === SAMPLE_ADMIN_PATH;
+  const agent = oneOf(SAMPLE_AGENTS);
+  const ip = oneOf(SAMPLE_IPS);
   return {
     id: `req_SAMPLE${String(seed).padStart(10, '0')}${String(n).padStart(4, '0')}`,
-    method: pick(SAMPLE_METHODS, seed),
+    method: oneOf(SAMPLE_METHODS),
     scheme: 'https',
     host: 'shop.example.com',
     path,
     queries: admin
-      ? pick(SAMPLE_ATTACKS, seed).query
-      : seed % 3 === 0
-        ? `q=shoes&page=${(seed % 5) + 1}`
+      ? oneOf(SAMPLE_ATTACKS).query
+      : random() < 0.3
+        ? `q=shoes&page=${Math.floor(random() * 5) + 1}`
         : '',
-    headers: `Host: shop.example.com\nAccept: */*\nUser-Agent: ${pick(SAMPLE_AGENTS, seed)}\n`,
-    protocol: seed % 2 === 0 ? 'HTTP/2.0' : 'HTTP/1.1',
-    remoteAddress: `${pick(SAMPLE_IPS, seed + n)}:${40000 + (seed % 20000)}`,
-    status: admin ? 403 : pick(SAMPLE_STATUSES, seed * 5 + n),
-    userAgent: pick(SAMPLE_AGENTS, seed),
-    asn: 13335 + (seed % 4),
-    country: pick(SAMPLE_COUNTRIES, seed + n),
+    headers: `Host: shop.example.com\nAccept: */*\nUser-Agent: ${agent}\n`,
+    protocol: random() < 0.5 ? 'HTTP/2.0' : 'HTTP/1.1',
+    remoteAddress: `${ip}:${40000 + Math.floor(random() * 20000)}`,
+    status: admin ? 403 : oneOf(SAMPLE_STATUSES),
+    userAgent: agent,
+    asn: 13335 + Math.floor(random() * 4),
+    country: oneOf(SAMPLE_COUNTRIES),
     contentType: 'text/html; charset=utf-8',
-    timestamp: time.getTime() + ((n * 997) % millis),
-    fingerprint: `t13d1516h2_${(seed % 9999).toString(16)}`,
-    clientIp: pick(SAMPLE_IPS, seed + n),
+    timestamp: time.getTime() + Math.floor(random() * millis),
+    fingerprint: `t13d1516h2_${Math.floor(random() * 9999).toString(16)}`,
+    clientIp: ip,
     resourceId,
     tenantId: SAMPLE_TENANT_ID,
   } satisfies IngressEvent;
+}
+
+// The traffic of the sample requests (sampleLevel)
+const SAMPLE_REQUEST_LEVEL: SampleLevel = {
+  quiet: 0.4,
+  mean: 0.6,
+  day: 0.3,
+  noise: 0.4,
+  burst: 2.5,
+};
+
+// The number of sample requests of a resource in the bucket starting at
+// time (sampleLevel)
+function sampleRequestCount(resourceId: string, time: Date): number {
+  const level = sampleLevel(resourceId, time, SAMPLE_REQUEST_LEVEL);
+  // large enough to test the layout: wide counts on the axes and in the tables
+  return Math.max(1, Math.round(level * 40));
 }
 
 // The sample requests of the buckets of a resolution, the latest first
@@ -141,9 +167,9 @@ function sampleIngressWindow(
   const { millis } = RESOLUTION_BUCKETS[resolution];
   const ids = resourceIds.length ? resourceIds : ['rsrc_sample'];
   return sampleBuckets(resolution, to)
-    .flatMap((time, i) =>
+    .flatMap((time) =>
       ids.flatMap((resourceId) =>
-        Array.from({ length: 2 + Math.round(3 + 3 * Math.sin(i / 4)) }, (_, n) =>
+        Array.from({ length: sampleRequestCount(resourceId, time) }, (_, n) =>
           sampleIngressEvent(resourceId, time, millis, n),
         ),
       ),
