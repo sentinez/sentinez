@@ -19,11 +19,10 @@ import (
 	"time"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/sentinez/core/szgrpc/client/discovery"
+	"github.com/sentinez/core/szgrpc/validate"
 	"github.com/sentinez/pkg/szcron"
 	"github.com/sentinez/pkg/szlog"
-	"github.com/sentinez/sentinez/api/client/discovery"
-	"github.com/sentinez/sentinez/api/client/options"
-	"github.com/sentinez/sentinez/api/interceptor/validate"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -69,9 +68,8 @@ func RegisterServiceFromEndpoint(
 		grpc.WithChainUnaryInterceptor(validate.UnaryClientInterceptor()),
 	}
 
-	dcvr := discovery.GetDiscovery(&options.Options{
-		ConsulURL: appConf.Get(settingpb.Sz_SZ_CONSUL_URI),
-	})
+	dcvr := discovery.GetDiscovery(
+		discovery.WithConsulURL(appConf.Get(settingpb.Sz_SZ_CONSUL_URI)))
 
 	szcron.Start(ctx, time.Second*10, func() {
 		srv, err := dcvr.Discover(serviceKey)

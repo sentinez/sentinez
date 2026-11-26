@@ -21,9 +21,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/sentinez/pkg/szconsul"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/sznormalize"
-	"github.com/sentinez/sentinez/api/client/consul"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -62,7 +62,7 @@ func importProxy(ctx context.Context, conf *settingpb.Config,
 		return nil
 	}
 
-	client, err := consul.New(uri)
+	client, err := szconsul.New(uri)
 	if err != nil {
 		return fmt.Errorf("consul: %w", err)
 	}
@@ -73,7 +73,7 @@ func importProxy(ctx context.Context, conf *settingpb.Config,
 
 	key := conf.GetFlag().GetProxyConfig()
 	data, err := client.GetRaw(ctx, key)
-	if errors.Is(err, consul.ErrKeyNotFound) {
+	if errors.Is(err, szconsul.ErrKeyNotFound) {
 		szlog.Warnf("proxy import: no consul key %q, skipped", key)
 		return nil
 	}

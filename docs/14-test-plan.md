@@ -62,6 +62,11 @@ because later tests reuse the state that earlier ones create.
 | INS-04 | Start every service | Each banner shows the release version (`core.Version`). The tables are created in the new database |
 | INS-05 | Open http://sentinez.gateway.apiserver:8080/swagger/ | The Swagger UI lists the IAM, tenant, security and analytic services |
 | INS-06 | `make consul.proxy.put`, then restart apiserver and edge | The apiserver imports the file under the tenant `admin`. The edge reads its setting from Consul |
+| INS-07 | Start the edge with `SZ_KAFKA_URI=sentinez.kafka:9092` (no scheme), then centraldata with `SZ_OLRIC_URI=sentinez.dmz.edge.01:3320` | Neither starts; the log names the URI without a scheme |
+| INS-08 | Start a lone edge without `SZ_OLRIC_ADDRESS`, then `ss -ltn` | Olric listens on `127.0.0.1:3320` only |
+| INS-09 | Start the clustered edges of deploy/docker/cluster, then `ss -ltn` in a container | Olric (3320) and memberlist (7777) listen on the private IP of the container, not on `0.0.0.0` |
+| INS-10 | Edge with `SZ_OLRIC_PASSWORD`: `redis-cli -p 3320 PING` from its host, then `redis-cli -p 3320 -a <password> PING` | The first is refused (`Authentication required`), the second answers `PONG` |
+| INS-11 | Two clustered edges with different `SZ_GOSSIP_KEY` | The second does not join; with the same key it does |
 
 ### EDG: edge routing
 
@@ -138,12 +143,12 @@ because later tests reuse the state that earlier ones create.
 
 | Id | Steps | Expected |
 |---|---|---|
-| EVT-01 | Edge with `SZ_KAFKA_BROKERS`; replay SEC-01, SEC-05 and SEC-07, plus some normal traffic | Messages arrive on the `sentinez.event.http.*` topics (Kafka UI :8088) |
+| EVT-01 | Edge with `SZ_KAFKA_URI`; replay SEC-01, SEC-05 and SEC-07, plus some normal traffic | Messages arrive on the `sentinez.event.http.*` topics (Kafka UI :8088) |
 | EVT-02 | Collector running | The rows are in `analytic.*.events`. Each id is prefixed with `SZ_ZONE` |
 | EVT-03 | Console `analytic/logs/sec-rule`, `sec-ruleset` and `sec-rate-limit` | The events of EVT-01 are listed. Top values and filters work |
 | EVT-04 | Histogram zoom from hours to minutes to seconds | The buckets match the event counts at each resolution |
 | EVT-05 | Egress latency chart | Shows the upstream latency of EDG-01 |
-| EVT-06 | Edge with only `SZ_OTLP_EXTERNAL_ENDPOINT` | The traffic logs reach the OTLP collector |
+| EVT-06 | Edge with only `SZ_OTLP_EXTERNAL_URI` | The traffic logs reach the OTLP collector |
 
 ### CDT: centraldata
 

@@ -74,25 +74,19 @@ func TestLogCloserWithoutOTLP(t *testing.T) {
 func TestOTLPConfigOf(t *testing.T) {
 	tests := []struct {
 		name         string
-		giveEndpoint string
+		giveURI      string
 		wantEndpoint string
 		wantInsecure bool
 	}{
 		{
-			name:         "bare host",
-			giveEndpoint: "localhost:4317",
-			wantEndpoint: "localhost:4317",
-			wantInsecure: true,
-		},
-		{
 			name:         "http",
-			giveEndpoint: "http://collector:4317",
+			giveURI:      "http://collector:4317",
 			wantEndpoint: "collector:4317",
 			wantInsecure: true,
 		},
 		{
 			name:         "https",
-			giveEndpoint: "https://collector:4317",
+			giveURI:      "https://collector:4317",
 			wantEndpoint: "collector:4317",
 			wantInsecure: false,
 		},
@@ -100,11 +94,31 @@ func TestOTLPConfigOf(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cfg := OTLPConfigOf(tt.giveEndpoint, "svc")
+			cfg, err := OTLPConfigOf(tt.giveURI, "svc")
+			require.NoError(t, err)
 
 			assert.Equal(t, tt.wantEndpoint, cfg.Endpoint)
 			assert.Equal(t, tt.wantInsecure, cfg.Insecure)
 			assert.Equal(t, "svc", cfg.ServiceName)
+		})
+	}
+}
+
+func TestOTLPConfigOfError(t *testing.T) {
+	tests := []struct {
+		name    string
+		giveURI string
+	}{
+		{name: "bare host", giveURI: "localhost:4317"},
+		{name: "other scheme", giveURI: "grpc://collector:4317"},
+		{name: "two hosts", giveURI: "http://a:4317,b:4317"},
+		{name: "no host", giveURI: "http:///"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := OTLPConfigOf(tt.giveURI, "svc")
+			require.Error(t, err)
 		})
 	}
 }

@@ -116,11 +116,12 @@ xây trên `postgres.Open`: dùng chung pool và tham gia được transaction c
 
 ## 7.2 Xác thực & phân quyền
 
-[controlplane/pkg](../../staging/src/github.com/sentinez/controlplane/pkg/):
+[controlplane/pkg](../../staging/src/github.com/sentinez/controlplane/pkg/), và
+[pkg/sztoken](../../staging/src/github.com/sentinez/pkg/sztoken/) cho token:
 
 | Gói | Chức năng |
 |---|---|
-| `crypto` | `TokenGenerator(*typepb.Context)` ký JWT HS256 với secret = base64-decode(`SZ_SECRET_KEY`); claim `auth` = `Context.String()` (prototext), `exp`, `iat`, `iss` = `sentinez.iam`, `aud` = `sentinez.controlplane`. `BearerTokenVerifier` bỏ tiền tố `Bearer `, kiểm tra HMAC (chỉ HS256), hạn dùng (bắt buộc), issuer và audience, rồi parse lại `Context`. `ServiceTokenGenerator(name, ttl)` / `ServiceTokenVerifier` làm điều tương tự cho token service (control plane `SERVICE`), với `SZ_SERVICE_KEY` và `iss` = `aud` = `sentinez.service`, nên không loại nào dùng thay được loại kia. `HashPassword`/`CheckPasswordHash` dùng bcrypt |
+| `sztoken` | `TokenGenerator(*typepb.Context)` ký JWT HS256 với secret = base64-decode(`SZ_SECRET_KEY`); claim `auth` = `Context.String()` (prototext), `exp`, `iat`, `iss` = `sentinez.iam`, `aud` = `sentinez.controlplane`. `BearerTokenVerifier` bỏ tiền tố `Bearer `, kiểm tra HMAC (chỉ HS256), hạn dùng (bắt buộc), issuer và audience, rồi parse lại `Context`. `ServiceTokenGenerator(name, ttl)` / `ServiceTokenVerifier` làm điều tương tự cho token service (control plane `SERVICE`), với `SZ_SERVICE_KEY` và `iss` = `aud` = `sentinez.service`, nên không loại nào dùng thay được loại kia. IAM băm mật khẩu bằng bcrypt (`iam/v1/service/password.go`) |
 | `headers` | `GetAuth(ctx)` trả người gọi mà interceptor `authz` đã xác thực, nếu không thì đọc và verify metadata `Authorization` (token user, nếu không thì token service) → `Auth{*typepb.Context}`; `Auth.Check(method)` gọi `perms.Allow` (lỗi `PermissionDenied`); `Auth.IsAdmin()`; `Auth.IsService()`; `WithAuth(ctx, auth)` |
 | `authz` | `Unary()` / `Stream()`, cài cùng nhau bằng `ServerOptions()`: các interceptor từ chối mặc định (xem dưới); `Authorizer`: người gọi được làm gì trong các tenant; `Scoped`: giới hạn request list theo resource của người gọi |
 | `loginlimit` | `Limiter`: chặn một key sau N lần đăng nhập thất bại trong một cửa sổ; IAM dùng |
@@ -462,8 +463,15 @@ postgres ──trigger: pg_notify(id)──► centraldata ──Olric pub/sub�
   edge áp các thay đổi được publish sau nó.
 - **Live: Olric.** Centraldata publish mỗi `Change` trong một `Envelope` ký
   HMAC-SHA256 bằng `SZ_SYNC_KEY`, trên channel
-  `sentinez.centraldata.changes` của cluster edge (`SZ_OLRIC_ADDRESSES`,
-  qua Olric cluster client: nó không là member). Pub/sub là at-most-once, nên
+  `sentinez.centraldata.changes` của cluster edge (`SZ_OLRIC_URI`,
+  `olric://` hoặc `olrics://` qua TLS proxy, bằng Olric cluster client xác
+  thực bằng `SZ_OLRIC_PASSWORD`: nó không là member). Các host trong URI là
+  seed: node nhận publish sẽ chuyển tiếp tới subscriber của mọi node, nên
+  publisher ([publisher.go](../../pkg/cluster/publisher.go)) chỉ giữ
+  pub/sub trên một seed, là seed đầu tiên trả lời lúc khởi động (seed chết
+  thì bỏ qua, chỉ lỗi khi không seed nào trả lời). Khi publish lỗi, nó
+  chuyển sang seed kế tiếp và thử lại một lần; thay đổi vẫn bị mất thì
+  edge sẽ bù lại như bên dưới. Pub/sub là at-most-once, nên
   edge ([internal/centralsync](../../internal/centralsync/follower.go))
   subscribe trước khi gọi `Sync`, bỏ những gì không ký bằng key hoặc không
   nằm sau snapshot, và nạp lại khi version bị hụt, epoch đổi, hoặc mỗi 5
@@ -502,7 +510,8 @@ postgres ──trigger: pg_notify(id)──► centraldata ──Olric pub/sub�
   (`SyncMap.Origin`).
 - **Tin cậy.** `Sync` chỉ mở cho `CONTROL_PLANE_SERVICE`. Edge gọi qua mTLS
   (certificate của CA nội bộ, `hack/mkcert-internal.sh`) với token service
-  (`go run ./cmd/szservicetoken -name <CN của certificate>`) ký bằng
+  (`szservicetoken -name <CN của certificate>`, ở
+  `staging/src/github.com/sentinez/tools/cmd`) ký bằng
   `SZ_SERVICE_KEY`, chỉ centraldata giữ: edge giữ token, không giữ key.
   Tên trong token phải là CN của certificate của kết nối. Token service không
   mở method nào không liệt kê control plane service, và token user không bao
@@ -540,6 +549,7 @@ hoặc không đặt cái nào.
    `openssl rand -base64 32`; centraldata giữ, edge không bao giờ giữ):
 
    ```sh
+   cd staging/src/github.com/sentinez/tools
    SZ_SERVICE_KEY=... go run ./cmd/szservicetoken -name edge-1 -ttl 720h
    ```
 
@@ -773,7 +783,8 @@ này giữ dung lượng của các trường repeated cho lần `UnmarshalVT` s
 gom event của một batch vào `pools.Batch` và `defer` `Close` của nó để trả
 tất cả về pool.
 
-Cấu hình: `SZ_KAFKA_BROKERS` (không đặt: ingest bị tắt kèm cảnh báo,
+Cấu hình: `SZ_KAFKA_URI`, `kafka://` hoặc `kafkas://` kèm certificate
+client của `SZ_TLS_*` (không đặt: ingest bị tắt kèm cảnh báo,
 gRPC server vẫn chạy) và database của `SZ_POSTGRES_URI`. Các giới hạn
 giữ bộ nhớ của consumer nằm ở
 [09-core-shared.md](09-core-shared.md#szkafka).
@@ -792,4 +803,5 @@ cung cấp gRPC status có định dạng `SZ-<code>: <ERRORS_...>` và các hà
 - Mock repository sinh bằng mockery: `iam/v1/repos/{accounts,users}/mock`,
   `tenant/v1/repos/resources/mock`.
 - `iam/v1/service/service_test.go`, `iam/v1/handler/iam_test.go`,
-  `pkg/crypto/crypto_test.go`.
+  `pkg/sztoken/{token,service}_test.go`, `pkg/szseal/seal_test.go` (module
+  `pkg`).

@@ -27,10 +27,10 @@ import (
 	"github.com/pashagolub/pgxmock/v2"
 	membermock "github.com/sentinez/controlplane/apps/tenant/v1/repos/members/mock"
 	tenantmock "github.com/sentinez/controlplane/apps/tenant/v1/repos/tenants/mock"
-	"github.com/sentinez/controlplane/pkg/crypto"
 	"github.com/sentinez/controlplane/pkg/headers"
 	"github.com/sentinez/pkg/szconfig"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
+	"github.com/sentinez/pkg/sztoken"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
@@ -56,7 +56,7 @@ func authContext(t *testing.T, userId string) context.Context {
 	secret := base64.StdEncoding.EncodeToString([]byte("congchualunglinh"))
 	szconfig.SetEnv(settingpb.Sz_SZ_SECRET_KEY, secret)
 
-	token, err := crypto.TokenGenerator(&typepb.Context{
+	token, err := sztoken.TokenGenerator(&typepb.Context{
 		UserId:   userId,
 		ExpireAt: timestamppb.New(time.Now().Add(time.Hour)),
 	})

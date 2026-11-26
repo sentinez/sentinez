@@ -448,6 +448,23 @@ Mọi map dùng `pkg/szsync.Map[K,V]` (bọc `sync.Map` có generic).
 - `NewCluster` tạo Olric với config `local`. Nếu config là `Clustered()`
   (có cả `SZ_MEMBERSHIP_ADDRESS` và `SZ_DISCOVERY_ADDRESS`) thì đặt `Peers`
   và bind memberlist theo discovery address.
+- Bản thân Olric bind `SZ_OLRIC_ADDRESS`, cổng centraldata publish tới,
+  và đặt tên node theo IP đó. Không đặt thì edge chạy một mình bind
+  `127.0.0.1:3320`, không ai ngoài máy tới được; edge chạy cụm bind một IP
+  private của máy trên cổng 3320 ([bind.go](../../pkg/cluster/bind.go)).
+  Host không cụ thể (`0.0.0.0`, `::`, rỗng), ở đây và ở
+  `SZ_DISCOVERY_ADDRESS`, cũng lấy một IP private: nếu để Olric tự chọn,
+  máy không có IP private sẽ bị bind vào IP public, nên edge không khởi
+  động thay vì vậy. IP public đặt tường minh thì vẫn bind, kèm cảnh báo.
+- Cổng này yêu cầu mật khẩu `SZ_OLRIC_PASSWORD`
+  ([secure.go](../../pkg/cluster/secure.go)): không có mật khẩu thì client
+  nào cũng đọc/ghi được DMap. Olric tự đưa mật khẩu cho client nội bộ, nên
+  các node trong cụm và subscriber của mỗi edge cũng xác thực; centraldata
+  publish bằng mật khẩu này. Gossip memberlist được mã hoá và xác thực
+  bằng `SZ_GOSSIP_KEY` (AES-GCM): node không có khoá không join được. Biến
+  nào không đặt đều có cảnh báo. Olric không phục vụ TLS và gửi mật khẩu
+  dạng rõ: giữ cổng trong mạng riêng, hoặc đặt sau một TLS proxy để dùng
+  `olrics://` (xem [2.3](02-getting-started.md#23-biến-môi-trường)).
 - Olric không có compare-and-swap, nên không được giữ state do leader ghi;
   state đó nằm ở Consul, nơi việc ghi có fencing (xem bên dưới).
 - `Cluster.Ready()` được đóng khi Olric nhận kết nối, dù chạy cluster hay
@@ -552,7 +569,7 @@ trả về true khi có cả `SZ_MEMBERSHIP_ADDRESS` và `SZ_DISCOVERY_ADDRESS`;
 
 Một term diễn ra như sau:
 
-1. `consul.Client.Acquire` ([api/client/consul/lock.go](../../api/client/consul/lock.go))
+1. `szconsul.Client.Acquire` ([pkg/szconsul/lock.go](../../staging/src/github.com/sentinez/pkg/szconsul/lock.go))
    tạo một session (TTL 15s, do node giữ lock gia hạn) và chờ tới khi giữ
    được key. Mỗi lần chờ một lock đang bị giữ tối đa 2s, nên follower nhận
    ra shutdown sớm, trong giới hạn stop timeout 15s của runner.
@@ -580,7 +597,7 @@ Chuyển leader:
 chia cắt) trước khi thấy `Lost()`. Mọi lần leader ghi state dùng chung phải
 gửi kèm `term.Index`, và nơi lưu trữ phải từ chối index nhỏ hơn index lớn
 nhất đã thấy. Riêng elector không thể tự đảm bảo điều này;
-`consul.Client.PutFenced` ([api/client/consul/fenced.go](../../api/client/consul/fenced.go))
+`szconsul.Client.PutFenced` ([pkg/szconsul/fenced.go](../../staging/src/github.com/sentinez/pkg/szconsul/fenced.go))
 đảm bảo việc đó trên Consul KV:
 
 - Giá trị được lưu dạng JSON `{"token": <term.Index>, "value": ...}`
@@ -639,9 +656,12 @@ và `status` của zone, `make compose.edge.consul` in các peer Raft; dừng ed
 đang lead thì edge khác lên leader khi session hết hạn, kill một server
 Consul thì lock vẫn giữ. Nếu Consul không đạt quorum thì không zone nào bầu
 được leader. Các edge gossip trên `:7777` và join qua một seed
-(`SZ_MEMBERSHIP_ADDRESS`); Olric server của chúng nghe trên `:3320`. Edge
-đơn `sentinez.dmz.edge` của compose chính không cluster nên không tranh cử,
-dù ở zone nào. Hai server
+(`SZ_MEMBERSHIP_ADDRESS`); Olric server của chúng nghe trên
+`sentinez.dmz.edge.0N:3320` (`SZ_OLRIC_ADDRESS`), cả hai đều bind vào IP
+private của container. `SZ_OLRIC_PASSWORD` và `SZ_GOSSIP_KEY` lấy từ shared
+env trên Consul (`make consul.env.put`). Edge đơn `sentinez.dmz.edge` của
+compose chính không cluster nên không tranh cử, dù ở zone nào, và Olric
+của nó bind `127.0.0.1` bên trong container. Hai server
 Consul rời Raft khi bị dừng (`leave_on_terminate`), nên sau
 `make compose.edge.down` thì `sentinez.consul` lại một mình làm leader; kill
 cả hai thì nó mất quorum tới khi chúng chạy lại. Các edge chạy với

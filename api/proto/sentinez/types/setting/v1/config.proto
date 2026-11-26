@@ -30,18 +30,24 @@ enum Sz {
   SZ_TIMESCALE_URI = 5;
   SZ_POSTGRES_URI = 6;
   SZ_CLICKHOUSE_URI = 7;
+  // Consul agent, http(s)://host:port or unix:///path
   SZ_CONSUL_URI = 8;
+  // memberlist seed peer of the edge cluster, host:port
   SZ_MEMBERSHIP_ADDRESS = 9;
+  // memberlist bind of this edge, host:port
   SZ_DISCOVERY_ADDRESS = 10;
   SZ_ADMIN_USERNAME = 11;
   SZ_ADMIN_PASSWORD = 12;
-  // OTLP/gRPC collector of the system (application) logs; unset: not exported
-  SZ_OTLP_INTERNAL_ENDPOINT = 13;
-  // OTLP/gRPC collector of the edge traffic logs; unset: not exported
-  SZ_OTLP_EXTERNAL_ENDPOINT = 14;
-  // Kafka brokers (comma-separated) the edge traffic events are produced to
-  // directly; takes precedence over SZ_OTLP_EXTERNAL_ENDPOINT
-  SZ_KAFKA_BROKERS = 15;
+  // OTLP/gRPC collector of the system (application) logs,
+  // http://host:port or https://host:port (TLS); unset: not exported
+  SZ_OTLP_INTERNAL_URI = 13;
+  // OTLP/gRPC collector of the edge traffic logs, http(s)://host:port;
+  // unset: not exported
+  SZ_OTLP_EXTERNAL_URI = 14;
+  // Kafka brokers the edge traffic events are produced to directly,
+  // kafka://host:port[,host:port...] or kafkas:// (TLS, mTLS with
+  // SZ_TLS_*); takes precedence over SZ_OTLP_EXTERNAL_URI
+  SZ_KAFKA_URI = 15;
   // zone the service is deployed in (eg ap-southeast-1a); prefixes generated ids
   SZ_ZONE = 16;
   // AES-256 key (32 bytes, base64 encoded) the secrets stored in the
@@ -58,15 +64,28 @@ enum Sz {
   SZ_TLS_CA = 20;
   SZ_TLS_CERT = 21;
   SZ_TLS_KEY = 22;
-  // Olric addresses (comma-separated) of the edge cluster centraldata
-  // publishes the changes to
-  SZ_OLRIC_ADDRESSES = 23;
+  // Olric nodes of the edge cluster centraldata publishes the changes to,
+  // olric://host:port[,host:port...] or olrics:// (TLS, to a TLS proxy in
+  // front of Olric, mTLS with SZ_TLS_*)
+  SZ_OLRIC_URI = 23;
   // tables (comma-separated) centraldata syncs to the edge; the default
   // set when empty
   SZ_SYNC_TABLES = 24;
   // HMAC key (base64 encoded) the changes centraldata publishes to the
   // edges are signed and verified with; held by centraldata and the edges
   SZ_SYNC_KEY = 25;
+  // Olric bind of this edge, host:port; Olric names the node after the IP
+  // of the host, which the other nodes dial. Unset: 127.0.0.1:3320 alone,
+  // a private IP of the host on 3320 in a cluster. An unspecified host
+  // (empty, 0.0.0.0, ::) takes a private IP too, never a public one
+  SZ_OLRIC_ADDRESS = 26;
+  // password of the Olric port of the edges (AUTH, sent in clear: TLS
+  // only through a proxy); the edges and centraldata hold the same one
+  SZ_OLRIC_PASSWORD = 27;
+  // AES key (16, 24 or 32 bytes, base64 encoded) the memberlist gossip of
+  // the edge cluster is encrypted and authenticated with; the edges of a
+  // cluster hold the same one
+  SZ_GOSSIP_KEY = 28;
 }
 
 message Config {

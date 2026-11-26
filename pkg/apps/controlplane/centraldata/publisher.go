@@ -17,11 +17,11 @@ package centraldata
 import (
 	"context"
 	"errors"
-	"strings"
 
 	centraldatasvc "github.com/sentinez/controlplane/apps/centraldata/v1/service"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szsign"
+	"github.com/sentinez/pkg/sztls"
 	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/pkg/cluster"
@@ -30,17 +30,16 @@ import (
 
 // errNoSyncKey the edges would refuse what is published without a key, and
 // a publisher without one would let anyone forge it.
-var errNoSyncKey = errors.New("SZ_SYNC_KEY is required with " +
-	"SZ_OLRIC_ADDRESSES")
+var errNoSyncKey = errors.New("SZ_SYNC_KEY is required with SZ_OLRIC_URI")
 
 // NewPublisher returns the Publisher of the changes of centraldata to the
-// Olric cluster of the edges (SZ_OLRIC_ADDRESSES), signed with
-// SZ_SYNC_KEY. Without addresses it publishes nothing, which is for
-// running centraldata alone.
+// Olric cluster of the edges (SZ_OLRIC_URI), signed with SZ_SYNC_KEY.
+// Without a URI it publishes nothing, which is for running centraldata
+// alone.
 func NewPublisher(conf *settingpb.Config) (centraldatasvc.Publisher, error) {
-	addrs := splitList(conf.Get(settingpb.Sz_SZ_OLRIC_ADDRESSES))
-	if len(addrs) == 0 {
-		szlog.Warnf("centraldata: no SZ_OLRIC_ADDRESSES, " +
+	uri := conf.Get(settingpb.Sz_SZ_OLRIC_URI)
+	if uri == "" {
+		szlog.Warnf("centraldata: no SZ_OLRIC_URI, " +
 			"the changes are not published")
 
 		return nopPublisher{}, nil
@@ -51,7 +50,14 @@ func NewPublisher(conf *settingpb.Config) (centraldatasvc.Publisher, error) {
 		return nil, err
 	}
 
-	pub, err := cluster.NewPublisher(addrs)
+	// olrics:// reaches the TLS proxies in front of the nodes
+	ep, err := sztls.ParseURI(uri, "olric", "olrics", sztls.FilesOf(conf))
+	if err != nil {
+		return nil, err
+	}
+
+	pub, err := cluster.NewPublisher(ep.Hosts, cluster.WithTLS(ep.TLS),
+		cluster.WithPassword(conf.Get(settingpb.Sz_SZ_OLRIC_PASSWORD)))
 	if err != nil {
 		return nil, err
 	}
@@ -90,16 +96,4 @@ type nopPublisher struct{}
 
 func (nopPublisher) Publish(context.Context, *centraldatapb.Change) error {
 	return nil
-}
-
-// splitList the non-empty items of the comma-separated list.
-func splitList(list string) []string {
-	var items []string
-	for _, item := range strings.Split(list, ",") {
-		if item = strings.TrimSpace(item); item != "" {
-			items = append(items, item)
-		}
-	}
-
-	return items
 }

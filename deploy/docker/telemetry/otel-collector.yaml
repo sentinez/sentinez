@@ -32,7 +32,7 @@ connectors:
   # one Kafka topic per log type; records without a kind (debug/error, other
   # services) stay on otlp_logs. The *.otlp topics hold OTLP LogsData; the
   # edge produces raw proto events to the same names without .otlp when
-  # SZ_KAFKA_BROKERS is set (shared/szkafka)
+  # SZ_KAFKA_URI is set (pkg/szkafka)
   routing/logs:
     default_pipelines: [logs/default]
     error_mode: ignore

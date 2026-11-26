@@ -21,13 +21,15 @@ Mỗi app có fx container riêng, nên các app trong cùng process có thể c
 provide một kiểu (ví dụ `config.Config`). Hook dừng có timeout 15 s. Ở mode
 khác `dev`, log của fx bị tắt (`fx.NopLogger`).
 
-OTLP: log hệ thống đẩy về `SZ_OTLP_INTERNAL_ENDPOINT`, không đặt thì
+OTLP: log hệ thống đẩy về `SZ_OTLP_INTERNAL_URI`, không đặt thì
 không push; service name = `meta.service_key`. Exporter được shutdown sau khi
 mọi app đã dừng. Log traffic của edge (node `logging` trong func chains) được
-đẩy thẳng vào Kafka khi đặt `SZ_KAFKA_BROKERS` (event proto thô, mỗi log
+đẩy thẳng vào Kafka khi đặt `SZ_KAFKA_URI` (event proto thô, mỗi log
 type một topic, xem `pkg/szkafka`), nếu không thì qua provider OTLP riêng trên
-`SZ_OTLP_EXTERNAL_ENDPOINT`; exporter do edge server sở hữu và flush trong
-`Shutdown`. Không đặt biến nào thì không push. Endpoint `https://` dùng TLS.
+`SZ_OTLP_EXTERNAL_URI`; exporter do edge server sở hữu và flush trong
+`Shutdown`. Không đặt biến nào thì không push. URI OTLP có dạng
+`http://host:port`, hoặc `https://` để dùng TLS (`szlog.OTLPConfigOf`);
+giá trị khác thì service không khởi động.
 
 ## 9.2 `core/szhttp` và `core/szhttp/chains`
 
@@ -80,7 +82,7 @@ type một topic, xem `pkg/szkafka`), nếu không thì qua provider OTLP riêng
 | `core/szlimiter`, `core/szrule`, `core/szcrs`, `core/szruleset`, `core/szmodsec` | Xem [04-rule-engine.md](04-rule-engine.md) |
 | `pkg/sztracer` | `StageError{Stage, Elapsed, Err}`, `Origin(err)` |
 | `pkg/szqueue` | `Queue{}` rỗng (cho waiting room) |
-| `pkg/szsdklog` | `New(conf, opts...)`: `Exporter` cho log traffic của edge: Kafka trên `SZ_KAFKA_BROKERS`, không thì OTLP trên `SZ_OTLP_EXTERNAL_ENDPOINT`, nil khi không đặt biến nào; `opts` (`szkafka.ConfigOption`) cấu hình producer |
+| `pkg/szsdklog` | `New(conf, opts...)`: `Exporter` cho log traffic của edge: Kafka trên `SZ_KAFKA_URI`, không thì OTLP trên `SZ_OTLP_EXTERNAL_URI`, nil khi không đặt biến nào; `opts` (`szkafka.ConfigOption`) cấu hình producer |
 | `pkg/szkafka` | Producer Kafka cho event của edge và consumer theo batch, xem [`szkafka`](#szkafka) |
 
 ## 9.5 `pkg`
@@ -101,6 +103,11 @@ type một topic, xem `pkg/szkafka`), nếu không thì qua provider OTLP riêng
 | `szstore/ja4` | Cache fingerprint JA4 theo connection ID (TTL 24h) |
 | `szcolor` | Màu ANSI cho log console |
 | `sztopic` | Kiểu `Topic` và tên topic của event traffic edge (`EventHTTPIngress`, `EventHTTPEgress`, `EventHTTPSecRule`, ...) |
+| `szuri` | `Parse(s)` cho giá trị của các biến `SZ_*_URI`, `scheme://[user[:password]@]host[:port][,host[:port]...][/path][?query]`: `Scheme` viết thường, `User`, `Hosts`, `Path` đã unescape, `Query`. Thiếu scheme: `ErrNoScheme`. Trên `URI`: `Want(schemes...)` (scheme khác: `*SchemeError`), `Secure(plain, secure)` cho biết scheme có TLS không, `Host()` trả về host duy nhất, `Require()` báo lỗi khi không có host (`ErrNoHost`). `ParsePort(s)` kiểm tra cổng từ 1 tới 65535. Cần package này vì `net/url` chỉ nhận một host |
+| `sztls` | `Files{CAFile, CertFile, KeyFile}` của `SZ_TLS_*` (`FilesOf(conf)`): `Config()` là config TLS 1.3 của mTLS nội bộ (bắt buộc đủ ba file), `ClientConfig()` trả config đó khi có file nào được đặt, không thì TLS 1.2+ tin các root của hệ thống. `ParseURI(uri, plain, secure, files)` trả `Endpoint{Hosts, TLS}` của một URI mà scheme quyết định TLS (`kafka`/`kafkas`, `olric`/`olrics`). `core/szgrpc/client/connection` dựng credentials gRPC trên nó; `sztlstest` cấp certificate cho test |
+| `szconsul` | Consul client (KV, session lock, ghi có fencing, service registry); `New(uri)` nhận `http(s)://host:port` hoặc `unix:///path` (rỗng: `CONSUL_HTTP_ADDR`, không có thì `127.0.0.1:8500`) và từ chối `host:port` trần |
+| `sztoken` | Bearer token của control plane: JWT của user (HS256, `SZ_SECRET_KEY`) và service token của edge (`SZ_SERVICE_KEY`, ký bằng `tools/cmd/szservicetoken`), xem [07-controlplane.md](07-controlplane.md) |
+| `szseal` | Bộ mã hoá AES-256-GCM cho các bí mật lưu trong database (`SZ_DATA_KEY`), ví dụ CA certificate và key của chúng |
 
 ### `szlog`
 
@@ -138,10 +145,13 @@ khi `level >= verbosity`.
   chạy và drop event cho tới khi topic tồn tại.
 - Vì vậy `NewProducer` kết nối broker ngay: khi Kafka không với tới được,
   edge khởi động chậm tối đa 10 s.
-- `ConfigOf(brokers, service, opts...)` dựng `Config`, với các option
-  `WithTopics(map)` (map được chép), `WithTopicPartitions(n)`,
-  `WithReplicationFactor(n)`. `Brokers(s)` tách danh sách broker phân cách
-  bằng dấu phẩy.
+- `ParseURI(uri, files)` trả `Endpoint{Brokers, TLS}` của `SZ_KAFKA_URI`:
+  `kafka://host:port[,host:port...]` là plaintext, `kafkas://` dial bằng
+  TLS (`kgo.DialTLSConfig`), là mTLS của `sztls.Files` khi có file, không
+  thì tin các root của hệ thống. `ConfigOf(endpoint, service, opts...)`
+  dựng `Config`, với các option `WithTopics(map)` (map được chép),
+  `WithTopicPartitions(n)`, `WithReplicationFactor(n)`. Consumer nhận cùng
+  `Brokers` và `TLS` trong `ConsumerConfig`.
 
 **Consumer** (`NewConsumer(ConsumerConfig)`, `Run(ctx, BatchHandler)`,
 `Close()`):
@@ -184,8 +194,8 @@ nén; sau khi giải nén (producer dùng zstd) sẽ lớn hơn.
 | `pkg/network/wsz` | WebSocket server + client manager |
 | `pkg/pools/{ingress,egress,secrule,secruleset,matchedrule}` | Pool cho các event của edge (`httppb.IngressEvent`, `httppb.EgressEvent`, `secrulepb.SecRuleEvent`, `rulesetpb.SecRulesetEvent`, `rulepb.MatchedRules`), reset bằng `ResetVT` |
 | `pkg/protocol` | `Upstream2Target`: `PROXY_PROTOCOL_HTTP(S)` + server → URL |
-| `pkg/cluster` | Olric embedded; `SyncMap[T]` đồng bộ map local giữa các edge, xem [03-edge.md](03-edge.md#38-cluster-olric) |
-| `pkg/cluster/leader` | Bầu leader theo zone qua session lock của Consul; leader ghi zone status vào Consul KV có fencing (`api/client/consul` `PutFenced`), xem [03-edge.md](03-edge.md#bầu-leader-theo-zone) |
+| `pkg/cluster` | Olric embedded; `SyncMap[T]` đồng bộ map local giữa các edge; địa chỉ bind của Olric và memberlist (`SZ_OLRIC_ADDRESS`, `SZ_DISCOVERY_ADDRESS`: loopback khi chạy một mình, IP private khi chạy cụm, không bao giờ để Olric tự chọn IP public), mật khẩu Olric và khoá gossip (`SZ_OLRIC_PASSWORD`, `SZ_GOSSIP_KEY`), và `Publisher` của centraldata (seed, chuyển sang seed kế tiếp khi lỗi); xem [03-edge.md](03-edge.md#38-cluster-olric) |
+| `pkg/cluster/leader` | Bầu leader theo zone qua session lock của Consul; leader ghi zone status vào Consul KV có fencing (`pkg/szconsul` `PutFenced`), xem [03-edge.md](03-edge.md#bầu-leader-theo-zone) |
 
 ## 9.7 `contrib/httphz`
 

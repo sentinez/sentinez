@@ -20,7 +20,7 @@ The package name should be `<domain>`.
 
 Use standard imports, especially:
 - Context from `context`
-- Local client buffer configurations from `github.com/sentinez/sentinez/api/client/local`
+- Local client buffer configurations from `github.com/sentinez/core/szgrpc/client/local`
 - Protobuf generated code from `github.com/sentinez/sentinez/api/proto/sentinez/apps/<domain>/v1` (aliased as `<domain>pb`)
 - Configuration types from `github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1` (aliased as `settingpb`)
 - The factory package from `github.com/sentinez/controlplane/<domain>/v1/factory` (aliased as `<domain>fac`)

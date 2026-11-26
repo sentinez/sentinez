@@ -21,6 +21,7 @@ require (
 	github.com/exaring/ja4plus v0.0.3
 	github.com/goccy/go-yaml v1.19.2
 	github.com/gorilla/websocket v1.5.3
+	github.com/hashicorp/go-sockaddr v1.0.7
 	github.com/olric-data/olric v0.7.4
 	github.com/oschwald/maxminddb-golang/v2 v2.3.0
 	github.com/quasilyte/go-ruleguard/dsl v0.3.23
@@ -92,7 +93,6 @@ require (
 	github.com/hashicorp/go-msgpack/v2 v2.1.5 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/go-rootcerts v1.0.2 // indirect
-	github.com/hashicorp/go-sockaddr v1.0.7 // indirect
 	github.com/hashicorp/go-version v1.7.0 // indirect
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
 	github.com/hashicorp/logutils v1.0.0 // indirect

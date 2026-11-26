@@ -24,9 +24,9 @@ import (
 	accrepos "github.com/sentinez/controlplane/apps/iam/v1/repos/accounts"
 	accountrepo "github.com/sentinez/controlplane/apps/iam/v1/repos/accounts/mock"
 	usersrepo "github.com/sentinez/controlplane/apps/iam/v1/repos/users/mock"
-	"github.com/sentinez/controlplane/pkg/crypto"
 	"github.com/sentinez/pkg/szconfig"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
+	"github.com/sentinez/pkg/sztoken"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
@@ -43,7 +43,7 @@ func TestLogin(t *testing.T) {
 	userRepo := usersrepo.NewMockIUser(t)
 	accountRepo := accountrepo.NewMockIAccount(t)
 
-	pw, _ := crypto.HashPassword("secret123")
+	pw, _ := hashPassword("secret123")
 	acc := &accrepos.AccountX{
 		Account: &iampb.Account{
 			Id:           "acc-123",
@@ -92,7 +92,7 @@ func TestLogin(t *testing.T) {
 	assert.Equal(t, user, resp.User)
 	assert.NotEmpty(t, resp.AccessToken)
 
-	tokenCtx, ok := crypto.BearerTokenVerifier(resp.AccessToken)
+	tokenCtx, ok := sztoken.BearerTokenVerifier(resp.AccessToken)
 	if !ok {
 		assert.Error(t, fmt.Errorf("token invalid"))
 	}

@@ -26,15 +26,15 @@ import (
 	centraldatahdl "github.com/sentinez/controlplane/apps/centraldata/v1/handler"
 	memrepo "github.com/sentinez/controlplane/apps/centraldata/v1/repos/memory"
 	centraldatasvc "github.com/sentinez/controlplane/apps/centraldata/v1/service"
-	"github.com/sentinez/controlplane/pkg/crypto"
 	"github.com/sentinez/core/szgrpc"
+	"github.com/sentinez/core/szgrpc/client"
+	"github.com/sentinez/core/szgrpc/client/connection"
+	"github.com/sentinez/core/szgrpc/client/connection/connectiontest"
+	"github.com/sentinez/core/szgrpc/client/identity"
 	"github.com/sentinez/pkg/szconfig"
 	"github.com/sentinez/pkg/szsign"
 	"github.com/sentinez/pkg/sztable"
-	"github.com/sentinez/sentinez/api/client"
-	"github.com/sentinez/sentinez/api/client/connection"
-	"github.com/sentinez/sentinez/api/client/connection/connectiontest"
-	"github.com/sentinez/sentinez/api/client/identity"
+	"github.com/sentinez/pkg/sztoken"
 	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -93,7 +93,7 @@ func startCentral(t *testing.T) *central {
 func serviceToken(t *testing.T, name string) string {
 	t.Helper()
 
-	token, err := crypto.ServiceTokenGenerator(name, time.Hour)
+	token, err := sztoken.ServiceTokenGenerator(name, time.Hour)
 	require.NoError(t, err)
 
 	return token
@@ -193,7 +193,7 @@ func firstError(t *testing.T, c *central, tls connection.TLS,
 func TestSyncRefusesWhatIsNotAnEdgeOfTheCertificate(t *testing.T) {
 	c := startCentral(t)
 	edge := c.ca.Issue(t, "edge-1")
-	user, err := crypto.TokenGenerator(&typepb.Context{
+	user, err := sztoken.TokenGenerator(&typepb.Context{
 		Name:         "root",
 		ControlPlane: typepb.ControlPlane_CONTROL_PLANE_ADMIN,
 		ExpireAt:     timestamppb.New(time.Now().Add(time.Hour)),

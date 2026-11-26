@@ -39,26 +39,32 @@ const (
 type Sz int32
 
 const (
-	Sz_SZ_UNSPECIFIED        Sz = 0
-	Sz_SZ_HOSTNAME           Sz = 1 // hostname of service. eg s6z.io.vn
-	Sz_SZ_ADDRESS            Sz = 2 // http address, api, application ...
-	Sz_SZ_SECRET_KEY         Sz = 3 // secret key base64 encoded
-	Sz_SZ_CLIENT_ORIGIN      Sz = 4 // origin of client, used to gen passkey
-	Sz_SZ_TIMESCALE_URI      Sz = 5
-	Sz_SZ_POSTGRES_URI       Sz = 6
-	Sz_SZ_CLICKHOUSE_URI     Sz = 7
-	Sz_SZ_CONSUL_URI         Sz = 8
+	Sz_SZ_UNSPECIFIED    Sz = 0
+	Sz_SZ_HOSTNAME       Sz = 1 // hostname of service. eg s6z.io.vn
+	Sz_SZ_ADDRESS        Sz = 2 // http address, api, application ...
+	Sz_SZ_SECRET_KEY     Sz = 3 // secret key base64 encoded
+	Sz_SZ_CLIENT_ORIGIN  Sz = 4 // origin of client, used to gen passkey
+	Sz_SZ_TIMESCALE_URI  Sz = 5
+	Sz_SZ_POSTGRES_URI   Sz = 6
+	Sz_SZ_CLICKHOUSE_URI Sz = 7
+	// Consul agent, http(s)://host:port or unix:///path
+	Sz_SZ_CONSUL_URI Sz = 8
+	// memberlist seed peer of the edge cluster, host:port
 	Sz_SZ_MEMBERSHIP_ADDRESS Sz = 9
-	Sz_SZ_DISCOVERY_ADDRESS  Sz = 10
-	Sz_SZ_ADMIN_USERNAME     Sz = 11
-	Sz_SZ_ADMIN_PASSWORD     Sz = 12
-	// OTLP/gRPC collector of the system (application) logs; unset: not exported
-	Sz_SZ_OTLP_INTERNAL_ENDPOINT Sz = 13
-	// OTLP/gRPC collector of the edge traffic logs; unset: not exported
-	Sz_SZ_OTLP_EXTERNAL_ENDPOINT Sz = 14
-	// Kafka brokers (comma-separated) the edge traffic events are produced to
-	// directly; takes precedence over SZ_OTLP_EXTERNAL_ENDPOINT
-	Sz_SZ_KAFKA_BROKERS Sz = 15
+	// memberlist bind of this edge, host:port
+	Sz_SZ_DISCOVERY_ADDRESS Sz = 10
+	Sz_SZ_ADMIN_USERNAME    Sz = 11
+	Sz_SZ_ADMIN_PASSWORD    Sz = 12
+	// OTLP/gRPC collector of the system (application) logs,
+	// http://host:port or https://host:port (TLS); unset: not exported
+	Sz_SZ_OTLP_INTERNAL_URI Sz = 13
+	// OTLP/gRPC collector of the edge traffic logs, http(s)://host:port;
+	// unset: not exported
+	Sz_SZ_OTLP_EXTERNAL_URI Sz = 14
+	// Kafka brokers the edge traffic events are produced to directly,
+	// kafka://host:port[,host:port...] or kafkas:// (TLS, mTLS with
+	// SZ_TLS_*); takes precedence over SZ_OTLP_EXTERNAL_URI
+	Sz_SZ_KAFKA_URI Sz = 15
 	// zone the service is deployed in (eg ap-southeast-1a); prefixes generated ids
 	Sz_SZ_ZONE Sz = 16
 	// AES-256 key (32 bytes, base64 encoded) the secrets stored in the
@@ -75,15 +81,28 @@ const (
 	Sz_SZ_TLS_CA   Sz = 20
 	Sz_SZ_TLS_CERT Sz = 21
 	Sz_SZ_TLS_KEY  Sz = 22
-	// Olric addresses (comma-separated) of the edge cluster centraldata
-	// publishes the changes to
-	Sz_SZ_OLRIC_ADDRESSES Sz = 23
+	// Olric nodes of the edge cluster centraldata publishes the changes to,
+	// olric://host:port[,host:port...] or olrics:// (TLS, to a TLS proxy in
+	// front of Olric, mTLS with SZ_TLS_*)
+	Sz_SZ_OLRIC_URI Sz = 23
 	// tables (comma-separated) centraldata syncs to the edge; the default
 	// set when empty
 	Sz_SZ_SYNC_TABLES Sz = 24
 	// HMAC key (base64 encoded) the changes centraldata publishes to the
 	// edges are signed and verified with; held by centraldata and the edges
 	Sz_SZ_SYNC_KEY Sz = 25
+	// Olric bind of this edge, host:port; Olric names the node after the IP
+	// of the host, which the other nodes dial. Unset: 127.0.0.1:3320 alone,
+	// a private IP of the host on 3320 in a cluster. An unspecified host
+	// (empty, 0.0.0.0, ::) takes a private IP too, never a public one
+	Sz_SZ_OLRIC_ADDRESS Sz = 26
+	// password of the Olric port of the edges (AUTH, sent in clear: TLS
+	// only through a proxy); the edges and centraldata hold the same one
+	Sz_SZ_OLRIC_PASSWORD Sz = 27
+	// AES key (16, 24 or 32 bytes, base64 encoded) the memberlist gossip of
+	// the edge cluster is encrypted and authenticated with; the edges of a
+	// cluster hold the same one
+	Sz_SZ_GOSSIP_KEY Sz = 28
 )
 
 // Enum value maps for Sz.
@@ -102,9 +121,9 @@ var (
 		10: "SZ_DISCOVERY_ADDRESS",
 		11: "SZ_ADMIN_USERNAME",
 		12: "SZ_ADMIN_PASSWORD",
-		13: "SZ_OTLP_INTERNAL_ENDPOINT",
-		14: "SZ_OTLP_EXTERNAL_ENDPOINT",
-		15: "SZ_KAFKA_BROKERS",
+		13: "SZ_OTLP_INTERNAL_URI",
+		14: "SZ_OTLP_EXTERNAL_URI",
+		15: "SZ_KAFKA_URI",
 		16: "SZ_ZONE",
 		17: "SZ_DATA_KEY",
 		18: "SZ_SERVICE_KEY",
@@ -112,37 +131,43 @@ var (
 		20: "SZ_TLS_CA",
 		21: "SZ_TLS_CERT",
 		22: "SZ_TLS_KEY",
-		23: "SZ_OLRIC_ADDRESSES",
+		23: "SZ_OLRIC_URI",
 		24: "SZ_SYNC_TABLES",
 		25: "SZ_SYNC_KEY",
+		26: "SZ_OLRIC_ADDRESS",
+		27: "SZ_OLRIC_PASSWORD",
+		28: "SZ_GOSSIP_KEY",
 	}
 	Sz_value = map[string]int32{
-		"SZ_UNSPECIFIED":            0,
-		"SZ_HOSTNAME":               1,
-		"SZ_ADDRESS":                2,
-		"SZ_SECRET_KEY":             3,
-		"SZ_CLIENT_ORIGIN":          4,
-		"SZ_TIMESCALE_URI":          5,
-		"SZ_POSTGRES_URI":           6,
-		"SZ_CLICKHOUSE_URI":         7,
-		"SZ_CONSUL_URI":             8,
-		"SZ_MEMBERSHIP_ADDRESS":     9,
-		"SZ_DISCOVERY_ADDRESS":      10,
-		"SZ_ADMIN_USERNAME":         11,
-		"SZ_ADMIN_PASSWORD":         12,
-		"SZ_OTLP_INTERNAL_ENDPOINT": 13,
-		"SZ_OTLP_EXTERNAL_ENDPOINT": 14,
-		"SZ_KAFKA_BROKERS":          15,
-		"SZ_ZONE":                   16,
-		"SZ_DATA_KEY":               17,
-		"SZ_SERVICE_KEY":            18,
-		"SZ_SERVICE_TOKEN":          19,
-		"SZ_TLS_CA":                 20,
-		"SZ_TLS_CERT":               21,
-		"SZ_TLS_KEY":                22,
-		"SZ_OLRIC_ADDRESSES":        23,
-		"SZ_SYNC_TABLES":            24,
-		"SZ_SYNC_KEY":               25,
+		"SZ_UNSPECIFIED":        0,
+		"SZ_HOSTNAME":           1,
+		"SZ_ADDRESS":            2,
+		"SZ_SECRET_KEY":         3,
+		"SZ_CLIENT_ORIGIN":      4,
+		"SZ_TIMESCALE_URI":      5,
+		"SZ_POSTGRES_URI":       6,
+		"SZ_CLICKHOUSE_URI":     7,
+		"SZ_CONSUL_URI":         8,
+		"SZ_MEMBERSHIP_ADDRESS": 9,
+		"SZ_DISCOVERY_ADDRESS":  10,
+		"SZ_ADMIN_USERNAME":     11,
+		"SZ_ADMIN_PASSWORD":     12,
+		"SZ_OTLP_INTERNAL_URI":  13,
+		"SZ_OTLP_EXTERNAL_URI":  14,
+		"SZ_KAFKA_URI":          15,
+		"SZ_ZONE":               16,
+		"SZ_DATA_KEY":           17,
+		"SZ_SERVICE_KEY":        18,
+		"SZ_SERVICE_TOKEN":      19,
+		"SZ_TLS_CA":             20,
+		"SZ_TLS_CERT":           21,
+		"SZ_TLS_KEY":            22,
+		"SZ_OLRIC_URI":          23,
+		"SZ_SYNC_TABLES":        24,
+		"SZ_SYNC_KEY":           25,
+		"SZ_OLRIC_ADDRESS":      26,
+		"SZ_OLRIC_PASSWORD":     27,
+		"SZ_GOSSIP_KEY":         28,
 	}
 )
 
@@ -244,7 +269,7 @@ const file_sentinez_types_setting_v1_config_proto_rawDesc = "" +
 	"\x03env\x18\x03 \x03(\v2*.sentinez.types.setting.v1.Config.EnvEntryR\x03env\x1a6\n" +
 	"\bEnvEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01*\xa3\x04\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01*\xcf\x04\n" +
 	"\x02Sz\x12\x12\n" +
 	"\x0eSZ_UNSPECIFIED\x10\x00\x12\x0f\n" +
 	"\vSZ_HOSTNAME\x10\x01\x12\x0e\n" +
@@ -260,10 +285,10 @@ const file_sentinez_types_setting_v1_config_proto_rawDesc = "" +
 	"\x14SZ_DISCOVERY_ADDRESS\x10\n" +
 	"\x12\x15\n" +
 	"\x11SZ_ADMIN_USERNAME\x10\v\x12\x15\n" +
-	"\x11SZ_ADMIN_PASSWORD\x10\f\x12\x1d\n" +
-	"\x19SZ_OTLP_INTERNAL_ENDPOINT\x10\r\x12\x1d\n" +
-	"\x19SZ_OTLP_EXTERNAL_ENDPOINT\x10\x0e\x12\x14\n" +
-	"\x10SZ_KAFKA_BROKERS\x10\x0f\x12\v\n" +
+	"\x11SZ_ADMIN_PASSWORD\x10\f\x12\x18\n" +
+	"\x14SZ_OTLP_INTERNAL_URI\x10\r\x12\x18\n" +
+	"\x14SZ_OTLP_EXTERNAL_URI\x10\x0e\x12\x10\n" +
+	"\fSZ_KAFKA_URI\x10\x0f\x12\v\n" +
 	"\aSZ_ZONE\x10\x10\x12\x0f\n" +
 	"\vSZ_DATA_KEY\x10\x11\x12\x12\n" +
 	"\x0eSZ_SERVICE_KEY\x10\x12\x12\x14\n" +
@@ -271,10 +296,13 @@ const file_sentinez_types_setting_v1_config_proto_rawDesc = "" +
 	"\tSZ_TLS_CA\x10\x14\x12\x0f\n" +
 	"\vSZ_TLS_CERT\x10\x15\x12\x0e\n" +
 	"\n" +
-	"SZ_TLS_KEY\x10\x16\x12\x16\n" +
-	"\x12SZ_OLRIC_ADDRESSES\x10\x17\x12\x12\n" +
+	"SZ_TLS_KEY\x10\x16\x12\x10\n" +
+	"\fSZ_OLRIC_URI\x10\x17\x12\x12\n" +
 	"\x0eSZ_SYNC_TABLES\x10\x18\x12\x0f\n" +
-	"\vSZ_SYNC_KEY\x10\x19BLZJgithub.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1;settingpbb\x06proto3"
+	"\vSZ_SYNC_KEY\x10\x19\x12\x14\n" +
+	"\x10SZ_OLRIC_ADDRESS\x10\x1a\x12\x15\n" +
+	"\x11SZ_OLRIC_PASSWORD\x10\x1b\x12\x11\n" +
+	"\rSZ_GOSSIP_KEY\x10\x1cBLZJgithub.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1;settingpbb\x06proto3"
 
 var (
 	file_sentinez_types_setting_v1_config_proto_rawDescOnce sync.Once

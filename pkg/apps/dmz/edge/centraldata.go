@@ -19,11 +19,11 @@ import (
 	"errors"
 	"io"
 
+	"github.com/sentinez/core/szgrpc/client"
+	"github.com/sentinez/core/szgrpc/client/connection"
+	"github.com/sentinez/core/szgrpc/client/discovery"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szsign"
-	"github.com/sentinez/sentinez/api/client"
-	"github.com/sentinez/sentinez/api/client/connection"
-	"github.com/sentinez/sentinez/api/client/options"
 	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/centralsync"
@@ -130,12 +130,11 @@ func (s *RevProxyServer) newFollower() (*centralsync.Follower, error) {
 func (s *RevProxyServer) dialCentralData(context.Context,
 ) (centraldatapb.CentralDataServiceClient, io.Closer, error) {
 	tls := connection.TLSFromConfig(s.conf)
-	opt := &options.Options{
-		ConsulURL: s.conf.Get(settingpb.Sz_SZ_CONSUL_URI),
-	}
+	consul := discovery.WithConsulURL(
+		s.conf.Get(settingpb.Sz_SZ_CONSUL_URI))
 
-	cl, conn, err := client.NewCentralData(opt, tls,
-		s.conf.Get(settingpb.Sz_SZ_SERVICE_TOKEN))
+	cl, conn, err := client.NewCentralData(tls,
+		s.conf.Get(settingpb.Sz_SZ_SERVICE_TOKEN), consul)
 	if err != nil {
 		return nil, nil, err
 	}

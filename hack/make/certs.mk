@@ -4,9 +4,9 @@
 # share one folder (gitignored), which deploy/docker mounts file by file.
 SZ_INTERNAL_CERT_DIR ?= $(SZ_ROOT)/deploy/certs/internal
 
-# A CN is the name of the service, identity.* of api/client: the name its
-# peers verify its certificate by, and the name of its service token
-# (szservicetoken -name). The edges of a cluster share theirs.
+# A CN is the name of the service, identity.* of core/szgrpc/client: the
+# name its peers verify its certificate by, and the name of its service
+# token (szservicetoken -name). The edges of a cluster share theirs.
 SZ_CENTRALDATA_CERT_NAME ?= sentinez.apps.centraldata
 SZ_EDGE_CERT_NAME ?= sentinez.dmz.edge
 # names centraldata is reached by besides its CN

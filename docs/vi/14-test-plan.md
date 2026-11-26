@@ -61,6 +61,11 @@ sau dùng lại trạng thái mà các test trước tạo ra.
 | INS-04 | Chạy mọi service | Banner của mỗi service in version release (`core.Version`). Các bảng được tạo trong database mới |
 | INS-05 | Mở http://sentinez.gateway.apiserver:8080/swagger/ | Swagger UI liệt kê các service IAM, tenant, security và analytic |
 | INS-06 | `make consul.proxy.put`, rồi khởi động lại apiserver và edge | Apiserver import file vào tenant `admin`. Edge đọc setting từ Consul |
+| INS-07 | Chạy edge với `SZ_KAFKA_URI=sentinez.kafka:9092` (thiếu scheme), rồi centraldata với `SZ_OLRIC_URI=sentinez.dmz.edge.01:3320` | Cả hai không khởi động được; log ghi rõ URI thiếu scheme |
+| INS-08 | Chạy một edge đơn lẻ không có `SZ_OLRIC_ADDRESS`, rồi `ss -ltn` | Olric chỉ listen trên `127.0.0.1:3320` |
+| INS-09 | Chạy các edge chạy cụm của deploy/docker/cluster, rồi `ss -ltn` trong một container | Olric (3320) và memberlist (7777) listen trên IP private của container, không phải `0.0.0.0` |
+| INS-10 | Edge có `SZ_OLRIC_PASSWORD`: `redis-cli -p 3320 PING` trên máy của nó, rồi `redis-cli -p 3320 -a <mật khẩu> PING` | Lệnh đầu bị từ chối (`Authentication required`), lệnh sau trả `PONG` |
+| INS-11 | Hai edge chạy cụm với `SZ_GOSSIP_KEY` khác nhau | Edge thứ hai không join được; cùng khoá thì join được |
 
 ### EDG: định tuyến của edge
 
@@ -137,12 +142,12 @@ sau dùng lại trạng thái mà các test trước tạo ra.
 
 | Id | Các bước | Kết quả mong đợi |
 |---|---|---|
-| EVT-01 | Edge chạy với `SZ_KAFKA_BROKERS`; chạy lại SEC-01, SEC-05 và SEC-07, kèm một ít traffic bình thường | Message xuất hiện trên các topic `sentinez.event.http.*` (Kafka UI :8088) |
+| EVT-01 | Edge chạy với `SZ_KAFKA_URI`; chạy lại SEC-01, SEC-05 và SEC-07, kèm một ít traffic bình thường | Message xuất hiện trên các topic `sentinez.event.http.*` (Kafka UI :8088) |
 | EVT-02 | Collector đang chạy | Các dòng có trong `analytic.*.events`. Mỗi id có tiền tố là `SZ_ZONE` |
 | EVT-03 | Các trang console `analytic/logs/sec-rule`, `sec-ruleset` và `sec-rate-limit` | Liệt kê các event của EVT-01. Top values và filter hoạt động |
 | EVT-04 | Zoom histogram từ giờ xuống phút xuống giây | Các bucket khớp với số event ở mỗi độ phân giải |
 | EVT-05 | Biểu đồ egress latency | Hiển thị latency upstream của EDG-01 |
-| EVT-06 | Edge chỉ có `SZ_OTLP_EXTERNAL_ENDPOINT` | Traffic log tới được OTLP collector |
+| EVT-06 | Edge chỉ có `SZ_OTLP_EXTERNAL_URI` | Traffic log tới được OTLP collector |
 
 ### CDT: centraldata
 

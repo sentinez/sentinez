@@ -19,7 +19,7 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/sentinez/core/szgrpc/recovery"
-	"github.com/sentinez/sentinez/api/interceptor/validate"
+	"github.com/sentinez/core/szgrpc/validate"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"

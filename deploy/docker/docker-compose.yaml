@@ -100,6 +100,8 @@ services:
       - 1.1.1.1
     networks:
       - sentinez-network
+    # a lone edge: its Olric binds 127.0.0.1:3320 inside the container, out
+    # of reach; the cluster of cluster/ is the one centraldata publishes to
     env_file:
       - ../../cmd/szedge/v1/.env
       - edge.env # later files win: in-network hosts

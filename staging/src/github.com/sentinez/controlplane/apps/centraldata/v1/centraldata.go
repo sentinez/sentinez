@@ -23,7 +23,7 @@ import (
 	centraldatafac "github.com/sentinez/controlplane/apps/centraldata/v1/factory"
 	centraldatasvc "github.com/sentinez/controlplane/apps/centraldata/v1/service"
 	"github.com/sentinez/core/szgrpc"
-	"github.com/sentinez/sentinez/api/client/connection"
+	"github.com/sentinez/core/szgrpc/client/connection"
 	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"google.golang.org/grpc"

@@ -19,7 +19,7 @@ import (
 
 	analyticfac "github.com/sentinez/controlplane/apps/analytic/v1/factory"
 	"github.com/sentinez/core/szgrpc"
-	"github.com/sentinez/sentinez/api/client/local"
+	"github.com/sentinez/core/szgrpc/client/local"
 	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"google.golang.org/grpc"

@@ -29,6 +29,7 @@ import (
 	secruleseteventsrepo "github.com/sentinez/controlplane/apps/collector/v1/repos/secrulesetevents"
 	"github.com/sentinez/pkg/szkafka"
 	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/sztls"
 	"github.com/sentinez/pkg/sztopic"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
@@ -36,14 +37,19 @@ import (
 // _setupTimeout bounds the sync of the event tables.
 const _setupTimeout = 30 * time.Second
 
-// NewDefaultIngest returns the ingest of the edge events of the
-// SZ_KAFKA_BROKERS, a disabled one when it is unset.
+// NewDefaultIngest returns the ingest of the edge events of the Kafka of
+// SZ_KAFKA_URI, a disabled one when it is unset.
 func NewDefaultIngest(conf *settingpb.Config) (*ingest.Ingest, error) {
-	brokers := conf.Get(settingpb.Sz_SZ_KAFKA_BROKERS)
-	if brokers == "" {
+	uri := conf.Get(settingpb.Sz_SZ_KAFKA_URI)
+	if uri == "" {
 		szlog.Warnf("collectorfac: %s unset, ingest disabled",
-			settingpb.Sz_SZ_KAFKA_BROKERS)
+			settingpb.Sz_SZ_KAFKA_URI)
 		return ingest.New(nil, nil), nil
+	}
+
+	ep, err := szkafka.ParseURI(uri, sztls.FilesOf(conf))
+	if err != nil {
+		return nil, fmt.Errorf("ingest: %w", err)
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), _setupTimeout)
@@ -56,7 +62,8 @@ func NewDefaultIngest(conf *settingpb.Config) (*ingest.Ingest, error) {
 
 	service := conf.GetMeta().GetServiceKey()
 	consumer, err := szkafka.NewConsumer(szkafka.ConsumerConfig{
-		Brokers:     szkafka.Brokers(brokers),
+		Brokers:     ep.Brokers,
+		TLS:         ep.TLS,
 		Group:       service,
 		Topics:      slices.Collect(maps.Keys(sinks)),
 		ServiceName: service,

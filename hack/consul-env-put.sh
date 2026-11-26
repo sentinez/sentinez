@@ -29,7 +29,7 @@ set -e
 set -o pipefail
 
 # the same keys as _envOnly in pkg/appconfig/overlay.go: keep them equal
-ENV_ONLY=" SZ_CONSUL_URI SZ_ADDRESS SZ_MEMBERSHIP_ADDRESS SZ_DISCOVERY_ADDRESS SZ_ZONE "
+ENV_ONLY=" SZ_CONSUL_URI SZ_ADDRESS SZ_MEMBERSHIP_ADDRESS SZ_DISCOVERY_ADDRESS SZ_OLRIC_ADDRESS SZ_ZONE "
 
 error_exit() {
   echo "Error: $1" >&2

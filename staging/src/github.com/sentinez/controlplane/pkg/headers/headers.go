@@ -18,9 +18,9 @@ import (
 	"context"
 	"slices"
 
-	"github.com/sentinez/controlplane/pkg/crypto"
 	"github.com/sentinez/pkg/szerror"
 	"github.com/sentinez/pkg/szperms"
+	"github.com/sentinez/pkg/sztoken"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"google.golang.org/grpc/metadata"
 )
@@ -80,11 +80,11 @@ func GetAuth(ctx context.Context) (*Auth, error) {
 		return nil, szerror.StatusUnauthorizedF("Invalid Access Token")
 	}
 
-	if pl, ok := crypto.BearerTokenVerifier(accessToken[0]); ok {
+	if pl, ok := sztoken.BearerTokenVerifier(accessToken[0]); ok {
 		return &Auth{Context: pl}, nil
 	}
 
-	if pl, ok := crypto.ServiceTokenVerifier(accessToken[0]); ok {
+	if pl, ok := sztoken.ServiceTokenVerifier(accessToken[0]); ok {
 		return &Auth{Context: pl}, nil
 	}
 

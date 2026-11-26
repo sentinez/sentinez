@@ -16,6 +16,7 @@ package szkafka
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"sync"
@@ -51,6 +52,8 @@ var (
 type ConsumerConfig struct {
 	// Brokers are the seed brokers, e.g. ["localhost:9094"].
 	Brokers []string
+	// TLS dials the brokers with TLS, nil for plaintext.
+	TLS *tls.Config
 	// Group is the consumer group, sharing the partitions of Topics
 	// between the consumers of the group.
 	Group  string
@@ -154,7 +157,7 @@ func (cfg ConsumerConfig) withDefaults() ConsumerConfig {
 }
 
 func consumerOpts(cfg ConsumerConfig) []kgo.Opt {
-	return []kgo.Opt{
+	return append([]kgo.Opt{
 		kgo.SeedBrokers(cfg.Brokers...),
 		kgo.ClientID(cfg.ServiceName),
 		kgo.ConsumerGroup(cfg.Group),
@@ -169,7 +172,7 @@ func consumerOpts(cfg ConsumerConfig) []kgo.Opt {
 		kgo.FetchMaxWait(cfg.FetchMaxWait),
 		// a broker response may not exceed a fetch, plus its framing.
 		kgo.BrokerMaxReadBytes(2 * cfg.FetchMaxBytes),
-	}
+	}, dialOpts(cfg.TLS)...)
 }
 
 // handleRetry calls handle until it handles records, then reports true,

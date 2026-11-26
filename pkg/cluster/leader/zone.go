@@ -19,8 +19,8 @@ import (
 	"errors"
 	"time"
 
+	"github.com/sentinez/pkg/szconsul"
 	"github.com/sentinez/pkg/szlog"
-	"github.com/sentinez/sentinez/api/client/consul"
 )
 
 const (
@@ -29,12 +29,12 @@ const (
 )
 
 // fencedStore stores a value with the fencing token of its writer and
-// rejects a lower token with consul.ErrFenced, see consul.PutFenced.
+// rejects a lower token with szconsul.ErrFenced, see szconsul.PutFenced.
 type fencedStore interface {
 	PutFenced(ctx context.Context, key string, token uint64, value any) error
 }
 
-var _ fencedStore = (*consul.Client)(nil)
+var _ fencedStore = (*szconsul.Client)(nil)
 
 // zoneStore holds the records the leader keeps of its zone, under
 // sentinez/dmz/edge/zone/<zone>/, each write fenced by the term.
@@ -96,7 +96,7 @@ func (z *zoneStore) put(
 	key := _zonePrefix + z.zone + "/" + name
 
 	err := z.store.PutFenced(ctx, key, term.Index, value)
-	if errors.Is(err, consul.ErrFenced) {
+	if errors.Is(err, szconsul.ErrFenced) {
 		return false, err
 	}
 

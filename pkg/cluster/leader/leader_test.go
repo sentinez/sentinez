@@ -213,7 +213,7 @@ func TestNewFails(t *testing.T) {
 		{
 			name: "clustered without zone",
 			giveEnv: clusteredEnv(map[string]string{
-				"SZ_CONSUL_URI": "consul:8500",
+				"SZ_CONSUL_URI": "http://consul:8500",
 			}),
 			wantErr: errNoZone,
 		},
@@ -239,14 +239,14 @@ func TestNewBackend(t *testing.T) {
 		{
 			name: "lone edge with consul",
 			giveEnv: map[string]string{
-				"SZ_CONSUL_URI": "consul:8500", "SZ_ZONE": "SGN",
+				"SZ_CONSUL_URI": "http://consul:8500", "SZ_ZONE": "SGN",
 			},
 			wantStandalone: true,
 		},
 		{
 			name: "clustered",
 			giveEnv: clusteredEnv(map[string]string{
-				"SZ_CONSUL_URI": "consul:8500", "SZ_ZONE": "SGN",
+				"SZ_CONSUL_URI": "http://consul:8500", "SZ_ZONE": "SGN",
 			}),
 		},
 	}

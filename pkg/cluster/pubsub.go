@@ -16,18 +16,12 @@ package cluster
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"time"
 
 	"github.com/olric-data/olric"
 	"github.com/redis/go-redis/v9"
 	"github.com/sentinez/sentinez/pkg/cluster/channel"
 )
-
-// _publishTimeout bounds a publication: a slow cluster must not hold the
-// caller back.
-const _publishTimeout = 5 * time.Second
 
 // Subscribe listens to ch, on the pub/sub of the cluster, once it is
 // ready. The messages are on Channel() of the result, which the caller
@@ -66,51 +60,4 @@ func (c *Cluster) subscribe(ctx context.Context,
 	}
 
 	return ps, sub, nil
-}
-
-// Publisher publishes to the pub/sub of a cluster it is not a member of,
-// through the Olric addresses of some of its nodes.
-type Publisher struct {
-	client *olric.ClusterClient
-	pubsub *olric.PubSub
-}
-
-// NewPublisher connects to the cluster of the Olric addresses addrs.
-func NewPublisher(addrs []string) (*Publisher, error) {
-	if len(addrs) == 0 {
-		return nil, errors.New("cluster: no olric address")
-	}
-
-	client, err := olric.NewClusterClient(addrs)
-	if err != nil {
-		return nil, fmt.Errorf("cluster: connect %v: %w", addrs, err)
-	}
-
-	ps, err := client.NewPubSub()
-	if err != nil {
-		_ = client.Close(context.Background())
-
-		return nil, fmt.Errorf("cluster: new pubsub: %w", err)
-	}
-
-	return &Publisher{client: client, pubsub: ps}, nil
-}
-
-// Publish sends msg to the subscribers of ch.
-func (p *Publisher) Publish(ctx context.Context, ch channel.Channel,
-	msg []byte) error {
-
-	ctx, cancel := context.WithTimeout(ctx, _publishTimeout)
-	defer cancel()
-
-	if _, err := p.pubsub.Publish(ctx, ch.String(), msg); err != nil {
-		return fmt.Errorf("cluster: publish %s: %w", ch, err)
-	}
-
-	return nil
-}
-
-// Close ends the connections.
-func (p *Publisher) Close(ctx context.Context) error {
-	return p.client.Close(ctx)
 }

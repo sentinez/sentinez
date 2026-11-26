@@ -24,11 +24,11 @@ import (
 	accrepos "github.com/sentinez/controlplane/apps/iam/v1/repos/accounts"
 	accountrepo "github.com/sentinez/controlplane/apps/iam/v1/repos/accounts/mock"
 	usersrepo "github.com/sentinez/controlplane/apps/iam/v1/repos/users/mock"
-	"github.com/sentinez/controlplane/pkg/crypto"
 	"github.com/sentinez/controlplane/pkg/headers"
 	"github.com/sentinez/controlplane/pkg/passkey"
 	"github.com/sentinez/pkg/szconfig"
 	"github.com/sentinez/pkg/szerror"
+	"github.com/sentinez/pkg/sztoken"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
@@ -80,7 +80,7 @@ func signedIn(t *testing.T, userId string) context.Context {
 	szconfig.SetEnv(settingpb.Sz_SZ_SECRET_KEY,
 		base64.StdEncoding.EncodeToString([]byte("congchualunglinh")))
 
-	token, err := crypto.TokenGenerator(&typepb.Context{
+	token, err := sztoken.TokenGenerator(&typepb.Context{
 		UserId:       userId,
 		ExpireAt:     timestamppb.New(time.Now().Add(time.Hour)),
 		ControlPlane: typepb.ControlPlane_CONTROL_PLANE_PORTAL,

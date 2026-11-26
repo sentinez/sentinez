@@ -43,10 +43,10 @@ var _overlayCases = []overlayCase{
 	{
 		name: "the folder of the service wins over the shared key",
 		giveKv: kv{
-			"SZ_KAFKA_BROKERS":          "shared:9094",
-			_edge + "/SZ_KAFKA_BROKERS": "edge:9094",
+			"SZ_KAFKA_URI":          "kafka://shared:9094",
+			_edge + "/SZ_KAFKA_URI": "kafka://edge:9094",
 		},
-		wantFound: kv{"SZ_KAFKA_BROKERS": "edge:9094"},
+		wantFound: kv{"SZ_KAFKA_URI": "kafka://edge:9094"},
 	},
 	{
 		name:      "the folder of another service is ignored",
@@ -55,10 +55,10 @@ var _overlayCases = []overlayCase{
 	},
 	{
 		name:    "the environment wins over both",
-		giveEnv: kv{"SZ_KAFKA_BROKERS": "env:9094"},
+		giveEnv: kv{"SZ_KAFKA_URI": "kafka://env:9094"},
 		giveKv: kv{
-			"SZ_KAFKA_BROKERS":          "shared:9094",
-			_edge + "/SZ_KAFKA_BROKERS": "edge:9094",
+			"SZ_KAFKA_URI":          "kafka://shared:9094",
+			_edge + "/SZ_KAFKA_URI": "kafka://edge:9094",
 		},
 		wantFound: kv{},
 	},
@@ -80,12 +80,13 @@ var _overlayCases = []overlayCase{
 			"SZ_ADDRESS":            "x",
 			"SZ_MEMBERSHIP_ADDRESS": "x",
 			"SZ_DISCOVERY_ADDRESS":  "x",
+			"SZ_OLRIC_ADDRESS":      "x",
 			_edge + "/SZ_ZONE":      "x",
 		},
 		wantFound: kv{},
 		wantSkipped: []string{
 			"SZ_ADDRESS", "SZ_CONSUL_URI", "SZ_DISCOVERY_ADDRESS",
-			"SZ_MEMBERSHIP_ADDRESS", _edge + "/SZ_ZONE",
+			"SZ_MEMBERSHIP_ADDRESS", "SZ_OLRIC_ADDRESS", _edge + "/SZ_ZONE",
 		},
 	},
 	{
@@ -96,9 +97,9 @@ var _overlayCases = []overlayCase{
 	},
 	{
 		name:      "a key the service does not read is ignored",
-		giveKv:    kv{"SZ_HOSTNAME": "x", "SZ_KAFKA_BROKERS": "k"},
-		giveKeys:  []settingpb.Sz{settingpb.Sz_SZ_KAFKA_BROKERS},
-		wantFound: kv{"SZ_KAFKA_BROKERS": "k"},
+		giveKv:    kv{"SZ_HOSTNAME": "x", "SZ_KAFKA_URI": "k"},
+		giveKeys:  []settingpb.Sz{settingpb.Sz_SZ_KAFKA_URI},
+		wantFound: kv{"SZ_KAFKA_URI": "k"},
 	},
 }
 

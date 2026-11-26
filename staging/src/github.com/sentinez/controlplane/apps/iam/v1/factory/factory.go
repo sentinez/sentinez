@@ -26,9 +26,9 @@ import (
 	tenantfac "github.com/sentinez/controlplane/apps/tenant/v1/factory"
 	memberrepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/members"
 	"github.com/sentinez/controlplane/pkg/passkey"
+	"github.com/sentinez/core/szgrpc/client"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
-	"github.com/sentinez/sentinez/api/client"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )

@@ -29,8 +29,8 @@ import (
 	"time"
 
 	"github.com/sentinez/pkg/szconfig"
+	"github.com/sentinez/pkg/szconsul"
 	"github.com/sentinez/pkg/szlog"
-	"github.com/sentinez/sentinez/api/client/consul"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 )
@@ -145,10 +145,10 @@ func (p *Provider) addConsul(env map[string]string) error {
 }
 
 func fetchConsul(ctx context.Context, uri string) (map[string]string, error) {
-	client, err := consul.New(uri)
+	client, err := szconsul.New(uri)
 	if err != nil {
 		return nil, err
 	}
 
-	return consul.List[string](ctx, client, KVPrefix)
+	return szconsul.List[string](ctx, client, KVPrefix)
 }

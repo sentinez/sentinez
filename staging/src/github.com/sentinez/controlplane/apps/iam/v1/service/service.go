@@ -29,12 +29,12 @@ import (
 	memberrepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/members"
 	"github.com/sentinez/controlplane/pkg/auditchange"
 	"github.com/sentinez/controlplane/pkg/authz"
-	"github.com/sentinez/controlplane/pkg/crypto"
 	"github.com/sentinez/controlplane/pkg/headers"
 	"github.com/sentinez/controlplane/pkg/passkey"
 	"github.com/sentinez/pkg/szerror"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
+	"github.com/sentinez/pkg/sztoken"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -223,7 +223,7 @@ func (srv *IAMService) CreateAccount(ctx context.Context,
 		return nil, err
 	}
 
-	pw, err := crypto.HashPassword(request.GetPassword())
+	pw, err := hashPassword(request.GetPassword())
 	if err != nil {
 		return nil, err
 	}
@@ -294,7 +294,7 @@ func newAccessToken(user *iampb.User) (string, error) {
 		controlPlane = typepb.ControlPlane_CONTROL_PLANE_PORTAL
 	}
 
-	return crypto.TokenGenerator(&typepb.Context{
+	return sztoken.TokenGenerator(&typepb.Context{
 		Name:         user.GetFullName(),
 		ExpireAt:     timestamppb.New(time.Now().Add(time.Hour)),
 		UserId:       user.GetId(),
@@ -310,7 +310,7 @@ func (srv *IAMService) loginAdmin(
 			"username, email or password is wrong!")
 	}
 
-	accessToken, err := crypto.TokenGenerator(&typepb.Context{
+	accessToken, err := sztoken.TokenGenerator(&typepb.Context{
 		Name:         req.GetEmailOrUsername(),
 		ExpireAt:     timestamppb.New(time.Now().Add(time.Hour)),
 		UserId:       "sentinez.admin",
@@ -343,7 +343,7 @@ func (srv *IAMService) login(ctx context.Context,
 		return nil, err
 	}
 
-	if !crypto.CheckPasswordHash(req.GetPassword(), acc.GetPasswordHash()) {
+	if !checkPasswordHash(req.GetPassword(), acc.GetPasswordHash()) {
 		return nil,
 			szerror.StatusUnauthorizedF("username, email or password is wrong!")
 	}

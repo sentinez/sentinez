@@ -20,10 +20,9 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/sentinez/core/szgrpc/client/discovery"
 	"github.com/sentinez/pkg/szcron"
 	"github.com/sentinez/pkg/szlog"
-	"github.com/sentinez/sentinez/api/client/discovery"
-	"github.com/sentinez/sentinez/api/client/options"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sony/gobreaker"
 )
@@ -42,7 +41,7 @@ func Register(ctx context.Context, name, address string,
 
 	portInt, _ := strconv.Atoi(port)
 	dcvr := discovery.GetDiscovery(
-		&options.Options{ConsulURL: conf.Get(settingpb.Sz_SZ_CONSUL_URI)})
+		discovery.WithConsulURL(conf.Get(settingpb.Sz_SZ_CONSUL_URI)))
 
 	var (
 		serviceId = ""

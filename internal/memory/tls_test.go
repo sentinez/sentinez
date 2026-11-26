@@ -26,7 +26,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sentinez/controlplane/pkg/crypto"
+	"github.com/sentinez/pkg/szseal"
 	"github.com/sentinez/pkg/sztable"
 	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
@@ -98,20 +98,20 @@ func leafTmpl(serial int64, domain string, notAfter time.Time,
 	}
 }
 
-func newTestSealer(t *testing.T) *crypto.Sealer {
+func newTestSealer(t *testing.T) *szseal.Sealer {
 	t.Helper()
 
 	raw := make([]byte, 32)
 	_, err := rand.Read(raw)
 	require.NoError(t, err)
 
-	sealer, err := crypto.NewSealer(base64.StdEncoding.EncodeToString(raw))
+	sealer, err := szseal.NewSealer(base64.StdEncoding.EncodeToString(raw))
 	require.NoError(t, err)
 
 	return sealer
 }
 
-func sealed(t *testing.T, sealer *crypto.Sealer, id string,
+func sealed(t *testing.T, sealer *szseal.Sealer, id string,
 	c *issued, withKey bool) *edgepb.Certificate {
 	t.Helper()
 
@@ -214,7 +214,7 @@ func TestLoadCertificateNeedsDataKey(t *testing.T) {
 	err := m.LoadCertificate(tlsSetting("tls.example.com",
 		sealed(t, sealer, "cacrt_a", leaf, true)))
 
-	require.ErrorIs(t, err, crypto.ErrNoDataKey)
+	require.ErrorIs(t, err, szseal.ErrNoDataKey)
 }
 
 func TestUnloadDropsCertificate(t *testing.T) {

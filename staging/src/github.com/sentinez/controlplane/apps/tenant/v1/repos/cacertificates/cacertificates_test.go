@@ -21,7 +21,7 @@ import (
 	"testing"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/sentinez/controlplane/pkg/crypto"
+	"github.com/sentinez/pkg/szseal"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -38,7 +38,7 @@ func newRepo(t *testing.T, b byte) *CaCertificates {
 	t.Helper()
 
 	key := base64.StdEncoding.EncodeToString(bytes.Repeat([]byte{b}, 32))
-	sealer, err := crypto.NewSealer(key)
+	sealer, err := szseal.NewSealer(key)
 	require.NoError(t, err)
 
 	return &CaCertificates{sealer: sealer}
@@ -141,7 +141,7 @@ func TestOpenFails(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.giveRepo.open(tt.giveRow)
 
-			assert.ErrorIs(t, err, crypto.ErrOpen)
+			assert.ErrorIs(t, err, szseal.ErrOpen)
 		})
 	}
 }
