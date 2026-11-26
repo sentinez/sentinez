@@ -523,6 +523,53 @@ postgres ──trigger: pg_notify(id)──► centraldata ──Olric pub/sub�
   `UPSTREAM_CLIENT` → `upstream_certificates`) and opens them only when it
   loads the setting (see [03-edge.md](03-edge.md#upstream-tls-custom-ca-mtls)). Anyone who can subscribe to the edge's Olric channel sees them sealed.
 
+### Setting up the internal mTLS (edge → centraldata)
+
+The edge reaches centraldata over mTLS: each side presents a certificate of
+one internal CA and trusts only that CA (TLS 1.3, the server requires a client
+certificate). The edge also presents a service token whose name is the CN of
+its certificate. Without `SZ_TLS_CA`, `SZ_TLS_CERT` and `SZ_TLS_KEY` the
+connection is plaintext; set all three or none.
+
+1. **Issue the certificates** (`hack/mkcert-internal.sh <out-dir> <service> [<san> ...]`).
+   The first run creates the CA (`ca.pem`, `ca-key.pem`); each run issues
+   `<service>.pem` and `<service>-key.pem`, valid 365 days. The edge verifies
+   the server name `sentinez.apps.centraldata`, so the server certificate must
+   carry it as a SAN:
+
+   ```sh
+   hack/mkcert-internal.sh certs/internal centraldata sentinez.apps.centraldata
+   hack/mkcert-internal.sh certs/internal edge-1
+   ```
+
+   The CN of the edge certificate (`edge-1`) is the name of its token. Keep
+   `ca-key.pem` offline: the services get `ca.pem`, their certificate and
+   their key.
+
+2. **Sign the service token**, where `SZ_SERVICE_KEY` lives (a base64 key,
+   `openssl rand -base64 32`; centraldata holds it, the edge never does):
+
+   ```sh
+   SZ_SERVICE_KEY=... go run ./cmd/szservicetoken -name edge-1 -ttl 720h
+   ```
+
+   `-name` must equal the CN of the edge certificate; the default `-ttl` is
+   30 days, so renew the token before it ends.
+
+3. **Configure the services** (env, these variables have no flags):
+
+   | Service | Setting |
+   |---|---|
+   | centraldata | `SZ_TLS_CA=certs/internal/ca.pem`, `SZ_TLS_CERT=certs/internal/centraldata.pem`, `SZ_TLS_KEY=certs/internal/centraldata-key.pem`, `SZ_SERVICE_KEY`, `SZ_SYNC_KEY` |
+   | edge | `SZ_TLS_CA=certs/internal/ca.pem`, `SZ_TLS_CERT=certs/internal/edge-1.pem`, `SZ_TLS_KEY=certs/internal/edge-1-key.pem`, `SZ_SERVICE_TOKEN`, `SZ_SYNC_KEY` (the same as centraldata's), `SZ_DATA_KEY` |
+
+   The edge finds centraldata through Consul (`SZ_CONSUL_URI`). With
+   `SZ_SERVICE_TOKEN` set, the edge follows centraldata.
+
+4. **Check it**: a client without a certificate of the CA is refused (test
+   CDT-02 of [14-test-plan.md](14-test-plan.md)), and the leader edge logs
+   `loaded N rows` once it syncs.
+
 ### Collector: edge event ingest
 
 The `szcollector` binary runs two apps: the `CollectorService` gRPC server

@@ -514,6 +514,52 @@ postgres ──trigger: pg_notify(id)──► centraldata ──Olric pub/sub�
   và chỉ mở khi nạp setting (xem [03-edge.md](03-edge.md#upstream-tls-ca-riêng-mtls)). Ai
   subscribe được channel Olric của edge cũng chỉ thấy bản đã seal.
 
+### Thiết lập mTLS nội bộ (edge → centraldata)
+
+Edge gọi centraldata qua mTLS: mỗi bên trình certificate của cùng một CA nội
+bộ và chỉ tin CA đó (TLS 1.3, server bắt buộc client certificate). Edge còn
+trình token service có tên là CN của certificate của nó. Không có
+`SZ_TLS_CA`, `SZ_TLS_CERT` và `SZ_TLS_KEY` thì kết nối là plaintext; đặt cả ba
+hoặc không đặt cái nào.
+
+1. **Cấp certificate** (`hack/mkcert-internal.sh <out-dir> <service> [<san> ...]`).
+   Lần chạy đầu tạo CA (`ca.pem`, `ca-key.pem`); mỗi lần chạy cấp
+   `<service>.pem` và `<service>-key.pem`, hiệu lực 365 ngày. Edge kiểm tra tên
+   server `sentinez.apps.centraldata`, nên certificate của server phải có tên
+   này làm SAN:
+
+   ```sh
+   hack/mkcert-internal.sh certs/internal centraldata sentinez.apps.centraldata
+   hack/mkcert-internal.sh certs/internal edge-1
+   ```
+
+   CN của certificate edge (`edge-1`) là tên token của nó. Giữ `ca-key.pem`
+   offline: các service chỉ nhận `ca.pem`, certificate và key của chính nó.
+
+2. **Ký token service**, ở nơi giữ `SZ_SERVICE_KEY` (key base64,
+   `openssl rand -base64 32`; centraldata giữ, edge không bao giờ giữ):
+
+   ```sh
+   SZ_SERVICE_KEY=... go run ./cmd/szservicetoken -name edge-1 -ttl 720h
+   ```
+
+   `-name` phải bằng CN của certificate edge; `-ttl` mặc định 30 ngày, nên
+   cần cấp lại token trước khi hết hạn.
+
+3. **Cấu hình các service** (env, các biến này không có flag):
+
+   | Service | Cấu hình |
+   |---|---|
+   | centraldata | `SZ_TLS_CA=certs/internal/ca.pem`, `SZ_TLS_CERT=certs/internal/centraldata.pem`, `SZ_TLS_KEY=certs/internal/centraldata-key.pem`, `SZ_SERVICE_KEY`, `SZ_SYNC_KEY` |
+   | edge | `SZ_TLS_CA=certs/internal/ca.pem`, `SZ_TLS_CERT=certs/internal/edge-1.pem`, `SZ_TLS_KEY=certs/internal/edge-1-key.pem`, `SZ_SERVICE_TOKEN`, `SZ_SYNC_KEY` (cùng giá trị với centraldata), `SZ_DATA_KEY` |
+
+   Edge tìm centraldata qua Consul (`SZ_CONSUL_URI`). Có `SZ_SERVICE_TOKEN` thì
+   edge theo dõi centraldata.
+
+4. **Kiểm tra**: client không có certificate của CA bị từ chối (CDT-02 của
+   [14-test-plan.md](14-test-plan.md)), và edge leader log `loaded N rows` khi
+   đã đồng bộ.
+
 ### Collector: thu nạp event của edge
 
 Binary `szcollector` chạy hai app: gRPC server `CollectorService` và
