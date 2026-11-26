@@ -78,14 +78,13 @@
     "account": "Tài khoản"
   },
   "Sidebar": {
-    "main": "Chính",
-    "domain": "Tên miền",
-    "backToMain": "Về menu chính",
     "search": "Tìm kiếm...",
     "tenants": "Tenant",
     "addTeam": "Thêm nhóm",
     "account": "Tài khoản",
     "notifications": "Thông báo",
+    "notificationsDescription": "Hoạt động và cảnh báo gần đây của tài khoản.",
+    "notificationsEmpty": "Bạn chưa có thông báo nào.",
     "logout": "Đăng xuất",
     "loggedOut": "Đã đăng xuất",
     "loggedOutDescription": "Bạn đã đăng xuất thành công.",
@@ -733,12 +732,9 @@
   },
   "QueryBuilder": {
     "or": "HOẶC",
-    "orGroup": "Nhóm OR",
     "and": "AND",
-    "andGroupN": "Nhóm AND {n}",
-    "removeGroup": "Xóa nhóm AND {n}",
+    "removeGroup": "Xoá nhóm",
     "noConditions": "Nhóm này chưa có điều kiện nào.",
-    "nestedGroups": "Nhóm này còn chứa các nhóm lồng. Chúng được giữ nguyên: hãy sửa bằng script.",
     "conditionN": "Điều kiện {n}",
     "removeCondition": "Xóa điều kiện {n}",
     "source": "Nguồn",
@@ -757,7 +753,13 @@
       "enumList": "Cách nhau bởi dấu phẩy: {values}"
     },
     "json": "JSON",
-    "addCondition": "Thêm điều kiện"
+    "addCondition": "Thêm điều kiện",
+    "groupN": "Nhóm {n}",
+    "matchAll": "Khớp tất cả",
+    "matchAny": "Khớp một trong",
+    "addGroup": "Thêm nhóm",
+    "emptyGroup": "Nhóm rỗng: sẽ bị bỏ khi lưu.",
+    "maxConditions": "Tối đa {n} điều kiện."
   },
   "Validation": {
     "nameDescriptionRequired": "Tên và mô tả là bắt buộc",

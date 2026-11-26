@@ -111,6 +111,23 @@ const sampleCalls = (tenantId: string): SampleCall[] => [
     error: 'invalid email or password',
   },
   {
+    method: '/sentinez.apps.iam.v1.IdentityAccessManagementService/Login',
+    request: { emailOrUsername: 'alice', password: 'REDACTED' },
+    tenantless: true,
+  },
+  {
+    method: '/sentinez.apps.iam.v1.IdentityAccessManagementService/PasskeyLoginVerify',
+    request: { credential: 'REDACTED' },
+    tenantless: true,
+    code: 16,
+    error: 'passkey verification failed',
+  },
+  {
+    method: '/sentinez.apps.iam.v1.IdentityAccessManagementService/GetUser',
+    request: { id: 'user_alice' },
+    tenantless: true,
+  },
+  {
     method: '/sentinez.apps.tenant.v1.TenantService/UpdateTenant',
     request: { id: tenantId, tenant: { plan: 'PLAN_PRO' } },
     code: 7,
@@ -133,7 +150,7 @@ function sampleSlotCount(tenantId: string, slot: number): number {
   const random = sampleRandom(`${tenantId}|${slot}`);
   const day = sampleDayCurve(slot * SAMPLE_SLOT_MILLIS);
   const burst = random() < 0.05 ? 3 : 1;
-  return Math.floor((0.9 + 0.6 * day + random()) * burst);
+  return Math.floor((1.4 + 0.6 * day + random()) * burst);
 }
 
 // The k-th sample of tenantId in the slot of index slot: its call (of
@@ -165,10 +182,12 @@ function sampleAuditLog(tenantId: string, calls: SampleCall[], slot: number, k: 
 
 // The samples of tenantId over the 24 hours before end, the latest first:
 // a random number of them per slot (sampleSlotCount)
-function sampleAuditLogs(end: number, tenantId: string): AuditLog[] {
+function sampleAuditLogs(end: number, tenantId: string, withoutTenant = false): AuditLog[] {
   const last = Math.floor(end / SAMPLE_SLOT_MILLIS);
   const slots = Math.floor((24 * HOUR_MILLIS) / SAMPLE_SLOT_MILLIS);
-  const calls = sampleCalls(tenantId);
+  // the logs of no tenant are drawn among the calls about no tenant, or the
+  // few of them would leave most slots empty
+  const calls = sampleCalls(tenantId).filter((c) => !withoutTenant || c.tenantless);
   return Array.from({ length: slots }, (_, i) => last - i)
     .flatMap((slot) =>
       Array.from({ length: sampleSlotCount(tenantId, slot) }, (_, k) =>
@@ -207,7 +226,7 @@ function filterSample(req: AuditSelection): AuditLog[] {
   const from = req.from?.getTime() ?? -Infinity;
   const to = req.to?.getTime() ?? Infinity;
   const tenantId = req.tenantIds[0] ?? SAMPLE_TENANT_ID;
-  return sampleAuditLogs(req.to?.getTime() ?? Date.now(), tenantId)
+  return sampleAuditLogs(req.to?.getTime() ?? Date.now(), tenantId, req.withoutTenant)
     .filter(ofRequests(req.requestIds, (l) => l.id))
     .filter(
       (l) =>

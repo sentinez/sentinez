@@ -237,10 +237,17 @@ function Sidebar({
           data-sidebar="sidebar"
           data-slot="sidebar"
           data-mobile="true"
-          className="bg-sidebar text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden"
+          // the className of the sidebar applies as on desktop, where it is
+          // on the container of sidebar-inner
+          className={cn(
+            "bg-sidebar text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden",
+            className
+          )}
           style={
             {
+              // the sheet is portaled out of the wrapper that declares them
               "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
+              "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
             } as React.CSSProperties
           }
           side={side}
@@ -249,7 +256,9 @@ function Sidebar({
             <SheetTitle>Sidebar</SheetTitle>
             <SheetDescription>Displays the mobile sidebar.</SheetDescription>
           </SheetHeader>
-          <div className="flex h-full w-full flex-col">{children}</div>
+          <div data-slot="sidebar-inner" className="flex h-full w-full flex-col">
+            {children}
+          </div>
         </SheetContent>
       </Sheet>
     )

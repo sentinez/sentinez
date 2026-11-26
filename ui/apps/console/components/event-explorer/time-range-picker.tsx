@@ -103,7 +103,7 @@ export function TimeRangePicker({ value, onChange }: Props) {
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-auto max-w-[calc(100vw-2rem)] p-0">
-        <div className="flex max-h-[80vh] flex-col overflow-y-auto sm:flex-row">
+        <div className="flex max-h-[80dvh] flex-col overflow-y-auto sm:flex-row">
           <div className="flex flex-col gap-1 border-b p-3 sm:w-44 sm:border-r sm:border-b-0">
             <p className="pb-1 text-xs font-medium text-muted-foreground">{t('quickRanges')}</p>
             {(Object.keys(QUICK_RANGES) as QuickRange[]).map((quick) => {

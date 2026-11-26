@@ -8,7 +8,7 @@ export default function NotFound() {
   const t = useTranslations('NotFound');
 
   return (
-    <div className="flex flex-col gap-2 items-center justify-center h-screen">
+    <div className="flex flex-col gap-2 items-center justify-center h-dvh">
       <div className="flex flex-col gap-5">
         <div className="flex gap-2 items-center">
           <Image src="/assets/sz.png" alt="sen" width={150} height={150} loading="eager" />

@@ -112,9 +112,40 @@ Tên biến là các giá trị của enum `Sz` trong
 | `SZ_OTLP_EXTERNAL_ENDPOINT` | edge | Collector OTLP/gRPC cho log traffic của edge (node `logging` trong func chains); không đặt thì không push |
 | `SZ_KAFKA_BROKERS` | edge | Kafka broker (phân tách bằng dấu phẩy) mà edge đẩy thẳng event traffic tới, dạng proto thô (`pkg/szkafka`); được ưu tiên hơn `SZ_OTLP_EXTERNAL_ENDPOINT` |
 | `SZ_ZONE` | edge | Zone nơi node được deploy (vd `ap-southeast-1a`); làm tiền tố cho mọi id sinh từ `szrand` `NewULID`/`NewNanoId` (id request và event của handler chain: `<zone>-req_<ulid>`, `<zone>-srevt_<ulid>`, `<zone>-rsevt_<ulid>`; không đặt: `req_<ulid>`). Primary key (`NewUUID`) không bao giờ gắn zone. Cũng là zone mà edge tranh quyền leader; bắt buộc khi có `SZ_CONSUL_URI` |
+| `SZ_SERVICE_KEY` | centraldata, `szservicetoken` | Khoá HMAC (base64) ký và kiểm tra token service. Chỉ nơi kiểm tra và ký token giữ, edge không bao giờ giữ; đừng đặt vào shared env |
+| `SZ_SERVICE_TOKEN` | edge | Token service edge trình cho centraldata (`szservicetoken -name <CN>`); có giá trị thì edge leader theo dõi centraldata |
+| `SZ_TLS_CA`, `SZ_TLS_CERT`, `SZ_TLS_KEY` | centraldata, edge | File PEM của CA nội bộ, certificate và key của service, cho mTLS edge → centraldata ([7.6](07-controlplane.md#thiết-lập-mtls-nội-bộ-edge--centraldata)). Đủ cả ba hoặc không có cái nào: để trống là plaintext (chỉ dùng khi phát triển) |
+| `SZ_OLRIC_ADDRESSES` | centraldata | Địa chỉ Olric (cách nhau bằng dấu phẩy) của cluster edge mà centraldata publish thay đổi tới |
+| `SZ_SYNC_TABLES` | centraldata | Các bảng (cách nhau bằng dấu phẩy) centraldata đồng bộ tới edge; để trống thì dùng bộ mặc định |
+| `SZ_SYNC_KEY` | centraldata, edge | Khoá HMAC (base64, tối thiểu 32 byte) ký các thay đổi centraldata publish; edge kiểm tra bằng cùng giá trị |
 
 Một số service (edge, dataplane, realtime) chỉ nạp danh sách biến cụ thể; các
 service khác nạp toàn bộ enum `Sz`.
+
+### Biến của từng service
+
+Mỗi service đọc gì, từ environment (`cmd/<service>/.env`, hoặc `--env-file`)
+hoặc từ Consul. Các biến này không có flag; flag của service chỉ chỉ ra file
+env và, với edge và apiserver, proxy config và certificate. `SZ_CONSUL_URI`
+luôn được đọc.
+
+| Service | Đọc |
+|---|---|
+| apiserver (`szapiserver`) | `SZ_ADDRESS`, `SZ_CONSUL_URI`, `SZ_POSTGRES_URI`, `SZ_HOSTNAME`, `SZ_CLIENT_ORIGIN`, `SZ_SECRET_KEY`, `SZ_DATA_KEY`, `SZ_ADMIN_USERNAME`, `SZ_ADMIN_PASSWORD`, `SZ_OTLP_INTERNAL_ENDPOINT` |
+| realtime (`szrealtime`) | `SZ_ADDRESS`, `SZ_HOSTNAME`, `SZ_SECRET_KEY`, `SZ_OTLP_INTERNAL_ENDPOINT` |
+| edge (`szedge`) | `SZ_ADDRESS`, `SZ_CONSUL_URI`, `SZ_ZONE`, `SZ_MEMBERSHIP_ADDRESS`, `SZ_DISCOVERY_ADDRESS`, `SZ_SECRET_KEY`, `SZ_DATA_KEY`, `SZ_KAFKA_BROKERS`, `SZ_OTLP_INTERNAL_ENDPOINT`, `SZ_OTLP_EXTERNAL_ENDPOINT`, `SZ_SERVICE_TOKEN`, `SZ_SYNC_KEY`, `SZ_TLS_CA`, `SZ_TLS_CERT`, `SZ_TLS_KEY` |
+| dataplane (`szdataplane`) | `SZ_ADDRESS`, `SZ_HOSTNAME`, `SZ_SECRET_KEY`, `SZ_OTLP_INTERNAL_ENDPOINT` |
+| centraldata (`szcentraldata`) | `SZ_ADDRESS`, `SZ_CONSUL_URI`, `SZ_POSTGRES_URI`, `SZ_SECRET_KEY`, `SZ_SERVICE_KEY`, `SZ_SYNC_KEY`, `SZ_SYNC_TABLES`, `SZ_OLRIC_ADDRESSES`, `SZ_TLS_CA`, `SZ_TLS_CERT`, `SZ_TLS_KEY` |
+| collector (`szcollector`) | `SZ_ADDRESS`, `SZ_CONSUL_URI`, `SZ_KAFKA_BROKERS`, `SZ_POSTGRES_URI` |
+| greeter (`szgreeter`) | `SZ_ADDRESS`, `SZ_CONSUL_URI` |
+
+Bắt buộc, nếu không service không khởi động: `SZ_DATA_KEY` (apiserver), và
+`SZ_ZONE` cùng `SZ_CONSUL_URI` (edge). Centraldata không có
+`SZ_OLRIC_ADDRESSES` thì không publish gì; có thì `SZ_SYNC_KEY` là bắt buộc.
+
+Không đặt vào shared env mà để trong `.env` của đúng service đó:
+`SZ_SERVICE_KEY` (centraldata), `SZ_SERVICE_TOKEN` và các file `SZ_TLS_*`
+(mỗi service có certificate riêng).
 
 ### Config từ Consul
 
@@ -147,6 +178,28 @@ Phần ENV dùng chung cho mọi service nằm ở
 khác nhau giữa các instance (`SZ_ADDRESS`, `SZ_CONSUL_URI`, và với edge là
 `SZ_ZONE`, `SZ_MEMBERSHIP_ADDRESS`, `SZ_DISCOVERY_ADDRESS`) vẫn để trong
 `cmd/<service>/.env` (xem `.env.example` của service).
+
+Các key của `shared.env`:
+
+| Key | Đọc bởi | Ý nghĩa |
+|---|---|---|
+| `SZ_HOSTNAME` | apiserver, realtime, dataplane, edge | Domain của console, relying party của WebAuthn (`sentinez.vn`) |
+| `SZ_CLIENT_ORIGIN` | apiserver | Origin của console: origin WebAuthn được phép và là origin duy nhất CORS cho qua |
+| `SZ_SECRET_KEY` | apiserver, realtime, dataplane, edge, centraldata | Khoá HMAC ký JWT, base64 |
+| `SZ_DATA_KEY` | apiserver, edge | Khoá AES-256 mã hoá CA certificate trong database, base64 (`openssl rand -base64 32`). Hai service phải cùng giá trị; mất khoá thì các certificate đã lưu không đọc lại được |
+| `SZ_SYNC_KEY` | centraldata, edge | Khoá HMAC (base64) ký các thay đổi centraldata publish; edge bỏ những gì không ký bằng khoá này. Chỉ hai service này dùng chung |
+| `SZ_ADMIN_USERNAME`, `SZ_ADMIN_PASSWORD` | apiserver | Tài khoản admin tĩnh |
+| `SZ_POSTGRES_URI` | apiserver, centraldata, collector | DSN PostgreSQL |
+| `SZ_TIMESCALE_URI`, `SZ_CLICKHOUSE_URI` | không ai | Có khai báo nhưng chưa dùng |
+| `SZ_KAFKA_BROKERS` | edge, collector | Kafka broker mà event traffic của edge được đẩy vào, và collector đọc từ đó |
+| `SZ_OTLP_INTERNAL_ENDPOINT` | tất cả | OTLP/gRPC collector của log hệ thống |
+| `SZ_OTLP_EXTERNAL_ENDPOINT` | edge | OTLP/gRPC collector của log traffic edge |
+
+`SZ_SERVICE_KEY` cố ý không có trong file: chỉ centraldata (và người vận hành
+ký token) giữ, nên đặt trong `.env` của centraldata. Mỗi service chỉ đọc các
+key trong danh sách của nó ([Biến của từng service](#biến-của-từng-service));
+các key khác bị bỏ qua. Đặt key vào `sentinez/env/<service_key>/` để cho một
+service giá trị khác.
 
 ```sh
 cp deploy/consul/shared.env.example deploy/consul/shared.env   # git bỏ qua file này; chỉnh giá trị

@@ -17,15 +17,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@sentinez/ui/components/select';
-import { useControllableState } from '@sentinez/ui/hooks/use-controllable-state';
 import { cn } from '@sentinez/ui/lib/utils';
 
 import {
-  AndCondition,
   Condition,
   ConditionSchema,
   Expression,
-  Rule,
   FieldSource,
   Operator,
   OperatorSpec,
@@ -40,34 +37,29 @@ import {
   listToText,
   textToList,
 } from '@/lib/type/rule-schema';
+import {
+  CondNode,
+  GroupNode,
+  GroupOp,
+  MAX_CONDITIONS,
+  MAX_GROUP_DEPTH,
+  countConditions,
+  createCondNode,
+  createGroupNode,
+  exprOf,
+  isEmptyGroup,
+  mapNode,
+  removeNode,
+  treeOf,
+} from '@/lib/type/rule-tree';
 import { useSecurityOptions } from '@/hooks/use-security-options';
 import { CodeBlock } from '@/components/code-block';
 
 // ─── Factories ───────────────────────────────────────────────────────────────
 
-const generateId = () => Math.random().toString(36).substring(2, 9);
-
-export const createEmptyCondition = (): Condition => ({
-  id: generateId(),
-  source: FieldSource.FIELD_SOURCE_METHOD,
-  key: '',
-  operator: Operator.OPERATOR_EQ,
-  value: '',
-});
-
-export const createEmptyRule = (): Rule => ({
-  condition: createEmptyCondition(),
-});
-
-export const createEmptyAndCondition = (): AndCondition => ({
-  rules: [createEmptyRule()],
-  orCondition: [],
-  andCondition: [],
-});
-
-export const createEmptyExpression = (): Expression => ({
-  orCondition: [createEmptyAndCondition()],
-});
+/** An expression of a single empty condition */
+export const createEmptyExpression = (): Expression =>
+  exprOf(createGroupNode('all', [createCondNode()]));
 
 /**
  * Sources that need a named key input (header name, query param, etc.),
@@ -84,17 +76,16 @@ const SOURCES_WITH_KEY = new Set<FieldSource>([
 // ─── Context ─────────────────────────────────────────────────────────────────
 
 type QueryBuilderContextValue = {
+  root: GroupNode;
+  /** The expression the tree makes: what the form receives */
   expression: Expression;
   schema?: ConditionSchema;
-  addGroup: () => void;
-  removeGroup: (groupIndex: number) => void;
-  addRule: (groupIndex: number) => void;
-  removeRule: (groupIndex: number, ruleIndex: number) => void;
-  updateCondition: (
-    groupIndex: number,
-    ruleIndex: number,
-    updater: (condition: Condition) => Condition,
-  ) => void;
+  conditionCount: number;
+  addCondition: (groupId: string) => void;
+  addGroup: (groupId: string) => void;
+  setOp: (groupId: string, op: GroupOp) => void;
+  remove: (nodeId: string) => void;
+  updateCondition: (condId: string, updater: (condition: Condition) => Condition) => void;
 };
 
 const QueryBuilderContext = React.createContext<QueryBuilderContextValue | null>(null);
@@ -107,14 +98,8 @@ export function useQueryBuilder() {
   return context;
 }
 
-const mapGroup = (
-  expression: Expression,
-  groupIndex: number,
-  updater: (group: AndCondition) => AndCondition,
-): Expression => ({
-  ...expression,
-  orCondition: expression.orCondition.map((g, i) => (i === groupIndex ? updater(g) : g)),
-});
+const mapGroup = (root: GroupNode, id: string, fn: (g: GroupNode) => GroupNode): GroupNode =>
+  mapNode(root, id, (n) => (n.kind === 'group' ? fn(n) : n));
 
 // ─── QueryBuilder (root) ─────────────────────────────────────────────────────
 
@@ -132,10 +117,15 @@ export type QueryBuilderProps = Omit<React.ComponentProps<'div'>, 'defaultValue'
 };
 
 /**
- * Editor of a rule expression: OR of AND groups of conditions. It takes the
- * width of the form it sits in (a container query lays a condition out on one
- * row only when there is room), so it fits the narrow create / update pages.
- * Without children it shows the editor and a folded JSON preview.
+ * Editor of a rule expression: a tree of groups, each matching when all or
+ * any of its conditions and groups do. It takes the width of the form it
+ * sits in (a container query lays a condition out on one row only when there
+ * is room), so it fits the narrow create / update pages. Without children it
+ * shows the editor and a folded JSON preview.
+ *
+ * The tree is the state, so the order and the ids of the nodes survive an
+ * edit; it is only rebuilt when `value` changes to something the builder did
+ * not emit itself.
  */
 export function QueryBuilder({
   value: valueProp,
@@ -146,51 +136,66 @@ export function QueryBuilder({
   children,
   ...props
 }: QueryBuilderProps) {
-  const [expression, setExpression] = useControllableState<Expression>({
-    prop: valueProp,
-    defaultProp: defaultValue ?? createEmptyExpression(),
-    onChange: onValueChange,
+  const [root, setRoot] = React.useState(() =>
+    treeOf(valueProp ?? defaultValue ?? createEmptyExpression()),
+  );
+  // the last expression from or to the parent: it is the same object while
+  // nothing changed, so only another value is serialised to compare
+  const [emitted, setEmitted] = React.useState(valueProp);
+  const onValueChangeRef = React.useRef(onValueChange);
+  React.useEffect(() => {
+    onValueChangeRef.current = onValueChange;
   });
 
-  const context = React.useMemo<QueryBuilderContextValue>(
-    () => ({
-      expression,
+  // the value changed from outside (a reset, another record): rebuild
+  if (
+    valueProp !== undefined &&
+    valueProp !== emitted &&
+    JSON.stringify(valueProp) !== JSON.stringify(emitted)
+  ) {
+    setRoot(treeOf(valueProp));
+    setEmitted(valueProp);
+  }
+
+  const context = React.useMemo<QueryBuilderContextValue>(() => {
+    const commit = (next: GroupNode) => {
+      const expression = exprOf(next);
+      setRoot(next);
+      setEmitted(expression);
+      onValueChangeRef.current?.(expression);
+    };
+
+    return {
+      root,
+      expression: exprOf(root),
       schema,
-      addGroup: () =>
-        setExpression((e) => ({
-          ...e,
-          orCondition: [...e.orCondition, createEmptyAndCondition()],
-        })),
-      removeGroup: (groupIndex) =>
-        setExpression((e) => ({
-          ...e,
-          orCondition: e.orCondition.filter((_, i) => i !== groupIndex),
-        })),
-      addRule: (groupIndex) =>
-        setExpression((e) =>
-          mapGroup(e, groupIndex, (g) => ({ ...g, rules: [...g.rules, createEmptyRule()] })),
+      conditionCount: countConditions(root),
+      addCondition: (groupId) =>
+        commit(
+          mapGroup(root, groupId, (g) => ({ ...g, children: [...g.children, createCondNode()] })),
         ),
-      removeRule: (groupIndex, ruleIndex) =>
-        setExpression((e) =>
-          mapGroup(e, groupIndex, (g) => ({
+      addGroup: (groupId) =>
+        commit(
+          mapGroup(root, groupId, (g) => ({
             ...g,
-            rules: g.rules.filter((_, i) => i !== ruleIndex),
+            // a group opens with a condition, and the other operator: the
+            // same one would only be flattened into its parent
+            children: [
+              ...g.children,
+              createGroupNode(g.op === 'all' ? 'any' : 'all', [createCondNode()]),
+            ],
           })),
         ),
-      updateCondition: (groupIndex, ruleIndex, updater) =>
-        setExpression((e) =>
-          mapGroup(e, groupIndex, (g) => ({
-            ...g,
-            rules: g.rules.map((rule, i) =>
-              i === ruleIndex
-                ? { ...rule, condition: updater(rule.condition ?? createEmptyCondition()) }
-                : rule,
-            ),
-          })),
+      setOp: (groupId, op) => commit(mapGroup(root, groupId, (g) => ({ ...g, op }))),
+      remove: (nodeId) => commit(removeNode(root, nodeId)),
+      updateCondition: (condId, updater) =>
+        commit(
+          mapNode(root, condId, (n) =>
+            n.kind === 'cond' ? { ...n, condition: updater(n.condition) } : n,
+          ),
         ),
-    }),
-    [expression, schema, setExpression],
-  );
+    };
+  }, [root, schema]);
 
   return (
     <QueryBuilderContext.Provider value={context}>
@@ -213,8 +218,7 @@ export function QueryBuilder({
 // ─── QueryBuilderEditor ──────────────────────────────────────────────────────
 
 export function QueryBuilderEditor({ className, ...props }: React.ComponentProps<'div'>) {
-  const t = useTranslations('QueryBuilder');
-  const { expression, addGroup } = useQueryBuilder();
+  const { root } = useQueryBuilder();
 
   return (
     <div
@@ -222,23 +226,110 @@ export function QueryBuilderEditor({ className, ...props }: React.ComponentProps
       className={cn('flex min-w-0 flex-col gap-3', className)}
       {...props}
     >
-      {expression.orCondition.map((_, groupIndex) => (
-        <React.Fragment key={groupIndex}>
-          {groupIndex > 0 && <QueryBuilderSeparator>{t('or')}</QueryBuilderSeparator>}
-          <QueryBuilderGroup groupIndex={groupIndex} />
+      <QueryBuilderGroup node={root} depth={0} />
+    </div>
+  );
+}
+
+// ─── QueryBuilderGroup ───────────────────────────────────────────────────────
+
+export type QueryBuilderGroupProps = Omit<React.ComponentProps<'div'>, 'children'> & {
+  node: GroupNode;
+  /** 0 for the root group */
+  depth: number;
+};
+
+/** A group: the operator it joins its children with, and the children */
+export function QueryBuilderGroup({ node, depth, className, ...props }: QueryBuilderGroupProps) {
+  const t = useTranslations('QueryBuilder');
+  const { conditionCount, addCondition, addGroup, setOp, remove } = useQueryBuilder();
+  const isRoot = depth === 0;
+  const canAddCondition = conditionCount < MAX_CONDITIONS;
+  const canAddGroup = canAddCondition && depth < MAX_GROUP_DEPTH;
+  const join = node.op === 'all' ? t('and') : t('or');
+
+  return (
+    <div
+      role="group"
+      aria-label={t('groupN', { n: depth + 1 })}
+      data-slot="query-builder-group"
+      data-op={node.op}
+      data-empty={node.children.length === 0 || undefined}
+      className={cn(
+        'grid min-w-0 gap-3 rounded-md border p-3',
+        !isRoot && 'border-l-2 border-l-primary/40',
+        className,
+      )}
+      {...props}
+    >
+      <div className="flex min-h-8 items-center justify-between gap-2">
+        <Select value={node.op} onValueChange={(op) => setOp(node.id, op as GroupOp)}>
+          <SelectTrigger aria-label={t('operator')} className="h-8 w-auto min-w-0 bg-background">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{t('matchAll')}</SelectItem>
+            <SelectItem value="any">{t('matchAny')}</SelectItem>
+          </SelectContent>
+        </Select>
+        {!isRoot && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="size-8 shrink-0"
+            aria-label={t('removeGroup')}
+            onClick={() => remove(node.id)}
+          >
+            <Trash2Icon className="size-4" aria-hidden />
+          </Button>
+        )}
+      </div>
+
+      {isEmptyGroup(node) && (
+        <p className="py-2 text-center text-sm text-balance text-muted-foreground">
+          {isRoot ? t('noConditions') : t('emptyGroup')}
+        </p>
+      )}
+
+      {node.children.map((child, i) => (
+        <React.Fragment key={child.id}>
+          {i > 0 && <QueryBuilderSeparator>{join}</QueryBuilderSeparator>}
+          {child.kind === 'group' ? (
+            <QueryBuilderGroup node={child} depth={depth + 1} />
+          ) : (
+            <QueryBuilderRule node={child} index={i} />
+          )}
         </React.Fragment>
       ))}
 
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        className="max-w-full self-start"
-        onClick={addGroup}
-      >
-        <PlusIcon className="size-4" aria-hidden />
-        <span className="truncate">{t('orGroup')}</span>
-      </Button>
+      <div className="flex flex-wrap gap-2">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="max-w-full"
+          disabled={!canAddCondition}
+          onClick={() => addCondition(node.id)}
+        >
+          <PlusIcon className="size-4" aria-hidden />
+          <span className="truncate">{t('addCondition')}</span>
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="max-w-full"
+          disabled={!canAddGroup}
+          onClick={() => addGroup(node.id)}
+        >
+          <PlusIcon className="size-4" aria-hidden />
+          <span className="truncate">{t('addGroup')}</span>
+        </Button>
+      </div>
+      {!canAddCondition && (
+        <p className="text-xs text-muted-foreground">{t('maxConditions', { n: MAX_CONDITIONS })}</p>
+      )}
     </div>
   );
 }
@@ -266,86 +357,12 @@ export function QueryBuilderSeparator({
   );
 }
 
-// ─── QueryBuilderGroup ───────────────────────────────────────────────────────
-
-export type QueryBuilderGroupProps = React.ComponentProps<'div'> & {
-  groupIndex: number;
-};
-
-export function QueryBuilderGroup({ groupIndex, className, ...props }: QueryBuilderGroupProps) {
-  const t = useTranslations('QueryBuilder');
-  const { expression, addRule, removeGroup } = useQueryBuilder();
-  const group = expression.orCondition[groupIndex];
-  if (!group) return null;
-
-  const label = t('andGroupN', { n: groupIndex + 1 });
-  const canRemove = expression.orCondition.length > 1;
-
-  return (
-    <div
-      role="group"
-      aria-label={label}
-      data-slot="query-builder-group"
-      data-empty={group.rules.length === 0 || undefined}
-      className={cn('grid min-w-0 gap-3 rounded-md border p-3', className)}
-      {...props}
-    >
-      <div className="flex min-h-8 items-center justify-between gap-2">
-        <span className="min-w-0 truncate text-sm font-medium">{label}</span>
-        {canRemove && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="size-8 shrink-0"
-            aria-label={t('removeGroup', { n: groupIndex + 1 })}
-            onClick={() => removeGroup(groupIndex)}
-          >
-            <Trash2Icon className="size-4" aria-hidden />
-          </Button>
-        )}
-      </div>
-
-      {group.rules.length === 0 && (
-        <p className="py-2 text-center text-sm text-balance text-muted-foreground">
-          {t('noConditions')}
-        </p>
-      )}
-
-      {(group.orCondition.length > 0 || group.andCondition.length > 0) && (
-        <p className="text-sm text-balance text-muted-foreground">{t('nestedGroups')}</p>
-      )}
-
-      {group.rules.map((rule, ruleIndex) => (
-        <React.Fragment key={rule.condition?.id || ruleIndex}>
-          {ruleIndex > 0 && (
-            <span className="text-xs font-semibold text-muted-foreground" aria-hidden>
-              {t('and')}
-            </span>
-          )}
-          <QueryBuilderRule groupIndex={groupIndex} ruleIndex={ruleIndex} />
-        </React.Fragment>
-      ))}
-
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        className="max-w-full justify-self-start"
-        onClick={() => addRule(groupIndex)}
-      >
-        <PlusIcon className="size-4" aria-hidden />
-        <span className="truncate">{t('addCondition')}</span>
-      </Button>
-    </div>
-  );
-}
-
 // ─── QueryBuilderRule ────────────────────────────────────────────────────────
 
-export type QueryBuilderRuleProps = React.ComponentProps<'div'> & {
-  groupIndex: number;
-  ruleIndex: number;
+export type QueryBuilderRuleProps = Omit<React.ComponentProps<'div'>, 'children'> & {
+  node: CondNode;
+  /** Position in its group, for the labels */
+  index: number;
 };
 
 /**
@@ -355,19 +372,12 @@ export type QueryBuilderRuleProps = React.ComponentProps<'div'> & {
  * sources, keys and operators it offers and how the value is entered; an
  * edit keeps the condition inside it.
  */
-export function QueryBuilderRule({
-  groupIndex,
-  ruleIndex,
-  className,
-  ...props
-}: QueryBuilderRuleProps) {
+export function QueryBuilderRule({ node, index, className, ...props }: QueryBuilderRuleProps) {
   const t = useTranslations('QueryBuilder');
   const { fieldSourceOptions } = useSecurityOptions();
-  const { expression, schema, updateCondition, removeRule } = useQueryBuilder();
-  const rule = expression.orCondition[groupIndex]?.rules[ruleIndex];
-  if (!rule) return null;
+  const { schema, updateCondition, remove } = useQueryBuilder();
 
-  const condition = rule.condition ?? createEmptyCondition();
+  const condition = node.condition;
   const spec = conditionSpec(schema, condition);
   const needsKey = schema ? acceptsKey(spec.source) : SOURCES_WITH_KEY.has(condition.source);
   const sourceOptions = schema
@@ -377,12 +387,12 @@ export function QueryBuilderRule({
     ? OPERATOR_OPTIONS.filter((o) => spec.variant?.operators.some((s) => s.operator === o.value))
     : OPERATOR_OPTIONS;
   const update = (patch: Partial<Condition>) =>
-    updateCondition(groupIndex, ruleIndex, (c) => conformCondition(schema, { ...c, ...patch }));
+    updateCondition(node.id, (c) => conformCondition(schema, { ...c, ...patch }));
 
   return (
     <div
       role="group"
-      aria-label={t('conditionN', { n: ruleIndex + 1 })}
+      aria-label={t('conditionN', { n: index + 1 })}
       data-slot="query-builder-rule"
       data-has-key={needsKey || undefined}
       className={cn('flex min-w-0 items-start gap-1 rounded-md bg-muted/50 p-2', className)}
@@ -394,6 +404,8 @@ export function QueryBuilderRule({
           value={condition.source}
           onValueChange={(source) => update({ source: source as FieldSource, key: '' })}
           options={sourceOptions}
+          // a row of its own until the four fit on one line
+          className="@xs/query-builder:col-span-2 @2xl/query-builder:col-span-1"
         />
 
         {needsKey && (
@@ -421,8 +433,13 @@ export function QueryBuilderRule({
           spec={spec.operator}
           value={condition.value}
           onValueChange={(value) => update({ value })}
-          // without a key, the value takes the rest of the row
-          className={cn(!needsKey && '@xs/query-builder:col-span-2')}
+          // with a key, the value has a row of its own on two columns; without
+          // one, it takes the rest of the row on four
+          className={
+            needsKey
+              ? '@xs/query-builder:col-span-2 @2xl/query-builder:col-span-1'
+              : '@2xl/query-builder:col-span-2'
+          }
         />
       </div>
 
@@ -431,8 +448,8 @@ export function QueryBuilderRule({
         variant="ghost"
         size="icon"
         className="size-9 shrink-0 text-muted-foreground hover:text-destructive"
-        aria-label={t('removeCondition', { n: ruleIndex + 1 })}
-        onClick={() => removeRule(groupIndex, ruleIndex)}
+        aria-label={t('removeCondition', { n: index + 1 })}
+        onClick={() => remove(node.id)}
       >
         <Trash2Icon className="size-4" aria-hidden />
       </Button>

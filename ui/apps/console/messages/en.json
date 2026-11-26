@@ -78,14 +78,13 @@
     "account": "Account"
   },
   "Sidebar": {
-    "main": "Main",
-    "domain": "Domain",
-    "backToMain": "Back to Main",
     "search": "Search...",
     "tenants": "Tenants",
     "addTeam": "Add team",
     "account": "Account",
     "notifications": "Notifications",
+    "notificationsDescription": "Recent activity and alerts for your account.",
+    "notificationsEmpty": "You have no notifications.",
     "logout": "Log out",
     "loggedOut": "Logged out",
     "loggedOutDescription": "You have been logged out successfully.",
@@ -733,12 +732,9 @@
   },
   "QueryBuilder": {
     "or": "OR",
-    "orGroup": "OR Group",
     "and": "AND",
-    "andGroupN": "AND group {n}",
-    "removeGroup": "Remove AND group {n}",
+    "removeGroup": "Remove group",
     "noConditions": "No conditions in this group.",
-    "nestedGroups": "This group also holds nested groups. They are kept as they are: edit them as a script.",
     "conditionN": "Condition {n}",
     "removeCondition": "Remove condition {n}",
     "source": "Source",
@@ -757,7 +753,13 @@
       "enumList": "Comma separated: {values}"
     },
     "json": "JSON",
-    "addCondition": "Add condition"
+    "addCondition": "Add condition",
+    "groupN": "Group {n}",
+    "matchAll": "Match all of",
+    "matchAny": "Match any of",
+    "addGroup": "Add group",
+    "emptyGroup": "Empty group: it is dropped when saved.",
+    "maxConditions": "At most {n} conditions."
   },
   "Validation": {
     "nameDescriptionRequired": "Fields name and description are required",

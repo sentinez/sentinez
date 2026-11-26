@@ -4,7 +4,7 @@ import '@sentinez/ui/globals.css';
 import '@sentinez/ui/custom.css';
 
 import { Providers } from '@/components/providers';
-import { Metadata } from 'next';
+import { Metadata, Viewport } from 'next';
 import { headers } from 'next/headers';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getTranslations } from 'next-intl/server';
@@ -20,6 +20,10 @@ const fontMono = Roboto_Mono({
   subsets: ['latin', 'vietnamese'],
   variable: '--font-mono',
 });
+
+// Lay the page out on the width of the device, whatever its pixel density; the
+// user can still pinch-zoom
+export const viewport: Viewport = { width: 'device-width', initialScale: 1 };
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('Metadata');

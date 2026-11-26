@@ -24,11 +24,10 @@ import { useTranslations } from 'next-intl';
 import { dashboard, NavItem } from '@/lib/default';
 import { usePathname } from 'next/navigation';
 import { TeamSwitcher } from './team-switcher';
-import { cn } from '@sentinez/ui/lib/utils';
 import Link from 'next/link';
 import PreviewHeader from './preview-header';
 import PreviewFooter from './preview-footer';
-import { ChevronLeft, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import SidebarLoading from './sidebar-loading';
 import { TabLoading } from './tab-loading';
 import { ComponentProps, ReactNode, useEffect, useMemo, useState, useTransition } from 'react';
@@ -115,7 +114,6 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
   // moves at once, then synced from the pathname.
   const [activeUrl, setActiveUrl] = useState('');
   const [search, setSearch] = useState('');
-  const [mobileTab, setMobileTab] = useState<'main' | 'domain'>('domain');
   const { setOpen, setOpenMobile, isMobile } = useSidebar();
   const user = useLocalUser();
 
@@ -162,13 +160,8 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
       setActiveUrl(item.url);
       setNavIndex(index);
       setOpen(true);
-      if (isMobile) {
-        if (item.items && item.items.length > 0) {
-          setMobileTab('domain');
-        } else {
-          setOpenMobile(false);
-        }
-      }
+      // a tab without sub tabs has no panel to show: go there
+      if (isMobile && !item.items?.length) setOpenMobile(false);
     });
   };
 
@@ -186,52 +179,20 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
   return (
     <Sidebar
       collapsible="icon"
-      className="overflow-hidden *:data-[sidebar=sidebar]:flex-row flex-col md:flex-row"
+      className="overflow-hidden *:data-[slot=sidebar-inner]:flex-row"
       {...props}
     >
-      {isMobile && (
-        <div className="flex items-center border-b p-2 bg-sidebar text-sm font-medium gap-1 shrink-0 w-full">
-          <button
-            type="button"
-            onClick={() => setMobileTab('main')}
-            className={cn(
-              'flex-1 py-1.5 px-3 rounded-md text-center transition-colors cursor-pointer text-xs font-semibold',
-              mobileTab === 'main'
-                ? 'bg-accent text-accent-foreground shadow-xs'
-                : 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
-            )}
-          >
-            {ts('main')}
-          </button>
-          <button
-            type="button"
-            onClick={() => setMobileTab('domain')}
-            className={cn(
-              'flex-1 py-1.5 px-3 rounded-md text-center transition-colors cursor-pointer text-xs font-semibold truncate',
-              mobileTab === 'domain'
-                ? 'bg-accent text-accent-foreground shadow-xs'
-                : 'text-muted-foreground hover:text-foreground hover:bg-accent/50',
-            )}
-          >
-            {activeItem ? t(activeItem.titleKey) : ts('domain')}
-          </button>
-        </div>
-      )}
-
       {/* This is the first sidebar */}
       {/* We disable collapsible and adjust width to icon. */}
       {/* This will make the sidebar appear as icons. */}
       <Sidebar
         collapsible="none"
-        className={cn(
-          'w-[calc(var(--sidebar-width-icon)+1px)]! border-r',
-          mobileTab === 'main' ? 'flex w-full' : 'hidden md:flex',
-        )}
+        className="w-[calc(var(--sidebar-width-icon)+1px)]! shrink-0 border-r"
       >
         <SidebarHeader>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton size="lg" asChild className="md:h-8 md:p-0">
+              <SidebarMenuButton size="lg" asChild className="h-8 p-0">
                 <Link href="/d/console">
                   <div className="text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                     <Image
@@ -249,7 +210,7 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupContent className="px-1.5 md:px-0">
+            <SidebarGroupContent className="px-0">
               <SidebarMenu>
                 {navMain.map((item, index) => (
                   <SidebarMenuItem key={item.titleKey}>
@@ -264,7 +225,7 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
                     >
                       <Link href={item.url} onClick={() => handlerSidebarNavMainClick(item, index)}>
                         <item.icon />
-                        <span>{t(item.titleKey)}</span>
+                        <span className="sr-only">{t(item.titleKey)}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -280,21 +241,8 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
 
       {/* This is the second sidebar */}
       {/* We disable collapsible and let it fill remaining space */}
-      <Sidebar
-        collapsible="none"
-        className={cn('flex-1', mobileTab === 'domain' ? 'flex w-full' : 'hidden md:flex')}
-      >
-        <SidebarHeader className=" gap-[4.8px] border-b p-3">
-          {isMobile && (
-            <button
-              type="button"
-              onClick={() => setMobileTab('main')}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground cursor-pointer transition-colors font-medium -mb-1"
-            >
-              <ChevronLeft className="size-4" />
-              <span>{ts('backToMain')}</span>
-            </button>
-          )}
+      <Sidebar collapsible="none" className="min-w-0 flex-1">
+        <SidebarHeader className="gap-1.5 border-b p-2 md:p-3">
           <TeamSwitcher />
           {loading ? (
             <SidebarLoading />
@@ -322,7 +270,7 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
         <SidebarContent>
           <SidebarGroup className="px-0">
             <SidebarGroupContent className="px-1.5 md:px-0 flex justify-center">
-              <SidebarMenu className="w-11/12">
+              <SidebarMenu className="w-full px-1 md:w-11/12 md:px-0">
                 {loading ? (
                   <SidebarLoading />
                 ) : (
@@ -391,7 +339,7 @@ export function ConsoleSidebarInset({ children }: { children: ReactNode }) {
   return (
     // min-w-0: a wide table scrolls inside the page instead of widening it
     <SidebarInset className="min-w-0">
-      <div className="flex min-h-screen flex-col">
+      <div className="flex min-h-dvh flex-col">
         <PreviewHeader username={user.name} />
         <TabLoading>{children}</TabLoading>
       </div>
