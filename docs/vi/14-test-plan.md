@@ -155,7 +155,7 @@ sau dùng lại trạng thái mà các test trước tạo ra.
 
 | Id | Các bước | Kết quả mong đợi |
 |---|---|---|
-| UI-01 | Mở mọi trang trong sidebar (`e2e/screenshots.mjs` đi qua tất cả) | Không trang nào lỗi. Spinner của tab che mỗi lần chuyển tab |
+| UI-01 | Mở mọi trang trong sidebar (`tests/e2e/screenshots.mjs` đi qua tất cả) | Không trang nào lỗi. Spinner của tab che mỗi lần chuyển tab |
 | UI-02 | Chuyển qua lại giữa tiếng Việt và tiếng Anh | Mọi chuỗi hiển thị đều được dịch, không còn key thô |
 | UI-03 | Dừng apiserver, rồi mở console | Đăng nhập bằng sample user vẫn được (proxy trả 502) |
 | UI-04 | Màn hình mobile (375 px) | Sidebar thu gọn, không trang nào bị cuộn ngang |

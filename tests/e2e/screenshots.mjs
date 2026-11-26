@@ -8,7 +8,7 @@ import { chromium } from 'playwright-core';
 const BASE = process.env.SZ_BASE_URL ?? 'http://localhost:3000';
 const USER = process.env.SZ_USER;
 const PASSWORD = process.env.SZ_PASSWORD;
-const OUT = process.env.SZ_OUT ?? '../docs/images/console';
+const OUT = process.env.SZ_OUT ?? '../../docs/images/console';
 const CHROME = process.env.SZ_CHROME ?? '/usr/bin/google-chrome';
 const WIDTH = 1440;
 

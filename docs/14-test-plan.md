@@ -156,7 +156,7 @@ because later tests reuse the state that earlier ones create.
 
 | Id | Steps | Expected |
 |---|---|---|
-| UI-01 | Visit every sidebar page (`e2e/screenshots.mjs` visits them all) | No page errors. The tab spinner covers each switch |
+| UI-01 | Visit every sidebar page (`tests/e2e/screenshots.mjs` visits them all) | No page errors. The tab spinner covers each switch |
 | UI-02 | Switch between Vietnamese and English | Every visible string is translated, with no raw keys |
 | UI-03 | Stop apiserver, then open the console | Sign-in with the sample user works (the proxy answers 502) |
 | UI-04 | Mobile width (375 px) | The sidebar collapses, and no page scrolls sideways |

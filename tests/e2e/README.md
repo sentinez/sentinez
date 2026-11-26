@@ -6,11 +6,11 @@ browsers).
 
 For now it holds one script, `screenshots.mjs`, which captures every console
 page for the docs. It writes them to
-[`docs/images/console/`](../docs/images/console/).
+[`docs/images/console/`](../../docs/images/console/).
 
 ## Requirements
 
-- Node 26.8.1 (the version pinned in [`ui/package.json`](../ui/package.json)).
+- Node 26.8.1 (the version pinned in [`ui/package.json`](../../ui/package.json)).
 - A Chrome or Chromium binary. The default is `/usr/bin/google-chrome`; set
   `SZ_CHROME` to use another one, e.g. a Playwright-cached Chromium.
 - The console running (`cd ui && pnpm dev`, port 3000) with its backend
@@ -22,7 +22,7 @@ page for the docs. It writes them to
 ## Setup
 
 ```sh
-cd e2e
+cd tests/e2e
 npm install
 ```
 
@@ -55,7 +55,7 @@ A run overwrites the existing files.
 | `SZ_PASSWORD` | (required) | Login password |
 | `SZ_BASE_URL` | `http://localhost:3000` | Console URL |
 | `SZ_DOMAIN` | first domain listed | Domain used for the `/d/console/<domain>` pages |
-| `SZ_OUT` | `../docs/images/console` | Output directory |
+| `SZ_OUT` | `../../docs/images/console` | Output directory |
 | `SZ_CHROME` | `/usr/bin/google-chrome` | Browser executable |
 
 ## Adding a page
