@@ -17,8 +17,8 @@ package szlog
 import (
 	"context"
 	"fmt"
-	"strings"
 
+	"github.com/sentinez/pkg/szuri"
 	"go.opentelemetry.io/contrib/bridges/otelzap"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -45,20 +45,29 @@ type OTLPConfig struct {
 	ServiceVersion string
 }
 
-// OTLPConfigOf returns the config exporting to endpoint as serviceName.
-// "https://host:port" uses TLS; "http://host:port" and a bare "host:port"
-// do not.
-func OTLPConfigOf(endpoint, serviceName string) OTLPConfig {
-	host, secure := strings.CutPrefix(endpoint, "https://")
-	if !secure {
-		host = strings.TrimPrefix(endpoint, "http://")
+// OTLPConfigOf returns the config exporting to the collector of uri as
+// serviceName: "https://host:port" uses TLS, "http://host:port" does not.
+func OTLPConfigOf(uri, serviceName string) (OTLPConfig, error) {
+	u, err := szuri.Parse(uri)
+	if err != nil {
+		return OTLPConfig{}, fmt.Errorf("otlp uri: %w", err)
+	}
+
+	secure, err := u.Secure("http", "https")
+	if err != nil {
+		return OTLPConfig{}, fmt.Errorf("otlp uri: %w", err)
+	}
+
+	host, err := u.Host()
+	if err != nil {
+		return OTLPConfig{}, fmt.Errorf("otlp uri: %w", err)
 	}
 
 	return OTLPConfig{
 		Endpoint:    host,
 		Insecure:    !secure,
 		ServiceName: serviceName,
-	}
+	}, nil
 }
 
 // SetupOTLP installs a global OpenTelemetry LoggerProvider that exports logs

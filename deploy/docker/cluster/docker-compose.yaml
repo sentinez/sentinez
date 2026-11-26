@@ -35,10 +35,15 @@ x-edge: &edge
     - ../../certs/internal/sentinez.dmz.edge.pem:/etc/sz/internal/sentinez.dmz.edge.pem:ro
     - ../../certs/internal/sentinez.dmz.edge-key.pem:/etc/sz/internal/sentinez.dmz.edge-key.pem:ro
 
+# SZ_OLRIC_PASSWORD and SZ_GOSSIP_KEY come from the shared env in Consul
+# (deploy/consul/shared.env, make consul.env.put): the same on every edge
+# and, for the password, on centraldata. Unset, the edges still join, with
+# a warning, their Olric port and gossip open to the network.
 x-edge-env: &edge-env
   # the debug logs of the sync: what the leader loads from centraldata,
   # what the others sync from it (docker-entrypoint.sh)
   LOG_LEVEL: debug
+  # memberlist bind: 0.0.0.0 takes the private IP of the container
   SZ_DISCOVERY_ADDRESS: 0.0.0.0:7777
   SZ_ZONE: HAN
 
@@ -66,6 +71,9 @@ services:
       SZ_CONSUL_URI: http://sentinez.consul:8500
       # Olric retries the join 10 times, 1s apart: time enough for edge.02
       SZ_MEMBERSHIP_ADDRESS: sentinez.dmz.edge.02:7777
+      # the Olric bind, one of the seeds of SZ_OLRIC_URI of
+      # ../centraldata.env
+      SZ_OLRIC_ADDRESS: sentinez.dmz.edge.01:3320
     ports:
       - "7444:7443"
       - "7444:7443/udp"
@@ -78,6 +86,7 @@ services:
       <<: *edge-env
       SZ_CONSUL_URI: http://sentinez.consul.02:8500
       SZ_MEMBERSHIP_ADDRESS: sentinez.dmz.edge.01:7777
+      SZ_OLRIC_ADDRESS: sentinez.dmz.edge.02:3320
     depends_on:
       - sentinez.consul.02
       - sentinez.dmz.edge.01
@@ -93,6 +102,7 @@ services:
       <<: *edge-env
       SZ_CONSUL_URI: http://sentinez.consul.03:8500
       SZ_MEMBERSHIP_ADDRESS: sentinez.dmz.edge.01:7777
+      SZ_OLRIC_ADDRESS: sentinez.dmz.edge.03:3320
     depends_on:
       - sentinez.consul.03
       - sentinez.dmz.edge.01

@@ -13,7 +13,6 @@ replace (
 require (
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/go-webauthn/webauthn v0.17.4
-	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.30.0
 	github.com/hashicorp/go-memdb v1.3.5
 	github.com/jackc/pgx/v5 v5.10.0
@@ -51,10 +50,11 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/go-webauthn/x v0.2.6 // indirect
+	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/go-tpm v0.9.8 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/hashicorp/consul/api v1.32.4 // indirect
+	github.com/hashicorp/consul/api v1.33.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-hclog v1.5.0 // indirect

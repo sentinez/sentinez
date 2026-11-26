@@ -477,6 +477,24 @@ All maps use `pkg/szsync.Map[K,V]` (a generic wrapper around `sync.Map`).
 - `NewCluster` creates Olric with the `local` config. If the config is
   `Clustered()` (both `SZ_MEMBERSHIP_ADDRESS` and `SZ_DISCOVERY_ADDRESS`
   are set), it sets `Peers` and binds memberlist to the discovery address.
+- Olric itself binds `SZ_OLRIC_ADDRESS`, the port centraldata publishes
+  to, and names the node after its IP. Unset, a lone edge binds
+  `127.0.0.1:3320`, out of reach; a clustered one a private IP of the
+  host on 3320 ([bind.go](../pkg/cluster/bind.go)). An unspecified host
+  (`0.0.0.0`, `::`, empty), here and in `SZ_DISCOVERY_ADDRESS`, takes a
+  private IP too: left to Olric, it would fall back to a public IP on a
+  host without a private one, so the edge fails to start instead. A
+  public IP set explicitly is bound, with a warning.
+- The port takes the password of `SZ_OLRIC_PASSWORD`
+  ([secure.go](../pkg/cluster/secure.go)): without it a client reads and
+  writes the DMaps. Olric hands the password to its own client, so the
+  nodes of a cluster and the subscriber of each edge authenticate too;
+  centraldata publishes with it. The memberlist gossip is encrypted and
+  authenticated with `SZ_GOSSIP_KEY` (AES-GCM): a node without the key
+  cannot join. Each one left unset is warned about. Olric serves no TLS
+  and sends the password in clear: keep the port on a private network, or
+  behind a TLS proxy for `olrics://` (see
+  [2.3](02-getting-started.md#23-environment-variables)).
 - Olric has no compare-and-swap, so it must not hold state a leader
   writes; that goes to Consul, where the writes are fenced (see below).
 - `Cluster.Ready()` is closed once Olric accepts connections, clustered or
@@ -582,7 +600,7 @@ set; `cluster.newConfig` uses the same check to join peers.
 
 A term:
 
-1. `consul.Client.Acquire` ([api/client/consul/lock.go](../api/client/consul/lock.go))
+1. `szconsul.Client.Acquire` ([pkg/szconsul/lock.go](../staging/src/github.com/sentinez/pkg/szconsul/lock.go))
    creates a session (TTL 15s, renewed by its holder) and blocks until it
    holds the key. Each wait on a held lock is capped at 2s, so a follower
    notices shutdown well within the runner's 15s stop timeout.
@@ -611,7 +629,7 @@ Failover:
 partition) before it sees `Lost()`. Every write the leader makes to shared
 state must carry `term.Index`, and the store must reject an index lower than
 the highest it has seen. The elector cannot enforce this on its own;
-`consul.Client.PutFenced` ([api/client/consul/fenced.go](../api/client/consul/fenced.go))
+`szconsul.Client.PutFenced` ([pkg/szconsul/fenced.go](../staging/src/github.com/sentinez/pkg/szconsul/fenced.go))
 does, for Consul KV:
 
 - The value is stored as JSON `{"token": <term.Index>, "value": ...}`
@@ -673,9 +691,12 @@ and the zone `status`, `make compose.edge.consul` the Raft peers; stop the
 leading edge and another one leads once its session expires, kill one
 Consul server and the lock still holds. Without a Consul quorum no zone can
 elect a leader. The edges gossip on `:7777` and join through one seed
-(`SZ_MEMBERSHIP_ADDRESS`); their Olric servers listen on `:3320`. The
-lone `sentinez.dmz.edge` of the main compose is not clustered, so it does
-not campaign, whatever its zone. The two
+(`SZ_MEMBERSHIP_ADDRESS`); their Olric servers listen on
+`sentinez.dmz.edge.0N:3320` (`SZ_OLRIC_ADDRESS`), both bound to the private
+IP of the container. `SZ_OLRIC_PASSWORD` and `SZ_GOSSIP_KEY` come from the
+shared env in Consul (`make consul.env.put`). The lone `sentinez.dmz.edge`
+of the main compose is not clustered, so it does not campaign, whatever
+its zone, and its Olric binds `127.0.0.1` inside its container. The two
 Consul servers leave the Raft when stopped (`leave_on_terminate`), so after
 `make compose.edge.down` `sentinez.consul` leads alone again; killing both
 leaves it without a quorum until they are back. The edges run with

@@ -20,7 +20,7 @@ import (
 
 	securityfac "github.com/sentinez/controlplane/apps/security/v1/factory"
 	"github.com/sentinez/core/szgrpc"
-	"github.com/sentinez/sentinez/api/client/local"
+	"github.com/sentinez/core/szgrpc/client/local"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"google.golang.org/grpc"

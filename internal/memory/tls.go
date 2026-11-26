@@ -20,22 +20,22 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/sentinez/controlplane/pkg/crypto"
 	"github.com/sentinez/core/szcrypto/certs"
 	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/szseal"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 )
 
 // newSealer the sealer of SZ_DATA_KEY, nil when it is not set: the edge
 // then serves no certificate of centraldata.
-func newSealer(conf *settingpb.Config) (*crypto.Sealer, error) {
+func newSealer(conf *settingpb.Config) (*szseal.Sealer, error) {
 	key := conf.Get(settingpb.Sz_SZ_DATA_KEY)
 	if key == "" {
 		return nil, nil
 	}
 
-	return crypto.NewSealer(key)
+	return szseal.NewSealer(key)
 }
 
 // LoadCertificate stores the certificate s serves for its domain; a
@@ -63,7 +63,7 @@ func (m *MemStore) LoadCertificate(s *edgepb.Setting) error {
 func (m *MemStore) openCertificate(ns string, sealed []*edgepb.Certificate,
 ) (*tls.Certificate, error) {
 	if m.sealer == nil {
-		return nil, crypto.ErrNoDataKey
+		return nil, szseal.ErrNoDataKey
 	}
 
 	pairs, pool, err := openAll(m.sealer, sealed)
@@ -75,7 +75,7 @@ func (m *MemStore) openCertificate(ns string, sealed []*edgepb.Certificate,
 }
 
 // openAll opens sealed: the key pairs, and the certificates without a key.
-func openAll(sealer *crypto.Sealer, sealed []*edgepb.Certificate,
+func openAll(sealer *szseal.Sealer, sealed []*edgepb.Certificate,
 ) ([]tls.Certificate, []*x509.Certificate, error) {
 	var (
 		pairs []tls.Certificate
@@ -107,7 +107,7 @@ func openAll(sealer *crypto.Sealer, sealed []*edgepb.Certificate,
 	return pairs, pool, nil
 }
 
-func openPair(sealer *crypto.Sealer, c *edgepb.Certificate, certPem string,
+func openPair(sealer *szseal.Sealer, c *edgepb.Certificate, certPem string,
 ) (tls.Certificate, error) {
 	keyPem, err := sealer.Open(c.GetPrivateKey(), c.GetId())
 	if err != nil {
@@ -138,7 +138,7 @@ func (m *MemStore) upstreamTLS(s *edgepb.Setting) (*tls.Config, error) {
 	}
 
 	if m.sealer == nil {
-		return nil, crypto.ErrNoDataKey
+		return nil, szseal.ErrNoDataKey
 	}
 
 	conf := &tls.Config{MinVersion: _upstreamMinVersion}
@@ -163,7 +163,7 @@ func (m *MemStore) upstreamTLS(s *edgepb.Setting) (*tls.Config, error) {
 }
 
 // openRoots the pool of the CAs cas.
-func openRoots(sealer *crypto.Sealer, cas []*edgepb.Certificate,
+func openRoots(sealer *szseal.Sealer, cas []*edgepb.Certificate,
 ) (*x509.CertPool, error) {
 	pool := x509.NewCertPool()
 	for _, c := range cas {
@@ -188,7 +188,7 @@ var errNoCertificate = errors.New("no certificate in pem")
 
 // openClientCertificate the client certificate out of sealed, with the
 // chain of its issuers.
-func openClientCertificate(sealer *crypto.Sealer,
+func openClientCertificate(sealer *szseal.Sealer,
 	sealed []*edgepb.Certificate) (*tls.Certificate, error) {
 
 	pairs, pool, err := openAll(sealer, sealed)

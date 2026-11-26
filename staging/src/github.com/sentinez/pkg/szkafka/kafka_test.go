@@ -16,8 +16,8 @@ package szkafka
 
 import (
 	"context"
+	"crypto/tls"
 	"io"
-	"strings"
 	"testing"
 	"time"
 
@@ -122,32 +122,16 @@ func TestNewProducerNoBrokers(t *testing.T) {
 }
 
 func TestConfigOf(t *testing.T) {
-	tests := []struct {
-		name        string
-		giveBrokers string
-		wantBrokers []string
-	}{
-		{name: "empty", giveBrokers: ""},
-		{
-			name:        "one",
-			giveBrokers: "localhost:9094",
-			wantBrokers: []string{"localhost:9094"},
-		},
-		{
-			name:        "many with spaces",
-			giveBrokers: "a:9092, b:9092 ,,",
-			wantBrokers: []string{"a:9092", "b:9092"},
-		},
+	ep := Endpoint{
+		Brokers: []string{"a:9092", "b:9092"},
+		TLS:     &tls.Config{MinVersion: tls.VersionTLS12},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			cfg := ConfigOf(tt.giveBrokers, "svc")
+	cfg := ConfigOf(ep, "svc")
 
-			assert.Equal(t, tt.wantBrokers, cfg.Brokers)
-			assert.Equal(t, "svc", cfg.ServiceName)
-		})
-	}
+	assert.Equal(t, ep.Brokers, cfg.Brokers)
+	assert.Same(t, ep.TLS, cfg.TLS)
+	assert.Equal(t, "svc", cfg.ServiceName)
 }
 
 func TestConfigOfOptions(t *testing.T) {
@@ -155,7 +139,7 @@ func TestConfigOfOptions(t *testing.T) {
 		typepb.LogType_LOG_TYPE_HTTP_INGRESS: "h",
 	}
 
-	cfg := ConfigOf("a:9092", "svc",
+	cfg := ConfigOf(Endpoint{Brokers: []string{"a:9092"}}, "svc",
 		WithTopics(topics),
 		WithTopicPartitions(3),
 		WithReplicationFactor(2),
@@ -172,7 +156,7 @@ func TestConfigOfOptions(t *testing.T) {
 }
 
 func TestConfigOfNoOptions(t *testing.T) {
-	cfg := ConfigOf("a:9092", "svc")
+	cfg := ConfigOf(Endpoint{Brokers: []string{"a:9092"}}, "svc")
 
 	assert.Nil(t, cfg.Topics)
 	assert.Zero(t, cfg.Partitions)
@@ -225,7 +209,7 @@ func TestProducerStartsWhenCreateFails(t *testing.T) {
 	brokers := cluster.ListenAddrs()
 
 	// 3 replicas do not fit on 1 broker: every creation fails.
-	p, err := NewProducer(ConfigOf(strings.Join(brokers, ","), "edge",
+	p, err := NewProducer(ConfigOf(Endpoint{Brokers: brokers}, "edge",
 		WithReplicationFactor(3)))
 	require.NoError(t, err)
 	require.NoError(t, p.Shutdown(t.Context()))

@@ -25,7 +25,7 @@ import (
 	tenantrepo "github.com/sentinez/controlplane/apps/tenant/v1/repos/tenants"
 	tenantsvc "github.com/sentinez/controlplane/apps/tenant/v1/service"
 	"github.com/sentinez/controlplane/pkg/authz"
-	"github.com/sentinez/controlplane/pkg/crypto"
+	"github.com/sentinez/pkg/szseal"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -60,7 +60,7 @@ func NewDefaultService(ctx context.Context,
 		return nil, fmt.Errorf("tenant repo: %w", err)
 	}
 
-	sealer, err := crypto.NewSealerFromEnv()
+	sealer, err := szseal.NewSealerFromEnv()
 	if err != nil {
 		return nil, fmt.Errorf("data key: %w", err)
 	}

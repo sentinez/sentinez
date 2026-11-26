@@ -43,14 +43,34 @@ func TestNewConfigReportsStarted(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var started bool
-			conf := newConfig(&settingpb.Config{Env: tt.give},
-				func() { started = true })
+			conf, err := newConfig(&settingpb.Config{Env: tt.give},
+				func() { started = true }, privateIPOf("10.0.0.2"))
+			require.NoError(t, err)
 
 			require.NotNil(t, conf.Started)
 			conf.Started()
 			assert.True(t, started)
 		})
 	}
+}
+
+func TestNewConfigBindsPrivateIPs(t *testing.T) {
+	conf, err := newConfig(&settingpb.Config{Env: _clustered},
+		func() {}, privateIPOf("10.0.0.2"))
+	require.NoError(t, err)
+
+	assert.Equal(t, "10.0.0.2", conf.BindAddr)
+	assert.Equal(t, 3320, conf.BindPort)
+	assert.Equal(t, "10.0.0.2", conf.MemberlistConfig.BindAddr)
+	assert.Equal(t, 3322, conf.MemberlistConfig.BindPort)
+	assert.Equal(t, []string{"10.0.0.1:3322"}, conf.Peers)
+}
+
+func TestNewConfigWithoutPrivateIP(t *testing.T) {
+	_, err := newConfig(&settingpb.Config{Env: _clustered},
+		func() {}, privateIPOf(""))
+
+	require.ErrorIs(t, err, errNoPrivateIP)
 }
 
 func TestMarkReadyIsIdempotent(t *testing.T) {

@@ -19,11 +19,11 @@ import (
 	"fmt"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/sentinez/controlplane/pkg/crypto"
 	"github.com/sentinez/controlplane/pkg/schema"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szprefix"
 	"github.com/sentinez/pkg/szrand"
+	"github.com/sentinez/pkg/szseal"
 	"github.com/sentinez/pkg/szstorage/dbx"
 	"github.com/sentinez/pkg/szstorage/dbx/postgres"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
@@ -55,7 +55,7 @@ var _ ICaCertificate = (*CaCertificates)(nil)
 // New creates the repository backed by Postgres; sealer seals the pem and
 // the private key before they are stored.
 func New(ctx context.Context, appConf *settingpb.Config,
-	sealer *crypto.Sealer) (ICaCertificate, error) {
+	sealer *szseal.Sealer) (ICaCertificate, error) {
 
 	storage, err := postgres.New[tenantpb.CaCertificate](ctx, appConf,
 		schema.TenantCaCertificates())
@@ -68,7 +68,7 @@ func New(ctx context.Context, appConf *settingpb.Config,
 
 type CaCertificates struct {
 	storage dbx.Database[tenantpb.CaCertificate]
-	sealer  *crypto.Sealer
+	sealer  *szseal.Sealer
 }
 
 func (r *CaCertificates) WithTX(tx *postgres.TxSession) ICaCertificate {

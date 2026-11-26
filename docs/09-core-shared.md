@@ -21,14 +21,15 @@ Each app has its own fx container, so apps in the same process can provide
 the same types (for example `config.Config`). Stop hooks get a 15 s timeout.
 In any mode other than `dev`, fx logging is disabled (`fx.NopLogger`).
 
-OTLP: system logs go to `SZ_OTLP_INTERNAL_ENDPOINT` and are not exported
+OTLP: system logs go to `SZ_OTLP_INTERNAL_URI` and are not exported
 when it is unset; service name = `meta.service_key`. The exporter is shut
 down after every app has stopped. The edge traffic logs (func chain `logging`
-node) go straight to Kafka when `SZ_KAFKA_BROKERS` is set (raw proto
+node) go straight to Kafka when `SZ_KAFKA_URI` is set (raw proto
 events, one topic per log type, see `pkg/szkafka`), otherwise through their
-own OTLP provider on `SZ_OTLP_EXTERNAL_ENDPOINT`; the exporter is owned by
+own OTLP provider on `SZ_OTLP_EXTERNAL_URI`; the exporter is owned by
 the edge server and flushed in its `Shutdown`. With neither set they are not
-exported. An `https://` endpoint uses TLS.
+exported. An OTLP URI is `http://host:port`, or `https://` for TLS
+(`szlog.OTLPConfigOf`); any other value fails the start.
 
 ## 9.2 `core/szhttp` and `core/szhttp/chains`
 
@@ -82,7 +83,7 @@ exported. An `https://` endpoint uses TLS.
 | `core/szlimiter`, `core/szrule`, `core/szcrs`, `core/szruleset`, `core/szmodsec` | See [04-rule-engine.md](04-rule-engine.md) |
 | `pkg/sztracer` | `StageError{Stage, Elapsed, Err}`, `Origin(err)` |
 | `pkg/szqueue` | Empty `Queue{}` (for the waiting room) |
-| `pkg/szsdklog` | `New(conf, opts...)`: `Exporter` of the edge traffic logs: Kafka on `SZ_KAFKA_BROKERS`, else OTLP on `SZ_OTLP_EXTERNAL_ENDPOINT`, nil when neither is set; `opts` (`szkafka.ConfigOption`) configure the producer |
+| `pkg/szsdklog` | `New(conf, opts...)`: `Exporter` of the edge traffic logs: Kafka on `SZ_KAFKA_URI`, else OTLP on `SZ_OTLP_EXTERNAL_URI`, nil when neither is set; `opts` (`szkafka.ConfigOption`) configure the producer |
 | `pkg/szkafka` | Kafka producer of the edge events and batch consumer, see [`szkafka`](#szkafka) |
 
 ## 9.5 `pkg`
@@ -103,6 +104,11 @@ exported. An `https://` endpoint uses TLS.
 | `szstore/ja4` | JA4 fingerprint cache keyed by connection ID (24h TTL) |
 | `szcolor` | ANSI colors for console logs |
 | `sztopic` | `Topic` type and the topic names of the edge traffic events (`EventHTTPIngress`, `EventHTTPEgress`, `EventHTTPSecRule`, ...) |
+| `szuri` | `Parse(s)` of the `SZ_*_URI` values, `scheme://[user[:password]@]host[:port][,host[:port]...][/path][?query]`: lowercased `Scheme`, `User`, `Hosts`, unescaped `Path`, `Query`. No scheme: `ErrNoScheme`. On a `URI`: `Want(schemes...)` (`*SchemeError` for any other scheme), `Secure(plain, secure)` tells TLS from the scheme, `Host()` the one host, `Require()` fails without a host (`ErrNoHost`). `ParsePort(s)` checks 1 to 65535. It exists because `net/url` takes one host only |
+| `sztls` | `Files{CAFile, CertFile, KeyFile}` of `SZ_TLS_*` (`FilesOf(conf)`): `Config()` the TLS 1.3 config of the internal mTLS (all three files required), `ClientConfig()` that config when any file is set, else TLS 1.2+ on the system roots. `ParseURI(uri, plain, secure, files)` the `Endpoint{Hosts, TLS}` of a URI whose scheme picks TLS (`kafka`/`kafkas`, `olric`/`olrics`). `core/szgrpc/client/connection` builds its gRPC credentials on it; `sztlstest` issues the certificates of a test |
+| `szconsul` | Consul client (KV, session lock, fenced writes, service registry); `New(uri)` takes `http(s)://host:port` or `unix:///path` (empty: `CONSUL_HTTP_ADDR`, else `127.0.0.1:8500`) and refuses a bare `host:port` |
+| `sztoken` | The bearer tokens of the control plane: the user JWTs (HS256, `SZ_SECRET_KEY`) and the service tokens of the edges (`SZ_SERVICE_KEY`, signed by `tools/cmd/szservicetoken`), see [07-controlplane.md](07-controlplane.md) |
+| `szseal` | AES-256-GCM sealer of the secrets stored in the database (`SZ_DATA_KEY`), e.g. the CA certificates and their keys |
 
 ### `szlog`
 
@@ -141,10 +147,14 @@ when `level >= verbosity`.
   producer still starts and drops its events until the topics exist.
 - `NewProducer` therefore reaches the brokers at once: with Kafka
   unreachable, the edge start waits up to 10 s.
-- `ConfigOf(brokers, service, opts...)` builds the `Config`, with
+- `ParseURI(uri, files)` returns the `Endpoint{Brokers, TLS}` of
+  `SZ_KAFKA_URI`: `kafka://host:port[,host:port...]` is plaintext,
+  `kafkas://` dials with TLS (`kgo.DialTLSConfig`), the mTLS of
+  `sztls.Files` when they are set, else the system roots.
+  `ConfigOf(endpoint, service, opts...)` builds the `Config`, with
   `WithTopics(map)` (copied), `WithTopicPartitions(n)`,
-  `WithReplicationFactor(n)`. `Brokers(s)` splits a comma-separated broker
-  list.
+  `WithReplicationFactor(n)`. The consumer takes the same `Brokers` and
+  `TLS` in its `ConsumerConfig`.
 
 **Consumer** (`NewConsumer(ConsumerConfig)`, `Run(ctx, BatchHandler)`,
 `Close()`):
@@ -187,8 +197,8 @@ compressed data; decompressed (the producer uses zstd) it is larger.
 | `pkg/network/wsz` | WebSocket server + client manager |
 | `pkg/pools/{ingress,egress,secrule,secruleset,matchedrule}` | Pools of the edge events (`httppb.IngressEvent`, `httppb.EgressEvent`, `secrulepb.SecRuleEvent`, `rulesetpb.SecRulesetEvent`, `rulepb.MatchedRules`), reset with `ResetVT` |
 | `pkg/protocol` | `Upstream2Target`: `PROXY_PROTOCOL_HTTP(S)` + server → URL |
-| `pkg/cluster` | Embedded Olric; `SyncMap[T]` syncs a local map between edges, see [03-edge.md](03-edge.md#38-cluster-olric) |
-| `pkg/cluster/leader` | Zone leader election through a Consul session lock; the leader keeps the zone status in Consul KV with fenced writes (`api/client/consul` `PutFenced`), see [03-edge.md](03-edge.md#zone-leader-election) |
+| `pkg/cluster` | Embedded Olric; `SyncMap[T]` syncs a local map between edges; the Olric and memberlist binds (`SZ_OLRIC_ADDRESS`, `SZ_DISCOVERY_ADDRESS`: loopback alone, a private IP in a cluster, never a public one picked by Olric), the Olric password and gossip key (`SZ_OLRIC_PASSWORD`, `SZ_GOSSIP_KEY`), and the `Publisher` of centraldata (seeds, failover to the next seed); see [03-edge.md](03-edge.md#38-cluster-olric) |
+| `pkg/cluster/leader` | Zone leader election through a Consul session lock; the leader keeps the zone status in Consul KV with fenced writes (`pkg/szconsul` `PutFenced`), see [03-edge.md](03-edge.md#zone-leader-election) |
 
 ## 9.7 `contrib/httphz`
 

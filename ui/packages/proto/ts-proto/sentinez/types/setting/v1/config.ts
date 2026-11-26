@@ -24,20 +24,30 @@ export enum Sz {
   SZ_TIMESCALE_URI = 5,
   SZ_POSTGRES_URI = 6,
   SZ_CLICKHOUSE_URI = 7,
+  /** SZ_CONSUL_URI - Consul agent, http(s)://host:port or unix:///path */
   SZ_CONSUL_URI = 8,
+  /** SZ_MEMBERSHIP_ADDRESS - memberlist seed peer of the edge cluster, host:port */
   SZ_MEMBERSHIP_ADDRESS = 9,
+  /** SZ_DISCOVERY_ADDRESS - memberlist bind of this edge, host:port */
   SZ_DISCOVERY_ADDRESS = 10,
   SZ_ADMIN_USERNAME = 11,
   SZ_ADMIN_PASSWORD = 12,
-  /** SZ_OTLP_INTERNAL_ENDPOINT - OTLP/gRPC collector of the system (application) logs; unset: not exported */
-  SZ_OTLP_INTERNAL_ENDPOINT = 13,
-  /** SZ_OTLP_EXTERNAL_ENDPOINT - OTLP/gRPC collector of the edge traffic logs; unset: not exported */
-  SZ_OTLP_EXTERNAL_ENDPOINT = 14,
   /**
-   * SZ_KAFKA_BROKERS - Kafka brokers (comma-separated) the edge traffic events are produced to
-   * directly; takes precedence over SZ_OTLP_EXTERNAL_ENDPOINT
+   * SZ_OTLP_INTERNAL_URI - OTLP/gRPC collector of the system (application) logs,
+   * http://host:port or https://host:port (TLS); unset: not exported
    */
-  SZ_KAFKA_BROKERS = 15,
+  SZ_OTLP_INTERNAL_URI = 13,
+  /**
+   * SZ_OTLP_EXTERNAL_URI - OTLP/gRPC collector of the edge traffic logs, http(s)://host:port;
+   * unset: not exported
+   */
+  SZ_OTLP_EXTERNAL_URI = 14,
+  /**
+   * SZ_KAFKA_URI - Kafka brokers the edge traffic events are produced to directly,
+   * kafka://host:port[,host:port...] or kafkas:// (TLS, mTLS with
+   * SZ_TLS_*); takes precedence over SZ_OTLP_EXTERNAL_URI
+   */
+  SZ_KAFKA_URI = 15,
   /** SZ_ZONE - zone the service is deployed in (eg ap-southeast-1a); prefixes generated ids */
   SZ_ZONE = 16,
   /**
@@ -63,10 +73,11 @@ export enum Sz {
   SZ_TLS_CERT = 21,
   SZ_TLS_KEY = 22,
   /**
-   * SZ_OLRIC_ADDRESSES - Olric addresses (comma-separated) of the edge cluster centraldata
-   * publishes the changes to
+   * SZ_OLRIC_URI - Olric nodes of the edge cluster centraldata publishes the changes to,
+   * olric://host:port[,host:port...] or olrics:// (TLS, to a TLS proxy in
+   * front of Olric, mTLS with SZ_TLS_*)
    */
-  SZ_OLRIC_ADDRESSES = 23,
+  SZ_OLRIC_URI = 23,
   /**
    * SZ_SYNC_TABLES - tables (comma-separated) centraldata syncs to the edge; the default
    * set when empty
@@ -77,6 +88,24 @@ export enum Sz {
    * edges are signed and verified with; held by centraldata and the edges
    */
   SZ_SYNC_KEY = 25,
+  /**
+   * SZ_OLRIC_ADDRESS - Olric bind of this edge, host:port; Olric names the node after the IP
+   * of the host, which the other nodes dial. Unset: 127.0.0.1:3320 alone,
+   * a private IP of the host on 3320 in a cluster. An unspecified host
+   * (empty, 0.0.0.0, ::) takes a private IP too, never a public one
+   */
+  SZ_OLRIC_ADDRESS = 26,
+  /**
+   * SZ_OLRIC_PASSWORD - password of the Olric port of the edges (AUTH, sent in clear: TLS
+   * only through a proxy); the edges and centraldata hold the same one
+   */
+  SZ_OLRIC_PASSWORD = 27,
+  /**
+   * SZ_GOSSIP_KEY - AES key (16, 24 or 32 bytes, base64 encoded) the memberlist gossip of
+   * the edge cluster is encrypted and authenticated with; the edges of a
+   * cluster hold the same one
+   */
+  SZ_GOSSIP_KEY = 28,
   UNRECOGNIZED = -1,
 }
 
@@ -122,14 +151,14 @@ export function szFromJSON(object: any): Sz {
     case "SZ_ADMIN_PASSWORD":
       return Sz.SZ_ADMIN_PASSWORD;
     case 13:
-    case "SZ_OTLP_INTERNAL_ENDPOINT":
-      return Sz.SZ_OTLP_INTERNAL_ENDPOINT;
+    case "SZ_OTLP_INTERNAL_URI":
+      return Sz.SZ_OTLP_INTERNAL_URI;
     case 14:
-    case "SZ_OTLP_EXTERNAL_ENDPOINT":
-      return Sz.SZ_OTLP_EXTERNAL_ENDPOINT;
+    case "SZ_OTLP_EXTERNAL_URI":
+      return Sz.SZ_OTLP_EXTERNAL_URI;
     case 15:
-    case "SZ_KAFKA_BROKERS":
-      return Sz.SZ_KAFKA_BROKERS;
+    case "SZ_KAFKA_URI":
+      return Sz.SZ_KAFKA_URI;
     case 16:
     case "SZ_ZONE":
       return Sz.SZ_ZONE;
@@ -152,14 +181,23 @@ export function szFromJSON(object: any): Sz {
     case "SZ_TLS_KEY":
       return Sz.SZ_TLS_KEY;
     case 23:
-    case "SZ_OLRIC_ADDRESSES":
-      return Sz.SZ_OLRIC_ADDRESSES;
+    case "SZ_OLRIC_URI":
+      return Sz.SZ_OLRIC_URI;
     case 24:
     case "SZ_SYNC_TABLES":
       return Sz.SZ_SYNC_TABLES;
     case 25:
     case "SZ_SYNC_KEY":
       return Sz.SZ_SYNC_KEY;
+    case 26:
+    case "SZ_OLRIC_ADDRESS":
+      return Sz.SZ_OLRIC_ADDRESS;
+    case 27:
+    case "SZ_OLRIC_PASSWORD":
+      return Sz.SZ_OLRIC_PASSWORD;
+    case 28:
+    case "SZ_GOSSIP_KEY":
+      return Sz.SZ_GOSSIP_KEY;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -195,12 +233,12 @@ export function szToJSON(object: Sz): string {
       return "SZ_ADMIN_USERNAME";
     case Sz.SZ_ADMIN_PASSWORD:
       return "SZ_ADMIN_PASSWORD";
-    case Sz.SZ_OTLP_INTERNAL_ENDPOINT:
-      return "SZ_OTLP_INTERNAL_ENDPOINT";
-    case Sz.SZ_OTLP_EXTERNAL_ENDPOINT:
-      return "SZ_OTLP_EXTERNAL_ENDPOINT";
-    case Sz.SZ_KAFKA_BROKERS:
-      return "SZ_KAFKA_BROKERS";
+    case Sz.SZ_OTLP_INTERNAL_URI:
+      return "SZ_OTLP_INTERNAL_URI";
+    case Sz.SZ_OTLP_EXTERNAL_URI:
+      return "SZ_OTLP_EXTERNAL_URI";
+    case Sz.SZ_KAFKA_URI:
+      return "SZ_KAFKA_URI";
     case Sz.SZ_ZONE:
       return "SZ_ZONE";
     case Sz.SZ_DATA_KEY:
@@ -215,12 +253,18 @@ export function szToJSON(object: Sz): string {
       return "SZ_TLS_CERT";
     case Sz.SZ_TLS_KEY:
       return "SZ_TLS_KEY";
-    case Sz.SZ_OLRIC_ADDRESSES:
-      return "SZ_OLRIC_ADDRESSES";
+    case Sz.SZ_OLRIC_URI:
+      return "SZ_OLRIC_URI";
     case Sz.SZ_SYNC_TABLES:
       return "SZ_SYNC_TABLES";
     case Sz.SZ_SYNC_KEY:
       return "SZ_SYNC_KEY";
+    case Sz.SZ_OLRIC_ADDRESS:
+      return "SZ_OLRIC_ADDRESS";
+    case Sz.SZ_OLRIC_PASSWORD:
+      return "SZ_OLRIC_PASSWORD";
+    case Sz.SZ_GOSSIP_KEY:
+      return "SZ_GOSSIP_KEY";
     case Sz.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";

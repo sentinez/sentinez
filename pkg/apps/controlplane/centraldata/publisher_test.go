@@ -19,6 +19,7 @@ import (
 	"encoding/base64"
 	"testing"
 
+	"github.com/sentinez/pkg/szuri"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -38,7 +39,7 @@ func TestNewPublisherWithoutAddresses(t *testing.T) {
 
 func TestNewPublisherNeedsAKey(t *testing.T) {
 	_, err := NewPublisher(confOf(map[string]string{
-		"SZ_OLRIC_ADDRESSES": "127.0.0.1:3320",
+		"SZ_OLRIC_URI": "olric://127.0.0.1:3320",
 	}))
 
 	require.ErrorIs(t, err, errNoSyncKey)
@@ -47,27 +48,19 @@ func TestNewPublisherNeedsAKey(t *testing.T) {
 func TestNewPublisherRefusesAShortKey(t *testing.T) {
 	short := base64.StdEncoding.EncodeToString([]byte("short"))
 	_, err := NewPublisher(confOf(map[string]string{
-		"SZ_OLRIC_ADDRESSES": "127.0.0.1:3320",
-		"SZ_SYNC_KEY":        short,
+		"SZ_OLRIC_URI": "olric://127.0.0.1:3320",
+		"SZ_SYNC_KEY":  short,
 	}))
 
 	require.Error(t, err)
 }
 
-func TestSplitList(t *testing.T) {
-	tests := []struct {
-		name string
-		give string
-		want []string
-	}{
-		{"empty", "", nil},
-		{"one", "a:1", []string{"a:1"}},
-		{"many", " a:1, b:2 ,,c:3", []string{"a:1", "b:2", "c:3"}},
-	}
+func TestNewPublisherRefusesABareAddress(t *testing.T) {
+	key := base64.StdEncoding.EncodeToString(make([]byte, 32))
+	_, err := NewPublisher(confOf(map[string]string{
+		"SZ_OLRIC_URI": "127.0.0.1:3320",
+		"SZ_SYNC_KEY":  key,
+	}))
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.want, splitList(tt.give))
-		})
-	}
+	require.ErrorIs(t, err, szuri.ErrNoScheme)
 }

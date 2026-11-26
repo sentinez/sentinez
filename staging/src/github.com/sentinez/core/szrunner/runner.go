@@ -157,17 +157,22 @@ func (r *Runner) close() error {
 	return errors.Join(errs...)
 }
 
-// setupOTLP exports the system logs to SZ_OTLP_INTERNAL_ENDPOINT. When
-// it is unset nothing is exported and the returned closer does nothing.
+// setupOTLP exports the system logs to SZ_OTLP_INTERNAL_URI. When it is
+// unset nothing is exported and the returned closer does nothing.
 func setupOTLP(appConf *settingpb.Config,
 ) (func(context.Context) error, error) {
-	endpoint := appConf.Get(settingpb.Sz_SZ_OTLP_INTERNAL_ENDPOINT)
-	if endpoint == "" {
+	uri := appConf.Get(settingpb.Sz_SZ_OTLP_INTERNAL_URI)
+	if uri == "" {
 		return func(context.Context) error { return nil }, nil
 	}
 
-	shutdown, err := szlog.SetupOTLP(context.Background(), szlog.OTLPConfigOf(
-		endpoint, appConf.GetMeta().GetServiceKey()))
+	otlpConf, err := szlog.OTLPConfigOf(uri,
+		appConf.GetMeta().GetServiceKey())
+	if err != nil {
+		return nil, fmt.Errorf("runner: %w", err)
+	}
+
+	shutdown, err := szlog.SetupOTLP(context.Background(), otlpConf)
 	if err != nil {
 		return nil, fmt.Errorf("runner: setup otlp: %w", err)
 	}

@@ -97,7 +97,7 @@ and `Shutdown` is currently a no-op.
 
 ## 6.3 Service discovery (Consul)
 
-[api/client/](../api/client/):
+[core/szgrpc/client/](../staging/src/github.com/sentinez/core/szgrpc/client/):
 
 | Package | Role |
 |---|---|
@@ -106,7 +106,7 @@ and `Shutdown` is currently a no-op.
 | `discovery` | Singleton `GetDiscovery(opt)`: `Register` (ID = UUID, TTL), `Heartbeat`, `Discover` → `host:port` |
 | `connection` | `Conn(addr)` insecure gRPC; `BufConn(bufLis)` via `bufconn` |
 | `local` | `RegisterServiceServer` runs an in-memory gRPC server (`bufconn`, 1 MiB) per service key |
-| [client.go](../api/client/client.go) | `NewIAM` (via Consul), `NewLocalIAM`, `NewLocalGreeter`, `NewLocalRevProxyService` (via bufconn) |
+| [client.go](../staging/src/github.com/sentinez/core/szgrpc/client/client.go) | `NewIAM` (via Consul), `NewLocalIAM`, `NewLocalGreeter`, `NewLocalRevProxyService` (via bufconn) |
 
 On the server side, `szgrpc.Server.Serve` calls `Register` (TTL 15s,
 retries through a circuit breaker, heartbeat every 10s) **only if** the

@@ -23,7 +23,7 @@ import (
 	"github.com/sentinez/core/internal/console"
 	"github.com/sentinez/core/szgrpc/grpcgateway"
 	"github.com/sentinez/core/szgrpc/recovery"
-	"github.com/sentinez/sentinez/api/interceptor/validate"
+	"github.com/sentinez/core/szgrpc/validate"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"

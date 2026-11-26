@@ -16,9 +16,13 @@ package defaults
 
 // Listen addresses used when the matching setting is unset.
 const (
-	HTTPSAddress       = "0.0.0.0:443"
-	DiscoveryAddress   = "0.0.0.0"
-	DiscoveryPort      = 3322
+	HTTPSAddress     = "0.0.0.0:443"
+	DiscoveryAddress = "0.0.0.0"
+	DiscoveryPort    = 3322
+	// OlricLocalAddress the Olric bind of an edge alone, out of reach; an
+	// edge in a cluster binds a private IP of the host
+	OlricLocalAddress  = "127.0.0.1"
+	OlricPort          = 3320
 	EdgeAddress        = "0.0.0.0:8443"
 	APIServerAddress   = "0.0.0.0:9000"
 	RealtimeAddress    = "0.0.0.0:7778"

@@ -23,11 +23,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sentinez/controlplane/pkg/crypto"
 	"github.com/sentinez/core/szhttp"
 	"github.com/sentinez/core/szlimiter"
 	"github.com/sentinez/core/szrule"
 	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/szseal"
 	"github.com/sentinez/pkg/szsync"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	secrulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/secrule/v1"
@@ -81,7 +81,7 @@ func NewMemStore(conf *settingpb.Config) (*MemStore, error) {
 	return _store, nil
 }
 
-func newMemStore(shared *cluster.Cluster, sealer *crypto.Sealer,
+func newMemStore(shared *cluster.Cluster, sealer *szseal.Sealer,
 ) *MemStore {
 	return &MemStore{
 		synced:       newSettingSync(shared, _settingsMap),
@@ -135,7 +135,7 @@ type MemStore struct {
 	certificates *certificates.Certificates
 	// sealer opens the certificates of the settings; nil without
 	// SZ_DATA_KEY
-	sealer *crypto.Sealer
+	sealer *szseal.Sealer
 }
 
 func (m *MemStore) Shutdown(ctx context.Context) error {

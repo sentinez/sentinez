@@ -23,30 +23,33 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestNew(t *testing.T) {
-	kafka := settingpb.Sz_SZ_KAFKA_BROKERS.String()
-	otlp := settingpb.Sz_SZ_OTLP_EXTERNAL_ENDPOINT.String()
-	tests := []struct {
-		name      string
-		giveEnv   map[string]string
-		wantNil   bool
-		wantKafka bool
-		wantOTLP  bool
-	}{
-		{name: "none", wantNil: true},
-		{
-			name:     "otlp",
-			giveEnv:  map[string]string{otlp: "localhost:4317"},
-			wantOTLP: true,
-		},
-		{
-			name:      "kafka wins over otlp",
-			giveEnv:   map[string]string{kafka: "b:9092", otlp: "c:4317"},
-			wantKafka: true,
-		},
-	}
+type newCase struct {
+	name      string
+	giveEnv   map[string]string
+	wantNil   bool
+	wantKafka bool
+	wantOTLP  bool
+}
 
-	for _, tt := range tests {
+var _newCases = []newCase{
+	{name: "none", wantNil: true},
+	{
+		name:     "otlp",
+		giveEnv:  map[string]string{"SZ_OTLP_EXTERNAL_URI": "http://c:4317"},
+		wantOTLP: true,
+	},
+	{
+		name: "kafka wins over otlp",
+		giveEnv: map[string]string{
+			"SZ_KAFKA_URI":         "kafka://b:9092",
+			"SZ_OTLP_EXTERNAL_URI": "http://c:4317",
+		},
+		wantKafka: true,
+	},
+}
+
+func TestNew(t *testing.T) {
+	for _, tt := range _newCases {
 		t.Run(tt.name, func(t *testing.T) {
 			e, err := New(&settingpb.Config{Env: tt.giveEnv})
 			require.NoError(t, err)
@@ -56,6 +59,33 @@ func TestNew(t *testing.T) {
 			assert.Equal(t, tt.wantKafka, e != nil && e.kafka != nil)
 			assert.Equal(t, tt.wantOTLP, e != nil && e.otlp != nil)
 			assert.NotNil(t, e.Option())
+		})
+	}
+}
+
+func TestNewBadURI(t *testing.T) {
+	tests := []struct {
+		name    string
+		giveEnv map[string]string
+	}{
+		{
+			name: "bare kafka brokers",
+			giveEnv: map[string]string{
+				settingpb.Sz_SZ_KAFKA_URI.String(): "b:9092",
+			},
+		},
+		{
+			name: "bare otlp address",
+			giveEnv: map[string]string{
+				settingpb.Sz_SZ_OTLP_EXTERNAL_URI.String(): "c:4317",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := New(&settingpb.Config{Env: tt.giveEnv})
+			require.Error(t, err)
 		})
 	}
 }

@@ -65,7 +65,7 @@ func NewDefaultHandler(ctx context.Context, appConf *settingpb.Config,
 
 	// 2. Initialize any external gRPC Clients via their respective factories
 	// In-process client over bufconn; `client` is
-	// github.com/sentinez/sentinez/api/client (NewLocalGreeter, NewLocalIAM...).
+	// github.com/sentinez/core/szgrpc/client (NewLocalGreeter, NewLocalIAM...).
 	// greeterCli, err := client.NewLocalGreeter(
 	// 	greeterfac.NewDefaultHandler(appConf),
 	// )

@@ -20,7 +20,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sentinez/sentinez/api/client/consul"
+	"github.com/sentinez/pkg/szconsul"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -51,12 +51,12 @@ func TestPublishRetriesUntilWritten(t *testing.T) {
 }
 
 func TestPublishFencedEndsTerm(t *testing.T) {
-	store := &fakeStore{errs: []error{consul.ErrFenced}}
+	store := &fakeStore{errs: []error{szconsul.ErrFenced}}
 	task := newZoneElector(store).Publish("setting/web", "v")
 
 	err := task(context.Background(), Term{Index: 4})
 
-	require.ErrorIs(t, err, consul.ErrFenced)
+	require.ErrorIs(t, err, szconsul.ErrFenced)
 }
 
 func TestPublishStandalone(t *testing.T) {

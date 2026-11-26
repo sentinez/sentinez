@@ -16,69 +16,24 @@ package cluster
 
 import (
 	"context"
-	"io"
-	"log"
-	"strconv"
 	"testing"
 	"time"
 
-	"github.com/olric-data/olric/config"
-	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-// startServing starts a node, joining peer if set, and returns its Cluster,
-// the address of its Olric server (the one a Publisher dials) and the
-// address of its memberlist (the one a peer joins).
-func startServing(t *testing.T, peer string) (*Cluster, string, string) {
-	t.Helper()
-
-	c := &Cluster{node: "edge", ready: make(chan struct{}),
-		done: make(chan struct{})}
-
-	conf := config.New("local")
-	conf.BindAddr = "127.0.0.1"
-	conf.BindPort = freePort(t)
-	conf.MemberlistConfig.BindAddr = "127.0.0.1"
-	conf.MemberlistConfig.BindPort = freePort(t)
-	conf.Logger = log.New(io.Discard, "", 0)
-	conf.LogOutput = io.Discard
-	conf.Started = c.markReady
-	if peer != "" {
-		conf.Peers = []string{peer}
-	}
-
-	require.NoError(t, c.open(conf))
-	c.Start()
-	t.Cleanup(func() { _ = c.Shutdown(context.Background()) })
-
-	<-c.Ready()
-
-	return c, "127.0.0.1:" + strconv.Itoa(conf.BindPort),
-		"127.0.0.1:" + strconv.Itoa(conf.MemberlistConfig.BindPort)
-}
-
 func TestPublisherReachesSubscriber(t *testing.T) {
 	c, addr, _ := startServing(t, "")
+	sub := subscribeTo(t, c)
 	ctx := context.Background()
-
-	sub, err := c.Subscribe(ctx, "test.changes")
-	require.NoError(t, err)
-	defer func() { _ = sub.Close() }()
 
 	pub, err := NewPublisher([]string{addr})
 	require.NoError(t, err)
 	defer func() { _ = pub.Close(ctx) }()
 
 	require.NoError(t, pub.Publish(ctx, "test.changes", []byte("hello")))
-
-	select {
-	case msg := <-sub.Channel():
-		assert.Equal(t, "hello", msg.Payload)
-	case <-time.After(_syncWait):
-		require.FailNow(t, "the subscriber got nothing")
-	}
+	assert.Equal(t, "hello", receive(t, sub))
 }
 
 func TestSubscribeWaitsForTheCluster(t *testing.T) {
@@ -103,39 +58,15 @@ func TestNewPublisherNeedsAddress(t *testing.T) {
 func TestPublisherReachesSubscribersOfOtherNodes(t *testing.T) {
 	a, addrA, memberA := startServing(t, "")
 	b, _, _ := startServing(t, memberA)
+	waitMembers(t, a, 2)
+	subA, subB := subscribeTo(t, a), subscribeTo(t, b)
 	ctx := context.Background()
-	require.Eventually(t, func() bool {
-		members, err := a.client.Members(ctx)
-		return err == nil && len(members) == 2
-	}, _syncWait, 50*time.Millisecond)
-
-	// a node that joined needs a moment before it routes: a subscriber
-	// retries, as the follower of an edge does.
-	subscribe := func(c *Cluster) *redis.PubSub {
-		var sub *redis.PubSub
-		require.Eventually(t, func() bool {
-			var err error
-			sub, err = c.Subscribe(ctx, "test.changes")
-			return err == nil
-		}, _syncWait, 50*time.Millisecond)
-
-		return sub
-	}
-	subA, subB := subscribe(a), subscribe(b)
-	defer func() { _ = subA.Close() }()
-	defer func() { _ = subB.Close() }()
 
 	pub, err := NewPublisher([]string{addrA})
 	require.NoError(t, err)
 	defer func() { _ = pub.Close(ctx) }()
 	require.NoError(t, pub.Publish(ctx, "test.changes", []byte("hello")))
 
-	for name, sub := range map[string]*redis.PubSub{"a": subA, "b": subB} {
-		select {
-		case msg := <-sub.Channel():
-			assert.Equal(t, "hello", msg.Payload, name)
-		case <-time.After(_syncWait):
-			assert.Fail(t, "no message", name)
-		}
-	}
+	assert.Equal(t, "hello", receive(t, subA), "a")
+	assert.Equal(t, "hello", receive(t, subB), "b")
 }

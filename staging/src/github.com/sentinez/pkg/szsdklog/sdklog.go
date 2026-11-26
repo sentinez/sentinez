@@ -23,13 +23,14 @@ import (
 
 	"github.com/sentinez/pkg/szkafka"
 	"github.com/sentinez/pkg/szlog"
+	"github.com/sentinez/pkg/sztls"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
 )
 
-// Exporter is where the edge traffic logs go: Kafka when
-// SZ_KAFKA_BROKERS is set, else OTLP when SZ_OTLP_EXTERNAL_ENDPOINT is
-// set, else nowhere. A nil *Exporter exports nothing.
+// Exporter is where the edge traffic logs go: Kafka when SZ_KAFKA_URI is
+// set, else OTLP when SZ_OTLP_EXTERNAL_URI is set, else nowhere. A nil
+// *Exporter exports nothing.
 type Exporter struct {
 	kafka *szkafka.Producer
 	otlp  *sdklog.LoggerProvider
@@ -42,26 +43,43 @@ func New(conf *settingpb.Config,
 	opts ...szkafka.ConfigOption) (*Exporter, error) {
 	service := conf.GetMeta().GetServiceKey()
 
-	if brokers := conf.Get(settingpb.Sz_SZ_KAFKA_BROKERS); brokers != "" {
-		p, err := szkafka.NewProducer(
-			szkafka.ConfigOf(brokers, service, opts...))
-		if err != nil {
-			return nil, fmt.Errorf("edge log: %w", err)
-		}
-		return &Exporter{kafka: p}, nil
+	if uri := conf.Get(settingpb.Sz_SZ_KAFKA_URI); uri != "" {
+		return newKafka(uri, conf, service, opts)
 	}
 
-	endpoint := conf.Get(settingpb.Sz_SZ_OTLP_EXTERNAL_ENDPOINT)
-	if endpoint == "" {
+	uri := conf.Get(settingpb.Sz_SZ_OTLP_EXTERNAL_URI)
+	if uri == "" {
 		return nil, nil
 	}
-	p, err := szlog.NewOTLPProvider(context.Background(),
-		szlog.OTLPConfigOf(endpoint, service))
+
+	otlpConf, err := szlog.OTLPConfigOf(uri, service)
+	if err != nil {
+		return nil, fmt.Errorf("edge log: %w", err)
+	}
+
+	p, err := szlog.NewOTLPProvider(context.Background(), otlpConf)
 	if err != nil {
 		return nil, fmt.Errorf("edge log: %w", err)
 	}
 
 	return &Exporter{otlp: p}, nil
+}
+
+// newKafka returns the exporter producing to the Kafka of uri, with the
+// TLS files of conf for kafkas.
+func newKafka(uri string, conf *settingpb.Config, service string,
+	opts []szkafka.ConfigOption) (*Exporter, error) {
+	ep, err := szkafka.ParseURI(uri, sztls.FilesOf(conf))
+	if err != nil {
+		return nil, fmt.Errorf("edge log: %w", err)
+	}
+
+	p, err := szkafka.NewProducer(szkafka.ConfigOf(ep, service, opts...))
+	if err != nil {
+		return nil, fmt.Errorf("edge log: %w", err)
+	}
+
+	return &Exporter{kafka: p}, nil
 }
 
 // Option returns the szlog option sending a logger's records to e.

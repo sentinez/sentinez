@@ -18,11 +18,11 @@ package szkafka
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"maps"
 	"slices"
-	"strings"
 	"sync/atomic"
 	"time"
 
@@ -76,6 +76,8 @@ var (
 type Config struct {
 	// Brokers are the seed brokers, e.g. ["localhost:9094"].
 	Brokers []string
+	// TLS dials the brokers with TLS, nil for plaintext.
+	TLS *tls.Config
 	// Topics maps each log type to its topic; nil uses DefaultTopics.
 	// Events of an unmapped type are dropped.
 	Topics map[typepb.LogType]sztopic.Topic
@@ -132,27 +134,19 @@ func WithReplicationFactor(n int16) ConfigOption {
 	return replicationOption(n)
 }
 
-// ConfigOf returns the config producing to the comma-separated brokers as
-// serviceName, with the default topics, set by opts.
-func ConfigOf(brokers, serviceName string, opts ...ConfigOption) Config {
-	cfg := Config{Brokers: Brokers(brokers), ServiceName: serviceName}
+// ConfigOf returns the config producing to ep as serviceName, with the
+// default topics, set by opts.
+func ConfigOf(ep Endpoint, serviceName string, opts ...ConfigOption) Config {
+	cfg := Config{
+		Brokers:     ep.Brokers,
+		TLS:         ep.TLS,
+		ServiceName: serviceName,
+	}
 	for _, opt := range opts {
 		opt.apply(&cfg)
 	}
 
 	return cfg
-}
-
-// Brokers splits the comma-separated brokers, e.g. "a:9092, b:9092".
-func Brokers(brokers string) []string {
-	var seeds []string
-	for b := range strings.SplitSeq(brokers, ",") {
-		if b = strings.TrimSpace(b); b != "" {
-			seeds = append(seeds, b)
-		}
-	}
-
-	return seeds
 }
 
 // DefaultTopics returns the topic of each edge traffic log type.
@@ -190,14 +184,14 @@ func NewProducer(cfg Config) (*Producer, error) {
 		return nil, errNoBrokers
 	}
 
-	client, err := kgo.NewClient(
+	client, err := kgo.NewClient(append([]kgo.Opt{
 		kgo.SeedBrokers(cfg.Brokers...),
 		kgo.ClientID(cfg.ServiceName),
 		kgo.RequiredAcks(kgo.LeaderAck()),
 		kgo.DisableIdempotentWrite(),
 		kgo.ProducerBatchCompression(kgo.ZstdCompression()),
 		kgo.ProducerLinger(_linger),
-	)
+	}, dialOpts(cfg.TLS)...)...)
 	if err != nil {
 		return nil, fmt.Errorf("szkafka: new client: %w", err)
 	}

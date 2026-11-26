@@ -23,8 +23,8 @@ import (
 	"time"
 
 	"github.com/goccy/go-yaml"
+	"github.com/sentinez/pkg/szconsul"
 	"github.com/sentinez/pkg/szlog"
-	"github.com/sentinez/sentinez/api/client/consul"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
@@ -70,7 +70,7 @@ func LoadSetting(appConf *settingpb.Config) (*edgepb.Setting, error) {
 }
 
 func readConsulProxy(uri, path string) ([]byte, error) {
-	client, err := consul.New(uri)
+	client, err := szconsul.New(uri)
 	if err != nil {
 		return nil, fmt.Errorf("consul: %w", err)
 	}
@@ -85,7 +85,7 @@ func readProxy(getter rawGetter, path string) ([]byte, error) {
 	defer cancel()
 
 	data, err := getter.GetRaw(ctx, defaults.ProxyConfigKey)
-	if errors.Is(err, consul.ErrKeyNotFound) {
+	if errors.Is(err, szconsul.ErrKeyNotFound) {
 		szlog.Warnf("proxy config: no consul key %q, reading %s",
 			defaults.ProxyConfigKey, path)
 

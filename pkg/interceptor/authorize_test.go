@@ -21,9 +21,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sentinez/controlplane/pkg/crypto"
 	"github.com/sentinez/controlplane/pkg/headers"
 	"github.com/sentinez/pkg/szconfig"
+	"github.com/sentinez/pkg/sztoken"
 	_ "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	_ "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	_ "github.com/sentinez/sentinez/api/proto/sentinez/apps/collector/v1"
@@ -81,7 +81,7 @@ func tokenOf(t *testing.T, plane typepb.ControlPlane) string {
 	secret := base64.StdEncoding.EncodeToString([]byte("congchualunglinh"))
 	szconfig.SetEnv(settingpb.Sz_SZ_SECRET_KEY, secret)
 
-	token, err := crypto.TokenGenerator(&typepb.Context{
+	token, err := sztoken.TokenGenerator(&typepb.Context{
 		Name:         "tester",
 		UserId:       "user_1",
 		ControlPlane: plane,

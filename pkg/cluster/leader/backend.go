@@ -21,8 +21,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sentinez/pkg/szconsul"
 	"github.com/sentinez/pkg/szlog"
-	"github.com/sentinez/sentinez/api/client/consul"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/sentinez/sentinez/pkg/cluster"
 )
@@ -66,7 +66,7 @@ func New(conf *settingpb.Config) (*Elector, error) {
 		return nil, errNoZone
 	}
 
-	client, err := consul.New(uri)
+	client, err := szconsul.New(uri)
 	if err != nil {
 		return nil, fmt.Errorf("leader: consul: %w", err)
 	}
@@ -84,7 +84,7 @@ func New(conf *settingpb.Config) (*Elector, error) {
 // consulBackend elects through a Consul lock: Consul serves it from its
 // Raft log, so at most one session holds the key at a time.
 type consulBackend struct {
-	client *consul.Client
+	client *szconsul.Client
 	key    string
 	node   string
 }

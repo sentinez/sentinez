@@ -97,7 +97,7 @@ chấp nhận mọi origin) → `Manager.AddClient(id, conn)` → mỗi tin nh�
 
 ## 6.3 Service discovery (Consul)
 
-[api/client/](../../api/client/):
+[core/szgrpc/client/](../../staging/src/github.com/sentinez/core/szgrpc/client/):
 
 | Gói | Vai trò |
 |---|---|
@@ -106,7 +106,7 @@ chấp nhận mọi origin) → `Manager.AddClient(id, conn)` → mỗi tin nh�
 | `discovery` | Singleton `GetDiscovery(opt)`: `Register` (ID = UUID, TTL), `Heartbeat`, `Discover` → `host:port` |
 | `connection` | `Conn(addr)` gRPC insecure; `BufConn(bufLis)` qua `bufconn` |
 | `local` | `RegisterServiceServer` chạy một gRPC server in-memory (`bufconn`, 1 MiB) cho mỗi service key |
-| [client.go](../../api/client/client.go) | `NewIAM` (qua Consul), `NewLocalIAM`, `NewLocalGreeter`, `NewLocalRevProxyService` (qua bufconn) |
+| [client.go](../../staging/src/github.com/sentinez/core/szgrpc/client/client.go) | `NewIAM` (qua Consul), `NewLocalIAM`, `NewLocalGreeter`, `NewLocalRevProxyService` (qua bufconn) |
 
 Phía server, `szgrpc.Server.Serve` sẽ gọi `Register` (đăng ký TTL 15s, retry
 qua circuit breaker, heartbeat mỗi 10s) **nếu** tạo server với

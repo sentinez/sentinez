@@ -28,7 +28,7 @@ var _provider = appconfig.New(appconfig.Spec{
 		settingpb.Sz_SZ_HOSTNAME,
 		settingpb.Sz_SZ_ADDRESS,
 		settingpb.Sz_SZ_SECRET_KEY,
-		settingpb.Sz_SZ_OTLP_INTERNAL_ENDPOINT,
+		settingpb.Sz_SZ_OTLP_INTERNAL_URI,
 	},
 })
 

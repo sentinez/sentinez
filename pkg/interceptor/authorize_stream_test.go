@@ -23,9 +23,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sentinez/controlplane/pkg/crypto"
 	"github.com/sentinez/controlplane/pkg/headers"
 	"github.com/sentinez/pkg/szconfig"
+	"github.com/sentinez/pkg/sztoken"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -74,7 +74,7 @@ func serviceTokenOf(t *testing.T) string {
 	szconfig.SetEnv(settingpb.Sz_SZ_SERVICE_KEY,
 		base64.StdEncoding.EncodeToString([]byte("service-secret")))
 
-	token, err := crypto.ServiceTokenGenerator("edge-1", time.Hour)
+	token, err := sztoken.ServiceTokenGenerator("edge-1", time.Hour)
 	require.NoError(t, err)
 
 	return token

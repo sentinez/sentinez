@@ -22,7 +22,7 @@ import (
 	"testing"
 
 	"github.com/sentinez/core/szrule"
-	"github.com/sentinez/sentinez/api/client/consul"
+	"github.com/sentinez/pkg/szconsul"
 	rulepb "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
 	"github.com/sentinez/sentinez/internal/defaults"
 	"github.com/stretchr/testify/assert"
@@ -61,7 +61,7 @@ func TestReadProxyFromConsul(t *testing.T) {
 }
 
 func TestReadProxyFileWhenConsulHasNoKey(t *testing.T) {
-	getter := &fakeGetter{err: consul.ErrKeyNotFound}
+	getter := &fakeGetter{err: szconsul.ErrKeyNotFound}
 
 	data, err := readProxy(getter, fileWith(t, "from file"))
 

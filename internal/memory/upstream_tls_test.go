@@ -20,8 +20,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sentinez/controlplane/pkg/crypto"
 	"github.com/sentinez/core/szhttp"
+	"github.com/sentinez/pkg/szseal"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -64,7 +64,7 @@ func upstreamSetting(t *edgepb.Tls) *edgepb.Setting {
 	return st
 }
 
-func upstreamStore(t *testing.T, sealer *crypto.Sealer) *MemStore {
+func upstreamStore(t *testing.T, sealer *szseal.Sealer) *MemStore {
 	t.Helper()
 
 	m := newSyncStore()
@@ -120,11 +120,11 @@ func TestLoadReverseProxyDialsWithUpstreamTLS(t *testing.T) {
 // failClosedCase upstream certificates the edge can not dial with.
 type failClosedCase struct {
 	name       string
-	giveSealer *crypto.Sealer
+	giveSealer *szseal.Sealer
 	giveTls    *edgepb.Tls
 }
 
-func failClosedCases(t *testing.T, sealer *crypto.Sealer) []failClosedCase {
+func failClosedCases(t *testing.T, sealer *szseal.Sealer) []failClosedCase {
 	t.Helper()
 
 	ca := issue(t, caTmpl(1, "upstream root"), nil)

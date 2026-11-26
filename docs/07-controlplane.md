@@ -118,11 +118,12 @@ of `postgres.WithTx`. It needs TimescaleDB (`SZ_POSTGRES_URI` on the
 
 ## 7.2 Authentication & authorization
 
-[controlplane/pkg](../staging/src/github.com/sentinez/controlplane/pkg/):
+[controlplane/pkg](../staging/src/github.com/sentinez/controlplane/pkg/), and
+[pkg/sztoken](../staging/src/github.com/sentinez/pkg/sztoken/) for the tokens:
 
 | Package | Purpose |
 |---|---|
-| `crypto` | `TokenGenerator(*typepb.Context)` signs an HS256 JWT with secret = base64-decode(`SZ_SECRET_KEY`); claim `auth` = `Context.String()` (prototext), `exp`, `iat`, `iss` = `sentinez.iam`, `aud` = `sentinez.controlplane`. `BearerTokenVerifier` strips the `Bearer ` prefix and verifies the HMAC (HS256 only), the expiry (required), the issuer and the audience, then parses the `Context` back. `ServiceTokenGenerator(name, ttl)` / `ServiceTokenVerifier` do the same for the service tokens (control plane `SERVICE`), with `SZ_SERVICE_KEY` and `iss` = `aud` = `sentinez.service`, so neither kind passes for the other. `HashPassword`/`CheckPasswordHash` use bcrypt |
+| `sztoken` | `TokenGenerator(*typepb.Context)` signs an HS256 JWT with secret = base64-decode(`SZ_SECRET_KEY`); claim `auth` = `Context.String()` (prototext), `exp`, `iat`, `iss` = `sentinez.iam`, `aud` = `sentinez.controlplane`. `BearerTokenVerifier` strips the `Bearer ` prefix and verifies the HMAC (HS256 only), the expiry (required), the issuer and the audience, then parses the `Context` back. `ServiceTokenGenerator(name, ttl)` / `ServiceTokenVerifier` do the same for the service tokens (control plane `SERVICE`), with `SZ_SERVICE_KEY` and `iss` = `aud` = `sentinez.service`, so neither kind passes for the other. IAM hashes the passwords with bcrypt (`iam/v1/service/password.go`) |
 | `headers` | `GetAuth(ctx)` returns the caller the `authz` interceptor verified, else reads and verifies the `Authorization` metadata (a user token, else a service token) → `Auth{*typepb.Context}`; `Auth.Check(method)` calls `perms.Allow` (fails with `PermissionDenied`); `Auth.IsAdmin()`; `Auth.IsService()`; `WithAuth(ctx, auth)` |
 | `authz` | `Unary()` / `Stream()`, installed together by `ServerOptions()`: the deny-by-default interceptors (see below); `Authorizer`: what a caller may do in the tenants; `Scoped`: limits a list request to the resources of the caller |
 | `loginlimit` | `Limiter`: blocks a key after N failed sign-ins in a window; used by IAM |
@@ -470,8 +471,15 @@ postgres ──trigger: pg_notify(id)──► centraldata ──Olric pub/sub�
 - **Live: Olric.** Centraldata publishes each `Change`, in an `Envelope`
   signed (HMAC-SHA256) with `SZ_SYNC_KEY`, on the channel
   `sentinez.centraldata.changes` of the edge cluster
-  (`SZ_OLRIC_ADDRESSES`, through an Olric cluster client: it is not a
-  member). Pub/sub is at-most-once, so the edge
+  (`SZ_OLRIC_URI`, `olric://` or `olrics://` through a TLS proxy, with
+  an Olric cluster client authenticated by `SZ_OLRIC_PASSWORD`: it is not
+  a member). The hosts of the URI are seeds: a node relays what it is
+  published to the subscribers of every node, so the publisher
+  ([publisher.go](../pkg/cluster/publisher.go)) holds the pub/sub of one
+  seed, the first that answers at startup (a dead seed is skipped, it
+  fails only when none answers). When a publication fails, it moves to the
+  next seed and tries once more; a change lost all the same is caught up
+  by the edge, as below. Pub/sub is at-most-once, so the edge
   ([internal/centralsync](../internal/centralsync/follower.go)) subscribes
   before it calls `Sync`, drops what is not signed with the key or is not
   after the snapshot, and loads again on a gap in the versions, a new epoch,
@@ -511,11 +519,12 @@ postgres ──trigger: pg_notify(id)──► centraldata ──Olric pub/sub�
   leader <node>` (`SyncMap.Origin`).
 - **Trust.** `Sync` is open to `CONTROL_PLANE_SERVICE` only. The edge calls it
   over mTLS (certificates of an internal CA, `hack/mkcert-internal.sh`) with a
-  service token (`go run ./cmd/szservicetoken -name <CN of its certificate>`)
-  signed with `SZ_SERVICE_KEY`, which only centraldata holds: the edge holds
-  the token, not the key. The token's name must be the CN of the certificate
-  of the connection. A service token opens no method that does not list the
-  service control plane, and a user token never opens `Sync`.
+  service token (`szservicetoken -name <CN of its certificate>`, in
+  `staging/src/github.com/sentinez/tools/cmd`) signed with `SZ_SERVICE_KEY`,
+  which only centraldata holds: the edge holds the token, not the key. The
+  token's name must be the CN of the certificate of the connection. A service
+  token opens no method that does not list the service control plane, and a
+  user token never opens `Sync`.
 - **CA certificates** travel as the table holds them: the pem and the private
   key stay sealed with `SZ_DATA_KEY`, which centraldata never reads. The
   edge puts them in `ingress.tls` of the resource's setting by usage
@@ -550,6 +559,7 @@ connection is plaintext; set all three or none.
    `openssl rand -base64 32`; centraldata holds it, the edge never does):
 
    ```sh
+   cd staging/src/github.com/sentinez/tools
    SZ_SERVICE_KEY=... go run ./cmd/szservicetoken -name edge-1 -ttl 720h
    ```
 
@@ -790,7 +800,8 @@ pool vtproto generates for the message (`<Msg>FromVTPool`,
 fields for the next `UnmarshalVT`. A sink collects the events of a batch in
 a `pools.Batch` and defers its `Close`, which releases them all.
 
-Configuration: `SZ_KAFKA_BROKERS` (unset: ingest disabled with a warning,
+Configuration: `SZ_KAFKA_URI`, `kafka://` or `kafkas://` with the client
+certificate of `SZ_TLS_*` (unset: ingest disabled with a warning,
 the gRPC server still runs) and the database of `SZ_POSTGRES_URI`. The
 consumer limits that bound its memory are in
 [09-core-shared.md](09-core-shared.md#szkafka).
@@ -810,4 +821,5 @@ detects `pgx.ErrNoRows`.
 - Repository mocks generated with mockery:
   `iam/v1/repos/{accounts,users}/mock`, `tenant/v1/repos/resources/mock`.
 - `iam/v1/service/service_test.go`, `iam/v1/handler/iam_test.go`,
-  `pkg/crypto/crypto_test.go`.
+  `pkg/sztoken/{token,service}_test.go`, `pkg/szseal/seal_test.go` (module
+  `pkg`).

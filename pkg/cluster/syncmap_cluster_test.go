@@ -16,14 +16,10 @@ package cluster
 
 import (
 	"context"
-	"io"
-	"log"
 	"net"
-	"strconv"
 	"testing"
 	"time"
 
-	"github.com/olric-data/olric/config"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -43,35 +39,6 @@ func freePort(t *testing.T) int {
 	return l.Addr().(*net.TCPAddr).Port
 }
 
-// startNode starts an Olric node on free ports, joining peer if set,
-// and returns its Cluster and memberlist address.
-func startNode(t *testing.T, node, peer string) (*Cluster, string) {
-	t.Helper()
-
-	c := &Cluster{node: node, ready: make(chan struct{}),
-		done: make(chan struct{})}
-
-	conf := config.New("local")
-	conf.BindAddr = "127.0.0.1"
-	conf.BindPort = freePort(t)
-	conf.MemberlistConfig.BindAddr = "127.0.0.1"
-	conf.MemberlistConfig.BindPort = freePort(t)
-	conf.Logger = log.New(io.Discard, "", 0)
-	conf.LogOutput = io.Discard
-	conf.Started = c.markReady
-	if peer != "" {
-		conf.Peers = []string{peer}
-	}
-
-	require.NoError(t, c.open(conf))
-	c.Start()
-	t.Cleanup(func() { _ = c.Shutdown(context.Background()) })
-
-	<-c.Ready()
-
-	return c, "127.0.0.1:" + strconv.Itoa(conf.MemberlistConfig.BindPort)
-}
-
 type serverHook = func(key string, prev, next *edgepb.Resource)
 
 // startPair starts two joined nodes and a started map name on each;
@@ -81,12 +48,9 @@ func startPair(
 ) (*serverMap, *serverMap) {
 	t.Helper()
 
-	a, addr := startNode(t, "edge-a", "")
-	b, _ := startNode(t, "edge-b", addr)
-	require.Eventually(t, func() bool {
-		members, err := a.client.Members(context.Background())
-		return err == nil && len(members) == 2
-	}, _syncWait, 50*time.Millisecond)
+	a, _, member := startNodeWith(t, "edge-a", "", nil)
+	b, _, _ := startNodeWith(t, "edge-b", member, nil)
+	waitMembers(t, a, 2)
 
 	return startMap(t, a, name, nil), startMap(t, b, name, hook)
 }

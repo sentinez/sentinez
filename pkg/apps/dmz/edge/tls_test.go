@@ -19,7 +19,7 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"github.com/sentinez/sentinez/api/client/connection/connectiontest"
+	"github.com/sentinez/core/szgrpc/client/connection/connectiontest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

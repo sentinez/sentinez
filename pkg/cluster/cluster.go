@@ -17,17 +17,15 @@ package cluster
 import (
 	"context"
 	"fmt"
-	"net"
 	"os"
-	"strconv"
 	"sync"
 
+	"github.com/hashicorp/go-sockaddr"
 	"github.com/olric-data/olric"
 	"github.com/olric-data/olric/config"
 	"github.com/sentinez/pkg/szlog"
 	"github.com/sentinez/pkg/szrand"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/sentinez/internal/defaults"
 )
 
 const _nodeIdLen = 6
@@ -39,32 +37,36 @@ var (
 )
 
 // newConfig is the Olric config of appConf; started is called once the
-// node accepts connections, clustered or not.
-func newConfig(appConf *settingpb.Config, started func()) *config.Config {
-	membership := appConf.Get(settingpb.Sz_SZ_MEMBERSHIP_ADDRESS)
-	discovery := appConf.Get(settingpb.Sz_SZ_DISCOVERY_ADDRESS)
-
+// node accepts connections, clustered or not. privateIP picks the IP of an
+// unspecified bind.
+func newConfig(appConf *settingpb.Config, started func(),
+	privateIP privateIPFunc) (*config.Config, error) {
 	conf := config.New("local")
 	conf.Started = started
 
-	if appConf.Clustered() {
-		conf.Peers = []string{membership}
-
-		host, port, err := net.SplitHostPort(discovery)
-		if err == nil {
-			nport, _ := strconv.Atoi(port)
-
-			conf.MemberlistConfig.BindAddr = host
-			conf.MemberlistConfig.BindPort = nport
-			return conf
-		}
-
-		szlog.Warnf("cluster: discovery address invalid, use default")
-		conf.MemberlistConfig.BindAddr = defaults.DiscoveryAddress
-		conf.MemberlistConfig.BindPort = defaults.DiscoveryPort
+	var err error
+	conf.BindAddr, conf.BindPort, err = olricBind(appConf, privateIP)
+	if err != nil {
+		return nil, err
 	}
 
-	return conf
+	if appConf.Clustered() {
+		conf.Peers = []string{
+			appConf.Get(settingpb.Sz_SZ_MEMBERSHIP_ADDRESS),
+		}
+
+		ml := conf.MemberlistConfig
+		if ml.BindAddr, ml.BindPort, err = discoveryBind(appConf,
+			privateIP); err != nil {
+			return nil, err
+		}
+	}
+
+	if err := secure(conf, appConf); err != nil {
+		return nil, err
+	}
+
+	return conf, nil
 }
 
 func NewCluster(appConf *settingpb.Config) (*Cluster, error) {
@@ -85,7 +87,12 @@ func newCluster(appConf *settingpb.Config) (*Cluster, error) {
 		done:  make(chan struct{}),
 	}
 
-	if err := c.open(newConfig(appConf, c.markReady)); err != nil {
+	conf, err := newConfig(appConf, c.markReady, sockaddr.GetPrivateIP)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := c.open(conf); err != nil {
 		return nil, err
 	}
 

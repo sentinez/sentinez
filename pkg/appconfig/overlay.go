@@ -35,6 +35,7 @@ var _envOnly = []settingpb.Sz{
 	settingpb.Sz_SZ_ADDRESS,
 	settingpb.Sz_SZ_MEMBERSHIP_ADDRESS,
 	settingpb.Sz_SZ_DISCOVERY_ADDRESS,
+	settingpb.Sz_SZ_OLRIC_ADDRESS,
 	settingpb.Sz_SZ_ZONE,
 }
 

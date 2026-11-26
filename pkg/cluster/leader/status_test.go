@@ -21,7 +21,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sentinez/sentinez/api/client/consul"
+	"github.com/sentinez/pkg/szconsul"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -106,14 +106,14 @@ func TestPublishStatusWritesEveryInterval(t *testing.T) {
 }
 
 func TestPublishStatusFencedEndsTerm(t *testing.T) {
-	store := &fakeStore{errs: []error{consul.ErrFenced}}
+	store := &fakeStore{errs: []error{szconsul.ErrFenced}}
 	task := newZoneElector(store).PublishStatus()
 
 	// the first write is fenced: the task returns before the deadline
 	ctx, cancel := context.WithTimeout(context.Background(), _waitFor)
 	defer cancel()
 
-	require.ErrorIs(t, task(ctx, Term{Index: 3}), consul.ErrFenced)
+	require.ErrorIs(t, task(ctx, Term{Index: 3}), szconsul.ErrFenced)
 }
 
 func TestPublishStatusRetriesOtherErrors(t *testing.T) {
