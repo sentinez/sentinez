@@ -1,8 +1,9 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { BadgeCheck, Bell, Building2, ChevronsUpDown, LogOut } from 'lucide-react';
+import { BadgeCheck, Bell, Building2, LogOut } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@sentinez/ui/components/avatar';
 import {
@@ -14,6 +15,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@sentinez/ui/components/dropdown-menu';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from '@sentinez/ui/components/drawer';
 import {
   SidebarMenu,
   SidebarMenuButton,
@@ -34,6 +42,7 @@ export function NavUser({
   const t = useTranslations('Sidebar');
   const { isMobile } = useSidebar();
   const handleLogout = useLogout();
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   return (
     <SidebarMenu>
@@ -41,8 +50,8 @@ export function NavUser({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
-              size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground md:h-8 md:p-0"
+              size="default"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground size-8 justify-center p-0"
             >
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage src={user.avatar || undefined} alt={user.name} />
@@ -50,11 +59,6 @@ export function NavUser({
                   {(user.name || user.email).charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs">{user.email}</span>
-              </div>
-              <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -91,7 +95,10 @@ export function NavUser({
                   {t('tenant')}
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onSelect={() => setNotificationsOpen(true)}
+              >
                 <Bell />
                 {t('notifications')}
               </DropdownMenuItem>
@@ -104,6 +111,22 @@ export function NavUser({
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
+      <Drawer
+        direction={isMobile ? 'bottom' : 'right'}
+        open={notificationsOpen}
+        onOpenChange={setNotificationsOpen}
+      >
+        <DrawerContent className="data-[vaul-drawer-direction=bottom]:min-h-[50dvh]">
+          <DrawerHeader>
+            <DrawerTitle>{t('notifications')}</DrawerTitle>
+            <DrawerDescription>{t('notificationsDescription')}</DrawerDescription>
+          </DrawerHeader>
+          <div className="text-muted-foreground flex flex-1 flex-col items-center justify-center gap-2 p-4 text-sm">
+            <Bell className="size-8 opacity-50" />
+            {t('notificationsEmpty')}
+          </div>
+        </DrawerContent>
+      </Drawer>
     </SidebarMenu>
   );
 }

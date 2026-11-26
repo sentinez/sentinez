@@ -26,9 +26,12 @@ export function BreadcrumbBar() {
           {segments.map((path, index) => (
             <Fragment key={index}>
               <BreadcrumbItem
+                // a phone shows only the current page
                 className={cn(
-                  'hidden md:block text-xs',
-                  index === segments.length - 1 && 'text-black dark:text-white',
+                  'text-xs',
+                  index === segments.length - 1
+                    ? 'truncate text-black dark:text-white'
+                    : 'hidden md:block',
                 )}
               >
                 {path === 'd' ? 'dashboard' : path}
