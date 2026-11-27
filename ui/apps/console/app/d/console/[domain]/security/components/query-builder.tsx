@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { createPortal } from 'react-dom';
 import {
   DndContext,
   DragOverlay,
@@ -328,6 +329,10 @@ function QueryBuilderBlocks({ flat, canAdd }: { flat: Expression; canAdd: boolea
   const dndId = React.useId();
   const [dragged, setDragged] = React.useState<{ id: UniqueIdentifier; kind?: DragKind }>();
   const [overGroup, setOverGroup] = React.useState<string>();
+  // the width of the query builder and of what is dragged, when it started:
+  // the copy that follows the pointer is out of the builder, so its
+  // container queries are answered by a container as wide as the builder
+  const [widths, setWidths] = React.useState<{ builder: number; item: number }>();
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
@@ -336,6 +341,7 @@ function QueryBuilderBlocks({ flat, canAdd }: { flat: Expression; canAdd: boolea
   const reset = () => {
     setDragged(undefined);
     setOverGroup(undefined);
+    setWidths(undefined);
   };
   const blockIds = flat.orCondition.map((g) => g.id);
   // the position in the line of the first condition of each block
@@ -354,7 +360,13 @@ function QueryBuilderBlocks({ flat, canAdd }: { flat: Expression; canAdd: boolea
       id={dndId}
       sensors={sensors}
       collisionDetection={collision}
-      onDragStart={({ active }) => setDragged({ id: active.id, kind: kindOf(active.data) })}
+      onDragStart={({ active, activatorEvent }) => {
+        setDragged({ id: active.id, kind: kindOf(active.data) });
+        const target = activatorEvent.target instanceof Element ? activatorEvent.target : null;
+        const builder = target?.closest('[data-slot=query-builder]');
+        const item = active.rect.current.initial?.width;
+        if (builder && item) setWidths({ builder: builder.clientWidth, item });
+      }}
       onDragOver={({ active, over }) =>
         setOverGroup(
           kindOf(active.data) === 'condition' && over ? locate(flat, over.id)?.group : undefined,
@@ -397,23 +409,43 @@ function QueryBuilderBlocks({ flat, canAdd }: { flat: Expression; canAdd: boolea
         </div>
       </SortableContext>
 
-      <DragOverlay>
-        {draggedCondition?.condition && (
-          <QueryBuilderRule
-            condition={draggedCondition.condition}
-            index={draggedCondition.line}
-            handle={<DragHandle label="" />}
-            className="pointer-events-none rounded-md border bg-card p-2 shadow-lg"
-          />
-        )}
-        {draggedBlock && (
-          <Card className="pointer-events-none gap-0 rounded-md py-0 shadow-lg">
-            <BlockHeader handle={<DragHandle label="" />} count={draggedBlock.rules.length} />
-          </Card>
-        )}
-      </DragOverlay>
+      <OverlayPortal>
+        <DragOverlay>
+          <div
+            className="pointer-events-none @container/query-builder"
+            style={widths && { width: widths.builder }}
+          >
+            <div style={widths && { width: widths.item }}>
+              {draggedCondition?.condition && (
+                <QueryBuilderRule
+                  condition={draggedCondition.condition}
+                  index={draggedCondition.line}
+                  handle={<DragHandle label="" />}
+                  className="rounded-md border bg-card p-2 shadow-lg"
+                />
+              )}
+              {draggedBlock && (
+                <Card className="gap-0 rounded-md py-0 shadow-lg">
+                  <BlockHeader handle={<DragHandle label="" />} count={draggedBlock.rules.length} />
+                </Card>
+              )}
+            </div>
+          </div>
+        </DragOverlay>
+      </OverlayPortal>
     </DndContext>
   );
+}
+
+/**
+ * Renders the drag overlay in the body. The overlay is fixed to the viewport,
+ * but in a dialog, whose content is translated to the center, a fixed element
+ * is placed against the dialog instead, so the copy would leave the pointer.
+ */
+function OverlayPortal({ children }: { children: React.ReactNode }) {
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
+  return mounted ? createPortal(children, document.body) : null;
 }
 
 /**

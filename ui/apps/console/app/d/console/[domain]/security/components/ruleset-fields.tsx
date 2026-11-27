@@ -2,7 +2,7 @@
 
 import { ChevronDownIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useMemo, type ReactNode } from 'react';
+import { useMemo } from 'react';
 import { Button } from '@sentinez/ui/components/button';
 import { Checkbox } from '@sentinez/ui/components/checkbox';
 import {
@@ -24,6 +24,7 @@ import { ExclusionsEditor, OverridesEditor, SwitchField } from './ruleset-rules'
 import { useCRSRuleInfos } from './rule-picker';
 import { OptionSelect } from './sec-rule-fields';
 import { FieldGrid } from '@/components/field-grid';
+import { FormSection } from '@/components/form-section';
 
 const PARANOIA_LEVELS = [1, 2, 3, 4];
 
@@ -31,18 +32,6 @@ interface Props {
   value: RulesetFormValue;
   onChange: (patch: Partial<RulesetFormValue>) => void;
   idPrefix?: string;
-}
-
-function Section({ title, hint, children }: { title: string; hint: string; children: ReactNode }) {
-  return (
-    <section className="grid gap-4 border-t pt-6 mt-2">
-      <div className="grid gap-1">
-        <h2 className="text-base font-semibold">{title}</h2>
-        <p className="text-sm text-muted-foreground">{hint}</p>
-      </div>
-      {children}
-    </section>
-  );
 }
 
 function CountField({
@@ -243,7 +232,7 @@ function CrsSections({ value, onChange, idPrefix }: Required<Props>) {
 
   return (
     <>
-      <Section title={t('engine')} hint={t('engineHint')}>
+      <FormSection title={t('engine')} hint={t('engineHint')}>
         <FieldGrid>
           <OptionSelect
             label={t('paranoiaLevel')}
@@ -281,9 +270,9 @@ function CrsSections({ value, onChange, idPrefix }: Required<Props>) {
           checked={value.earlyBlocking}
           onChange={(earlyBlocking) => onChange({ earlyBlocking })}
         />
-      </Section>
+      </FormSection>
 
-      <Section title={t('ruleGroups')} hint={t('ruleGroupsHint')}>
+      <FormSection title={t('ruleGroups')} hint={t('ruleGroupsHint')}>
         <SwitchField
           id={`${idPrefix}-all-categories`}
           label={t('allGroups')}
@@ -308,9 +297,9 @@ function CrsSections({ value, onChange, idPrefix }: Required<Props>) {
             />
           </>
         )}
-      </Section>
+      </FormSection>
 
-      <Section title={t('request')} hint={t('requestHint')}>
+      <FormSection title={t('request')} hint={t('requestHint')}>
         <SwitchField
           id={`${idPrefix}-body-access`}
           label={t('bodyAccess')}
@@ -344,9 +333,9 @@ function CrsSections({ value, onChange, idPrefix }: Required<Props>) {
             onChange={(allowedContentTypes) => onChange({ allowedContentTypes })}
           />
         </FieldGrid>
-      </Section>
+      </FormSection>
 
-      <Section title={t('exclusions')} hint={t('exclusionsHint')}>
+      <FormSection title={t('exclusions')} hint={t('exclusionsHint')}>
         <ExclusionsEditor
           value={value.exclusions}
           onChange={(exclusions) => onChange({ exclusions })}
@@ -354,9 +343,9 @@ function CrsSections({ value, onChange, idPrefix }: Required<Props>) {
           version={value.version}
           idPrefix={`${idPrefix}-exclusion`}
         />
-      </Section>
+      </FormSection>
 
-      <Section title={t('overrides')} hint={t('overridesHint')}>
+      <FormSection title={t('overrides')} hint={t('overridesHint')}>
         <OverridesEditor
           value={value.overrides}
           onChange={(overrides) => onChange({ overrides })}
@@ -364,7 +353,7 @@ function CrsSections({ value, onChange, idPrefix }: Required<Props>) {
           version={value.version}
           idPrefix={`${idPrefix}-override`}
         />
-      </Section>
+      </FormSection>
     </>
   );
 }

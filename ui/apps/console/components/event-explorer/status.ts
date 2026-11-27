@@ -6,13 +6,15 @@ export type StatusClass = 's2xx' | 's3xx' | 's4xx' | 's5xx' | 'other';
 
 export const STATUS_CLASSES: StatusClass[] = ['s2xx', 's3xx', 's4xx', 's5xx', 'other'];
 
-// The color of each class: success, redirect, client error, server error
+// The color of each class: success, redirect, client error, server error.
+// The Tailwind palette of the theme globals.css imports, as its variables
+// (Tailwind keeps those named in the sources), not copies of their values
 export const STATUS_COLORS: Record<StatusClass, string> = {
-  s2xx: 'oklch(0.696 0.17 162.48)',
-  s3xx: 'oklch(0.685 0.169 237.323)',
-  s4xx: 'oklch(0.769 0.188 70.08)',
-  s5xx: 'oklch(0.637 0.237 25.331)',
-  other: 'oklch(0.705 0.015 286.067)',
+  s2xx: 'var(--color-emerald-500)',
+  s3xx: 'var(--color-sky-500)',
+  s4xx: 'var(--color-amber-500)',
+  s5xx: 'var(--color-red-500)',
+  other: 'var(--color-zinc-400)',
 };
 
 // The class of a status, `other` for the informational and invalid ones

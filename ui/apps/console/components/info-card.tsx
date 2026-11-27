@@ -66,3 +66,21 @@ export function InfoRow({
     </div>
   );
 }
+
+/**
+ * A caption over its value, laid out by a `<dl>` grid (the InfoRow of a
+ * card with fields side by side); `mono` is for ids
+ */
+export function InfoField({
+  label,
+  mono,
+  className,
+  children,
+}: Readonly<{ label: string; mono?: boolean; className?: string; children: ReactNode }>) {
+  return (
+    <div className={cn('grid min-w-0 grid-cols-1 content-start gap-1', className)}>
+      <dt className="text-xs text-muted-foreground">{label}</dt>
+      <dd className={cn('text-sm wrap-break-word', mono && 'font-mono break-all')}>{children}</dd>
+    </div>
+  );
+}

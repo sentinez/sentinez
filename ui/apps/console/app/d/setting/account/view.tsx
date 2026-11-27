@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useState } from 'react';
+import { useState } from 'react';
 
 import { User } from '@sentinez/proto/sentinez/apps/iam/v1/model';
 import { ControlPlane } from '@sentinez/proto/sentinez/types/v1/known';
@@ -18,10 +18,10 @@ import {
 } from '@sentinez/ui/components/card';
 import IsLoading from '@sentinez/ui/components/common/loading';
 import { Input } from '@sentinez/ui/components/input';
-import { cn } from '@sentinez/ui/lib/utils';
 import { ShieldCheck } from 'lucide-react';
 import { useFormatter, useTranslations } from 'next-intl';
 
+import { InfoField } from '@/components/info-card';
 import { PageLayout, PageLayoutContent, PageLayoutHeader } from '@/components/page-layout';
 import { useLocalUser } from '@/components/user-menu';
 import { useApi } from '@/hooks/use-api';
@@ -124,21 +124,6 @@ function NameRow({
   );
 }
 
-/** A caption over its value; `mono` is for ids */
-function Field({
-  label,
-  mono,
-  className,
-  children,
-}: Readonly<{ label: string; mono?: boolean; className?: string; children: ReactNode }>) {
-  return (
-    <div className={cn('grid min-w-0 grid-cols-1 content-start gap-1', className)}>
-      <dt className="text-muted-foreground text-xs">{label}</dt>
-      <dd className={cn('text-sm wrap-break-word', mono && 'font-mono break-all')}>{children}</dd>
-    </div>
-  );
-}
-
 export default function View() {
   const t = useTranslations('Setting');
   const tc = useTranslations('Common');
@@ -204,16 +189,16 @@ export default function View() {
               </AvatarFallback>
             </Avatar>
             <dl className="grid content-start gap-4 sm:grid-cols-2">
-              <Field label={t('fullName')} className="sm:col-span-2">
+              <InfoField label={t('fullName')} className="sm:col-span-2">
                 <NameRow userId={id} name={name} onSaved={onNameSaved} />
-              </Field>
-              <Field label={t('email')}>{email || na}</Field>
-              <Field label={t('controlPlane')}>{controlPlane}</Field>
-              <Field label={t('createdAt')}>{dateOf(createdAt)}</Field>
-              <Field label={t('updatedAt')}>{dateOf(updatedAt)}</Field>
-              <Field label={t('userId')} mono className="sm:col-span-2">
+              </InfoField>
+              <InfoField label={t('email')}>{email || na}</InfoField>
+              <InfoField label={t('controlPlane')}>{controlPlane}</InfoField>
+              <InfoField label={t('createdAt')}>{dateOf(createdAt)}</InfoField>
+              <InfoField label={t('updatedAt')}>{dateOf(updatedAt)}</InfoField>
+              <InfoField label={t('userId')} mono className="sm:col-span-2">
                 {id || na}
-              </Field>
+              </InfoField>
             </dl>
           </CardContent>
           <CardFooter className="bg-muted/50 overflow-x-auto border-t">

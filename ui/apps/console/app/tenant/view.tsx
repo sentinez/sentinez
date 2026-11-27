@@ -122,7 +122,12 @@ export default function View() {
             <Carousel
               opts={CAROUSEL_OPTS}
               setApi={scrollable.setApi}
-              className="w-full max-w-sm sm:mx-12 sm:w-(--carousel-width) sm:max-w-[calc(100%-6rem)]"
+              className={cn(
+                'w-full max-w-sm sm:mx-12 sm:w-(--carousel-width) sm:max-w-[calc(100%-6rem)]',
+                // the viewport that clips the slides: room for the hover lift
+                // and shadow of the cards
+                '*:data-[slot=carousel-content]:-my-8 *:data-[slot=carousel-content]:py-8',
+              )}
               style={
                 {
                   '--carousel-width': `${visible * SLIDE_WIDTH - SLIDE_GUTTER}px`,
@@ -130,8 +135,6 @@ export default function View() {
               }
             >
               <CarouselContent
-                // room for the hover lift and shadow of the cards
-                viewportClassName="-my-8 py-8"
                 className="flex-col gap-4 sm:flex-row sm:gap-0"
                 aria-busy={isLoading}
               >

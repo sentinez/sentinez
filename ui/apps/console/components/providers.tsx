@@ -4,6 +4,7 @@ import * as React from 'react';
 import { MotionConfig } from 'motion/react';
 import { ThemeProvider as NextThemesProvider } from 'next-themes';
 import { Toaster } from '@sentinez/ui/components/sonner';
+import { TooltipProvider } from '@sentinez/ui/components/tooltip';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -16,7 +17,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         enableColorScheme
         // enableSystem={true}
       >
-        {children}
+        <TooltipProvider>{children}</TooltipProvider>
         <Toaster
           position="top-right"
           toastOptions={{

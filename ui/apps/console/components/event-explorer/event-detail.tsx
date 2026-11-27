@@ -12,7 +12,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@sentinez/ui/components/sheet';
-import { toast } from '@/lib/toast';
+import { useCopy } from '@/hooks/use-copy';
 import { InfoRow } from '@/components/info-card';
 import { CodeBlock } from '@/components/code-block';
 import { RequestLink } from './request-link';
@@ -56,7 +56,6 @@ export function EventDetail<T>({ config, event, onClose }: Props<T>) {
   const t = useTranslations('Explorer');
   const format = useFormatter();
   const [view, setView] = useState<View>('table');
-  const [copied, setCopied] = useState(false);
   const { detail } = config;
   const json = useMemo(
     () => (event ? JSON.stringify(detail.toJSON(event), null, 2) : ''),
@@ -64,15 +63,7 @@ export function EventDetail<T>({ config, event, onClose }: Props<T>) {
   );
   const request = event ? config.requestOf?.(event) : undefined;
 
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(json);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    } catch {
-      toast.error(t('copyFailed'));
-    }
-  };
+  const { copied, copy } = useCopy();
 
   return (
     <Sheet open={!!event} onOpenChange={(open) => !open && onClose()}>
@@ -97,7 +88,7 @@ export function EventDetail<T>({ config, event, onClose }: Props<T>) {
               </Button>
             ))}
             {view === 'json' && (
-              <Button size="sm" variant="ghost" className="ml-auto" onClick={copy}>
+              <Button size="sm" variant="ghost" className="ml-auto" onClick={() => copy(json)}>
                 {copied ? <Check /> : <Copy />}
                 {copied ? t('detail.copied') : t('detail.copy')}
               </Button>

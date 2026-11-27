@@ -7,6 +7,7 @@ import { Fragment, useMemo, useState } from 'react';
 
 import { Button } from '@sentinez/ui/components/button';
 import {
+  Command,
   CommandDialog,
   CommandEmpty,
   CommandGroup,
@@ -14,6 +15,7 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
+  CommandShortcut,
 } from '@sentinez/ui/components/command';
 import { cn } from '@sentinez/ui/lib/utils';
 
@@ -83,37 +85,41 @@ export function NavSearch({ className }: { className?: string }) {
       </Button>
 
       <CommandDialog open={open} onOpenChange={setOpen} title={ts('search')}>
-        <CommandInput placeholder={ts('search')} />
-        {/* built only while open: closed, the dialog renders nothing */}
-        {open && (
-          <CommandList>
-            <CommandEmpty>{tc('noResults')}</CommandEmpty>
-            {groups.map(({ heading, pages }, i) => (
-              <Fragment key={heading}>
-                {i > 0 && <CommandSeparator />}
-                <CommandGroup heading={heading}>
-                  {pages.map(({ url, icon: Icon, title, trail }) => (
-                    <CommandItem
-                      key={url}
-                      // unique, and matched on every title of the trail
-                      value={url}
-                      keywords={[title, ...trail]}
-                      onSelect={() => go(url)}
-                    >
-                      {Icon && <Icon />}
-                      <span>{title}</span>
-                      {trail.length > 1 && (
-                        <span className="text-muted-foreground ml-auto text-xs">
-                          {trail.slice(1).join(' › ')}
-                        </span>
-                      )}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </Fragment>
-            ))}
-          </CommandList>
-        )}
+        {/* CommandDialog is only the dialog: the menu is a Command of its own */}
+        <Command>
+          <CommandInput placeholder={ts('search')} />
+          {/* built only while open: closed, the dialog renders nothing */}
+          {open && (
+            <CommandList>
+              <CommandEmpty>{tc('noResults')}</CommandEmpty>
+              {groups.map(({ heading, pages }, i) => (
+                <Fragment key={heading}>
+                  {i > 0 && <CommandSeparator />}
+                  <CommandGroup heading={heading}>
+                    {pages.map(({ url, icon: Icon, title, trail }) => (
+                      <CommandItem
+                        key={url}
+                        // unique, and matched on every title of the trail
+                        value={url}
+                        keywords={[title, ...trail]}
+                        onSelect={() => go(url)}
+                      >
+                        {Icon && <Icon />}
+                        <span>{title}</span>
+                        {trail.length > 1 && (
+                          // as a shortcut: the item then shows no check mark
+                          <CommandShortcut className="tracking-normal">
+                            {trail.slice(1).join(' › ')}
+                          </CommandShortcut>
+                        )}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </Fragment>
+              ))}
+            </CommandList>
+          )}
+        </Command>
       </CommandDialog>
     </>
   );

@@ -6,7 +6,7 @@ import type { LineProps, XAxisProps, YAxisProps } from 'recharts';
 type Curve = NonNullable<LineProps['type']>;
 
 // The chart palette, the --chart-N tokens of packages/ui globals.css: the
-// brand blue first, then darker greys. Series of a meaning of their own
+// shades of the brand blue. Series of a meaning of their own
 // (HTTP status, rule action) take STATUS_COLORS (event-explorer/status).
 export const CHART_COLORS = [
   'var(--chart-1)',

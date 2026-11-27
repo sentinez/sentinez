@@ -34,7 +34,7 @@ const VISITOR_AREA = {
 function useVisitorConfig() {
   const t = useTranslations('Resource');
   return useMemo(
-    () => seriesConfig([{ id: 'visitors', label: t('visitors'), color: CHART_COLORS[0] }]),
+    () => seriesConfig([{ id: 'visitors', label: t('visitors'), color: CHART_COLORS[3] }]),
     [t],
   );
 }
