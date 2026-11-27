@@ -1,10 +1,13 @@
 import { useFormatter, useTranslations } from 'next-intl';
 import Language from './language';
+import { Notifications } from './notifications';
 import { BAR_HEIGHT } from '@/lib/layout-bars';
 import { cn } from '@sentinez/ui/lib/utils';
 
 type PreviewHeaderProps = {
   username: string;
+  /** Slid up out of view: see useHideOnScroll */
+  hidden?: boolean;
 };
 
 export default function PreviewHeader(props: PreviewHeaderProps) {
@@ -12,8 +15,13 @@ export default function PreviewHeader(props: PreviewHeaderProps) {
   const format = useFormatter();
 
   return (
+    // stuck to the top of the window, slid up when hidden
     <div
-      className="flex w-full items-start bg-background text-foreground"
+      className={cn(
+        'sticky top-0 z-20 flex w-full items-start bg-background text-foreground',
+        'transition-transform duration-150 ease-out',
+        props.hidden && '-translate-y-full',
+      )}
       id="screenshot"
       data-theme-scope="preview"
     >
@@ -47,9 +55,13 @@ export default function PreviewHeader(props: PreviewHeaderProps) {
           </div>
 
           <div className="flex min-w-0 items-center gap-5">
-            <span className="truncate text-xs text-muted-foreground transition-colors hover:text-foreground">
-              {format.dateTime(new Date(), { dateStyle: 'full' })}
-            </span>
+            {/* the date and, beside it, the notifications bell */}
+            <div className="flex min-w-0 items-center gap-1">
+              <span className="truncate text-xs text-muted-foreground transition-colors hover:text-foreground">
+                {format.dateTime(new Date(), { dateStyle: 'full' })}
+              </span>
+              <Notifications />
+            </div>
 
             <Language />
           </div>

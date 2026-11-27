@@ -102,9 +102,11 @@ message Rule {
 // (or third...) or group, each one carrying its own: (a or b) and (c or d)
 // is {or_condition: [a, b], and_condition: [{or_condition: [c, d]}]}.
 message AndCondition {
-  repeated Rule rules = 1;
-  repeated AndCondition or_condition = 2;
-  repeated AndCondition and_condition = 3;
+  // Identifies the group in the editor of the console: the edge ignores it
+  string id = 1; // @gotags: yaml:"-"
+  repeated Rule rules = 2;
+  repeated AndCondition or_condition = 3;
+  repeated AndCondition and_condition = 4;
 }
 
 message Expression {

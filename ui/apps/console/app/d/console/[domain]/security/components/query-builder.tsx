@@ -2,15 +2,37 @@
 
 import * as React from 'react';
 import {
-  BracesIcon,
-  ChevronDownIcon,
-  CirclePlusIcon,
-  FolderPlusIcon,
-  PlusIcon,
-  Trash2Icon,
-} from 'lucide-react';
+  DndContext,
+  DragOverlay,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  pointerWithin,
+  useDroppable,
+  useSensor,
+  useSensors,
+  type CollisionDetection,
+  type UniqueIdentifier,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { BracesIcon, ChevronDownIcon, GripVerticalIcon, PlusIcon, Trash2Icon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { Badge } from '@sentinez/ui/components/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from '@sentinez/ui/components/dropdown-menu';
 import { Button } from '@sentinez/ui/components/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@sentinez/ui/components/card';
 import {
   Collapsible,
   CollapsibleContent,
@@ -27,6 +49,7 @@ import {
 import { cn } from '@sentinez/ui/lib/utils';
 
 import {
+  AndCondition,
   Condition,
   ConditionSchema,
   Expression,
@@ -45,28 +68,23 @@ import {
   textToList,
 } from '@/lib/type/rule-schema';
 import {
-  CondNode,
-  GroupNode,
-  GroupOp,
+  Join,
   MAX_CONDITIONS,
-  MAX_GROUP_DEPTH,
+  addCondition,
   countConditions,
-  createCondNode,
-  createGroupNode,
-  exprOf,
-  isEmptyGroup,
-  mapNode,
-  removeNode,
-  treeOf,
-} from '@/lib/type/rule-tree';
+  createEmptyExpression,
+  flatten,
+  moveCondition,
+  moveGroup,
+  moveToNewGroup,
+  removeCondition,
+  setJoin,
+  updateCondition,
+} from '@/lib/type/rule-expr';
 import { useSecurityOptions } from '@/hooks/use-security-options';
 import { CodeBlock } from '@/components/code-block';
 
 // ─── Factories ───────────────────────────────────────────────────────────────
-
-/** An expression of a single empty condition */
-export const createEmptyExpression = (): Expression =>
-  exprOf(createGroupNode('all', [createCondNode()]));
 
 /**
  * Sources that need a named key input (header name, query param, etc.),
@@ -83,18 +101,23 @@ const SOURCES_WITH_KEY = new Set<FieldSource>([
 // ─── Context ─────────────────────────────────────────────────────────────────
 
 type QueryBuilderContextValue = {
-  root: GroupNode;
-  /** The expression the tree makes: what the form receives */
+  /** The expression, flat: undefined when flattening it makes too many conditions */
+  flat?: Expression;
+  /** What the form receives: the flat expression, or the value as it came */
   expression: Expression;
   schema?: ConditionSchema;
-  conditionCount: number;
-  addCondition: (groupId: string) => void;
-  addGroup: (groupId: string) => void;
-  /** Whether the group was added in this editor: it opens unfolded, a loaded one folded */
-  isAdded: (groupId: string) => boolean;
-  setOp: (groupId: string, op: GroupOp) => void;
-  remove: (nodeId: string) => void;
-  updateCondition: (condId: string, updater: (condition: Condition) => Condition) => void;
+  /** Appends an empty condition to the group g, or as a new group past the last */
+  add: (g: number) => void;
+  /** Sets the operator before the condition r of the group g */
+  setJoin: (g: number, r: number, join: Join) => void;
+  remove: (id: string) => void;
+  /** Moves the condition to the index of the group toGroup (an id) */
+  move: (id: string, toGroup: string, toIndex: number) => void;
+  /** Moves the condition out of its group, into a new one last */
+  moveToNew: (id: string) => void;
+  /** Moves the group (an id) to the index */
+  moveBlock: (id: string, toIndex: number) => void;
+  updateCondition: (id: string, updater: (condition: Condition) => Condition) => void;
 };
 
 const QueryBuilderContext = React.createContext<QueryBuilderContextValue | null>(null);
@@ -106,9 +129,6 @@ export function useQueryBuilder() {
   }
   return context;
 }
-
-const mapGroup = (root: GroupNode, id: string, fn: (g: GroupNode) => GroupNode): GroupNode =>
-  mapNode(root, id, (n) => (n.kind === 'group' ? fn(n) : n));
 
 // ─── QueryBuilder (root) ─────────────────────────────────────────────────────
 
@@ -126,15 +146,15 @@ export type QueryBuilderProps = Omit<React.ComponentProps<'div'>, 'defaultValue'
 };
 
 /**
- * Editor of a rule expression: a tree of groups, each matching when all or
- * any of its conditions and groups do. It takes the width of the form it
- * sits in (a container query lays a condition out on one row only when there
- * is room), so it fits the narrow create / update pages. Without children it
- * shows the editor and a folded JSON preview.
+ * Editor of a rule expression, on the Expression itself: a line of its
+ * conditions, AND between two rules of a group, OR between two groups. It takes the width of the
+ * form it sits in (a container query lays a condition out on one row only
+ * when there is room), so it fits the narrow create / update pages. Without
+ * children it shows the editor and a folded JSON preview.
  *
- * The tree is the state, so the order and the ids of the nodes survive an
- * edit; it is only rebuilt when `value` changes to something the builder did
- * not emit itself.
+ * The flat expression is the state, so the ids of the conditions survive an
+ * edit; it is only flattened again when `value` changes to something the
+ * builder did not emit itself.
  */
 export function QueryBuilder({
   value: valueProp,
@@ -145,14 +165,11 @@ export function QueryBuilder({
   children,
   ...props
 }: QueryBuilderProps) {
-  const [root, setRoot] = React.useState(() =>
-    treeOf(valueProp ?? defaultValue ?? createEmptyExpression()),
-  );
+  const initial = valueProp ?? defaultValue ?? createEmptyExpression();
+  const [flat, setFlat] = React.useState(() => flatten(initial));
   // the last expression from or to the parent: it is the same object while
   // nothing changed, so only another value is serialised to compare
-  const [emitted, setEmitted] = React.useState(valueProp);
-  // only read when a group mounts, so a ref: adding to it re-renders nothing
-  const addedGroups = React.useRef(new Set<string>());
+  const [emitted, setEmitted] = React.useState(initial);
   const onValueChangeRef = React.useRef(onValueChange);
   React.useEffect(() => {
     onValueChangeRef.current = onValueChange;
@@ -164,48 +181,31 @@ export function QueryBuilder({
     valueProp !== emitted &&
     JSON.stringify(valueProp) !== JSON.stringify(emitted)
   ) {
-    setRoot(treeOf(valueProp));
+    setFlat(flatten(valueProp));
     setEmitted(valueProp);
   }
 
   const context = React.useMemo<QueryBuilderContextValue>(() => {
-    const commit = (next: GroupNode) => {
-      const expression = exprOf(next);
-      setRoot(next);
-      setEmitted(expression);
-      onValueChangeRef.current?.(expression);
+    const commit = (next: Expression) => {
+      setFlat(next);
+      setEmitted(next);
+      onValueChangeRef.current?.(next);
     };
+    const edit = (fn: (expr: Expression) => Expression) => flat && commit(fn(flat));
 
     return {
-      root,
-      expression: exprOf(root),
+      flat,
+      expression: flat ?? emitted,
       schema,
-      conditionCount: countConditions(root),
-      addCondition: (groupId) =>
-        commit(
-          mapGroup(root, groupId, (g) => ({ ...g, children: [...g.children, createCondNode()] })),
-        ),
-      addGroup: (groupId) =>
-        commit(
-          mapGroup(root, groupId, (g) => {
-            // a group opens with a condition, and the other operator: the
-            // same one would only be flattened into its parent
-            const added = createGroupNode(g.op === 'all' ? 'any' : 'all', [createCondNode()]);
-            addedGroups.current.add(added.id);
-            return { ...g, children: [...g.children, added] };
-          }),
-        ),
-      isAdded: (groupId) => addedGroups.current.has(groupId),
-      setOp: (groupId, op) => commit(mapGroup(root, groupId, (g) => ({ ...g, op }))),
-      remove: (nodeId) => commit(removeNode(root, nodeId)),
-      updateCondition: (condId, updater) =>
-        commit(
-          mapNode(root, condId, (n) =>
-            n.kind === 'cond' ? { ...n, condition: updater(n.condition) } : n,
-          ),
-        ),
+      add: (g) => edit((e) => addCondition(e, g)),
+      setJoin: (g, r, join) => edit((e) => setJoin(e, g, r, join)),
+      remove: (id) => edit((e) => removeCondition(e, id)),
+      move: (id, toGroup, toIndex) => edit((e) => moveCondition(e, id, toGroup, toIndex)),
+      moveToNew: (id) => edit((e) => moveToNewGroup(e, id)),
+      moveBlock: (id, toIndex) => edit((e) => moveGroup(e, id, toIndex)),
+      updateCondition: (id, updater) => edit((e) => updateCondition(e, id, updater)),
     };
-  }, [root, schema]);
+  }, [flat, emitted, schema]);
 
   return (
     <QueryBuilderContext.Provider value={context}>
@@ -227,8 +227,17 @@ export function QueryBuilder({
 
 // ─── QueryBuilderEditor ──────────────────────────────────────────────────────
 
+/**
+ * The groups of the expression as blocks, an OR line between two of them;
+ * in a block, its conditions, an AND line between two of them. Then the
+ * button appending a block. Setting a line to the other operator splits a
+ * block, or merges it into the one before.
+ */
 export function QueryBuilderEditor({ className, ...props }: React.ComponentProps<'div'>) {
-  const { root } = useQueryBuilder();
+  const t = useTranslations('QueryBuilder');
+  const { flat } = useQueryBuilder();
+  const count = countConditions(flat);
+  const canAdd = count < MAX_CONDITIONS;
 
   return (
     <div
@@ -236,220 +245,407 @@ export function QueryBuilderEditor({ className, ...props }: React.ComponentProps
       className={cn('flex min-w-0 flex-col gap-3', className)}
       {...props}
     >
-      <QueryBuilderGroup node={root} depth={0} />
+      {!flat ? (
+        <p className="text-sm text-balance text-muted-foreground">
+          {t('tooLarge', { n: MAX_CONDITIONS })}
+        </p>
+      ) : (
+        <>
+          {count === 0 ? (
+            <p className="py-2 text-center text-sm text-balance text-muted-foreground">
+              {t('noConditions')}
+            </p>
+          ) : (
+            <QueryBuilderBlocks flat={flat} canAdd={canAdd} />
+          )}
+          <QueryBuilderActions count={count} groups={flat.orCondition.length} canAdd={canAdd} />
+        </>
+      )}
     </div>
   );
 }
 
-// ─── QueryBuilderGroup ───────────────────────────────────────────────────────
+/**
+ * Where a condition is: its group, its index there, and its position in the
+ * line; for a group id, the end of that group.
+ */
+function locate(
+  expr: Expression,
+  id: UniqueIdentifier,
+): { group: string; index: number; line: number; condition?: Condition } | undefined {
+  let line = 0;
+  for (const g of expr.orCondition) {
+    if (g.id === id) return { group: g.id, index: g.rules.length, line: line + g.rules.length };
+    const r = g.rules.findIndex((rule) => rule.condition?.id === id);
+    if (r >= 0) return { group: g.id, index: r, line: line + r, condition: g.rules[r]?.condition };
+    line += g.rules.length;
+  }
+  return undefined;
+}
 
-export type QueryBuilderGroupProps = Omit<React.ComponentProps<'div'>, 'children'> & {
-  node: GroupNode;
-  /** 0 for the root group */
-  depth: number;
+/** What is dragged or dropped on: the data of its draggable / droppable */
+type DragKind = 'condition' | 'block' | 'new-block';
+const kindOf = (data: { current?: { kind?: DragKind } } | undefined) => data?.current?.kind;
+
+/** The drop zone making a new block of a condition */
+const NEW_BLOCK = 'query-builder-new-block';
+
+/**
+ * A sortable condition or block: the ref and style of its element, the
+ * props of its handle, and whether it is the one dragged.
+ */
+function useSortableItem(id: string, kind: DragKind) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id, data: { kind } });
+
+  return {
+    ref: setNodeRef,
+    style: { transform: CSS.Translate.toString(transform), transition },
+    handle: { ref: setActivatorNodeRef, ...attributes, ...listeners },
+    isDragging,
+  };
+}
+
+/**
+ * The blocks, an OR line between two of them. Each is dragged by the handle
+ * of its header (or moved with the keyboard) to another place among them.
+ * A condition is dragged by its handle to another place of its block, into
+ * another block, or out of them all into a new one: dropped on a condition,
+ * it takes its place; on a block, it goes to its end; on the drop zone shown
+ * under the blocks while it is dragged, it makes a new block. A copy of what
+ * is dragged follows the pointer, and where it would go is outlined.
+ */
+function QueryBuilderBlocks({ flat, canAdd }: { flat: Expression; canAdd: boolean }) {
+  const { setJoin, move, moveToNew, moveBlock } = useQueryBuilder();
+  // a stable id, so its accessibility ids match between server and client
+  const dndId = React.useId();
+  const [dragged, setDragged] = React.useState<{ id: UniqueIdentifier; kind?: DragKind }>();
+  const [overGroup, setOverGroup] = React.useState<string>();
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  const reset = () => {
+    setDragged(undefined);
+    setOverGroup(undefined);
+  };
+  const blockIds = flat.orCondition.map((g) => g.id);
+  // the position in the line of the first condition of each block
+  const starts: number[] = [];
+  let start = 0;
+  for (const g of flat.orCondition) {
+    starts.push(start);
+    start += g.rules.length;
+  }
+  const draggedCondition = dragged?.kind === 'condition' ? locate(flat, dragged.id) : undefined;
+  const draggedBlock =
+    dragged?.kind === 'block' ? flat.orCondition.find((g) => g.id === dragged.id) : undefined;
+
+  return (
+    <DndContext
+      id={dndId}
+      sensors={sensors}
+      collisionDetection={collision}
+      onDragStart={({ active }) => setDragged({ id: active.id, kind: kindOf(active.data) })}
+      onDragOver={({ active, over }) =>
+        setOverGroup(
+          kindOf(active.data) === 'condition' && over ? locate(flat, over.id)?.group : undefined,
+        )
+      }
+      onDragCancel={reset}
+      onDragEnd={({ active, over }) => {
+        reset();
+        if (!over) return;
+        const id = String(active.id);
+        if (kindOf(active.data) === 'block') {
+          const to = blockIds.indexOf(String(over.id));
+          if (to >= 0) moveBlock(id, to);
+          return;
+        }
+        if (over.id === NEW_BLOCK) return moveToNew(id);
+        const to = locate(flat, over.id);
+        if (to) move(id, to.group, to.index);
+      }}
+    >
+      <SortableContext
+        id="query-builder-blocks"
+        items={blockIds}
+        strategy={verticalListSortingStrategy}
+      >
+        <div className="grid min-w-0 gap-2">
+          {flat.orCondition.map((group, g) => (
+            <React.Fragment key={group.id}>
+              {g > 0 && <JoinDivider value="or" onValueChange={(join) => setJoin(g, 0, join)} />}
+              <QueryBuilderBlock
+                group={group}
+                g={g}
+                start={starts[g] ?? 0}
+                canAdd={canAdd}
+                isTarget={overGroup === group.id && draggedCondition?.group !== group.id}
+              />
+            </React.Fragment>
+          ))}
+          {draggedCondition && <NewBlockZone />}
+        </div>
+      </SortableContext>
+
+      <DragOverlay>
+        {draggedCondition?.condition && (
+          <QueryBuilderRule
+            condition={draggedCondition.condition}
+            index={draggedCondition.line}
+            handle={<DragHandle label="" />}
+            className="pointer-events-none rounded-md border bg-card p-2 shadow-lg"
+          />
+        )}
+        {draggedBlock && (
+          <Card className="pointer-events-none gap-0 rounded-md py-0 shadow-lg">
+            <BlockHeader handle={<DragHandle label="" />} count={draggedBlock.rules.length} />
+          </Card>
+        )}
+      </DragOverlay>
+    </DndContext>
+  );
+}
+
+/**
+ * Where a drop lands. A block goes among the blocks: the closest one. A
+ * condition goes on the condition under the pointer; between the conditions
+ * of a block, on the closest of them; on the new block zone or a block, on
+ * it; out of them all (or with the keyboard), on the closest condition.
+ */
+const collision: CollisionDetection = (args) => {
+  const containers = args.droppableContainers;
+  if (kindOf(args.active.data) === 'block') {
+    const blocks = containers.filter((c) => kindOf(c.data) === 'block');
+    return closestCenter({ ...args, droppableContainers: blocks });
+  }
+
+  const within = pointerWithin(args);
+  const conditions = within.filter((c) => {
+    const container = containers.find((d) => d.id === c.id);
+    return kindOf(container?.data) === 'condition';
+  });
+  if (conditions.length > 0) return conditions;
+  const target = within[0];
+  if (!target) {
+    const all = containers.filter((c) => kindOf(c.data) === 'condition');
+    return closestCenter({ ...args, droppableContainers: all });
+  }
+  if (target.id === NEW_BLOCK) return [target];
+  const inBlock = containers.filter((c) => c.data.current?.sortable?.containerId === target.id);
+  return inBlock.length > 0 ? closestCenter({ ...args, droppableContainers: inBlock }) : [target];
+};
+
+/** The zone under the blocks a condition is dropped on to make a new block */
+function NewBlockZone() {
+  const t = useTranslations('QueryBuilder');
+  const { setNodeRef, isOver } = useDroppable({ id: NEW_BLOCK, data: { kind: 'new-block' } });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={cn(
+        'flex min-h-14 items-center justify-center gap-2 rounded-md border border-dashed px-3 text-center text-sm text-muted-foreground',
+        isOver && 'border-primary bg-primary/5 text-primary',
+      )}
+    >
+      <PlusIcon className="size-4 shrink-0" aria-hidden />
+      <span className="text-balance">{t('dropNewBlock')}</span>
+    </div>
+  );
+}
+
+/**
+ * The header of a block, and of the copy of it following the pointer: its
+ * drag handle and the number of its conditions, 4px above and below the
+ * handle (40px, 44px when wide).
+ */
+function BlockHeader({ handle, count }: { handle: React.ReactNode; count: number }) {
+  const t = useTranslations('QueryBuilder');
+
+  return (
+    <CardHeader className="flex items-center gap-1 px-2.5 py-1">
+      {handle}
+      <CardTitle className="text-xs font-medium text-muted-foreground">
+        {t('conditionCount', { n: count })}
+      </CardTitle>
+    </CardHeader>
+  );
+}
+
+type QueryBuilderBlockProps = {
+  group: AndCondition;
+  /** Position of the group in the expression */
+  g: number;
+  /** Position of its first condition in the line, for the labels */
+  start: number;
+  canAdd: boolean;
+  /** Whether a condition dragged from another block would be dropped in it */
+  isTarget?: boolean;
 };
 
 /**
- * A group: its children, joined by the operator on the bracket at their
- * left, and the buttons that add to it. The root is the bare list; a nested
- * group is a box headed by its fold toggle and the number of conditions it
- * holds, its remove button beside it like that of a condition. A nested
- * group starts folded when loaded, unfolded when just added; folded, it
- * also shows its operator.
+ * A group as a block, a Card: a header with the handle moving it and the
+ * number of its conditions, its conditions joined by AND lines, and a footer
+ * with the button appending one. The spacing of the card is tightened to fit
+ * the form, and the three line up on the same left edge. A condition dropped
+ * on it, not on one of its conditions, goes last.
  */
-export function QueryBuilderGroup({ node, depth, className, ...props }: QueryBuilderGroupProps) {
+function QueryBuilderBlock({ group, g, start, canAdd, isTarget }: QueryBuilderBlockProps) {
   const t = useTranslations('QueryBuilder');
-  const { isAdded, remove } = useQueryBuilder();
-  // a loaded group starts folded, one just added unfolded to be filled in
-  const [open, setOpen] = React.useState(() => isAdded(node.id));
-
-  if (depth === 0) {
-    return (
-      <div
-        role="group"
-        aria-label={t('groupN', { n: 1 })}
-        data-slot="query-builder-group"
-        data-op={node.op}
-        className={cn('grid min-w-0 gap-3', className)}
-        {...props}
-      >
-        <QueryBuilderGroupBody node={node} depth={depth} />
-        <QueryBuilderGroupActions node={node} depth={depth} />
-      </div>
-    );
-  }
+  const { add, setJoin } = useQueryBuilder();
+  const sortable = useSortableItem(group.id, 'block');
+  const ids = group.rules.flatMap((r) => (r.condition ? [r.condition.id] : []));
 
   return (
-    <Collapsible
-      open={open}
-      onOpenChange={setOpen}
+    <Card
+      ref={sortable.ref}
+      style={sortable.style}
       role="group"
-      aria-label={t('groupN', { n: depth + 1 })}
-      data-slot="query-builder-group"
-      data-op={node.op}
-      className={cn('flex min-w-0 items-start gap-1', className)}
-      {...props}
-    >
-      <div className="grid min-w-0 flex-1 gap-2 rounded-md border bg-muted/30 p-1.5 @md/query-builder:p-2">
-        {/* the fold toggle heads the box, with what the group holds */}
-        <div className="flex min-w-0 items-center gap-2">
-          <CollapsibleTrigger asChild>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="min-w-0 px-2 text-muted-foreground"
-            >
-              <ChevronDownIcon
-                className={cn('transition-transform', !open && '-rotate-90')}
-                aria-hidden
-              />
-              <span className="truncate text-xs">
-                {t('conditionCount', { n: countConditions(node) })}
-              </span>
-            </Button>
-          </CollapsibleTrigger>
-          {!open && <GroupOpSelect node={node} />}
-        </div>
-        <CollapsibleContent className="grid min-w-0 gap-2">
-          <QueryBuilderGroupBody node={node} depth={depth} />
-          <QueryBuilderGroupActions node={node} depth={depth} />
-        </CollapsibleContent>
-      </div>
-
-      <RemoveButton label={t('removeGroup')} onClick={() => remove(node.id)} />
-    </Collapsible>
-  );
-}
-
-/**
- * The children of a group. With two or more, a bracket at their left joins
- * them, its operator in the middle.
- */
-function QueryBuilderGroupBody({ node, depth }: { node: GroupNode; depth: number }) {
-  const t = useTranslations('QueryBuilder');
-
-  if (isEmptyGroup(node)) {
-    return (
-      <p className="py-2 text-center text-sm text-balance text-muted-foreground">
-        {depth === 0 ? t('noConditions') : t('emptyGroup')}
-      </p>
-    );
-  }
-
-  const joined = node.children.length > 1;
-
-  // One grid for both widths. Narrow (a phone), the operator heads the
-  // children and a thin bracket joins them, to leave the width to the
-  // conditions; wider, the operator sits in the middle of the bracket.
-  return (
-    <div
+      aria-label={t('blockN', { n: g + 1 })}
+      data-slot="query-builder-block"
       className={cn(
-        'grid min-w-0 grid-cols-1',
-        joined &&
-          'grid-cols-[0.75rem_minmax(0,1fr)] gap-y-2 @md/query-builder:grid-cols-[4rem_minmax(0,1fr)] @md/query-builder:gap-y-0',
+        'min-w-0 gap-0 overflow-hidden rounded-md py-0 shadow-none transition-shadow',
+        isTarget && 'ring-2 ring-primary/40',
+        sortable.isDragging && 'opacity-40',
       )}
     >
-      {joined && (
-        <>
-          <div className="relative col-start-1 row-start-2 @md/query-builder:row-start-1">
-            {/* from the middle of the first child to the middle of the last */}
-            <div
-              aria-hidden
-              className={cn(
-                'absolute inset-y-4 left-0 right-1 rounded-l-md border-y border-l border-primary/40',
-                '@md/query-builder:inset-y-[27px] @md/query-builder:left-1/2',
-              )}
-            />
-          </div>
-          <div className="z-1 col-span-2 row-start-1 flex @md/query-builder:col-span-1 @md/query-builder:col-start-1 @md/query-builder:self-center">
-            <GroupOpSelect node={node} />
-          </div>
-        </>
-      )}
-      <div
-        className={cn(
-          'grid min-w-0 gap-2',
-          joined && 'col-start-2 row-start-2 @md/query-builder:row-start-1',
-        )}
-      >
-        {node.children.map((child, i) =>
-          child.kind === 'group' ? (
-            <QueryBuilderGroup key={child.id} node={child} depth={depth + 1} />
-          ) : (
-            <QueryBuilderRule key={child.id} node={child} index={i} />
-          ),
-        )}
-      </div>
-    </div>
-  );
-}
+      <BlockHeader
+        handle={<DragHandle label={t('moveBlock', { n: g + 1 })} {...sortable.handle} />}
+        count={group.rules.length}
+      />
 
-/**
- * The buttons adding a condition or a group: outlined under the root, light
- * in a nested group.
- */
-function QueryBuilderGroupActions({ node, depth }: { node: GroupNode; depth: number }) {
-  const t = useTranslations('QueryBuilder');
-  const { conditionCount, addCondition, addGroup } = useQueryBuilder();
-  const isRoot = depth === 0;
-  const canAddCondition = conditionCount < MAX_CONDITIONS;
-  const canAddGroup = canAddCondition && depth < MAX_GROUP_DEPTH;
+      <CardContent className="grid min-w-0 gap-2 px-2.5 py-2">
+        <SortableContext id={group.id} items={ids} strategy={verticalListSortingStrategy}>
+          {group.rules.map(({ condition }, r) =>
+            condition ? (
+              <React.Fragment key={condition.id}>
+                {r > 0 && <JoinDivider value="and" onValueChange={(join) => setJoin(g, r, join)} />}
+                <SortableRule condition={condition} index={start + r} />
+              </React.Fragment>
+            ) : null,
+          )}
+        </SortableContext>
+      </CardContent>
 
-  return (
-    <div className="grid gap-1">
-      <div className="flex flex-wrap gap-2">
-        <Button
-          type="button"
-          variant={isRoot ? 'outline' : 'ghost'}
-          size="sm"
-          className={cn('max-w-full', !isRoot && 'text-primary hover:text-primary')}
-          disabled={!canAddCondition}
-          onClick={() => addCondition(node.id)}
-        >
-          {isRoot ? <CirclePlusIcon aria-hidden /> : <PlusIcon aria-hidden />}
-          <span className="truncate">{t('addCondition')}</span>
-        </Button>
+      {/* as high as the header (40px, 44px when wide), the button centred in it */}
+      <CardFooter className="h-10 px-0.5 py-0 @md/query-builder:h-11">
         <Button
           type="button"
           variant="ghost"
           size="sm"
-          className="max-w-full text-primary hover:text-primary"
-          disabled={!canAddGroup}
-          onClick={() => addGroup(node.id)}
+          // 2px of the footer and 8px of its own put the icon on the left
+          // edge of the fields (10px), its hover inside the card
+          className="h-7 max-w-full text-primary hover:text-primary has-[>svg]:px-2"
+          disabled={!canAdd}
+          onClick={() => add(g)}
         >
-          <FolderPlusIcon aria-hidden />
-          <span className="truncate">{t('addGroup')}</span>
+          <PlusIcon aria-hidden />
+          <span className="truncate">{t('and')}</span>
         </Button>
-      </div>
-      {isRoot && !canAddCondition && (
-        <p className="text-xs text-muted-foreground">{t('maxConditions', { n: MAX_CONDITIONS })}</p>
-      )}
+      </CardFooter>
+    </Card>
+  );
+}
+
+/**
+ * The operator joining two conditions (AND, in a block) or two blocks (OR),
+ * on the left: a primary Badge opening a menu to set it, on a vertical line
+ * from the one above to the one below. The line runs under the drag handles;
+ * an OR one is inset by the padding of a block, to its header handle.
+ */
+function JoinDivider({
+  value,
+  onValueChange,
+}: {
+  value: Join;
+  onValueChange: (join: Join) => void;
+}) {
+  const t = useTranslations('QueryBuilder');
+  const label = { and: t('and'), or: t('or') };
+  // in a column as wide as a drag handle, so the line is under its icon
+  const line = (
+    <div aria-hidden className="flex w-8 justify-center @md/query-builder:w-9">
+      <div className="h-3 w-0.5 origin-center scale-x-50 bg-border" />
+    </div>
+  );
+
+  return (
+    // over the gaps of the list (-my-2), so the line touches both sides
+    <div className={cn('-my-2 grid justify-start', value === 'or' && 'pl-2.5')}>
+      {line}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Badge asChild className="cursor-pointer font-semibold hover:bg-primary/90">
+            <button type="button" aria-label={`${t('operator')}: ${label[value]}`}>
+              {/* as wide as the longer label, so switching does not resize it */}
+              <span className="grid justify-items-center *:col-start-1 *:row-start-1">
+                <span>{label[value]}</span>
+                <span aria-hidden className="invisible">
+                  {label.and}
+                </span>
+                <span aria-hidden className="invisible">
+                  {label.or}
+                </span>
+              </span>
+              <ChevronDownIcon aria-hidden />
+            </button>
+          </Badge>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="min-w-28">
+          <DropdownMenuRadioGroup
+            value={value}
+            onValueChange={(join) => onValueChange(join as Join)}
+          >
+            <DropdownMenuRadioItem value="and">{label.and}</DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value="or">{label.or}</DropdownMenuRadioItem>
+          </DropdownMenuRadioGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      {line}
     </div>
   );
 }
 
-/** The operator of a group, as a pill: AND (all of) or OR (any of) */
-function GroupOpSelect({ node }: { node: GroupNode }) {
+/** The button appending a block: OR, or the first condition while there is none */
+function QueryBuilderActions({
+  count,
+  groups,
+  canAdd,
+}: {
+  count: number;
+  groups: number;
+  canAdd: boolean;
+}) {
   const t = useTranslations('QueryBuilder');
-  const { setOp } = useQueryBuilder();
+  const { add } = useQueryBuilder();
 
   return (
-    <Select value={node.op} onValueChange={(op) => setOp(node.id, op as GroupOp)}>
-      <SelectTrigger
-        aria-label={t('operator')}
-        className={cn(
-          'h-6! gap-1 rounded-full border-primary/40 bg-background px-2 text-xs font-semibold',
-          'text-primary shadow-none dark:bg-background [&_svg]:size-3 [&_svg]:text-primary',
-        )}
+    <div className="grid gap-1">
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="max-w-full justify-self-start"
+        disabled={!canAdd}
+        onClick={() => add(groups)}
       >
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="all">{t('and')}</SelectItem>
-        <SelectItem value="any">{t('or')}</SelectItem>
-      </SelectContent>
-    </Select>
+        <PlusIcon aria-hidden />
+        <span className="truncate">{count === 0 ? t('addCondition') : t('addBlock')}</span>
+      </Button>
+      {!canAdd && (
+        <p className="text-xs text-muted-foreground">{t('maxConditions', { n: MAX_CONDITIONS })}</p>
+      )}
+    </div>
   );
 }
 
@@ -468,27 +664,79 @@ function RemoveButton({ label, onClick }: { label: string; onClick: () => void }
   );
 }
 
+type DragHandleProps = Omit<React.ComponentProps<typeof Button>, 'children'> & {
+  label: string;
+};
+
+/** The handle a condition is dragged by, or moved with the keyboard */
+function DragHandle({ label, className, ...props }: DragHandleProps) {
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
+      className={cn(
+        'size-8 shrink-0 cursor-grab touch-none text-muted-foreground active:cursor-grabbing',
+        '@md/query-builder:size-9',
+        className,
+      )}
+      aria-label={label}
+      {...props}
+    >
+      <GripVerticalIcon className="size-4" aria-hidden />
+    </Button>
+  );
+}
+
+/**
+ * A condition of a block that can be moved: by its handle, with the pointer
+ * or the keyboard. While dragged, it stays faded in its place.
+ */
+function SortableRule({ condition, index }: { condition: Condition; index: number }) {
+  const t = useTranslations('QueryBuilder');
+  const sortable = useSortableItem(condition.id, 'condition');
+
+  return (
+    <QueryBuilderRule
+      ref={sortable.ref}
+      style={sortable.style}
+      className={cn(sortable.isDragging && 'opacity-40')}
+      condition={condition}
+      index={index}
+      handle={<DragHandle label={t('moveCondition', { n: index + 1 })} {...sortable.handle} />}
+    />
+  );
+}
+
 // ─── QueryBuilderRule ────────────────────────────────────────────────────────
 
 export type QueryBuilderRuleProps = Omit<React.ComponentProps<'div'>, 'children'> & {
-  node: CondNode;
-  /** Position in its group, for the labels */
+  condition: Condition;
+  /** Position in the line, for the labels */
   index: number;
+  /** The handle moving it, left of its fields */
+  handle?: React.ReactNode;
 };
 
 /**
- * One condition: source, key (header, query... name), operator and value.
- * Two per row in a narrow form, all on one row when the builder is wide.
+ * One condition: source, key (header, query... name), operator and value,
+ * and the button removing it, on one line. Two fields per row in a narrow
+ * form, all on one row when the builder is wide.
  * The condition schema of the builder, when it has one, decides which
  * sources, keys and operators it offers and how the value is entered; an
  * edit keeps the condition inside it.
  */
-export function QueryBuilderRule({ node, index, className, ...props }: QueryBuilderRuleProps) {
+export function QueryBuilderRule({
+  condition,
+  index,
+  handle,
+  className,
+  ...props
+}: QueryBuilderRuleProps) {
   const t = useTranslations('QueryBuilder');
   const { fieldSourceOptions } = useSecurityOptions();
   const { schema, updateCondition, remove } = useQueryBuilder();
 
-  const condition = node.condition;
   const spec = conditionSpec(schema, condition);
   const needsKey = schema ? acceptsKey(spec.source) : SOURCES_WITH_KEY.has(condition.source);
   const sourceOptions = schema
@@ -498,7 +746,7 @@ export function QueryBuilderRule({ node, index, className, ...props }: QueryBuil
     ? OPERATOR_OPTIONS.filter((o) => spec.variant?.operators.some((s) => s.operator === o.value))
     : OPERATOR_OPTIONS;
   const update = (patch: Partial<Condition>) =>
-    updateCondition(node.id, (c) => conformCondition(schema, { ...c, ...patch }));
+    updateCondition(condition.id, (c) => conformCondition(schema, { ...c, ...patch }));
 
   return (
     <div
@@ -509,7 +757,16 @@ export function QueryBuilderRule({ node, index, className, ...props }: QueryBuil
       className={cn('flex min-w-0 items-start gap-1', className)}
       {...props}
     >
-      <div className="grid min-w-0 flex-1 grid-cols-1 gap-2 rounded-md border bg-background p-1.5 @md/query-builder:p-2 @xs/query-builder:grid-cols-2 @2xl/query-builder:grid-cols-4">
+      {handle}
+      {/* the operator column is narrow, to leave the width to the inputs */}
+      <div
+        className={cn(
+          'grid min-w-0 flex-1 grid-cols-1 gap-2',
+          needsKey
+            ? '@xs/query-builder:grid-cols-[minmax(0,1fr)_7.5rem] @2xl/query-builder:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_7.5rem_minmax(0,1.5fr)]'
+            : '@xs/query-builder:grid-cols-[7.5rem_minmax(0,1fr)] @2xl/query-builder:grid-cols-[minmax(0,1fr)_7.5rem_minmax(0,2fr)]',
+        )}
+      >
         <EnumSelect
           aria-label={t('source')}
           value={condition.source}
@@ -544,19 +801,16 @@ export function QueryBuilderRule({ node, index, className, ...props }: QueryBuil
           spec={spec.operator}
           value={condition.value}
           onValueChange={(value) => update({ value })}
-          // with a key, the value has a row of its own on two columns; without
-          // one, it takes the rest of the row on four
+          // with a key, the value has a row of its own on two columns
           className={
-            needsKey
-              ? '@xs/query-builder:col-span-2 @2xl/query-builder:col-span-1'
-              : '@2xl/query-builder:col-span-2'
+            needsKey ? '@xs/query-builder:col-span-2 @2xl/query-builder:col-span-1' : undefined
           }
         />
       </div>
 
       <RemoveButton
         label={t('removeCondition', { n: index + 1 })}
-        onClick={() => remove(node.id)}
+        onClick={() => remove(condition.id)}
       />
     </div>
   );

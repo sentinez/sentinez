@@ -19,7 +19,7 @@ import {
   providerOf,
   type RulesetSource,
 } from '@/lib/type/security';
-import { createEmptyExpression } from './query-builder';
+import { createEmptyExpression } from '@/lib/type/rule-expr';
 import type { ValidationTranslator } from './sec-rule-fields';
 
 export interface ExclusionTargetFormValue {

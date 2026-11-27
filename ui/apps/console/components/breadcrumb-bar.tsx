@@ -19,8 +19,12 @@ export function BreadcrumbBar() {
   const segments = useMemo(() => pathname.split('/').filter((path) => path !== ''), [pathname]);
 
   return (
-    <div className={cn('flex shrink-0 items-center gap-2 border-b px-1', BAR_HEIGHT)}>
-      <SidebarTrigger className="-ml-1 cursor-pointer" />
+    // the padding of PageLayoutHeader, and the trigger centred in a slot as
+    // wide as its back button (size-9): the two icons line up
+    <div className={cn('flex shrink-0 items-center gap-2 border-b px-1 md:px-2', BAR_HEIGHT)}>
+      <div className="grid w-9 shrink-0 place-items-center">
+        <SidebarTrigger className="cursor-pointer" />
+      </div>
       <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
       <Breadcrumb>
         <BreadcrumbList>

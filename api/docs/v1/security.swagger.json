@@ -1187,6 +1187,11 @@
     "v1AndCondition": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "string",
+          "description": "@gotags: yaml:\"-\"",
+          "title": "Identifies the group in the editor of the console: the edge ignores it"
+        },
         "rules": {
           "type": "array",
           "items": {

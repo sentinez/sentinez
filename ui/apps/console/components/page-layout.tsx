@@ -24,7 +24,9 @@ export function PageLayoutHeader({ children, title, subtitle }: PageLayoutHeader
   const t = useTranslations('Common');
 
   return (
-    <div className="sticky top-0 bg-background z-1">
+    // stuck under the top bar of ConsoleSidebarInset while it shows, at the
+    // top of the window when it hides (0 outside of it)
+    <div className="sticky top-[var(--console-preview-offset,0px)] z-1 bg-background transition-[top] duration-150 ease-out">
       <BreadcrumbBar />
       <div
         className={cn(

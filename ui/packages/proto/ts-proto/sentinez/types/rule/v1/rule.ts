@@ -528,6 +528,8 @@ export interface Rule {
  * is {or_condition: [a, b], and_condition: [{or_condition: [c, d]}]}.
  */
 export interface AndCondition {
+  /** Identifies the group in the editor of the console: the edge ignores it */
+  id: string;
   rules: Rule[];
   orCondition: AndCondition[];
   andCondition: AndCondition[];
@@ -861,11 +863,14 @@ export const Rule: MessageFns<Rule> = {
 };
 
 function createBaseAndCondition(): AndCondition {
-  return { rules: [], orCondition: [], andCondition: [] };
+  return { id: "", rules: [], orCondition: [], andCondition: [] };
 }
 
 export const AndCondition: MessageFns<AndCondition> = {
   encode(message: AndCondition, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(34).string(message.id);
+    }
     for (const v of message.rules) {
       Rule.encode(v!, writer.uint32(10).fork()).join();
     }
@@ -891,6 +896,14 @@ export const AndCondition: MessageFns<AndCondition> = {
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
           case 1: {
             if (tag !== 10) {
               break;
@@ -929,6 +942,7 @@ export const AndCondition: MessageFns<AndCondition> = {
 
   fromJSON(object: any): AndCondition {
     return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
       rules: globalThis.Array.isArray(object?.rules) ? object.rules.map((e: any) => Rule.fromJSON(e)) : [],
       orCondition: globalThis.Array.isArray(object?.orCondition)
         ? object.orCondition.map((e: any) => AndCondition.fromJSON(e))
@@ -945,6 +959,9 @@ export const AndCondition: MessageFns<AndCondition> = {
 
   toJSON(message: AndCondition): unknown {
     const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
     if (message.rules?.length) {
       obj.rules = message.rules.map((e) => Rule.toJSON(e));
     }
@@ -962,6 +979,7 @@ export const AndCondition: MessageFns<AndCondition> = {
   },
   fromPartial<I extends Exact<DeepPartial<AndCondition>, I>>(object: I): AndCondition {
     const message = createBaseAndCondition();
+    message.id = object.id ?? "";
     message.rules = object.rules?.map((e) => Rule.fromPartial(e)) || [];
     message.orCondition = object.orCondition?.map((e) => AndCondition.fromPartial(e)) || [];
     message.andCondition = object.andCondition?.map((e) => AndCondition.fromPartial(e)) || [];

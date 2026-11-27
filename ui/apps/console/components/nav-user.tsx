@@ -1,9 +1,8 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { BadgeCheck, Bell, Building2, LogOut } from 'lucide-react';
+import { BadgeCheck, Building2, LogOut } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@sentinez/ui/components/avatar';
 import {
@@ -15,13 +14,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@sentinez/ui/components/dropdown-menu';
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-} from '@sentinez/ui/components/drawer';
 import {
   SidebarMenu,
   SidebarMenuButton,
@@ -42,7 +34,6 @@ export function NavUser({
   const t = useTranslations('Sidebar');
   const { isMobile } = useSidebar();
   const handleLogout = useLogout();
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   return (
     <SidebarMenu>
@@ -95,13 +86,6 @@ export function NavUser({
                   {t('tenant')}
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem
-                className="cursor-pointer"
-                onSelect={() => setNotificationsOpen(true)}
-              >
-                <Bell />
-                {t('notifications')}
-              </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
@@ -111,22 +95,6 @@ export function NavUser({
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
-      <Drawer
-        direction={isMobile ? 'bottom' : 'right'}
-        open={notificationsOpen}
-        onOpenChange={setNotificationsOpen}
-      >
-        <DrawerContent className="data-[vaul-drawer-direction=bottom]:min-h-[50dvh]">
-          <DrawerHeader>
-            <DrawerTitle>{t('notifications')}</DrawerTitle>
-            <DrawerDescription>{t('notificationsDescription')}</DrawerDescription>
-          </DrawerHeader>
-          <div className="text-muted-foreground flex flex-1 flex-col items-center justify-center gap-2 p-4 text-sm">
-            <Bell className="size-8 opacity-50" />
-            {t('notificationsEmpty')}
-          </div>
-        </DrawerContent>
-      </Drawer>
     </SidebarMenu>
   );
 }

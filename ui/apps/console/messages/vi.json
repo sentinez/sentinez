@@ -735,8 +735,7 @@
   "QueryBuilder": {
     "or": "HOẶC",
     "and": "VÀ",
-    "removeGroup": "Xoá nhóm",
-    "noConditions": "Nhóm này chưa có điều kiện nào.",
+    "noConditions": "Chưa có điều kiện nào.",
     "conditionN": "Điều kiện {n}",
     "removeCondition": "Xóa điều kiện {n}",
     "source": "Nguồn",
@@ -756,11 +755,14 @@
     },
     "json": "JSON",
     "addCondition": "Thêm điều kiện",
-    "groupN": "Nhóm {n}",
-    "addGroup": "Thêm nhóm",
-    "emptyGroup": "Nhóm rỗng: sẽ bị bỏ khi lưu.",
     "maxConditions": "Tối đa {n} điều kiện.",
-    "conditionCount": "{n} điều kiện"
+    "conditionCount": "{n} điều kiện",
+    "tooLarge": "Các điều kiện này khai triển ra hơn {n} điều kiện, quá nhiều để sửa ở đây: xem JSON.",
+    "blockN": "Khối {n}",
+    "addBlock": "Khối HOẶC",
+    "moveCondition": "Di chuyển điều kiện {n}",
+    "moveBlock": "Di chuyển khối {n}",
+    "dropNewBlock": "Thả vào đây để tạo khối HOẶC mới"
   },
   "Validation": {
     "nameDescriptionRequired": "Tên và mô tả là bắt buộc",

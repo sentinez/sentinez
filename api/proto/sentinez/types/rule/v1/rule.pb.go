@@ -491,7 +491,7 @@ type Condition struct {
 	// The source of the field
 	// Example: "User-Agent" or "country"
 	Source FieldSource `protobuf:"varint,1,opt,name=source,proto3,enum=sentinez.types.rule.v1.FieldSource" json:"source,omitempty" yaml:"source"` // @gotags: yaml:"source"
-	Key    string      `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty" yaml:"key"`                                                   // @gotags: yaml:"key"
+	Key    string      `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty" yaml:"key"`                                                // @gotags: yaml:"key"
 	// Supported operators: "eq", "ne", "contains",
 	// "matches", "in", "prefix", "suffix", "gt", "lt"
 	Operator Operator `protobuf:"varint,3,opt,name=operator,proto3,enum=sentinez.types.rule.v1.Operator" json:"operator,omitempty" yaml:"operator"` // @gotags: yaml:"operator"
@@ -675,10 +675,12 @@ func (x *Rule) GetCondition() *Condition {
 // (or third...) or group, each one carrying its own: (a or b) and (c or d)
 // is {or_condition: [a, b], and_condition: [{or_condition: [c, d]}]}.
 type AndCondition struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Rules         []*Rule                `protobuf:"bytes,1,rep,name=rules,proto3" json:"rules,omitempty"`
-	OrCondition   []*AndCondition        `protobuf:"bytes,2,rep,name=or_condition,json=orCondition,proto3" json:"or_condition,omitempty"`
-	AndCondition  []*AndCondition        `protobuf:"bytes,3,rep,name=and_condition,json=andCondition,proto3" json:"and_condition,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Identifies the group in the editor of the console: the edge ignores it
+	Id            string          `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty" yaml:"-"` // @gotags: yaml:"-"
+	Rules         []*Rule         `protobuf:"bytes,2,rep,name=rules,proto3" json:"rules,omitempty"`
+	OrCondition   []*AndCondition `protobuf:"bytes,3,rep,name=or_condition,json=orCondition,proto3" json:"or_condition,omitempty"`
+	AndCondition  []*AndCondition `protobuf:"bytes,4,rep,name=and_condition,json=andCondition,proto3" json:"and_condition,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -711,6 +713,13 @@ func (x *AndCondition) ProtoReflect() protoreflect.Message {
 // Deprecated: Use AndCondition.ProtoReflect.Descriptor instead.
 func (*AndCondition) Descriptor() ([]byte, []int) {
 	return file_sentinez_types_rule_v1_rule_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *AndCondition) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
 }
 
 func (x *AndCondition) GetRules() []*Rule {
@@ -1076,11 +1085,12 @@ const file_sentinez_types_rule_v1_rule_proto_rawDesc = "" +
 	"\x04type\x18\x01 \x01(\x0e2\".sentinez.types.rule.v1.ActionTypeR\x04type\x12/\n" +
 	"\x06params\x18\x02 \x01(\v2\x17.google.protobuf.StructR\x06params\"G\n" +
 	"\x04Rule\x12?\n" +
-	"\tcondition\x18\x01 \x01(\v2!.sentinez.types.rule.v1.ConditionR\tcondition\"\xd6\x01\n" +
-	"\fAndCondition\x122\n" +
-	"\x05rules\x18\x01 \x03(\v2\x1c.sentinez.types.rule.v1.RuleR\x05rules\x12G\n" +
-	"\for_condition\x18\x02 \x03(\v2$.sentinez.types.rule.v1.AndConditionR\vorCondition\x12I\n" +
-	"\rand_condition\x18\x03 \x03(\v2$.sentinez.types.rule.v1.AndConditionR\fandCondition\"U\n" +
+	"\tcondition\x18\x01 \x01(\v2!.sentinez.types.rule.v1.ConditionR\tcondition\"\xe6\x01\n" +
+	"\fAndCondition\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x122\n" +
+	"\x05rules\x18\x02 \x03(\v2\x1c.sentinez.types.rule.v1.RuleR\x05rules\x12G\n" +
+	"\for_condition\x18\x03 \x03(\v2$.sentinez.types.rule.v1.AndConditionR\vorCondition\x12I\n" +
+	"\rand_condition\x18\x04 \x03(\v2$.sentinez.types.rule.v1.AndConditionR\fandCondition\"U\n" +
 	"\n" +
 	"Expression\x12G\n" +
 	"\for_condition\x18\x01 \x03(\v2$.sentinez.types.rule.v1.AndConditionR\vorCondition\"6\n" +

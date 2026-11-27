@@ -30,11 +30,20 @@ import PreviewFooter from './preview-footer';
 import { Search } from 'lucide-react';
 import SidebarLoading from './sidebar-loading';
 import { TabLoading } from './tab-loading';
-import { ComponentProps, ReactNode, useEffect, useMemo, useState, useTransition } from 'react';
+import {
+  ComponentProps,
+  CSSProperties,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+} from 'react';
 import { useLocalUser } from '@/components/user-menu';
 import { isUnder } from '@/lib/session';
 import { cn } from '@sentinez/ui/lib/utils';
 import { PAGE_HEADER_HEIGHT, TOP_BARS_HEIGHT } from '@/lib/layout-bars';
+import { useHideOnScroll } from '@/hooks/use-hide-on-scroll';
 
 type SidebarProps = ComponentProps<typeof Sidebar>;
 
@@ -247,19 +256,27 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
         {/* Two blocks as tall as the bars of the page column, so that the
             bottom border lines up with the page header: the team over the top
             bars, the title and the search over the page header */}
-        <SidebarHeader className={cn('shrink-0 justify-center px-2 py-0 md:px-3', TOP_BARS_HEIGHT)}>
+        <SidebarHeader
+          // its bottom border inside its height, as the bars have theirs: on
+          // the line under BreadcrumbBar
+          className={cn('shrink-0 justify-center border-b px-2 py-0 md:px-3', TOP_BARS_HEIGHT)}
+        >
           <TeamSwitcher />
         </SidebarHeader>
         <SidebarHeader
           className={cn(
-            'shrink-0 justify-center gap-1 border-b px-2 py-0 md:px-3',
+            // under the border of the team block; the height (its bottom
+            // border included) lines that one up with PageLayoutHeader.
+            // Inside, a 16px title, 8px and the 32px search are centred
+            // between the two borders, 9px of room above and below
+            'shrink-0 justify-center gap-2 border-b px-2 py-0 md:px-3',
             PAGE_HEADER_HEIGHT,
           )}
         >
           {loading ? (
-            <SidebarLoading />
+            <SidebarLoading className="h-4" />
           ) : (
-            <div className="text-foreground text-base font-medium">
+            <div className="text-foreground text-base leading-none font-medium">
               {activeItem && t(activeItem.titleKey)}
             </div>
           )}
@@ -347,12 +364,23 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
 
 export function ConsoleSidebarInset({ children }: { children: ReactNode }) {
   const user = useLocalUser();
+  // the top bar hides while the page is scrolled down, shows when scrolled up
+  const previewHidden = useHideOnScroll();
 
   return (
-    // min-w-0: a wide table scrolls inside the page instead of widening it
-    <SidebarInset className="min-w-0">
+    // min-w-0: a wide table scrolls inside the page instead of widening it.
+    // --console-preview-offset: where the sticky PageLayoutHeader stops, under
+    // the top bar while it shows
+    <SidebarInset
+      className="min-w-0"
+      style={
+        {
+          '--console-preview-offset': previewHidden ? '0px' : 'var(--console-bar-height)',
+        } as CSSProperties
+      }
+    >
       <div className="flex min-h-dvh flex-col">
-        <PreviewHeader username={user.name} />
+        <PreviewHeader username={user.name} hidden={previewHidden} />
         <TabLoading>{children}</TabLoading>
       </div>
       <PreviewFooter />
