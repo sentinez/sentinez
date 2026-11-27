@@ -34,7 +34,13 @@ const KINDS = {
     // the security page of the matched rules
     rulePage: 'sec-rule',
     rulesColumn: 'secRules',
-    color: STATUS_COLORS.s5xx,
+    // the actions drawn as a series, the others as `other`
+    actions: [
+      [ActionType.ACTION_TYPE_BLOCK, STATUS_COLORS.s5xx],
+      [ActionType.ACTION_TYPE_CHALLENGE, STATUS_COLORS.s4xx],
+      [ActionType.ACTION_TYPE_REDIRECT, STATUS_COLORS.s3xx],
+      [ActionType.ACTION_TYPE_LOG, STATUS_COLORS.s2xx],
+    ],
   },
   rateLimit: {
     kind: EventKind.EVENT_KIND_SECRATELIMIT,
@@ -42,7 +48,7 @@ const KINDS = {
       (await listSecRateLimitEvents(req, options)).events,
     rulePage: 'sec-rate-limit',
     rulesColumn: 'rateLimiters',
-    color: STATUS_COLORS.s4xx,
+    actions: [[ActionType.ACTION_TYPE_RATE_LIMIT, STATUS_COLORS.s4xx]],
   },
 } as const;
 
@@ -56,10 +62,11 @@ export function useSecRuleConfig(which: SecRuleKind): EventConfig<SecRuleEvent> 
     const spec = KINDS[which];
     const ruleHref = (id: string) =>
       `/d/console/${domain}/security/${spec.rulePage}/${encodeURIComponent(id)}`;
-    const typeOf = (e: SecRuleEvent) => e.action?.type ?? ActionType.ACTION_TYPE_UNSPECIFIED;
     const actionBadge = (e: SecRuleEvent) => (
-      <Badge variant={ACTION_TYPE_BADGE_VARIANT[typeOf(e)]}>{actionTypeLabel(typeOf(e))}</Badge>
+      <Badge variant={ACTION_TYPE_BADGE_VARIANT[e.action]}>{actionTypeLabel(e.action)}</Badge>
     );
+    // the action is the key of the histogram of a rule table
+    const drawn: readonly ActionType[] = spec.actions.map(([a]) => a);
     return {
       ...eventApis(spec.kind),
       title: t(`${which}.title`),
@@ -82,9 +89,15 @@ export function useSecRuleConfig(which: SecRuleKind): EventConfig<SecRuleEvent> 
           cell: ({ row }) => <RuleLinks ids={row.original.matchedSecruleIds} href={ruleHref} />,
         },
       ],
-      series: [{ id: 'events', label: t('series.events'), color: spec.color }],
-      // the histogram of a rule table has no key
-      seriesOf: () => 'events',
+      series: [
+        ...spec.actions.map(([a, color]) => ({
+          id: String(a),
+          label: actionTypeLabel(a),
+          color,
+        })),
+        { id: 'other', label: t('series.other'), color: STATUS_COLORS.other },
+      ],
+      seriesOf: (key) => (drawn.includes(key) ? String(key) : 'other'),
       fields: [
         {
           name: 'matched_secrule_ids',
@@ -94,7 +107,7 @@ export function useSecRuleConfig(which: SecRuleKind): EventConfig<SecRuleEvent> 
         {
           name: 'action',
           label: c('action'),
-          get: (e) => String(typeOf(e)),
+          get: (e) => String(e.action),
           format: (v) => actionTypeLabel(Number(v) as ActionType),
         },
         ...ruleRequestFields<SecRuleEvent>(c),
@@ -102,7 +115,7 @@ export function useSecRuleConfig(which: SecRuleKind): EventConfig<SecRuleEvent> 
       requestOf: ruleRequestOf,
       text: (e) => [
         e.requestId,
-        actionTypeLabel(typeOf(e)),
+        actionTypeLabel(e.action),
         e.requestDomain,
         e.requestPath,
         e.requestQuery,
@@ -118,7 +131,7 @@ export function useSecRuleConfig(which: SecRuleKind): EventConfig<SecRuleEvent> 
           </>
         ),
         rows: (e) => [
-          [c('action'), actionTypeLabel(typeOf(e))],
+          [c('action'), actionTypeLabel(e.action)],
           [
             c(spec.rulesColumn),
             <RuleLinks key="rules" ids={e.matchedSecruleIds} href={ruleHref} />,

@@ -8,7 +8,6 @@ import (
 	fmt "fmt"
 	protohelpers "github.com/planetscale/vtprotobuf/protohelpers"
 	v1 "github.com/sentinez/sentinez/api/proto/sentinez/types/rule/v1"
-	proto "google.golang.org/protobuf/proto"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	io "io"
 	sync "sync"
@@ -119,27 +118,10 @@ func (m *SecRuleEvent) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x40
 	}
-	if m.Action != nil {
-		if vtmsg, ok := interface{}(m.Action).(interface {
-			MarshalToSizedBufferVT([]byte) (int, error)
-		}); ok {
-			size, err := vtmsg.MarshalToSizedBufferVT(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = protohelpers.EncodeVarint(dAtA, i, uint64(size))
-		} else {
-			encoded, err := proto.Marshal(m.Action)
-			if err != nil {
-				return 0, err
-			}
-			i -= len(encoded)
-			copy(dAtA[i:], encoded)
-			i = protohelpers.EncodeVarint(dAtA, i, uint64(len(encoded)))
-		}
+	if m.Action != 0 {
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(m.Action))
 		i--
-		dAtA[i] = 0x3a
+		dAtA[i] = 0x38
 	}
 	if m.MatchedTime != 0 {
 		i = protohelpers.EncodeVarint(dAtA, i, uint64(m.MatchedTime))
@@ -245,15 +227,8 @@ func (m *SecRuleEvent) SizeVT() (n int) {
 	if m.MatchedTime != 0 {
 		n += 1 + protohelpers.SizeOfVarint(uint64(m.MatchedTime))
 	}
-	if m.Action != nil {
-		if size, ok := interface{}(m.Action).(interface {
-			SizeVT() int
-		}); ok {
-			l = size.SizeVT()
-		} else {
-			l = proto.Size(m.Action)
-		}
-		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
+	if m.Action != 0 {
+		n += 1 + protohelpers.SizeOfVarint(uint64(m.Action))
 	}
 	if m.Service != 0 {
 		n += 1 + protohelpers.SizeOfVarint(uint64(m.Service))
@@ -503,10 +478,10 @@ func (m *SecRuleEvent) UnmarshalVT(dAtA []byte) error {
 				}
 			}
 		case 7:
-			if wireType != 2 {
+			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Action", wireType)
 			}
-			var msglen int
+			m.Action = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return protohelpers.ErrIntOverflow
@@ -516,36 +491,11 @@ func (m *SecRuleEvent) UnmarshalVT(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= int(b&0x7F) << shift
+				m.Action |= v1.ActionType(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if msglen < 0 {
-				return protohelpers.ErrInvalidLength
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return protohelpers.ErrInvalidLength
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.Action == nil {
-				m.Action = &v1.Action{}
-			}
-			if unmarshal, ok := interface{}(m.Action).(interface {
-				UnmarshalVT([]byte) error
-			}); ok {
-				if err := unmarshal.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
-					return err
-				}
-			} else {
-				if err := proto.Unmarshal(dAtA[iNdEx:postIndex], m.Action); err != nil {
-					return err
-				}
-			}
-			iNdEx = postIndex
 		case 8:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Service", wireType)

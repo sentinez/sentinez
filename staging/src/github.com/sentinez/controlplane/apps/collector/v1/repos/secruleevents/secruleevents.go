@@ -41,26 +41,24 @@ var _filterColumns = eventfilter.Columns{
 }
 
 // _fields the fields of the events filters match and top values count,
-// in this order; the action is its type, a rule.v1.ActionType number.
+// in this order; the action is a rule.v1.ActionType number.
 var _fields = []eventfilter.Field{
-	eventfilter.TypedColumn(secrulepb.SecRuleEvent_MatchedSecruleIds,
-		dbx.TextArr),
-	{
-		Name: secrulepb.SecRuleEvent_Action,
-		Expr: secrulepb.SecRuleEvent_Action + "->>'type'",
-	},
+	eventfilter.TypedColumn(
+		secrulepb.SecRuleEvent_MatchedSecruleIds, dbx.TextArr),
+	eventfilter.Column(secrulepb.SecRuleEvent_Action),
 	eventfilter.Column(secrulepb.SecRuleEvent_RequestIp),
 	eventfilter.Column(secrulepb.SecRuleEvent_RequestDomain),
 	eventfilter.Column(secrulepb.SecRuleEvent_RequestPath),
 }
 
 // specOf the reader of the events of the table of sch, whose histogram is
-// not split by key.
+// split by action.
 func specOf(sch dbx.Schema) eventreader.Spec[secrulepb.SecRuleEvent] {
 	return eventreader.Spec[secrulepb.SecRuleEvent]{
 		Hypertable: schema.EventHypertable(sch,
 			secrulepb.SecRuleEvent_MatchedTime),
 		Columns:  _filterColumns,
+		Key:      secrulepb.SecRuleEvent_Action,
 		Select:   secrulepb.SecRuleEventColumns(),
 		Scan:     secrulepb.ScanSecRuleEvent[dbx.Rows],
 		ScanOne:  secrulepb.ScanOneSecRuleEvent[dbx.Row],
@@ -81,7 +79,7 @@ type ISecRuleEvent interface {
 
 	List(ctx context.Context,
 		filter *eventfilter.Filter) ([]*secrulepb.SecRuleEvent, error)
-	// Histogram counts the events per bucket and resource.
+	// Histogram counts the events per bucket, resource and action.
 	// The events of events only when set (see eventreader.Reader).
 	Histogram(ctx context.Context, filter *histogram.Filter,
 		events *eventfilter.Filter) ([]*histogram.Point, error)

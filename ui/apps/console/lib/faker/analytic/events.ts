@@ -219,7 +219,7 @@ export function sampleSecRuleOf(e: IngressEvent): SecRuleEvent | null {
     id: e.id.replace('req_', 'srevt_'),
     matchedSecruleIds: [pick(SAMPLE_SECRULE_IDS, login ? 1 : 0)],
     messages: [login ? 'path prefix "/login"' : 'path prefix "/api"'],
-    action: { type: login ? ActionType.ACTION_TYPE_CHALLENGE : ActionType.ACTION_TYPE_BLOCK },
+    action: login ? ActionType.ACTION_TYPE_CHALLENGE : ActionType.ACTION_TYPE_BLOCK,
     service: RuleService.RULE_SERVICE_SECRULE,
     tags: login ? { flow: 'login' } : {},
   };
@@ -233,7 +233,7 @@ export function sampleRateLimitOf(e: IngressEvent): SecRuleEvent | null {
     id: e.id.replace('req_', 'srevt_'),
     matchedSecruleIds: [SAMPLE_RATELIMIT_ID],
     messages: ['client ip over 100 requests / minute'],
-    action: { type: ActionType.ACTION_TYPE_BLOCK },
+    action: ActionType.ACTION_TYPE_RATE_LIMIT,
     service: RuleService.RULE_SERVICE_SECRATELIMIT,
     tags: {},
   };
@@ -337,10 +337,10 @@ function sampleRecordsOf(kind: EventKind, requests: IngressEvent[]): SampleRecor
         .map((e) => ({
           time: e.matchedTime,
           resourceId: e.resourceId,
-          key: 0,
+          key: e.action,
           fields: {
             matched_secrule_ids: e.matchedSecruleIds,
-            action: String(e.action?.type ?? ''),
+            action: String(e.action),
             request_ip: e.requestIp,
             request_domain: e.requestDomain,
             request_path: e.requestPath,

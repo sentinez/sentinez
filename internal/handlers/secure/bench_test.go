@@ -311,12 +311,11 @@ func BenchmarkRedirect(b *testing.B) {
 func BenchmarkNewSecRuleEvent(b *testing.B) {
 	ctx := newTestContext(http.MethodGet, "/a?b=1", "", nil)
 	mr := &rulepb.MatchedRules{Ids: []string{"srule_1"}, Names: []string{"n"}}
-	action := &rulepb.Action{Type: _block}
 	b.ReportAllocs()
 
 	for b.Loop() {
 		e := newSecRuleEvent(ctx,
-			rulepb.RuleService_RULE_SERVICE_SECRULE, action, mr)
+			rulepb.RuleService_RULE_SERVICE_SECRULE, _block, mr)
 		_ = e.Close()
 	}
 }

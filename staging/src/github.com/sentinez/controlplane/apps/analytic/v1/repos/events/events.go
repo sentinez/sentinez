@@ -121,8 +121,8 @@ func New(ctx context.Context, appConf *settingpb.Config) (*Events, error) {
 }
 
 // Histogram the points of the histogram of kind, split by the key of its
-// table: the http status, the status of the origin or the behavior; the
-// events of events only when set.
+// table: the http status, the status of the origin, the action or the
+// behavior; the events of events only when set.
 func (e *Events) Histogram(ctx context.Context, kind analyticpb.EventKind,
 	filter *histogram.Filter,
 	events *eventfilter.Filter) ([]*histogram.Point, error) {

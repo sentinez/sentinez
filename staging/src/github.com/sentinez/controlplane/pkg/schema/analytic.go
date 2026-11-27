@@ -230,7 +230,7 @@ func secRuleEvents(table dbx.Table) dbx.Schema {
 			{Name: secrulepb.SecRuleEvent_ResourceId, Type: dbx.Text},
 			{Name: secrulepb.SecRuleEvent_TenantId, Type: dbx.Text},
 			{Name: secrulepb.SecRuleEvent_MatchedTime, Type: dbx.Int8},
-			{Name: secrulepb.SecRuleEvent_Action, Type: dbx.JSONB},
+			{Name: secrulepb.SecRuleEvent_Action, Type: dbx.Int4},
 			{Name: secrulepb.SecRuleEvent_Service, Type: dbx.Int4},
 			{Name: secrulepb.SecRuleEvent_RequestDomain, Type: dbx.Text},
 			{Name: secrulepb.SecRuleEvent_RequestScheme, Type: dbx.Text},

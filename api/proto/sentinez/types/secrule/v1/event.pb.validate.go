@@ -34,6 +34,8 @@ var (
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
 
+	_ = rulepb.ActionType(0)
+
 	_ = rulepb.RuleService(0)
 )
 
@@ -53,15 +55,7 @@ func (m *SecRuleEvent) Validate() error {
 
 	// no validation rules for MatchedTime
 
-	if v, ok := interface{}(m.GetAction()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return SecRuleEventValidationError{
-				field:  "Action",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
+	// no validation rules for Action
 
 	// no validation rules for Service
 
