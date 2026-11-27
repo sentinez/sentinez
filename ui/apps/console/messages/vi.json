@@ -451,6 +451,8 @@
     "state": "Trạng thái",
     "scoped": "Chỉ với request khớp điều kiện",
     "scopedHint": "Áp dụng cho mọi request nếu không đặt điều kiện. Không hỗ trợ nguồn body, JA4 và TLS.",
+    "editConditions": "Sửa điều kiện",
+    "conditionsTitle": "Điều kiện",
     "browse": "Tra cứu",
     "unknownRule": "Không có trong danh mục CRS",
     "pickerTitle": "Danh mục quy tắc CRS",
@@ -732,7 +734,7 @@
   },
   "QueryBuilder": {
     "or": "HOẶC",
-    "and": "AND",
+    "and": "VÀ",
     "removeGroup": "Xoá nhóm",
     "noConditions": "Nhóm này chưa có điều kiện nào.",
     "conditionN": "Điều kiện {n}",
@@ -755,11 +757,10 @@
     "json": "JSON",
     "addCondition": "Thêm điều kiện",
     "groupN": "Nhóm {n}",
-    "matchAll": "Khớp tất cả",
-    "matchAny": "Khớp một trong",
     "addGroup": "Thêm nhóm",
     "emptyGroup": "Nhóm rỗng: sẽ bị bỏ khi lưu.",
-    "maxConditions": "Tối đa {n} điều kiện."
+    "maxConditions": "Tối đa {n} điều kiện.",
+    "conditionCount": "{n} điều kiện"
   },
   "Validation": {
     "nameDescriptionRequired": "Tên và mô tả là bắt buộc",

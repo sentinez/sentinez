@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { ReactNode } from 'react';
 import { cn } from '@sentinez/ui/lib/utils';
 import { BreadcrumbBar } from './breadcrumb-bar';
+import { PAGE_HEADER_MIN_HEIGHT } from '@/lib/layout-bars';
 
 export function PageLayout({ children }: Readonly<{ children: ReactNode }>) {
   return <>{children}</>;
@@ -25,7 +26,12 @@ export function PageLayoutHeader({ children, title, subtitle }: PageLayoutHeader
   return (
     <div className="sticky top-0 bg-background z-1">
       <BreadcrumbBar />
-      <div className="flex w-full max-w-7xl items-center gap-1 border-b px-1 md:p-2">
+      <div
+        className={cn(
+          'flex w-full max-w-7xl items-center gap-1 border-b px-1 md:px-2',
+          PAGE_HEADER_MIN_HEIGHT,
+        )}
+      >
         <Button
           variant="ghost"
           size="icon"

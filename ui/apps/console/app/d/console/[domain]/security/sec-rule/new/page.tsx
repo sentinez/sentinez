@@ -58,7 +58,7 @@ export default function CreateSecRulePage() {
           </Button>
         </div>
       </PageLayoutHeader>
-      <PageLayoutContent size="sm">
+      <PageLayoutContent size="md">
         <SecRuleFields value={form} onChange={patchForm} idPrefix="create" />
       </PageLayoutContent>
     </PageLayout>

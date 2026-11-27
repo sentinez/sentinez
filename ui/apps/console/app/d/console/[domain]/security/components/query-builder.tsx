@@ -1,7 +1,14 @@
 'use client';
 
 import * as React from 'react';
-import { BracesIcon, ChevronDownIcon, PlusIcon, Trash2Icon } from 'lucide-react';
+import {
+  BracesIcon,
+  ChevronDownIcon,
+  CirclePlusIcon,
+  FolderPlusIcon,
+  PlusIcon,
+  Trash2Icon,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@sentinez/ui/components/button';
 import {
@@ -83,6 +90,8 @@ type QueryBuilderContextValue = {
   conditionCount: number;
   addCondition: (groupId: string) => void;
   addGroup: (groupId: string) => void;
+  /** Whether the group was added in this editor: it opens unfolded, a loaded one folded */
+  isAdded: (groupId: string) => boolean;
   setOp: (groupId: string, op: GroupOp) => void;
   remove: (nodeId: string) => void;
   updateCondition: (condId: string, updater: (condition: Condition) => Condition) => void;
@@ -142,6 +151,8 @@ export function QueryBuilder({
   // the last expression from or to the parent: it is the same object while
   // nothing changed, so only another value is serialised to compare
   const [emitted, setEmitted] = React.useState(valueProp);
+  // only read when a group mounts, so a ref: adding to it re-renders nothing
+  const addedGroups = React.useRef(new Set<string>());
   const onValueChangeRef = React.useRef(onValueChange);
   React.useEffect(() => {
     onValueChangeRef.current = onValueChange;
@@ -176,16 +187,15 @@ export function QueryBuilder({
         ),
       addGroup: (groupId) =>
         commit(
-          mapGroup(root, groupId, (g) => ({
-            ...g,
+          mapGroup(root, groupId, (g) => {
             // a group opens with a condition, and the other operator: the
             // same one would only be flattened into its parent
-            children: [
-              ...g.children,
-              createGroupNode(g.op === 'all' ? 'any' : 'all', [createCondNode()]),
-            ],
-          })),
+            const added = createGroupNode(g.op === 'all' ? 'any' : 'all', [createCondNode()]);
+            addedGroups.current.add(added.id);
+            return { ...g, children: [...g.children, added] };
+          }),
         ),
+      isAdded: (groupId) => addedGroups.current.has(groupId),
       setOp: (groupId, op) => commit(mapGroup(root, groupId, (g) => ({ ...g, op }))),
       remove: (nodeId) => commit(removeNode(root, nodeId)),
       updateCondition: (condId, updater) =>
@@ -239,121 +249,222 @@ export type QueryBuilderGroupProps = Omit<React.ComponentProps<'div'>, 'children
   depth: number;
 };
 
-/** A group: the operator it joins its children with, and the children */
+/**
+ * A group: its children, joined by the operator on the bracket at their
+ * left, and the buttons that add to it. The root is the bare list; a nested
+ * group is a box headed by its fold toggle and the number of conditions it
+ * holds, its remove button beside it like that of a condition. A nested
+ * group starts folded when loaded, unfolded when just added; folded, it
+ * also shows its operator.
+ */
 export function QueryBuilderGroup({ node, depth, className, ...props }: QueryBuilderGroupProps) {
   const t = useTranslations('QueryBuilder');
-  const { conditionCount, addCondition, addGroup, setOp, remove } = useQueryBuilder();
-  const isRoot = depth === 0;
-  const canAddCondition = conditionCount < MAX_CONDITIONS;
-  const canAddGroup = canAddCondition && depth < MAX_GROUP_DEPTH;
-  const join = node.op === 'all' ? t('and') : t('or');
+  const { isAdded, remove } = useQueryBuilder();
+  // a loaded group starts folded, one just added unfolded to be filled in
+  const [open, setOpen] = React.useState(() => isAdded(node.id));
+
+  if (depth === 0) {
+    return (
+      <div
+        role="group"
+        aria-label={t('groupN', { n: 1 })}
+        data-slot="query-builder-group"
+        data-op={node.op}
+        className={cn('grid min-w-0 gap-3', className)}
+        {...props}
+      >
+        <QueryBuilderGroupBody node={node} depth={depth} />
+        <QueryBuilderGroupActions node={node} depth={depth} />
+      </div>
+    );
+  }
 
   return (
-    <div
+    <Collapsible
+      open={open}
+      onOpenChange={setOpen}
       role="group"
       aria-label={t('groupN', { n: depth + 1 })}
       data-slot="query-builder-group"
       data-op={node.op}
-      data-empty={node.children.length === 0 || undefined}
-      className={cn(
-        'grid min-w-0 gap-3 rounded-md border p-3',
-        !isRoot && 'border-l-2 border-l-primary/40',
-        className,
-      )}
+      className={cn('flex min-w-0 items-start gap-1', className)}
       {...props}
     >
-      <div className="flex min-h-8 items-center justify-between gap-2">
-        <Select value={node.op} onValueChange={(op) => setOp(node.id, op as GroupOp)}>
-          <SelectTrigger aria-label={t('operator')} className="h-8 w-auto min-w-0 bg-background">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{t('matchAll')}</SelectItem>
-            <SelectItem value="any">{t('matchAny')}</SelectItem>
-          </SelectContent>
-        </Select>
-        {!isRoot && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="size-8 shrink-0"
-            aria-label={t('removeGroup')}
-            onClick={() => remove(node.id)}
-          >
-            <Trash2Icon className="size-4" aria-hidden />
-          </Button>
-        )}
+      <div className="grid min-w-0 flex-1 gap-2 rounded-md border bg-muted/30 p-1.5 @md/query-builder:p-2">
+        {/* the fold toggle heads the box, with what the group holds */}
+        <div className="flex min-w-0 items-center gap-2">
+          <CollapsibleTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="min-w-0 px-2 text-muted-foreground"
+            >
+              <ChevronDownIcon
+                className={cn('transition-transform', !open && '-rotate-90')}
+                aria-hidden
+              />
+              <span className="truncate text-xs">
+                {t('conditionCount', { n: countConditions(node) })}
+              </span>
+            </Button>
+          </CollapsibleTrigger>
+          {!open && <GroupOpSelect node={node} />}
+        </div>
+        <CollapsibleContent className="grid min-w-0 gap-2">
+          <QueryBuilderGroupBody node={node} depth={depth} />
+          <QueryBuilderGroupActions node={node} depth={depth} />
+        </CollapsibleContent>
       </div>
 
-      {isEmptyGroup(node) && (
-        <p className="py-2 text-center text-sm text-balance text-muted-foreground">
-          {isRoot ? t('noConditions') : t('emptyGroup')}
-        </p>
+      <RemoveButton label={t('removeGroup')} onClick={() => remove(node.id)} />
+    </Collapsible>
+  );
+}
+
+/**
+ * The children of a group. With two or more, a bracket at their left joins
+ * them, its operator in the middle.
+ */
+function QueryBuilderGroupBody({ node, depth }: { node: GroupNode; depth: number }) {
+  const t = useTranslations('QueryBuilder');
+
+  if (isEmptyGroup(node)) {
+    return (
+      <p className="py-2 text-center text-sm text-balance text-muted-foreground">
+        {depth === 0 ? t('noConditions') : t('emptyGroup')}
+      </p>
+    );
+  }
+
+  const joined = node.children.length > 1;
+
+  // One grid for both widths. Narrow (a phone), the operator heads the
+  // children and a thin bracket joins them, to leave the width to the
+  // conditions; wider, the operator sits in the middle of the bracket.
+  return (
+    <div
+      className={cn(
+        'grid min-w-0 grid-cols-1',
+        joined &&
+          'grid-cols-[0.75rem_minmax(0,1fr)] gap-y-2 @md/query-builder:grid-cols-[4rem_minmax(0,1fr)] @md/query-builder:gap-y-0',
       )}
-
-      {node.children.map((child, i) => (
-        <React.Fragment key={child.id}>
-          {i > 0 && <QueryBuilderSeparator>{join}</QueryBuilderSeparator>}
-          {child.kind === 'group' ? (
-            <QueryBuilderGroup node={child} depth={depth + 1} />
+    >
+      {joined && (
+        <>
+          <div className="relative col-start-1 row-start-2 @md/query-builder:row-start-1">
+            {/* from the middle of the first child to the middle of the last */}
+            <div
+              aria-hidden
+              className={cn(
+                'absolute inset-y-4 left-0 right-1 rounded-l-md border-y border-l border-primary/40',
+                '@md/query-builder:inset-y-[27px] @md/query-builder:left-1/2',
+              )}
+            />
+          </div>
+          <div className="z-1 col-span-2 row-start-1 flex @md/query-builder:col-span-1 @md/query-builder:col-start-1 @md/query-builder:self-center">
+            <GroupOpSelect node={node} />
+          </div>
+        </>
+      )}
+      <div
+        className={cn(
+          'grid min-w-0 gap-2',
+          joined && 'col-start-2 row-start-2 @md/query-builder:row-start-1',
+        )}
+      >
+        {node.children.map((child, i) =>
+          child.kind === 'group' ? (
+            <QueryBuilderGroup key={child.id} node={child} depth={depth + 1} />
           ) : (
-            <QueryBuilderRule node={child} index={i} />
-          )}
-        </React.Fragment>
-      ))}
+            <QueryBuilderRule key={child.id} node={child} index={i} />
+          ),
+        )}
+      </div>
+    </div>
+  );
+}
 
+/**
+ * The buttons adding a condition or a group: outlined under the root, light
+ * in a nested group.
+ */
+function QueryBuilderGroupActions({ node, depth }: { node: GroupNode; depth: number }) {
+  const t = useTranslations('QueryBuilder');
+  const { conditionCount, addCondition, addGroup } = useQueryBuilder();
+  const isRoot = depth === 0;
+  const canAddCondition = conditionCount < MAX_CONDITIONS;
+  const canAddGroup = canAddCondition && depth < MAX_GROUP_DEPTH;
+
+  return (
+    <div className="grid gap-1">
       <div className="flex flex-wrap gap-2">
         <Button
           type="button"
-          variant="ghost"
+          variant={isRoot ? 'outline' : 'ghost'}
           size="sm"
-          className="max-w-full"
+          className={cn('max-w-full', !isRoot && 'text-primary hover:text-primary')}
           disabled={!canAddCondition}
           onClick={() => addCondition(node.id)}
         >
-          <PlusIcon className="size-4" aria-hidden />
+          {isRoot ? <CirclePlusIcon aria-hidden /> : <PlusIcon aria-hidden />}
           <span className="truncate">{t('addCondition')}</span>
         </Button>
         <Button
           type="button"
           variant="ghost"
           size="sm"
-          className="max-w-full"
+          className="max-w-full text-primary hover:text-primary"
           disabled={!canAddGroup}
           onClick={() => addGroup(node.id)}
         >
-          <PlusIcon className="size-4" aria-hidden />
+          <FolderPlusIcon aria-hidden />
           <span className="truncate">{t('addGroup')}</span>
         </Button>
       </div>
-      {!canAddCondition && (
+      {isRoot && !canAddCondition && (
         <p className="text-xs text-muted-foreground">{t('maxConditions', { n: MAX_CONDITIONS })}</p>
       )}
     </div>
   );
 }
 
-// ─── QueryBuilderSeparator ───────────────────────────────────────────────────
+/** The operator of a group, as a pill: AND (all of) or OR (any of) */
+function GroupOpSelect({ node }: { node: GroupNode }) {
+  const t = useTranslations('QueryBuilder');
+  const { setOp } = useQueryBuilder();
 
-export function QueryBuilderSeparator({
-  className,
-  children,
-  ...props
-}: React.ComponentProps<'div'>) {
   return (
-    <div
-      role="separator"
-      data-slot="query-builder-separator"
-      className={cn('flex items-center gap-2', className)}
-      {...props}
+    <Select value={node.op} onValueChange={(op) => setOp(node.id, op as GroupOp)}>
+      <SelectTrigger
+        aria-label={t('operator')}
+        className={cn(
+          'h-6! gap-1 rounded-full border-primary/40 bg-background px-2 text-xs font-semibold',
+          'text-primary shadow-none dark:bg-background [&_svg]:size-3 [&_svg]:text-primary',
+        )}
+      >
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="all">{t('and')}</SelectItem>
+        <SelectItem value="any">{t('or')}</SelectItem>
+      </SelectContent>
+    </Select>
+  );
+}
+
+function RemoveButton({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
+      className="size-8 shrink-0 text-muted-foreground hover:text-destructive @md/query-builder:size-9"
+      aria-label={label}
+      onClick={onClick}
     >
-      <div className="h-px flex-1 bg-border" />
-      <span className="shrink-0 whitespace-nowrap rounded-full border px-2 py-0.5 text-xs font-semibold text-muted-foreground">
-        {children}
-      </span>
-      <div className="h-px flex-1 bg-border" />
-    </div>
+      <Trash2Icon className="size-4" aria-hidden />
+    </Button>
   );
 }
 
@@ -395,10 +506,10 @@ export function QueryBuilderRule({ node, index, className, ...props }: QueryBuil
       aria-label={t('conditionN', { n: index + 1 })}
       data-slot="query-builder-rule"
       data-has-key={needsKey || undefined}
-      className={cn('flex min-w-0 items-start gap-1 rounded-md bg-muted/50 p-2', className)}
+      className={cn('flex min-w-0 items-start gap-1', className)}
       {...props}
     >
-      <div className="grid min-w-0 flex-1 grid-cols-1 gap-2 @xs/query-builder:grid-cols-2 @2xl/query-builder:grid-cols-4">
+      <div className="grid min-w-0 flex-1 grid-cols-1 gap-2 rounded-md border bg-background p-1.5 @md/query-builder:p-2 @xs/query-builder:grid-cols-2 @2xl/query-builder:grid-cols-4">
         <EnumSelect
           aria-label={t('source')}
           value={condition.source}
@@ -443,16 +554,10 @@ export function QueryBuilderRule({ node, index, className, ...props }: QueryBuil
         />
       </div>
 
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className="size-9 shrink-0 text-muted-foreground hover:text-destructive"
-        aria-label={t('removeCondition', { n: index + 1 })}
+      <RemoveButton
+        label={t('removeCondition', { n: index + 1 })}
         onClick={() => remove(node.id)}
-      >
-        <Trash2Icon className="size-4" aria-hidden />
-      </Button>
+      />
     </div>
   );
 }

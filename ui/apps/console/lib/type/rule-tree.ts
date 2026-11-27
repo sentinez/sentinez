@@ -29,7 +29,7 @@ export const MAX_CONDITIONS = 256;
  * Deepest group a user can add. The edge accepts 8 nested levels of and / or
  * groups; a group of the tree costs at most one, plus the root or.
  */
-export const MAX_GROUP_DEPTH = 6;
+export const MAX_GROUP_DEPTH = 2;
 
 const newId = () => Math.random().toString(36).substring(2, 9);
 
@@ -41,8 +41,9 @@ const createEmptyCondition = (): Condition => ({
   value: '',
 });
 
-export const createCondNode = (): CondNode => {
-  const condition = createEmptyCondition();
+/** A condition node: an empty condition, with the fields of patch */
+export const createCondNode = (patch: Partial<Omit<Condition, 'id'>> = {}): CondNode => {
+  const condition = { ...createEmptyCondition(), ...patch };
   return { kind: 'cond', id: condition.id, condition };
 };
 
