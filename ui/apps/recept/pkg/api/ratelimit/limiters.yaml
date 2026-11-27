@@ -1,0 +1,37 @@
+# Rate limits for a JSON API: a global ceiling per client, and a tighter
+# one on the write methods.
+#
+# @version v1.0.0
+# @keywords api, rate-limit
+
+limiters:
+  # Every request under /api/: 300 per minute and client.
+  - ingress:
+      name: API ceiling
+      status: STATUS_ACTIVE
+      expr:
+        orCondition:
+          - rules:
+            - condition:
+                source: FIELD_SOURCE_PATH
+                operator: OPERATOR_PREFIX
+                value: /api/
+    timeWindow: 1m
+    maxRequests: 300
+    timeout: 1m
+
+  # The writes, as a Lua script: key(ctx) returns true for the requests
+  # to count, under the client IP.
+  - ingress:
+      name: API writes
+      status: STATUS_ACTIVE
+      script: |
+        ---@param ctx sz.Context
+        function key(ctx)
+          if ctx:path():sub(1, 5) == "/api/" and ctx:method() ~= "GET" then
+            return true
+          end
+        end
+    timeWindow: 1m
+    maxRequests: 60
+    timeout: 2m

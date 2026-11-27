@@ -1,0 +1,63 @@
+---
+import { LogoMark } from '@/components/logo';
+import { PackageCard } from '@/components/package-card';
+import { SearchBox } from '@/components/search-box';
+import Layout from '@/layouts/Layout.astro';
+import { getPackages, summaries } from '@/lib/pkg';
+
+const packages = summaries(getPackages());
+// the latest first
+const recent = [...packages].sort((a, b) => b.updated.localeCompare(a.updated)).slice(0, 9);
+const stats = [
+  { label: 'Packages', value: packages.length },
+  { label: 'Rules', value: packages.reduce((n, p) => n + p.rules.length, 0) },
+  { label: 'YAML / Lua files', value: packages.reduce((n, p) => n + p.files.length, 0) },
+];
+---
+
+<Layout hideSearch>
+  <section class="relative isolate overflow-hidden border-b bg-muted/30">
+    <!-- the mark, large and faint, behind the search -->
+    <LogoMark className="absolute top-1/2 left-1/2 -z-10 size-[36rem] -translate-1/2 opacity-[0.04]" />
+    <div class="mx-auto grid max-w-3xl gap-6 px-4 py-16 text-center sm:px-6 sm:py-24">
+      <h1 class="font-brand text-4xl leading-[0.95] font-semibold tracking-[-0.03em] text-balance uppercase sm:text-6xl">
+        <span class="text-brand">Sentinéz</span> recept
+      </h1>
+      <p class="text-muted-foreground text-balance">
+        Ready-made security rules for the Sentinéz edge: secrules, rate limits, OWASP CRS rulesets and Lua
+        hooks, in YAML or Lua, documented from their source.
+      </p>
+      <SearchBox size="lg" className="mx-auto max-w-xl" />
+      <dl class="mx-auto flex flex-wrap justify-center gap-x-10 gap-y-3 pt-2">
+        {
+          stats.map((s) => (
+            <div class="grid gap-0.5">
+              <dt class="text-xs text-muted-foreground">{s.label}</dt>
+              <dd class="text-xl font-semibold tabular-nums">{s.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-7xl px-4 py-12 sm:px-6">
+    <div class="mb-5 flex items-end justify-between gap-4">
+      <h2 class="text-lg font-semibold tracking-tight">Recently updated</h2>
+      <a href="/search" class="text-sm text-primary hover:underline">All packages →</a>
+    </div>
+    {
+      recent.length ? (
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {recent.map((pkg) => (
+            <PackageCard pkg={pkg} />
+          ))}
+        </div>
+      ) : (
+        <p class="rounded-lg border border-dashed p-10 text-center text-sm text-muted-foreground">
+          No package yet: add a folder of YAML or Lua rules under <code class="font-mono">pkg/</code>.
+        </p>
+      )
+    }
+  </section>
+</Layout>

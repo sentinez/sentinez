@@ -1,0 +1,33 @@
+---
+import { Code } from 'astro:components';
+
+import { CopyButton } from '@/components/copy-button';
+import { PathBreadcrumb } from '@/components/path-breadcrumb';
+import Layout from '@/layouts/Layout.astro';
+import { CODE_THEMES } from '@/lib/code';
+import { getPackages, type SourceFile } from '@/lib/pkg';
+
+export function getStaticPaths() {
+  return getPackages().flatMap((p) => p.files.map((file) => ({ params: { file: file.path }, props: { file } })));
+}
+
+const { file } = Astro.props as { file: SourceFile };
+const known = new Set(getPackages().map((p) => p.id));
+const dir = file.path.slice(0, -file.name.length - 1);
+---
+
+<Layout title={file.path}>
+  <div class="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-6 sm:px-6">
+    <PathBreadcrumb path={dir} known={known} file={file.name} />
+    <div class="min-w-0 overflow-hidden rounded-xl border">
+      <div class="flex items-center justify-between gap-2 border-b bg-muted/40 px-4 py-1.5 text-sm">
+        <span class="font-mono">{file.name}</span>
+        <span class="flex items-center gap-3 text-muted-foreground">
+          {file.lines} lines
+          <CopyButton from="#source" label="Copy file" />
+        </span>
+      </div>
+      <Code id="source" code={file.content} lang={file.lang} themes={CODE_THEMES} defaultColor={false} class="p-4 text-[13px] leading-6" />
+    </div>
+  </div>
+</Layout>

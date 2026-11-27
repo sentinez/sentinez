@@ -1,0 +1,51 @@
+# Protects a login page: a challenge before the form, and a rate limit on
+# the sign-in requests.
+#
+# Credential stuffing posts thousands of passwords to `/login`. The
+# challenge makes each new client solve a hash puzzle before it sees the
+# form, and the limiter blocks a client that posts more than 10 times a
+# minute for 5 minutes.
+#
+# Change `/login` to the path of your sign-in form.
+#
+# @version v2.0.0
+# @keywords login, credential-stuffing, brute-force
+
+secrules:
+  # The form: GET only, a POST body would be lost by the challenge.
+  - ingress:
+      name: Challenge GET /login
+      status: STATUS_ACTIVE
+      expr:
+        orCondition:
+          - rules:
+            - condition:
+                source: FIELD_SOURCE_PATH
+                operator: OPERATOR_EQ
+                value: /login
+            - condition:
+                source: FIELD_SOURCE_METHOD
+                operator: OPERATOR_EQ
+                value: GET
+    action:
+      type: ACTION_TYPE_CHALLENGE
+
+limiters:
+  # The sign-in requests, counted per client IP.
+  - ingress:
+      name: Rate limit POST /login
+      status: STATUS_ACTIVE
+      expr:
+        orCondition:
+          - rules:
+            - condition:
+                source: FIELD_SOURCE_PATH
+                operator: OPERATOR_EQ
+                value: /login
+            - condition:
+                source: FIELD_SOURCE_METHOD
+                operator: OPERATOR_EQ
+                value: POST
+    timeWindow: 1m
+    maxRequests: 10
+    timeout: 5m
