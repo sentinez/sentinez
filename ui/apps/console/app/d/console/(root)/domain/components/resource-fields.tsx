@@ -29,6 +29,7 @@ import {
   protocolOf,
 } from '@/lib/type/edge';
 import { FieldGrid } from '@/components/field-grid';
+import { FormSection } from '@/components/form-section';
 import { useTlsModes } from '@/hooks/use-tls-modes';
 
 export interface OriginRow {
@@ -253,6 +254,18 @@ export function OriginRows({
   );
 }
 
+/**
+ * The name a domain suggests: its labels joined by "-", the characters
+ * NAME_RE allows ("shop.example.com" -> "shop-example-com")
+ */
+function nameOfDomain(domain: string): string {
+  return domain
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 interface Props {
   value: ResourceFormValue;
   onChange: (patch: Partial<ResourceFormValue>) => void;
@@ -264,70 +277,105 @@ export function ResourceFields({ value, onChange, idPrefix = 'resource' }: Props
   const t = useTranslations('ResourceFields');
   const ts = useTranslations('Enum.status');
   const { options: tlsModes } = useTlsModes();
+  const hasOrigins = value.origins.length > 0;
+
+  // the name follows the domain until it is typed in
+  const changeDomain = (resourceDomain: string) =>
+    onChange(
+      value.resourceName === nameOfDomain(value.resourceDomain)
+        ? { resourceDomain, resourceName: nameOfDomain(resourceDomain) }
+        : { resourceDomain },
+    );
+  const addOrigin = () =>
+    onChange({
+      origins: [...value.origins, { server: '', protocol: ProxyProtocol.PROXY_PROTOCOL_HTTPS }],
+    });
 
   return (
     <div className="flex flex-col gap-4">
-      <FieldGrid>
-        <div className="grid grid-cols-1 gap-2 content-start">
-          <Label htmlFor={`${idPrefix}-name`}>{t('name')}</Label>
-          <Input
-            id={`${idPrefix}-name`}
-            placeholder="my_site"
-            spellCheck={false}
-            autoComplete="off"
-            value={value.resourceName}
-            onChange={(e) => onChange({ resourceName: e.target.value })}
-          />
-        </div>
-        <div className="grid grid-cols-1 gap-2 content-start">
-          <Label htmlFor={`${idPrefix}-domain`}>{t('domain')}</Label>
-          <Input
-            id={`${idPrefix}-domain`}
-            placeholder="example.com"
-            spellCheck={false}
-            autoComplete="off"
-            value={value.resourceDomain}
-            onChange={(e) => onChange({ resourceDomain: e.target.value })}
-          />
-          <p className="text-sm text-muted-foreground">{t('domainHint')}</p>
-        </div>
-      </FieldGrid>
+      <FormSection title={t('generalTitle')} hint={t('generalHint')}>
+        <FieldGrid>
+          <div className="grid grid-cols-1 content-start gap-2">
+            <Label htmlFor={`${idPrefix}-domain`}>{t('domain')}</Label>
+            <Input
+              id={`${idPrefix}-domain`}
+              placeholder="example.com"
+              spellCheck={false}
+              autoComplete="off"
+              autoFocus
+              value={value.resourceDomain}
+              onChange={(e) => changeDomain(e.target.value)}
+            />
+          </div>
+          <div className="grid grid-cols-1 content-start gap-2">
+            <Label htmlFor={`${idPrefix}-name`}>{t('name')}</Label>
+            <Input
+              id={`${idPrefix}-name`}
+              placeholder="example-com"
+              spellCheck={false}
+              autoComplete="off"
+              value={value.resourceName}
+              onChange={(e) => onChange({ resourceName: e.target.value })}
+            />
+            <p className="text-sm text-muted-foreground">{t('nameHint')}</p>
+          </div>
+        </FieldGrid>
+      </FormSection>
 
-      <FieldGrid>
-        <OptionSelect
-          label={t('status')}
-          value={value.status}
-          options={statusOptions(t, ts)}
-          onChange={(status) => onChange({ status })}
-        />
-        <OptionSelect
-          label={t('tlsMode')}
-          value={value.tlsMode}
-          options={tlsModes}
-          onChange={(tlsMode) => onChange({ tlsMode })}
-        />
-      </FieldGrid>
-
-      <div className="grid gap-2 mt-2">
-        <Label>{t('origin')}</Label>
-        <p className="text-sm text-muted-foreground">{t('originHint')}</p>
-        <div className="grid gap-2 sm:w-1/2">
-          <Label htmlFor={`${idPrefix}-location`}>{t('location')}</Label>
-          <Input
-            id={`${idPrefix}-location`}
-            placeholder="/"
-            spellCheck={false}
-            autoComplete="off"
-            value={value.location}
-            onChange={(e) => onChange({ location: e.target.value })}
+      <FormSection title={t('servingTitle')} hint={t('servingHint')}>
+        <FieldGrid>
+          <OptionSelect
+            label={t('status')}
+            value={value.status}
+            options={statusOptions(t, ts)}
+            onChange={(status) => onChange({ status })}
           />
-        </div>
-        <OriginRows
-          rows={value.origins}
-          onChange={(origins) => onChange({ origins })}
-          idPrefix={idPrefix}
-        />
-      </div>
+          <OptionSelect
+            label={t('tlsMode')}
+            value={value.tlsMode}
+            options={tlsModes}
+            onChange={(tlsMode) => onChange({ tlsMode })}
+          />
+        </FieldGrid>
+      </FormSection>
+
+      <FormSection title={t('origin')} hint={t('originSectionHint')}>
+        {hasOrigins ? (
+          <>
+            <FieldGrid>
+              <div className="grid grid-cols-1 content-start gap-2">
+                <Label htmlFor={`${idPrefix}-location`}>{t('location')}</Label>
+                <Input
+                  id={`${idPrefix}-location`}
+                  placeholder="/"
+                  spellCheck={false}
+                  autoComplete="off"
+                  className="font-mono"
+                  value={value.location}
+                  onChange={(e) => onChange({ location: e.target.value })}
+                />
+                <p className="text-sm text-muted-foreground">{t('locationHint')}</p>
+              </div>
+            </FieldGrid>
+            <div className="grid gap-2">
+              <Label>{t('originServers')}</Label>
+              <OriginRows
+                rows={value.origins}
+                onChange={(origins) => onChange({ origins })}
+                idPrefix={idPrefix}
+              />
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col items-start gap-3 rounded-lg border border-dashed p-4 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-muted-foreground">{t('originEmpty')}</p>
+            <Button type="button" variant="outline" size="sm" onClick={addOrigin}>
+              <PlusIcon />
+              {t('addOrigin')}
+            </Button>
+          </div>
+        )}
+      </FormSection>
     </div>
   );
 }

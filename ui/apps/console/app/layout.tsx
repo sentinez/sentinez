@@ -1,4 +1,4 @@
-import { Roboto, Roboto_Mono } from 'next/font/google';
+import { Roboto, Roboto_Mono, Geist } from 'next/font/google';
 
 import '@sentinez/ui/globals.css';
 import '@sentinez/ui/custom.css';
@@ -10,11 +10,9 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getTranslations } from 'next-intl/server';
 import LoadingEffect from '@/components/loading-effect';
 import { SessionRedirect } from '@/components/session-redirect';
+import { cn } from "@sentinez/ui/lib/utils";
 
-const fontSans = Roboto({
-  subsets: ['latin', 'vietnamese'],
-  variable: '--font-sans',
-});
+const roboto = Roboto({subsets:['latin'],variable:'--font-sans'});
 
 const fontMono = Roboto_Mono({
   subsets: ['latin', 'vietnamese'],
@@ -76,8 +74,8 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const locale = await getLocale();
 
   return (
-    <html lang={locale} suppressHydrationWarning>
-      <body className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased `}>
+    <html lang={locale} suppressHydrationWarning className={cn("font-sans", roboto.variable)}>
+      <body className={`${roboto.variable} ${fontMono.variable} font-sans antialiased `}>
         <NextIntlClientProvider>
           <Providers>
             <SessionRedirect />

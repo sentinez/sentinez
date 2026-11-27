@@ -31,7 +31,7 @@ export default function PreviewHeader(props: PreviewHeaderProps) {
       <div className="grid w-9 shrink-0 place-items-center">
         <SidebarTrigger className="size-8 cursor-pointer" />
       </div>
-      <Separator orientation="vertical" className="data-[orientation=vertical]:h-4" />
+      <Separator orientation="vertical" className="data-vertical:h-4 data-vertical:self-center" />
       <div className="flex min-w-0 flex-1 items-center justify-between gap-4 px-2">
         <div className="flex min-w-0 items-center gap-3">
           <span

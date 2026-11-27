@@ -18,3 +18,9 @@ export const PAGE_HEADER_HEIGHT = 'h-(--console-page-header-height)';
  */
 export const PAGE_LAYOUT_HEADER_HEIGHT =
   'min-h-(--console-page-header-height) sm:h-(--console-page-header-height)';
+
+/**
+ * The cookie the console sidebar width (px) is saved in, written by
+ * `ResizableSidebarProvider` and read back by the `/d` layout.
+ */
+export const SIDEBAR_WIDTH_COOKIE = 'sidebar_width';
