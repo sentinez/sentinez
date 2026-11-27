@@ -6,7 +6,14 @@
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
-import { Action, RuleService, ruleServiceFromJSON, ruleServiceToJSON } from "../../rule/v1/rule";
+import {
+  ActionType,
+  actionTypeFromJSON,
+  actionTypeToJSON,
+  RuleService,
+  ruleServiceFromJSON,
+  ruleServiceToJSON,
+} from "../../rule/v1/rule";
 
 export const protobufPackage = "sentinez.types.secrule.v1";
 
@@ -18,7 +25,7 @@ export interface SecRuleEvent {
   tenantId: string;
   /** milisec */
   matchedTime: number;
-  action?: Action | undefined;
+  action: ActionType;
   service: RuleService;
   requestDomain: string;
   requestScheme: string;
@@ -43,7 +50,7 @@ function createBaseSecRuleEvent(): SecRuleEvent {
     resourceId: "",
     tenantId: "",
     matchedTime: 0,
-    action: undefined,
+    action: 0,
     service: 0,
     requestDomain: "",
     requestScheme: "",
@@ -75,8 +82,8 @@ export const SecRuleEvent: MessageFns<SecRuleEvent> = {
     if (message.matchedTime !== 0) {
       writer.uint32(48).int64(message.matchedTime);
     }
-    if (message.action !== undefined) {
-      Action.encode(message.action, writer.uint32(58).fork()).join();
+    if (message.action !== 0) {
+      writer.uint32(56).int32(message.action);
     }
     if (message.service !== 0) {
       writer.uint32(64).int32(message.service);
@@ -167,11 +174,11 @@ export const SecRuleEvent: MessageFns<SecRuleEvent> = {
             continue;
           }
           case 7: {
-            if (tag !== 58) {
+            if (tag !== 56) {
               break;
             }
 
-            message.action = Action.decode(reader, reader.uint32());
+            message.action = reader.int32() as any;
             continue;
           }
           case 8: {
@@ -277,7 +284,7 @@ export const SecRuleEvent: MessageFns<SecRuleEvent> = {
         : isSet(object.matched_time)
         ? globalThis.Number(object.matched_time)
         : 0,
-      action: isSet(object.action) ? Action.fromJSON(object.action) : undefined,
+      action: isSet(object.action) ? actionTypeFromJSON(object.action) : 0,
       service: isSet(object.service) ? ruleServiceFromJSON(object.service) : 0,
       requestDomain: isSet(object.requestDomain)
         ? globalThis.String(object.requestDomain)
@@ -346,8 +353,8 @@ export const SecRuleEvent: MessageFns<SecRuleEvent> = {
     if (message.matchedTime !== 0) {
       obj.matchedTime = Math.round(message.matchedTime);
     }
-    if (message.action !== undefined) {
-      obj.action = Action.toJSON(message.action);
+    if (message.action !== 0) {
+      obj.action = actionTypeToJSON(message.action);
     }
     if (message.service !== 0) {
       obj.service = ruleServiceToJSON(message.service);
@@ -393,9 +400,7 @@ export const SecRuleEvent: MessageFns<SecRuleEvent> = {
     message.resourceId = object.resourceId ?? "";
     message.tenantId = object.tenantId ?? "";
     message.matchedTime = object.matchedTime ?? 0;
-    message.action = (object.action !== undefined && object.action !== null)
-      ? Action.fromPartial(object.action)
-      : undefined;
+    message.action = object.action ?? 0;
     message.service = object.service ?? 0;
     message.requestDomain = object.requestDomain ?? "";
     message.requestScheme = object.requestScheme ?? "";

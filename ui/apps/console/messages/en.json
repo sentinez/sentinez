@@ -867,7 +867,6 @@
       "s4xx": "4xx",
       "s5xx": "5xx",
       "other": "Other",
-      "events": "Events",
       "deny": "Deny",
       "allow": "Allow",
       "log": "Log"

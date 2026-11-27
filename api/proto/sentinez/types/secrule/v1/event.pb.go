@@ -46,7 +46,7 @@ type SecRuleEvent struct {
 	ResourceId        string                 `protobuf:"bytes,4,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`
 	TenantId          string                 `protobuf:"bytes,5,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
 	MatchedTime       int64                  `protobuf:"varint,6,opt,name=matched_time,json=matchedTime,proto3" json:"matched_time,omitempty"` // milisec
-	Action            *v1.Action             `protobuf:"bytes,7,opt,name=action,proto3" json:"action,omitempty"`
+	Action            v1.ActionType          `protobuf:"varint,7,opt,name=action,proto3,enum=sentinez.types.rule.v1.ActionType" json:"action,omitempty"`
 	Service           v1.RuleService         `protobuf:"varint,8,opt,name=service,proto3,enum=sentinez.types.rule.v1.RuleService" json:"service,omitempty"`
 	RequestDomain     string                 `protobuf:"bytes,10,opt,name=request_domain,json=requestDomain,proto3" json:"request_domain,omitempty"`
 	RequestScheme     string                 `protobuf:"bytes,11,opt,name=request_scheme,json=requestScheme,proto3" json:"request_scheme,omitempty"`
@@ -132,11 +132,11 @@ func (x *SecRuleEvent) GetMatchedTime() int64 {
 	return 0
 }
 
-func (x *SecRuleEvent) GetAction() *v1.Action {
+func (x *SecRuleEvent) GetAction() v1.ActionType {
 	if x != nil {
 		return x.Action
 	}
-	return nil
+	return v1.ActionType(0)
 }
 
 func (x *SecRuleEvent) GetService() v1.RuleService {
@@ -199,7 +199,7 @@ var File_sentinez_types_secrule_v1_event_proto protoreflect.FileDescriptor
 
 const file_sentinez_types_secrule_v1_event_proto_rawDesc = "" +
 	"\n" +
-	"%sentinez/types/secrule/v1/event.proto\x12\x19sentinez.types.secrule.v1\x1a\x1bbuf/validate/validate.proto\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1fsentinez/types/v1/options.proto\"\x96\x06\n" +
+	"%sentinez/types/secrule/v1/event.proto\x12\x19sentinez.types.secrule.v1\x1a\x1bbuf/validate/validate.proto\x1a!sentinez/types/rule/v1/rule.proto\x1a\x1fsentinez/types/v1/options.proto\"\x92\x06\n" +
 	"\fSecRuleEvent\x12F\n" +
 	"\x02id\x18\x01 \x01(\tB6\xbaH3r12/^([a-zA-Z0-9-]+-)?srevt_[0-9A-HJKMNP-TV-Z]{26}$R\x02id\x12.\n" +
 	"\x13matched_secrule_ids\x18\x02 \x03(\tR\x11matchedSecruleIds\x12\x1a\n" +
@@ -207,8 +207,8 @@ const file_sentinez_types_secrule_v1_event_proto_rawDesc = "" +
 	"\vresource_id\x18\x04 \x01(\tR\n" +
 	"resourceId\x12\x1b\n" +
 	"\ttenant_id\x18\x05 \x01(\tR\btenantId\x12!\n" +
-	"\fmatched_time\x18\x06 \x01(\x03R\vmatchedTime\x12>\n" +
-	"\x06action\x18\a \x01(\v2\x1e.sentinez.types.rule.v1.ActionB\x06\xca\xf0\x19\x02\x18\x03R\x06action\x12=\n" +
+	"\fmatched_time\x18\x06 \x01(\x03R\vmatchedTime\x12:\n" +
+	"\x06action\x18\a \x01(\x0e2\".sentinez.types.rule.v1.ActionTypeR\x06action\x12=\n" +
 	"\aservice\x18\b \x01(\x0e2#.sentinez.types.rule.v1.RuleServiceR\aservice\x12%\n" +
 	"\x0erequest_domain\x18\n" +
 	" \x01(\tR\rrequestDomain\x12%\n" +
@@ -240,11 +240,11 @@ var file_sentinez_types_secrule_v1_event_proto_msgTypes = make([]protoimpl.Messa
 var file_sentinez_types_secrule_v1_event_proto_goTypes = []any{
 	(*SecRuleEvent)(nil), // 0: sentinez.types.secrule.v1.SecRuleEvent
 	nil,                  // 1: sentinez.types.secrule.v1.SecRuleEvent.TagsEntry
-	(*v1.Action)(nil),    // 2: sentinez.types.rule.v1.Action
+	(v1.ActionType)(0),   // 2: sentinez.types.rule.v1.ActionType
 	(v1.RuleService)(0),  // 3: sentinez.types.rule.v1.RuleService
 }
 var file_sentinez_types_secrule_v1_event_proto_depIdxs = []int32{
-	2, // 0: sentinez.types.secrule.v1.SecRuleEvent.action:type_name -> sentinez.types.rule.v1.Action
+	2, // 0: sentinez.types.secrule.v1.SecRuleEvent.action:type_name -> sentinez.types.rule.v1.ActionType
 	3, // 1: sentinez.types.secrule.v1.SecRuleEvent.service:type_name -> sentinez.types.rule.v1.RuleService
 	1, // 2: sentinez.types.secrule.v1.SecRuleEvent.tags:type_name -> sentinez.types.secrule.v1.SecRuleEvent.TagsEntry
 	3, // [3:3] is the sub-list for method output_type

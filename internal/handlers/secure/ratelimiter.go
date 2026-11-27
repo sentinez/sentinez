@@ -35,11 +35,8 @@ var (
 )
 
 // _rateLimited the action of a rate limit event, whatever the limiter is
-// configured with: the request is always answered 429. Read only, it is
-// shared by the events (Release drops it without touching it).
-var _rateLimited = &rulepb.Action{
-	Type: rulepb.ActionType_ACTION_TYPE_RATE_LIMIT,
-}
+// configured with: the request is always answered 429.
+const _rateLimited = rulepb.ActionType_ACTION_TYPE_RATE_LIMIT
 
 type SecLimiter struct {
 	store *secratelimits.Limiter

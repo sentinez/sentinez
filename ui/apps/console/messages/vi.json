@@ -867,7 +867,6 @@
       "s4xx": "4xx",
       "s5xx": "5xx",
       "other": "Khác",
-      "events": "Sự kiện",
       "deny": "Chặn",
       "allow": "Cho phép",
       "log": "Ghi log"

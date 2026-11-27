@@ -34,7 +34,7 @@ message SecRuleEvent {
   string resource_id = 4;
   string tenant_id = 5;
   int64 matched_time = 6; // milisec
-  sentinez.types.rule.v1.Action action = 7 [(sentinez.types.v1.x_field).codec = COLUMN_CODEC_DRIVER];
+  sentinez.types.rule.v1.ActionType action = 7;
   sentinez.types.rule.v1.RuleService service = 8;
 
   string request_domain = 10;

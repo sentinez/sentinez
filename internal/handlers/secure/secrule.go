@@ -90,7 +90,8 @@ func (sr *SecRule) Handle(ctx szhttp.Context, next chains.Handler) error {
 	}
 
 	applyActions(ctx, acts)
-	sr.logMatched(ctx, loggedAction(terminal, acts), matched.MatchedRules)
+	sr.logMatched(ctx, loggedAction(terminal, acts).GetType(),
+		matched.MatchedRules)
 
 	return sr.enforce(ctx, terminal, next)
 }
@@ -115,7 +116,7 @@ func (sr *SecRule) enforce(
 
 // logMatched emits a secrule event for the request matched by mr.
 func (sr *SecRule) logMatched(
-	ctx szhttp.Context, action *rulepb.Action, mr *rulepb.MatchedRules,
+	ctx szhttp.Context, action rulepb.ActionType, mr *rulepb.MatchedRules,
 ) {
 	event := newSecRuleEvent(ctx,
 		rulepb.RuleService_RULE_SERVICE_SECRULE, action, mr)
@@ -126,11 +127,12 @@ func (sr *SecRule) logMatched(
 }
 
 // newSecRuleEvent returns the event of the request ctx, matched by the rules
-// of mr in service, with action; the caller logs it, releasing it.
+// of mr in service, with the type of its action; the caller logs it,
+// releasing it.
 func newSecRuleEvent(
 	ctx szhttp.Context,
 	service rulepb.RuleService,
-	action *rulepb.Action,
+	action rulepb.ActionType,
 	mr *rulepb.MatchedRules,
 ) *secrule.SecRuleEvent {
 	event := secrule.Acquire()
