@@ -60,7 +60,7 @@ export default function CreateRateLimitPage() {
           </Button>
         </div>
       </PageLayoutHeader>
-      <PageLayoutContent size="sm">
+      <PageLayoutContent size="md">
         <RateLimitFields value={form} onChange={patchForm} idPrefix="create" />
       </PageLayoutContent>
     </PageLayout>

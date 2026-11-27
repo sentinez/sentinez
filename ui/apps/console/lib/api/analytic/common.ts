@@ -1,31 +1,15 @@
-import type {
-  FieldTopValues,
-  HistogramPoint,
-} from '@sentinez/proto/sentinez/apps/analytic/v1/event';
 import { HistogramInterval, HistogramResolution } from '@sentinez/proto/sentinez/types/v1/known';
 import axios from 'axios';
 
 import { API_BASE_PATH } from '@/lib/api/base';
+import { fallbackOf } from '@/lib/api/fallback';
 import { toQuery } from '@/lib/api/pages';
-
-// Set NEXT_PUBLIC_USE_SAMPLE=true to return sample responses when an API call fails
-const USE_SAMPLE = process.env.NEXT_PUBLIC_USE_SAMPLE === 'true';
 
 export interface ApiOptions {
   signal?: AbortSignal;
 }
 
-export function withFallback<T>(label: string, fallback: () => T) {
-  return async (call: () => Promise<T>): Promise<T> => {
-    try {
-      return await call();
-    } catch (err: any) {
-      if (!USE_SAMPLE || axios.isCancel(err)) throw err;
-      console.warn(`[analytic] ${label} failed, using sample response:`, err?.message);
-      return fallback();
-    }
-  };
-}
+export const withFallback = fallbackOf('analytic');
 
 // The codecs of a request and of its response, generated from the proto
 type Codecs<Req, Resp> = {
@@ -211,146 +195,4 @@ export function bucketMillisOf(
   interval?: HistogramInterval,
 ): number {
   return interval ? INTERVAL_MILLIS[interval] : RESOLUTION_BUCKETS[resolution].millis;
-}
-
-// The sample buckets of a resolution: those ending with the one of `to`,
-// else the current one
-export function sampleBuckets(resolution: HistogramResolution, to?: Date): Date[] {
-  const { millis, count } = RESOLUTION_BUCKETS[resolution];
-  const end = Math.ceil((to ?? new Date(Date.now() + 1)).getTime() / millis);
-  return Array.from({ length: count }, (_, i) => new Date((end - count + i) * millis));
-}
-
-// A random number generator of [0, 1) seeded by seed (mulberry32 over an
-// FNV-1a hash): the same seed gives the same numbers, so samples asked twice
-// (the histogram, then the visitors) agree and do not change on re-render
-export function sampleRandom(seed: string): () => number {
-  let h = 0x811c9dc5;
-  for (let i = 0; i < seed.length; i++) {
-    h = Math.imul(h ^ seed.charCodeAt(i), 0x01000193);
-  }
-  return () => {
-    h = (h + 0x6d2b79f5) | 0;
-    let t = Math.imul(h ^ (h >>> 15), 1 | h);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-// The daily rhythm of the samples at time (millis): -1 at 00:00 UTC, 1 at
-// 12:00
-export const sampleDayCurve = (time: number) =>
-  Math.sin(((new Date(time).getUTCHours() - 6) / 24) * 2 * Math.PI);
-
-// A random element of list, drawn with random
-export const sampleOneOf = <T>(random: () => number, list: readonly T[]): T =>
-  list[Math.floor(random() * list.length)]!;
-
-// SampleLevel the shape of the traffic of a sample resource: its share of a
-// quiet resource (the rest scaled by the resource), the mean, the swing of
-// the day and the noise around it, and the factor of a burst (1 bucket in 12)
-export type SampleLevel = {
-  quiet: number;
-  mean: number;
-  day: number;
-  noise: number;
-  burst: number;
-};
-
-// The traffic level of a resource in the bucket at time, random but the same
-// for the same resource and bucket: a busy or quiet resource (its own
-// scale), busier by day, with noise and a burst now and then
-export function sampleLevel(resourceId: string, time: Date, l: SampleLevel): number {
-  const scale = sampleRandom(resourceId)();
-  const random = sampleRandom(`${resourceId}|${time.getTime()}`);
-  const burst = random() < 0.08 ? l.burst : 1;
-  const day = sampleDayCurve(time.getTime());
-  return (l.quiet + (1 - l.quiet) * scale) * (l.mean + l.day * day + l.noise * random()) * burst;
-}
-
-// Sample client ips: the first ones visit every hour, the others now and then
-export const SAMPLE_IPS = [
-  '203.0.113.7',
-  '198.51.100.23',
-  '192.0.2.41',
-  '203.0.113.88',
-  '198.51.100.5',
-];
-
-// ---- Sample records, counted the way the API counts them ----
-
-// SampleRecord a sample event as the histogram and the top values count it
-export type SampleRecord = {
-  time: number;
-  resourceId: string;
-  key: number;
-  fields: Record<string, string | string[]>;
-};
-
-// Whether a sample event is of one of the requests, as the API filters
-// request_ids: every one when empty
-export const ofRequests =
-  <T>(requestIds: string[], requestOf: (e: T) => string) =>
-  (e: T) =>
-    requestIds.length === 0 || requestIds.includes(requestOf(e));
-
-// Whether a sample record holds the values of the field filters, as the
-// API filters them: an element of a repeated field
-export const matchesFilters = (r: SampleRecord, filters: string[]) =>
-  filters.every((f) => {
-    const at = f.indexOf(':');
-    const want = f.slice(at + 1);
-    const value = r.fields[f.slice(0, at)];
-    return Array.isArray(value) ? value.includes(want) : value === want;
-  });
-
-// Adds the records to the points of the histogram of buckets of millis,
-// one per bucket, resource and key, and returns the points
-export function countPoints(
-  points: Map<string, HistogramPoint>,
-  records: SampleRecord[],
-  millis: number,
-): HistogramPoint[] {
-  for (const r of records) {
-    const start = Math.floor(r.time / millis) * millis;
-    const id = `${start}|${r.resourceId}|${r.key}`;
-    const point = points.get(id) ?? {
-      time: new Date(start),
-      resourceId: r.resourceId,
-      key: r.key,
-      total: 0,
-    };
-    point.total++;
-    points.set(id, point);
-  }
-  return [...points.values()];
-}
-
-// The top values of the fields of the records (all of them when none),
-// the empty values left out, a record once per element, at most limit
-// (5 by default, up to 20) per field
-export function countTopValues(
-  records: SampleRecord[],
-  fields: string[],
-  limit: number,
-): { total: number; fields: FieldTopValues[] } {
-  const max = Math.min(limit > 0 ? limit : 5, 20);
-  const names = fields.length ? fields : Object.keys(records[0]?.fields ?? {});
-  return {
-    total: records.length,
-    fields: names.map((field) => {
-      const counts = new Map<string, number>();
-      for (const r of records) {
-        const raw = r.fields[field] ?? '';
-        for (const value of new Set(Array.isArray(raw) ? raw : [raw])) {
-          if (value) counts.set(value, (counts.get(value) ?? 0) + 1);
-        }
-      }
-      const values = [...counts.entries()]
-        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-        .slice(0, max)
-        .map(([value, total]) => ({ value, total, share: total / records.length }));
-      return { field, values };
-    }),
-  };
 }

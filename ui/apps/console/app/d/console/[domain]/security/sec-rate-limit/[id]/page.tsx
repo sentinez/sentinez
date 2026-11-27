@@ -99,7 +99,7 @@ export default function EditRateLimitPage({ params }: { params: Promise<{ id: st
           </Button>
         </div>
       </PageLayoutHeader>
-      <PageLayoutContent size="sm">
+      <PageLayoutContent size="md">
         <RateLimitFields value={form} onChange={patchForm} idPrefix="edit" />
       </PageLayoutContent>
     </PageLayout>

@@ -33,6 +33,8 @@ import { TabLoading } from './tab-loading';
 import { ComponentProps, ReactNode, useEffect, useMemo, useState, useTransition } from 'react';
 import { useLocalUser } from '@/components/user-menu';
 import { isUnder } from '@/lib/session';
+import { cn } from '@sentinez/ui/lib/utils';
+import { PAGE_HEADER_HEIGHT, TOP_BARS_HEIGHT } from '@/lib/layout-bars';
 
 type SidebarProps = ComponentProps<typeof Sidebar>;
 
@@ -242,8 +244,18 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
       {/* This is the second sidebar */}
       {/* We disable collapsible and let it fill remaining space */}
       <Sidebar collapsible="none" className="min-w-0 flex-1">
-        <SidebarHeader className="gap-1.5 border-b p-2 md:p-3">
+        {/* Two blocks as tall as the bars of the page column, so that the
+            bottom border lines up with the page header: the team over the top
+            bars, the title and the search over the page header */}
+        <SidebarHeader className={cn('shrink-0 justify-center px-2 py-0 md:px-3', TOP_BARS_HEIGHT)}>
           <TeamSwitcher />
+        </SidebarHeader>
+        <SidebarHeader
+          className={cn(
+            'shrink-0 justify-center gap-1 border-b px-2 py-0 md:px-3',
+            PAGE_HEADER_HEIGHT,
+          )}
+        >
           {loading ? (
             <SidebarLoading />
           ) : (
@@ -251,7 +263,7 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
               {activeItem && t(activeItem.titleKey)}
             </div>
           )}
-          <SidebarGroup>
+          <SidebarGroup className="p-0">
             <SidebarGroupContent>
               <div className="relative">
                 <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2" />
