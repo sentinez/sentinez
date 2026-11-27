@@ -34,7 +34,7 @@ mirror the swagger wire format, and never use the edge/runtime protos
    That file also adds `Authorization: Bearer <token>` to every `/api/...`
    request, so call the default `axios` and never set the header by hand.
    `import { paginate, toQuery } from '@/lib/api/pages';` when needed.
-3. `const USE_SAMPLE = process.env.NEXT_PUBLIC_USE_SAMPLE === 'true';`
+3. `const withFallback = fallbackOf('<service>');` (`@/lib/api/fallback`, see section 4)
 4. `export interface ApiOptions { signal?: AbortSignal }`; every function takes
    `options?: ApiOptions` last and passes `signal` to axios.
 5. One exported async function per rpc, with the path in a comment:
@@ -84,30 +84,30 @@ export async function updateSecRule(
 - Default: let errors throw; callers already `try/catch` + `toast.error`. (The tenant
   getters/list keep an `orNull` wrapper because `useApi` treats `null` as 404; do not
   copy that unless asked.)
-- Sample fallback, only when `USE_SAMPLE` is true:
+- Sample fallback, only when `USE_SAMPLE` is true: take the shared one of
+  `lib/api/fallback.ts` (it rethrows cancellations and logs `[<service>] <label> failed`):
 
 ```ts
-function withFallback<T>(label: string, fallback: () => T) {
-  return async (call: () => Promise<T>): Promise<T> => {
-    try {
-      return await call();
-    } catch (err: any) {
-      if (!USE_SAMPLE || axios.isCancel(err)) throw err;
-      console.warn(`[<service>] ${label} failed, using sample response:`, err?.message);
-      return fallback();
-    }
-  };
-}
+import { fallbackOf } from '@/lib/api/fallback';
+
+const withFallback = fallbackOf('<service>');
 ```
 
 - Pass the response type explicitly (`withFallback<GetSecRuleResponse>(...)`) so the
   fallback and the real call agree.
 - Always rethrow cancellations (`axios.isCancel`).
-- Exported `SAMPLE_*` data is typed with the proto models and covers each state worth
+- The sample data lives in `lib/faker/<service>.ts` (`lib/faker/analytic/` for the
+  analytic one), never in `lib/api`: the client imports what its fallbacks need. Seeded
+  randomness is in `lib/faker/random.ts`, the counting of sample events in
+  `lib/faker/analytic/records.ts`.
+- `SAMPLE_*` data is typed with the proto models and covers each state worth
   rendering (active/disabled, AND/OR conditions...). Data easier to write as wire JSON
-  can be parsed with `Model.fromJSON`. Keep a module-level `sampleStore` so
-  create/update/delete are reflected in later list/get calls; build stored items with
-  `Model.fromPartial` so required fields get defaults.
+  can be parsed with `Model.fromJSON`. Keep the rows in a `SampleStore`
+  (`lib/faker/store.ts`, e.g. `export const ruleStore = new SampleStore(SAMPLE_RULES)`)
+  so create/update/delete (`add`, `replace`, `remove`) are reflected in later list/get
+  calls; build stored items with `Model.fromPartial` so required fields get defaults.
+  Export from the faker module only what the client calls: the stores and the
+  `filterSample*` helpers (built on `byIds` / `byResources` of `lib/faker/store.ts`).
 - Never use `Math.random`/`Date.now` at module load for anything SSR-rendered; ids
   inside sample data should be stable literals where possible.
 

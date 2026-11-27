@@ -451,6 +451,8 @@
     "state": "State",
     "scoped": "Only for matching requests",
     "scopedHint": "Applies to every request unless a condition is set. Body, JA4 and TLS sources are not supported.",
+    "editConditions": "Edit conditions",
+    "conditionsTitle": "Conditions",
     "browse": "Browse",
     "unknownRule": "Not in the CRS catalog",
     "pickerTitle": "CRS rule catalog",
@@ -755,11 +757,10 @@
     "json": "JSON",
     "addCondition": "Add condition",
     "groupN": "Group {n}",
-    "matchAll": "Match all of",
-    "matchAny": "Match any of",
     "addGroup": "Add group",
     "emptyGroup": "Empty group: it is dropped when saved.",
-    "maxConditions": "At most {n} conditions."
+    "maxConditions": "At most {n} conditions.",
+    "conditionCount": "{n, plural, one {# condition} other {# conditions}}"
   },
   "Validation": {
     "nameDescriptionRequired": "Fields name and description are required",
