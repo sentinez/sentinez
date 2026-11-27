@@ -21,7 +21,8 @@ import {
 } from '@sentinez/ui/components/sidebar';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { dashboard, NavItem } from '@/lib/default';
+import { NavItem } from '@/lib/default';
+import { DOMAIN_NAV, ROOT_NAV, withDomain } from '@/lib/nav';
 import { usePathname } from 'next/navigation';
 import { TeamSwitcher } from './team-switcher';
 import Link from 'next/link';
@@ -30,56 +31,27 @@ import PreviewFooter from './preview-footer';
 import { Search } from 'lucide-react';
 import SidebarLoading from './sidebar-loading';
 import { TabLoading } from './tab-loading';
-import {
-  ComponentProps,
-  CSSProperties,
-  ReactNode,
-  useEffect,
-  useMemo,
-  useState,
-  useTransition,
-} from 'react';
+import { ComponentProps, ReactNode, useEffect, useMemo, useState, useTransition } from 'react';
 import { useLocalUser } from '@/components/user-menu';
+import { useDebounced } from '@/hooks/use-debounced';
+import { useDomain } from '@/hooks/use-domain';
 import { isUnder } from '@/lib/session';
 import { cn } from '@sentinez/ui/lib/utils';
-import { PAGE_HEADER_HEIGHT, TOP_BARS_HEIGHT } from '@/lib/layout-bars';
-import { useHideOnScroll } from '@/hooks/use-hide-on-scroll';
+import { BAR_HEIGHT, PAGE_HEADER_HEIGHT } from '@/lib/layout-bars';
 
 type SidebarProps = ComponentProps<typeof Sidebar>;
 
 /** Sidebar of the tenant-level pages (`/d/console/(root)`, `/d/setting`). */
 export function RootSidebar(props: SidebarProps) {
-  return <ConsoleSidebar navMain={_rootNavMain} {...props} />;
+  return <ConsoleSidebar navMain={ROOT_NAV} {...props} />;
 }
 
 /** Sidebar of the domain pages (`/d/console/[domain]/...`). */
 export function DomainSidebar(props: SidebarProps) {
-  const domain = usePathname().split('/')[3];
-  const navMain = useMemo(
-    () => (domain ? withDomain(_domainNavMain, domain) : _domainNavMain),
-    [domain],
-  );
+  const domain = useDomain();
+  const navMain = useMemo(() => (domain ? withDomain(DOMAIN_NAV, domain) : DOMAIN_NAV), [domain]);
 
   return <ConsoleSidebar navMain={navMain} {...props} />;
-}
-
-/** Drops the items marked `hidden`, at every level. */
-function visible(items: NavItem[]): NavItem[] {
-  return items
-    .filter((item) => !item.hidden)
-    .map((item) => (item.items ? { ...item, items: visible(item.items) } : item));
-}
-
-const _rootNavMain = visible(dashboard.rootNavMain);
-const _domainNavMain = visible(dashboard.domainNavMain);
-
-/** Rewrites `/d/console/<path>` urls to `/d/console/<domain>/<path>`. */
-function withDomain(items: NavItem[], domain: string): NavItem[] {
-  return items.map((item) => ({
-    ...item,
-    url: domainUrl(item.url, domain),
-    items: item.items ? withDomain(item.items, domain) : undefined,
-  }));
 }
 
 /**
@@ -98,13 +70,6 @@ function bestUrl(item: NavItem, pathname: string): string | undefined {
 /** A tab with sub tabs opens its first sub tab. */
 const tabUrl = (item: NavItem) => item.items?.[0]?.url ?? item.url;
 
-function domainUrl(url: string, domain: string) {
-  if (!url.startsWith('/d/console/')) return url;
-  const parts = url.split('/');
-  if (parts[3] === domain) return url;
-  return `/d/console/${domain}/${parts.slice(3).join('/')}`;
-}
-
 /**
  * Two-level console sidebar: an icon rail with `navMain`, and a panel with the
  * children of the active item (searchable, one level of collapsible sub items).
@@ -112,51 +77,38 @@ function domainUrl(url: string, domain: string) {
 export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: NavItem[] }) {
   const t = useTranslations('Nav');
   const ts = useTranslations('Sidebar');
+  // filters the items of the active tab
+  const [search, setSearch] = useState('');
   const pathname = usePathname();
 
   const [, startTransitionNavMain] = useTransition();
   const [, startTransitionChildren] = useTransition();
 
   const [loading, setLoading] = useState(true);
-  const [activeItem, setActiveItem] = useState(navMain[0]);
-  const [childItems, setChildItems] = useState(navMain[0]?.items);
   const [navIndex, setNavIndex] = useState(0);
+  const activeItem = navMain[navIndex];
   // The url of the selected tab or sub tab; set on click so the selection
   // moves at once, then synced from the pathname.
   const [activeUrl, setActiveUrl] = useState('');
-  const [search, setSearch] = useState('');
   const { setOpen, setOpenMobile, isMobile } = useSidebar();
   const user = useLocalUser();
 
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      const originalItems = navMain[navIndex]?.items || [];
-      if (search.trim() === '') {
-        setChildItems(originalItems);
-      } else {
-        const filtered = originalItems.filter((item) =>
-          t(item.titleKey).toLowerCase().includes(search.toLowerCase()),
-        );
-        setChildItems(filtered);
-      }
-    }, 300); // debounce 300ms
-
-    return () => clearTimeout(handler); // cleanup
-  }, [search, activeItem, navIndex, navMain, t]);
+  // the items of the active tab, filtered by the search once typing stops
+  const words = useDebounced(search).trim().toLowerCase();
+  const childItems = useMemo(() => {
+    const items = activeItem?.items ?? [];
+    return words ? items.filter((item) => t(item.titleKey).toLowerCase().includes(words)) : items;
+  }, [activeItem, words, t]);
 
   useEffect(() => {
-    let best: { item: NavItem; index: number; url: string } | undefined;
+    let best: { index: number; url: string } | undefined;
     for (const [index, item] of navMain.entries()) {
       const url = bestUrl(item, pathname);
-      if (url && url.length > (best?.url.length ?? 0)) best = { item, index, url };
+      if (url && url.length > (best?.url.length ?? 0)) best = { index, url };
     }
 
     setActiveUrl(best?.url ?? '');
-    if (best) {
-      setActiveItem(best.item);
-      setNavIndex(best.index);
-      setChildItems(best.item.items);
-    }
+    if (best) setNavIndex(best.index);
 
     // Always leave the skeleton state, even when no nav item/child matched.
     setLoading(false);
@@ -166,8 +118,6 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
   // move the selection at once and close the mobile panel.
   const handlerSidebarNavMainClick = (item: NavItem, index: number) => {
     startTransitionNavMain(() => {
-      setActiveItem(item);
-      setChildItems(item.items);
       setActiveUrl(item.url);
       setNavIndex(index);
       setOpen(true);
@@ -253,13 +203,13 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
       {/* This is the second sidebar */}
       {/* We disable collapsible and let it fill remaining space */}
       <Sidebar collapsible="none" className="min-w-0 flex-1">
-        {/* Two blocks as tall as the bars of the page column, so that the
-            bottom border lines up with the page header: the team over the top
-            bars, the title and the search over the page header */}
+        {/* Two blocks as tall as the bars of the page column, so that their
+            borders line up: the team over PreviewHeader, the title over
+            PageLayoutHeader */}
         <SidebarHeader
           // its bottom border inside its height, as the bars have theirs: on
-          // the line under BreadcrumbBar
-          className={cn('shrink-0 justify-center border-b px-2 py-0 md:px-3', TOP_BARS_HEIGHT)}
+          // the line under PreviewHeader
+          className={cn('shrink-0 justify-center border-b px-2 py-0 md:px-3', BAR_HEIGHT)}
         >
           <TeamSwitcher />
         </SidebarHeader>
@@ -268,7 +218,7 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
             // under the border of the team block; the height (its bottom
             // border included) lines that one up with PageLayoutHeader.
             // Inside, a 16px title, 8px and the 32px search are centred
-            // between the two borders, 9px of room above and below
+            // between the two borders
             'shrink-0 justify-center gap-2 border-b px-2 py-0 md:px-3',
             PAGE_HEADER_HEIGHT,
           )}
@@ -276,21 +226,18 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
           {loading ? (
             <SidebarLoading className="h-4" />
           ) : (
-            <div className="text-foreground text-base leading-none font-medium">
+            <div className="text-foreground text-center text-base leading-none font-medium">
               {activeItem && t(activeItem.titleKey)}
             </div>
           )}
           <SidebarGroup className="p-0">
             <SidebarGroupContent>
               <div className="relative">
-                <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2" />
-
+                <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2" />
                 <SidebarInput
                   placeholder={ts('search')}
                   className="pl-8"
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                  }}
+                  onChange={(e) => setSearch(e.target.value)}
                 />
               </div>
             </SidebarGroupContent>
@@ -364,23 +311,12 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
 
 export function ConsoleSidebarInset({ children }: { children: ReactNode }) {
   const user = useLocalUser();
-  // the top bar hides while the page is scrolled down, shows when scrolled up
-  const previewHidden = useHideOnScroll();
 
   return (
-    // min-w-0: a wide table scrolls inside the page instead of widening it.
-    // --console-preview-offset: where the sticky PageLayoutHeader stops, under
-    // the top bar while it shows
-    <SidebarInset
-      className="min-w-0"
-      style={
-        {
-          '--console-preview-offset': previewHidden ? '0px' : 'var(--console-bar-height)',
-        } as CSSProperties
-      }
-    >
+    // min-w-0: a wide table scrolls inside the page instead of widening it
+    <SidebarInset className="min-w-0">
       <div className="flex min-h-dvh flex-col">
-        <PreviewHeader username={user.name} hidden={previewHidden} />
+        <PreviewHeader username={user.name} />
         <TabLoading>{children}</TabLoading>
       </div>
       <PreviewFooter />

@@ -21,6 +21,6 @@
 /* The heights of the console bars (lib/layout-bars.ts in apps/console): the
    page column and the domain sidebar share them, so their borders line up */
 :root {
-  --console-bar-height: 2.5rem;
-  --console-page-header-height: 4.75rem;
+  --console-bar-height: 3.5rem;
+  --console-page-header-height: 5.5rem;
 }

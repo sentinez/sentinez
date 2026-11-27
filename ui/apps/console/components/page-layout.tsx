@@ -6,8 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { ReactNode } from 'react';
 import { cn } from '@sentinez/ui/lib/utils';
-import { BreadcrumbBar } from './breadcrumb-bar';
-import { PAGE_HEADER_MIN_HEIGHT } from '@/lib/layout-bars';
+import { PAGE_LAYOUT_HEADER_HEIGHT } from '@/lib/layout-bars';
 
 export function PageLayout({ children }: Readonly<{ children: ReactNode }>) {
   return <>{children}</>;
@@ -24,33 +23,35 @@ export function PageLayoutHeader({ children, title, subtitle }: PageLayoutHeader
   const t = useTranslations('Common');
 
   return (
-    // stuck under the top bar of ConsoleSidebarInset while it shows, at the
-    // top of the window when it hides (0 outside of it)
-    <div className="sticky top-[var(--console-preview-offset,0px)] z-1 bg-background transition-[top] duration-150 ease-out">
-      <BreadcrumbBar />
-      <div
-        className={cn(
-          'flex w-full max-w-7xl items-center gap-1 border-b px-1 md:px-2',
-          PAGE_HEADER_MIN_HEIGHT,
-        )}
+    // under the bars of ConsoleSidebarInset, scrolled away with the page
+    <div
+      className={cn(
+        'flex w-full max-w-7xl items-center gap-1 border-b px-1 md:px-2',
+        PAGE_LAYOUT_HEADER_HEIGHT,
+      )}
+    >
+      <Button
+        variant="ghost"
+        size="icon"
+        className="shrink-0"
+        aria-label={t('back')}
+        onClick={() => router.back()}
       >
-        <Button
-          variant="ghost"
-          size="icon"
-          className="shrink-0"
-          aria-label={t('back')}
-          onClick={() => router.back()}
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </Button>
-        <div className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-x-4 gap-y-2 px-1 py-2 sm:p-2">
-          <div className="flex min-w-0 flex-col">
-            <h1 className="truncate text-base font-semibold tracking-tight">{title}</h1>
-            <p className="line-clamp-2 text-sm text-muted-foreground sm:text-balance">{subtitle}</p>
-          </div>
-
-          {children && <div className="flex flex-wrap items-center gap-2">{children}</div>}
+        <ChevronLeft className="w-5 h-5" />
+      </Button>
+      {/* from sm, one row of its fixed height: the text truncates instead
+            of wrapping, the actions stay beside it */}
+      <div className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-x-4 gap-y-2 px-1 py-2 sm:flex-nowrap sm:p-2">
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <h1 className="truncate text-base font-semibold tracking-tight">{title}</h1>
+          <p className="line-clamp-2 text-sm text-muted-foreground sm:line-clamp-1">{subtitle}</p>
         </div>
+
+        {children && (
+          <div className="flex shrink-0 flex-wrap items-center gap-2 sm:flex-nowrap">
+            {children}
+          </div>
+        )}
       </div>
     </div>
   );
