@@ -19,7 +19,7 @@ import { CRSVersion } from '@sentinez/proto/sentinez/types/ruleset/v1/setting';
 import { Expression } from '@sentinez/proto/sentinez/types/rule/v1/rule';
 import { useSecurityOptions } from '@/hooks/use-security-options';
 import { CRS_RULE_ID_MAX, CRS_RULE_ID_MIN } from '@/lib/type/security';
-import { countConditions, treeOf } from '@/lib/type/rule-tree';
+import { countConditions } from '@/lib/type/rule-expr';
 import {
   ExclusionFormValue,
   ExclusionTargetFormValue,
@@ -189,7 +189,7 @@ function ScopeField({
   const t = useTranslations('RulesetFields');
   const tq = useTranslations('QueryBuilder');
   const [editing, setEditing] = useState(false);
-  const count = useMemo(() => countConditions(treeOf(expr)), [expr]);
+  const count = useMemo(() => countConditions(expr), [expr]);
 
   return (
     <div className="grid gap-2">

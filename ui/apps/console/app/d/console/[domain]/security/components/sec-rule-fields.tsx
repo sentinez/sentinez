@@ -24,7 +24,8 @@ import { Status } from '@sentinez/proto/sentinez/types/v1/known';
 import { ACTIONS_WITHOUT_VALUE, SelectOption } from '@/lib/type/security';
 import { useSecurityOptions } from '@/hooks/use-security-options';
 import { useConditionSchema } from '@/hooks/use-condition-schema';
-import { QueryBuilder, createEmptyExpression } from './query-builder';
+import { QueryBuilder } from './query-builder';
+import { createEmptyExpression } from '@/lib/type/rule-expr';
 import { FieldGrid } from '@/components/field-grid';
 
 export interface ParamRow {

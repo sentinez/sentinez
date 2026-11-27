@@ -6,15 +6,10 @@ import {
 } from '@sentinez/proto/sentinez/apps/security/v1/security';
 import { RuleInfo } from '@sentinez/proto/sentinez/types/ruleset/v1/setting';
 import { providerOf } from '@/lib/type/security';
-import {
-  type CondNode,
-  type RuleNode,
-  createCondNode,
-  createGroupNode,
-  exprOf,
-} from '@/lib/type/rule-tree';
+import { createCondition } from '@/lib/type/rule-expr';
 import {
   ActionType,
+  AndCondition,
   FieldSource,
   Operator,
   actionTypeToJSON,
@@ -61,20 +56,19 @@ const sampleRule = (
   exprPreview: '',
 });
 
-// Nested groups, built as the editor tree: all = AND, any = OR
-const leaf = (source: FieldSource, operator: Operator, value: unknown, key = ''): CondNode =>
-  createCondNode({ source, operator, value, key });
-
+// Nested groups, built as AndConditions: all = AND, any = OR
 const cond = (source: FieldSource, operator: Operator, value: unknown, key = '') => ({
-  condition: leaf(source, operator, value, key).condition,
+  condition: createCondition({ source, operator, value, key }),
 });
-const all = (...children: RuleNode[]) => createGroupNode('all', children);
-const any = (...children: RuleNode[]) => createGroupNode('any', children);
 
-// The scope of a ruleset exclusion or override, as proto JSON: a single
-// condition is a group of one
-const scope = (node: RuleNode) =>
-  Expression.toJSON(exprOf(node.kind === 'group' ? node : all(node)));
+const leaf = (...args: Parameters<typeof cond>) =>
+  AndCondition.fromPartial({ rules: [cond(...args)] });
+const all = (...andCondition: AndCondition[]) => AndCondition.fromPartial({ andCondition });
+const any = (...orCondition: AndCondition[]) => AndCondition.fromPartial({ orCondition });
+const exprOf = (and: AndCondition): Expression => ({ orCondition: [and] });
+
+// The scope of a ruleset exclusion or override, as proto JSON
+const scope = (and: AndCondition) => Expression.toJSON(exprOf(and));
 
 const SAMPLE_RULES: SecRule[] = [
   sampleRule(
@@ -83,7 +77,7 @@ const SAMPLE_RULES: SecRule[] = [
     'Sample: (Path prefix /admin AND Method != GET)',
     1,
     Status.STATUS_ACTIVE,
-    {
+    Expression.fromPartial({
       orCondition: [
         {
           rules: [
@@ -94,7 +88,7 @@ const SAMPLE_RULES: SecRule[] = [
           andCondition: [],
         },
       ],
-    } as Expression,
+    }),
   ),
   sampleRule(
     'sample-rule-2',
@@ -102,7 +96,7 @@ const SAMPLE_RULES: SecRule[] = [
     'Sample: User-Agent contains "curl" OR "sqlmap"',
     2,
     Status.STATUS_ACTIVE,
-    {
+    Expression.fromPartial({
       orCondition: [
         {
           rules: [
@@ -124,7 +118,7 @@ const SAMPLE_RULES: SecRule[] = [
           andCondition: [],
         },
       ],
-    } as Expression,
+    }),
   ),
   sampleRule(
     'sample-rule-3',
@@ -132,7 +126,7 @@ const SAMPLE_RULES: SecRule[] = [
     'Sample: IP in 10.0.0.0/8 (disabled)',
     3,
     Status.STATUS_DISABLE,
-    {
+    Expression.fromPartial({
       orCondition: [
         {
           rules: [cond(FieldSource.FIELD_SOURCE_IP, Operator.OPERATOR_IN, ['10.0.0.0/8'])],
@@ -140,7 +134,7 @@ const SAMPLE_RULES: SecRule[] = [
           andCondition: [],
         },
       ],
-    } as Expression,
+    }),
     ActionType.ACTION_TYPE_LOG,
   ),
   sampleRule(
@@ -219,7 +213,7 @@ const GENERATED_ACTIONS = [
 ];
 
 const generatedExpr = (id: string, path: string): Expression =>
-  ({
+  Expression.fromPartial({
     orCondition: [
       {
         rules: [
@@ -237,7 +231,7 @@ const generatedExpr = (id: string, path: string): Expression =>
         andCondition: [],
       },
     ],
-  }) as Expression;
+  });
 
 const generateRules = (prefix: string, from: number, count: number): SecRule[] =>
   Array.from({ length: count }, (_, i) => {
@@ -277,7 +271,7 @@ const SAMPLE_RATE_LIMITS: SecRateLimit[] = [
       'Sample: POST /login, 5 requests per minute, blocked for 10m',
       1,
       Status.STATUS_ACTIVE,
-      {
+      Expression.fromPartial({
         orCondition: [
           {
             rules: [
@@ -288,7 +282,7 @@ const SAMPLE_RATE_LIMITS: SecRateLimit[] = [
             andCondition: [],
           },
         ],
-      } as Expression,
+      }),
     ),
     '1m',
     5,
@@ -301,7 +295,7 @@ const SAMPLE_RATE_LIMITS: SecRateLimit[] = [
       'Sample: path prefix /api, 100 requests per 10s',
       10,
       Status.STATUS_ACTIVE,
-      {
+      Expression.fromPartial({
         orCondition: [
           {
             rules: [cond(FieldSource.FIELD_SOURCE_PATH, Operator.OPERATOR_PREFIX, '/api')],
@@ -309,7 +303,7 @@ const SAMPLE_RATE_LIMITS: SecRateLimit[] = [
             andCondition: [],
           },
         ],
-      } as Expression,
+      }),
     ),
     '10s',
     100,
@@ -322,7 +316,7 @@ const SAMPLE_RATE_LIMITS: SecRateLimit[] = [
       'Sample: /search OR /autocomplete, 50 per second, disabled',
       50,
       Status.STATUS_DISABLE,
-      {
+      Expression.fromPartial({
         orCondition: [
           {
             rules: [cond(FieldSource.FIELD_SOURCE_PATH, Operator.OPERATOR_PREFIX, '/search')],
@@ -335,7 +329,7 @@ const SAMPLE_RATE_LIMITS: SecRateLimit[] = [
             andCondition: [],
           },
         ],
-      } as Expression,
+      }),
       ActionType.ACTION_TYPE_LOG,
     ),
     '1s',

@@ -1,5 +1,9 @@
 import { useFormatter, useTranslations } from 'next-intl';
 import Language from './language';
+import { Notifications } from './notifications';
+import { NavSearch } from './nav-search';
+import { Separator } from '@sentinez/ui/components/separator';
+import { SidebarTrigger } from '@sentinez/ui/components/sidebar';
 import { BAR_HEIGHT } from '@/lib/layout-bars';
 import { cn } from '@sentinez/ui/lib/utils';
 
@@ -12,21 +16,26 @@ export default function PreviewHeader(props: PreviewHeaderProps) {
   const format = useFormatter();
 
   return (
+    // stuck to the top of the window: its border stays in line with the team
+    // block of the sidebar. The padding of PageLayoutHeader, and the sidebar
+    // trigger centred in a slot as wide as its back button (w-9): the two
+    // icons line up
     <div
-      className="flex w-full items-start bg-background text-foreground"
+      className={cn(
+        'sticky top-0 z-20 flex w-full items-center gap-1 border-b bg-background px-1 text-foreground md:px-2',
+        BAR_HEIGHT,
+      )}
       id="screenshot"
       data-theme-scope="preview"
     >
-      <div
-        className={cn(
-          'flex w-full items-center border-b border-border bg-background px-3',
-          BAR_HEIGHT,
-        )}
-      >
-        <div className="flex w-full items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <span
-              className="[font-family:'Phudu',sans-serif]
+      <div className="grid w-9 shrink-0 place-items-center">
+        <SidebarTrigger className="size-8 cursor-pointer" />
+      </div>
+      <Separator orientation="vertical" className="data-[orientation=vertical]:h-4" />
+      <div className="flex min-w-0 flex-1 items-center justify-between gap-4 px-2">
+        <div className="flex min-w-0 items-center gap-3">
+          <span
+            className="[font-family:'Phudu',sans-serif]
               font-bold
               text-xs 
               bg-gradient-to-r
@@ -37,22 +46,25 @@ export default function PreviewHeader(props: PreviewHeaderProps) {
               bg-clip-text
               text-transparent
               animate-gradient"
-            >
-              SENTINÉZ
-            </span>
-            <span className="hidden text-muted-foreground sm:inline">·</span>
-            <p className="hidden text-xs text-muted-foreground sm:block">
-              {t('welcome', { name: props.username })}
-            </p>
+          >
+            SENTINÉZ
+          </span>
+          <span className="hidden truncate text-xs text-muted-foreground transition-colors hover:text-foreground sm:inline">
+            {format.dateTime(new Date(), { dateStyle: 'full' })}
+          </span>
+        </div>
+
+        <div className="flex min-w-0 items-center gap-5">
+          <p className="hidden truncate text-xs text-muted-foreground lg:block">
+            {t('welcome', { name: props.username })}
+          </p>
+          {/* finds a page of the console navigation; beside it, the bell */}
+          <div className="flex min-w-0 items-center gap-1">
+            <NavSearch className="hidden w-48 sm:flex md:w-64" />
+            <Notifications />
           </div>
 
-          <div className="flex min-w-0 items-center gap-5">
-            <span className="truncate text-xs text-muted-foreground transition-colors hover:text-foreground">
-              {format.dateTime(new Date(), { dateStyle: 'full' })}
-            </span>
-
-            <Language />
-          </div>
+          <Language />
         </div>
       </div>
     </div>

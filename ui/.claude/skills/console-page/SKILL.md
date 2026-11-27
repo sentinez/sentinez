@@ -79,8 +79,9 @@ export default function Loading() {
   around it does not widen or shift when zooming.
 - List: the filter / refresh / columns row above the table is `<PageLayoutToolbar>`
   (spacing included: no `ml-2` on its items, no `py-4`).
-- `PageLayoutHeader` is sticky and already holds the sidebar trigger and the
-  breadcrumb of the path (`BreadcrumbBar`): a page never renders its own.
+- The sticky top bar of the console (`PreviewHeader`) holds the sidebar trigger
+  and the page search: a page never renders its own. `PageLayoutHeader`
+  scrolls with the page, one line high from `sm` (its text truncates).
 - The page itself is laid out by `PageLayoutHeader` / `PageLayoutContent` only; a page
   never adds its own `mx-auto` or `items-center justify-center`. Inside a page, only
   small things centre in their own box (a table cell, a tooltip, an empty state).

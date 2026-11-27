@@ -735,8 +735,7 @@
   "QueryBuilder": {
     "or": "OR",
     "and": "AND",
-    "removeGroup": "Remove group",
-    "noConditions": "No conditions in this group.",
+    "noConditions": "No conditions.",
     "conditionN": "Condition {n}",
     "removeCondition": "Remove condition {n}",
     "source": "Source",
@@ -756,11 +755,14 @@
     },
     "json": "JSON",
     "addCondition": "Add condition",
-    "groupN": "Group {n}",
-    "addGroup": "Add group",
-    "emptyGroup": "Empty group: it is dropped when saved.",
     "maxConditions": "At most {n} conditions.",
-    "conditionCount": "{n, plural, one {# condition} other {# conditions}}"
+    "conditionCount": "{n, plural, one {# condition} other {# conditions}}",
+    "tooLarge": "These conditions expand to more than {n} conditions, too many to edit here: see the JSON.",
+    "blockN": "Block {n}",
+    "addBlock": "OR block",
+    "moveCondition": "Move condition {n}",
+    "moveBlock": "Move block {n}",
+    "dropNewBlock": "Drop here to make a new OR block"
   },
   "Validation": {
     "nameDescriptionRequired": "Fields name and description are required",

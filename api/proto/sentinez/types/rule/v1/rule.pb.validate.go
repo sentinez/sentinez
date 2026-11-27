@@ -273,6 +273,8 @@ func (m *AndCondition) Validate() error {
 		return nil
 	}
 
+	// no validation rules for Id
+
 	for idx, item := range m.GetRules() {
 		_, _ = idx, item
 
