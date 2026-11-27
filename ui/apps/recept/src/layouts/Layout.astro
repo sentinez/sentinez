@@ -1,0 +1,102 @@
+---
+import '@/styles/global.css';
+
+import { Logo, LogoMark } from '@/components/logo';
+import { SearchBox } from '@/components/search-box';
+import { Button } from '@sentinez/ui/components/button';
+import { MoonIcon, SunIcon } from 'lucide-react';
+
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** the home page shows its own big search */
+  hideSearch?: boolean;
+}
+
+const { title, description = 'Discover the packages of recept', hideSearch } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#0504aa" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Phudu:wght@600;700&family=Roboto:wght@400;500;600&family=Roboto+Mono:wght@400;500&display=swap"
+    />
+    <title>{title ? `${title} · Sentinéz recept` : 'Sentinéz recept'}</title>
+    <script is:inline>
+      try {
+        const t = localStorage.getItem('theme');
+        if (t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches))
+          document.documentElement.classList.add('dark');
+      } catch {}
+    </script>
+  </head>
+  <body class="flex min-h-dvh flex-col antialiased">
+    <header class="sticky top-0 z-40 border-b bg-background/85 backdrop-blur">
+      <div class="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4 sm:px-6">
+        <a href="/" class="shrink-0" aria-label="Sentinéz recept home">
+          <Logo />
+        </a>
+        <div class="flex flex-1 justify-end sm:justify-center">
+          {!hideSearch && <SearchBox className="hidden max-w-md sm:block" />}
+        </div>
+        <nav class="flex items-center gap-1 text-sm">
+          <a href="/search" class="rounded-md px-2.5 py-1.5 text-muted-foreground hover:bg-muted hover:text-foreground">
+            Packages
+          </a>
+          <Button type="button" variant="ghost" size="icon" data-theme-toggle aria-label="Toggle theme">
+            <SunIcon className="dark:hidden" />
+            <MoonIcon className="hidden dark:block" />
+          </Button>
+        </nav>
+      </div>
+    </header>
+    <main class="flex-1">
+      <slot />
+    </main>
+    <footer class="border-t">
+      <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-6 text-xs text-muted-foreground sm:px-6">
+        <span class="flex items-center gap-2">
+          <LogoMark className="size-3.5" />
+          © 2025-2026 Sentinéz Labs
+        </span>
+        <span>recept · packages of <code class="font-mono">ui/apps/recept/pkg</code></span>
+      </div>
+    </footer>
+    <script>
+      // the theme toggle and the copy buttons of every page, without React
+      document.addEventListener('click', async (e) => {
+        const target = e.target as Element;
+        if (target.closest('[data-theme-toggle]')) {
+          const dark = document.documentElement.classList.toggle('dark');
+          try {
+            localStorage.setItem('theme', dark ? 'dark' : 'light');
+          } catch {
+            // storage blocked: the choice lasts this page only
+          }
+          return;
+        }
+        const button = target.closest<HTMLElement>('[data-copy]');
+        if (!button) return;
+        const from = button.dataset.copyFrom;
+        const text = from ? (document.querySelector(from)?.textContent ?? '') : button.dataset.copy!;
+        try {
+          await navigator.clipboard.writeText(text);
+          button.dataset.copied = '';
+          setTimeout(() => delete button.dataset.copied, 1500);
+        } catch {
+          // the clipboard is refused (no https, no permission): nothing to show
+        }
+      });
+    </script>
+  </body>
+</html>

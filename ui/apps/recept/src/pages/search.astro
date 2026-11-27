@@ -1,0 +1,13 @@
+---
+import { PackageSearch } from '@/components/package-search';
+import Layout from '@/layouts/Layout.astro';
+import { getPackages, summaries } from '@/lib/pkg';
+
+const packages = summaries(getPackages());
+---
+
+<Layout title="Search" hideSearch>
+  <div class="mx-auto max-w-4xl px-4 py-8 sm:px-6">
+    <PackageSearch client:load packages={packages} />
+  </div>
+</Layout>

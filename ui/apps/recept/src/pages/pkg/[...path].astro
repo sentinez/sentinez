@@ -1,0 +1,230 @@
+---
+import { Badge } from '@sentinez/ui/components/badge';
+import { Code } from 'astro:components';
+
+import { CopyButton } from '@/components/copy-button';
+import { LinkTable } from '@/components/link-table';
+import { PathBreadcrumb } from '@/components/path-breadcrumb';
+import Layout from '@/layouts/Layout.astro';
+import { CODE_THEMES } from '@/lib/code';
+import { getPackages, rulesByKind, subPackages, type Package } from '@/lib/pkg';
+import { formatDate, KINDS } from '@/lib/summary';
+
+export function getStaticPaths() {
+  return getPackages().map((pkg) => ({ params: { path: pkg.id }, props: { pkg } }));
+}
+
+const { pkg } = Astro.props as { pkg: Package };
+
+const name = pkg.id.split('/').pop();
+const children = subPackages(pkg);
+const known = new Set(getPackages().map((p) => p.id));
+const groups = rulesByKind(pkg.rules).map((g) => ({ ...g, title: KINDS[g.kind].title }));
+
+// the left outline, as the sections below
+const outline = [
+  { id: 'overview', title: 'Overview', items: [] as { id: string; title: string }[] },
+  { id: 'index', title: 'Index', items: [] },
+  ...groups.map((g) => ({ id: g.kind, title: g.title, items: g.rules.map((r) => ({ id: r.id, title: r.name })) })),
+  { id: 'source-files', title: 'Source files', items: [] },
+  ...(children.length ? [{ id: 'directories', title: 'Directories', items: [] }] : []),
+];
+
+const meta = [
+  ...(pkg.version ? [{ label: 'Version', value: pkg.version }] : []),
+  { label: 'Updated', value: formatDate(pkg.updated) },
+  { label: 'License', value: pkg.license },
+  { label: 'Rules', value: String(pkg.rules.length), href: '#index' },
+  { label: 'Files', value: String(pkg.files.length), href: '#source-files' },
+];
+
+// a match that stops the request reads as destructive
+const actionVariant = (a: string) =>
+  a === 'block' ? 'destructive' : a === 'challenge' || a === 'rate limit' ? 'default' : 'outline';
+---
+
+<Layout title={pkg.id} description={pkg.synopsis}>
+  <div class="border-b">
+    <div class="mx-auto grid max-w-7xl gap-3 px-4 py-6 sm:px-6">
+      <PathBreadcrumb path={pkg.id} known={known} />
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <h1 class="font-mono text-2xl font-semibold tracking-tight">{name}</h1>
+        <Badge variant="outline">package</Badge>
+        {pkg.keywords.map((k) => <Badge variant="secondary">{k}</Badge>)}
+      </div>
+      <p class="text-sm text-muted-foreground">{pkg.synopsis}</p>
+      <div class="flex w-fit max-w-full items-center gap-1 rounded-md border bg-muted/40 py-0.5 pr-1 pl-3">
+        <code class="min-w-0 truncate font-mono text-sm">pkg/{pkg.id}</code>
+        <CopyButton text={`pkg/${pkg.id}`} label="Copy path" />
+      </div>
+      <dl class="flex flex-wrap items-center gap-x-6 gap-y-1 text-sm">
+        {
+          meta.map((m) => (
+            <div class="flex gap-1.5">
+              <dt class="text-muted-foreground">{m.label}:</dt>
+              <dd class="font-medium">
+                {m.href ? (
+                  <a href={m.href} class="text-primary hover:underline">
+                    {m.value}
+                  </a>
+                ) : (
+                  m.value
+                )}
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </div>
+
+  <div class="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)] gap-10 px-4 py-8 sm:px-6 lg:grid-cols-[14rem_minmax(0,1fr)]">
+    <aside class="hidden lg:block">
+      <nav class="sticky top-20 grid max-h-[calc(100dvh-6rem)] gap-1 overflow-y-auto text-sm" aria-label="On this page">
+        {
+          outline.map((s) => (
+            <div class="grid gap-0.5">
+              <a href={`#${s.id}`} class="rounded-md px-2 py-1 font-medium hover:bg-muted">
+                {s.title}
+              </a>
+              {s.items.map((it) => (
+                <a
+                  href={`#${it.id}`}
+                  class="truncate rounded-md py-1 pr-2 pl-4 text-muted-foreground hover:bg-muted hover:text-foreground"
+                >
+                  {it.title}
+                </a>
+              ))}
+            </div>
+          ))
+        }
+      </nav>
+    </aside>
+
+    <article class="flex min-w-0 flex-col gap-12">
+      <section id="overview" class="scroll-mt-20">
+        <h2 class="mb-4 text-lg font-semibold tracking-tight">Overview</h2>
+        {
+          pkg.docHtml ? (
+            <div class="prose rounded-xl border p-5 sm:p-8" set:html={pkg.docHtml} />
+          ) : (
+            <p class="text-sm text-muted-foreground">
+              No package doc: start a file with a comment block followed by a blank line.
+            </p>
+          )
+        }
+      </section>
+
+      <section id="index" class="flex scroll-mt-20 flex-col gap-3">
+        <h2 class="text-lg font-semibold tracking-tight">Index</h2>
+        <ul class="grid gap-1.5 rounded-lg border bg-muted/30 p-4 text-sm">
+          {
+            pkg.rules.map((r) => (
+              <li class="flex min-w-0 items-center gap-2">
+                <Badge variant="outline" className="w-20 justify-center">
+                  {KINDS[r.kind].label}
+                </Badge>
+                <a href={`#${r.id}`} class:list={['truncate text-primary hover:underline', r.lang === 'lua' && 'font-mono']}>
+                  {r.name}
+                </a>
+                {r.actions.length > 0 && <span class="truncate text-xs text-muted-foreground">→ {r.actions.join(', ')}</span>}
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      {
+        groups.map((g) => (
+          <section id={g.kind} class="flex scroll-mt-20 flex-col gap-6">
+            <h2 class="border-b pb-2 text-lg font-semibold tracking-tight">{g.title}</h2>
+            {g.rules.map((r) => (
+              <div id={r.id} class="group flex scroll-mt-20 flex-col gap-3">
+                <div class="flex flex-wrap items-center gap-2">
+                  <h3 class:list={['font-semibold', r.lang === 'lua' && 'font-mono text-sm']}>{r.name}</h3>
+                  <a href={`#${r.id}`} class="text-muted-foreground opacity-0 group-hover:opacity-100" aria-label={`Link to ${r.name}`}>
+                    ¶
+                  </a>
+                  {r.status && (
+                    <Badge variant={r.status === 'active' ? 'secondary' : 'outline'} className="capitalize">
+                      {r.status}
+                    </Badge>
+                  )}
+                  {r.actions.map((a) => (
+                    <Badge variant={actionVariant(a)} className="capitalize">
+                      {a}
+                    </Badge>
+                  ))}
+                </div>
+                {r.doc && <p class="text-sm leading-6 whitespace-pre-line text-muted-foreground">{r.doc}</p>}
+                {(r.when || r.limit || r.stages.length > 0 || r.details.length > 0) && (
+                  <dl class="grid gap-x-6 gap-y-2 rounded-lg border p-4 text-sm sm:grid-cols-[9rem_minmax(0,1fr)]">
+                    {r.when && (
+                      <>
+                        <dt class="text-muted-foreground">When</dt>
+                        <dd class="font-mono text-[13px] break-words">{r.when}</dd>
+                      </>
+                    )}
+                    {r.limit && (
+                      <>
+                        <dt class="text-muted-foreground">Limit</dt>
+                        <dd>{r.limit}</dd>
+                      </>
+                    )}
+                    {r.stages.length > 0 && (
+                      <>
+                        <dt class="text-muted-foreground">Stages</dt>
+                        <dd class="flex flex-wrap gap-1.5">
+                          {r.stages.map((s) => (
+                            <Badge variant="outline" className="font-mono">
+                              {s}
+                            </Badge>
+                          ))}
+                        </dd>
+                      </>
+                    )}
+                    {r.details.map((d) => (
+                      <>
+                        <dt class="text-muted-foreground">{d.label}</dt>
+                        <dd>{d.value}</dd>
+                      </>
+                    ))}
+                  </dl>
+                )}
+                <details class="group/code rounded-lg border" open={r.code.split('\n').length <= 30}>
+                  <summary class="flex cursor-pointer items-center justify-between gap-2 px-4 py-2 text-xs text-muted-foreground select-none">
+                    <span>Source</span>
+                    <a href={`/src/${r.file}`} class="font-mono hover:text-foreground hover:underline">
+                      {r.file}
+                    </a>
+                  </summary>
+                  <Code code={r.code} lang={r.lang} themes={CODE_THEMES} defaultColor={false} class="border-t p-4 text-[13px] leading-6" />
+                </details>
+              </div>
+            ))}
+          </section>
+        ))
+      }
+
+      <section id="source-files" class="flex scroll-mt-20 flex-col gap-4">
+        <h2 class="text-lg font-semibold tracking-tight">Source files</h2>
+        <LinkTable
+          head={['File', 'Language', 'Lines']}
+          rows={pkg.files.map((f) => ({ href: `/src/${f.path}`, name: f.name, detail: f.lang === 'lua' ? 'Lua' : 'YAML', extra: String(f.lines) }))}
+        />
+      </section>
+
+      {
+        children.length > 0 && (
+          <section id="directories" class="flex scroll-mt-20 flex-col gap-4">
+            <h2 class="text-lg font-semibold tracking-tight">Directories</h2>
+            <LinkTable
+              head={['Path', 'Synopsis']}
+              rows={children.map((c) => ({ href: `/pkg/${c.id}`, name: c.id.slice(pkg.id.length + 1), detail: c.synopsis }))}
+            />
+          </section>
+        )
+      }
+    </article>
+  </div>
+</Layout>

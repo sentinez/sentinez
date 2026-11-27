@@ -1,0 +1,46 @@
+# Blocks the vulnerability scanners that announce themselves in their
+# User-Agent, and challenges the clients that send none.
+#
+# Scanners such as sqlmap, nikto or nuclei send their name in the
+# `User-Agent` header: these secrules block them before the OWASP CRS
+# runs. An empty User-Agent, sent by most quick scripts, gets a
+# proof-of-work challenge instead, which a browser passes.
+#
+# @version v1.1.0
+# @keywords bots, scanners, user-agent
+
+secrules:
+  # Blocks the scanners by name, whatever its case.
+  - ingress:
+      name: Block known scanners
+      status: STATUS_ACTIVE
+      expr:
+        orCondition:
+          - rules:
+            - condition:
+                source: FIELD_SOURCE_HEADER
+                key: User-Agent
+                operator: OPERATOR_MATCHES
+                value: "(?i)(sqlmap|nikto|nmap|masscan|zgrab|nuclei|wpscan)"
+    action:
+      type: ACTION_TYPE_BLOCK
+
+  # A browser always sends a User-Agent: challenge the clients that do not.
+  # Only GETs, since the client comes back with a GET.
+  - ingress:
+      name: Challenge an empty User-Agent
+      status: STATUS_ACTIVE
+      expr:
+        orCondition:
+          - rules:
+            - condition:
+                source: FIELD_SOURCE_HEADER
+                key: User-Agent
+                operator: OPERATOR_EQ
+                value: ""
+            - condition:
+                source: FIELD_SOURCE_METHOD
+                operator: OPERATOR_EQ
+                value: GET
+    action:
+      type: ACTION_TYPE_CHALLENGE

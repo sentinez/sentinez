@@ -1,0 +1,71 @@
+@import '@sentinez/ui/globals.css';
+
+/* the classes of the Astro pages */
+@source "../**/*.{astro,ts,tsx}";
+
+/* Sentinéz: the fonts of the console (loaded by the Google Fonts link of
+   Layout.astro, Phudu for the wordmark), its blue as the primary color */
+@theme inline {
+  --color-brand: var(--brand);
+  --font-brand: 'Phudu', sans-serif;
+}
+
+:root {
+  color-scheme: light;
+  --font-sans: 'Roboto', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Roboto Mono', ui-monospace, SFMono-Regular, monospace;
+  --brand: #0504aa;
+  --primary: var(--brand);
+  --ring: color-mix(in oklab, var(--brand) 45%, transparent);
+}
+
+/* #0504aa is too dark on a dark background: a lighter blue of the same hue */
+.dark {
+  color-scheme: dark;
+  --brand: oklch(0.68 0.17 266);
+  --primary: oklch(0.55 0.22 266);
+  --primary-foreground: oklch(0.98 0 0);
+}
+
+/* the README of a package, rendered from markdown */
+.prose {
+  @apply text-sm leading-7;
+  & :where(h1, h2, h3, h4) {
+    @apply scroll-mt-20 font-semibold tracking-tight;
+  }
+  & :where(h1) { @apply mt-8 mb-3 text-2xl; }
+  & :where(h2) { @apply mt-8 mb-3 border-b pb-2 text-xl; }
+  & :where(h3) { @apply mt-6 mb-2 text-base; }
+  & :where(p, ul, ol, pre, table, blockquote) { @apply my-4; }
+  & :where(ul) { @apply list-disc pl-6; }
+  & :where(ol) { @apply list-decimal pl-6; }
+  & :where(a) { @apply text-primary underline-offset-4 hover:underline; }
+  & :where(:not(pre) > code) { @apply rounded bg-muted px-1.5 py-0.5 font-mono text-[0.85em]; }
+  & :where(pre) { @apply overflow-x-auto rounded-lg border p-4 font-mono text-[13px] leading-6; }
+  & :where(blockquote) { @apply border-l-2 pl-4 text-muted-foreground; }
+  & :where(table) { @apply w-full text-left; }
+  & :where(th, td) { @apply border-b px-3 py-2; }
+  & > :first-child { @apply mt-0; }
+}
+
+/* shiki (CODE_THEMES, no default color): the light theme, the dark one under .dark */
+.astro-code {
+  color: var(--shiki-light);
+  background-color: var(--shiki-light-bg);
+}
+.astro-code span {
+  color: var(--shiki-light);
+}
+.dark .astro-code {
+  color: var(--shiki-dark);
+  background-color: var(--shiki-dark-bg);
+}
+.dark .astro-code span {
+  color: var(--shiki-dark);
+}
+
+/* the copy buttons (Layout.astro): the check while copied */
+[data-copy][data-copied] .copy-idle,
+[data-copy]:not([data-copied]) .copy-done {
+  display: none;
+}

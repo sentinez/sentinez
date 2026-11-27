@@ -1,0 +1,48 @@
+# The OWASP Core Rule Set at paranoia level 2, blocking from an anomaly
+# score of 5.
+#
+# Stricter than the defaults (level 1, inbound threshold 10): one critical
+# match blocks the request. Level 3 rules are logged but never block, to
+# see what a stricter level would catch. The exclusions skip the SQLi rules
+# on a search endpoint, a usual source of false positives.
+#
+# @version v4.17.0
+# @keywords owasp, crs, waf, sqli, xss
+
+ruleset:
+  status: STATUS_ACTIVE
+  provider: PROVIDER_OWASP
+  crs:
+    mode: ENGINE_MODE_ON
+    version: CRS_VERSION_V4_17_0
+    paranoiaLevel: 2
+    detectionParanoiaLevel: 3
+    threshold:
+      inbound: 5
+      outbound: 4
+      earlyBlocking: true
+    categories:
+      - CATEGORY_METHOD_ENFORCEMENT
+      - CATEGORY_SCANNER_DETECTION
+      - CATEGORY_PROTOCOL_ENFORCEMENT
+      - CATEGORY_PROTOCOL_ATTACK
+      - CATEGORY_LFI
+      - CATEGORY_RFI
+      - CATEGORY_RCE
+      - CATEGORY_XSS
+      - CATEGORY_SQLI
+    request:
+      bodyAccess: true
+      allowedMethods: [GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS]
+    exclusions:
+      - tags: [attack-sqli]
+        expr:
+          orCondition:
+            - rules:
+              - condition:
+                  source: FIELD_SOURCE_PATH
+                  operator: OPERATOR_PREFIX
+                  value: /api/search
+    overrides:
+      - id: 942430
+        state: RULE_STATE_DETECTION_ONLY
