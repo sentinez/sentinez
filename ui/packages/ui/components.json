@@ -17,7 +17,7 @@
     "lib": "@sentinez/ui/lib",
     "ui": "@sentinez/ui/components"
   },
-  "menuColor": "default",
+  "menuColor": "inverted",
   "menuAccent": "bold",
   "rtl": false
 }

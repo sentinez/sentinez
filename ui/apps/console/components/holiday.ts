@@ -81,8 +81,8 @@ const _rules: Rule[] = [
   },
   {
     id: 'christmas',
-    color: 'text-green-600',
-    solar: ({ month, day }) => month === 12 && day >= 24 && day <= 25,
+    color: 'text-red-600',
+    solar: ({ month, day }) => month === 12 || (month === 11 && day >= 24),
   },
 ];
 
