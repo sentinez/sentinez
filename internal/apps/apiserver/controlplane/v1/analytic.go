@@ -17,6 +17,7 @@ package controlplane
 import (
 	"context"
 
+	"github.com/sentinez/core/szgrpc/client/identity"
 	"github.com/sentinez/core/szgrpc/grpcgateway"
 	analyticpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -47,6 +48,7 @@ func (a *analytic) AcceptFromEndpoint(ctx context.Context,
 		appConf,
 		server.RuntimeMux(),
 		analyticpb.GetMetaAnalyticServiceKey(),
+		identity.Analytic,
 		analyticpb.RegisterAnalyticServiceHandlerFromEndpoint,
 	)
 }

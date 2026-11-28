@@ -6,7 +6,7 @@ chứa các domain service. Mỗi domain theo cùng cấu trúc:
 
 ```
 <domain>/v1/
-├── <domain>.go     # gRPC module: NewService(ctx, conf) + Start() phục vụ qua bufconn
+├── <domain>.go     # gRPC node: NewService(ctx, conf, opts) + Start(opts...) phục vụ TCP, đăng ký Consul
 ├── factory/        # NewDefaultHandler / NewDefaultService: dựng repo → service → handler
 ├── handler/        # cài <X>ServiceServer, kiểm tra quyền, log
 ├── service/        # nghiệp vụ
@@ -152,8 +152,8 @@ gateway, và từ chối mặc định:
   `CONTROL_PLANE_SERVICE` (hiện là `Sync` của centraldata), không bao giờ mở
   method có danh sách rỗng. Trên kết nối có client certificate đã verify,
   tên trong token phải trùng CN của certificate.
-- `szgrpc.New` và `grpcgateway.NewLocalConn` đặt `recovery.Unary()` đầu
-  chuỗi (và `szgrpc.New` thêm `recovery.Stream()`): panic của handler làm call
+- `szgrpc.New` và `grpcgateway.NewLocalConn` đặt `recovery.Unary()` và
+  `recovery.Stream()` đầu chuỗi: panic của handler làm call
   lỗi `Internal` thay vì dừng process.
 
 **2. Theo từng tenant: vai trò của người gọi.** Token không chứa tenant hay
@@ -251,7 +251,7 @@ trùng email:
 | `UpdateUser` | — | Cập nhật `full_name`, `email` |
 | `DeleteUser` | `DELETE /iam/user/{id}` | Chỉ control plane `ADMIN`. Xoá user, các membership tenant và toàn bộ account của nó trong một transaction |
 | `ListAccounts` | `GET /iam/accounts` | Yêu cầu token; lọc `ids/emails/user_ids/usernames`; mỗi phần tử có `provider`. Người gọi `PORTAL` chỉ lấy account của chính mình |
-| `Status` | `GET /iam/status` | Yêu cầu token. Gọi Greeter.Status qua bufconn, trả về `Context` của token |
+| `Status` | `GET /iam/status` | Yêu cầu token. Gọi Greeter.Status trong tiến trình, trả về `Context` của token |
 | `PasskeyRegisterChallenge` | `GET /iam/passkey/register/challenge` | Đăng ký bằng passkey, bước 1. Cần email chưa thuộc user nào |
 | `PasskeyLinkChallenge` | `GET /iam/passkey/link/challenge` | Thêm passkey cho user đang đăng nhập, bước 1. Yêu cầu token |
 | `PasskeyRegisterVerify` | `POST /iam/passkey/register/verify` | Bước 2 của cả hai: xác minh phản hồi của authenticator rồi mới ghi |

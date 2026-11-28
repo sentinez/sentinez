@@ -19,6 +19,18 @@
 package identity
 
 const (
+	// Analytic is the analytic service.
+	Analytic = "sentinez.apps.analytic"
+	// Communication is the communication service.
+	Communication = "sentinez.apps.communication"
+	// Greeter is the greeter service.
+	Greeter = "sentinez.apps.greeter"
+	// IAM is the identity access management service.
+	IAM = "sentinez.apps.iam"
+	// Security is the security service.
+	Security = "sentinez.apps.security"
+	// Tenant is the tenant service.
+	Tenant = "sentinez.apps.tenant"
 	// CentralData is centraldata, the server the edges follow.
 	CentralData = "sentinez.apps.centraldata"
 	// Edge is an edge; the edges of a cluster share it.

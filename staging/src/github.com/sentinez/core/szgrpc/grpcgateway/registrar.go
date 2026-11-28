@@ -16,17 +16,23 @@ package grpcgateway
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/sentinez/core/szgrpc/client/connection"
 	"github.com/sentinez/core/szgrpc/client/discovery"
 	"github.com/sentinez/core/szgrpc/validate"
-	"github.com/sentinez/pkg/szcron"
-	"github.com/sentinez/pkg/szlog"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
+
+// _resolveInterval is the interval of the lookups of the nodes of a
+// service in consul.
+const _resolveInterval = 10 * time.Second
+
+// _roundRobin spreads the calls over the nodes of a service.
+const _roundRobin = `{"loadBalancingConfig": [{"round_robin": {}}]}`
 
 // ServiceRegistrar is an interface for registering a gRPC service. Not a server
 type ServiceRegistrar interface {
@@ -56,35 +62,47 @@ func RegisterServiceHandlerServer[T any](
 	return fn(ctx, mux, svc)
 }
 
+// RegisterServiceFromEndpoint registers on mux, once, the service of
+// serviceKey served by the nodes registered in consul (SZ_CONSUL_URI). Its
+// conn resolves them with discovery.Builder, balances the calls over them
+// and is closed when ctx is done; a call without a node fails with
+// codes.Unavailable. With SZ_TLS_* set the conn is the internal mTLS, the
+// nodes verified as serverName (an identity), else plaintext.
 func RegisterServiceFromEndpoint(
 	ctx context.Context,
 	appConf *settingpb.Config,
 	mux *runtime.ServeMux,
-	serviceKey string,
+	serviceKey, serverName string,
 	fn RegisterEndpointFn,
 ) error {
-	opts := []grpc.DialOption{
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithChainUnaryInterceptor(validate.UnaryClientInterceptor()),
+	dcvr, err := discovery.GetDiscovery(
+		discovery.WithConsulURL(appConf.Get(settingpb.Sz_SZ_CONSUL_URI)))
+	if err != nil {
+		return fmt.Errorf("register %s: %w", serviceKey, err)
 	}
 
-	dcvr := discovery.GetDiscovery(
-		discovery.WithConsulURL(appConf.Get(settingpb.Sz_SZ_CONSUL_URI)))
+	opts, err := dialOptions(connection.TLSFromConfig(appConf), serverName,
+		discovery.NewBuilder(dcvr, _resolveInterval))
+	if err != nil {
+		return fmt.Errorf("register %s: %w", serviceKey, err)
+	}
 
-	szcron.Start(ctx, time.Second*10, func() {
-		srv, err := dcvr.Discover(serviceKey)
-		if err != nil {
-			szlog.Errorf("[httpx] discovery err=%v", err)
-			return
-		}
+	return fn(ctx, mux, discovery.Target(serviceKey), opts)
+}
 
-		err = fn(ctx, mux, srv.Address, opts)
-		if err == nil {
-			szlog.Debugf("[%s] service: %s",
-				appConf.GetMeta().GetServiceName(), serviceKey)
-		}
+// dialOptions returns the options of a conn to the nodes resolved by
+// builder: tls verifying them as serverName, the calls balanced over them
+// and their requests validated.
+func dialOptions(tls connection.TLS, serverName string,
+	builder *discovery.Builder) ([]grpc.DialOption, error) {
+	opts, err := tls.DialOptions(serverName)
+	if err != nil {
+		return nil, err
+	}
 
-	})
-
-	return nil
+	return append(opts,
+		grpc.WithResolvers(builder),
+		grpc.WithDefaultServiceConfig(_roundRobin),
+		grpc.WithChainUnaryInterceptor(validate.UnaryClientInterceptor()),
+	), nil
 }

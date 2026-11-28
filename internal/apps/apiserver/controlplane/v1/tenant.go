@@ -17,6 +17,7 @@ package controlplane
 import (
 	"context"
 
+	"github.com/sentinez/core/szgrpc/client/identity"
 	"github.com/sentinez/core/szgrpc/grpcgateway"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -47,6 +48,7 @@ func (t *tenant) AcceptFromEndpoint(ctx context.Context,
 		appConf,
 		server.RuntimeMux(),
 		tenantpb.GetMetaTenantServiceKey(),
+		identity.Tenant,
 		tenantpb.RegisterTenantServiceHandlerFromEndpoint,
 	)
 }

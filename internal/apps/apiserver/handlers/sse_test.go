@@ -29,8 +29,8 @@ import (
 	resourcemock "github.com/sentinez/controlplane/apps/tenant/v1/repos/resources/mock"
 	"github.com/sentinez/controlplane/pkg/authz"
 	"github.com/sentinez/controlplane/pkg/headers/headerstest"
-	"github.com/sentinez/core/szgrpc/client/connection"
-	"github.com/sentinez/core/szgrpc/client/local"
+	"github.com/sentinez/core/szgrpc/client"
+	"github.com/sentinez/core/szgrpc/grpcgateway"
 	communicationpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/communication/v1"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	notifypb "github.com/sentinez/sentinez/api/proto/sentinez/types/notify/v1"
@@ -40,32 +40,23 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/test/bufconn"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
-// serve serves hdl over an in-memory gRPC server with opts, and the SSE
-// route on an HTTP test server, whose URL it returns.
+// serve serves hdl over a local conn with opts, and the SSE route on an
+// HTTP test server, whose URL it returns.
 func serve(t *testing.T, hdl *commhdl.Communication,
-	opts ...grpc.ServerOption) string {
+	opts ...grpcgateway.LocalOption) string {
 	t.Helper()
 
-	lis := bufconn.Listen(local.BufSize)
-	gs := grpc.NewServer(opts...)
-	communicationpb.RegisterCommunicationServiceServer(gs, hdl)
-
-	go func() { _ = gs.Serve(lis) }()
-	t.Cleanup(gs.Stop)
-
-	conn, err := connection.BufConn(lis)
-	require.NoError(t, err)
+	cli, conn := client.NewLocalCommunication(hdl, opts...)
 	t.Cleanup(func() { _ = conn.Close() })
 
 	mux := http.NewServeMux()
-	RegisterServerSentEvents(mux,
-		communicationpb.NewCommunicationServiceClient(conn))
+	RegisterServerSentEvents(mux, cli)
 
 	hs := httptest.NewServer(mux)
+	// cleanups run last first: the server closes before the conn
 	t.Cleanup(hs.Close)
 
 	return hs.URL + defaults.SSEPath
@@ -100,9 +91,10 @@ func handler(t *testing.T, tenantIds ...string) *commhdl.Communication {
 
 // signedIn signs every stream in as user_1, as the authorization
 // interceptor would for its token.
-func signedIn() grpc.ServerOption {
-	return grpc.StreamInterceptor(func(srv any, ss grpc.ServerStream,
-		_ *grpc.StreamServerInfo, h grpc.StreamHandler) error {
+func signedIn() grpcgateway.LocalOption {
+	return grpcgateway.WithStreamInterceptors(func(srv any,
+		ss grpc.ServerStream, _ *grpc.StreamServerInfo,
+		h grpc.StreamHandler) error {
 		ctx := headerstest.User(ss.Context(), "user_1")
 		return h(srv, &ctxStream{ServerStream: ss, ctx: ctx})
 	})
@@ -116,7 +108,7 @@ type ctxStream struct {
 func (s *ctxStream) Context() context.Context { return s.ctx }
 
 func TestServerSentEventsUnauthorized(t *testing.T) {
-	url := serve(t, handler(t), interceptor.ServerOptions()...)
+	url := serve(t, handler(t), interceptor.LocalOptions()...)
 
 	resp, err := http.Get(url)
 	require.NoError(t, err)

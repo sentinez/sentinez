@@ -107,11 +107,9 @@ func (srv *Server) useNotifications(ctx context.Context,
 		return nil, err
 	}
 
-	cli, err := client.NewLocalCommunication(communication,
-		interceptor.ServerOptions()...)
-	if err != nil {
-		return nil, err
-	}
+	cli, conn := client.NewLocalCommunication(communication,
+		interceptor.LocalOptions()...)
+	srv.notifications = conn
 
 	handlers.RegisterServerSentEvents(srv.server.HTTPMux(), cli)
 

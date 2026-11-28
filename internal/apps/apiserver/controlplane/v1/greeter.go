@@ -18,6 +18,7 @@ package controlplane
 import (
 	"context"
 
+	"github.com/sentinez/core/szgrpc/client/identity"
 	"github.com/sentinez/core/szgrpc/grpcgateway"
 	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/greeter/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -48,6 +49,7 @@ func (g *Greeter) AcceptFromEndpoint(ctx context.Context,
 		appConf,
 		server.RuntimeMux(),
 		greeterpb.GetMetaGreeterServiceKey(),
+		identity.Greeter,
 		greeterpb.RegisterGreeterServiceHandlerFromEndpoint,
 	)
 }

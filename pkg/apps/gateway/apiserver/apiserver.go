@@ -52,6 +52,9 @@ type Server struct {
 	conf   *settingpb.Config
 	// auditExporter takes the audit log to Kafka or OTLP, nil without one.
 	auditExporter *szsdklog.Exporter
+	// notifications serves the notification streams, nil until
+	// initialized; closing it ends them.
+	notifications *grpcgateway.LocalConn
 }
 
 // visitToEndpoint all service to external grpc server
@@ -105,7 +108,9 @@ func (srv *Server) Start(ctx context.Context) error {
 func (srv *Server) Shutdown(ctx context.Context) error {
 	szlog.Debug("apiserver: shutdown")
 
-	return errors.Join(
+	// the streams first: an open stream keeps its HTTP connection busy,
+	// which the HTTP shutdown waits for.
+	return errors.Join(srv.notifications.Close(),
 		srv.auditExporter.Shutdown(ctx),
 		srv.server.Shutdown(ctx),
 	)

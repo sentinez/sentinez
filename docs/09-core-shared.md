@@ -61,8 +61,8 @@ exported. An OTLP URI is `http://host:port`, or `https://` for TLS
 - `szgrpc.New(opts...)`: `WithXMeta`, `WithDiscorvery(bool)`,
   `WithGRPCServerOption(...)`. `Serve(conf, opts...)` listens on TCP
   `SZ_ADDRESS` (`WithAddress(addr)` overrides it), prints the banner,
-  optionally registers the listen address with Consul. `BufServe(bufLis)`
-  serves over bufconn. `Shutdown` = `GracefulStop`.
+  optionally registers the listen address with Consul. `Shutdown` =
+  `GracefulStop`.
 - `core/szgrpc/grpcgateway`: see [06-gateway.md](06-gateway.md).
 
 ## 9.4 Other `core` packages

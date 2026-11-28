@@ -26,7 +26,6 @@ import (
 	"github.com/sentinez/core/szgrpc/validate"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/test/bufconn"
 )
 
 // ServiceServer is a gRPC service server.
@@ -113,10 +112,6 @@ func (s *Server) Serve(conf *settingpb.Config, opts ...ServerOption) error {
 	)
 
 	return s.AsServer().Serve(listener)
-}
-
-func (s *Server) BufServe(bufLis *bufconn.Listener) error {
-	return s.AsServer().Serve(bufLis)
 }
 
 // New returns a new service registrar.

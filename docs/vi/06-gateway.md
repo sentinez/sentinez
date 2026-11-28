@@ -52,12 +52,24 @@ chỉ, quảng bá HTTP/3 bằng `Alt-Svc`; không có thì phục vụ HTTP th�
 
 | Phương thức | Cơ chế | Đang dùng |
 |---|---|---|
-| `Accept(ctx, server)` | Đăng ký handler Go lên `grpcgateway.NewLocalConn()` trong cùng tiến trình rồi gọi `RegisterXxxHandlerClient`, nên interceptor gRPC (validate) vẫn chạy | **Có** (`Visit`) |
-| `AcceptFromEndpoint(ctx, server, conf)` | Mỗi 10s hỏi Consul (`discovery.Discover(serviceKey)`) rồi `RegisterXxxHandlerFromEndpoint` qua gRPC | Chưa (`VisitToEndpoint` không được gọi) |
+| `Accept(ctx, server)` | Đăng ký handler Go lên một `grpcgateway.LocalConn` trong cùng tiến trình rồi gọi `RegisterXxxHandlerClient`, nên các server interceptor (recovery, validate, audit, authorize) vẫn chạy | **Có** (`Visit`) |
+| `AcceptFromEndpoint(ctx, server, conf)` | `grpcgateway.RegisterServiceFromEndpoint`: gọi `RegisterXxxHandlerFromEndpoint` một lần với target `consul:///<service key>`, do `discovery.Builder` resolve, cân bằng round robin, mTLS khi có `SZ_TLS_*` (node được xác thực theo `identity`) | Chưa (`VisitToEndpoint` không được gọi) |
 
 Như vậy apiserver hiện là **monolith**: IAM/Tenant/Security/Analytic/
 Communication/Greeter chạy trong tiến trình apiserver và dùng chung pool
-PostgreSQL.
+PostgreSQL. Chuyển một registrar từ `Visit` sang `VisitToEndpoint` thì service
+đó được phục vụ bởi các node trong Consul; các service khác vẫn chạy trong
+tiến trình.
+
+`grpcgateway.LocalConn` chuyển lời gọi unary và stream thẳng tới handler, không
+qua transport. Option của nó thêm interceptor sau `recovery` và `validate`:
+`WithUnaryInterceptors`, `WithStreamInterceptors`
+(`interceptor.LocalOptions()` thêm `Authorize` và `AuthorizeStream`). Mỗi
+stream chạy handler trong một goroutine và chuyển bản sao message qua channel;
+header, trailer và status giống như qua transport (`Header()` là nil khi stream
+kết thúc mà chưa gửi header). Request của stream được validate khi nhận.
+`Close` hủy các stream đang mở và chờ handler kết thúc; stream mở sau đó bị
+`Unavailable`.
 
 ### Request pipeline HTTP
 
@@ -92,12 +104,12 @@ Header `Authorization` được grpc-gateway chuyển thành gRPC metadata
 `useNotifications` của `initialize.go`):
 
 - Handler chuyển header `Authorization` thành metadata rồi mở
-  `ServerStreamNotification` qua `client.NewLocalCommunication`: một server
-  bufconn có `interceptor.ServerOptions()`, nên stream được `AuthorizeStream`
-  xác thực như một lời gọi qua mạng. `grpcgateway.LocalConn` chưa chở được
-  stream (không hỗ trợ streaming) nên phải đi đường riêng này, hiện chưa có
-  interceptor audit và panic recovery
-  ([#433](https://github.com/sentinez/sentinez/issues/433)).
+  `ServerStreamNotification` qua `client.NewLocalCommunication`: một
+  `grpcgateway.LocalConn` có `interceptor.LocalOptions()`, nên stream được
+  `AuthorizeStream` xác thực như một lời gọi qua mạng. Hiện chưa có
+  interceptor audit ([#433](https://github.com/sentinez/sentinez/issues/433)).
+  `Server.Shutdown` đóng conn này trước HTTP server: nếu không, một stream
+  đang mở giữ kết nối bận tới hết hạn shutdown.
 - Handler chờ header của stream rồi mới trả lời: lời gọi bị từ chối thành
   HTTP status tương ứng (401, 403…) qua `runtime.HTTPStatusFromCode`.
 - Sau đó trả `200 text/event-stream`, `Cache-Control: no-cache, no-transform`
@@ -132,14 +144,15 @@ chấp nhận mọi origin) → `Manager.AddClient(id, conn)` → mỗi tin nh�
 |---|---|
 | `consul` | Wrapper `hashicorp/consul/api`: `Register` (HTTP check), `RegisterWithTTL`, `SendHeartbeat`, `Discover` (healthy only) |
 | `resolver` | Cache instance 10s/tên, chọn round-robin; tạo circuit breaker theo key |
-| `discovery` | Singleton `GetDiscovery(opt)`: `Register` (ID = UUID, TTL), `Heartbeat`, `Discover` → `host:port` |
-| `connection` | `Conn(addr)` gRPC insecure; `BufConn(bufLis)` qua `bufconn` |
-| `local` | `RegisterServiceServer` chạy một gRPC server in-memory (`bufconn`, 1 MiB) cho mỗi service key, có thể kèm server option (lấy theo lần gọi đầu của key) |
-| [client.go](../../staging/src/github.com/sentinez/core/szgrpc/client/client.go) | `NewIAM`, `NewCommunication` (qua Consul), `NewLocalIAM`, `NewLocalGreeter`, `NewLocalCommunication`, `NewLocalRevProxyService` (qua bufconn; `NewLocalCommunication` nhận server option, ví dụ `interceptor.ServerOptions()`) |
+| `discovery` | Singleton `GetDiscovery(opt)` (lỗi khi `SZ_CONSUL_URI` sai): `Register` (ID = UUID, TTL), `Heartbeat`, `Discover` → một `host:port`, `Instances` → tất cả, không cache. `Builder` là gRPC resolver của `consul:///<service key>` (`Target`): tra instance mỗi 10s và khi `ResolveNow` |
+| `connection` | `Conn(addr)` gRPC insecure; `ConnWith`, `TLS` (mTLS nội bộ của `SZ_TLS_*`) |
+| `identity` | Tên trong mTLS nội bộ: CN cert của từng service (`sentinez.apps.<domain>`, không có version như service key) |
+| [client.go](../../staging/src/github.com/sentinez/core/szgrpc/client/client.go) | `NewIAM`, `NewCentralData`, `NewCommunication` (qua Consul), `NewLocalGreeter`, `NewLocalCommunication` (qua một `grpcgateway.LocalConn`; `NewLocalCommunication` nhận option của conn, ví dụ `interceptor.LocalOptions()`, và trả conn để đóng) |
 
 Phía server, `szgrpc.Server.Serve` sẽ gọi `Register` (đăng ký TTL 15s, retry
 qua circuit breaker, heartbeat mỗi 10s) **nếu** tạo server với
-`szgrpc.WithDiscorvery(true)` — hiện chưa service nào bật.
+`szgrpc.WithDiscorvery(true)`, như collector, centraldata và `Start` của các
+module control plane.
 
-IAM dùng `client.NewLocalGreeter` để gọi Greeter qua bufconn trong RPC
+IAM dùng `client.NewLocalGreeter` để gọi Greeter trong tiến trình trong RPC
 `Status`.

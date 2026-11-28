@@ -60,8 +60,7 @@ giá trị khác thì service không khởi động.
 - `szgrpc.New(opts...)`: `WithXMeta`, `WithDiscorvery(bool)`,
   `WithGRPCServerOption(...)`. `Serve(conf, opts...)` listen TCP
   `SZ_ADDRESS` (`WithAddress(addr)` ghi đè), in banner, tuỳ chọn đăng ký
-  địa chỉ listen với Consul. `BufServe(bufLis)` phục vụ qua bufconn.
-  `Shutdown` = `GracefulStop`.
+  địa chỉ listen với Consul. `Shutdown` = `GracefulStop`.
 - `core/szgrpc/grpcgateway`: xem [06-gateway.md](06-gateway.md).
 
 ## 9.4 Các gói `core` khác

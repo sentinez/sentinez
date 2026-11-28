@@ -20,6 +20,7 @@ import (
 	"sync"
 
 	"github.com/sentinez/controlplane/pkg/headers"
+	"github.com/sentinez/core/szgrpc/grpcgateway"
 	"github.com/sentinez/pkg/szerror"
 	typepb "github.com/sentinez/sentinez/api/proto/sentinez/types/v1"
 	"google.golang.org/grpc"
@@ -148,6 +149,15 @@ func ServerOptions() []grpc.ServerOption {
 	return []grpc.ServerOption{
 		grpc.ChainUnaryInterceptor(Authorize()),
 		grpc.ChainStreamInterceptor(AuthorizeStream()),
+	}
+}
+
+// LocalOptions returns the options of a grpcgateway.LocalConn that install
+// [Authorize] and [AuthorizeStream], as ServerOptions on a server.
+func LocalOptions() []grpcgateway.LocalOption {
+	return []grpcgateway.LocalOption{
+		grpcgateway.WithUnaryInterceptors(Authorize()),
+		grpcgateway.WithStreamInterceptors(AuthorizeStream()),
 	}
 }
 
