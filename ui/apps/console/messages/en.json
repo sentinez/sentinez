@@ -34,10 +34,7 @@
     "label": "Language"
   },
   "Theme": {
-    "label": "Theme",
-    "light": "Light",
-    "dark": "Dark",
-    "system": "System"
+    "toggle": "Switch light / dark theme"
   },
   "Header": {
     "welcome": "Welcome back, {name}"

@@ -34,10 +34,7 @@
     "label": "Ngôn ngữ"
   },
   "Theme": {
-    "label": "Giao diện",
-    "light": "Sáng",
-    "dark": "Tối",
-    "system": "Theo hệ thống"
+    "toggle": "Chuyển giao diện sáng / tối"
   },
   "Header": {
     "welcome": "Chào mừng trở lại, {name}"
