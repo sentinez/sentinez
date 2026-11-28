@@ -32,7 +32,8 @@ ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 RUN go mod tidy
 # enterprise builds scale/ in (make sz.edge.image.build SCALE=1)
 ARG SZ_GOTAGS=""
-RUN go build -tags "$SZ_GOTAGS" -ldflags="-s -w" -o /bin/main ./cmd/szedge/v1
+ARG SZ_VERSION=dev
+RUN go build -tags "$SZ_GOTAGS" -ldflags="-s -w -X github.com/sentinez/core.Version=${SZ_VERSION}" -o /bin/main ./cmd/szedge/v1
 
 # Clean up
 RUN go clean -modcache

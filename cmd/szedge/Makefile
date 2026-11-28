@@ -22,6 +22,7 @@ sz.edge.run: sz.edge.build
 sz.edge.image.build: TAG ?= sentinez/edge
 sz.edge.image.build:
 	@docker buildx build --build-arg SZ_GOTAGS="$(SZ_GOTAGS)" \
+		--build-arg SZ_VERSION="$(SZ_VERSION)" \
 		-f $(SZEDGE_DIR)/v1/Dockerfile -t $(TAG):latest $(SZEDGE_DIR)/../..
 
 # Issues $(SZ_EDGE_CERT_NAME).pem and its key in $(SZ_INTERNAL_CERT_DIR),

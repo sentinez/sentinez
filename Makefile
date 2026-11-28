@@ -16,6 +16,12 @@
 # the includes, since each one appends to MAKEFILE_LIST.
 SZ_ROOT := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 
+# Version of the build, shown in the startup banners (core.Version): the git
+# tag, or dev outside a git checkout. Override with SZ_VERSION=v0.0.1.
+SZ_VERSION ?= $(shell git -C $(SZ_ROOT) describe --tags --always --dirty 2>/dev/null)
+SZ_VERSION := $(or $(SZ_VERSION),dev)
+SZ_LDFLAGS := -s -w -X github.com/sentinez/core.Version=$(SZ_VERSION)
+
 .PHONY: default default.print
 
 default: default.print 	\

@@ -31,7 +31,8 @@ RUN apk add --no-cache git
 RUN go mod tidy
 
 # Build the application
-RUN go build -ldflags="-s -w" -o /bin/apiserver ./cmd/szapiserver
+ARG SZ_VERSION=dev
+RUN go build -ldflags="-s -w -X github.com/sentinez/core.Version=${SZ_VERSION}" -o /bin/apiserver ./cmd/szapiserver
 
 # Clean up
 RUN go clean -modcache

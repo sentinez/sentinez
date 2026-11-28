@@ -6,7 +6,7 @@ SZGREETER_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 
 sz.greeter.build: SENTINEZ_OUT ?= greeter
 sz.greeter.build:
-	@go build -ldflags="-s -w" -o $(SZGREETER_DIR)/v1/bin/$(SENTINEZ_OUT) $(SZGREETER_DIR)/v1
+	@go build -ldflags="$(SZ_LDFLAGS)" -o $(SZGREETER_DIR)/v1/bin/$(SENTINEZ_OUT) $(SZGREETER_DIR)/v1
 	@echo "[DONE]  sz: sz.greeter.v1 ... ok"
 
 sz.greeter.run: SENTINEZ_OUT ?= greeter
@@ -15,4 +15,5 @@ sz.greeter.run: sz.greeter.build
 
 sz.greeter.image.build: TAG ?= sentinez/greeter
 sz.greeter.image.build:
-	@docker buildx build -f $(SZGREETER_DIR)/v1/Dockerfile -t $(TAG):latest $(SZGREETER_DIR)/../..
+	@docker buildx build --build-arg SZ_VERSION="$(SZ_VERSION)" \
+		-f $(SZGREETER_DIR)/v1/Dockerfile -t $(TAG):latest $(SZGREETER_DIR)/../..
