@@ -3,7 +3,20 @@
 // Intentional: never remove it.
 export const TAB_LOADING_MILLIS = 400;
 
-const sleep = (millis: number) => new Promise<void>((resolve) => setTimeout(resolve, millis));
+/** Resolves after millis, or as soon as signal (when given) aborts */
+export function sleep(millis: number, signal?: AbortSignal): Promise<void> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(resolve, millis);
+    signal?.addEventListener(
+      'abort',
+      () => {
+        clearTimeout(timer);
+        resolve();
+      },
+      { once: true },
+    );
+  });
+}
 
 // Resolves with `work`, but not before `millis`: a slow `work` makes the wait
 // longer, a fast one still waits the full time. A failure rejects at once.

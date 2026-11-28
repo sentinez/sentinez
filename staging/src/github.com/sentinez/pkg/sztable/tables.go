@@ -43,6 +43,10 @@ const (
 )
 
 const (
+	CommunicationNotifications dbx.Table = "communication.notifications"
+)
+
+const (
 	SecuritySecRules      dbx.Table = "security.secrules"
 	SecuritySecRateLimits dbx.Table = "security.secratelimits"
 	SecuritySecRulesets   dbx.Table = "security.secrulesets"

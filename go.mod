@@ -21,6 +21,7 @@ require (
 	github.com/exaring/ja4plus v0.0.3
 	github.com/goccy/go-yaml v1.19.2
 	github.com/gorilla/websocket v1.5.3
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.30.0
 	github.com/hashicorp/go-sockaddr v1.0.7
 	github.com/olric-data/olric v0.7.4
 	github.com/oschwald/maxminddb-golang/v2 v2.3.0
@@ -82,7 +83,6 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gotnospirit/makeplural v0.0.0-20180622080156-a5f48d94d976 // indirect
 	github.com/gotnospirit/messageformat v0.0.0-20221001023931-dfe49f1eb092 // indirect
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.30.0 // indirect
 	github.com/hashicorp/consul/api v1.33.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
@@ -131,6 +131,7 @@ require (
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/sean-/seed v0.0.0-20170313163322-e2103e2c3529 // indirect
 	github.com/sony/gobreaker v1.0.0 // indirect
+	github.com/stretchr/objx v0.5.3 // indirect
 	github.com/tidwall/btree v1.8.1 // indirect
 	github.com/tidwall/gjson v1.18.0 // indirect
 	github.com/tidwall/match v1.2.0 // indirect

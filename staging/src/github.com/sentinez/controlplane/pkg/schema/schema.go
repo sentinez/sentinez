@@ -31,5 +31,6 @@ func All() []dbx.Schema {
 		SecuritySecRateLimits(),
 		SecuritySecRulesets(),
 		AnalyticActivities(),
+		CommunicationNotifications(),
 	}
 }

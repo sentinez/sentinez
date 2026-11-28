@@ -41,3 +41,7 @@ export const byIds = <T extends { id: string }>(list: T[], ids?: string[]) =>
 /** The rows of list owned by one of the resources of ids, every row without ids */
 export const byResources = <T extends { owner?: Owner }>(list: T[], ids?: string[]) =>
   ids?.length ? list.filter((r) => ids.includes(r.owner?.resourceId ?? '')) : list;
+
+/** The rows of list of one of the tenants of ids, every row without ids */
+export const byTenants = <T extends { tenantId: string }>(list: T[], ids?: string[]) =>
+  ids?.length ? list.filter((r) => ids.includes(r.tenantId)) : list;

@@ -18,6 +18,8 @@ import (
 	"context"
 
 	analyticfac "github.com/sentinez/controlplane/apps/analytic/v1/factory"
+	commfac "github.com/sentinez/controlplane/apps/communication/v1/factory"
+	commhdl "github.com/sentinez/controlplane/apps/communication/v1/handler"
 	greeterfac "github.com/sentinez/controlplane/apps/greeter/v1/factory"
 	iamfac "github.com/sentinez/controlplane/apps/iam/v1/factory"
 	securityfac "github.com/sentinez/controlplane/apps/security/v1/factory"
@@ -25,6 +27,7 @@ import (
 	tenantfac "github.com/sentinez/controlplane/apps/tenant/v1/factory"
 	tenanthdl "github.com/sentinez/controlplane/apps/tenant/v1/handler"
 	"github.com/sentinez/controlplane/pkg/passkey"
+	"github.com/sentinez/core/szgrpc/client"
 	"github.com/sentinez/pkg/szlog"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
@@ -32,6 +35,7 @@ import (
 	"github.com/sentinez/sentinez/internal/apps/apiserver/controlplane/v1"
 	"github.com/sentinez/sentinez/internal/apps/apiserver/handlers"
 	"github.com/sentinez/sentinez/internal/apps/apiserver/middleware"
+	"github.com/sentinez/sentinez/pkg/interceptor"
 )
 
 func (srv *Server) Initialize(
@@ -72,6 +76,11 @@ func (srv *Server) visitServices(ctx context.Context,
 		return err
 	}
 
+	communication, err := srv.useNotifications(ctx, conf)
+	if err != nil {
+		return err
+	}
+
 	audit, exporter, err := auditInterceptor(conf)
 	if err != nil {
 		return err
@@ -81,11 +90,32 @@ func (srv *Server) visitServices(ctx context.Context,
 
 	return srv.Visit(ctx,
 		controlplane.NewAnalytic(analytic, audit),
+		controlplane.NewCommunication(communication, audit),
 		controlplane.NewGreeter(greeterfac.NewDefaultHandler(conf), audit),
 		controlplane.NewIAM(iamfac.NewDefaultHandler(ctx, conf), audit),
 		controlplane.NewSecurity(security, audit),
 		controlplane.NewTenant(tenant, audit),
 	)
+}
+
+// useNotifications serves the notification stream of the communication
+// handler it returns as server-sent events, authorized as on the network.
+func (srv *Server) useNotifications(ctx context.Context,
+	conf *settingpb.Config) (*commhdl.Communication, error) {
+	communication, err := commfac.NewDefaultHandler(ctx, conf)
+	if err != nil {
+		return nil, err
+	}
+
+	cli, err := client.NewLocalCommunication(communication,
+		interceptor.ServerOptions()...)
+	if err != nil {
+		return nil, err
+	}
+
+	handlers.RegisterServerSentEvents(srv.server.HTTPMux(), cli)
+
+	return communication, nil
 }
 
 // useMiddleware loads the middleware of the api server.
@@ -103,5 +133,6 @@ func (srv *Server) useMiddleware(conf *settingpb.Config) {
 	// patterns and would be rejected.
 	srv.server.Use(middleware.Scope(
 		middleware.Injection, "/iam", "/tenant", "/greeter", "/analytic",
+		"/communication",
 	))
 }

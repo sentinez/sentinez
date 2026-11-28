@@ -4,6 +4,7 @@ import { getTranslations } from 'next-intl/server';
 
 import { ResizableSidebarProvider } from '@/components/resizable-sidebar';
 import { RouteGuard } from '@/components/session-redirect';
+import { NotificationsProvider } from '@/hooks/use-notifications';
 import { SIDEBAR_WIDTH_COOKIE } from '@/lib/layout-bars';
 
 const SIDEBAR_DEFAULT_WIDTH = 300;
@@ -23,7 +24,10 @@ export default async function Layout({ children }: { children: React.ReactNode }
       minWidth={240}
       maxWidth={560}
     >
-      <RouteGuard>{children}</RouteGuard>
+      <RouteGuard>
+        {/* above the section layouts: the stream stays open between them */}
+        <NotificationsProvider>{children}</NotificationsProvider>
+      </RouteGuard>
     </ResizableSidebarProvider>
   );
 }

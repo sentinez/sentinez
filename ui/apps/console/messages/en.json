@@ -92,6 +92,7 @@
     "notifications": "Notifications",
     "notificationsDescription": "Recent activity and alerts for your account.",
     "notificationsEmpty": "You have no notifications.",
+    "notificationsUnread": "{count, plural, one {# unread} other {# unread}}",
     "logout": "Log out",
     "loggedOut": "Logged out",
     "loggedOutDescription": "You have been logged out successfully.",

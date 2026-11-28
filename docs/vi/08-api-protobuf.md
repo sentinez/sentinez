@@ -25,7 +25,8 @@ api/proto/sentinez/
     ├── cdn/v1/              # CDN rule
     ├── ruleset/v1/          # Rulesets (đầu ra rule parser)
     ├── net/v1/              # Transport (conn_id, SNI)
-    └── net/http/v1/         # Request, RequestEvent, Event
+    ├── net/http/v1/         # Request, RequestEvent, Event
+    └── notify/v1/           # Notification (title, type, message), NotiType
 ```
 
 Go package: `github.com/sentinez/sentinez/api/proto/sentinez/<path>;<alias>pb`
@@ -33,7 +34,8 @@ Go package: `github.com/sentinez/sentinez/api/proto/sentinez/<path>;<alias>pb`
 
 Quy tắc `buf lint` ([api/buf.yaml](../../api/buf.yaml)): `STANDARD`, enum zero
 value hậu tố `_UNSPECIFIED`, service hậu tố `Service`, không cho request và
-response trùng type.
+response trùng type, và tên của chúng theo RPC (`ListNotifications` →
+`ListNotificationsRequest`/`ListNotificationsResponse`).
 
 ## 8.2 Custom option (`types/v1/options.proto`)
 
@@ -158,6 +160,10 @@ header `Authorization: Bearer <JWT>`.
 | GET | `/analytic/events/histogram` | `AnalyticService.GetEventHistogram` | ignore |
 | GET | `/analytic/events/top-values` | `AnalyticService.GetEventTopValues` | ignore |
 | GET | `/analytic/events/http-egress/latency` | `AnalyticService.GetEgressLatency` | ignore |
+| GET | `/communication/say` | `CommunicationService.SayHello` | ignore |
+| GET | `/communication/status` | `CommunicationService.Status` | ignore |
+| GET | `/communication/notifications` | `CommunicationService.ListNotifications` | PORTAL, ADMIN |
+| GET | `/communication/notifications/stream` | `CommunicationService.ServerStreamNotification`, dạng SSE (không qua grpc-gateway, xem [6.1](06-gateway.md#stream-thông-báo-sse)) | PORTAL, ADMIN |
 
 "Quyền khai báo" là option trong proto; interceptor `authz.Unary` thực thi nó và từ chối RPC không khai báo gì (xem
 [07-controlplane.md](07-controlplane.md#72-xác-thực--phân-quyền)).

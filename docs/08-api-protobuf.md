@@ -25,7 +25,8 @@ api/proto/sentinez/
     ├── cdn/v1/              # CDN rule
     ├── ruleset/v1/          # Rulesets (rule parser output)
     ├── net/v1/              # Transport (conn_id, SNI)
-    └── net/http/v1/         # Request, RequestEvent, Event
+    ├── net/http/v1/         # Request, RequestEvent, Event
+    └── notify/v1/           # Notification (title, type, message), NotiType
 ```
 
 Go packages: `github.com/sentinez/sentinez/api/proto/sentinez/<path>;<alias>pb`
@@ -33,7 +34,8 @@ Go packages: `github.com/sentinez/sentinez/api/proto/sentinez/<path>;<alias>pb`
 
 `buf lint` rules ([api/buf.yaml](../api/buf.yaml)): `STANDARD`, enum zero
 values suffixed `_UNSPECIFIED`, services suffixed `Service`, request and
-response types must differ.
+response types must differ and be named after their RPC
+(`ListNotifications` → `ListNotificationsRequest`/`ListNotificationsResponse`).
 
 ## 8.2 Custom options (`types/v1/options.proto`)
 
@@ -158,6 +160,10 @@ Base URL: the apiserver address (`:8080` in `.env.example`). Auth: header
 | GET | `/analytic/events/histogram` | `AnalyticService.GetEventHistogram` | ignore |
 | GET | `/analytic/events/top-values` | `AnalyticService.GetEventTopValues` | ignore |
 | GET | `/analytic/events/http-egress/latency` | `AnalyticService.GetEgressLatency` | ignore |
+| GET | `/communication/say` | `CommunicationService.SayHello` | ignore |
+| GET | `/communication/status` | `CommunicationService.Status` | ignore |
+| GET | `/communication/notifications` | `CommunicationService.ListNotifications` | PORTAL, ADMIN |
+| GET | `/communication/notifications/stream` | `CommunicationService.ServerStreamNotification`, as SSE (not grpc-gateway, see [6.1](06-gateway.md#notification-stream-sse)) | PORTAL, ADMIN |
 
 "Declared permission" is the option in the proto; the `authz.Unary`
 interceptor enforces it, and denies an RPC with none (see
