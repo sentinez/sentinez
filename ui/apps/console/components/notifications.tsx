@@ -3,7 +3,7 @@
 import type { Notification } from '@sentinez/proto/sentinez/apps/communication/v1/model';
 import { NotiType } from '@sentinez/proto/sentinez/types/notify/v1/notify';
 import { Bell, CircleAlert, CircleCheck, CircleX, Info, type LucideIcon } from 'lucide-react';
-import { useFormatter, useTranslations } from 'next-intl';
+import { useFormatter, useNow, useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 import { Button } from '@sentinez/ui/components/button';
@@ -92,11 +92,7 @@ export function Notifications() {
               {t('notificationsEmpty')}
             </div>
           ) : (
-            <ul className="flex flex-1 flex-col gap-1 overflow-y-auto p-2">
-              {notifications.map((n) => (
-                <NotificationItem key={n.id} notification={n} />
-              ))}
-            </ul>
+            <NotificationList notifications={notifications} />
           )}
         </DrawerContent>
       </Drawer>
@@ -104,7 +100,24 @@ export function Notifications() {
   );
 }
 
-function NotificationItem({ notification }: { notification: Notification }) {
+// How often the relative times of the open drawer are refreshed
+const NOW_UPDATE_MILLIS = 60_000;
+
+function NotificationList({ notifications }: { notifications: Notification[] }) {
+  // one clock for the list, ticking while the drawer is open: the relative
+  // times stay current, and relativeTime gets an explicit `now`
+  const now = useNow({ updateInterval: NOW_UPDATE_MILLIS });
+
+  return (
+    <ul className="flex flex-1 flex-col gap-1 overflow-y-auto p-2">
+      {notifications.map((n) => (
+        <NotificationItem key={n.id} notification={n} now={now} />
+      ))}
+    </ul>
+  );
+}
+
+function NotificationItem({ notification, now }: { notification: Notification; now: Date }) {
   const format = useFormatter();
   const { event, metadata } = notification;
   const { icon: Icon, className } = (event && _icons[event.notiType]) ?? _defaultIcon;
@@ -122,7 +135,7 @@ function NotificationItem({ notification }: { notification: Notification }) {
               title={format.dateTime(createdAt, { dateStyle: 'medium', timeStyle: 'short' })}
               className="text-muted-foreground shrink-0 text-xs"
             >
-              {format.relativeTime(createdAt)}
+              {format.relativeTime(createdAt, now)}
             </time>
           )}
         </div>
