@@ -190,7 +190,9 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
           <SidebarContent>
             <SidebarGroup>
               <SidebarGroupContent className="px-0">
-                <SidebarMenu>
+                {/* the stock menu has no gap: a hovered row would touch the
+                  selected one */}
+                <SidebarMenu className="gap-1">
                   {navMain.map((item, index) => (
                     <SidebarMenuItem key={item.titleKey}>
                       <SidebarMenuButton
@@ -264,7 +266,7 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
           <SidebarContent>
             <SidebarGroup className="px-0">
               <SidebarGroupContent className="px-1.5 md:px-0 flex justify-center">
-                <SidebarMenu className="w-full px-1 md:w-11/12 md:px-0">
+                <SidebarMenu className="w-full gap-1 px-1 md:w-11/12 md:px-0">
                   {loading ? (
                     <SidebarLoading />
                   ) : (
@@ -289,7 +291,7 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
                               </Link>
                             </SidebarMenuButton>
                             {!!item.items?.length && (
-                              <SidebarMenuSub>
+                              <SidebarMenuSub className="py-1">
                                 {item.items.map((subItem) => (
                                   <SidebarMenuSubItem key={subItem.titleKey}>
                                     <SidebarMenuSubButton

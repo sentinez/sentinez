@@ -7,7 +7,7 @@ SZCENTRALDATA_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)
 
 sz.centraldata.build: SENTINEZ_OUT ?= centraldata
 sz.centraldata.build:
-	@go build -ldflags="-s -w" -o $(SZCENTRALDATA_DIR)/v1/bin/$(SENTINEZ_OUT) $(SZCENTRALDATA_DIR)/v1
+	@go build -ldflags="$(SZ_LDFLAGS)" -o $(SZCENTRALDATA_DIR)/v1/bin/$(SENTINEZ_OUT) $(SZCENTRALDATA_DIR)/v1
 	@echo "[DONE]  sz: sz.centraldata.v1 ... ok"
 
 sz.centraldata.run: SENTINEZ_OUT ?= centraldata
@@ -16,7 +16,8 @@ sz.centraldata.run: sz.centraldata.build
 
 sz.centraldata.image.build: TAG ?= sentinez/centraldata
 sz.centraldata.image.build:
-	@docker buildx build -f $(SZCENTRALDATA_DIR)/v1/Dockerfile -t $(TAG):latest $(SZCENTRALDATA_DIR)/../..
+	@docker buildx build --build-arg SZ_VERSION="$(SZ_VERSION)" \
+		-f $(SZCENTRALDATA_DIR)/v1/Dockerfile -t $(TAG):latest $(SZCENTRALDATA_DIR)/../..
 
 # Issues $(SZ_CENTRALDATA_CERT_NAME).pem and its key in $(SZ_INTERNAL_CERT_DIR),
 # and the CA there first if there is none.

@@ -14,10 +14,10 @@ release; later releases follow the same steps. What changed goes into
   the console all ship at the same number.
 - `core.Version`
   ([core/core.go](../staging/src/github.com/sentinez/core/core.go)) is the
-  version shown in the startup banner. It is a `const`, `v0.0.1-beta` today,
-  so `-ldflags -X` cannot set it. Set it by hand for the release, or turn it
-  into a `var` and pass `-X github.com/sentinez/core.Version=...` from the
-  Makefiles and Dockerfiles.
+  version shown in the startup banner, `dev` by default. The Makefiles set it
+  at link time to `SZ_VERSION` (root [Makefile](../Makefile), the output of
+  `git describe --tags --always --dirty`), and pass it to the Dockerfiles as
+  the `SZ_VERSION` build arg. Override it with `make SZ_VERSION=v0.0.1`.
 
 | What | Where | Tag / version |
 |---|---|---|
@@ -72,8 +72,9 @@ version a module requires already exists when it is fetched:
    fix each security entry (S4 to S8) or list it in the release notes. Do
    not publish the edge image while it still bakes in the certificate of the
    source tree (S7).
-5. **Version.** Set `core.Version` to `v0.0.1` and update the go.mod files as
-   described in 13.2. In [CHANGELOG.md](../CHANGELOG.md), replace
+5. **Version.** Update the go.mod files as described in 13.2. Build the
+   images after tagging, or with `SZ_VERSION=v0.0.1`, so the banners show
+   the release (`core.Version`). In [CHANGELOG.md](../CHANGELOG.md), replace
    `Unreleased` with the date.
 6. **Merge** the release branch into `main` (PR). `ci_sync_repo` pushes each
    staged module to the `main` branch of its split repo.
@@ -117,5 +118,4 @@ version a module requires already exists when it is fetched:
   [deploy/docker/docker-compose.yaml](../deploy/docker/docker-compose.yaml)
   after changing its `:latest` tags to `:v0.0.1`, then repeat the smoke
   tests of 14.3 (`INS`, `EDG`).
-- Add a new `## [Unreleased]` section to the changelog, and set
-  `core.Version` to the next pre-release (`v0.0.2-beta`).
+- Add a new `## [Unreleased]` section to the changelog.

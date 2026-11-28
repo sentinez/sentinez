@@ -14,7 +14,7 @@
 
 package core
 
-const (
-	// Version holds the complete version number. Filled in at linking time.
-	Version = "v0.0.1-beta"
-)
+// Version is the version of the build, shown in the startup banner. The
+// Makefiles set it at link time with
+// -ldflags "-X github.com/sentinez/core.Version=$(SZ_VERSION)".
+var Version = "dev"

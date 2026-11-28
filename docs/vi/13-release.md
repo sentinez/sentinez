@@ -13,10 +13,10 @@ kiểm thử nằm trong [14-test-plan.md](14-test-plan.md).
   đều phát hành cùng một số.
 - `core.Version`
   ([core/core.go](../../staging/src/github.com/sentinez/core/core.go)) là
-  version in ra ở banner lúc khởi động. Hiện nó là một `const` có giá trị
-  `v0.0.1-beta`, nên `-ldflags -X` không ghi đè được. Khi release, hãy sửa
-  tay giá trị này, hoặc đổi nó sang `var` rồi truyền
-  `-X github.com/sentinez/core.Version=...` từ Makefile và Dockerfile.
+  version in ra ở banner lúc khởi động, mặc định là `dev`. Các Makefile điền
+  nó lúc link bằng `SZ_VERSION` ([Makefile](../../Makefile) gốc, kết quả của
+  `git describe --tags --always --dirty`), và truyền nó vào Dockerfile qua
+  build arg `SZ_VERSION`. Ghi đè bằng `make SZ_VERSION=v0.0.1`.
 
 | Thành phần | Nơi phát hành | Tag / version |
 |---|---|---|
@@ -71,7 +71,9 @@ require đều đã tồn tại khi module đó được tải:
    mỗi mục bảo mật (S4 đến S8), hoặc sửa, hoặc ghi vào release notes. Không
    publish image edge khi nó vẫn còn đóng gói sẵn certificate của source tree
    (S7).
-5. **Version.** Đặt `core.Version` thành `v0.0.1` và sửa go.mod như mục 13.2.
+5. **Version.** Sửa go.mod như mục 13.2. Build image sau khi gắn tag, hoặc
+   với `SZ_VERSION=v0.0.1`, để banner in đúng version release
+   (`core.Version`).
    Trong [CHANGELOG.md](../../CHANGELOG.md), thay `Unreleased` bằng ngày phát
    hành.
 6. **Merge** nhánh release vào `main` (qua PR). `ci_sync_repo` sẽ đẩy từng
@@ -116,5 +118,4 @@ require đều đã tồn tại khi module đó được tải:
   [deploy/docker/docker-compose.yaml](../../deploy/docker/docker-compose.yaml)
   sau khi đổi các tag `:latest` thành `:v0.0.1`, rồi chạy lại các smoke test
   ở 14.3 (`INS`, `EDG`).
-- Thêm mục `## [Unreleased]` mới vào changelog, và đặt `core.Version` thành
-  pre-release kế tiếp (`v0.0.2-beta`).
+- Thêm mục `## [Unreleased]` mới vào changelog.

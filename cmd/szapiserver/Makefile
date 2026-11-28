@@ -6,7 +6,7 @@ SZAPISERVER_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))
 
 sz.apiserver.build: SENTINEZ_OUT ?= apiserver
 sz.apiserver.build:
-	@go build -ldflags="-s -w" -o $(SZAPISERVER_DIR)/bin/$(SENTINEZ_OUT) $(SZAPISERVER_DIR)
+	@go build -ldflags="$(SZ_LDFLAGS)" -o $(SZAPISERVER_DIR)/bin/$(SENTINEZ_OUT) $(SZAPISERVER_DIR)
 	@echo "[DONE]  sz: sz.apiserver ... ok"
 
 sz.apiserver.run: SENTINEZ_OUT ?= apiserver
@@ -15,4 +15,5 @@ sz.apiserver.run: sz.apiserver.build
 
 sz.apiserver.image.build: TAG ?= sentinez/apiserver
 sz.apiserver.image.build:
-	@docker buildx build -f $(SZAPISERVER_DIR)/Dockerfile -t $(TAG):latest $(SZAPISERVER_DIR)/../..
+	@docker buildx build --build-arg SZ_VERSION="$(SZ_VERSION)" \
+		-f $(SZAPISERVER_DIR)/Dockerfile -t $(TAG):latest $(SZAPISERVER_DIR)/../..

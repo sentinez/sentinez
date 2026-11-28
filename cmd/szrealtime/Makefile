@@ -6,7 +6,7 @@ SZREALTIME_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 sz.realtime.build: SENTINEZ_OUT ?= realtime
 sz.realtime.build:
-	@go build -ldflags="-s -w" -o $(SZREALTIME_DIR)/bin/$(SENTINEZ_OUT) $(SZREALTIME_DIR)
+	@go build -ldflags="$(SZ_LDFLAGS)" -o $(SZREALTIME_DIR)/bin/$(SENTINEZ_OUT) $(SZREALTIME_DIR)
 	@echo "[DONE]  sz: sz.realtime ... ok"
 
 sz.realtime.run: SENTINEZ_OUT ?= realtime

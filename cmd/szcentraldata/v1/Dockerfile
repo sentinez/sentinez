@@ -30,7 +30,8 @@ WORKDIR /src
 ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 
 RUN go mod tidy
-RUN go build -ldflags="-s -w" -o /bin/main ./cmd/szcentraldata/v1
+ARG SZ_VERSION=dev
+RUN go build -ldflags="-s -w -X github.com/sentinez/core.Version=${SZ_VERSION}" -o /bin/main ./cmd/szcentraldata/v1
 
 # Remove all source code files
 RUN rm -r *

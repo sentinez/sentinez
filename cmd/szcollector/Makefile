@@ -6,7 +6,7 @@ SZCOLLECTOR_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))
 
 sz.collector.build: SENTINEZ_OUT ?= collector
 sz.collector.build:
-	@go build -ldflags="-s -w" -o $(SZCOLLECTOR_DIR)/v1/bin/$(SENTINEZ_OUT) $(SZCOLLECTOR_DIR)/v1
+	@go build -ldflags="$(SZ_LDFLAGS)" -o $(SZCOLLECTOR_DIR)/v1/bin/$(SENTINEZ_OUT) $(SZCOLLECTOR_DIR)/v1
 	@echo "[DONE]  sz: sz.collector.v1 ... ok"
 
 sz.collector.run: SENTINEZ_OUT ?= collector
@@ -15,4 +15,5 @@ sz.collector.run: sz.collector.build
 
 sz.collector.image.build: TAG ?= sentinez/collector
 sz.collector.image.build:
-	@docker buildx build -f $(SZCOLLECTOR_DIR)/v1/Dockerfile -t $(TAG):latest $(SZCOLLECTOR_DIR)/../..
+	@docker buildx build --build-arg SZ_VERSION="$(SZ_VERSION)" \
+		-f $(SZCOLLECTOR_DIR)/v1/Dockerfile -t $(TAG):latest $(SZCOLLECTOR_DIR)/../..
