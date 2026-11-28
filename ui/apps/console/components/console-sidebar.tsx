@@ -78,6 +78,12 @@ function bestUrl(item: NavItem, pathname: string): string | undefined {
 /** A tab with sub tabs opens its first sub tab. */
 const tabUrl = (item: NavItem) => item.items?.[0]?.url ?? item.url;
 
+// The tooltip of a sidebar button, in the popover colors like the chart
+// tooltips; its arrow (the one svg: the content is text) hidden, with ! over
+// the inline display: block Radix gives it
+const _tooltipClass = 'border bg-popover text-popover-foreground shadow-md [&_svg]:hidden!';
+const tooltipOf = (children: string) => ({ children, className: _tooltipClass });
+
 /**
  * Two-level console sidebar: an icon rail with `navMain`, and a panel with the
  * children of the active item (searchable, one level of collapsible sub items).
@@ -189,10 +195,7 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
                     <SidebarMenuItem key={item.titleKey}>
                       <SidebarMenuButton
                         asChild
-                        tooltip={{
-                          children: t(item.titleKey),
-                          hidden: false,
-                        }}
+                        tooltip={{ ...tooltipOf(t(item.titleKey)), hidden: false }}
                         isActive={activeItem?.titleKey === item.titleKey}
                         className="px-2.5 md:px-2 cursor-pointer"
                       >
@@ -272,7 +275,7 @@ export function ConsoleSidebar({ navMain, ...props }: SidebarProps & { navMain: 
                           <SidebarMenuItem>
                             <SidebarMenuButton
                               asChild
-                              tooltip={t(item.titleKey)}
+                              tooltip={tooltipOf(t(item.titleKey))}
                               size="default"
                               className="px-2.5 md:px-2 cursor-pointer"
                               isActive={activeUrl === item.url}

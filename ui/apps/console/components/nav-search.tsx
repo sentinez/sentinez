@@ -75,13 +75,16 @@ export function NavSearch({ className }: { className?: string }) {
         type="button"
         variant="outline"
         onClick={() => setOpen(true)}
+        // an icon until its @container (PreviewHeader) has room for the box;
+        // named even then
+        aria-label={ts('search')}
         className={cn(
-          'text-muted-foreground h-8 justify-start gap-2 px-2 text-xs font-normal shadow-none',
+          'text-muted-foreground h-8 w-8 justify-center gap-2 px-0 text-xs font-normal shadow-none @md:w-48 @md:justify-start @md:px-2 @4xl:w-64',
           className,
         )}
       >
         <Search className="size-3.5 shrink-0" aria-hidden />
-        <span className="truncate">{ts('search')}</span>
+        <span className="hidden truncate @md:inline">{ts('search')}</span>
       </Button>
 
       <CommandDialog open={open} onOpenChange={setOpen} title={ts('search')}>

@@ -13,11 +13,11 @@ import { Input } from '@sentinez/ui/components/input';
 import { cn } from '@sentinez/ui/lib/utils';
 import { Search } from 'lucide-react';
 import Image from 'next/image';
-import { useTheme } from 'next-themes';
 import { useTranslations } from 'next-intl';
 
-import LetterGlitch from '@/components/letter-glitch/letter-glitch';
+import { ThemedLetterGlitch } from '@/components/letter-glitch/themed-letter-glitch';
 import Language from '@/components/language';
+import Theme from '@/components/theme';
 import { RefreshButton } from '@/components/refresh-button';
 import { UserMenu } from '@/components/user-menu';
 import { useApi } from '@/hooks/use-api';
@@ -86,14 +86,16 @@ export default function View() {
   return (
     <div className="relative isolate flex min-h-svh flex-col gap-6 p-4 sm:p-10">
       <TenantBackdrop />
-      <div className="flex items-center justify-between gap-2">
+      {/* a @container: Language shows its name when the bar has room */}
+      <div className="@container flex items-center justify-between gap-2">
         <div className="flex items-center gap-1 font-bold font-['Phudu',sans-serif]">
           <div className="flex size-6 items-center justify-center rounded-md">
             <Image width={600} height={600} src="/assets/sz.png" alt="" loading="eager" />
           </div>
-          <span className="items-center text-xl text-[#0504aa]">SENTINÉZ</span>
+          <span className="items-center text-xl text-(--brand)">SENTINÉZ</span>
         </div>
         <div className="flex items-center gap-2">
+          <Theme />
           <Language />
           <UserMenu />
         </div>
@@ -181,18 +183,15 @@ export default function View() {
 /**
  * The glitching letters of the auth page, toned down behind the cards: dark
  * ink on the light theme, light letters on the dark one. The cursor still
- * stirs them: they listen on the window, not on this layer. Nothing renders
- * until the theme is known, so the dark theme does not start light.
+ * stirs them: they listen on the window, not on this layer.
  */
 function TenantBackdrop() {
-  const { resolvedTheme } = useTheme();
-
   return (
     <div
       aria-hidden
       className="pointer-events-none absolute inset-0 -z-10 overflow-hidden opacity-60"
     >
-      {resolvedTheme && <LetterGlitch lightMode={resolvedTheme !== 'dark'} />}
+      <ThemedLetterGlitch />
     </div>
   );
 }

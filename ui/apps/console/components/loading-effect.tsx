@@ -63,18 +63,12 @@ export function IsLoading({ holiday }: { holiday?: Holiday }) {
             <Image src="/assets/sz.png" alt="Sentinez" width={70} height={70} loading="eager" />
           </motion.div>
 
-          <motion.span
-            {...SPLASH_NAME}
-            className="text-5xl font-bold text-[#0504aa]"
-          >
+          <motion.span {...SPLASH_NAME} className="text-5xl font-bold text-(--brand)">
             Sentinéz
           </motion.span>
         </div>
         {holiday && (
-          <motion.div
-            {...SPLASH_GREETING}
-            className={`text-lg font-semibold ${holiday.color}`}
-          >
+          <motion.div {...SPLASH_GREETING} className={`text-lg font-semibold ${holiday.color}`}>
             {t(`holiday.${holiday.id}`)}
           </motion.div>
         )}

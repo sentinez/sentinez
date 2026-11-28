@@ -33,6 +33,12 @@
   "Language": {
     "label": "Ngôn ngữ"
   },
+  "Theme": {
+    "label": "Giao diện",
+    "light": "Sáng",
+    "dark": "Tối",
+    "system": "Theo hệ thống"
+  },
   "Header": {
     "welcome": "Chào mừng trở lại, {name}"
   },

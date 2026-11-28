@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { HoverLink } from '@/components/hover-link';
+import { NameLink } from '@/components/hover-link';
 import {
   flexRender,
   getCoreRowModel,
@@ -74,12 +74,7 @@ export const getColumns = (
     header: () => <div className="w-full">{t('name')}</div>,
     cell: ({ row }) => (
       <div className="w-full truncate">
-        <HoverLink
-          className="text-blue-700 font-semibold underline"
-          href={`./sec-rate-limit/${row.original.id}`}
-        >
-          {row.original.name}
-        </HoverLink>
+        <NameLink href={`./sec-rate-limit/${row.original.id}`}>{row.original.name}</NameLink>
       </div>
     ),
   },

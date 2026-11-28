@@ -18,6 +18,8 @@ import { Button } from '@sentinez/ui/components/button';
 import { LOCALE_LABEL, isLocale, locales } from '@/i18n/config';
 import { setUserLocale } from '@/i18n/locale';
 
+// Language shows the name of the language when its @container (the bar it
+// sits in) has room, else its code
 export default function Language() {
   const t = useTranslations('Language');
   const current = useLocale();
@@ -50,8 +52,8 @@ export default function Language() {
           disabled={pending}
         >
           {pending ? <LoaderCircle className="animate-spin" /> : <Languages />}
-          <span className="hidden sm:inline">{label}</span>
-          <span className="uppercase sm:hidden">{locale}</span>
+          <span className="hidden @xl:inline">{label}</span>
+          <span className="uppercase @xl:hidden">{locale}</span>
           <ChevronDown className="size-3 opacity-60" />
         </Button>
       </DropdownMenuTrigger>
