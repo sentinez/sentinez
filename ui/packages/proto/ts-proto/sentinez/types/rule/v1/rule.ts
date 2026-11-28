@@ -869,16 +869,16 @@ function createBaseAndCondition(): AndCondition {
 export const AndCondition: MessageFns<AndCondition> = {
   encode(message: AndCondition, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.id !== "") {
-      writer.uint32(34).string(message.id);
+      writer.uint32(10).string(message.id);
     }
     for (const v of message.rules) {
-      Rule.encode(v!, writer.uint32(10).fork()).join();
+      Rule.encode(v!, writer.uint32(18).fork()).join();
     }
     for (const v of message.orCondition) {
-      AndCondition.encode(v!, writer.uint32(18).fork()).join();
+      AndCondition.encode(v!, writer.uint32(26).fork()).join();
     }
     for (const v of message.andCondition) {
-      AndCondition.encode(v!, writer.uint32(26).fork()).join();
+      AndCondition.encode(v!, writer.uint32(34).fork()).join();
     }
     return writer;
   },
@@ -896,20 +896,12 @@ export const AndCondition: MessageFns<AndCondition> = {
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
-          case 4: {
-            if (tag !== 34) {
-              break;
-            }
-
-            message.id = reader.string();
-            continue;
-          }
           case 1: {
             if (tag !== 10) {
               break;
             }
 
-            message.rules.push(Rule.decode(reader, reader.uint32()));
+            message.id = reader.string();
             continue;
           }
           case 2: {
@@ -917,11 +909,19 @@ export const AndCondition: MessageFns<AndCondition> = {
               break;
             }
 
-            message.orCondition.push(AndCondition.decode(reader, reader.uint32()));
+            message.rules.push(Rule.decode(reader, reader.uint32()));
             continue;
           }
           case 3: {
             if (tag !== 26) {
+              break;
+            }
+
+            message.orCondition.push(AndCondition.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
               break;
             }
 
