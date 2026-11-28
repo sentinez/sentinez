@@ -65,7 +65,7 @@ Scaffolding for each layer lives in `hack/.agent/skills/` (`create-service`,
 
 Table names ([pkg/sztable](../staging/src/github.com/sentinez/pkg/sztable/tables.go)):
 `iam.users`, `iam.accounts`, `tenant.resources`, `analytic.activities`,
-`security.secrules`, and the edge event tables `analytic.secrules.events`,
+`security.secrules`, `communication.notifications`, and the edge event tables `analytic.secrules.events`,
 `analytic.secratelimits.events`, `analytic.secrulesets.events`,
 `analytic.httpingress.events`, `analytic.httpegress.events` (see
 [Collector](#collector-edge-event-ingest)).
@@ -427,11 +427,12 @@ a rate limit and a ruleset are validated whole), and the repo's
 and tenants never change. `UpdateMember` and `UpdateUser` set their one
 field (`roles`, `full_name`) and take no mask.
 
-## 7.6 Analytic, Greeter, CentralData
+## 7.6 Analytic, Communication, Greeter, CentralData
 
 | Domain | Status |
 |---|---|
 | Analytic | `ListActivities` (`GET /analytic/activities`, requires a token) over table `analytic.activities` (`id, resource_id, unique_visitor INTEGER[]`), and the reads of the edge events and their histograms (see [Analytic: event reads](#analytic-event-reads)). Runs in-process in the apiserver |
+| Communication | Notifications of the tenants: `ListNotifications` and the `ServerStreamNotification` stream the apiserver relays as SSE (see [Communication: notifications](#communication-notifications)). Runs in-process in the apiserver |
 | Greeter | Sample service: `SayHello` (`GET /greeter/say?name=`) replies with the current time; `Status`. Has its own `szgreeter` binary and also runs in-process in the apiserver |
 | CentralData | `Status`, and `Sync`: the stream that loads the edges with the tables, below. Binary `szcentraldata` |
 | Collector | `Status`, plus the ingest of the edge events from Kafka (below). Binary `szcollector` |
@@ -805,6 +806,25 @@ certificate of `SZ_TLS_*` (unset: ingest disabled with a warning,
 the gRPC server still runs) and the database of `SZ_POSTGRES_URI`. The
 consumer limits that bound its memory are in
 [09-core-shared.md](09-core-shared.md#szkafka).
+
+### Communication: notifications
+
+[apps/communication/v1](../staging/src/github.com/sentinez/controlplane/apps/communication/v1/)
+stores the notifications of the tenants and pushes them to the console.
+
+| Part | Role |
+|---|---|
+| `repos/notifications` (`notificationrepo.INotification`) | Table `communication.notifications`: `communicationpb.Notification` (`Metadata` flattened, `id` prefix `ntf_`, `event` = `notify.v1.Notification` flattened to `event_title`, `event_noti_type`, `event_message`, `tenant_id`), index `(tenant_id, metadata_created_at)`. `List` always returns the newest first, paged or not. `Create` sets the id and both times, so the returned notification carries them |
+| `handler.Hub` | In-memory fan-out: each subscriber has a tenant filter and a buffer of 16; a full subscriber loses notifications rather than block `Publish` |
+| `Communication.Notify(ctx, n)` | Stores `n` (a `tenant_id` is required, else `InvalidArgument`), then publishes it to the hub; nothing is pushed when the store fails. A Go method of the handler (no RPC): only code inside the apiserver can call it, and nothing does yet ([#429](https://github.com/sentinez/sentinez/issues/429)) |
+| `ListNotifications` (`GET /communication/notifications`, PORTAL/ADMIN) | `authz.ScopedTenants`: the tenants of the caller, `tenant_ids` among them when set; a caller of no tenant gets an empty list without a query; the admin plane sees every tenant |
+| `ServerStreamNotification` (gRPC server stream, PORTAL/ADMIN) | Subscribes to the hub with the tenants of the caller (`authz.TenantIds`, narrowed to `tenant_ids`), resolved once when it opens ([#432](https://github.com/sentinez/sentinez/issues/432)); sends its headers once subscribed, then each matching notification. A caller of no tenant keeps an idle stream. The apiserver relays it as SSE ([6.1](06-gateway.md#notification-stream-sse)) |
+
+The handler and its hub live in the apiserver process (`useNotifications`
+of `initialize.go`): with several replicas, a notification reaches only the
+streams of the process that stored it
+([#429](https://github.com/sentinez/sentinez/issues/429)). The read state is
+not stored ([#431](https://github.com/sentinez/sentinez/issues/431)).
 
 ## 7.7 Error codes
 

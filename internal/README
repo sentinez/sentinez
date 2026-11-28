@@ -22,8 +22,9 @@ apps/                the edge, the dataplane (demilitarized zone) and the
                      (context, security, monitor); the map API
   apiserver/controlplane/v1
                      registrars of the domain services (Analytic,
-                     Greeter, IAM, Security, Tenant)
-  apiserver/handlers serves the OpenAPI JSON and Swagger UI
+                     Communication, Greeter, IAM, Security, Tenant)
+  apiserver/handlers serves the OpenAPI JSON and Swagger UI, and the
+                     notification stream as server-sent events
   apiserver/middleware
                      Logging, CORS, SwaggerDefaultRoot, Injection
                      (SQLi/XSS), Scope

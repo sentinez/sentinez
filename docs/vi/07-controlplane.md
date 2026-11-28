@@ -64,7 +64,7 @@ Scaffold mẫu cho từng lớp nằm trong `hack/.agent/skills/` (`create-servi
 
 Tên bảng ([pkg/sztable](../../staging/src/github.com/sentinez/pkg/sztable/tables.go)):
 `iam.users`, `iam.accounts`, `tenant.resources`, `analytic.activities`,
-`security.secrules`, cùng các bảng event của edge `analytic.secrules.events`,
+`security.secrules`, `communication.notifications`, cùng các bảng event của edge `analytic.secrules.events`,
 `analytic.secratelimits.events`, `analytic.secrulesets.events`,
 `analytic.httpingress.events`, `analytic.httpegress.events` (xem
 [Collector](#collector-thu-nạp-event-của-edge)).
@@ -421,11 +421,12 @@ các trường được phép cập nhật; id, owner và tenant không bao gi�
 `UpdateMember` và `UpdateUser` chỉ đặt một trường (`roles`, `full_name`)
 nên không nhận mask.
 
-## 7.6 Analytic, Greeter, CentralData
+## 7.6 Analytic, Communication, Greeter, CentralData
 
 | Domain | Trạng thái |
 |---|---|
 | Analytic | `ListActivities` (`GET /analytic/activities`, cần token) trên bảng `analytic.activities` (`id, resource_id, unique_visitor INTEGER[]`), cùng các API đọc event của edge và histogram của chúng (xem [Analytic: đọc event](#analytic-đọc-event)). Chạy trong tiến trình apiserver |
+| Communication | Thông báo của các tenant: `ListNotifications` và stream `ServerStreamNotification` mà apiserver chuyển thành SSE (xem [Communication: thông báo](#communication-thông-báo)). Chạy trong tiến trình apiserver |
 | Greeter | Service mẫu: `SayHello` (`GET /greeter/say?name=`) trả lời kèm thời gian; `Status`. Có binary riêng `szgreeter` và cũng chạy in-process trong apiserver |
 | CentralData | `Status`, và `Sync`: stream nạp các bảng cho edge, xem dưới. Binary `szcentraldata` |
 | Collector | `Status`, cùng phần thu nạp event của edge từ Kafka (bên dưới). Binary `szcollector` |
@@ -788,6 +789,25 @@ client của `SZ_TLS_*` (không đặt: ingest bị tắt kèm cảnh báo,
 gRPC server vẫn chạy) và database của `SZ_POSTGRES_URI`. Các giới hạn
 giữ bộ nhớ của consumer nằm ở
 [09-core-shared.md](09-core-shared.md#szkafka).
+
+### Communication: thông báo
+
+[apps/communication/v1](../../staging/src/github.com/sentinez/controlplane/apps/communication/v1/)
+lưu thông báo của các tenant và đẩy chúng xuống console.
+
+| Phần | Vai trò |
+|---|---|
+| `repos/notifications` (`notificationrepo.INotification`) | Bảng `communication.notifications`: `communicationpb.Notification` (`Metadata` flatten, `id` prefix `ntf_`, `event` = `notify.v1.Notification` flatten thành `event_title`, `event_noti_type`, `event_message`, `tenant_id`), index `(tenant_id, metadata_created_at)`. `List` luôn trả bản mới nhất trước, có phân trang hay không. `Create` gán id và hai mốc thời gian, nên thông báo trả về có sẵn chúng |
+| `handler.Hub` | Phát tán trong bộ nhớ: mỗi subscriber có bộ lọc tenant và bộ đệm 16; subscriber đầy thì mất thông báo chứ không chặn `Publish` |
+| `Communication.Notify(ctx, n)` | Lưu `n` (bắt buộc có `tenant_id`, không thì `InvalidArgument`), rồi publish lên hub; lưu lỗi thì không đẩy gì. Là method Go của handler (không phải RPC): chỉ code trong apiserver gọi được, và hiện chưa có chỗ nào gọi ([#429](https://github.com/sentinez/sentinez/issues/429)) |
+| `ListNotifications` (`GET /communication/notifications`, PORTAL/ADMIN) | `authz.ScopedTenants`: các tenant của người gọi, thu hẹp theo `tenant_ids` nếu có; người không thuộc tenant nào nhận danh sách rỗng mà không truy vấn; admin thấy mọi tenant |
+| `ServerStreamNotification` (gRPC server stream, PORTAL/ADMIN) | Subscribe hub với các tenant của người gọi (`authz.TenantIds`, thu hẹp theo `tenant_ids`), chốt một lần lúc mở ([#432](https://github.com/sentinez/sentinez/issues/432)); gửi header khi đã subscribe, rồi từng thông báo khớp. Người không thuộc tenant nào giữ một stream rảnh. Apiserver chuyển nó thành SSE ([6.1](06-gateway.md#stream-thông-báo-sse)) |
+
+Handler và hub của nó sống trong tiến trình apiserver (`useNotifications`
+của `initialize.go`): chạy nhiều replica thì thông báo chỉ tới các stream
+của tiến trình đã lưu nó
+([#429](https://github.com/sentinez/sentinez/issues/429)). Trạng thái đã đọc
+chưa được lưu ([#431](https://github.com/sentinez/sentinez/issues/431)).
 
 ## 7.7 Mã lỗi
 
