@@ -9,9 +9,9 @@ Relevant source:
 |---|---|
 | [cmd/szedge/v1/main.go](../cmd/szedge/v1/main.go) | Entry point, enables pprof on `:6060` |
 | [pkg/apps/dmz/edge/](../pkg/apps/dmz/edge/) | `RevProxyServer` (Start/Lead/Shutdown), `RevProxyService` (gRPC), config, flags, YAML loading |
-| [internal/dmz/edge/engine/](../internal/dmz/edge/engine/engine.go) | HTTP engine constructors, chosen by `--engine`: `Quic` (default, HTTP/3 + HTTP/1.1/2), `Hertz` or `Standard` (`net/http`) |
+| [internal/apps/edge/engine/](../internal/apps/edge/engine/engine.go) | HTTP engine constructors, chosen by `--engine`: `Quic` (default, HTTP/3 + HTTP/1.1/2), `Hertz` or `Standard` (`net/http`) |
 | [internal/handlers/](../internal/handlers/) | Middleware chain plugins |
-| [internal/dmz/edge/transport/](../internal/dmz/edge/transport/) | TLS (JA4) and OnConnect hooks |
+| [internal/apps/edge/transport/](../internal/apps/edge/transport/) | TLS (JA4) and OnConnect hooks |
 | [internal/memory/](../internal/memory/) | Per-namespace runtime state (routes, proxies, rules, limiters, WAF, CDN) |
 | [pkg/cluster/](../pkg/cluster/) | Embedded Olric + `SyncMap[T]` (memory synced between edges) |
 | [pkg/cluster/leader/](../pkg/cluster/leader/) | Zone leader election (Consul session lock) |
@@ -129,7 +129,7 @@ IDs are 8 random bytes in hex (`network.newConnId`).
   (DTLS). For a `"udp"` handshake `FingerprintHello` passes `ja4plus` a copy of the
   `ClientHelloInfo` whose conn reports `"quic"`, so it writes `q` as the JA4
   spec requires. The edge serves no DTLS.
-- Test: [transport_quic_test.go](../internal/dmz/edge/transport/transport_quic_test.go)
+- Test: [transport_quic_test.go](../internal/apps/edge/transport/transport_quic_test.go)
   runs a real QUIC handshake and checks the `q13…` fingerprint, the SNI and
   the removal after close.
 
@@ -707,12 +707,12 @@ reads it, `info` by default), which shows the sync:
 ## 3.9 RevProxyService gRPC
 
 `edgepb.RevProxyService` only has `Status`, which returns `OK`
-([internal/dmz/edge/api.go](../internal/dmz/edge/api.go), package `edge`).
+([internal/apps/edge/api.go](../internal/apps/edge/api.go), package `edge`).
 It is packaged as `edge.RevProxyService`
 ([pkg/apps/dmz/edge/rev_proxy_service.go](../pkg/apps/dmz/edge/rev_proxy_service.go)),
 and `main` starts it as the `server.GRPC` app on `defaults.EdgeAddress`. The
 `EvalRuleset` RPC (replaying a request against a CRS setting) was removed
-together with `szcrs.Evaluate`. `internal/dmz/edge/events/{pub,sub}` are
+together with `szcrs.Evaluate`. `internal/apps/edge/events/{pub,sub}` are
 empty packages for now.
 
 ## 3.10 Choosing the engine

@@ -9,9 +9,9 @@ Mã nguồn liên quan:
 |---|---|
 | [cmd/szedge/v1/main.go](../../cmd/szedge/v1/main.go) | Entry point, bật pprof `:6060` |
 | [pkg/apps/dmz/edge/](../../pkg/apps/dmz/edge/) | `RevProxyServer` (Start/Lead/Shutdown), `RevProxyService` (gRPC), config, flags, nạp YAML |
-| [internal/dmz/edge/engine/](../../internal/dmz/edge/engine/engine.go) | Constructor HTTP engine, chọn qua `--engine`: `Quic` (mặc định, HTTP/3 + HTTP/1.1/2), `Hertz` hoặc `Standard` (`net/http`) |
+| [internal/apps/edge/engine/](../../internal/apps/edge/engine/engine.go) | Constructor HTTP engine, chọn qua `--engine`: `Quic` (mặc định, HTTP/3 + HTTP/1.1/2), `Hertz` hoặc `Standard` (`net/http`) |
 | [internal/handlers/](../../internal/handlers/) | Các plugin của chain middleware |
-| [internal/dmz/edge/transport/](../../internal/dmz/edge/transport/) | Hook TLS (JA4) và OnConnect |
+| [internal/apps/edge/transport/](../../internal/apps/edge/transport/) | Hook TLS (JA4) và OnConnect |
 | [internal/memory/](../../internal/memory/) | Bộ nhớ runtime theo namespace (route, proxy, rule, limiter, WAF, CDN) |
 | [pkg/cluster/](../../pkg/cluster/) | Olric embedded + `SyncMap[T]` (memory đồng bộ giữa các edge) |
 | [pkg/cluster/leader/](../../pkg/cluster/leader/) | Bầu leader theo zone (session lock của Consul) |
@@ -124,7 +124,7 @@ ID là 8 byte ngẫu nhiên dạng hex (`network.newConnId`).
   QUIC giá trị này là `"udp"` nên nó ghi `d` (DTLS). Với handshake `"udp"`,
   `FingerprintHello` đưa cho `ja4plus` một bản sao `ClientHelloInfo` có conn báo
   `"quic"`, nên nó ghi `q` như spec JA4 yêu cầu. Edge không phục vụ DTLS.
-- Test: [transport_quic_test.go](../../internal/dmz/edge/transport/transport_quic_test.go)
+- Test: [transport_quic_test.go](../../internal/apps/edge/transport/transport_quic_test.go)
   chạy handshake QUIC thật và kiểm tra fingerprint `q13…`, SNI và việc xoá
   mục sau khi đóng kết nối.
 
@@ -672,12 +672,12 @@ cả hai thì nó mất quorum tới khi chúng chạy lại. Các edge chạy v
 ## 3.9 gRPC RevProxyService
 
 `edgepb.RevProxyService` chỉ còn `Status`, trả về `OK`
-([internal/dmz/edge/api.go](../../internal/dmz/edge/api.go), package `edge`).
+([internal/apps/edge/api.go](../../internal/apps/edge/api.go), package `edge`).
 Nó được đóng gói trong `edge.RevProxyService`
 ([pkg/apps/dmz/edge/rev_proxy_service.go](../../pkg/apps/dmz/edge/rev_proxy_service.go)),
 và `main` khởi chạy nó qua app `server.GRPC` trên `defaults.EdgeAddress`. RPC
 `EvalRuleset` (chạy lại một request với một setting CRS) đã bị bỏ cùng
-`szcrs.Evaluate`. `internal/dmz/edge/events/{pub,sub}` hiện là package rỗng.
+`szcrs.Evaluate`. `internal/apps/edge/events/{pub,sub}` hiện là package rỗng.
 
 ## 3.10 Chọn engine
 

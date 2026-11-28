@@ -29,9 +29,9 @@ import (
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/sentinez/pkg/apps/gateway/apiserver/controlplane/v1"
-	"github.com/sentinez/sentinez/pkg/apps/gateway/apiserver/handlers"
-	"github.com/sentinez/sentinez/pkg/apps/gateway/apiserver/middleware"
+	"github.com/sentinez/sentinez/internal/apps/apiserver/controlplane/v1"
+	"github.com/sentinez/sentinez/internal/apps/apiserver/handlers"
+	"github.com/sentinez/sentinez/internal/apps/apiserver/middleware"
 )
 
 func (srv *Server) Initialize(
