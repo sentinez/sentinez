@@ -92,6 +92,7 @@
     "notifications": "Thông báo",
     "notificationsDescription": "Hoạt động và cảnh báo gần đây của tài khoản.",
     "notificationsEmpty": "Bạn chưa có thông báo nào.",
+    "notificationsUnread": "{count} chưa đọc",
     "logout": "Đăng xuất",
     "loggedOut": "Đã đăng xuất",
     "loggedOutDescription": "Bạn đã đăng xuất thành công.",

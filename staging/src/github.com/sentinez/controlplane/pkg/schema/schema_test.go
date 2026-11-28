@@ -19,6 +19,7 @@ import (
 
 	"github.com/sentinez/pkg/szstorage/dbx"
 	analyticpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
+	communicationpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/communication/v1"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	tenantpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/tenant/v1"
@@ -65,6 +66,10 @@ func scannedColumnsTests() []scannedColumnsTest {
 		},
 		{"rulesets", SecuritySecRulesets(), securitypb.SecRulesetColumns()},
 		{"activities", AnalyticActivities(), analyticpb.ActivityColumns()},
+		{
+			"notifications", CommunicationNotifications(),
+			communicationpb.NotificationColumns(),
+		},
 		{"secrule evt", AnalyticSecRulesEvent(), _secRuleEventColumns},
 		{"ratelimit evt", AnalyticSecRateLimitsEvent(), _secRuleEventColumns},
 		{"ruleset evt", AnalyticSecRulesetsEvent(), _rulesetEventColumns},

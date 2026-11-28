@@ -1,0 +1,136 @@
+// Copyright 2026 Duc-Hung Ho.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package sentinez.apps.communication.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "sentinez/apps/communication/v1/model.proto";
+import "sentinez/types/v1/model.proto";
+import "sentinez/types/v1/options.proto";
+
+option go_package = "github.com/sentinez/sentinez/api/proto/sentinez/apps/communication/v1;communicationpb";
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "Communication Service"
+    version: "1.0"
+  }
+  schemes: HTTP
+  schemes: HTTPS
+  consumes: "application/json"
+  security_definitions: {
+    security: {
+      key: "ApiKeyAuth"
+      value: {
+        type: TYPE_API_KEY
+        in: IN_HEADER
+        name: "Authorization"
+      }
+    }
+  }
+  security: {
+    security_requirement: {
+      key: "ApiKeyAuth"
+      value: {}
+    }
+  }
+};
+option (sentinez.types.v1.x_meta) = {
+  service_name: "SENTINEZ // COMMUNICATION"
+  service_zone: ZONE_INTERNAL
+  service_key: "sentinez.apps.communication.v1"
+};
+
+// CommunicationService is a example service
+service CommunicationService {
+  // Example method
+  rpc SayHello(SayHelloRequest) returns (SayHelloResponse) {
+    option (google.api.http) = {get: "/communication/say"};
+
+    option (sentinez.types.v1.x_method) = {public: true};
+  }
+
+  // Health check api
+  rpc Status(StatusRequest) returns (StatusResponse) {
+    option (google.api.http) = {get: "/communication/status"};
+
+    option (sentinez.types.v1.x_method) = {public: true};
+  }
+
+  // Streams the notifications published from the moment the stream opens;
+  // the apiserver relays it to the browser as server-sent events.
+  rpc ServerStreamNotification(ServerStreamNotificationRequest) returns (stream ServerStreamNotificationResponse) {
+    option (sentinez.types.v1.x_method) = {
+      control_planes: [
+        CONTROL_PLANE_PORTAL,
+        CONTROL_PLANE_ADMIN
+      ]
+    };
+  }
+
+  // ListNotifications lists the stored notifications of the tenants of the
+  // caller, the newest first.
+  rpc ListNotifications(ListNotificationRequest) returns (ListNotificationResponse) {
+    option (google.api.http) = {
+      get: "/communication/notifications"
+    };
+    option (sentinez.types.v1.x_method) = {
+      control_planes: [
+        CONTROL_PLANE_PORTAL,
+        CONTROL_PLANE_ADMIN
+      ]
+    };
+  }
+}
+
+message ListNotificationRequest {
+  sentinez.types.v1.Pages page = 1;
+  repeated string ids = 10;
+  // tenant_id of the rows, any of them; none means every tenant of the
+  // caller.
+  repeated string tenant_ids = 11 [(sentinez.types.v1.x_field).audit.tenant_id = true];
+}
+
+message ListNotificationResponse {
+  repeated Notification notifications = 1;
+  int64 total = 2;
+}
+
+message ServerStreamNotificationRequest {
+  // tenant_id of the notifications, any of them; none means every tenant
+  // of the caller.
+  repeated string tenant_ids = 1 [(sentinez.types.v1.x_field).audit.tenant_id = true];
+}
+
+message ServerStreamNotificationResponse {
+  Notification notification = 1;
+}
+
+message SayHelloRequest {
+  sentinez.types.v1.Pages page = 1;
+  string name = 2 [(buf.validate.field).string.min_len = 1];
+}
+
+message SayHelloResponse {
+  string message = 1;
+}
+
+message StatusResponse {
+  string message = 1;
+}
+
+message StatusRequest {}

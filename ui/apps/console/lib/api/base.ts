@@ -19,9 +19,17 @@ axios.interceptors.request.use((config) => {
   config.timeout ||= API_TIMEOUT_MILLIS;
   if (config.headers.has('Authorization')) return config;
 
-  const token = window.localStorage.getItem(SENTINEZ_ACCESS_TOKEN_KEY);
-  if (token) {
-    config.headers.set('Authorization', `Bearer ${token}`);
-  }
+  const auth = authorization();
+  if (auth) config.headers.set('Authorization', auth);
   return config;
 });
+
+/**
+ * The Authorization header of the signed-in user, undefined without a token
+ * (or on the server). For the calls made without axios, e.g. a fetch stream.
+ */
+export function authorization(): string | undefined {
+  if (typeof window === 'undefined') return undefined;
+  const token = window.localStorage.getItem(SENTINEZ_ACCESS_TOKEN_KEY);
+  return token ? `Bearer ${token}` : undefined;
+}

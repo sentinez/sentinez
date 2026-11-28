@@ -44,3 +44,7 @@ const (
 	TenantId   = "tnt_default"
 	ResourceId = "rsrc_default"
 )
+
+const (
+	SSEPath = "/communication/notifications/stream"
+)

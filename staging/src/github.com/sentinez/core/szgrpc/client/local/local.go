@@ -33,8 +33,12 @@ type ServerOnce struct {
 
 type R[T any] func(s grpc.ServiceRegistrar, srv T)
 
-func RegisterServiceServer[T any](
-	serviceKey string, hdl T, register R[T]) *bufconn.Listener {
+// RegisterServiceServer serves hdl on an in-memory listener, once per
+// serviceKey; opts are added to the server options after the validation,
+// e.g. the authorization of the calls. Those of a later call for the same
+// key are ignored.
+func RegisterServiceServer[T any](serviceKey string, hdl T, register R[T],
+	opts ...grpc.ServerOption) *bufconn.Listener {
 
 	srvOnce, ok := _serverOnce[serviceKey]
 	if !ok {
@@ -43,9 +47,9 @@ func RegisterServiceServer[T any](
 	}
 
 	srvOnce.once.Do(func() {
-		s := grpc.NewServer(
+		s := grpc.NewServer(append([]grpc.ServerOption{
 			grpc.ChainUnaryInterceptor(validate.UnaryServerInterceptor()),
-		)
+		}, opts...)...)
 		srvOnce.conn = bufconn.Listen(BufSize)
 
 		register(s, hdl)

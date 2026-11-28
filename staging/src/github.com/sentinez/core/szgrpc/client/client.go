@@ -20,6 +20,7 @@ import (
 	"github.com/sentinez/core/szgrpc/client/identity"
 	"github.com/sentinez/core/szgrpc/client/local"
 	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
+	communicationpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/communication/v1"
 	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/greeter/v1"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
@@ -121,4 +122,40 @@ func NewLocalGreeter(hdl greeterpb.GreeterServiceServer,
 	}
 
 	return greeterpb.NewGreeterServiceClient(conn), nil
+}
+
+// NewCommunication returns the client of the communication service found
+// in consul.
+func NewCommunication(opts ...discovery.Option,
+) (communicationpb.CommunicationServiceClient, error) {
+	srv, err := discovery.GetDiscovery(opts...).
+		Discover(communicationpb.GetMetaCommunicationServiceKey())
+	if err != nil {
+		return nil, err
+	}
+
+	conn, err := connection.Conn(srv.Address)
+	if err != nil {
+		return nil, err
+	}
+
+	return communicationpb.NewCommunicationServiceClient(conn), nil
+}
+
+// NewLocalCommunication returns a client of hdl over an in-memory conn;
+// opts are the options of its server, e.g. interceptor.ServerOptions to
+// authorize the calls as on the network.
+func NewLocalCommunication(hdl communicationpb.CommunicationServiceServer,
+	opts ...grpc.ServerOption,
+) (communicationpb.CommunicationServiceClient, error) {
+	bufLis := local.RegisterServiceServer(
+		communicationpb.GetMetaCommunicationServiceKey(), hdl,
+		communicationpb.RegisterCommunicationServiceServer, opts...)
+
+	conn, err := connection.BufConn(bufLis)
+	if err != nil {
+		return nil, err
+	}
+
+	return communicationpb.NewCommunicationServiceClient(conn), nil
 }
