@@ -20,28 +20,26 @@ import (
 
 	securityfac "github.com/sentinez/controlplane/apps/security/v1/factory"
 	"github.com/sentinez/core/szgrpc"
-	"github.com/sentinez/core/szgrpc/client/local"
 	securitypb "github.com/sentinez/sentinez/api/proto/sentinez/apps/security/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/test/bufconn"
 )
 
-var _bufLis *bufconn.Listener
-
-// GetListener returns the local buffer listener for the security module.
-func GetListener() *bufconn.Listener {
-	return _bufLis
+// Security serves SecurityServiceServer over gRPC.
+type Security struct {
+	*szgrpc.Server
+	hdl  securitypb.SecurityServiceServer
+	conf *settingpb.Config
 }
 
-// NewService creates a new Security module instance.
+// NewService creates the security gRPC server.
 // opts are the options of the gRPC server, at least the authorization
 // of interceptor.ServerOptions: without it every method is open.
 func NewService(
-	ctx context.Context, appConf *settingpb.Config,
+	ctx context.Context, conf *settingpb.Config,
 	opts []grpc.ServerOption,
 ) (*Security, error) {
-	hdl, err := securityfac.NewDefaultHandler(ctx, appConf)
+	hdl, err := securityfac.NewDefaultHandler(ctx, conf)
 	if err != nil {
 		return nil, err
 	}
@@ -49,23 +47,16 @@ func NewService(
 	return &Security{
 		Server: szgrpc.New(opts...),
 		hdl:    hdl,
+		conf:   conf,
 	}, nil
 }
 
-// Security orchestrates the security core domain.
-type Security struct {
-	*szgrpc.Server
-	hdl securitypb.SecurityServiceServer
-}
-
-// Start registers the handler and begins
-// serving gRPC traffic over a buffer listener.
-func (mod *Security) Start(_ context.Context) error {
+// Start serves security, registered in consul; opts are applied after the
+// defaults, e.g. szgrpc.WithAddress.
+func (mod *Security) Start(opts ...szgrpc.ServerOption) error {
 	securitypb.RegisterSecurityServiceServer(mod.AsServer(), mod.hdl)
 
-	// Begin listening on the buffer
-	_bufLis = bufconn.Listen(local.BufSize)
+	opts = append([]szgrpc.ServerOption{szgrpc.WithDiscorvery(true)}, opts...)
 
-	// Serve requests over the buffer connections
-	return mod.BufServe(_bufLis)
+	return mod.Serve(mod.conf, opts...)
 }

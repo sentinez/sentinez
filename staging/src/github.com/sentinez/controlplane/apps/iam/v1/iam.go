@@ -20,39 +20,36 @@ import (
 
 	iamfac "github.com/sentinez/controlplane/apps/iam/v1/factory"
 	"github.com/sentinez/core/szgrpc"
-	"github.com/sentinez/core/szgrpc/client/local"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/test/bufconn"
 )
 
-var _bufLis *bufconn.Listener
-
-func GetListener() *bufconn.Listener {
-	return _bufLis
+// IAM serves IdentityAccessManagementServiceServer over gRPC.
+type IAM struct {
+	*szgrpc.Server
+	hdl  iampb.IdentityAccessManagementServiceServer
+	conf *settingpb.Config
 }
 
+// NewService creates the IAM gRPC server.
 // opts are the options of the gRPC server, at least the authorization
 // of interceptor.ServerOptions: without it every method is open.
-func NewService(ctx context.Context, appConf *settingpb.Config,
+func NewService(ctx context.Context, conf *settingpb.Config,
 	opts []grpc.ServerOption) *IAM {
 	return &IAM{
 		Server: szgrpc.New(opts...),
-		hdl:    iamfac.NewDefaultHandler(ctx, appConf),
+		hdl:    iamfac.NewDefaultHandler(ctx, conf),
+		conf:   conf,
 	}
 }
 
-// New creates a new Greeter module.
-
-type IAM struct {
-	*szgrpc.Server
-	hdl iampb.IdentityAccessManagementServiceServer
-}
-
-func (im *IAM) Start(_ context.Context) error {
+// Start serves IAM, registered in consul; opts are applied after the
+// defaults, e.g. szgrpc.WithAddress.
+func (im *IAM) Start(opts ...szgrpc.ServerOption) error {
 	iampb.RegisterIdentityAccessManagementServiceServer(im.AsServer(), im.hdl)
 
-	_bufLis = bufconn.Listen(local.BufSize)
-	return im.BufServe(_bufLis)
+	opts = append([]szgrpc.ServerOption{szgrpc.WithDiscorvery(true)}, opts...)
+
+	return im.Serve(im.conf, opts...)
 }

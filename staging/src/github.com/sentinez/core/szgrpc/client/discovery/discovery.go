@@ -17,6 +17,8 @@ package discovery
 
 import (
 	"fmt"
+	"net"
+	"strconv"
 	"sync"
 	"time"
 
@@ -26,26 +28,35 @@ import (
 )
 
 var (
-	_dcvr *Discovery
-	_once sync.Once
+	_dcvr    *Discovery
+	_dcvrErr error
+	_once    sync.Once
 )
 
-func GetDiscovery(opts ...Option) *Discovery {
+// GetDiscovery returns the Discovery of the process, made by New with the
+// opts of the first call; later opts are ignored, an error is that of New.
+func GetDiscovery(opts ...Option) (*Discovery, error) {
 	_once.Do(func() {
-		_dcvr = New(opts...)
+		_dcvr, _dcvrErr = New(opts...)
 	})
 
-	return _dcvr
+	return _dcvr, _dcvrErr
 }
 
-// New create new instance
-func New(opts ...Option) *Discovery {
+// New returns the Discovery of the consul of opts, an error when its URL
+// is invalid (see szconsul.New).
+func New(opts ...Option) (*Discovery, error) {
 	o := newOptions(opts)
-	csClient, _ := szconsul.New(o.consulURL)
+
+	csClient, err := szconsul.New(o.consulURL)
+	if err != nil {
+		return nil, fmt.Errorf("discovery: %w", err)
+	}
+
 	return &Discovery{
 		client:   csClient,
 		resolver: resolver.New(csClient),
-	}
+	}, nil
 }
 
 // Discovery is a service registry for the sentinez.
@@ -89,6 +100,26 @@ func (dcv *Discovery) Heartbeat(serviceId string) error {
 	return nil
 }
 
+// Instances returns the host:port of the healthy instances of serviceKey,
+// looked up in consul now, an error when there is none.
+func (dcv *Discovery) Instances(serviceKey string) ([]string, error) {
+	instances, err := dcv.client.Discover(serviceKey)
+	if err != nil {
+		return nil, fmt.Errorf("discover %s: %w", serviceKey, err)
+	}
+
+	if len(instances) == 0 {
+		return nil, fmt.Errorf("discover %s: no instance", serviceKey)
+	}
+
+	addrs := make([]string, 0, len(instances))
+	for _, inst := range instances {
+		addrs = append(addrs, hostPort(inst))
+	}
+
+	return addrs, nil
+}
+
 type DiscoverResponse struct {
 	Address string
 	Name    string
@@ -104,7 +135,12 @@ func (dcv *Discovery) Discover(
 	}
 
 	return &DiscoverResponse{
-		Address: fmt.Sprintf("%s:%d", ans.Address, ans.Port),
+		Address: hostPort(*ans),
 		Name:    ans.Name,
 	}, nil
+}
+
+// hostPort returns the address of inst, IPv6 hosts bracketed.
+func hostPort(inst szconsul.Instance) string {
+	return net.JoinHostPort(inst.Address, strconv.Itoa(inst.Port))
 }

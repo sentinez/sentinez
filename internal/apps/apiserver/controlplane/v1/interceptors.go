@@ -15,18 +15,19 @@
 package controlplane
 
 import (
-	"slices"
-
+	"github.com/sentinez/core/szgrpc/grpcgateway"
 	"github.com/sentinez/sentinez/pkg/interceptor"
 	"google.golang.org/grpc"
 )
 
-// chain returns the interceptors of a local conn: before, then the
-// authorization. An interceptor before it, e.g. the audit log, also sees
-// the calls that authorization denies.
+// chain returns the options of a local conn: the unary interceptors
+// before, then the authorization of the unary calls and of the streams. An
+// interceptor before it, e.g. the audit log, also sees the calls that
+// authorization denies.
 func chain(
 	before []grpc.UnaryServerInterceptor,
-) []grpc.UnaryServerInterceptor {
-	return slices.Concat(before,
-		[]grpc.UnaryServerInterceptor{interceptor.Authorize()})
+) []grpcgateway.LocalOption {
+	return append(
+		[]grpcgateway.LocalOption{grpcgateway.WithUnaryInterceptors(before...)},
+		interceptor.LocalOptions()...)
 }

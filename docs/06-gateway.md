@@ -52,12 +52,23 @@ A `ServiceRegistrar` can attach a service to `runtime.ServeMux` in two ways:
 
 | Method | Mechanism | In use |
 |---|---|---|
-| `Accept(ctx, server)` | Registers the Go handler on an in-process `grpcgateway.NewLocalConn()` and calls `RegisterXxxHandlerClient`, so gRPC interceptors (validation) still run | **Yes** (`Visit`) |
-| `AcceptFromEndpoint(ctx, server, conf)` | Every 10s asks Consul (`discovery.Discover(serviceKey)`) and calls `RegisterXxxHandlerFromEndpoint` over gRPC | No (`VisitToEndpoint` is never called) |
+| `Accept(ctx, server)` | Registers the Go handler on an in-process `grpcgateway.LocalConn` and calls `RegisterXxxHandlerClient`, so the server interceptors (recovery, validation, audit, authorization) still run | **Yes** (`Visit`) |
+| `AcceptFromEndpoint(ctx, server, conf)` | `grpcgateway.RegisterServiceFromEndpoint`: calls `RegisterXxxHandlerFromEndpoint` once with the target `consul:///<service key>`, resolved by `discovery.Builder`, balanced round robin, mTLS with `SZ_TLS_*` (nodes verified as their `identity`) | No (`VisitToEndpoint` is never called) |
 
 So the apiserver is currently a **monolith**: IAM/Tenant/Security/Analytic/
 Communication/Greeter run inside the apiserver process and share one
-PostgreSQL pool.
+PostgreSQL pool. Moving a registrar from `Visit` to `VisitToEndpoint` serves
+its service from the nodes in Consul instead; the others stay in process.
+
+`grpcgateway.LocalConn` dispatches unary calls and streams to the handlers
+without a transport. Its options add interceptors after `recovery` and
+`validate`: `WithUnaryInterceptors`, `WithStreamInterceptors`
+(`interceptor.LocalOptions()` adds `Authorize` and `AuthorizeStream`). A
+stream runs its handler in a goroutine and passes copies of the messages
+over channels; the header, trailer and status behave as on a transport
+(`Header()` is nil when the stream ended without one). Stream requests are
+validated as they are received. `Close` cancels the open streams and waits
+for their handlers; later streams fail with `Unavailable`.
 
 ### HTTP request pipeline
 
@@ -93,11 +104,12 @@ grpc-gateway forwards the `Authorization` header as gRPC metadata
 
 - The handler forwards the `Authorization` header as metadata and opens
   `ServerStreamNotification` through `client.NewLocalCommunication`: a
-  bufconn server with `interceptor.ServerOptions()`, so the stream is
-  authorized by `AuthorizeStream` as a networked call would be.
-  `grpcgateway.LocalConn` cannot carry it (no streaming), hence the
-  separate path: it has no audit interceptor nor panic recovery yet
+  `grpcgateway.LocalConn` with `interceptor.LocalOptions()`, so the stream
+  is authorized by `AuthorizeStream` as a networked call would be. It has
+  no audit interceptor yet
   ([#433](https://github.com/sentinez/sentinez/issues/433)).
+  `Server.Shutdown` closes that conn before the HTTP server: an open stream
+  would otherwise keep its connection busy until the shutdown deadline.
 - It waits for the stream headers before answering: a refused call becomes
   its HTTP status (401, 403…) through `runtime.HTTPStatusFromCode`.
 - Then `200 text/event-stream`, `Cache-Control: no-cache, no-transform`
@@ -132,15 +144,15 @@ and `Shutdown` is currently a no-op.
 |---|---|
 | `consul` | Wrapper over `hashicorp/consul/api`: `Register` (HTTP check), `RegisterWithTTL`, `SendHeartbeat`, `Discover` (healthy only) |
 | `resolver` | Caches instances for 10s per name, round-robin selection; per-key circuit breakers |
-| `discovery` | Singleton `GetDiscovery(opt)`: `Register` (ID = UUID, TTL), `Heartbeat`, `Discover` → `host:port` |
-| `connection` | `Conn(addr)` insecure gRPC; `BufConn(bufLis)` via `bufconn` |
-| `local` | `RegisterServiceServer` runs an in-memory gRPC server (`bufconn`, 1 MiB) per service key, with optional server options (those of the first call of a key) |
-| [client.go](../staging/src/github.com/sentinez/core/szgrpc/client/client.go) | `NewIAM`, `NewCommunication` (via Consul), `NewLocalIAM`, `NewLocalGreeter`, `NewLocalCommunication`, `NewLocalRevProxyService` (via bufconn; `NewLocalCommunication` takes the server options, e.g. `interceptor.ServerOptions()`) |
+| `discovery` | Singleton `GetDiscovery(opt)` (an error when `SZ_CONSUL_URI` is invalid): `Register` (ID = UUID, TTL), `Heartbeat`, `Discover` → one `host:port`, `Instances` → all of them, uncached. `Builder` is the gRPC resolver of `consul:///<service key>` (`Target`): it looks the instances up every 10s and on `ResolveNow` |
+| `connection` | `Conn(addr)` insecure gRPC; `ConnWith`, `TLS` (internal mTLS of `SZ_TLS_*`) |
+| `identity` | Names of the internal mTLS: the CN of each service certificate (`sentinez.apps.<domain>`, without the version of the service key) |
+| [client.go](../staging/src/github.com/sentinez/core/szgrpc/client/client.go) | `NewIAM`, `NewCentralData`, `NewCommunication` (via Consul), `NewLocalGreeter`, `NewLocalCommunication` (over a `grpcgateway.LocalConn`; `NewLocalCommunication` takes its options, e.g. `interceptor.LocalOptions()`, and returns the conn to close) |
 
 On the server side, `szgrpc.Server.Serve` calls `Register` (TTL 15s,
 retries through a circuit breaker, heartbeat every 10s) **only if** the
-server was built with `szgrpc.WithDiscorvery(true)` — no service enables it
-yet.
+server was built with `szgrpc.WithDiscorvery(true)`, as collector,
+centraldata and the `Start` of the control plane modules do.
 
-IAM uses `client.NewLocalGreeter` to call Greeter over bufconn in its
+IAM uses `client.NewLocalGreeter` to call Greeter in process in its
 `Status` RPC.

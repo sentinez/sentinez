@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package analytic provides the Analytic service.
 package analytic
 
 import (
@@ -19,41 +20,41 @@ import (
 
 	analyticfac "github.com/sentinez/controlplane/apps/analytic/v1/factory"
 	"github.com/sentinez/core/szgrpc"
-	"github.com/sentinez/core/szgrpc/client/local"
-	pb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
+	analyticpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/analytic/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/test/bufconn"
 )
 
-var _bufLis *bufconn.Listener
-
-func GetListener() *bufconn.Listener {
-	return _bufLis
+// Analytic serves AnalyticServiceServer over gRPC.
+type Analytic struct {
+	*szgrpc.Server
+	hdl  analyticpb.AnalyticServiceServer
+	conf *settingpb.Config
 }
 
+// NewService creates the analytic gRPC server.
 // opts are the options of the gRPC server, at least the authorization
 // of interceptor.ServerOptions: without it every method is open.
-func NewService(ctx context.Context, appConf *settingpb.Config,
+func NewService(ctx context.Context, conf *settingpb.Config,
 	opts []grpc.ServerOption) (*Analytic, error) {
-	hdl, err := analyticfac.NewDefaultHandler(ctx, appConf)
+	hdl, err := analyticfac.NewDefaultHandler(ctx, conf)
 	if err != nil {
 		return nil, err
 	}
 
-	server := szgrpc.New(opts...)
-
-	return &Analytic{Server: server, hdl: hdl}, nil
+	return &Analytic{
+		Server: szgrpc.New(opts...),
+		hdl:    hdl,
+		conf:   conf,
+	}, nil
 }
 
-type Analytic struct {
-	*szgrpc.Server
-	hdl pb.AnalyticServiceServer
-}
+// Start serves analytic, registered in consul; opts are applied after the
+// defaults, e.g. szgrpc.WithAddress.
+func (mod *Analytic) Start(opts ...szgrpc.ServerOption) error {
+	analyticpb.RegisterAnalyticServiceServer(mod.AsServer(), mod.hdl)
 
-func (mod *Analytic) Start(_ context.Context) error {
-	pb.RegisterAnalyticServiceServer(mod.AsServer(), mod.hdl)
+	opts = append([]szgrpc.ServerOption{szgrpc.WithDiscorvery(true)}, opts...)
 
-	_bufLis = bufconn.Listen(local.BufSize)
-	return mod.BufServe(_bufLis)
+	return mod.Serve(mod.conf, opts...)
 }

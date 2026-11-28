@@ -17,6 +17,7 @@ package controlplane
 import (
 	"context"
 
+	"github.com/sentinez/core/szgrpc/client/identity"
 	"github.com/sentinez/core/szgrpc/grpcgateway"
 	communicationpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/communication/v1"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
@@ -46,6 +47,7 @@ func (c *Communication) AcceptFromEndpoint(ctx context.Context,
 		appConf,
 		server.RuntimeMux(),
 		communicationpb.GetMetaCommunicationServiceKey(),
+		identity.Communication,
 		communicationpb.RegisterCommunicationServiceHandlerFromEndpoint,
 	)
 }

@@ -6,7 +6,7 @@ holds the domain services. Every domain follows the same layout:
 
 ```
 <domain>/v1/
-├── <domain>.go     # gRPC module: NewService(ctx, conf) + Start() serving over bufconn
+├── <domain>.go     # gRPC node: NewService(ctx, conf, opts) + Start(opts...) serving TCP, registered in Consul
 ├── factory/        # NewDefaultHandler / NewDefaultService: build repo → service → handler
 ├── handler/        # implements <X>ServiceServer, permission checks, logging
 ├── service/        # business logic
@@ -154,8 +154,8 @@ conns, and deny by default:
   `CONTROL_PLANE_SERVICE` (today centraldata's `Sync`), never one with an
   empty list. On a connection with a verified client certificate, its name
   must be the CN of the certificate.
-- `szgrpc.New` and `grpcgateway.NewLocalConn` put `recovery.Unary()` first
-  (and `szgrpc.New` `recovery.Stream()`): a panic of a handler fails the call
+- `szgrpc.New` and `grpcgateway.NewLocalConn` put `recovery.Unary()` and
+  `recovery.Stream()` first: a panic of a handler fails the call
   with `Internal` instead of stopping the process.
 
 **2. Per tenant: the roles of the caller.** The token holds no tenant and no
@@ -255,7 +255,7 @@ because the email matches:
 | `UpdateUser` | — | Updates `full_name`, `email` |
 | `DeleteUser` | `DELETE /iam/user/{id}` | `ADMIN` control plane only. Deletes the user, its tenant memberships and all its accounts in one transaction |
 | `ListAccounts` | `GET /iam/accounts` | Requires a token; filters `ids/emails/user_ids/usernames`; each item carries its `provider`. A `PORTAL` caller gets its own accounts only |
-| `Status` | `GET /iam/status` | Requires a token. Calls Greeter.Status over bufconn, returns the `Context` of the token |
+| `Status` | `GET /iam/status` | Requires a token. Calls Greeter.Status in process, returns the `Context` of the token |
 | `PasskeyRegisterChallenge` | `GET /iam/passkey/register/challenge` | Passkey sign-up, step 1. Needs an email no user owns |
 | `PasskeyLinkChallenge` | `GET /iam/passkey/link/challenge` | Add a passkey to the signed-in user, step 1. Requires a token |
 | `PasskeyRegisterVerify` | `POST /iam/passkey/register/verify` | Step 2 of both: verifies the authenticator response, then writes |

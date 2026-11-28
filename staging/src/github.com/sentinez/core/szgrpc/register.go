@@ -40,8 +40,12 @@ func Register(ctx context.Context, name, address string,
 	}
 
 	portInt, _ := strconv.Atoi(port)
-	dcvr := discovery.GetDiscovery(
+	dcvr, err := discovery.GetDiscovery(
 		discovery.WithConsulURL(conf.Get(settingpb.Sz_SZ_CONSUL_URI)))
+	if err != nil {
+		szlog.Errorf("register %s: %v", name, err)
+		return
+	}
 
 	var (
 		serviceId = ""

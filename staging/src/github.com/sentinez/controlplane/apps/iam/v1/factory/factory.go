@@ -39,12 +39,8 @@ func NewDefaultHandler(ctx context.Context, appConf *settingpb.Config,
 
 	service := NewDefaultService(ctx, appConf)
 
-	geeterCli, err := client.NewLocalGreeter(
-		greeterfac.NewDefaultHandler(appConf),
-	)
-	if err != nil {
-		szlog.Errorf("iamfactory: new greeter client err=%v", err)
-	}
+	geeterCli := client.NewLocalGreeter(
+		greeterfac.NewDefaultHandler(appConf))
 
 	return iamhdl.New(service, geeterCli)
 }

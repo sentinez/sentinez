@@ -16,32 +16,16 @@ package connection
 
 import (
 	"context"
-	"net"
 
 	"github.com/sentinez/core/szgrpc/validate"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/test/bufconn"
 )
 
 func Conn(addr string) (*grpc.ClientConn, error) {
 	conn, err := grpc.NewClient(addr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithChainUnaryInterceptor(validate.UnaryClientInterceptor()),
-	)
-
-	return conn, err
-}
-
-func BufConn(bufLis *bufconn.Listener) (*grpc.ClientConn, error) {
-	conn, err := grpc.NewClient("passthrough:///bufnet",
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithChainUnaryInterceptor(validate.UnaryClientInterceptor()),
-		grpc.WithContextDialer(
-			func(ctx context.Context, _ string) (net.Conn, error) {
-				return bufLis.DialContext(ctx)
-			},
-		),
 	)
 
 	return conn, err

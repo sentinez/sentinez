@@ -18,25 +18,23 @@ import (
 	"github.com/sentinez/core/szgrpc/client/connection"
 	"github.com/sentinez/core/szgrpc/client/discovery"
 	"github.com/sentinez/core/szgrpc/client/identity"
-	"github.com/sentinez/core/szgrpc/client/local"
+	"github.com/sentinez/core/szgrpc/grpcgateway"
 	centraldatapb "github.com/sentinez/sentinez/api/proto/sentinez/apps/centraldata/v1"
 	communicationpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/communication/v1"
 	greeterpb "github.com/sentinez/sentinez/api/proto/sentinez/apps/greeter/v1"
 	iampb "github.com/sentinez/sentinez/api/proto/sentinez/apps/iam/v1"
-	edgepb "github.com/sentinez/sentinez/api/proto/sentinez/dmz/edge/v1"
 	"google.golang.org/grpc"
 )
 
 func NewIAM(opts ...discovery.Option,
 ) (iampb.IdentityAccessManagementServiceClient, error) {
 
-	srv, err := discovery.GetDiscovery(opts...).
-		Discover(iampb.GetMetaIamServiceKey())
+	addr, err := discover(iampb.GetMetaIamServiceKey(), opts)
 	if err != nil {
 		return nil, err
 	}
 
-	conn, err := connection.Conn(srv.Address)
+	conn, err := connection.Conn(addr)
 	if err != nil {
 		return nil, err
 	}
@@ -51,13 +49,12 @@ func NewCentralData(tls connection.TLS, token string,
 	opts ...discovery.Option,
 ) (centraldatapb.CentralDataServiceClient, *grpc.ClientConn, error) {
 
-	srv, err := discovery.GetDiscovery(opts...).
-		Discover(centraldatapb.GetMetaCentraldataServiceKey())
+	addr, err := discover(centraldatapb.GetMetaCentraldataServiceKey(), opts)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	return DialCentralData(srv.Address, tls, token)
+	return DialCentralData(addr, tls, token)
 }
 
 // DialCentralData is NewCentralData for a known address. The server
@@ -80,61 +77,27 @@ func DialCentralData(addr string, tls connection.TLS, token string,
 	return centraldatapb.NewCentralDataServiceClient(conn), conn, nil
 }
 
-func NewLocalIAM(hdl iampb.IdentityAccessManagementServiceServer,
-) (iampb.IdentityAccessManagementServiceClient, error) {
-
-	bufLis := local.RegisterServiceServer(
-		iampb.GetMetaIamServiceKey(), hdl,
-		iampb.RegisterIdentityAccessManagementServiceServer)
-
-	conn, err := connection.BufConn(bufLis)
-	if err != nil {
-		return nil, err
-	}
-
-	return iampb.NewIdentityAccessManagementServiceClient(conn), nil
-}
-
-func NewLocalRevProxyService(hdl edgepb.RevProxyServiceServer,
-) (edgepb.RevProxyServiceClient, error) {
-	bufLis := local.RegisterServiceServer(
-		edgepb.GetMetaEdgeServiceKey(), hdl,
-		edgepb.RegisterRevProxyServiceServer)
-
-	conn, err := connection.BufConn(bufLis)
-	if err != nil {
-		return nil, err
-	}
-
-	return edgepb.NewRevProxyServiceClient(conn), nil
-}
-
+// NewLocalIAM returns a client of hdl over a grpcgateway.LocalConn.
+// NewLocalGreeter returns a client of hdl over a grpcgateway.LocalConn.
 func NewLocalGreeter(hdl greeterpb.GreeterServiceServer,
-) (greeterpb.GreeterServiceClient, error) {
+) greeterpb.GreeterServiceClient {
+	conn := grpcgateway.NewLocalConn()
+	greeterpb.RegisterGreeterServiceServer(conn, hdl)
 
-	bufLis := local.RegisterServiceServer(
-		greeterpb.GetMetaGreeterServiceKey(), hdl,
-		greeterpb.RegisterGreeterServiceServer)
-
-	conn, err := connection.BufConn(bufLis)
-	if err != nil {
-		return nil, err
-	}
-
-	return greeterpb.NewGreeterServiceClient(conn), nil
+	return greeterpb.NewGreeterServiceClient(conn)
 }
 
 // NewCommunication returns the client of the communication service found
 // in consul.
 func NewCommunication(opts ...discovery.Option,
 ) (communicationpb.CommunicationServiceClient, error) {
-	srv, err := discovery.GetDiscovery(opts...).
-		Discover(communicationpb.GetMetaCommunicationServiceKey())
+	addr, err := discover(
+		communicationpb.GetMetaCommunicationServiceKey(), opts)
 	if err != nil {
 		return nil, err
 	}
 
-	conn, err := connection.Conn(srv.Address)
+	conn, err := connection.Conn(addr)
 	if err != nil {
 		return nil, err
 	}
@@ -142,20 +105,31 @@ func NewCommunication(opts ...discovery.Option,
 	return communicationpb.NewCommunicationServiceClient(conn), nil
 }
 
-// NewLocalCommunication returns a client of hdl over an in-memory conn;
-// opts are the options of its server, e.g. interceptor.ServerOptions to
-// authorize the calls as on the network.
+// NewLocalCommunication returns a client of hdl over a
+// grpcgateway.LocalConn, and the conn to close: it ends the open streams.
+// opts are those of the conn, e.g. the interceptors that authorize the
+// calls as on the network.
 func NewLocalCommunication(hdl communicationpb.CommunicationServiceServer,
-	opts ...grpc.ServerOption,
-) (communicationpb.CommunicationServiceClient, error) {
-	bufLis := local.RegisterServiceServer(
-		communicationpb.GetMetaCommunicationServiceKey(), hdl,
-		communicationpb.RegisterCommunicationServiceServer, opts...)
+	opts ...grpcgateway.LocalOption,
+) (communicationpb.CommunicationServiceClient, *grpcgateway.LocalConn) {
+	conn := grpcgateway.NewLocalConn(opts...)
+	communicationpb.RegisterCommunicationServiceServer(conn, hdl)
 
-	conn, err := connection.BufConn(bufLis)
+	return communicationpb.NewCommunicationServiceClient(conn), conn
+}
+
+// discover returns the address of an instance of serviceKey in the consul
+// of opts.
+func discover(serviceKey string, opts []discovery.Option) (string, error) {
+	dcvr, err := discovery.GetDiscovery(opts...)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return communicationpb.NewCommunicationServiceClient(conn), nil
+	srv, err := dcvr.Discover(serviceKey)
+	if err != nil {
+		return "", err
+	}
+
+	return srv.Address, nil
 }
