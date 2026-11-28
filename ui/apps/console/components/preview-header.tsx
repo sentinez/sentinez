@@ -1,5 +1,6 @@
 import { useFormatter, useTranslations } from 'next-intl';
 import Language from './language';
+import Theme from './theme';
 import { Notifications } from './notifications';
 import { NavSearch } from './nav-search';
 import { Separator } from '@sentinez/ui/components/separator';
@@ -32,7 +33,12 @@ export default function PreviewHeader(props: PreviewHeaderProps) {
         <SidebarTrigger className="size-8 cursor-pointer" />
       </div>
       <Separator orientation="vertical" className="data-vertical:h-4 data-vertical:self-center" />
-      <div className="flex min-w-0 flex-1 items-center justify-between gap-4 px-2">
+      {/* laid out on its own width (@container), not the window's: the
+          sidebars beside it take a part of the window. The brand and the
+          icons never shrink; the date and the welcome show only when they
+          fit, and truncate; the search is an icon until there is room for
+          its box */}
+      <div className="@container flex min-w-0 flex-1 items-center justify-between gap-3 px-2">
         <div className="flex min-w-0 items-center gap-3">
           <span
             className="[font-family:'Phudu',sans-serif]
@@ -45,26 +51,28 @@ export default function PreviewHeader(props: PreviewHeaderProps) {
               bg-[length:200%_auto]
               bg-clip-text
               text-transparent
-              animate-gradient"
+              animate-gradient
+              shrink-0"
           >
             SENTINÉZ
           </span>
-          <span className="hidden truncate text-xs text-muted-foreground transition-colors hover:text-foreground sm:inline">
+          <span className="hidden truncate text-xs text-muted-foreground transition-colors hover:text-foreground @3xl:inline">
             {format.dateTime(new Date(), { dateStyle: 'full' })}
           </span>
         </div>
 
-        <div className="flex min-w-0 items-center gap-5">
-          <p className="hidden truncate text-xs text-muted-foreground lg:block">
+        <div className="flex min-w-0 items-center gap-3">
+          <p className="hidden truncate text-xs text-muted-foreground @5xl:block">
             {t('welcome', { name: props.username })}
           </p>
-          {/* finds a page of the console navigation; beside it, the bell */}
-          <div className="flex min-w-0 items-center gap-1">
-            <NavSearch className="hidden w-48 sm:flex md:w-64" />
+          {/* finds a page of the console navigation; beside it, the bell,
+              the theme and the language */}
+          <div className="flex shrink-0 items-center gap-1">
+            <NavSearch />
             <Notifications />
+            <Theme />
+            <Language />
           </div>
-
-          <Language />
         </div>
       </div>
     </div>

@@ -18,7 +18,7 @@ import (
 	"github.com/sentinez/contrib/httphz"
 	"github.com/sentinez/core/szhttp"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
-	"github.com/sentinez/sentinez/internal/dmz/edge/transport"
+	"github.com/sentinez/sentinez/internal/apps/edge/transport"
 	quichttpx "github.com/sentinez/sentinez/pkg/network/httpx/quic"
 	stdhttpx "github.com/sentinez/sentinez/pkg/network/httpx/std"
 )

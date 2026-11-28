@@ -6,7 +6,8 @@ import { AnimatePresence, motion } from 'motion/react';
 import { LANG_SWAP } from '@/lib/motion';
 import { useTranslations } from 'next-intl';
 import Language from '@/components/language';
-import LetterGlitch from '@/components/letter-glitch/letter-glitch';
+import Theme from '@/components/theme';
+import { ThemedLetterGlitch } from '@/components/letter-glitch/themed-letter-glitch';
 
 const MULTI_LANG_TEXTS = [
   'On Your Side', // US — English
@@ -59,7 +60,8 @@ export default function View({ children }: { children: ReactNode }) {
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">
-        <div className="flex items-center justify-between gap-2">
+        {/* a @container: Language shows its name when the bar has room */}
+        <div className="@container flex items-center justify-between gap-2">
           <a
             href="#"
             className="flex items-center gap-1 font-bold [font-family:'Phudu',sans-serif]"
@@ -67,9 +69,12 @@ export default function View({ children }: { children: ReactNode }) {
             <div className="flex size-6 items-center justify-center rounded-md text-primary-foreground">
               <Image width={600} height={600} src="/assets/sz.png" alt="Image" loading="eager" />
             </div>
-            <span className="text-[#0504aa] items-center text-xl">SENTINÉZ</span>
+            <span className="text-(--brand) items-center text-xl">SENTINÉZ</span>
           </a>
-          <Language />
+          <div className="flex items-center gap-1">
+            <Theme />
+            <Language />
+          </div>
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-sm">{children}</div>
@@ -78,31 +83,31 @@ export default function View({ children }: { children: ReactNode }) {
           © 2025-2026 Sentinéz Labs
         </p>
       </div>
-      <div className="relative hidden lg:flex overflow-hidden bg-white">
-        {/* Glitching letters on the white panel, cleared behind the title */}
+      <div className="relative hidden lg:flex overflow-hidden bg-background">
+        {/* Glitching letters on the panel, cleared behind the title */}
         <div aria-hidden="true" className="absolute inset-0">
-          <LetterGlitch lightMode centerFade={0.6} />
+          <ThemedLetterGlitch centerFade={0.6} />
         </div>
         <main className="relative flex-1 flex flex-col items-center justify-center text-center px-4 py-8 md:px-6 md:py-12">
           <h1 className="[font-family:'Phudu',sans-serif] text-[clamp(2.5rem,7vw,7rem)] font-semibold leading-[0.95] tracking-[-0.03em] uppercase flex flex-col items-center max-w-full">
-            <span className="text-[#0504aa] drop-shadow-sm">SENTINÉZ</span>
+            <span className="text-(--brand) drop-shadow-sm">SENTINÉZ</span>
             <span className="relative h-[1.3em] w-full flex items-center justify-center overflow-hidden max-w-full">
               <AnimatePresence mode="wait">
                 <motion.span
                   key={langIndex}
                   {...LANG_SWAP}
-                  className="text-[#0a0a0a] text-[clamp(1.5rem,4.5vw,4.5rem)] whitespace-nowrap block"
+                  className="text-foreground text-[clamp(1.5rem,4.5vw,4.5rem)] whitespace-nowrap block"
                 >
                   {MULTI_LANG_TEXTS[langIndex]}
                 </motion.span>
               </AnimatePresence>
             </span>
           </h1>
-          <p className="mt-6 md:mt-8 [font-family:'Phudu',sans-serif] text-[clamp(0.6rem,1.5vw,0.85rem)] tracking-[0.15em] md:tracking-[0.2em] text-black uppercase min-h-[1.4em] max-w-full px-2 break-words">
+          <p className="mt-6 md:mt-8 [font-family:'Phudu',sans-serif] text-[clamp(0.6rem,1.5vw,0.85rem)] tracking-[0.15em] md:tracking-[0.2em] text-foreground uppercase min-h-[1.4em] max-w-full px-2 break-words">
             {displayed}
             <span
               aria-hidden="true"
-              className={`inline-block w-[0.65em] h-[0.9em] bg-black ml-0.5 align-middle transition-opacity duration-100 ${cursorVisible ? 'opacity-100' : 'opacity-0'}`}
+              className={`inline-block w-[0.65em] h-[0.9em] bg-foreground ml-0.5 align-middle transition-opacity duration-100 ${cursorVisible ? 'opacity-100' : 'opacity-0'}`}
             />
           </p>
         </main>

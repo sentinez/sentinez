@@ -20,7 +20,7 @@ import (
 	"github.com/sentinez/core/szrunner"
 	"github.com/sentinez/pkg/szcode"
 	"github.com/sentinez/pkg/szlog"
-	"github.com/sentinez/sentinez/internal/dmz/dataplane"
+	"github.com/sentinez/sentinez/internal/apps/dataplane"
 	"github.com/sentinez/sentinez/pkg/apps/dmz/dataplane/config"
 )
 

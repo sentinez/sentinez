@@ -9,8 +9,8 @@ L3 trước khi tới edge.
 | [bpf/sentinez/sz_monitor.h](../../staging/src/github.com/sentinez/bpf/sentinez/sz_monitor.h) | Đếm byte theo IP nguồn |
 | [bpf/sentinez/sz_security.h](../../staging/src/github.com/sentinez/bpf/sentinez/sz_security.h) | Chặn IP/CIDR bằng LPM trie |
 | `bpf/sentinez/sz_bpfe{l,b}.{go,o}` | Code Go + object sinh bởi `bpf2go` |
-| [internal/dmz/dataplane/](../../internal/dmz/dataplane/) | `Server` (Start/Stop) |
-| [internal/dmz/dataplane/driver/](../../internal/dmz/dataplane/driver/) | `Context`: nạp object, attach XDP, đọc ghi map (`LookupBandwidth`, `BlockCIDR`) |
+| [internal/apps/dataplane/](../../internal/apps/dataplane/) | `Server` (Start/Stop) |
+| [internal/apps/dataplane/driver/](../../internal/apps/dataplane/driver/) | `Context`: nạp object, attach XDP, đọc ghi map (`LookupBandwidth`, `BlockCIDR`) |
 | [hack/net/dev/Makefile](../../hack/net/dev/Makefile) | Dựng network namespace để thử nghiệm |
 
 ## 5.1 Chương trình XDP

@@ -2,6 +2,10 @@
 
 import { type ComponentProps, useState } from 'react';
 import Link from 'next/link';
+import { cn } from '@sentinez/ui/lib/utils';
+
+// The colors of a link in a table, readable on both themes
+export const LINK_CLASS = 'text-blue-700 underline dark:text-blue-400';
 
 /**
  * A Link that prefetches once the user shows intent (pointer or keyboard
@@ -30,4 +34,9 @@ export function HoverLink({
       }}
     />
   );
+}
+
+/** The name of a row of a list, linking to its page */
+export function NameLink({ className, ...props }: ComponentProps<typeof HoverLink>) {
+  return <HoverLink {...props} className={cn('font-semibold', LINK_CLASS, className)} />;
 }

@@ -33,6 +33,12 @@
   "Language": {
     "label": "Language"
   },
+  "Theme": {
+    "label": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
   "Header": {
     "welcome": "Welcome back, {name}"
   },

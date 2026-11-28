@@ -7,9 +7,9 @@
 | [cmd/szapiserver/main.go](../../cmd/szapiserver/main.go) | Inject `config.Config`, `grpcgateway.NewServer`, `apiserver.New` |
 | [pkg/apps/gateway/apiserver/apiserver.go](../../pkg/apps/gateway/apiserver/apiserver.go) | `Server.Start/Shutdown`, `Visit`, `VisitToEndpoint` |
 | [pkg/apps/gateway/apiserver/initialize.go](../../pkg/apps/gateway/apiserver/initialize.go) | Middleware, Swagger, đăng ký service |
-| [pkg/apps/gateway/apiserver/controlplane/v1/](../../pkg/apps/gateway/apiserver/controlplane/v1/) | Registrar cho Analytic, Greeter, IAM, Security, Tenant |
-| [pkg/apps/gateway/apiserver/middleware/](../../pkg/apps/gateway/apiserver/middleware/) | `Logging`, `CORS`, `SwaggerDefaultRoot`, `Injection` (SQLi/XSS), `Scope` |
-| [pkg/apps/gateway/apiserver/handlers/openapi_swagger.go](../../pkg/apps/gateway/apiserver/handlers/openapi_swagger.go) | Phục vụ OpenAPI JSON + Swagger UI |
+| [internal/apps/apiserver/controlplane/v1/](../../internal/apps/apiserver/controlplane/v1/) | Registrar cho Analytic, Greeter, IAM, Security, Tenant |
+| [internal/apps/apiserver/middleware/](../../internal/apps/apiserver/middleware/) | `Logging`, `CORS`, `SwaggerDefaultRoot`, `Injection` (SQLi/XSS), `Scope` |
+| [internal/apps/apiserver/handlers/openapi_swagger.go](../../internal/apps/apiserver/handlers/openapi_swagger.go) | Phục vụ OpenAPI JSON + Swagger UI |
 | [core/szgrpc/grpcgateway/](../../staging/src/github.com/sentinez/core/szgrpc/grpcgateway/) | `XServer` (HTTP mux + runtime mux, HTTP/1.1/2 + HTTP/3), `ServiceRegistrar` |
 
 ### Khởi tạo

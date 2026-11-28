@@ -1,7 +1,7 @@
 'use client';
 
 import type { ComponentProps } from 'react';
-import { HoverLink } from '@/components/hover-link';
+import { HoverLink, LINK_CLASS } from '@/components/hover-link';
 import { useTranslations } from 'next-intl';
 import { ArrowUpRight } from 'lucide-react';
 
@@ -51,7 +51,7 @@ export function RowLink({ className, ...props }: ComponentProps<typeof HoverLink
   return (
     <HoverLink
       {...props}
-      className={cn('font-mono text-xs text-blue-700 underline dark:text-blue-400', className)}
+      className={cn('font-mono text-xs', LINK_CLASS, className)}
       onClick={(e) => e.stopPropagation()}
     />
   );

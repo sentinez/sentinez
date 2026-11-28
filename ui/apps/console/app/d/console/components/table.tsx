@@ -53,6 +53,7 @@ import { VISITORS_RESOLUTION, getUniqueVisitorHistogram } from '@/lib/api/analyt
 import axios from 'axios';
 import { PageLayoutToolbar } from '@/components/page-layout';
 import { FixedTable } from '@/components/fixed-table';
+import { LINK_CLASS } from '@/components/hover-link';
 
 // "STATUS_ACTIVE" -> "active"
 const enumLabel = (v: string, prefix: string) => v.replace(prefix, '').toLowerCase();
@@ -151,7 +152,7 @@ export const getColumns = (t: DomainTranslator): ColumnDef<Payment>[] => [
     cell: ({ row }) => (
       <div className="w-full lowercase truncate">
         <a
-          className=" text-blue-700 font-semibold underline"
+          className={`font-semibold ${LINK_CLASS}`}
           href={`/d/console/${row.original.name}/tenant/resource`}
         >
           {row.getValue('name')}

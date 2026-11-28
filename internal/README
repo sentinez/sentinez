@@ -3,10 +3,11 @@ internal
 
 Private code of the root module (it cannot be imported from outside
 github.com/sentinez/sentinez). The service wiring that uses it is in
-pkg/apps/dmz/{edge,dataplane}; the docs are in docs/03-edge.md and
-docs/05-dataplane-ebpf.md.
+pkg/apps/dmz/{edge,dataplane} and pkg/apps/gateway/apiserver; the docs
+are in docs/03-edge.md, docs/05-dataplane-ebpf.md and docs/06-gateway.md.
 
-dmz/                 demilitarized zone: the edge and the dataplane
+apps/                the edge, the dataplane (demilitarized zone) and the
+                     API server
   edge/engine        HTTP engine constructors, chosen by --engine
                      (Quic, Hertz, Standard)
   edge/http          builds the edge handler from the chain (http.Init)
@@ -19,6 +20,13 @@ dmz/                 demilitarized zone: the edge and the dataplane
   dataplane          attaches the XDP program, then serves gRPC
   dataplane/driver   loads the eBPF objects and drives the maps
                      (context, security, monitor); the map API
+  apiserver/controlplane/v1
+                     registrars of the domain services (Analytic,
+                     Greeter, IAM, Security, Tenant)
+  apiserver/handlers serves the OpenAPI JSON and Swagger UI
+  apiserver/middleware
+                     Logging, CORS, SwaggerDefaultRoot, Injection
+                     (SQLi/XSS), Scope
 
 handlers/            the edge HTTP chain, one plugin per package
   handlers.go        New builds the chain; plugins() lists the plugins in

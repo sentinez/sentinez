@@ -23,8 +23,8 @@ import (
 	"github.com/sentinez/core/szgrpc"
 	"github.com/sentinez/pkg/szlog"
 	settingpb "github.com/sentinez/sentinez/api/proto/sentinez/types/setting/v1"
+	"github.com/sentinez/sentinez/internal/apps/dataplane/driver"
 	"github.com/sentinez/sentinez/internal/defaults"
-	"github.com/sentinez/sentinez/internal/dmz/dataplane/driver"
 	"github.com/sentinez/sentinez/pkg/network"
 )
 

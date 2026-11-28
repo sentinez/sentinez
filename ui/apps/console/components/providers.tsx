@@ -15,7 +15,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         defaultTheme="light"
         disableTransitionOnChange
         enableColorScheme
-        // enableSystem={true}
+        enableSystem
       >
         <TooltipProvider>{children}</TooltipProvider>
         <Toaster
