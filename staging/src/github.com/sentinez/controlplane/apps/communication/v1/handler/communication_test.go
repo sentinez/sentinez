@@ -62,20 +62,20 @@ func portal(t *testing.T) context.Context {
 // tenantsOf matches a list request for tenantIds.
 func tenantsOf(tenantIds ...string) any {
 	return mock.MatchedBy(
-		func(req *communicationpb.ListNotificationRequest) bool {
+		func(req *communicationpb.ListNotificationsRequest) bool {
 			return assert.ObjectsAreEqual(tenantIds, req.GetTenantIds())
 		})
 }
 
 func TestListNotificationsOfCallerTenants(t *testing.T) {
 	h, notifications := handlerOf(t, "tnt_a", "tnt_b")
-	want := &communicationpb.ListNotificationResponse{Total: 2}
+	want := &communicationpb.ListNotificationsResponse{Total: 2}
 	notifications.EXPECT().
 		List(mock.Anything, tenantsOf("tnt_a", "tnt_b")).
 		Return(want, nil)
 
 	got, err := h.ListNotifications(portal(t),
-		&communicationpb.ListNotificationRequest{})
+		&communicationpb.ListNotificationsRequest{})
 
 	require.NoError(t, err)
 	assert.Equal(t, want, got)
@@ -85,10 +85,10 @@ func TestListNotificationsNarrowsRequestedTenants(t *testing.T) {
 	h, notifications := handlerOf(t, "tnt_a")
 	notifications.EXPECT().
 		List(mock.Anything, tenantsOf("tnt_a")).
-		Return(&communicationpb.ListNotificationResponse{}, nil)
+		Return(&communicationpb.ListNotificationsResponse{}, nil)
 
 	_, err := h.ListNotifications(portal(t),
-		&communicationpb.ListNotificationRequest{
+		&communicationpb.ListNotificationsRequest{
 			TenantIds: []string{"tnt_a", "tnt_other"},
 		})
 
@@ -100,7 +100,7 @@ func TestListNotificationsWithoutTenantSeesNothing(t *testing.T) {
 	h, _ := handlerOf(t)
 
 	got, err := h.ListNotifications(portal(t),
-		&communicationpb.ListNotificationRequest{})
+		&communicationpb.ListNotificationsRequest{})
 
 	require.NoError(t, err)
 	assert.Empty(t, got.GetNotifications())
@@ -110,7 +110,7 @@ func TestListNotificationsWithoutCallerFails(t *testing.T) {
 	h, _ := handlerOf(t)
 
 	_, err := h.ListNotifications(t.Context(),
-		&communicationpb.ListNotificationRequest{})
+		&communicationpb.ListNotificationsRequest{})
 
 	assert.Equal(t, codes.Unauthenticated, status.Code(err))
 }

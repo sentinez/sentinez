@@ -39,7 +39,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type ListNotificationRequest struct {
+type ListNotificationsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	Page  *v1.Pages              `protobuf:"bytes,1,opt,name=page,proto3" json:"page,omitempty"`
 	Ids   []string               `protobuf:"bytes,10,rep,name=ids,proto3" json:"ids,omitempty"`
@@ -50,20 +50,20 @@ type ListNotificationRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListNotificationRequest) Reset() {
-	*x = ListNotificationRequest{}
+func (x *ListNotificationsRequest) Reset() {
+	*x = ListNotificationsRequest{}
 	mi := &file_sentinez_apps_communication_v1_communication_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListNotificationRequest) String() string {
+func (x *ListNotificationsRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListNotificationRequest) ProtoMessage() {}
+func (*ListNotificationsRequest) ProtoMessage() {}
 
-func (x *ListNotificationRequest) ProtoReflect() protoreflect.Message {
+func (x *ListNotificationsRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_communication_v1_communication_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -75,33 +75,33 @@ func (x *ListNotificationRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListNotificationRequest.ProtoReflect.Descriptor instead.
-func (*ListNotificationRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListNotificationsRequest.ProtoReflect.Descriptor instead.
+func (*ListNotificationsRequest) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_communication_v1_communication_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ListNotificationRequest) GetPage() *v1.Pages {
+func (x *ListNotificationsRequest) GetPage() *v1.Pages {
 	if x != nil {
 		return x.Page
 	}
 	return nil
 }
 
-func (x *ListNotificationRequest) GetIds() []string {
+func (x *ListNotificationsRequest) GetIds() []string {
 	if x != nil {
 		return x.Ids
 	}
 	return nil
 }
 
-func (x *ListNotificationRequest) GetTenantIds() []string {
+func (x *ListNotificationsRequest) GetTenantIds() []string {
 	if x != nil {
 		return x.TenantIds
 	}
 	return nil
 }
 
-type ListNotificationResponse struct {
+type ListNotificationsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Notifications []*Notification        `protobuf:"bytes,1,rep,name=notifications,proto3" json:"notifications,omitempty"`
 	Total         int64                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
@@ -109,20 +109,20 @@ type ListNotificationResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListNotificationResponse) Reset() {
-	*x = ListNotificationResponse{}
+func (x *ListNotificationsResponse) Reset() {
+	*x = ListNotificationsResponse{}
 	mi := &file_sentinez_apps_communication_v1_communication_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListNotificationResponse) String() string {
+func (x *ListNotificationsResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListNotificationResponse) ProtoMessage() {}
+func (*ListNotificationsResponse) ProtoMessage() {}
 
-func (x *ListNotificationResponse) ProtoReflect() protoreflect.Message {
+func (x *ListNotificationsResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_sentinez_apps_communication_v1_communication_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -134,19 +134,19 @@ func (x *ListNotificationResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListNotificationResponse.ProtoReflect.Descriptor instead.
-func (*ListNotificationResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ListNotificationsResponse.ProtoReflect.Descriptor instead.
+func (*ListNotificationsResponse) Descriptor() ([]byte, []int) {
 	return file_sentinez_apps_communication_v1_communication_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ListNotificationResponse) GetNotifications() []*Notification {
+func (x *ListNotificationsResponse) GetNotifications() []*Notification {
 	if x != nil {
 		return x.Notifications
 	}
 	return nil
 }
 
-func (x *ListNotificationResponse) GetTotal() int64 {
+func (x *ListNotificationsResponse) GetTotal() int64 {
 	if x != nil {
 		return x.Total
 	}
@@ -423,14 +423,14 @@ var File_sentinez_apps_communication_v1_communication_proto protoreflect.FileDes
 
 const file_sentinez_apps_communication_v1_communication_proto_rawDesc = "" +
 	"\n" +
-	"2sentinez/apps/communication/v1/communication.proto\x12\x1esentinez.apps.communication.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a*sentinez/apps/communication/v1/model.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"\x82\x01\n" +
-	"\x17ListNotificationRequest\x12,\n" +
+	"2sentinez/apps/communication/v1/communication.proto\x12\x1esentinez.apps.communication.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a*sentinez/apps/communication/v1/model.proto\x1a\x1dsentinez/types/v1/model.proto\x1a\x1fsentinez/types/v1/options.proto\"\x83\x01\n" +
+	"\x18ListNotificationsRequest\x12,\n" +
 	"\x04page\x18\x01 \x01(\v2\x18.sentinez.types.v1.PagesR\x04page\x12\x10\n" +
 	"\x03ids\x18\n" +
 	" \x03(\tR\x03ids\x12'\n" +
 	"\n" +
-	"tenant_ids\x18\v \x03(\tB\b\xca\xf0\x19\x04*\x02\b\x01R\ttenantIds\"\x84\x01\n" +
-	"\x18ListNotificationResponse\x12R\n" +
+	"tenant_ids\x18\v \x03(\tB\b\xca\xf0\x19\x04*\x02\b\x01R\ttenantIds\"\x85\x01\n" +
+	"\x19ListNotificationsResponse\x12R\n" +
 	"\rnotifications\x18\x01 \x03(\v2,.sentinez.apps.communication.v1.NotificationR\rnotifications\x12\x14\n" +
 	"\x05total\x18\x02 \x01(\x03R\x05total\"J\n" +
 	"\x1fServerStreamNotificationRequest\x12'\n" +
@@ -445,12 +445,12 @@ const file_sentinez_apps_communication_v1_communication_proto_rawDesc = "" +
 	"\amessage\x18\x01 \x01(\tR\amessage\"*\n" +
 	"\x0eStatusResponse\x12\x18\n" +
 	"\amessage\x18\x01 \x01(\tR\amessage\"\x0f\n" +
-	"\rStatusRequest2\x9a\x05\n" +
+	"\rStatusRequest2\x9c\x05\n" +
 	"\x14CommunicationService\x12\x8f\x01\n" +
 	"\bSayHello\x12/.sentinez.apps.communication.v1.SayHelloRequest\x1a0.sentinez.apps.communication.v1.SayHelloResponse\" \x8a\xb5\x18\x02\x18\x01\x82\xd3\xe4\x93\x02\x14\x12\x12/communication/say\x12\x8c\x01\n" +
 	"\x06Status\x12-.sentinez.apps.communication.v1.StatusRequest\x1a..sentinez.apps.communication.v1.StatusResponse\"#\x8a\xb5\x18\x02\x18\x01\x82\xd3\xe4\x93\x02\x17\x12\x15/communication/status\x12\xa9\x01\n" +
-	"\x18ServerStreamNotification\x12?.sentinez.apps.communication.v1.ServerStreamNotificationRequest\x1a@.sentinez.apps.communication.v1.ServerStreamNotificationResponse\"\b\x8a\xb5\x18\x04\x12\x02\x01\x020\x01\x12\xb4\x01\n" +
-	"\x11ListNotifications\x127.sentinez.apps.communication.v1.ListNotificationRequest\x1a8.sentinez.apps.communication.v1.ListNotificationResponse\",\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x1e\x12\x1c/communication/notificationsB\x86\x02\x92Ak\x12\x1c\n" +
+	"\x18ServerStreamNotification\x12?.sentinez.apps.communication.v1.ServerStreamNotificationRequest\x1a@.sentinez.apps.communication.v1.ServerStreamNotificationResponse\"\b\x8a\xb5\x18\x04\x12\x02\x01\x020\x01\x12\xb6\x01\n" +
+	"\x11ListNotifications\x128.sentinez.apps.communication.v1.ListNotificationsRequest\x1a9.sentinez.apps.communication.v1.ListNotificationsResponse\",\x8a\xb5\x18\x04\x12\x02\x01\x02\x82\xd3\xe4\x93\x02\x1e\x12\x1c/communication/notificationsB\x86\x02\x92Ak\x12\x1c\n" +
 	"\x15Communication Service2\x031.0*\x02\x01\x022\x10application/jsonZ#\n" +
 	"!\n" +
 	"\n" +
@@ -474,8 +474,8 @@ func file_sentinez_apps_communication_v1_communication_proto_rawDescGZIP() []byt
 
 var file_sentinez_apps_communication_v1_communication_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_sentinez_apps_communication_v1_communication_proto_goTypes = []any{
-	(*ListNotificationRequest)(nil),          // 0: sentinez.apps.communication.v1.ListNotificationRequest
-	(*ListNotificationResponse)(nil),         // 1: sentinez.apps.communication.v1.ListNotificationResponse
+	(*ListNotificationsRequest)(nil),         // 0: sentinez.apps.communication.v1.ListNotificationsRequest
+	(*ListNotificationsResponse)(nil),        // 1: sentinez.apps.communication.v1.ListNotificationsResponse
 	(*ServerStreamNotificationRequest)(nil),  // 2: sentinez.apps.communication.v1.ServerStreamNotificationRequest
 	(*ServerStreamNotificationResponse)(nil), // 3: sentinez.apps.communication.v1.ServerStreamNotificationResponse
 	(*SayHelloRequest)(nil),                  // 4: sentinez.apps.communication.v1.SayHelloRequest
@@ -486,18 +486,18 @@ var file_sentinez_apps_communication_v1_communication_proto_goTypes = []any{
 	(*Notification)(nil),                     // 9: sentinez.apps.communication.v1.Notification
 }
 var file_sentinez_apps_communication_v1_communication_proto_depIdxs = []int32{
-	8, // 0: sentinez.apps.communication.v1.ListNotificationRequest.page:type_name -> sentinez.types.v1.Pages
-	9, // 1: sentinez.apps.communication.v1.ListNotificationResponse.notifications:type_name -> sentinez.apps.communication.v1.Notification
+	8, // 0: sentinez.apps.communication.v1.ListNotificationsRequest.page:type_name -> sentinez.types.v1.Pages
+	9, // 1: sentinez.apps.communication.v1.ListNotificationsResponse.notifications:type_name -> sentinez.apps.communication.v1.Notification
 	9, // 2: sentinez.apps.communication.v1.ServerStreamNotificationResponse.notification:type_name -> sentinez.apps.communication.v1.Notification
 	8, // 3: sentinez.apps.communication.v1.SayHelloRequest.page:type_name -> sentinez.types.v1.Pages
 	4, // 4: sentinez.apps.communication.v1.CommunicationService.SayHello:input_type -> sentinez.apps.communication.v1.SayHelloRequest
 	7, // 5: sentinez.apps.communication.v1.CommunicationService.Status:input_type -> sentinez.apps.communication.v1.StatusRequest
 	2, // 6: sentinez.apps.communication.v1.CommunicationService.ServerStreamNotification:input_type -> sentinez.apps.communication.v1.ServerStreamNotificationRequest
-	0, // 7: sentinez.apps.communication.v1.CommunicationService.ListNotifications:input_type -> sentinez.apps.communication.v1.ListNotificationRequest
+	0, // 7: sentinez.apps.communication.v1.CommunicationService.ListNotifications:input_type -> sentinez.apps.communication.v1.ListNotificationsRequest
 	5, // 8: sentinez.apps.communication.v1.CommunicationService.SayHello:output_type -> sentinez.apps.communication.v1.SayHelloResponse
 	6, // 9: sentinez.apps.communication.v1.CommunicationService.Status:output_type -> sentinez.apps.communication.v1.StatusResponse
 	3, // 10: sentinez.apps.communication.v1.CommunicationService.ServerStreamNotification:output_type -> sentinez.apps.communication.v1.ServerStreamNotificationResponse
-	1, // 11: sentinez.apps.communication.v1.CommunicationService.ListNotifications:output_type -> sentinez.apps.communication.v1.ListNotificationResponse
+	1, // 11: sentinez.apps.communication.v1.CommunicationService.ListNotifications:output_type -> sentinez.apps.communication.v1.ListNotificationsResponse
 	8, // [8:12] is the sub-list for method output_type
 	4, // [4:8] is the sub-list for method input_type
 	4, // [4:4] is the sub-list for extension type_name

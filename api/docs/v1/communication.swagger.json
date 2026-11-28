@@ -28,7 +28,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1ListNotificationResponse"
+              "$ref": "#/definitions/v1ListNotificationsResponse"
             }
           },
           "default": {
@@ -223,7 +223,7 @@
       },
       "description": "Notification is a message pushed to the console."
     },
-    "v1ListNotificationResponse": {
+    "v1ListNotificationsResponse": {
       "type": "object",
       "properties": {
         "notifications": {

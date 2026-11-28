@@ -11,7 +11,7 @@ import { Notification } from "./model";
 
 export const protobufPackage = "sentinez.apps.communication.v1";
 
-export interface ListNotificationRequest {
+export interface ListNotificationsRequest {
   page?: Pages | undefined;
   ids: string[];
   /**
@@ -21,7 +21,7 @@ export interface ListNotificationRequest {
   tenantIds: string[];
 }
 
-export interface ListNotificationResponse {
+export interface ListNotificationsResponse {
   notifications: Notification[];
   total: number;
 }
@@ -54,12 +54,12 @@ export interface StatusResponse {
 export interface StatusRequest {
 }
 
-function createBaseListNotificationRequest(): ListNotificationRequest {
+function createBaseListNotificationsRequest(): ListNotificationsRequest {
   return { page: undefined, ids: [], tenantIds: [] };
 }
 
-export const ListNotificationRequest: MessageFns<ListNotificationRequest> = {
-  encode(message: ListNotificationRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const ListNotificationsRequest: MessageFns<ListNotificationsRequest> = {
+  encode(message: ListNotificationsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.page !== undefined) {
       Pages.encode(message.page, writer.uint32(10).fork()).join();
     }
@@ -72,7 +72,7 @@ export const ListNotificationRequest: MessageFns<ListNotificationRequest> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ListNotificationRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): ListNotificationsRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -81,7 +81,7 @@ export const ListNotificationRequest: MessageFns<ListNotificationRequest> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseListNotificationRequest();
+      const message = createBaseListNotificationsRequest();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -121,7 +121,7 @@ export const ListNotificationRequest: MessageFns<ListNotificationRequest> = {
     }
   },
 
-  fromJSON(object: any): ListNotificationRequest {
+  fromJSON(object: any): ListNotificationsRequest {
     return {
       page: isSet(object.page) ? Pages.fromJSON(object.page) : undefined,
       ids: globalThis.Array.isArray(object?.ids) ? object.ids.map((e: any) => globalThis.String(e)) : [],
@@ -133,7 +133,7 @@ export const ListNotificationRequest: MessageFns<ListNotificationRequest> = {
     };
   },
 
-  toJSON(message: ListNotificationRequest): unknown {
+  toJSON(message: ListNotificationsRequest): unknown {
     const obj: any = {};
     if (message.page !== undefined) {
       obj.page = Pages.toJSON(message.page);
@@ -147,11 +147,11 @@ export const ListNotificationRequest: MessageFns<ListNotificationRequest> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ListNotificationRequest>, I>>(base?: I): ListNotificationRequest {
-    return ListNotificationRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<ListNotificationsRequest>, I>>(base?: I): ListNotificationsRequest {
+    return ListNotificationsRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ListNotificationRequest>, I>>(object: I): ListNotificationRequest {
-    const message = createBaseListNotificationRequest();
+  fromPartial<I extends Exact<DeepPartial<ListNotificationsRequest>, I>>(object: I): ListNotificationsRequest {
+    const message = createBaseListNotificationsRequest();
     message.page = (object.page !== undefined && object.page !== null) ? Pages.fromPartial(object.page) : undefined;
     message.ids = object.ids?.map((e) => e) || [];
     message.tenantIds = object.tenantIds?.map((e) => e) || [];
@@ -159,12 +159,12 @@ export const ListNotificationRequest: MessageFns<ListNotificationRequest> = {
   },
 };
 
-function createBaseListNotificationResponse(): ListNotificationResponse {
+function createBaseListNotificationsResponse(): ListNotificationsResponse {
   return { notifications: [], total: 0 };
 }
 
-export const ListNotificationResponse: MessageFns<ListNotificationResponse> = {
-  encode(message: ListNotificationResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const ListNotificationsResponse: MessageFns<ListNotificationsResponse> = {
+  encode(message: ListNotificationsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     for (const v of message.notifications) {
       Notification.encode(v!, writer.uint32(10).fork()).join();
     }
@@ -174,7 +174,7 @@ export const ListNotificationResponse: MessageFns<ListNotificationResponse> = {
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): ListNotificationResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): ListNotificationsResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
     if (previousRecursionDepth >= 100) {
@@ -183,7 +183,7 @@ export const ListNotificationResponse: MessageFns<ListNotificationResponse> = {
     (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
-      const message = createBaseListNotificationResponse();
+      const message = createBaseListNotificationsResponse();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -215,7 +215,7 @@ export const ListNotificationResponse: MessageFns<ListNotificationResponse> = {
     }
   },
 
-  fromJSON(object: any): ListNotificationResponse {
+  fromJSON(object: any): ListNotificationsResponse {
     return {
       notifications: globalThis.Array.isArray(object?.notifications)
         ? object.notifications.map((e: any) => Notification.fromJSON(e))
@@ -224,7 +224,7 @@ export const ListNotificationResponse: MessageFns<ListNotificationResponse> = {
     };
   },
 
-  toJSON(message: ListNotificationResponse): unknown {
+  toJSON(message: ListNotificationsResponse): unknown {
     const obj: any = {};
     if (message.notifications?.length) {
       obj.notifications = message.notifications.map((e) => Notification.toJSON(e));
@@ -235,11 +235,11 @@ export const ListNotificationResponse: MessageFns<ListNotificationResponse> = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<ListNotificationResponse>, I>>(base?: I): ListNotificationResponse {
-    return ListNotificationResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<ListNotificationsResponse>, I>>(base?: I): ListNotificationsResponse {
+    return ListNotificationsResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<ListNotificationResponse>, I>>(object: I): ListNotificationResponse {
-    const message = createBaseListNotificationResponse();
+  fromPartial<I extends Exact<DeepPartial<ListNotificationsResponse>, I>>(object: I): ListNotificationsResponse {
+    const message = createBaseListNotificationsResponse();
     message.notifications = object.notifications?.map((e) => Notification.fromPartial(e)) || [];
     message.total = object.total ?? 0;
     return message;

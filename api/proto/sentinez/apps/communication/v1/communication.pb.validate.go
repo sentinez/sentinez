@@ -33,17 +33,17 @@ var (
 	_ = anypb.Any{}
 )
 
-// Validate checks the field values on ListNotificationRequest with the rules
+// Validate checks the field values on ListNotificationsRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *ListNotificationRequest) Validate() error {
+func (m *ListNotificationsRequest) Validate() error {
 	if m == nil {
 		return nil
 	}
 
 	if v, ok := interface{}(m.GetPage()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ListNotificationRequestValidationError{
+			return ListNotificationsRequestValidationError{
 				field:  "Page",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -54,9 +54,9 @@ func (m *ListNotificationRequest) Validate() error {
 	return nil
 }
 
-// ListNotificationRequestValidationError is the validation error returned by
-// ListNotificationRequest.Validate if the designated constraints aren't met.
-type ListNotificationRequestValidationError struct {
+// ListNotificationsRequestValidationError is the validation error returned by
+// ListNotificationsRequest.Validate if the designated constraints aren't met.
+type ListNotificationsRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -64,24 +64,24 @@ type ListNotificationRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e ListNotificationRequestValidationError) Field() string { return e.field }
+func (e ListNotificationsRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ListNotificationRequestValidationError) Reason() string { return e.reason }
+func (e ListNotificationsRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ListNotificationRequestValidationError) Cause() error { return e.cause }
+func (e ListNotificationsRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ListNotificationRequestValidationError) Key() bool { return e.key }
+func (e ListNotificationsRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ListNotificationRequestValidationError) ErrorName() string {
-	return "ListNotificationRequestValidationError"
+func (e ListNotificationsRequestValidationError) ErrorName() string {
+	return "ListNotificationsRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ListNotificationRequestValidationError) Error() string {
+func (e ListNotificationsRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -93,14 +93,14 @@ func (e ListNotificationRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sListNotificationRequest.%s: %s%s",
+		"invalid %sListNotificationsRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ListNotificationRequestValidationError{}
+var _ error = ListNotificationsRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -108,12 +108,12 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ListNotificationRequestValidationError{}
+} = ListNotificationsRequestValidationError{}
 
-// Validate checks the field values on ListNotificationResponse with the rules
+// Validate checks the field values on ListNotificationsResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
-func (m *ListNotificationResponse) Validate() error {
+func (m *ListNotificationsResponse) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -123,7 +123,7 @@ func (m *ListNotificationResponse) Validate() error {
 
 		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return ListNotificationResponseValidationError{
+				return ListNotificationsResponseValidationError{
 					field:  fmt.Sprintf("Notifications[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -138,9 +138,9 @@ func (m *ListNotificationResponse) Validate() error {
 	return nil
 }
 
-// ListNotificationResponseValidationError is the validation error returned by
-// ListNotificationResponse.Validate if the designated constraints aren't met.
-type ListNotificationResponseValidationError struct {
+// ListNotificationsResponseValidationError is the validation error returned by
+// ListNotificationsResponse.Validate if the designated constraints aren't met.
+type ListNotificationsResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -148,24 +148,24 @@ type ListNotificationResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e ListNotificationResponseValidationError) Field() string { return e.field }
+func (e ListNotificationsResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ListNotificationResponseValidationError) Reason() string { return e.reason }
+func (e ListNotificationsResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ListNotificationResponseValidationError) Cause() error { return e.cause }
+func (e ListNotificationsResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ListNotificationResponseValidationError) Key() bool { return e.key }
+func (e ListNotificationsResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ListNotificationResponseValidationError) ErrorName() string {
-	return "ListNotificationResponseValidationError"
+func (e ListNotificationsResponseValidationError) ErrorName() string {
+	return "ListNotificationsResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ListNotificationResponseValidationError) Error() string {
+func (e ListNotificationsResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -177,14 +177,14 @@ func (e ListNotificationResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sListNotificationResponse.%s: %s%s",
+		"invalid %sListNotificationsResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ListNotificationResponseValidationError{}
+var _ error = ListNotificationsResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -192,7 +192,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ListNotificationResponseValidationError{}
+} = ListNotificationsResponseValidationError{}
 
 // Validate checks the field values on ServerStreamNotificationRequest with the
 // rules defined in the proto definition for this message. If any rules are

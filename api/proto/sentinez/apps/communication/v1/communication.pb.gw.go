@@ -90,7 +90,7 @@ var (
 )
 
 func request_CommunicationService_ListNotifications_0(ctx context.Context, marshaler runtime.Marshaler, client CommunicationServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListNotificationRequest
+	var protoReq ListNotificationsRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
@@ -106,7 +106,7 @@ func request_CommunicationService_ListNotifications_0(ctx context.Context, marsh
 }
 
 func local_request_CommunicationService_ListNotifications_0(ctx context.Context, marshaler runtime.Marshaler, server CommunicationServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListNotificationRequest
+	var protoReq ListNotificationsRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {

@@ -44,7 +44,7 @@ type INotification interface {
 
 	WithTX(tx *postgres.TxSession) INotification
 
-	List(ctx context.Context, req *communicationpb.ListNotificationRequest) (*communicationpb.ListNotificationResponse, error)
+	List(ctx context.Context, req *communicationpb.ListNotificationsRequest) (*communicationpb.ListNotificationsResponse, error)
 }
 
 // Notifications is the INotification of the
@@ -72,7 +72,7 @@ func (n *Notifications) WithTX(tx *postgres.TxSession) INotification {
 
 // listCondition is the WHERE condition of the filters of the request, all
 // of them must match.
-func listCondition(req *communicationpb.ListNotificationRequest) sq.And {
+func listCondition(req *communicationpb.ListNotificationsRequest) sq.And {
 	var conds sq.And
 
 	// a slice becomes id IN (...)
@@ -90,8 +90,8 @@ func listCondition(req *communicationpb.ListNotificationRequest) sq.And {
 
 // List implements INotification: the newest first, paged or not.
 func (n *Notifications) List(ctx context.Context,
-	req *communicationpb.ListNotificationRequest,
-) (*communicationpb.ListNotificationResponse, error) {
+	req *communicationpb.ListNotificationsRequest,
+) (*communicationpb.ListNotificationsResponse, error) {
 	cond := listCondition(req)
 
 	builder := postgres.LimitOffset(n.selectQuery(), req.GetPage()).
@@ -111,7 +111,7 @@ func (n *Notifications) List(ctx context.Context,
 		}
 	}
 
-	return &communicationpb.ListNotificationResponse{
+	return &communicationpb.ListNotificationsResponse{
 		Notifications: notifications,
 		Total:         total,
 	}, nil

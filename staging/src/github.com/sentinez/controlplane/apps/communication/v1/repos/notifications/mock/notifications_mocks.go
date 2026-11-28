@@ -243,26 +243,26 @@ func (_c *MockINotification_Get_Call) RunAndReturn(run func(ctx context.Context,
 }
 
 // List provides a mock function for the type MockINotification
-func (_mock *MockINotification) List(ctx context.Context, req *communicationpb.ListNotificationRequest) (*communicationpb.ListNotificationResponse, error) {
+func (_mock *MockINotification) List(ctx context.Context, req *communicationpb.ListNotificationsRequest) (*communicationpb.ListNotificationsResponse, error) {
 	ret := _mock.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
 	}
 
-	var r0 *communicationpb.ListNotificationResponse
+	var r0 *communicationpb.ListNotificationsResponse
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *communicationpb.ListNotificationRequest) (*communicationpb.ListNotificationResponse, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *communicationpb.ListNotificationsRequest) (*communicationpb.ListNotificationsResponse, error)); ok {
 		return returnFunc(ctx, req)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *communicationpb.ListNotificationRequest) *communicationpb.ListNotificationResponse); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *communicationpb.ListNotificationsRequest) *communicationpb.ListNotificationsResponse); ok {
 		r0 = returnFunc(ctx, req)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*communicationpb.ListNotificationResponse)
+			r0 = ret.Get(0).(*communicationpb.ListNotificationsResponse)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, *communicationpb.ListNotificationRequest) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *communicationpb.ListNotificationsRequest) error); ok {
 		r1 = returnFunc(ctx, req)
 	} else {
 		r1 = ret.Error(1)
@@ -277,20 +277,20 @@ type MockINotification_List_Call struct {
 
 // List is a helper method to define mock.On call
 //   - ctx context.Context
-//   - req *communicationpb.ListNotificationRequest
+//   - req *communicationpb.ListNotificationsRequest
 func (_e *MockINotification_Expecter) List(ctx any, req any) *MockINotification_List_Call {
 	return &MockINotification_List_Call{Call: _e.mock.On("List", ctx, req)}
 }
 
-func (_c *MockINotification_List_Call) Run(run func(ctx context.Context, req *communicationpb.ListNotificationRequest)) *MockINotification_List_Call {
+func (_c *MockINotification_List_Call) Run(run func(ctx context.Context, req *communicationpb.ListNotificationsRequest)) *MockINotification_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 *communicationpb.ListNotificationRequest
+		var arg1 *communicationpb.ListNotificationsRequest
 		if args[1] != nil {
-			arg1 = args[1].(*communicationpb.ListNotificationRequest)
+			arg1 = args[1].(*communicationpb.ListNotificationsRequest)
 		}
 		run(
 			arg0,
@@ -300,12 +300,12 @@ func (_c *MockINotification_List_Call) Run(run func(ctx context.Context, req *co
 	return _c
 }
 
-func (_c *MockINotification_List_Call) Return(listNotificationResponse *communicationpb.ListNotificationResponse, err error) *MockINotification_List_Call {
-	_c.Call.Return(listNotificationResponse, err)
+func (_c *MockINotification_List_Call) Return(listNotificationsResponse *communicationpb.ListNotificationsResponse, err error) *MockINotification_List_Call {
+	_c.Call.Return(listNotificationsResponse, err)
 	return _c
 }
 
-func (_c *MockINotification_List_Call) RunAndReturn(run func(ctx context.Context, req *communicationpb.ListNotificationRequest) (*communicationpb.ListNotificationResponse, error)) *MockINotification_List_Call {
+func (_c *MockINotification_List_Call) RunAndReturn(run func(ctx context.Context, req *communicationpb.ListNotificationsRequest) (*communicationpb.ListNotificationsResponse, error)) *MockINotification_List_Call {
 	_c.Call.Return(run)
 	return _c
 }

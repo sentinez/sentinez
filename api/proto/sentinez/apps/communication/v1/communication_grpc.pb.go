@@ -54,7 +54,7 @@ type CommunicationServiceClient interface {
 	ServerStreamNotification(ctx context.Context, in *ServerStreamNotificationRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ServerStreamNotificationResponse], error)
 	// ListNotifications lists the stored notifications of the tenants of the
 	// caller, the newest first.
-	ListNotifications(ctx context.Context, in *ListNotificationRequest, opts ...grpc.CallOption) (*ListNotificationResponse, error)
+	ListNotifications(ctx context.Context, in *ListNotificationsRequest, opts ...grpc.CallOption) (*ListNotificationsResponse, error)
 }
 
 type communicationServiceClient struct {
@@ -104,9 +104,9 @@ func (c *communicationServiceClient) ServerStreamNotification(ctx context.Contex
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type CommunicationService_ServerStreamNotificationClient = grpc.ServerStreamingClient[ServerStreamNotificationResponse]
 
-func (c *communicationServiceClient) ListNotifications(ctx context.Context, in *ListNotificationRequest, opts ...grpc.CallOption) (*ListNotificationResponse, error) {
+func (c *communicationServiceClient) ListNotifications(ctx context.Context, in *ListNotificationsRequest, opts ...grpc.CallOption) (*ListNotificationsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListNotificationResponse)
+	out := new(ListNotificationsResponse)
 	err := c.cc.Invoke(ctx, CommunicationService_ListNotifications_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -129,7 +129,7 @@ type CommunicationServiceServer interface {
 	ServerStreamNotification(*ServerStreamNotificationRequest, grpc.ServerStreamingServer[ServerStreamNotificationResponse]) error
 	// ListNotifications lists the stored notifications of the tenants of the
 	// caller, the newest first.
-	ListNotifications(context.Context, *ListNotificationRequest) (*ListNotificationResponse, error)
+	ListNotifications(context.Context, *ListNotificationsRequest) (*ListNotificationsResponse, error)
 }
 
 // UnimplementedCommunicationServiceServer should be embedded to have
@@ -148,7 +148,7 @@ func (UnimplementedCommunicationServiceServer) Status(context.Context, *StatusRe
 func (UnimplementedCommunicationServiceServer) ServerStreamNotification(*ServerStreamNotificationRequest, grpc.ServerStreamingServer[ServerStreamNotificationResponse]) error {
 	return status.Error(codes.Unimplemented, "method ServerStreamNotification not implemented")
 }
-func (UnimplementedCommunicationServiceServer) ListNotifications(context.Context, *ListNotificationRequest) (*ListNotificationResponse, error) {
+func (UnimplementedCommunicationServiceServer) ListNotifications(context.Context, *ListNotificationsRequest) (*ListNotificationsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListNotifications not implemented")
 }
 func (UnimplementedCommunicationServiceServer) testEmbeddedByValue() {}
@@ -219,7 +219,7 @@ func _CommunicationService_ServerStreamNotification_Handler(srv interface{}, str
 type CommunicationService_ServerStreamNotificationServer = grpc.ServerStreamingServer[ServerStreamNotificationResponse]
 
 func _CommunicationService_ListNotifications_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListNotificationRequest)
+	in := new(ListNotificationsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -231,7 +231,7 @@ func _CommunicationService_ListNotifications_Handler(srv interface{}, ctx contex
 		FullMethod: CommunicationService_ListNotifications_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CommunicationServiceServer).ListNotifications(ctx, req.(*ListNotificationRequest))
+		return srv.(CommunicationServiceServer).ListNotifications(ctx, req.(*ListNotificationsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

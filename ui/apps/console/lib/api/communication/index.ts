@@ -1,7 +1,7 @@
 import { Notification } from '@sentinez/proto/sentinez/apps/communication/v1/model';
 import {
-  ListNotificationRequest,
-  ListNotificationResponse,
+  ListNotificationsRequest,
+  ListNotificationsResponse,
 } from '@sentinez/proto/sentinez/apps/communication/v1/communication';
 import axios from 'axios';
 
@@ -19,20 +19,20 @@ export interface ApiOptions {
 
 // GET /communication/notifications
 export async function listNotifications(
-  req: Partial<ListNotificationRequest> = {},
+  req: Partial<ListNotificationsRequest> = {},
   options?: ApiOptions,
-): Promise<ListNotificationResponse> {
+): Promise<ListNotificationsResponse> {
   return withFallback('listNotifications', () => {
     const list = byTenants(byIds(notificationStore.all(), req.ids), req.tenantIds);
     return { notifications: paginate(list, req.page), total: list.length };
   })(async () => {
     const resp = await axios.get(`${API_BASE_PATH}/communication/notifications`, {
-      params: toQuery(ListNotificationRequest.toJSON(ListNotificationRequest.fromPartial(req))),
+      params: toQuery(ListNotificationsRequest.toJSON(ListNotificationsRequest.fromPartial(req))),
       // repeat the `ids` / `tenantIds` keys (collectionFormat: multi)
       paramsSerializer: { indexes: null },
       signal: options?.signal,
     });
-    return ListNotificationResponse.fromJSON(resp.data ?? {});
+    return ListNotificationsResponse.fromJSON(resp.data ?? {});
   });
 }
 

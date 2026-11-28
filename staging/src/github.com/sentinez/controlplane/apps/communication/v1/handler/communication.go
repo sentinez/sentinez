@@ -136,11 +136,11 @@ func (c *Communication) ServerStreamNotification(
 // of those of tenant_ids among them when set; the admin control plane
 // lists those of any tenant.
 func (c *Communication) ListNotifications(ctx context.Context,
-	req *communicationpb.ListNotificationRequest,
-) (*communicationpb.ListNotificationResponse, error) {
+	req *communicationpb.ListNotificationsRequest,
+) (*communicationpb.ListNotificationsResponse, error) {
 	req, ok, err := authz.ScopedTenants(ctx, c.authz, req)
 	if err != nil || !ok {
-		return &communicationpb.ListNotificationResponse{}, err
+		return &communicationpb.ListNotificationsResponse{}, err
 	}
 
 	return c.notifications.List(ctx, req)
